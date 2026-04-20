@@ -9,6 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="emp_data.js"></script>
+  <script src="state/evaluation_pipeline.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *{font-family:'Prompt',sans-serif}
@@ -766,11 +767,11 @@
     </div>
   </div>
   <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
-    <div class="card text-center"><div class="text-sm text-slate-400">สมาชิกเข้าประเมิน</div><div class="kpi-num text-emerald-600">412</div></div>
-    <div class="card text-center"><div class="text-sm text-slate-400">ผ่านจาก Matching แล้ว</div><div class="kpi-num text-blue-600">100%</div></div>
-    <div class="card text-center"><div class="text-sm text-slate-400">ประเภทการประเมิน</div><div class="kpi-num text-violet-600">6</div></div>
-    <div class="card text-center"><div class="text-sm text-slate-400">ต้องพัฒนา</div><div class="kpi-num text-amber-600">57</div></div>
-    <div class="card text-center"><div class="text-sm text-slate-400">พร้อมยืนยันบทบาท</div><div class="kpi-num text-pp7-600">29</div></div>
+    <div class="card text-center"><div class="text-sm text-slate-400">สมาชิกเข้าประเมิน</div><div id="evaluation-kpi-queue" class="kpi-num text-emerald-600">0</div></div>
+    <div class="card text-center"><div class="text-sm text-slate-400">ผ่านจาก Matching แล้ว</div><div id="evaluation-kpi-match" class="kpi-num text-blue-600">0%</div></div>
+    <div class="card text-center"><div class="text-sm text-slate-400">ประเภทการประเมิน</div><div id="evaluation-kpi-types" class="kpi-num text-violet-600">0</div></div>
+    <div class="card text-center"><div class="text-sm text-slate-400">ต้องพัฒนา</div><div id="evaluation-kpi-development" class="kpi-num text-amber-600">0</div></div>
+    <div class="card text-center"><div class="text-sm text-slate-400">พร้อมยืนยันบทบาท</div><div id="evaluation-kpi-ready" class="kpi-num text-pp7-600">0</div></div>
   </div>
   <div class="grid lg:grid-cols-2 gap-6">
     <div class="card">
@@ -786,14 +787,7 @@
       <h3 class="font-semibold text-pp7-800 mb-3">ประเภทการประเมินที่พบจากไฟล์จริง</h3>
       <table data-sortable="true">
         <thead><tr><th>ประเภท</th><th>ความหมายเชิงระบบ</th><th>จุดเชื่อมต่อ</th></tr></thead>
-        <tbody>
-          <tr><td>ทดลองงาน</td><td>ประเมินความพร้อมในการผ่านทดลองงาน</td><td>เชื่อมกับ Matching และยืนยันบทบาท</td></tr>
-          <tr><td>สัญญาจ้างเข้าทดลองงาน</td><td>ประเมินช่วงเริ่มต้นตามเงื่อนไขสัญญา</td><td>เชื่อมกับสถานะการจ้าง</td></tr>
-          <tr><td>โอนย้าย</td><td>ประเมินหลังเปลี่ยนงาน/สาขา/บทบาท</td><td>เชื่อมกับ job reassignment</td></tr>
-          <tr><td>เลื่อนตำแหน่ง</td><td>ประเมินความพร้อมต่อบทบาทที่สูงขึ้น</td><td>เชื่อมกับ promotion decision</td></tr>
-          <tr><td>ประเมินประจำรอบ</td><td>ประเมินมาตรฐานตามรอบองค์กร</td><td>เชื่อม KPI / development</td></tr>
-          <tr><td>สัญญาจ้าง 1 เดือน / 36</td><td>ประเมินตามเงื่อนไขพิเศษของช่วงสัญญา</td><td>เชื่อม contract management</td></tr>
-        </tbody>
+        <tbody id="evaluation-type-tbody"></tbody>
       </table>
     </div>
   </div>
@@ -806,13 +800,7 @@
     <div class="overflow-x-auto">
       <table id="perf-table" data-sortable="true">
         <thead><tr><th>ID</th><th>ชื่อ-สกุล</th><th>BU</th><th>ประเภทประเมิน</th><th>รอบ</th><th>ผู้ประเมิน</th><th>สถานะ</th><th>ผลลัพธ์</th></tr></thead>
-        <tbody>
-          <tr><td>EV-2023-2083</td><td>โกศล วอน</td><td>RAFCO-SIR</td><td>โอนย้ายสาขา JOB ใหม่</td><td>2023</td><td>ผู้รับใช้ทีม / หัวหน้างาน</td><td><span class="badge badge-blue">กำลังประเมิน</span></td><td>รอผลยืนยันบทบาทใหม่</td></tr>
-          <tr><td>EV-2023-2088</td><td>ศุภวิชญ์ นุชวงษ์</td><td>PCS CUS</td><td>สัญญาจ้างเข้าทดลองงาน</td><td>2023</td><td>หัวหน้างาน</td><td><span class="badge badge-amber">ติดตามผล</span></td><td>ใช้ตัดสินผ่านทดลองงาน</td></tr>
-          <tr><td>EV-2023-2089</td><td>อัครเดช วงษ์รัตน์</td><td>CHS</td><td>สัญญาจ้างเข้าทดลองงาน</td><td>2023</td><td>หัวหน้างาน</td><td><span class="badge badge-amber">ติดตามผล</span></td><td>ประเมินความเหมาะสมกับงานจริง</td></tr>
-          <tr><td>EV-PKG-6406045</td><td>วิไลรัตน์ รัตนะมงคลกุล</td><td>AAMG</td><td>เลื่อนตำแหน่ง</td><td>PKG</td><td>ผู้รับใช้ทีม</td><td><span class="badge badge-green">พร้อมสรุป</span></td><td>พร้อมใช้ประกอบการตัดสินใจ</td></tr>
-          <tr><td>EV-PKG-6407049</td><td>ปวีร์ ผ่องโสภา</td><td>21RT</td><td>ประเมินประจำรอบ</td><td>PKG</td><td>ผู้ประเมินชุดประจำรอบ</td><td><span class="badge badge-blue">กำลังประเมิน</span></td><td>เชื่อมต่อ development plan</td></tr>
-        </tbody>
+        <tbody id="evaluation-queue-tbody"></tbody>
       </table>
     </div>
   </div>
@@ -828,6 +816,73 @@
         <tr><td>Employment Type</td><td>employment_type / status_member</td><td>ใช้เลือกแบบประเมินที่ถูกต้อง</td></tr>
       </tbody>
     </table>
+    <div class="mt-4 overflow-x-auto">
+      <table data-sortable="true">
+        <thead><tr><th>Member ID</th><th>ชื่อ</th><th>BU</th><th>ประเภท</th><th>รอบ</th><th>ผู้ประเมินตัวอย่าง</th></tr></thead>
+        <tbody id="evaluation-assignment-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    function getEvaluationStatusBadge(status){
+      if(!status) return '<span class="badge badge-slate">รอข้อมูล</span>';
+      if(status.includes('พร้อม')) return '<span class="badge badge-green">'+status+'</span>';
+      if(status.includes('รอ')) return '<span class="badge badge-amber">'+status+'</span>';
+      if(status.includes('ทดลอง') || status.includes('ประเมิน')) return '<span class="badge badge-blue">'+status+'</span>';
+      return '<span class="badge badge-slate">'+status+'</span>';
+    }
+    function renderEvaluationPipeline(){
+      const data = window.EVALUATION_PIPELINE;
+      if(!data) return;
+      const queue = data.queue || [];
+      const matched = queue.filter(item=>item.matchingStatus==='matched').length;
+      const ready = queue.filter(item=>String(item.status||'').includes('พร้อม')).length;
+      const development = queue.filter(item=>String(item.outcomeTarget||'').includes('พัฒนา')).length;
+      const categories = data.summary?.categories || [];
+      const queueEl = document.getElementById('evaluation-kpi-queue');
+      const matchEl = document.getElementById('evaluation-kpi-match');
+      const typesEl = document.getElementById('evaluation-kpi-types');
+      const devEl = document.getElementById('evaluation-kpi-development');
+      const readyEl = document.getElementById('evaluation-kpi-ready');
+      if(queueEl) queueEl.textContent = queue.length;
+      if(matchEl) matchEl.textContent = queue.length ? Math.round((matched/queue.length)*100)+'%' : '0%';
+      if(typesEl) typesEl.textContent = categories.length;
+      if(devEl) devEl.textContent = development;
+      if(readyEl) readyEl.textContent = ready;
+
+      const typeBody = document.getElementById('evaluation-type-tbody');
+      if(typeBody){
+        const meaningMap = {
+          'ทดลองงาน':'ประเมินความพร้อมในการผ่านทดลองงาน',
+          'สัญญาจ้างเข้าทดลองงาน':'ประเมินช่วงเริ่มต้นตามเงื่อนไขสัญญา',
+          'สัญญาจ้าง 1 เดือน':'ประเมินตามเงื่อนไขสัญญาระยะสั้น',
+          'โอนย้าย':'ประเมินหลังเปลี่ยนงาน/สาขา/บทบาท',
+          'เลื่อนตำแหน่ง':'ประเมินความพร้อมต่อบทบาทที่สูงขึ้น',
+          'ประเมินประจำรอบ':'ประเมินมาตรฐานตามรอบองค์กร'
+        };
+        const connectMap = {
+          'ทดลองงาน':'เชื่อมกับ Matching และยืนยันบทบาท',
+          'สัญญาจ้างเข้าทดลองงาน':'เชื่อมกับสถานะการจ้าง',
+          'สัญญาจ้าง 1 เดือน':'เชื่อม contract management',
+          'โอนย้าย':'เชื่อมกับ job reassignment',
+          'เลื่อนตำแหน่ง':'เชื่อมกับ promotion decision',
+          'ประเมินประจำรอบ':'เชื่อม KPI / development'
+        };
+        typeBody.innerHTML = categories.map(item => `<tr><td>${item.type} (${item.count})</td><td>${meaningMap[item.type] || 'ใช้ประเมินตามระบบงาน'}</td><td>${connectMap[item.type] || 'เชื่อม workflow evaluation'}</td></tr>`).join('');
+      }
+
+      const queueBody = document.getElementById('evaluation-queue-tbody');
+      if(queueBody){
+        queueBody.innerHTML = queue.map(item => `<tr><td>${item.evaluationId}</td><td>${item.name}</td><td>${item.bu}</td><td>${item.triggerType}</td><td>${item.round}</td><td>${item.nextStage}</td><td>${getEvaluationStatusBadge(item.status)}</td><td>${item.outcomeTarget}</td></tr>`).join('');
+      }
+
+      const assignmentBody = document.getElementById('evaluation-assignment-tbody');
+      if(assignmentBody){
+        assignmentBody.innerHTML = (data.evaluatorAssignments || []).map(item => `<tr><td>${item.memberId}</td><td>${item.name}</td><td>${item.bu}</td><td>${item.evaluationType}</td><td>${item.round}</td><td>${(item.evaluators||[]).map(ev => `${ev.role}: ${ev.name}`).join('<br>')}</td></tr>`).join('');
+      }
+    }
+    document.addEventListener('DOMContentLoaded', renderEvaluationPipeline);
+  </script>
   </div>
 </section>
 
