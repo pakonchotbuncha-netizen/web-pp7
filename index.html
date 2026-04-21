@@ -614,20 +614,32 @@
     <div class="card"><h3 class="font-semibold text-pp7-800 mb-3">⏱️ Time-to-Fill (Avg)</h3><div class="chart-box"><canvas id="chart-ttf"></canvas></div></div>
     <div class="card"><h3 class="font-semibold text-pp7-800 mb-3">📊 Recruitment Funnel</h3><div class="chart-box"><canvas id="chart-funnel"></canvas></div></div>
   </div>
-  <div class="card">
-    <h3 class="font-semibold text-pp7-800 mb-3">📋 <span data-i18n="pipelineTable">ผู้สมัครใน Pipeline</span></h3>
-    <div class="overflow-x-auto">
-      <table id="recruit-table" data-sortable="true">
-        <thead><tr><th data-i18n="id">ID</th><th data-i18n="name">ชื่อ-สกุล</th><th data-i18n="position">ตำแหน่ง</th><th data-i18n="source">แหล่งสมัคร</th><th data-i18n="status">สถานะ</th><th data-i18n="applyDate">วันที่สมัคร</th></tr></thead>
-        <tbody>
-          <tr><td>R-2401</td><td>สมชาย จันทร์เพ็ญ</td><td>Senior Developer</td><td>LinkedIn</td><td><span class="badge badge-amber">Interview</span></td><td>2026-03-28</td></tr>
-          <tr><td>R-2402</td><td>พิมพ์ใจ ศรีสุข</td><td>Product Manager</td><td>Website</td><td><span class="badge badge-blue">HR Screen</span></td><td>2026-03-30</td></tr>
-          <tr><td>R-2403</td><td>วริศ แก้วมณี</td><td>Data Analyst</td><td>Referral</td><td><span class="badge badge-green">Offered</span></td><td>2026-03-15</td></tr>
-          <tr><td>R-2404</td><td>กัลยา รุ่งเรือง</td><td>UX Designer</td><td>Indeed</td><td><span class="badge badge-amber">Interview</span></td><td>2026-04-01</td></tr>
-          <tr><td>R-2405</td><td>ณัฐพล วงศ์สุวรรณ</td><td>DevOps Engineer</td><td>LinkedIn</td><td><span class="badge badge-blue">HR Screen</span></td><td>2026-04-02</td></tr>
-          <tr><td>R-2406</td><td>ธนากร พุ่มน้อย</td><td>Sales Manager</td><td>JobThai</td><td><span class="badge badge-red">Reject</span></td><td>2026-03-20</td></tr>
-        </tbody>
-      </table>
+  <div class="grid lg:grid-cols-2 gap-6">
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">📋 <span data-i18n="pipelineTable">ผู้สมัครใน Pipeline</span></h3>
+      <div class="overflow-x-auto">
+        <table id="recruit-table" data-sortable="true">
+          <thead><tr><th data-i18n="id">ID</th><th data-i18n="name">ชื่อ-สกุล</th><th data-i18n="position">ตำแหน่ง</th><th data-i18n="source">แหล่งสมัคร</th><th data-i18n="status">สถานะ</th><th data-i18n="applyDate">วันที่สมัคร</th></tr></thead>
+          <tbody>
+            <tr><td>R-2401</td><td>สมชาย จันทร์เพ็ญ</td><td>Senior Developer</td><td>LinkedIn</td><td><span class="badge badge-amber">Interview</span></td><td>2026-03-28</td></tr>
+            <tr><td>R-2402</td><td>พิมพ์ใจ ศรีสุข</td><td>Product Manager</td><td>Website</td><td><span class="badge badge-blue">HR Screen</span></td><td>2026-03-30</td></tr>
+            <tr><td>R-2403</td><td>วริศ แก้วมณี</td><td>Data Analyst</td><td>Referral</td><td><span class="badge badge-green">Offered</span></td><td>2026-03-15</td></tr>
+            <tr><td>R-2404</td><td>กัลยา รุ่งเรือง</td><td>UX Designer</td><td>Indeed</td><td><span class="badge badge-amber">Interview</span></td><td>2026-04-01</td></tr>
+            <tr><td>R-2405</td><td>ณัฐพล วงศ์สุวรรณ</td><td>DevOps Engineer</td><td>LinkedIn</td><td><span class="badge badge-blue">HR Screen</span></td><td>2026-04-02</td></tr>
+            <tr><td>R-2406</td><td>ธนากร พุ่มน้อย</td><td>Sales Manager</td><td>JobThai</td><td><span class="badge badge-red">Reject</span></td><td>2026-03-20</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">Vacancy จาก Resignation Pipeline</h3>
+      <div class="text-sm text-slate-500 mb-3">ตำแหน่งว่างที่เกิดจากคนลาออก และต้องถูกส่งเข้ากระบวนการสรรหาทดแทน</div>
+      <div class="overflow-x-auto">
+        <table data-sortable="true">
+          <thead><tr><th>Vacancy ID</th><th>ตำแหน่ง</th><th>BU/Company</th><th>สาขา</th><th>Priority</th><th>สถานะ</th></tr></thead>
+          <tbody id="resignation-vacancy-tbody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </section>
@@ -876,6 +888,37 @@
       if(status.includes('พัฒนา')) return '<span class="badge badge-amber">'+status+'</span>';
       return '<span class="badge badge-slate">'+status+'</span>';
     }
+    function getPriorityBadge(priority){
+      if(!priority) return '<span class="badge badge-slate">รอจัดลำดับ</span>';
+      if(String(priority).includes('สูง')) return '<span class="badge badge-red">'+priority+'</span>';
+      if(String(priority).includes('กลาง')) return '<span class="badge badge-amber">'+priority+'</span>';
+      return '<span class="badge badge-blue">'+priority+'</span>';
+    }
+    function getRecruitStatusBadge(status){
+      if(!status) return '<span class="badge badge-slate">รอเปิดรับ</span>';
+      if(String(status).includes('เปิด')) return '<span class="badge badge-green">'+status+'</span>';
+      if(String(status).includes('เร่ง')) return '<span class="badge badge-red">'+status+'</span>';
+      if(String(status).includes('รอ')) return '<span class="badge badge-amber">'+status+'</span>';
+      return '<span class="badge badge-blue">'+status+'</span>';
+    }
+    function renderRecruitmentBridge(){
+      const vacancyBody = document.getElementById('resignation-vacancy-tbody');
+      if(vacancyBody && window.RESIGNATION_PIPELINE){
+        vacancyBody.innerHTML = (window.RESIGNATION_PIPELINE.records || []).map(item => `<tr><td>${item.resignationId}</td><td>${item.vacancyTitle}</td><td>${item.company}</td><td>${item.branch}</td><td>${getPriorityBadge(item.replacementPriority)}</td><td>${getRecruitStatusBadge(item.vacancyStatus || item.replacementFlow)}</td></tr>`).join('');
+      }
+      const recruitSummary = document.getElementById('recruit-summary');
+      if(recruitSummary && window.RESIGNATION_PIPELINE){
+        const rows = window.RESIGNATION_PIPELINE.records || [];
+        const urgent = rows.filter(item => String(item.replacementPriority || '').includes('สูง')).length;
+        const open = rows.filter(item => String(item.vacancyStatus || item.replacementFlow || '').includes('เปิด')).length;
+        recruitSummary.innerHTML = `
+          <div class="detail-item"><span class="text-slate-500">Vacancy จากลาออก</span><strong>${rows.length}</strong></div>
+          <div class="detail-item"><span class="text-slate-500">Vacancy เร่งด่วน</span><strong>${urgent}</strong></div>
+          <div class="detail-item"><span class="text-slate-500">สถานะเปิดสรรหา</span><strong>${open}</strong></div>
+          <div class="detail-item"><span class="text-slate-500">ต้นน้ำ</span><strong>Resignation → Recruitment</strong></div>
+        `;
+      }
+    }
     function renderMatchingPipeline(){
       const data = window.MATCHING_PIPELINE;
       if(!data) return;
@@ -954,6 +997,7 @@
       }
     }
     document.addEventListener('DOMContentLoaded', () => {
+      renderRecruitmentBridge();
       renderMatchingPipeline();
       renderEvaluationPipeline();
     });
