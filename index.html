@@ -10,6 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="emp_data.js"></script>
   <script src="state/evaluation_pipeline.js"></script>
+  <script src="state/transfer_resignation_pipeline.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *{font-family:'Prompt',sans-serif}
@@ -782,6 +783,36 @@
     <div class="card"><h3 class="font-semibold text-pp7-800 mb-3">📊 <span data-i18n="quarterlyPerf">คะแนนผลงานรายไตรมาส</span></h3><div class="chart-box"><canvas id="chart-perf-q"></canvas></div></div>
     <div class="card"><h3 class="font-semibold text-pp7-800 mb-3">📈 Performance Distribution</h3><div class="chart-box"><canvas id="chart-perf-dist"></canvas></div></div>
   </div>
+  <div class="grid lg:grid-cols-2 gap-6">
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">Transfer field mapping → PP7</h3>
+      <table data-sortable="true">
+        <thead><tr><th>Tab</th><th>Field หลัก</th><th>บทบาท</th></tr></thead>
+        <tbody>
+          <tr><td>แสวงหา</td><td>personID, companyNEW, branchNEW, positionNEW</td><td>ตั้งโจทย์ role ใหม่</td></tr>
+          <tr><td>หยั่งประเมิน</td><td>Status_Transfer, status_assessment, Day_interview</td><td>วัดความพร้อมก่อนย้าย</td></tr>
+          <tr><td>จับคู่คนกับงาน</td><td>positionOLD/NEW, divOLD/NEW, companyOLD/NEW</td><td>เทียบ role เดิมกับ role ใหม่</td></tr>
+          <tr><td>ประเมินผล</td><td>statusNEW, detail_NEW, date_NEW, type_new</td><td>สร้าง evaluation ประเภทโอนย้าย</td></tr>
+          <tr><td>พัฒนา</td><td>purpose_p, Annual_Compass_p, Metrics_p</td><td>วางแผนพัฒนาหลังย้าย</td></tr>
+          <tr><td>ค่าตอบแทน/คุณภาพชีวิต</td><td>cost_job, balance, salary_packaging</td><td>ติดตามผลกระทบ package และบริบทงาน</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">Resignation field mapping → PP7</h3>
+      <table data-sortable="true">
+        <thead><tr><th>Tab</th><th>Field หลัก</th><th>บทบาท</th></tr></thead>
+        <tbody>
+          <tr><td>แสวงหา</td><td>position, branch, company, vacancy_status</td><td>สร้าง vacancy และ replacement demand</td></tr>
+          <tr><td>หยั่งประเมิน</td><td>exit_reason, turnover_group</td><td>สะท้อน risk และบทเรียนจากการลาออก</td></tr>
+          <tr><td>จับคู่คนกับงาน</td><td>vacancy_position, vacancy_branch, replacement_priority</td><td>ใช้ตำแหน่งว่างเป็น target ของ matching</td></tr>
+          <tr><td>ประเมินผล</td><td>replacement_member_id, replacement_evaluation_type</td><td>ให้คนทดแทนเข้าสู่ evaluation</td></tr>
+          <tr><td>พัฒนา</td><td>handover_gap, critical_skill_gap</td><td>ลด gap จากการเปลี่ยนคน</td></tr>
+          <tr><td>ค่าตอบแทน/คุณภาพชีวิต</td><td>loan_balance, guarantee_balance, turnover_rate</td><td>ดูผลกระทบ manpower และทีมเดิม</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
   <div class="card">
     <h3 class="font-semibold text-pp7-800 mb-3">📋 รายการประเมินผลที่เชื่อมจากระบบงานจริง</h3>
     <div class="overflow-x-auto">
@@ -789,6 +820,26 @@
         <thead><tr><th>ID</th><th>ชื่อ-สกุล</th><th>BU</th><th>ประเภทประเมิน</th><th>รอบ</th><th>ผู้ประเมิน</th><th>สถานะ</th><th>ผลลัพธ์</th></tr></thead>
         <tbody id="evaluation-queue-tbody"></tbody>
       </table>
+    </div>
+  </div>
+  <div class="grid lg:grid-cols-2 gap-6">
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">Transfer pipeline ตัวอย่าง</h3>
+      <div class="overflow-x-auto">
+        <table data-sortable="true">
+          <thead><tr><th>ID</th><th>ชื่อ</th><th>จาก</th><th>ไป</th><th>Assessment</th><th>Next</th></tr></thead>
+          <tbody id="transfer-pipeline-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">Resignation / Replacement pipeline ตัวอย่าง</h3>
+      <div class="overflow-x-auto">
+        <table data-sortable="true">
+          <thead><tr><th>ID</th><th>ชื่อ</th><th>ตำแหน่งเดิม</th><th>Action</th><th>Vacancy</th><th>Replacement flow</th></tr></thead>
+          <tbody id="resignation-pipeline-tbody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
   <div class="card">
@@ -892,6 +943,14 @@
       const assignmentBody = document.getElementById('evaluation-assignment-tbody');
       if(assignmentBody){
         assignmentBody.innerHTML = (data.evaluatorAssignments || []).map(item => `<tr><td>${item.memberId}</td><td>${item.name}</td><td>${item.bu}</td><td>${item.evaluationType}</td><td>${item.round}</td><td>${(item.evaluators||[]).map(ev => `${ev.role}: ${ev.name}`).join('<br>')}</td></tr>`).join('');
+      }
+      const transferBody = document.getElementById('transfer-pipeline-tbody');
+      if(transferBody && window.TRANSFER_PIPELINE){
+        transferBody.innerHTML = (window.TRANSFER_PIPELINE.records || []).map(item => `<tr><td>${item.transferId}</td><td>${item.name}</td><td>${item.oldCompany} / ${item.oldBranch}</td><td>${item.newCompany} / ${item.newBranch}</td><td>${item.assessmentStatus}</td><td>${item.matchingStatus}<br><span class="text-xs text-slate-500">${item.evaluationType}</span></td></tr>`).join('');
+      }
+      const resignationBody = document.getElementById('resignation-pipeline-tbody');
+      if(resignationBody && window.RESIGNATION_PIPELINE){
+        resignationBody.innerHTML = (window.RESIGNATION_PIPELINE.records || []).map(item => `<tr><td>${item.resignationId}</td><td>${item.name}</td><td>${item.position}</td><td>${item.employeeAction}</td><td>${item.vacancyTitle}</td><td>${item.replacementFlow}</td></tr>`).join('');
       }
     }
     document.addEventListener('DOMContentLoaded', () => {

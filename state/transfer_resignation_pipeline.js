@@ -1,0 +1,127 @@
+window.TRANSFER_PIPELINE = {
+  generatedAt: '2026-04-21T02:20:00Z',
+  sourceWorkbook: 'BCT_V5.0_โอนย้าย_NEW',
+  fieldMapping: {
+    recruitment: ['personID', 'firstname', 'lastname', 'companyNEW', 'branchNEW', 'positionNEW', 'departmentNEW', 'type_new'],
+    assessment: ['Status_Transfer', 'status_assessment', 'note_assessment', 'Day_interview', 'Time_interview', 'url_form'],
+    matching: ['positionOLD', 'divOLD', 'branchOLD', 'companyOLD', 'positionNEW', 'divNEW', 'branchNEW', 'companyNEW', 'personID_NEW'],
+    evaluation: ['statusNEW', 'detail_NEW', 'date_NEW', 'type_new'],
+    development: ['purpose_p', 'Annual_Compass_p', 'Metrics_p', 'Accountability_p'],
+    compensation: ['cost_job', 'balance', 'salary_packaging', 'chip', 'rents', 'fuel', 'telephone_charge'],
+    qualityOfLife: ['branchOLD', 'branchNEW', 'companyOLD', 'companyNEW', 'statusOLD', 'statusNEW']
+  },
+  records: [
+    {
+      transferId: 'TR-2083',
+      memberId: '6309069',
+      name: 'โกศล วอน',
+      oldCompany: 'RAFCO',
+      oldBranch: 'RAFCO-SIR',
+      oldPosition: 'สมาชิกทีมเร่งรัดติดตาม สาขาเสียมเรียบ',
+      newCompany: 'RAFCO',
+      newBranch: 'RAFCO-SIR',
+      newPosition: 'สมาชิกทีมเร่งรัดติดตาม สาขาเสียมเรียบ',
+      transferType: 'โอนย้ายสาขา JOB ใหม่',
+      assessmentStatus: 'รอสัมภาษณ์โอนย้าย',
+      matchingStatus: 'พร้อมจับคู่ role ใหม่',
+      evaluationType: 'โอนย้าย',
+      developmentNeed: 'ติดตามการปรับตัวต่อบริบทงานใหม่',
+      compensationImpact: 'รอ payroll mapping',
+      qualityOfLifeImpact: 'ติดตามผลหลังเปลี่ยนทีม/สาขา'
+    },
+    {
+      transferId: 'TR-6407047',
+      memberId: '6407047',
+      name: 'ปภาวี ผ่องโสภา',
+      oldCompany: 'บริษัท 21ซีที รีเสิร์ท จำกัด',
+      oldBranch: 'สำนักงานใหญ่',
+      oldPosition: 'สมาชิก Technology Research & Developer',
+      newCompany: 'บริษัท เอเอเอ็ม ตะเคียนคู่ จำกัด',
+      newBranch: 'สำนักงานใหญ่',
+      newPosition: 'สมาชิก Technology Research & Developer',
+      transferType: 'โอนย้ายบริษัท',
+      assessmentStatus: 'รอผู้รับใช้ทีมใหม่พิจารณา',
+      matchingStatus: 'จับคู่กับ BU ใหม่',
+      evaluationType: 'โอนย้าย',
+      developmentNeed: 'ปรับ onboarding กับทีมใหม่',
+      compensationImpact: 'ตรวจ package ตามบริษัทใหม่',
+      qualityOfLifeImpact: 'ติดตามการเปลี่ยน environment การทำงาน'
+    },
+    {
+      transferId: 'TR-5604041',
+      memberId: '5604041',
+      name: 'ธิชาภัทร สาวรีย์',
+      oldCompany: 'บริษัท เกษตรไทย ลิสซิ่ง จำกัด',
+      oldBranch: 'สำนักงานใหญ่',
+      oldPosition: 'สมาชิกงานเดิม',
+      newCompany: 'บริษัท เอเอเอ็ม บุรีรัมย์ จำกัด',
+      newBranch: 'สำนักงานใหญ่',
+      newPosition: 'บทบาทใหม่ตามโครงสร้างโอนย้าย',
+      transferType: 'โอนย้ายข้ามบริษัท',
+      assessmentStatus: 'รอสัมภาษณ์ / approval',
+      matchingStatus: 'ต้องเทียบ job ใหม่',
+      evaluationType: 'โอนย้าย',
+      developmentNeed: 'วางแผน skill gap หลังโอนย้าย',
+      compensationImpact: 'ตรวจ payroll round',
+      qualityOfLifeImpact: 'ติดตามผลกระทบการย้ายบริบทงาน'
+    }
+  ]
+};
+
+window.RESIGNATION_PIPELINE = {
+  generatedAt: '2026-04-21T02:20:00Z',
+  sourceWorkbook: 'BCT_V3.0_ลาออก_ต้นฉบับ',
+  fieldMapping: {
+    recruitment: ['id', 'position', 'branch', 'company', 'replacement_required', 'vacancy_status'],
+    assessment: ['exit_reason', 'risk_note', 'turnover_group'],
+    matching: ['vacancy_position', 'vacancy_branch', 'vacancy_company', 'replacement_priority'],
+    evaluation: ['replacement_member_id', 'replacement_evaluation_type'],
+    development: ['handover_gap', 'critical_skill_gap'],
+    compensation: ['salary_last', 'loan_balance', 'guarantee_balance', 'manpower_effect'],
+    qualityOfLife: ['exit_reason', 'team_impact', 'turnover_rate']
+  },
+  records: [
+    {
+      resignationId: 'RS-001',
+      memberId: '9005905',
+      name: 'เขมิกา หัตถวิจิตรกุล',
+      company: 'AAMG',
+      branch: 'สำนักงานใหญ่',
+      position: 'ผู้รับใช้ทีมกฎหมาย',
+      employeeAction: 'remove-from-employee',
+      vacancyAction: 'create-vacancy',
+      vacancyTitle: 'ผู้รับใช้ทีมกฎหมาย',
+      replacementFlow: 'Recruitment -> Assessment -> Matching -> Evaluation',
+      manpowerImpact: 'กระทบกำลังคนเชิงสำคัญ',
+      qualityOfLifeRisk: 'เสี่ยงภาระงานกระจุกที่ทีมกฎหมาย'
+    },
+    {
+      resignationId: 'RS-002',
+      memberId: '4902003',
+      name: 'นัฐฐาศิริ ศรีภักดี',
+      company: 'AAMG',
+      branch: 'สำนักงานใหญ่',
+      position: 'ผู้รับใช้ทีมบริหารทรัพย์สิน',
+      employeeAction: 'remove-from-employee',
+      vacancyAction: 'create-vacancy',
+      vacancyTitle: 'ผู้รับใช้ทีมบริหารทรัพย์สิน',
+      replacementFlow: 'Recruitment -> Assessment -> Matching -> Evaluation',
+      manpowerImpact: 'ต้องเปิด replacement demand ทันที',
+      qualityOfLifeRisk: 'เสี่ยงภาระงานทีมเพิ่มขึ้น'
+    },
+    {
+      resignationId: 'RS-003',
+      memberId: '5004066',
+      name: 'ศักรินทร์ ป้องหมู่',
+      company: 'AAMG',
+      branch: 'สำนักงานใหญ่',
+      position: 'ที่ปรึกษาทีมการตลาดและบริหารลูกค้า',
+      employeeAction: 'remove-from-employee',
+      vacancyAction: 'create-vacancy',
+      vacancyTitle: 'ที่ปรึกษาทีมการตลาดและบริหารลูกค้า',
+      replacementFlow: 'Recruitment -> Assessment -> Matching -> Evaluation',
+      manpowerImpact: 'มีผลต่อ capacity ฝั่งการตลาด',
+      qualityOfLifeRisk: 'ต้องติดตามผลกระทบต่อทีมเดิม'
+    }
+  ]
+};
