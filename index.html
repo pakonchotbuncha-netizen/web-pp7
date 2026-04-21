@@ -719,39 +719,26 @@
     </div>
   </div>
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-    <div class="card text-center"><div class="text-sm text-slate-400">Match Rate</div><div class="kpi-num text-emerald-600">66%</div></div>
-    <div class="card text-center"><div class="text-sm text-slate-400" data-i18n="matchedQ1">จับคู่สำเร็จ Q1</div><div class="kpi-num text-pp7-600">94</div></div>
-    <div class="card text-center"><div class="text-sm text-slate-400">Conversion Rate</div><div class="kpi-num text-violet-600">73%</div></div>
-    <div class="card text-center"><div class="text-sm text-slate-400" data-i18n="avgMatchScore">Avg Match Score</div><div class="kpi-num text-blue-600">0.82</div></div>
+    <div class="card text-center"><div class="text-sm text-slate-400">Match Rate</div><div id="match-kpi-rate" class="kpi-num text-emerald-600">0%</div></div>
+    <div class="card text-center"><div class="text-sm text-slate-400" data-i18n="matchedQ1">จับคู่สำเร็จ Q1</div><div id="match-kpi-count" class="kpi-num text-pp7-600">0</div></div>
+    <div class="card text-center"><div class="text-sm text-slate-400">Evaluation Ready</div><div id="match-kpi-eval" class="kpi-num text-violet-600">0</div></div>
+    <div class="card text-center"><div class="text-sm text-slate-400" data-i18n="avgMatchScore">Avg Match Score</div><div id="match-kpi-avg" class="kpi-num text-blue-600">0.00</div></div>
   </div>
-  <div class="card"><h3 class="font-semibold text-pp7-800 mb-3">📊 Match Score Distribution</h3><div class="chart-box"><canvas id="chart-match-dist"></canvas></div></div>
+  <div class="card">
+    <h3 class="font-semibold text-pp7-800 mb-3">📊 Match Score Distribution</h3>
+    <div class="chart-box"><canvas id="chart-match-dist"></canvas></div>
+    <div class="mt-4 grid md:grid-cols-3 gap-3 text-sm text-slate-700">
+      <div class="p-3 rounded-xl bg-slate-50 border border-slate-200"><strong>1. Recruitment/Assessment</strong><br>คัดเลือกและประเมินเบื้องต้นก่อนเข้าสู่ matching</div>
+      <div class="p-3 rounded-xl bg-blue-50 border border-blue-200"><strong>2. Matching → Evaluation</strong><br>เมื่อจับคู่แล้ว ระบบต้องสร้าง evaluation queue และกำหนดประเภทประเมินอัตโนมัติ</div>
+      <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200"><strong>3. Evaluation → Development</strong><br>ผลประเมินต้องส่งต่อไปยัง development / compensation / quality of life</div>
+    </div>
+  </div>
   <div class="card">
     <h3 class="font-semibold text-pp7-800 mb-3">📋 <span data-i18n="matchTable">รายการจับคู่ล่าสุด</span></h3>
     <div class="overflow-x-auto">
       <table id="match-table" data-sortable="true">
-        <thead><tr><th data-i18n="id">ID</th><th data-i18n="name">ชื่อ-สกุล</th><th data-i18n="skills">ทักษะหลัก</th><th data-i18n="matchedPos">ตำแหน่งที่จับคู่</th><th>Match Score</th><th data-i18n="recommendation">ข้อเสนอแนะ</th><th data-i18n="status">สถานะ</th></tr></thead>
-        <tbody>
-          <tr><td>M-001</td><td>วริศ แก้วมณี</td><td>Python, SQL, ML</td><td>Data Analyst</td><td><span class="font-bold text-emerald-600">0.95</span></td><td>ตรงตำแหน่งมาก — รับทันที</td><td><span class="badge badge-green">จับคู่แล้ว</span></td></tr>
-          <tr><td>M-002</td><td>พิมพ์ใจ ศรีสุข</td><td>PM, Agile, UX</td><td>Product Manager</td><td><span class="font-bold text-emerald-600">0.91</span></td><td>มีประสบการณ์ตรง — เหมาะมาก</td><td><span class="badge badge-green">จับคู่แล้ว</span></td></tr>
-          <tr><td>M-003</td><td>สมชาย จันทร์เพ็ญ</td><td>React, Node, AWS</td><td>Sr. Developer</td><td><span class="font-bold text-blue-600">0.84</span></td><td>ทักษะตรงแต่ประสบการณ์ยังน้อย</td><td><span class="badge badge-amber">กำลังประเมิน</span></td></tr>
-          <tr><td>M-004</td><td>กัลยา รุ่งเรือง</td><td>Figma, Research</td><td>UX Designer</td><td><span class="font-bold text-emerald-600">0.88</span></td><td>Portfolio ดี — review ขั้นสุดท้าย</td><td><span class="badge badge-green">จับคู่แล้ว</span></td></tr>
-          <tr><td>M-005</td><td>ณัฐพล วงศ์สุวรรณ</td><td>Linux, Docker, K8s</td><td>DevOps Engineer</td><td><span class="font-bold text-blue-600">0.76</span></td><td>ขาด cert cloud — ต้อง upskill</td><td><span class="badge badge-amber">พัฒนาเพิ่ม</span></td></tr>
-          <tr><td>M-006</td><td>วรรณี สมบูรณ์</td><td>Python, TensorFlow, NLP</td><td>ML Engineer</td><td><span class="font-bold text-emerald-600">0.93</span></td><td>ทักษะครบ — senior level</td><td><span class="badge badge-green">จับคู่แล้ว</span></td></tr>
-          <tr><td>M-007</td><td>วิไลวรรณ แก้วประเสริฐ</td><td>Java, Spring Boot, Micro</td><td>Backend Lead</td><td><span class="font-bold text-emerald-600">0.89</span></td><td>เหมาะสม — มี leadership skill</td><td><span class="badge badge-green">จับคู่แล้ว</span></td></tr>
-          <tr><td>M-008</td><td>สมหมาย จันทร์เพ็ญ</td><td>Sales Strategy, CRM</td><td>Sales Director</td><td><span class="font-bold text-emerald-600">0.92</span></td><td>ประสบการณ์สูง — เหมาะ leadership</td><td><span class="badge badge-green">จับคู่แล้ว</span></td></tr>
-          <tr><td>M-009</td><td>ประมวล ใจดี</td><td>Operations, Lean, Six Sigma</td><td>Ops Manager</td><td><span class="font-bold text-emerald-600">0.87</span></td><td>ตรงสายงาน — มี certification</td><td><span class="badge badge-green">จับคู่แล้ว</span></td></tr>
-          <tr><td>M-010</td><td>ชัยยศ มั่นคง</td><td>Project Mgmt, PMP, Agile</td><td>PMO Lead</td><td><span class="font-bold text-emerald-600">0.90</span></td><td>PMP cert — เหมาะบทบาทนี้</td><td><span class="badge badge-green">จับคู่แล้ว</span></td></tr>
-          <tr><td>M-011</td><td>นภัสสร แก้วประเสริฐ</td><td>Full-Stack, TypeScript, React</td><td>Tech Lead</td><td><span class="font-bold text-blue-600">0.82</span></td><td>ทักษะดี แต่ leadership ต้องพัฒนา</td><td><span class="badge badge-amber">กำลังประเมิน</span></td></tr>
-          <tr><td>M-012</td><td>ธนพล วงศ์วิโรจน์</td><td>Digital Marketing, SEO, SEM</td><td>Marketing Lead</td><td><span class="font-bold text-emerald-600">0.86</span></td><td>ประสบการณ์ตรง — campaign level สูง</td><td><span class="badge badge-green">จับคู่แล้ว</span></td></tr>
-          <tr><td>M-013</td><td>สุรกิจ ใจดี</td><td>Accounting, Tax, IFRS</td><td>Finance Analyst</td><td><span class="font-bold text-blue-600">0.78</span></td><td>พื้นฐานดี ต้องเพิ่ม analytical skill</td><td><span class="badge badge-amber">กำลังประเมิน</span></td></tr>
-          <tr><td>M-014</td><td>วีระ พรหมมา</td><td>Business Dev, Partnership</td><td>BD Manager</td><td><span class="font-bold text-emerald-600">0.88</span></td><td>network กว้าง — เหมาะ BD</td><td><span class="badge badge-green">จับคู่แล้ว</span></td></tr>
-          <tr><td>M-015</td><td>ธนพร แก้วประเสริฐ</td><td>HR Analytics, OD</td><td>HRBP</td><td><span class="font-bold text-blue-600">0.80</span></td><td>HR พื้นฐานดี ต้องเพิ่ม data skill</td><td><span class="badge badge-amber">พัฒนาเพิ่ม</span></td></tr>
-          <tr><td>M-016</td><td>กิตติ ธรรมรักษ์</td><td>AI Research, Publication</td><td>Research Scientist</td><td><span class="font-bold text-emerald-600">0.94</span></td><td>publication เยอะ — research level สูง</td><td><span class="badge badge-green">จับคู่แล้ว</span></td></tr>
-          <tr><td>M-017</td><td>พิชัย ทองดี</td><td>QA Auto, Selenium, CI/CD</td><td>QA Lead</td><td><span class="font-bold text-blue-600">0.83</span></td><td>automation ดี ต้องเพิ่ม leadership</td><td><span class="badge badge-amber">กำลังประเมิน</span></td></tr>
-          <tr><td>M-018</td><td>สุรศักดิ์ ธรรมรักษ์</td><td>Supply Chain, Logistics</td><td>SC Analyst</td><td><span class="font-bold text-blue-600">0.75</span></td><td>ประสบการณ์ตรง ต้องเพิ่ม analytics</td><td><span class="badge badge-amber">พัฒนาเพิ่ม</span></td></tr>
-          <tr><td>M-019</td><td>ณัฐกานต์ รัตนมาลี</td><td>Content, Copy, Branding</td><td>Content Strategist</td><td><span class="font-bold text-emerald-600">0.85</span></td><td>content strategy ดี — เหมาะตำแหน่ง</td><td><span class="badge badge-green">จับคู่แล้ว</span></td></tr>
-          <tr><td>M-020</td><td>สิทธิชัย ธรรมรักษ์</td><td>Cloud, Security, Compliance</td><td>Security Engineer</td><td><span class="font-bold text-amber-600">0.71</span></td><td>ต้อง cert เพิ่ม (CISSP) — upskill ต่อ</td><td><span class="badge badge-amber">พัฒนาเพิ่ม</span></td></tr>
-        </tbody>
+        <thead><tr><th data-i18n="id">ID</th><th data-i18n="name">ชื่อ-สกุล</th><th>BU</th><th data-i18n="skills">ทักษะหลัก</th><th data-i18n="matchedPos">ตำแหน่งที่จับคู่</th><th>Match Score</th><th>Evaluation</th><th data-i18n="status">สถานะ</th></tr></thead>
+        <tbody id="match-table-tbody"></tbody>
       </table>
     </div>
   </div>
@@ -831,6 +818,32 @@
       if(status.includes('ทดลอง') || status.includes('ประเมิน')) return '<span class="badge badge-blue">'+status+'</span>';
       return '<span class="badge badge-slate">'+status+'</span>';
     }
+    function getMatchStatusBadge(status){
+      if(!status) return '<span class="badge badge-slate">รอข้อมูล</span>';
+      if(status.includes('จับคู่แล้ว')) return '<span class="badge badge-green">'+status+'</span>';
+      if(status.includes('ประเมิน')) return '<span class="badge badge-blue">'+status+'</span>';
+      if(status.includes('พัฒนา')) return '<span class="badge badge-amber">'+status+'</span>';
+      return '<span class="badge badge-slate">'+status+'</span>';
+    }
+    function renderMatchingPipeline(){
+      const data = window.MATCHING_PIPELINE;
+      if(!data) return;
+      const queue = data.queue || [];
+      const evalReady = queue.filter(item => item.evaluationId).length;
+      const avg = queue.length ? (queue.reduce((sum,item)=>sum + Number(item.matchScore || 0),0)/queue.length).toFixed(2) : '0.00';
+      const rateEl = document.getElementById('match-kpi-rate');
+      const countEl = document.getElementById('match-kpi-count');
+      const evalEl = document.getElementById('match-kpi-eval');
+      const avgEl = document.getElementById('match-kpi-avg');
+      if(rateEl) rateEl.textContent = queue.length ? Math.round((queue.filter(item => item.status === 'จับคู่แล้ว').length/queue.length)*100) + '%' : '0%';
+      if(countEl) countEl.textContent = queue.length;
+      if(evalEl) evalEl.textContent = evalReady;
+      if(avgEl) avgEl.textContent = avg;
+      const tbody = document.getElementById('match-table-tbody');
+      if(tbody){
+        tbody.innerHTML = queue.map(item => `<tr><td>${item.matchId}</td><td>${item.name}</td><td>${item.bu}</td><td>${item.skills}</td><td>${item.matchedPosition}</td><td><span class="font-bold text-emerald-600">${Number(item.matchScore || 0).toFixed(2)}</span></td><td>${item.evaluationType}<br><span class="text-xs text-slate-500">${item.evaluationId} → ${item.nextStage}</span></td><td>${getMatchStatusBadge(item.status)}</td></tr>`).join('');
+      }
+    }
     function renderEvaluationPipeline(){
       const data = window.EVALUATION_PIPELINE;
       if(!data) return;
@@ -881,7 +894,10 @@
         assignmentBody.innerHTML = (data.evaluatorAssignments || []).map(item => `<tr><td>${item.memberId}</td><td>${item.name}</td><td>${item.bu}</td><td>${item.evaluationType}</td><td>${item.round}</td><td>${(item.evaluators||[]).map(ev => `${ev.role}: ${ev.name}`).join('<br>')}</td></tr>`).join('');
       }
     }
-    document.addEventListener('DOMContentLoaded', renderEvaluationPipeline);
+    document.addEventListener('DOMContentLoaded', () => {
+      renderMatchingPipeline();
+      renderEvaluationPipeline();
+    });
   </script>
   </div>
 </section>

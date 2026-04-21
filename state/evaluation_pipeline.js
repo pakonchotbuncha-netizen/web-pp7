@@ -1,3 +1,79 @@
+window.MATCHING_PIPELINE = {
+  generatedAt: '2026-04-21T00:15:00Z',
+  queue: [
+    {
+      matchId: 'M-001',
+      memberId: '6309069',
+      name: 'โกศล วอน',
+      bu: 'RAFCO-SIR',
+      skills: 'Collections, Field Follow-up',
+      matchedPosition: 'สมาชิกทีมเร่งรัดติดตาม สาขาเสียมเรียบ',
+      matchScore: 0.91,
+      recommendation: 'ตรงบทบาทงานเร่งรัดติดตามและพร้อมเข้าสู่ evaluation โอนย้าย',
+      status: 'จับคู่แล้ว',
+      evaluationId: 'EV-2023-2083',
+      evaluationType: 'โอนย้าย',
+      nextStage: 'assign-evaluators'
+    },
+    {
+      matchId: 'M-002',
+      memberId: '6512100',
+      name: 'ศุภวิชญ์ นุชวงษ์',
+      bu: 'PCS CUS',
+      skills: 'Computer Support, Service Desk',
+      matchedPosition: 'ช่างเทคนิคคอมพิวเตอร์',
+      matchScore: 0.88,
+      recommendation: 'พร้อมเข้าสู่สัญญาจ้างเข้าทดลองงาน',
+      status: 'จับคู่แล้ว',
+      evaluationId: 'EV-2023-2088',
+      evaluationType: 'สัญญาจ้างเข้าทดลองงาน',
+      nextStage: 'collect-rounds'
+    },
+    {
+      matchId: 'M-003',
+      memberId: '6512102',
+      name: 'อัครเดช วงษ์รัตน์',
+      bu: 'CHS',
+      skills: 'Customer Service, Credit Operations',
+      matchedPosition: 'สมาชิกบริการลูกค้าสินเชื่อ สาขาฉะเชิงเทรา',
+      matchScore: 0.86,
+      recommendation: 'ผ่าน matching และรอเข้า workflow ทดลองงาน',
+      status: 'จับคู่แล้ว',
+      evaluationId: 'EV-2023-2089',
+      evaluationType: 'สัญญาจ้างเข้าทดลองงาน',
+      nextStage: 'collect-rounds'
+    },
+    {
+      matchId: 'M-004',
+      memberId: '6406045',
+      name: 'วิไลรัตน์ รัตนะมงคลกุล',
+      bu: 'AAMG',
+      skills: 'Digital Contents, Design',
+      matchedPosition: 'สมาชิก Digital Contents',
+      matchScore: 0.89,
+      recommendation: 'พร้อมเข้าสู่ evaluation เลื่อนตำแหน่ง',
+      status: 'จับคู่แล้ว',
+      evaluationId: 'EV-PKG-6406045',
+      evaluationType: 'เลื่อนตำแหน่ง',
+      nextStage: 'panel-review'
+    },
+    {
+      matchId: 'M-005',
+      memberId: '6407049',
+      name: 'ปวีร์ ผ่องโสภา',
+      bu: '21RT',
+      skills: 'Technology Research, Development',
+      matchedPosition: 'สมาชิก Technology Research & Developer',
+      matchScore: 0.93,
+      recommendation: 'เหมาะกับบทบาทปัจจุบันและพร้อมประเมินรายรอบ',
+      status: 'จับคู่แล้ว',
+      evaluationId: 'EV-PKG-6407049',
+      evaluationType: 'ประเมินประจำรอบ',
+      nextStage: 'development-link'
+    }
+  ]
+};
+
 window.EVALUATION_PIPELINE = {
   generatedAt: '2026-04-20T02:27:00Z',
   summary: {
