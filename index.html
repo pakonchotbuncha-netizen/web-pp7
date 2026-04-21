@@ -210,6 +210,7 @@
     <button class="tab-btn" data-tab="labor-law" onclick="showTab('labor-law')">⚖️ กฎหมายแรงงาน</button>
     <button class="tab-btn" data-tab="pkg-rules" onclick="showTab('pkg-rules')">📘 ระเบียบ PKG</button>
     <button class="tab-btn" data-tab="data-exchange" onclick="showTab('data-exchange')">🔄 Import / Export</button>
+    <button class="tab-btn" data-tab="system-map" onclick="showTab('system-map')">🗺️ System Map</button>
   </div>
 </nav>
 
@@ -1002,6 +1003,53 @@
       renderEvaluationPipeline();
     });
   </script>
+  </div>
+</section>
+
+<!-- ==================== TAB: SYSTEM MAP ==================== -->
+<section id="tab-system-map" class="tab-pane fade-in hidden space-y-6">
+  <div class="flex flex-wrap items-center gap-4">
+    <h2 class="text-xl font-bold text-pp7-800 flex-1">🗺️ System Map</h2>
+    <div class="text-sm text-slate-500">ภาพสรุปความเชื่อมโยงของทุก tab ใน PP7 เพื่อใช้สื่อสารภาพรวมระบบ</div>
+  </div>
+  <div class="grid md:grid-cols-4 gap-4">
+    <div class="card text-center"><div class="text-sm text-slate-400">Upstream Flows</div><div class="kpi-num text-blue-600">2</div></div>
+    <div class="card text-center"><div class="text-sm text-slate-400">Core Decision Tabs</div><div class="kpi-num text-emerald-600">3</div></div>
+    <div class="card text-center"><div class="text-sm text-slate-400">Downstream Tabs</div><div class="kpi-num text-violet-600">3</div></div>
+    <div class="card text-center"><div class="text-sm text-slate-400">Governance Layers</div><div class="kpi-num text-amber-600">4</div></div>
+  </div>
+  <div class="card">
+    <h3 class="font-semibold text-pp7-800 mb-3">ภาพใหญ่ของระบบ PP7</h3>
+    <div class="text-sm text-slate-600 mb-4">ใช้ภาพนี้สื่อสารว่า PP7 เป็นระบบเดียวที่รับเหตุการณ์ของคนจากต้นน้ำ แล้วไหลผ่านการสรรหา, การประเมิน, การจับคู่, การรับรองผล และการดูแลต่อเนื่อง โดยมี Data Exchange, กฎหมายแรงงาน และระเบียบ PKG เป็นชั้นกำกับ</div>
+    <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50">
+      <iframe src="assets/pp7-system-map.html" title="PP7 System Map" style="width:100%;height:980px;border:0;background:white"></iframe>
+    </div>
+  </div>
+  <div class="grid lg:grid-cols-3 gap-6">
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">ต้นน้ำ</h3>
+      <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+        <li>Resignation สร้าง vacancy และ replacement demand</li>
+        <li>Transfer สร้าง role-change flow สำหรับการจับคู่และประเมินผล</li>
+        <li>Recruitment รับทั้งผู้สมัครใหม่และตำแหน่งว่างจากการลาออก</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">แกนตัดสินใจ</h3>
+      <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+        <li>Assessment วัด Skill / Attitude / Behavior / Position Fit</li>
+        <li>Matching เทียบคนกับ JD / LIA / role target</li>
+        <li>Evaluation รับรองผลก่อนส่งต่อ downstream</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">ปลายน้ำ</h3>
+      <ul class="list-disc pl-5 space-y-2 text-sm text-slate-700">
+        <li>Development ปิด skill gap และวางแผนพัฒนา</li>
+        <li>Welfare / Compensation ดูผลด้าน package และ cost</li>
+        <li>Quality of Life ติดตามผลกระทบต่อทีมและบริบทการทำงาน</li>
+      </ul>
+    </div>
   </div>
 </section>
 

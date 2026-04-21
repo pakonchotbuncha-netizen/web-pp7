@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PP7 System Map</title>
+  <style>body{margin:0;background:#f8fafc;display:flex;justify-content:center;align-items:flex-start;padding:24px}svg{max-width:100%;height:auto;box-shadow:0 10px 30px rgba(15,23,42,.08);border-radius:16px}</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1100" viewBox="0 0 1800 1100">
+  <defs>
+    <style>
+      .title { font: 700 34px 'Prompt', 'Noto Sans Thai', sans-serif; fill: #0f172a; }
+      .subtitle { font: 500 18px 'Prompt', 'Noto Sans Thai', sans-serif; fill: #475569; }
+      .section { font: 700 20px 'Prompt', 'Noto Sans Thai', sans-serif; fill: #0f172a; }
+      .label { font: 600 18px 'Prompt', 'Noto Sans Thai', sans-serif; fill: #0f172a; }
+      .body { font: 400 15px 'Prompt', 'Noto Sans Thai', sans-serif; fill: #334155; }
+      .small { font: 500 14px 'Prompt', 'Noto Sans Thai', sans-serif; fill: #475569; }
+      .chip { font: 700 13px 'Prompt', 'Noto Sans Thai', sans-serif; fill: white; }
+      .box { stroke: #cbd5e1; stroke-width: 2; rx: 24; ry: 24; }
+      .arrow { stroke: #334155; stroke-width: 4; fill: none; marker-end: url(#arrowhead); }
+      .softArrow { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrowhead); stroke-dasharray: 10 8; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <polygon points="0 0, 10 5, 0 10" fill="#334155" />
+    </marker>
+  </defs>
+
+  <rect width="1800" height="1100" fill="#f8fafc"/>
+  <text x="80" y="70" class="title">PP7 System Map, ภาพรวมความเชื่อมโยงของทุก Tab</text>
+  <text x="80" y="105" class="subtitle">สื่อสารให้เข้าใจง่ายว่า ข้อมูลคนไหลจากต้นน้ำ, ผ่านการตัดสินใจ, ไปสู่การพัฒนา, ค่าตอบแทน, คุณภาพชีวิต และการกำกับดูแลอย่างไร</text>
+
+  <rect x="70" y="145" width="1660" height="130" fill="#eef2ff" stroke="#c7d2fe" rx="28"/>
+  <text x="95" y="180" class="section">ชั้นกำกับดูแลและข้อมูลกลาง</text>
+  <rect x="95" y="200" width="300" height="55" fill="#ffffff" class="box"/>
+  <text x="120" y="234" class="label">Executive Dashboard</text>
+  <text x="120" y="252" class="small">มองภาพรวม KPI และสถานะทั้งระบบ</text>
+
+  <rect x="430" y="200" width="300" height="55" fill="#ffffff" class="box"/>
+  <text x="455" y="234" class="label">Data Exchange Center</text>
+  <text x="455" y="252" class="small">ศูนย์ import / export / validation</text>
+
+  <rect x="765" y="200" width="250" height="55" fill="#ffffff" class="box"/>
+  <text x="790" y="234" class="label">Labor Law</text>
+  <text x="790" y="252" class="small">กฎหมายแรงงานแยกตามประเทศ</text>
+
+  <rect x="1045" y="200" width="250" height="55" fill="#ffffff" class="box"/>
+  <text x="1070" y="234" class="label">PKG Rules</text>
+  <text x="1070" y="252" class="small">ข้อบังคับภายในกลุ่มบริษัท</text>
+
+  <rect x="1325" y="200" width="370" height="55" fill="#ffffff" class="box"/>
+  <text x="1350" y="234" class="label">Master Context / Employee / Company / BU</text>
+  <text x="1350" y="252" class="small">ฐานอ้างอิงกลางของสมาชิก, ตำแหน่ง, BU, บริษัท, สาขา</text>
+
+  <text x="80" y="330" class="section">ชั้นต้นน้ำการเคลื่อนไหวของคน</text>
+
+  <rect x="90" y="360" width="420" height="170" fill="#dbeafe" class="box"/>
+  <text x="120" y="395" class="label">Resignation Pipeline</text>
+  <text x="120" y="425" class="body">คนลาออก → ออกจาก employee → เกิด vacancy → เปิด replacement demand</text>
+  <text x="120" y="455" class="body">Field สำคัญ: position, branch, company, exit_reason, vacancy_status</text>
+  <rect x="120" y="480" width="160" height="30" rx="15" fill="#ef4444"/>
+  <text x="145" y="500" class="chip">ต้นน้ำของ Recruitment</text>
+
+  <rect x="560" y="360" width="420" height="170" fill="#dbeafe" class="box"/>
+  <text x="590" y="395" class="label">Transfer Pipeline</text>
+  <text x="590" y="425" class="body">โอนย้าย / เปลี่ยนบทบาท / เปลี่ยนสาขา / เปลี่ยนบริษัท</text>
+  <text x="590" y="455" class="body">Field สำคัญ: positionOLD/NEW, branchOLD/NEW, companyOLD/NEW</text>
+  <rect x="590" y="480" width="180" height="30" rx="15" fill="#2563eb"/>
+  <text x="615" y="500" class="chip">ต้นน้ำของ Matching/Evaluation</text>
+
+  <rect x="1030" y="360" width="640" height="170" fill="#ecfeff" class="box"/>
+  <text x="1060" y="395" class="label">Recruitment Tab (แสวงหาบุคลากร)</text>
+  <text x="1060" y="425" class="body">รับผู้สมัครภายนอก + รับ vacancy จาก resignation pipeline เพื่อเปิดสรรหาทดแทน</text>
+  <text x="1060" y="455" class="body">สถานะบนเว็บ: pipeline ผู้สมัคร + vacancy bridge จาก resignation</text>
+  <rect x="1060" y="480" width="180" height="30" rx="15" fill="#0f766e"/>
+  <text x="1090" y="500" class="chip">คนใหม่เข้าสู่ระบบ</text>
+
+  <path d="M 510 445 C 650 445, 880 445, 1030 445" class="arrow"/>
+  <path d="M 980 445 C 995 445, 1010 445, 1030 445" class="arrow"/>
+
+  <text x="80" y="600" class="section">ชั้นตัดสินใจความเหมาะสมและการรับรองบทบาท</text>
+
+  <rect x="150" y="640" width="430" height="170" fill="#fef3c7" class="box"/>
+  <text x="180" y="675" class="label">Assessment Tab (หยั่งประเมิน)</text>
+  <text x="180" y="705" class="body">วัด Skill, Attitude, Behavior และ Position Fit ก่อนเข้าสู่การจับคู่</text>
+  <text x="180" y="735" class="body">ใช้กับทั้งคนสมัครใหม่ และบางกรณีของการโอนย้าย</text>
+
+  <rect x="685" y="640" width="430" height="170" fill="#e0f2fe" class="box"/>
+  <text x="715" y="675" class="label">Matching Tab (จับคู่คนกับงาน)</text>
+  <text x="715" y="705" class="body">เทียบข้อมูลคนกับ JD/LIA/ตำแหน่งเป้าหมาย เพื่อแนะนำบทบาทที่เหมาะสม</text>
+  <text x="715" y="735" class="body">รับ input จาก recruitment และ transfer pipeline</text>
+
+  <rect x="1220" y="640" width="430" height="170" fill="#ede9fe" class="box"/>
+  <text x="1250" y="675" class="label">Performance / Evaluation Tab</text>
+  <text x="1250" y="705" class="body">ประเมินผลหลัง matching หรือหลังโอนย้าย เช่น ทดลองงาน, โอนย้าย, เลื่อนตำแหน่ง</text>
+  <text x="1250" y="735" class="body">เป็นจุดตัดสินผลลัพธ์ก่อนส่งต่อ downstream</text>
+
+  <path d="M 1250 530 C 1180 560, 1080 600, 900 640" class="arrow"/>
+  <path d="M 770 530 C 760 560, 760 600, 900 640" class="arrow"/>
+  <path d="M 1245 530 C 1100 570, 650 585, 365 640" class="softArrow"/>
+  <path d="M 580 725 C 625 725, 650 725, 685 725" class="arrow"/>
+  <path d="M 1115 725 C 1160 725, 1180 725, 1220 725" class="arrow"/>
+
+  <text x="80" y="875" class="section">ชั้นผลลัพธ์และการดูแลต่อเนื่อง</text>
+
+  <rect x="170" y="910" width="420" height="135" fill="#dcfce7" class="box"/>
+  <text x="200" y="945" class="label">Development Tab</text>
+  <text x="200" y="975" class="body">วางแผนพัฒนา, ปิด skill gap, รองรับผลประเมินและบทบาทใหม่</text>
+
+  <rect x="690" y="910" width="420" height="135" fill="#fee2e2" class="box"/>
+  <text x="720" y="945" class="label">Welfare / Compensation Tab</text>
+  <text x="720" y="975" class="body">ดูผลกระทบ package, cost, benefit, manpower cost และความเหมาะสมด้านค่าตอบแทน</text>
+
+  <rect x="1210" y="910" width="420" height="135" fill="#fce7f3" class="box"/>
+  <text x="1240" y="945" class="label">Quality of Life Tab</text>
+  <text x="1240" y="975" class="body">ติดตามผลกระทบต่อทีม, work condition, turnover context และคุณภาพชีวิตการทำงาน</text>
+
+  <path d="M 1365 810 C 1365 845, 1365 870, 1365 910" class="arrow"/>
+  <path d="M 1365 810 C 1180 840, 990 860, 900 910" class="arrow"/>
+  <path d="M 1365 810 C 1100 850, 520 850, 380 910" class="arrow"/>
+
+  <text x="1460" y="835" class="small">ผลประเมินที่ดี/ไม่ดี ส่งผลต่อการพัฒนา, ค่าตอบแทน และคุณภาพชีวิต</text>
+  <text x="80" y="1075" class="small">สรุปแนวคิด: PP7 ไม่ใช่ tab แยกกัน แต่เป็นระบบเดียวที่รับเหตุการณ์ต้นน้ำของคน แล้วไหลผ่านการสรรหา, ประเมิน, จับคู่, รับรองผล, ดูแลต่อเนื่อง และกำกับด้วยกฎหมาย/ระเบียบ/ข้อมูลกลาง</text>
+</svg>
+
+</body>
+</html>
