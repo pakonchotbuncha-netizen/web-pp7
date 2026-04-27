@@ -211,6 +211,7 @@
     <button class="tab-btn" data-tab="pkg-rules" onclick="showTab('pkg-rules')">📘 ระเบียบ PKG</button>
     <button class="tab-btn" data-tab="data-exchange" onclick="showTab('data-exchange')">🔄 Import / Export</button>
     <button class="tab-btn" data-tab="system-map" onclick="showTab('system-map')">🗺️ System Map</button>
+    <button class="tab-btn" data-tab="pp7-research" onclick="showTab('pp7-research')">🧪 งานวิจัย PP7</button>
   </div>
 </nav>
 
@@ -798,6 +799,147 @@
   </div>
   <div class="grid lg:grid-cols-2 gap-6">
     <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">Annual Credit Evaluation</h3>
+      <div class="space-y-3 text-sm text-slate-700">
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200"><strong>1. ขอบเขต:</strong> ใช้สำหรับสมาชิกประจำและกลุ่มผู้รับใช้ทีม โดยต้องเลือกสูตรประเมินให้ตรงกับบทบาทและ BU ของสมาชิก</div>
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200"><strong>2. รอบทางการ:</strong> จากเอกสารปี 2026 มีรอบประเมิน 2 ครั้ง คือ 1-15 ก.ค. และ 10-25 ธ.ค.</div>
+        <div class="p-3 rounded-xl bg-blue-50 border border-blue-200"><strong>3. วิธีคิดคะแนน:</strong> ใช้ทั้งคำถามเครดิตปี 69, น้ำหนักกลุ่มผู้ประเมิน, คะแนนผ่านที่ 3 / OKR / Ranking และคะแนนวินัยตามสูตรของแต่ละ model</div>
+        <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200"><strong>4. Output:</strong> คะแนนเครดิตต้องส่งต่อไป Compensation, Development, Promotion Readiness และสัญญาณ People Risk</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">โครงคะแนนเครดิตประจำปี</h3>
+      <table data-sortable="true">
+        <thead><tr><th>Model</th><th>โครงคะแนนหลัก</th><th>ใช้กับใคร</th></tr></thead>
+        <tbody>
+          <tr><td>Community Member</td><td>ทุนองค์กร 60 + ทุนมนุษย์ 40 = 95, วินัย +5</td><td>สมาชิก PMSG / CPDG และกลุ่มชุมชนทั่วไป</td></tr>
+          <tr><td>Servant / Advisor</td><td>ทุนองค์กร 60 + ทุนมนุษย์ 40, แต่เปลี่ยนกลุ่มผู้ประเมินตามบทบาท</td><td>ผู้รับใช้ทีม / ที่ปรึกษาทีม</td></tr>
+          <tr><td>PKG Service Team</td><td>ทุนมนุษย์ 30 + ทุนองค์กร 70 = 100</td><td>ทีมรับใช้ PKG / ADM</td></tr>
+          <tr><td>AAMG Performance</td><td>OKR 70 + 360 Credit 20 + Ranking 10 = 100</td><td>สมาชิก AAMG</td></tr>
+        </tbody>
+      </table>
+      <div class="mt-4 text-sm text-slate-600">หมายเหตุ: ในระบบจริง PP7 ต้องรองรับหลายสูตรพร้อมกัน ไม่ใช้ annual credit model เดียวครอบทุก BU หรือทุกบทบาท</div>
+    </div>
+  </div>
+  <div class="grid lg:grid-cols-3 gap-6">
+    <div class="card lg:col-span-2">
+      <h3 class="font-semibold text-pp7-800 mb-3">พื้นที่ทำงาน: ประเมินเครดิต 360 องศา ประจำปี</h3>
+      <div class="grid md:grid-cols-2 gap-4 text-sm text-slate-700">
+        <div class="p-4 rounded-xl bg-blue-50 border border-blue-200">
+          <div class="font-semibold text-blue-900 mb-2">โจทย์ออกแบบระบบ</div>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>ลดการประเมินจากความรู้สึกให้น้อยที่สุด แต่ยังคงพื้นที่สำหรับมิติด้านท่าทีและผลกระทบต่อผู้อื่น</li>
+            <li>แยกคะแนนออกเป็น Objective Evidence, Behavioral Evidence และ Perception / Relational Impact</li>
+            <li>รองรับหลายสูตรประเมินตาม BU, บทบาท และชนิดสมาชิก</li>
+          </ul>
+        </div>
+        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+          <div class="font-semibold text-emerald-900 mb-2">แนวทางจากงานวิจัยที่ต้องนำเข้าแบบระบบ</div>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>ใช้คำถามเชิงพฤติกรรมที่สังเกตได้จริง (observable behaviors)</li>
+            <li>กำหนด Behavioral Anchors ในทุกระดับคะแนน</li>
+            <li>มี forced-choice บางส่วนเพื่อลด halo effect และ ideal employee bias</li>
+            <li>บังคับใส่ตัวอย่างเหตุการณ์เมื่อให้คะแนนปลายสเกล</li>
+          </ul>
+        </div>
+        <div class="p-4 rounded-xl bg-amber-50 border border-amber-200">
+          <div class="font-semibold text-amber-900 mb-2">องค์ประกอบข้อมูลที่ต้องเตรียม</div>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>Model / สูตรประเมินของแต่ละกลุ่ม</li>
+            <li>น้ำหนักผู้ประเมินแต่ละแหล่ง</li>
+            <li>รอบประเมิน, eligibility, และเกณฑ์ fallback กรณีข้อมูลไม่ครบ</li>
+            <li>ตัวแปร objective เช่น KPI, TA, วินัย, ranking, OKR</li>
+          </ul>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <div class="font-semibold text-slate-900 mb-2">งานที่ต้องออกแบบต่อใน tab นี้</div>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>Blueprint แบบประเมินเครดิต 360 องศา</li>
+            <li>Question bank พร้อม rubric และ evidence rules</li>
+            <li>Scoring engine + calibration workflow</li>
+            <li>Dashboard สรุปผลเครดิตรายบุคคล / รายทีม / ราย BU</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">สถานะ workstream</h3>
+      <table data-sortable="true">
+        <thead><tr><th>หัวข้อ</th><th>สถานะ</th><th>หมายเหตุ</th></tr></thead>
+        <tbody>
+          <tr><td>วิจัย 360 องศา</td><td><span class="badge badge-blue">กำลังสังเคราะห์</span></td><td>คัดจากงานวิจัย/วารสาร/กรณีศึกษา</td></tr>
+          <tr><td>Model เครดิตรายปี</td><td><span class="badge badge-amber">ต้องออกแบบ</span></td><td>รอ map สูตรประเมินจริง</td></tr>
+          <tr><td>Question Bank</td><td><span class="badge badge-amber">ต้องออกแบบ</span></td><td>ต้องแยก objective vs behavioral vs perception</td></tr>
+          <tr><td>Calibration</td><td><span class="badge badge-red">ยังไม่มี</span></td><td>ควรเพิ่มก่อนใช้งานจริง</td></tr>
+        </tbody>
+      </table>
+      <div class="mt-4 text-sm text-slate-600">พื้นที่นี้สงวนไว้สำหรับพัฒนาโมเดลประเมินเครดิต 360 องศา ประจำปีของ PKG โดยตรง</div>
+    </div>
+  </div>
+  <div class="grid lg:grid-cols-2 gap-6">
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">คำถามประเมินเครดิต ปี 2569 ที่ควรใช้ในระบบ</h3>
+      <table data-sortable="true">
+        <thead><tr><th>หมวด</th><th>ตัวอย่างแนวคำถาม</th><th>มิติหลัก</th></tr></thead>
+        <tbody>
+          <tr><td>บรรยากาศ 9</td><td>ความเชื่อมั่นและไว้วางใจ, ความเคารพในศักดิ์ศรี, ความตรงไปตรงมา, มองบวกและสร้างบรรยากาศที่ดี</td><td>พฤติกรรม / ทุนองค์กร</td></tr>
+          <tr><td>อุปนิสัย 8 ประการ</td><td>ความอดกลั้น, เมตตากรุณา, ความถ่อมตน, ความเคารพ, ความไม่เห็นแก่ตัว, การให้อภัย</td><td>พฤติกรรม / ภาวะผู้รับใช้</td></tr>
+          <tr><td>ค่านิยม 6 รับ</td><td>รับฟัง, รับใช้, รับผิดชอบ, รับผิด, รับความจริง, รับความเปลี่ยนแปลง</td><td>ทุนองค์กร / ภาวะผู้นำผู้รับใช้</td></tr>
+          <tr><td>From PVP</td><td>มุ่งเน้นเป้าหมาย, ยืดหยุ่น, ทำงานร่วมกัน, Growth Mindset, การสื่อสาร, การจัดสรร</td><td>ศักยภาพและ competency เชิงพฤติกรรม</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">โครง workflow Annual Credit Evaluation ปี 2569/2026</h3>
+      <div class="space-y-3 text-sm text-slate-700">
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200"><strong>1. ก.พ.-มี.ค.:</strong> นำ BP/LL มาปรับ model, ประกาศเงื่อนไขการประเมิน, ระบุกลุ่มผู้ประเมินและ BU ที่เข้าเงื่อนไข</div>
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200"><strong>2. เม.ย.-พ.ค.:</strong> ตรวจข้อมูลสมาชิก เช่น อายุงาน, ทีม, TA และจัดการสอบเรียนรู้ด้วยตนเอง</div>
+        <div class="p-3 rounded-xl bg-blue-50 border border-blue-200"><strong>3. มิ.ย.-ก.ค. / ธ.ค.:</strong> เปิดรอบประเมินเครดิต, สรุปคะแนน, ตรวจสอบความครบถ้วน และประกาศผลภายในรอบที่กำหนด</div>
+        <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200"><strong>4. การควบคุมคุณภาพ:</strong> ทีมประเมินเครดิตร่วมกับ BMC ต้องสุ่มตรวจการเทคะแนน/กดคะแนน และใช้คะแนนวินัยจาก TA เป็นตัวบวกหรือลบในผลรวม</div>
+      </div>
+    </div>
+  </div>
+  <div class="grid lg:grid-cols-3 gap-6">
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">สูตรประเมินที่ควรใช้ใน PP7</h3>
+      <table data-sortable="true">
+        <thead><tr><th>สูตร</th><th>รายละเอียด</th></tr></thead>
+        <tbody>
+          <tr><td>Model A</td><td>Community Member, ทุนองค์กร 60 + ทุนมนุษย์ 40 + วินัย 5</td></tr>
+          <tr><td>Model B</td><td>Servant / Advisor, ใช้ evaluator 4 กลุ่ม และมี fallback กรณีไม่มี peer หรือไม่มีลูกทีม</td></tr>
+          <tr><td>Model C</td><td>PKG Service Team, ทุนมนุษย์ 30 + ทุนองค์กร 70</td></tr>
+          <tr><td>Model D</td><td>AAMG, OKR 70 + 360 Credit 20 + Ranking 10</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">น้ำหนักผู้ประเมินที่ยืนยันได้</h3>
+      <table data-sortable="true">
+        <thead><tr><th>กลุ่ม</th><th>น้ำหนัก</th><th>ขั้นต่ำ</th></tr></thead>
+        <tbody>
+          <tr><td>ผู้รับใช้ทีม</td><td>40% หรือ 35%</td><td>อย่างน้อย 3 คน</td></tr>
+          <tr><td>เพื่อนในทีม / ฝ่าย</td><td>35% หรือ 30%</td><td>อย่างน้อย 5 คน หรือ ตามจริง</td></tr>
+          <tr><td>ลูกทีม</td><td>25% หรือ 30%</td><td>อย่างน้อย 4 คน</td></tr>
+          <tr><td>เพื่อนนอกทีม / ลูกค้า</td><td>25% หรือ 20% หรือ 30%</td><td>อย่างน้อย 8 คน หรือเติมให้ครบ quota</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">กติกาคะแนนวินัย / TA</h3>
+      <table data-sortable="true">
+        <thead><tr><th>เหตุการณ์</th><th>หักคะแนน/ครั้ง</th><th>ผลในระบบ</th></tr></thead>
+        <tbody>
+          <tr><td>ขาดงาน</td><td>0.30</td><td>หักจากคะแนนวินัย</td></tr>
+          <tr><td>ลากิจ</td><td>0.20</td><td>หักจากคะแนนวินัย</td></tr>
+          <tr><td>ลาป่วย</td><td>0.10</td><td>หักจากคะแนนวินัย</td></tr>
+          <tr><td>สาย / ออกก่อนเวลา</td><td>0.05</td><td>หักจากคะแนนวินัย</td></tr>
+          <tr><td>ประเมินล่าช้า</td><td>300 บาท / คน</td><td>ลด PFS และใบเหลืองด้านบุคลากร</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="grid lg:grid-cols-2 gap-6">
+    <div class="card">
       <h3 class="font-semibold text-pp7-800 mb-3">Transfer field mapping → PP7</h3>
       <table data-sortable="true">
         <thead><tr><th>Tab</th><th>Field หลัก</th><th>บทบาท</th></tr></thead>
@@ -1001,6 +1143,10 @@
       renderRecruitmentBridge();
       renderMatchingPipeline();
       renderEvaluationPipeline();
+      const hashMatch = window.location.hash.match(/^#tab=(.+)$/);
+      if(hashMatch){
+        showTab(hashMatch[1]);
+      }
     });
   </script>
   </div>
@@ -1049,6 +1195,74 @@
         <li>Welfare / Compensation ดูผลด้าน package และ cost</li>
         <li>Quality of Life ติดตามผลกระทบต่อทีมและบริบทการทำงาน</li>
       </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TAB: PP7 RESEARCH ==================== -->
+<section id="tab-pp7-research" class="tab-pane fade-in hidden space-y-6">
+  <div class="flex flex-wrap items-center gap-4">
+    <h2 class="text-xl font-bold text-pp7-800 flex-1">🧪 งานวิจัย PP7</h2>
+    <div class="text-sm text-slate-500">พื้นที่รวบรวมองค์ความรู้ งานวิจัย และกรณีศึกษา เพื่อนำมาพัฒนาระบบงาน PP7</div>
+  </div>
+  <div class="grid lg:grid-cols-3 gap-6">
+    <div class="card lg:col-span-2">
+      <h3 class="font-semibold text-pp7-800 mb-3">Research pipeline</h3>
+      <div class="mb-4 grid md:grid-cols-3 gap-3 text-sm">
+        <a href="https://suppas55.github.io/pakorn/" target="_blank" rel="noopener noreferrer" class="block p-3 rounded-xl bg-blue-50 border border-blue-200 hover:bg-blue-100 transition">
+          <div class="font-semibold text-blue-900">Web PP7 (GitHub Pages)</div>
+          <div class="text-blue-700 break-all">https://suppas55.github.io/pakorn/</div>
+        </a>
+        <a href="https://github.com/suppas55/pakorn" target="_blank" rel="noopener noreferrer" class="block p-3 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition">
+          <div class="font-semibold text-slate-800">GitHub: pakorn</div>
+          <div class="text-slate-600 break-all">https://github.com/suppas55/pakorn</div>
+        </a>
+        <a href="https://github.com/suppas55/openclaw-workspace" target="_blank" rel="noopener noreferrer" class="block p-3 rounded-xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition">
+          <div class="font-semibold text-slate-800">GitHub: openclaw-workspace</div>
+          <div class="text-slate-600 break-all">https://github.com/suppas55/openclaw-workspace</div>
+        </a>
+      </div>
+      <div class="space-y-3 text-sm text-slate-700">
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200"><strong>1. Research intake:</strong> รับโจทย์วิจัยจากผู้บริหาร / owner ของแต่ละ module เช่น Recruitment, Assessment, Performance, PP7 core workflow</div>
+        <div class="p-3 rounded-xl bg-blue-50 border border-blue-200"><strong>2. Source curation:</strong> คัดเฉพาะงานวิจัย, วารสาร, whitepaper หรือกรณีศึกษาที่มีแหล่งอ้างอิงชัดเจนและเชื่อถือได้</div>
+        <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200"><strong>3. Synthesis:</strong> สรุปสาระสำคัญ, ข้อค้นพบ, ข้อจำกัด และสิ่งที่นำมาใช้กับ PKG / PP7 ได้จริง</div>
+        <div class="p-3 rounded-xl bg-amber-50 border border-amber-200"><strong>4. Design translation:</strong> แปลงผลวิจัยเป็น requirement, workflow, scoring rule, UI block หรือ governance rule ของระบบ</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">หัวข้อวิจัยที่กำลังโฟกัส</h3>
+      <table data-sortable="true">
+        <thead><tr><th>หัวข้อ</th><th>สถานะ</th></tr></thead>
+        <tbody>
+          <tr><td>360-degree annual credit</td><td><span class="badge badge-blue">active</span></td></tr>
+          <tr><td>Bias reduction in appraisal</td><td><span class="badge badge-blue">active</span></td></tr>
+          <tr><td>Calibration workflow</td><td><span class="badge badge-amber">next</span></td></tr>
+          <tr><td>Competency-based evaluation</td><td><span class="badge badge-amber">next</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="grid lg:grid-cols-2 gap-6">
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">แหล่งอ้างอิงหลักที่ควรใช้</h3>
+      <table data-sortable="true">
+        <thead><tr><th>ประเภท</th><th>ตัวอย่าง</th><th>บทบาทต่อ PP7</th></tr></thead>
+        <tbody>
+          <tr><td>Meta-analysis</td><td>Multisource feedback, rater agreement, performance change</td><td>ใช้กำหนดหลักคิดระดับนโยบาย</td></tr>
+          <tr><td>Journal article</td><td>JAP, Personnel Psychology, ORM, APA</td><td>ใช้กำหนดวิธีประเมินและ control bias</td></tr>
+          <tr><td>Case study</td><td>องค์กรที่ใช้ 360 อย่างมี governance</td><td>ใช้เทียบ implementation model</td></tr>
+          <tr><td>Professional guideline</td><td>APA / evidence-based review</td><td>ใช้กำหนดข้อควรระวังและ rollout guide</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">Output ที่คาดหวังจาก tab นี้</h3>
+      <div class="space-y-3 text-sm text-slate-700">
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">Research brief ภาษาไทยสำหรับผู้บริหาร</div>
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">Design implication ต่อแต่ละ tab ของ PP7</div>
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">ข้อเสนอ requirement ใหม่ในระบบ</div>
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">รายการสิ่งที่ควรทดลอง / pilot ก่อน rollout จริง</div>
+      </div>
     </div>
   </div>
 </section>
@@ -1495,10 +1709,13 @@ function toggleLang(){
 function showTab(name){
   document.querySelectorAll('.tab-pane').forEach(p=>p.classList.add('hidden'));
   const el=document.getElementById('tab-'+name);
+  if(!el)return;
   el.classList.remove('hidden');
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelector('.tab-btn[data-tab="'+name+'"]').classList.add('active');
+  const btn=document.querySelector('.tab-btn[data-tab="'+name+'"]');
+  if(btn)btn.classList.add('active');
   el.classList.remove('fade-in');void el.offsetWidth;el.classList.add('fade-in');
+  if(location.hash!==`#tab=${name}`)history.replaceState(null,'',`#tab=${name}`);
   initCharts(name);
 }
 
@@ -1585,7 +1802,7 @@ function exportPDF(){
   document.querySelectorAll('.sticky-nav,.toolbar,.search-box,.notif-btn').forEach(e=>{e.style.display='none'});
   
   // Show all tabs and init their charts so html2canvas captures them
-  ['executive','recruit','assess','match','performance','develop','welfare','quality','labor-law','pkg-rules','data-exchange'].forEach(function(tab){
+  ['executive','recruit','assess','match','performance','develop','welfare','quality','labor-law','pkg-rules','data-exchange','pp7-research'].forEach(function(tab){
     document.getElementById('tab-'+tab).classList.remove('hidden');
     document.getElementById('tab-'+tab).style.display='block';
     initCharts(tab);
