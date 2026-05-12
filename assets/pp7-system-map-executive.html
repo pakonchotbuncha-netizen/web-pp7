@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="th"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>PP7 Executive System Map</title><style>body{margin:0;background:#f8fafc;display:flex;justify-content:center;padding:24px}svg{max-width:100%;height:auto}</style></head><body><svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1000" viewBox="0 0 1800 1000">
+  <defs>
+    <linearGradient id="hero" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <style>
+      .title { font: 700 40px 'Prompt', 'Noto Sans Thai', sans-serif; fill: white; }
+      .subtitle { font: 400 20px 'Prompt', 'Noto Sans Thai', sans-serif; fill: #dbeafe; }
+      .section { font: 700 24px 'Prompt', 'Noto Sans Thai', sans-serif; fill: #0f172a; }
+      .label { font: 700 22px 'Prompt', 'Noto Sans Thai', sans-serif; fill: #0f172a; }
+      .body { font: 400 16px 'Prompt', 'Noto Sans Thai', sans-serif; fill: #334155; }
+      .small { font: 500 14px 'Prompt', 'Noto Sans Thai', sans-serif; fill: #64748b; }
+      .box { stroke: #e2e8f0; stroke-width: 2; rx: 28; ry: 28; }
+      .arrow { stroke: #2563eb; stroke-width: 5; fill: none; marker-end: url(#arrowhead); }
+      .soft { stroke: #94a3b8; stroke-width: 3; fill: none; marker-end: url(#arrowhead2); stroke-dasharray: 12 8; }
+      .chip { font: 700 13px 'Prompt', 'Noto Sans Thai', sans-serif; fill: white; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <polygon points="0 0, 10 5, 0 10" fill="#2563eb" />
+    </marker>
+    <marker id="arrowhead2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <polygon points="0 0, 10 5, 0 10" fill="#94a3b8" />
+    </marker>
+  </defs>
+
+  <rect width="1800" height="1000" fill="#f8fafc"/>
+  <rect x="0" y="0" width="1800" height="170" fill="url(#hero)"/>
+  <text x="80" y="78" class="title">PP7 Executive System Map</text>
+  <text x="80" y="118" class="subtitle">ภาพเดียวเพื่ออธิบายว่า “ข้อมูลคน” ไหลจากต้นน้ำ ไปสู่การตัดสินใจ และลงสู่การดูแลต่อเนื่องอย่างไร</text>
+
+  <rect x="70" y="210" width="1660" height="95" fill="#ffffff" class="box"/>
+  <text x="95" y="245" class="section">Governance + Shared Context</text>
+  <text x="95" y="275" class="body">Executive Dashboard, Data Exchange, Labor Law, PKG Rules และ Master Data ทำหน้าที่เป็นชั้นกำกับ, อ้างอิง, และควบคุมคุณภาพของทั้งระบบ</text>
+
+  <rect x="90" y="360" width="330" height="170" fill="#fee2e2" class="box"/>
+  <text x="120" y="400" class="label">1. Resignation</text>
+  <text x="120" y="432" class="body">คนลาออก → เกิดตำแหน่งว่าง</text>
+  <text x="120" y="460" class="body">สร้าง replacement demand</text>
+  <rect x="120" y="485" width="150" height="28" rx="14" fill="#dc2626"/>
+  <text x="148" y="504" class="chip">Upstream flow</text>
+
+  <rect x="480" y="360" width="330" height="170" fill="#dbeafe" class="box"/>
+  <text x="510" y="400" class="label">2. Transfer</text>
+  <text x="510" y="432" class="body">โอนย้าย / เปลี่ยนบทบาท / เปลี่ยนสาขา</text>
+  <text x="510" y="460" class="body">สร้าง role-change flow</text>
+  <rect x="510" y="485" width="150" height="28" rx="14" fill="#2563eb"/>
+  <text x="538" y="504" class="chip">Upstream flow</text>
+
+  <rect x="870" y="360" width="330" height="170" fill="#ecfeff" class="box"/>
+  <text x="900" y="400" class="label">3. Recruitment</text>
+  <text x="900" y="432" class="body">รับผู้สมัครใหม่ + รับ vacancy</text>
+  <text x="900" y="460" class="body">จาก resignation pipeline</text>
+  <rect x="900" y="485" width="180" height="28" rx="14" fill="#0f766e"/>
+  <text x="928" y="504" class="chip">Entry point of new people</text>
+
+  <rect x="1260" y="360" width="450" height="170" fill="#fef3c7" class="box"/>
+  <text x="1290" y="400" class="label">4. Assessment → Matching → Evaluation</text>
+  <text x="1290" y="432" class="body">แกนกลางของการตัดสินใจว่า ใครเหมาะกับงานไหน และพร้อมรับรองผลหรือไม่</text>
+  <text x="1290" y="460" class="body">รองรับทั้งคนใหม่, คนทดแทน, คนโอนย้าย และการเปลี่ยนบทบาท</text>
+  <rect x="1290" y="485" width="175" height="28" rx="14" fill="#ca8a04"/>
+  <text x="1318" y="504" class="chip">Decision engine</text>
+
+  <path d="M 420 445 C 560 445, 720 445, 870 445" class="arrow"/>
+  <path d="M 810 445 C 930 445, 1100 445, 1260 445" class="arrow"/>
+  <path d="M 1200 445 C 1220 445, 1235 445, 1260 445" class="arrow"/>
+  <path d="M 810 530 C 1040 600, 1290 610, 1485 610" class="soft"/>
+
+  <rect x="260" y="660" width="380" height="170" fill="#dcfce7" class="box"/>
+  <text x="290" y="700" class="label">5. Development</text>
+  <text x="290" y="732" class="body">ปิด skill gap และวางแผนพัฒนา</text>
+  <text x="290" y="760" class="body">รองรับบทบาทใหม่และผลประเมิน</text>
+
+  <rect x="710" y="660" width="380" height="170" fill="#fce7f3" class="box"/>
+  <text x="740" y="700" class="label">6. Compensation / Welfare</text>
+  <text x="740" y="732" class="body">ดูผลกระทบด้านค่าตอบแทน, package, benefit</text>
+  <text x="740" y="760" class="body">และต้นทุนกำลังคน</text>
+
+  <rect x="1160" y="660" width="380" height="170" fill="#ede9fe" class="box"/>
+  <text x="1190" y="700" class="label">7. Quality of Life</text>
+  <text x="1190" y="732" class="body">ติดตามผลกระทบต่อทีม, turnover context</text>
+  <text x="1190" y="760" class="body">และคุณภาพชีวิตการทำงาน</text>
+
+  <path d="M 1485 530 C 1485 575, 1485 610, 1350 660" class="arrow"/>
+  <path d="M 1485 530 C 1400 590, 1050 610, 900 660" class="arrow"/>
+  <path d="M 1485 530 C 1320 610, 620 610, 450 660" class="arrow"/>
+
+  <text x="80" y="905" class="section">Executive Summary</text>
+  <text x="80" y="940" class="body">PP7 คือระบบเดียวที่เชื่อม “เหตุการณ์ของคน” ตั้งแต่ลาออก, โอนย้าย, เปิดรับ, ประเมิน, จับคู่, รับรองผล ไปจนถึงการพัฒนา ค่าตอบแทน และคุณภาพชีวิต โดยมีข้อมูลกลางและกติกาองค์กรคุมทั้งระบบ</text>
+</svg>
+</body></html>

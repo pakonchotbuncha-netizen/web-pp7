@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BARS - Best Practices สำหรับ PKG</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;600;700;800&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Noto Sans Thai', sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    padding: 40px;
+    color: #fff;
+  }
+  
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .header h1 {
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(90deg, #00d2ff, #3a7bd5, #00d2ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  
+  .header .subtitle {
+    font-size: 18px;
+    color: #a8d8ea;
+    font-weight: 400;
+  }
+  
+  .bars-def {
+    background: rgba(255,255,255,0.08);
+    border-left: 4px solid #00d2ff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 36px;
+  }
+  
+  .bars-def h2 {
+    font-size: 20px;
+    color: #00d2ff;
+    margin-bottom: 8px;
+  }
+  
+  .bars-def p {
+    font-size: 15px;
+    color: #e0e0e0;
+    line-height: 1.7;
+  }
+  
+  .bars-def .en {
+    font-size: 13px;
+    color: #888;
+    font-style: italic;
+  }
+  
+  .principles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .principle {
+    background: rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: transform 0.2s;
+  }
+  
+  .principle:hover {
+    transform: translateY(-3px);
+  }
+  
+  .principle .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  
+  .principle h3 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  
+  .principle p {
+    font-size: 13px;
+    color: #c0c0c0;
+    line-height: 1.6;
+  }
+  
+  .p1 .num { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+  .p1 h3 { color: #ff6b6b; }
+  
+  .p2 .num { background: linear-gradient(135deg, #a29bfe, #6c5ce7); }
+  .p2 h3 { color: #a29bfe; }
+  
+  .p3 .num { background: linear-gradient(135deg, #55efc4, #00b894); }
+  .p3 h3 { color: #55efc4; }
+  
+  .p4 .num { background: linear-gradient(135deg, #fdcb6e, #f39c12); }
+  .p4 h3 { color: #fdcb6e; }
+  
+  .p5 .num { background: linear-gradient(135deg, #74b9ff, #0984e3); }
+  .p5 h3 { color: #74b9ff; }
+  
+  .p6 .num { background: linear-gradient(135deg, #fd79a8, #e84393); }
+  .p6 h3 { color: #fd79a8; }
+  
+  .example-box {
+    background: rgba(0,210,255,0.08);
+    border: 1px solid rgba(0,210,255,0.2);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 30px;
+  }
+  
+  .example-box h3 {
+    font-size: 16px;
+    color: #00d2ff;
+    margin-bottom: 16px;
+  }
+  
+  .level {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  
+  .level .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+  }
+  
+  .l5 .badge { background: #00b894; }
+  .l4 .badge { background: #55efc4; color: #333; }
+  .l3 .badge { background: #fdcb6e; color: #333; }
+  .l2 .badge { background: #e17055; }
+  .l1 .badge { background: #d63031; }
+  
+  .level .desc {
+    font-size: 13px;
+    color: #d0d0d0;
+    line-height: 1.5;
+    padding-top: 4px;
+  }
+  
+  .flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+  }
+  
+  .flow .step {
+    text-align: center;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    min-width: 120px;
+  }
+  
+  .flow .step .icon { font-size: 24px; margin-bottom: 6px; }
+  .flow .step .label { font-size: 12px; color: #a0a0a0; }
+  .flow .arrow { font-size: 20px; color: #555; }
+  
+  .footer {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 13px;
+    color: #666;
+  }
+  
+  .wide {
+    grid-column: span 2;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>💡 Best Practices สำหรับ PKG</h1>
+    <div class="subtitle">6 หลักการออกแบบระบบประเมินเครดิตใหม่ — ลดอคติ เพิ่มความยุติธรรม</div>
+  </div>
+  
+  <div class="bars-def">
+    <h2>📐 BARS คืออะไร?</h2>
+    <p><strong>Behaviorally Anchored Rating Scales</strong> — เครื่องมือประเมินที่ใช้ "พฤติกรรมที่สังเกตได้จริง" เป็นเกณฑ์ให้คะแนน แทนการใช้ตัวเลข 1-5 ที่แต่ละคนตีความตามความรู้สึก</p>
+    <div class="en">"วัดจากสิ่งที่ทำ ไม่ใช่ว่ารู้สึก"</div>
+  </div>
+  
+  <div class="principles">
+    <div class="principle p1">
+      <div class="num">1</div>
+      <h3>ใช้ BARS</h3>
+      <p>ทุกข้อประเมินต้องมีพฤติกรรม anchor 5 ระดับ — สังเกตได้จริง ไม่ใช่ "รู้สึก"</p>
+    </div>
+    <div class="principle p2">
+      <div class="num">2</div>
+      <h3>แยกจากเงินเดือน</h3>
+      <p>360 feedback เพื่อพัฒนา (P5) — เงินเดือน/โปรโมทใช้ KPI ต่างหาก (P6)</p>
+    </div>
+    <div class="principle p3">
+      <div class="num">3</div>
+      <h3>Follow-up ทุก 2-3 เดือน</h3>
+      <p>Coaching หลังได้รับผลภายใน 2 สัปดาห์ — ติดตาม progress ทุกไตรมาส</p>
+    </div>
+    <div class="principle p4">
+      <div class="num">4</div>
+      <h3>Anonymity</h3>
+      <p>อย่างน้อย 3 rater ต่อมุมมอง — ไม่เปิดเผยชื่อ — แสดงผลเฉพาะ aggregate</p>
+    </div>
+    <div class="principle p5">
+      <div class="num">5</div>
+      <h3>Competency-based</h3>
+      <p>Core competency (กลาง) + Functional competency (เฉพาะกลุ่ม) — ไม่เกิน 4 ข้อต่อคน</p>
+    </div>
+    <div class="principle p6">
+      <div class="num">6</div>
+      <h3>คำถามสั้น 15-20 ข้อ</h3>
+      <p>4-5 ข้อต่อ competency + open-ended 1-2 ข้อ — ใช้เวลา 10-15 นาที/คน</p>
+    </div>
+  </div>
+  
+  <div class="example-box">
+    <h3>📋 ตัวอย่าง BARS — Competency: "การสื่อสาร"</h3>
+    <div class="level l5"><span class="badge">5</span><span class="desc">แจ้งเป้าหมายล่วงหน้า ≥1 สัปดาห์ + feedback ทุกสิ้นเดือน + สร้าง template guide ให้ทีม</span></div>
+    <div class="level l4"><span class="badge">4</span><span class="desc">แจ้งเป้าหมายล่วงหน้า + feedback ทุกสิ้นเดือน</span></div>
+    <div class="level l3"><span class="badge">3</span><span class="desc">แจ้งบ้างไม่แจ้งบ้าง + feedback ไม่สม่ำเสมอ</span></div>
+    <div class="level l2"><span class="badge">2</span><span class="desc">Rarely แจ้งล่วงหน้า + feedback นานที</span></div>
+    <div class="level l1"><span class="badge">1</span><span class="desc">ไม่แจ้งเป้าหมาย + ไม่มี feedback</span></div>
+  </div>
+  
+  <div class="flow">
+    <div class="step"><div class="icon">🔍</div><div class="label">P1 แสวงหา</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="icon">⚔️</div><div class="label">P2 ประเมินก่อนรบ</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="icon">🤝</div><div class="label">P3 จับคู่</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="icon">🏆</div><div class="label">P4 ประเมินหลังรบ</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="icon">🎓</div><div class="label">P5 พัฒนา</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="icon">💰</div><div class="label">P6 ค่าตอบแทน</div></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="icon">🌿</div><div class="label">P7 คุณภาพชีวิต</div></div>
+  </div>
+  
+  <div class="footer">
+    PP7 — ระบบบริหารบุคลากร PKG | สังเคราะห์จากงานวิจัย CCL, SHRM, AIHR, Qualtrics
+  </div>
+</div>
+</body>
+</html>

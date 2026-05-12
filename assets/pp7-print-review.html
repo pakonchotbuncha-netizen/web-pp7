@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PP7 Print Review Pack</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;background:#f8fafc;color:#0f172a;margin:0;padding:24px}
+    .container{max-width:1100px;margin:0 auto}
+    .hero,.card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;margin-bottom:20px}
+    h1,h2,h3{margin:0 0 12px}
+    p,li{line-height:1.5}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .tab-card{border:1px solid #cbd5e1;border-radius:14px;padding:18px;background:#fff}
+    .tab-card h3{font-size:18px;margin-bottom:8px}
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-size:12px;font-weight:700;margin-bottom:8px}
+    .frame-wrap{margin-top:10px;border:1px dashed #94a3b8;border-radius:12px;overflow:hidden;background:#fff}
+    .frame-wrap iframe{width:100%;height:920px;border:0;background:#fff}
+    .note-box{margin-top:12px;border:1px dashed #94a3b8;border-radius:12px;padding:14px;min-height:160px;background:#f8fafc}
+    .note-box ul{margin:0;padding-left:18px}
+    @media print{
+      body{background:#fff;padding:0}
+      .hero,.card,.tab-card{box-shadow:none;break-inside:avoid}
+      .grid{grid-template-columns:1fr}
+      .frame-wrap iframe{height:780px}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <h1>PP7 Print Review Pack</h1>
+      <p>เอกสารชุดนี้ใช้สำหรับพิมพ์และขีดเขียน requirement ของแต่ละ tab ในเว็บ PP7 โดยแสดงทั้งภาพหน้าปัจจุบันและพื้นที่จดสิ่งที่ต้องการเพิ่มเติม</p>
+      <ul>
+        <li>ไฟล์อ้างอิงหลัก: <code>index.html</code></li>
+        <li>วัตถุประสงค์: review โครงสร้างแต่ละ tab, mark รายละเอียดที่ต้องมีในภาพ, ส่งต่อให้นักออกแบบ</li>
+        <li>คำแนะนำ: พิมพ์หน้านี้หรือ export เป็น PDF แล้วเขียนกำกับในช่องหมายเหตุของแต่ละ tab</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>ชุด tab สำหรับ review</h2>
+      <div class="grid">
+        <div class="tab-card"><div class="pill">TAB 1</div><h3>สรุปผู้บริหาร</h3><p>ภาพรวม KPI, trend, executive dashboard</p></div>
+        <div class="tab-card"><div class="pill">TAB 2</div><h3>แสวงหา</h3><p>vacancy, recruitment pipeline, resignation bridge</p></div>
+        <div class="tab-card"><div class="pill">TAB 3</div><h3>หยั่งประเมิน</h3><p>assessment queue, readiness, interview logic</p></div>
+        <div class="tab-card"><div class="pill">TAB 4</div><h3>จับคู่คนกับงาน</h3><p>matching matrix, role fit, transfer downstream</p></div>
+        <div class="tab-card"><div class="pill">TAB 5</div><h3>ประเมินผล</h3><p>annual credit evaluation, model summary, weight logic</p></div>
+        <div class="tab-card"><div class="pill">TAB 6</div><h3>พัฒนา</h3><p>development plan, learning path, coaching</p></div>
+        <div class="tab-card"><div class="pill">TAB 7</div><h3>สวัสดิการ</h3><p>compensation, incentive, welfare structure</p></div>
+        <div class="tab-card"><div class="pill">TAB 8</div><h3>คุณภาพชีวิต</h3><p>quality of life, wellbeing, risk signals</p></div>
+        <div class="tab-card"><div class="pill">TAB 9</div><h3>กฎหมายแรงงาน</h3><p>country labor law reference และ compliance view</p></div>
+        <div class="tab-card"><div class="pill">TAB 10</div><h3>ระเบียบ PKG</h3><p>กติกาภายใน, policy, disciplinary rules</p></div>
+        <div class="tab-card"><div class="pill">TAB 11</div><h3>Import / Export</h3><p>นำเข้า-ส่งออกข้อมูล, template, exchange format</p></div>
+        <div class="tab-card"><div class="pill">TAB 12</div><h3>System Map</h3><p>ภาพรวม flow ของ PP7 ทั้งระบบ</p></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>ภาพหน้าเว็บปัจจุบันสำหรับ print review</h2>
+      <div class="frame-wrap">
+        <iframe src="../index.html"></iframe>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

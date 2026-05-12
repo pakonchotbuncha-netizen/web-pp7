@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PP7 Operations Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{font-family:'Prompt',sans-serif}
+    body{background:#eef3f8;color:#0f172a}
+    .glass{background:rgba(255,255,255,.92);backdrop-filter:blur(8px)}
+    .card{background:#fff;border-radius:1.5rem;border:1px solid #e2e8f0;box-shadow:0 10px 30px rgba(15,23,42,.05)}
+  </style>
+</head>
+<body class="min-h-screen">
+  <header class="bg-gradient-to-r from-blue-700 via-blue-800 to-slate-900 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-6 flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <p class="text-blue-200 text-sm">OpenClaw x Apps Script x Google Sheet</p>
+        <h1 class="text-2xl md:text-4xl font-bold">PP7 Operations Dashboard</h1>
+        <p class="text-blue-100 text-sm mt-1">ต้นแบบหน้า Web PP7 สำหรับรับงาน, ติดตามสถานะ, และสรุปข้อมูลผู้บริหาร</p>
+      </div>
+      <div class="text-sm text-blue-100 bg-white/10 rounded-2xl px-4 py-3 max-w-xl">
+        Endpoint ปัจจุบัน<br>
+        <span class="font-mono text-xs break-all" id="endpointLabel"></span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-8 space-y-6">
+    <section class="grid lg:grid-cols-4 md:grid-cols-2 gap-4">
+      <div class="card p-5">
+        <div class="text-sm text-slate-500">งานทั้งหมด</div>
+        <div id="kpiTotal" class="mt-2 text-3xl font-bold text-slate-900">0</div>
+        <div class="text-xs text-slate-400 mt-1">จำนวนรายการใน task sheet</div>
+      </div>
+      <div class="card p-5">
+        <div class="text-sm text-slate-500">กำลังดำเนินการ</div>
+        <div id="kpiInProgress" class="mt-2 text-3xl font-bold text-blue-700">0</div>
+        <div class="text-xs text-slate-400 mt-1">status = in_progress</div>
+      </div>
+      <div class="card p-5">
+        <div class="text-sm text-slate-500">รอดำเนินการ</div>
+        <div id="kpiPending" class="mt-2 text-3xl font-bold text-amber-600">0</div>
+        <div class="text-xs text-slate-400 mt-1">status = pending / draft</div>
+      </div>
+      <div class="card p-5">
+        <div class="text-sm text-slate-500">เสร็จแล้ว</div>
+        <div id="kpiDone" class="mt-2 text-3xl font-bold text-emerald-600">0</div>
+        <div class="text-xs text-slate-400 mt-1">status = done</div>
+      </div>
+    </section>
+
+    <section class="grid xl:grid-cols-[1.2fr_.8fr] gap-6">
+      <div class="card p-6">
+        <div class="flex items-center justify-between flex-wrap gap-4 mb-5">
+          <div>
+            <h2 class="text-xl font-semibold">ฟอร์มบันทึกงาน PP7</h2>
+            <p class="text-sm text-slate-500">ส่งข้อมูลจากหน้าเว็บเข้า Apps Script แล้วลง Google Sheet</p>
+          </div>
+          <div id="healthBadge" class="inline-flex items-center rounded-full bg-amber-100 text-amber-800 px-3 py-1 text-sm font-medium">ยังไม่ตรวจสอบ</div>
+        </div>
+
+        <form id="pp7Form" class="space-y-4">
+          <div class="grid md:grid-cols-2 gap-4">
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">Process</span>
+              <input name="process" value="web_pp7" class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200" />
+            </label>
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">Request ID</span>
+              <input name="request_id" value="REQ-PP7-001" class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200" />
+            </label>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">Status</span>
+              <select name="status" class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200">
+                <option value="draft">draft</option>
+                <option value="pending" selected>pending</option>
+                <option value="in_progress">in_progress</option>
+                <option value="done">done</option>
+              </select>
+            </label>
+            <label class="block">
+              <span class="text-sm font-medium text-slate-700">Owner</span>
+              <input name="owner" value="PKG" class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200" />
+            </label>
+          </div>
+
+          <label class="block">
+            <span class="text-sm font-medium text-slate-700">รายละเอียดงาน</span>
+            <textarea name="note" rows="4" class="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200">ต้นแบบหน้าเว็บสำหรับส่งข้อมูล PP7 จาก Web ไป Apps Script แล้วบันทึกลง Google Sheet</textarea>
+          </label>
+
+          <div class="flex flex-wrap gap-3">
+            <button type="submit" class="rounded-xl bg-blue-600 text-white px-5 py-3 text-sm font-medium hover:bg-blue-700">ส่งข้อมูลเข้า Apps Script</button>
+            <button type="button" onclick="fillSample()" class="rounded-xl bg-slate-100 text-slate-700 px-5 py-3 text-sm font-medium hover:bg-slate-200">ใส่ข้อมูลตัวอย่างใหม่</button>
+            <button type="button" onclick="checkHealth()" class="rounded-xl bg-slate-900 text-white px-5 py-3 text-sm font-medium hover:bg-slate-800">ตรวจสอบระบบ</button>
+          </div>
+        </form>
+
+        <div id="submitResult" class="hidden mt-5 rounded-2xl border px-4 py-3 text-sm"></div>
+      </div>
+
+      <div class="card p-6 space-y-4">
+        <div>
+          <h2 class="text-xl font-semibold">สรุปผู้บริหาร</h2>
+          <p class="text-sm text-slate-500">แปลข้อมูลจาก task sheet ให้อ่านง่ายบนหน้า Web PP7</p>
+        </div>
+        <div class="rounded-2xl bg-blue-50 border border-blue-100 p-4">
+          <div class="text-sm font-semibold text-blue-900">ภาพรวมสถานะ</div>
+          <p id="executiveSummary" class="text-sm text-blue-800 mt-2">ยังไม่มีข้อมูลสรุป</p>
+        </div>
+        <div class="rounded-2xl bg-slate-50 border border-slate-200 p-4">
+          <div class="text-sm font-semibold text-slate-900">คำแนะนำการใช้งาน</div>
+          <ul class="mt-2 text-sm text-slate-700 space-y-2 list-disc pl-5">
+            <li>ให้ Apps Script เป็น data bridge ระหว่าง Web PP7 กับ Google Sheet</li>
+            <li>ให้ OpenClaw ใช้ข้อมูลในชีตสร้างรายงานและวิเคราะห์ต่อ</li>
+            <li>เมื่อ flow นิ่งแล้ว ค่อยเพิ่ม dashboard แยกตาม process จริง</li>
+          </ul>
+        </div>
+        <div class="rounded-2xl bg-emerald-50 border border-emerald-100 p-4">
+          <div class="text-sm font-semibold text-emerald-900">Flow ที่แนะนำ</div>
+          <div class="text-sm text-emerald-800 mt-2">Web PP7 → Apps Script → Google Sheet → OpenClaw Summary</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card p-6">
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <h2 class="text-xl font-semibold">Task Monitor</h2>
+          <p class="text-sm text-slate-500">ดูข้อมูลล่าสุดจาก Google Sheet พร้อม filter และ refresh</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <select id="statusFilter" onchange="applyFilters()" class="rounded-xl border border-slate-300 px-4 py-2 text-sm bg-white">
+            <option value="all">ทุกสถานะ</option>
+            <option value="draft">draft</option>
+            <option value="pending">pending</option>
+            <option value="in_progress">in_progress</option>
+            <option value="done">done</option>
+          </select>
+          <input id="searchInput" oninput="applyFilters()" placeholder="ค้นหา process / request / owner" class="rounded-xl border border-slate-300 px-4 py-2 text-sm bg-white" />
+          <button onclick="loadRows()" class="rounded-xl bg-slate-900 text-white px-4 py-2 text-sm font-medium hover:bg-slate-800">รีเฟรชข้อมูล</button>
+        </div>
+      </div>
+
+      <div id="rowsInfo" class="mt-4 text-sm text-slate-500">ยังไม่ได้โหลดข้อมูล</div>
+
+      <div class="mt-4 overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead>
+            <tr class="border-b border-slate-200 text-left text-slate-500">
+              <th class="py-3 pr-4">เวลา</th>
+              <th class="py-3 pr-4">Process</th>
+              <th class="py-3 pr-4">Request ID</th>
+              <th class="py-3 pr-4">Status</th>
+              <th class="py-3 pr-4">Owner</th>
+              <th class="py-3 pr-4">Note</th>
+            </tr>
+          </thead>
+          <tbody id="sheetTable" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const endpoint = 'https://script.google.com/macros/s/AKfycbw5HpTdr5U6SIYvUPivlNKhkLXYpZLCDvD_W4eW0netWxdIBWnwxH1_Xnn_RCdLlufM/exec';
+    document.getElementById('endpointLabel').textContent = endpoint;
+
+    let allRows = [];
+
+    function formatValue(value) {
+      if (value === null || value === undefined || value === '') return '-';
+      return String(value);
+    }
+
+    function normalizeStatus(value) {
+      return String(value || '').trim().toLowerCase();
+    }
+
+    function getStatusBadge(status) {
+      const s = normalizeStatus(status);
+      if (s === 'done') return 'bg-emerald-100 text-emerald-700';
+      if (s === 'in_progress') return 'bg-blue-100 text-blue-700';
+      if (s === 'pending' || s === 'draft') return 'bg-amber-100 text-amber-700';
+      return 'bg-slate-100 text-slate-700';
+    }
+
+    function updateKpis(rows) {
+      const total = rows.length;
+      const inProgress = rows.filter(r => normalizeStatus(r.status) === 'in_progress').length;
+      const done = rows.filter(r => normalizeStatus(r.status) === 'done').length;
+      const pending = rows.filter(r => ['pending','draft'].includes(normalizeStatus(r.status))).length;
+
+      document.getElementById('kpiTotal').textContent = total;
+      document.getElementById('kpiInProgress').textContent = inProgress;
+      document.getElementById('kpiPending').textContent = pending;
+      document.getElementById('kpiDone').textContent = done;
+
+      const topProcess = total ? rows[0].process || 'ไม่ระบุ' : 'ยังไม่มีข้อมูล';
+      document.getElementById('executiveSummary').textContent = total
+        ? `มีงานทั้งหมด ${total} รายการ, กำลังดำเนินการ ${inProgress}, รอดำเนินการ ${pending}, เสร็จแล้ว ${done}. รายการล่าสุดคือ ${topProcess}`
+        : 'ยังไม่มีข้อมูลใน task sheet, ควรเริ่มจากการส่งข้อมูลจากฟอร์มด้านซ้าย';
+    }
+
+    function renderSheetRows(rows) {
+      const tbody = document.getElementById('sheetTable');
+      if (!rows || rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-slate-400">ยังไม่มีข้อมูลตรงตามเงื่อนไข</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = rows.map(row => `
+        <tr>
+          <td class="py-3 pr-4 whitespace-nowrap">${formatValue(row.created_at)}</td>
+          <td class="py-3 pr-4">${formatValue(row.process)}</td>
+          <td class="py-3 pr-4">${formatValue(row.request_id)}</td>
+          <td class="py-3 pr-4"><span class="inline-flex rounded-full px-3 py-1 text-xs font-medium ${getStatusBadge(row.status)}">${formatValue(row.status)}</span></td>
+          <td class="py-3 pr-4">${formatValue(row.owner)}</td>
+          <td class="py-3 pr-4">${formatValue(row.note)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function applyFilters() {
+      const status = document.getElementById('statusFilter').value;
+      const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      let rows = [...allRows];
+      if (status !== 'all') {
+        rows = rows.filter(r => normalizeStatus(r.status) === status);
+      }
+
+      if (keyword) {
+        rows = rows.filter(r => [r.process, r.request_id, r.owner, r.note]
+          .map(v => String(v || '').toLowerCase())
+          .some(v => v.includes(keyword)));
+      }
+
+      renderSheetRows(rows);
+      document.getElementById('rowsInfo').textContent = `แสดง ${rows.length} รายการ จากทั้งหมด ${allRows.length} รายการ`;
+    }
+
+    async function checkHealth() {
+      const badge = document.getElementById('healthBadge');
+      badge.className = 'inline-flex items-center rounded-full bg-slate-100 text-slate-700 px-3 py-1 text-sm font-medium';
+      badge.textContent = 'กำลังตรวจสอบ...';
+      try {
+        const res = await fetch(endpoint, { method: 'GET' });
+        await res.text();
+        badge.className = 'inline-flex items-center rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 text-sm font-medium';
+        badge.textContent = 'เชื่อมต่อได้';
+      } catch (err) {
+        badge.className = 'inline-flex items-center rounded-full bg-red-100 text-red-800 px-3 py-1 text-sm font-medium';
+        badge.textContent = 'เชื่อมต่อไม่สำเร็จ';
+      }
+    }
+
+    async function loadRows() {
+      const info = document.getElementById('rowsInfo');
+      info.textContent = 'กำลังโหลดข้อมูลจาก Google Sheet...';
+      try {
+        const res = await fetch(`${endpoint}?mode=list`, { method: 'GET' });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'โหลดข้อมูลไม่สำเร็จ');
+        allRows = data.rows || [];
+        updateKpis(allRows);
+        applyFilters();
+      } catch (err) {
+        allRows = [];
+        updateKpis(allRows);
+        renderSheetRows([]);
+        info.textContent = `โหลดข้อมูลไม่สำเร็จ: ${err.message}`;
+      }
+    }
+
+    function fillSample() {
+      const form = document.getElementById('pp7Form');
+      form.process.value = 'matching_pp7';
+      form.request_id.value = `REQ-PP7-${Math.floor(Math.random()*900+100)}`;
+      form.status.value = 'in_progress';
+      form.owner.value = 'PKG';
+      form.note.value = 'อัปเดตตัวอย่างข้อมูลจากหน้าเว็บ PP7 เพื่อส่งเข้า Apps Script และใช้เป็น log กลาง';
+    }
+
+    document.getElementById('pp7Form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const payload = {
+        process: form.process.value,
+        request_id: form.request_id.value,
+        status: form.status.value,
+        owner: form.owner.value,
+        note: form.note.value
+      };
+
+      const result = document.getElementById('submitResult');
+      result.className = 'mt-5 rounded-2xl border px-4 py-3 text-sm bg-slate-50 text-slate-700 border-slate-200';
+      result.textContent = 'กำลังส่งข้อมูล...';
+      result.classList.remove('hidden');
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const text = await res.text();
+        result.className = 'mt-5 rounded-2xl border px-4 py-3 text-sm bg-emerald-50 text-emerald-800 border-emerald-200';
+        result.textContent = `ส่งสำเร็จ: ${text}`;
+        await loadRows();
+      } catch (err) {
+        result.className = 'mt-5 rounded-2xl border px-4 py-3 text-sm bg-red-50 text-red-800 border-red-200';
+        result.textContent = `ส่งไม่สำเร็จ: ${err.message}`;
+      }
+    });
+
+    checkHealth();
+    loadRows();
+  </script>
+</body>
+</html>
