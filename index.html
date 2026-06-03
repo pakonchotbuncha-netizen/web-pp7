@@ -8,9 +8,451 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="emp_data.js"></script>
-  <script src="state/evaluation_pipeline.js"></script>
-  <script src="state/transfer_resignation_pipeline.js"></script>
+  <script>
+// emp_data.js — ข้อมูลจำลองสำหรับ PP7 Dashboard
+// สร้างเมื่อ 2026-05-14
+// NOTE: USERS constant is already defined in PP7.html inline script
+
+/* ===== EMP_STATS — ตัวเลขบุคลากร ===== */
+const EMP_STATS = {
+  total: 1247,
+  byDept: { Tech:210, Sales:340, Operations:280, Finance:120, HR:85, R&D:212 },
+  byLevel: { Top:180, Solid:420, Develop:480, Exceeds:95, Meets:72 },
+  newThisMonth: 12,
+  resignedThisMonth: 3,
+  transferThisMonth: 5,
+};
+
+/* ===== WG_DATA — Working Group รายฝ่าย ===== */
+/* keys must match the dept table loop in PP7.html */
+const WG_DATA = {
+  PMSG:    { name:'PMSG',    count:210, avgScore:3.8, turnover:3.2 },
+  AAMG:    { name:'AAMG',    count:340, avgScore:3.4, turnover:7.1 },
+  CPDG:    { name:'CPDG',    count:280, avgScore:3.6, turnover:2.8 },
+  RPLCG:   { name:'RPLCG',   count:120, avgScore:3.9, turnover:1.5 },
+  RAFCOG:  { name:'RAFCOG',  count:85,  avgScore:3.7, turnover:2.0 },
+  PGHG:    { name:'PGHG',    count:150, avgScore:3.5, turnover:4.1 },
+  21RTG:   { name:'21RTG',   count:95,  avgScore:3.3, turnover:5.2 },
+  Other:   { name:'Other',   count:102, avgScore:3.2, turnover:3.8 },
+};
+
+/* ===== RECRUIT_CLEAN_DATA — ข้อมูลรับสมัครจาก A1 ===== */
+const RECRUIT_CLEAN_DATA = {
+  summary: {
+    total: 42,
+    matchedEmployment: 18,
+    openPositions: 42,
+    inPipeline: 186,
+    interviewed: 34,
+    offerSent: 12,
+  },
+  rows: [
+    { running:'A1-001', fullNameNoPrefix:'สมชาย ใจดี', jobPosition1:'Software Engineer', schoolName:'Referral', status_register:'จ้างงาน', employmentStatus:'พบใน employee', applicationDate:'2026-03-15' },
+    { running:'A1-002', fullNameNoPrefix:'สมหญิง รักเรียน', jobPosition1:'Sales Executive', schoolName:'LinkedIn', status_register:'จ้างงาน', employmentStatus:'พบใน employee', applicationDate:'2026-03-18' },
+    { running:'A1-003', fullNameNoPrefix:'วิชัย สุขสมบูรณ์', jobPosition1:'Operations Supervisor', schoolName:'Job Board', status_register:'มาสัมภาษณ์', employmentStatus:'', applicationDate:'2026-04-01' },
+    { running:'A1-004', fullNameNoPrefix:'นภา แสงจันทร์', jobPosition1:'HR Coordinator', schoolName:'Website', status_register:'มาสัมภาษณ์', employmentStatus:'', applicationDate:'2026-04-05' },
+    { running:'A1-005', fullNameNoPrefix:'ธนกร เจริญทรัพย์', jobPosition1:'Financial Analyst', schoolName:'Agency', status_register:'รอสัมภาษณ์', employmentStatus:'', applicationDate:'2026-04-10' },
+    { running:'A1-006', fullNameNoPrefix:'พิมพ์ใจ ดีงาม', jobPosition1:'UX Designer', schoolName:'LinkedIn', status_register:'รอสัมภาษณ์', employmentStatus:'', applicationDate:'2026-04-12' },
+    { running:'A1-007', fullNameNoPrefix:'ประเสริฐ มั่นคง', jobPosition1:'Data Scientist', schoolName:'Referral', status_register:'รอคัดเลือกใบสมัคร', employmentStatus:'', applicationDate:'2026-04-15' },
+    { running:'A1-008', fullNameNoPrefix:'อรุณี วงษ์สว่าง', jobPosition1:'Sales Manager', schoolName:'Job Board', status_register:'จ้างงาน', employmentStatus:'พบใน employee', applicationDate:'2026-03-20' },
+    { running:'A1-009', fullNameNoPrefix:'สุรชัย กล้าหาญ', jobPosition1:'DevOps Engineer', schoolName:'Website', status_register:'ปิดใบสมัคร', employmentStatus:'', applicationDate:'2026-02-28' },
+    { running:'A1-010', fullNameNoPrefix:'กัลยา ธรรมรักษ์', jobPosition1:'QA Engineer', schoolName:'LinkedIn', status_register:'ใบสมัครซ้ำ', employmentStatus:'', applicationDate:'2026-04-18' },
+    { running:'A1-011', fullNameNoPrefix:'ชัยวัฒน์ พงศ์ไพบูลย์', jobPosition1:'Product Manager', schoolName:'Referral', status_register:'มาสัมภาษณ์', employmentStatus:'', applicationDate:'2026-04-20' },
+    { running:'A1-012', fullNameNoPrefix:'รัตนา จิตต์สว่าง', jobPosition1:'Accountant', schoolName:'Job Board', status_register:'จ้างงาน', employmentStatus:'พบใน employee', applicationDate:'2026-03-25' },
+    { running:'A1-013', fullNameNoPrefix:'อนุชา แก้วมณี', jobPosition1:'Network Admin', schoolName:'Website', status_register:'รอสัมภาษณ์', employmentStatus:'', applicationDate:'2026-04-22' },
+    { running:'A1-014', fullNameNoPrefix:'จิราภา ศรีสุวรรณ', jobPosition1:'Marketing Specialist', schoolName:'Agency', status_register:'รอคัดเลือกใบสมัคร', employmentStatus:'', applicationDate:'2026-04-25' },
+    { running:'A1-015', fullNameNoPrefix:'ธีรเดช อำนวยผล', jobPosition1:'Tech Lead', schoolName:'LinkedIn', status_register:'จ้างงาน', employmentStatus:'พบใน employee', applicationDate:'2026-03-10' },
+    { running:'A1-016', fullNameNoPrefix:'พรทิพย์ นาคสุข', jobPosition1:'Customer Service', schoolName:'Job Board', status_register:'มาสัมภาษณ์', employmentStatus:'', applicationDate:'2026-04-28' },
+    { running:'A1-017', fullNameNoPrefix:'กิตติศักดิ์ รุ่งเรือง', jobPosition1:'Business Analyst', schoolName:'Referral', status_register:'จ้างงาน', employmentStatus:'พบใน employee', applicationDate:'2026-03-30' },
+    { running:'A1-018', fullNameNoPrefix:'สุภาวดี จันทร์เพ็ญ', jobPosition1:'UI Developer', schoolName:'Website', status_register:'รอสัมภาษณ์', employmentStatus:'', applicationDate:'2026-05-01' },
+    { running:'A1-019', fullNameNoPrefix:'มนัส วรสาร', jobPosition1:'Warehouse Supervisor', schoolName:'Agency', status_register:'มาสัมภาษณ์', employmentStatus:'', applicationDate:'2026-05-03' },
+    { running:'A1-020', fullNameNoPrefix:'ดวงใจ ประสิทธิ์', jobPosition1:'Payroll Admin', schoolName:'Job Board', status_register:'รอคัดเลือกใบสมัคร', employmentStatus:'', applicationDate:'2026-05-05' },
+  ]
+};
+
+</script>
+  <script>
+window.MATCHING_PIPELINE = {
+  generatedAt: '2026-04-21T00:15:00Z',
+  queue: [
+    {
+      matchId: 'M-001',
+      memberId: '6309069',
+      name: 'โกศล วอน',
+      bu: 'RAFCO-SIR',
+      skills: 'Collections, Field Follow-up',
+      matchedPosition: 'สมาชิกทีมเร่งรัดติดตาม สาขาเสียมเรียบ',
+      matchScore: 0.91,
+      recommendation: 'ตรงบทบาทงานเร่งรัดติดตามและพร้อมเข้าสู่ evaluation โอนย้าย',
+      status: 'จับคู่แล้ว',
+      evaluationId: 'EV-2023-2083',
+      evaluationType: 'โอนย้าย',
+      nextStage: 'assign-evaluators'
+    },
+    {
+      matchId: 'M-002',
+      memberId: '6512100',
+      name: 'ศุภวิชญ์ นุชวงษ์',
+      bu: 'PCS CUS',
+      skills: 'Computer Support, Service Desk',
+      matchedPosition: 'ช่างเทคนิคคอมพิวเตอร์',
+      matchScore: 0.88,
+      recommendation: 'พร้อมเข้าสู่สัญญาจ้างเข้าทดลองงาน',
+      status: 'จับคู่แล้ว',
+      evaluationId: 'EV-2023-2088',
+      evaluationType: 'สัญญาจ้างเข้าทดลองงาน',
+      nextStage: 'collect-rounds'
+    },
+    {
+      matchId: 'M-003',
+      memberId: '6512102',
+      name: 'อัครเดช วงษ์รัตน์',
+      bu: 'CHS',
+      skills: 'Customer Service, Credit Operations',
+      matchedPosition: 'สมาชิกบริการลูกค้าสินเชื่อ สาขาฉะเชิงเทรา',
+      matchScore: 0.86,
+      recommendation: 'ผ่าน matching และรอเข้า workflow ทดลองงาน',
+      status: 'จับคู่แล้ว',
+      evaluationId: 'EV-2023-2089',
+      evaluationType: 'สัญญาจ้างเข้าทดลองงาน',
+      nextStage: 'collect-rounds'
+    },
+    {
+      matchId: 'M-004',
+      memberId: '6406045',
+      name: 'วิไลรัตน์ รัตนะมงคลกุล',
+      bu: 'AAMG',
+      skills: 'Digital Contents, Design',
+      matchedPosition: 'สมาชิก Digital Contents',
+      matchScore: 0.89,
+      recommendation: 'พร้อมเข้าสู่ evaluation เลื่อนตำแหน่ง',
+      status: 'จับคู่แล้ว',
+      evaluationId: 'EV-PKG-6406045',
+      evaluationType: 'เลื่อนตำแหน่ง',
+      nextStage: 'panel-review'
+    },
+    {
+      matchId: 'M-005',
+      memberId: '6407049',
+      name: 'ปวีร์ ผ่องโสภา',
+      bu: '21RT',
+      skills: 'Technology Research, Development',
+      matchedPosition: 'สมาชิก Technology Research & Developer',
+      matchScore: 0.93,
+      recommendation: 'เหมาะกับบทบาทปัจจุบันและพร้อมประเมินรายรอบ',
+      status: 'จับคู่แล้ว',
+      evaluationId: 'EV-PKG-6407049',
+      evaluationType: 'ประเมินประจำรอบ',
+      nextStage: 'development-link'
+    }
+  ]
+};
+
+window.EVALUATION_PIPELINE = {
+  generatedAt: '2026-04-20T02:27:00Z',
+  summary: {
+    sourceWorkbook: 'BCT_ประเมินผลสมาชิกPKG',
+    categories: [
+      { type: 'ทดลองงาน', count: 2 },
+      { type: 'สัญญาจ้างเข้าทดลองงาน', count: 5 },
+      { type: 'สัญญาจ้าง 1 เดือน', count: 1 },
+      { type: 'โอนย้าย', count: 2 },
+      { type: 'เลื่อนตำแหน่ง', count: 1 },
+      { type: 'ประเมินประจำรอบ', count: 1 }
+    ],
+    dimensions: [
+      'behavior',
+      'corporate',
+      'servant_leadership'
+    ]
+  },
+  members: [
+    { memberId: '6407049', name: 'ปวีร์ ผ่องโสภา', company: '21RTG', bu: '21RT', team: 'ทีม 21RT', position: 'สมาชิก Technology Research & Developer', employmentType: 'สมาชิกประจำ' },
+    { memberId: '6406045', name: 'วิไลรัตน์ รัตนะมงคลกุล', company: 'AAMG', bu: 'AAMG', team: 'AAMG - ทีม Digital Contents', position: 'สมาชิก Digital Contents', employmentType: 'สมาชิกประจำ' },
+    { memberId: '9005905', name: 'เขมิกา หัตถวิจิตรกุล', company: 'AAMG', bu: 'AAMG', team: 'AAMG - ทีมกฎหมาย', position: 'ผู้รับใช้ทีมกฎหมาย', employmentType: 'สมาชิกประจำ' }
+  ],
+  queue: [
+    {
+      evaluationId: 'EV-2023-2083',
+      source: 'A.5 สมาชิกเข้าประเมินผล',
+      memberId: '6309069',
+      name: 'โกศล วอน',
+      company: 'RAFCO',
+      bu: 'RAFCO-SIR',
+      position: 'สมาชิกทีมเร่งรัดติดตาม สาขาเสียมเรียบ',
+      evaluationType: 'โอนย้าย',
+      triggerType: 'โอนย้ายสาขา JOB ใหม่',
+      round: '2023',
+      matchingStatus: 'matched',
+      nextStage: 'assign-evaluators',
+      status: 'รอแต่งตั้งผู้ประเมิน',
+      outcomeTarget: 'ยืนยันบทบาทใหม่'
+    },
+    {
+      evaluationId: 'EV-2023-2088',
+      source: 'A.5 สมาชิกเข้าประเมินผล',
+      memberId: '6512100',
+      name: 'ศุภวิชญ์ นุชวงษ์',
+      company: 'AAMgr',
+      bu: 'PCS CUS',
+      position: 'ช่างเทคนิคคอมพิวเตอร์',
+      evaluationType: 'สัญญาจ้างเข้าทดลองงาน',
+      triggerType: 'สัญญาจ้างเข้าทดลองงาน',
+      round: '2023',
+      matchingStatus: 'matched',
+      nextStage: 'collect-rounds',
+      status: 'อยู่ในรอบทดลองงาน',
+      outcomeTarget: 'ผ่านทดลองงาน'
+    },
+    {
+      evaluationId: 'EV-2023-2089',
+      source: 'A.5 สมาชิกเข้าประเมินผล',
+      memberId: '6512102',
+      name: 'อัครเดช วงษ์รัตน์',
+      company: 'AAMgr',
+      bu: 'CHS',
+      position: 'สมาชิกบริการลูกค้าสินเชื่อ สาขาฉะเชิงเทรา',
+      evaluationType: 'สัญญาจ้างเข้าทดลองงาน',
+      triggerType: 'สัญญาจ้างเข้าทดลองงาน',
+      round: '2023',
+      matchingStatus: 'matched',
+      nextStage: 'collect-rounds',
+      status: 'อยู่ในรอบทดลองงาน',
+      outcomeTarget: 'ผ่านทดลองงาน'
+    },
+    {
+      evaluationId: 'EV-2023-2090',
+      source: 'รายชื่อประเมินผลสัญญาจ้าง 1 เดือน',
+      memberId: '6601201',
+      name: 'ณัฐภรณ์ ประเสริฐยิ่ง',
+      company: 'บริษัท เกษตรไทยลิสซิ่ง จำกัด',
+      bu: 'KTL-NOK',
+      position: 'พนักงานบริการลูกค้าสินเชื่อ สาขาหนองคาย',
+      evaluationType: 'สัญญาจ้าง 1 เดือน',
+      triggerType: 'สัญญาจ้าง 1 เดือน',
+      round: '2026',
+      matchingStatus: 'matched',
+      nextStage: 'summary-form',
+      status: 'รอสรุปผลสัญญาจ้าง',
+      outcomeTarget: 'ตัดสินต่อสัญญา'
+    },
+    {
+      evaluationId: 'EV-PKG-6406045',
+      source: 'DATA_รายชื่อผู้ประเมิน / PKG Member New',
+      memberId: '6406045',
+      name: 'วิไลรัตน์ รัตนะมงคลกุล',
+      company: 'AAMG',
+      bu: 'AAMG',
+      position: 'สมาชิก Digital Contents',
+      evaluationType: 'เลื่อนตำแหน่ง',
+      triggerType: 'เลื่อนตำแหน่ง',
+      round: 'รอบที่2',
+      matchingStatus: 'matched',
+      nextStage: 'panel-review',
+      status: 'อยู่ระหว่างประเมินเลื่อนตำแหน่ง',
+      outcomeTarget: 'ยืนยันความพร้อมต่อบทบาทใหม่'
+    },
+    {
+      evaluationId: 'EV-PKG-6407049',
+      source: 'PKG Member New / DATA_ข้อมูลการประเมินPKG',
+      memberId: '6407049',
+      name: 'ปวีร์ ผ่องโสภา',
+      company: '21RTG',
+      bu: '21RT',
+      position: 'สมาชิก Technology Research & Developer',
+      evaluationType: 'ประเมินประจำรอบ',
+      triggerType: 'ประเมินประจำรอบ',
+      round: 'PKG',
+      matchingStatus: 'matched',
+      nextStage: 'development-link',
+      status: 'พร้อมเชื่อม development plan',
+      outcomeTarget: 'ใช้จัดทำแผนพัฒนา'
+    }
+  ],
+  evaluatorAssignments: [
+    {
+      memberId: '5102012',
+      name: 'รัฐพร คะชาแก้ว',
+      bu: 'CPDG',
+      evaluationType: 'เลื่อนตำแหน่ง',
+      round: 'รอบที่2',
+      evaluators: [
+        { role: 'ผู้รับใช้ทีม', id: '5001026', name: 'อารีย์ เขาจารี' },
+        { role: 'เพื่อนร่วมงาน', id: '9909011', name: 'โกวิทย์ สีเผือก' },
+        { role: 'เพื่อนร่วมงาน', id: '3305001', name: 'ขวัญฤทัย ใจหาญ' },
+        { role: 'เพื่อนร่วมงาน', id: '9601008', name: 'อรุณี เลิศวศะ' },
+        { role: 'ลูกค้า', id: '9611904', name: 'วรพินิจ ศิริโชติ' },
+        { role: 'ลูกค้า', id: '9410001', name: 'กาญจนา ขุนจิตต์' }
+      ]
+    },
+    {
+      memberId: '6512100',
+      name: 'ศุภวิชญ์ นุชวงษ์',
+      bu: 'PCS CUS',
+      evaluationType: 'สัญญาจ้างเข้าทดลองงาน',
+      round: 'รอบที่1',
+      evaluators: [
+        { role: 'ผู้รับใช้ทีม', id: '9606001', name: 'กนิษฐา ศรีธรรมชาติ' }
+      ]
+    }
+  ],
+  scoreSamples: [
+    {
+      memberId: '6607237',
+      name: 'ชัยศักดิ์ สีอ่อง',
+      bu: 'PMSgr',
+      evaluationType: 'สัญญาจ้าง 1 เดือน',
+      round: 'รอบที่1',
+      role: 'ผู้รับใช้ทีม',
+      behaviorTotal: 89,
+      corporateTotal: 81,
+      overall: 170
+    },
+    {
+      memberId: '5102012',
+      name: 'รัฐพร คะชาแก้ว',
+      bu: 'CPDG',
+      evaluationType: 'เลื่อนตำแหน่ง',
+      round: 'รอบที่1',
+      role: 'เพื่อนร่วมงาน',
+      behaviorTotal: 101,
+      corporateTotal: 82,
+      overall: 179
+    }
+  ]
+};
+
+</script>
+  <script>
+window.TRANSFER_PIPELINE = {
+  generatedAt: '2026-04-21T02:20:00Z',
+  sourceWorkbook: 'BCT_V5.0_โอนย้าย_NEW',
+  fieldMapping: {
+    recruitment: ['personID', 'firstname', 'lastname', 'companyNEW', 'branchNEW', 'positionNEW', 'departmentNEW', 'type_new'],
+    assessment: ['Status_Transfer', 'status_assessment', 'note_assessment', 'Day_interview', 'Time_interview', 'url_form'],
+    matching: ['positionOLD', 'divOLD', 'branchOLD', 'companyOLD', 'positionNEW', 'divNEW', 'branchNEW', 'companyNEW', 'personID_NEW'],
+    evaluation: ['statusNEW', 'detail_NEW', 'date_NEW', 'type_new'],
+    development: ['purpose_p', 'Annual_Compass_p', 'Metrics_p', 'Accountability_p'],
+    compensation: ['cost_job', 'balance', 'salary_packaging', 'chip', 'rents', 'fuel', 'telephone_charge'],
+    qualityOfLife: ['branchOLD', 'branchNEW', 'companyOLD', 'companyNEW', 'statusOLD', 'statusNEW']
+  },
+  records: [
+    {
+      transferId: 'TR-2083',
+      memberId: '6309069',
+      name: 'โกศล วอน',
+      oldCompany: 'RAFCO',
+      oldBranch: 'RAFCO-SIR',
+      oldPosition: 'สมาชิกทีมเร่งรัดติดตาม สาขาเสียมเรียบ',
+      newCompany: 'RAFCO',
+      newBranch: 'RAFCO-SIR',
+      newPosition: 'สมาชิกทีมเร่งรัดติดตาม สาขาเสียมเรียบ',
+      transferType: 'โอนย้ายสาขา JOB ใหม่',
+      assessmentStatus: 'รอสัมภาษณ์โอนย้าย',
+      matchingStatus: 'พร้อมจับคู่ role ใหม่',
+      evaluationType: 'โอนย้าย',
+      developmentNeed: 'ติดตามการปรับตัวต่อบริบทงานใหม่',
+      compensationImpact: 'รอ payroll mapping',
+      qualityOfLifeImpact: 'ติดตามผลหลังเปลี่ยนทีม/สาขา'
+    },
+    {
+      transferId: 'TR-6407047',
+      memberId: '6407047',
+      name: 'ปภาวี ผ่องโสภา',
+      oldCompany: 'บริษัท 21ซีที รีเสิร์ท จำกัด',
+      oldBranch: 'สำนักงานใหญ่',
+      oldPosition: 'สมาชิก Technology Research & Developer',
+      newCompany: 'บริษัท เอเอเอ็ม ตะเคียนคู่ จำกัด',
+      newBranch: 'สำนักงานใหญ่',
+      newPosition: 'สมาชิก Technology Research & Developer',
+      transferType: 'โอนย้ายบริษัท',
+      assessmentStatus: 'รอผู้รับใช้ทีมใหม่พิจารณา',
+      matchingStatus: 'จับคู่กับ BU ใหม่',
+      evaluationType: 'โอนย้าย',
+      developmentNeed: 'ปรับ onboarding กับทีมใหม่',
+      compensationImpact: 'ตรวจ package ตามบริษัทใหม่',
+      qualityOfLifeImpact: 'ติดตามการเปลี่ยน environment การทำงาน'
+    },
+    {
+      transferId: 'TR-5604041',
+      memberId: '5604041',
+      name: 'ธิชาภัทร สาวรีย์',
+      oldCompany: 'บริษัท เกษตรไทย ลิสซิ่ง จำกัด',
+      oldBranch: 'สำนักงานใหญ่',
+      oldPosition: 'สมาชิกงานเดิม',
+      newCompany: 'บริษัท เอเอเอ็ม บุรีรัมย์ จำกัด',
+      newBranch: 'สำนักงานใหญ่',
+      newPosition: 'บทบาทใหม่ตามโครงสร้างโอนย้าย',
+      transferType: 'โอนย้ายข้ามบริษัท',
+      assessmentStatus: 'รอสัมภาษณ์ / approval',
+      matchingStatus: 'ต้องเทียบ job ใหม่',
+      evaluationType: 'โอนย้าย',
+      developmentNeed: 'วางแผน skill gap หลังโอนย้าย',
+      compensationImpact: 'ตรวจ payroll round',
+      qualityOfLifeImpact: 'ติดตามผลกระทบการย้ายบริบทงาน'
+    }
+  ]
+};
+
+window.RESIGNATION_PIPELINE = {
+  generatedAt: '2026-04-21T02:20:00Z',
+  sourceWorkbook: 'BCT_V3.0_ลาออก_ต้นฉบับ',
+  fieldMapping: {
+    recruitment: ['id', 'position', 'branch', 'company', 'replacement_required', 'vacancy_status'],
+    assessment: ['exit_reason', 'risk_note', 'turnover_group'],
+    matching: ['vacancy_position', 'vacancy_branch', 'vacancy_company', 'replacement_priority'],
+    evaluation: ['replacement_member_id', 'replacement_evaluation_type'],
+    development: ['handover_gap', 'critical_skill_gap'],
+    compensation: ['salary_last', 'loan_balance', 'guarantee_balance', 'manpower_effect'],
+    qualityOfLife: ['exit_reason', 'team_impact', 'turnover_rate']
+  },
+  records: [
+    {
+      resignationId: 'RS-001',
+      memberId: '9005905',
+      name: 'เขมิกา หัตถวิจิตรกุล',
+      company: 'AAMG',
+      branch: 'สำนักงานใหญ่',
+      position: 'ผู้รับใช้ทีมกฎหมาย',
+      employeeAction: 'remove-from-employee',
+      vacancyAction: 'create-vacancy',
+      vacancyTitle: 'ผู้รับใช้ทีมกฎหมาย',
+      replacementFlow: 'Recruitment -> Assessment -> Matching -> Evaluation',
+      manpowerImpact: 'กระทบกำลังคนเชิงสำคัญ',
+      qualityOfLifeRisk: 'เสี่ยงภาระงานกระจุกที่ทีมกฎหมาย'
+    },
+    {
+      resignationId: 'RS-002',
+      memberId: '4902003',
+      name: 'นัฐฐาศิริ ศรีภักดี',
+      company: 'AAMG',
+      branch: 'สำนักงานใหญ่',
+      position: 'ผู้รับใช้ทีมบริหารทรัพย์สิน',
+      employeeAction: 'remove-from-employee',
+      vacancyAction: 'create-vacancy',
+      vacancyTitle: 'ผู้รับใช้ทีมบริหารทรัพย์สิน',
+      replacementFlow: 'Recruitment -> Assessment -> Matching -> Evaluation',
+      manpowerImpact: 'ต้องเปิด replacement demand ทันที',
+      qualityOfLifeRisk: 'เสี่ยงภาระงานทีมเพิ่มขึ้น'
+    },
+    {
+      resignationId: 'RS-003',
+      memberId: '5004066',
+      name: 'ศักรินทร์ ป้องหมู่',
+      company: 'AAMG',
+      branch: 'สำนักงานใหญ่',
+      position: 'ที่ปรึกษาทีมการตลาดและบริหารลูกค้า',
+      employeeAction: 'remove-from-employee',
+      vacancyAction: 'create-vacancy',
+      vacancyTitle: 'ที่ปรึกษาทีมการตลาดและบริหารลูกค้า',
+      replacementFlow: 'Recruitment -> Assessment -> Matching -> Evaluation',
+      manpowerImpact: 'มีผลต่อ capacity ฝั่งการตลาด',
+      qualityOfLifeRisk: 'ต้องติดตามผลกระทบต่อทีมเดิม'
+    }
+  ]
+};
+
+</script>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *{font-family:'Prompt',sans-serif}
