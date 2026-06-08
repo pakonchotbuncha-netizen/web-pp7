@@ -460,7 +460,7 @@ window.RESIGNATION_PIPELINE = {
     .card{background:#fff;border-radius:1rem;box-shadow:0 4px 24px rgba(15,23,42,.07);padding:1.5rem}
     .tab-btn{position:relative;padding:.85rem 1.1rem;font-weight:500;white-space:nowrap;cursor:pointer;border:none;background:transparent;color:#64748b;transition:color .15s}
     .tab-btn:hover{color:#2563eb}
-    .tab-btn.active{color:#2563eb}
+    .tab-btn.active{color:#2563eb;background:#eff6ff;font-weight:600}
     .tab-btn.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:#2563eb;border-radius:3px 3px 0 0}
     .badge{display:inline-flex;align-items:center;padding:.2rem .6rem;border-radius:9999px;font-size:.75rem;font-weight:500}
     .badge-green{background:#dcfce7;color:#166534}
@@ -574,7 +574,7 @@ window.RESIGNATION_PIPELINE = {
 <body>
 
 <!-- ===== LOGIN OVERLAY ===== -->
-<div id="loginOverlay">
+<div id="loginOverlay" class="hidden">
   <div class="login-card">
     <div class="login-logo">🔐</div>
     <h2>Pakorn HRMS</h2>
@@ -3740,6 +3740,19 @@ function showTab(name){
   if(btn)btn.classList.add('active');
   el.classList.remove('fade-in');void el.offsetWidth;el.classList.add('fade-in');
   if(location.hash!==`#tab=${name}`)history.replaceState(null,'',`#tab=${name}`);
+  
+  // เรียกฟังก์ชัน render ข้อมูลเฉพาะของแต่ละ Tab เมื่อเปิด
+  if(name === 'recruit') {
+    if(typeof renderRecruitTable === 'function') renderRecruitTable();
+    if(typeof renderRecruitInsights === 'function') renderRecruitInsights();
+  } else if(name === 'match') {
+    if(typeof renderMatchingPipeline === 'function') renderMatchingPipeline();
+  } else if(name === 'assess' || name === 'performance') {
+    if(typeof renderEvaluationPipeline === 'function') renderEvaluationPipeline();
+  } else if(name === 'executive') {
+    if(typeof initDashboardData === 'function') initDashboardData();
+  }
+  
   initCharts(name);
 }
 
