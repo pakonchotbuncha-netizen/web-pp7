@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web PP7 - P4 ประเมินผล 360 องศา (Prototype)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap'); body { font-family: 'Sarabun', sans-serif; }</style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+<nav class="bg-indigo-900 text-white p-4 shadow-md"><div class="max-w-7xl mx-auto flex justify-between items-center"><h1 class="text-xl font-bold">🦾 Web PP7 Admin | โมดูล P4: ประเมินผล 360 องศา</h1><div class="text-sm">รอบการประเมิน: ปี 2569 (Q1)</div></div></nav>
+    <div class="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <div class="flex items-center space-x-4 mb-4"><div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center text-2xl">👤</div><div><h2 class="text-lg font-bold">สมชาย ใจดี</h2><p class="text-sm text-gray-500">Senior Developer | BU: Technology</p><span class="inline-block mt-1 px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full">Active</span></div></div>
+                <div class="text-sm space-y-2"><p><strong>ผู้จัดการ:</strong> สมหญิง รักงาน</p><p><strong>วันที่ประเมิน:</strong> 10 มิ.ย. 2569</p></div>
+            </div>
+            <div class="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-lg shadow-sm border border-indigo-200">
+                <h3 class="font-bold text-indigo-900 mb-2 flex items-center"><span class="mr-2">🧠</span> AI Insight (P4)</h3>
+                <p class="text-sm text-gray-700 mb-3">"จากข้อมูลเชิงประจักษ์ พนักงานมีคะแนน <strong>CC2 (Adaptive Innovation)</strong> สูงกว่าค่าเฉลี่ยของทีม 15% แต่พบ Gap ใน <strong>CC5 (Disciplined Professionalism)</strong> ด้านการส่งงานตรงเวลา 3 ครั้งในไตรมาสที่ผ่านมา"</p>
+                <button class="w-full bg-indigo-600 text-white text-sm py-2 rounded hover:bg-indigo-700 transition">สร้างแผนพัฒนา (P5) อัตโนมัติ</button>
+            </div>
+        </div>
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <h3 class="font-bold text-gray-800 mb-4">สรุปคะแนน Core Competency (เฉลี่ยจาก 5 มุมมอง)</h3>
+                <div class="h-64 flex justify-center"><canvas id="ccRadarChart"></canvas></div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <h3 class="font-bold text-gray-800 mb-4">รายละเอียดการประเมิน (เน้นหลักฐานเชิงประจักษ์)</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-50 text-gray-600 uppercase"><tr><th class="px-4 py-3">มุมมอง</th><th class="px-4 py-3">CC ที่ประเมิน</th><th class="px-4 py-3">คะแนน (1-5)</th><th class="px-4 py-3">หลักฐานเชิงประจักษ์ (Evidence)</th></tr></thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr><td class="px-4 py-3 font-medium">ตนเอง (Self)</td><td class="px-4 py-3">CC2: Adaptive Innovation</td><td class="px-4 py-3"><span class="bg-green-100 text-green-800 px-2 py-1 rounded">4.5</span></td><td class="px-4 py-3 text-blue-600 underline cursor-pointer">Link: Project Alpha Proposal</td></tr>
+                            <tr><td class="px-4 py-3 font-medium">หัวหน้า (Manager)</td><td class="px-4 py-3">CC5: Disciplined Professionalism</td><td class="px-4 py-3"><span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded">3.0</span></td><td class="px-4 py-3 text-blue-600 underline cursor-pointer">Link: Jira Ticket #402 (Late)</td></tr>
+                            <tr><td class="px-4 py-3 font-medium">เพื่อนร่วมงาน (Peer)</td><td class="px-4 py-3">CC4: Consensus Teamwork</td><td class="px-4 py-3"><span class="bg-green-100 text-green-800 px-2 py-1 rounded">4.0</span></td><td class="px-4 py-3 text-gray-500">ช่วยทำ Pair Programming สัปดาห์ละ 2 ชม.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+<div class="mt-4 flex justify-end"><button class="bg-gray-200 text-gray-700 px-4 py-2 rounded mr-2 hover:bg-gray-300">บันทึกแบบร่าง</button><button class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">ส่งผลการประเมิน</button></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const ctx = document.getElementById('ccRadarChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['CC1: ผู้นำ', 'CC2: นวัตกรรม', 'CC3: สร้างคุณค่า', 'CC4: ทำงานทีม', 'CC5: วินัยวิชาชีพ'],
+                datasets: [{ label: 'คะแนนเฉลี่ย', data: [4.0, 4.5, 3.8, 4.0, 3.0], backgroundColor: 'rgba(79, 70, 229, 0.2)', borderColor: 'rgba(79, 70, 229, 1)', pointBackgroundColor: 'rgba(79, 70, 229, 1)' }, { label: 'เกณฑ์มาตรฐาน BU', data: [3.5, 3.5, 3.5, 3.5, 3.5], backgroundColor: 'rgba(156, 163, 175, 0.2)', borderColor: 'rgba(156, 163, 175, 1)', borderDash: [5, 5] }]
+            },
+            options: { scales: { r: { angleLines: { display: true }, suggestedMin: 0, suggestedMax: 5 } } }
+        });
+    </script>
+</body>
+</html>
