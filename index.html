@@ -1650,6 +1650,62 @@ window.RESIGNATION_PIPELINE = {
     </div>
   </div>
 
+  <!-- กระบวนการคัดเลือก - PM WI LDC-PAO-WI-002 Workflow -->
+  <div class="card bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200 mt-8">
+    <h3 class="font-bold text-pp7-800 mb-3 text-lg flex items-center gap-2">
+      <span class="bg-emerald-600 text-white px-2 py-1 rounded text-xs">LDC-PAO-WI-002</span>
+      📌 การคัดเลือกพนักงานจากภายนอก (Web PP7 Operation Flow)
+    </h3>
+    <div class="grid md:grid-cols-5 gap-3 text-sm">
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-emerald-400">
+        <div class="text-2xl mb-1">📥</div>
+        <div class="font-semibold text-pp7-700">1. คัดกรองใบสมัคร</div>
+        <div class="text-slate-600 mt-1 text-xs">AI คัดกรองคุณสมบัติพื้นฐานและ CC เบื้องต้น</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-teal-400">
+        <div class="text-2xl mb-1">📅</div>
+        <div class="font-semibold text-pp7-700">2. นัดหมายสัมภาษณ์</div>
+        <div class="text-slate-600 mt-1 text-xs">ส่งอีเมล/SMS นัดหมายอัตโนมัติพร้อมลิงก์ประเมิน</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-cyan-400">
+        <div class="text-2xl mb-1">💬</div>
+        <div class="font-semibold text-pp7-700">3. ดำเนินการสัมภาษณ์</div>
+        <div class="text-slate-600 mt-1 text-xs">HR/Hiring Manager บันทึกผลและคะแนน CC ผ่านระบบ</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-blue-400">
+        <div class="text-2xl mb-1">📊</div>
+        <div class="font-semibold text-pp7-700">4. สรุปผลและตรวจสอบ</div>
+        <div class="text-slate-600 mt-1 text-xs">ระบบรวมคะแนนสัมภาษณ์ + ตรวจสอบประวัติ (Background Check)</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-indigo-400">
+        <div class="text-2xl mb-1">📤</div>
+        <div class="font-semibold text-pp7-700">5. ส่งต่ออนุมัติจ้าง</div>
+        <div class="text-slate-600 mt-1 text-xs">เสนอผลต่อผู้บริหาร → ส่งต่อข้อมูลไปยัง P3/P4</div>
+      </div>
+    </div>
+    
+    <!-- Data Structure Preview for WI-002 -->
+    <div class="mt-4 p-4 rounded-lg bg-white/80 border border-emerald-200">
+      <h4 class="font-semibold text-pp7-700 text-sm mb-2 flex items-center gap-2">
+        <span class="text-lg">🗄️</span> โครงสร้างข้อมูลหลัก (Database Schema)
+      </h4>
+      <div class="grid md:grid-cols-3 gap-3 text-xs text-slate-700">
+        <div class="p-2 rounded bg-slate-50 border border-slate-200">
+          <strong class="text-emerald-600">1. interviews (ตารางนัดสัมภาษณ์)</strong><br>
+          id, candidate_id, interviewer_id, scheduled_at, status, meeting_link
+        </div>
+        <div class="p-2 rounded bg-slate-50 border border-slate-200">
+          <strong class="text-emerald-600">2. evaluation_scores (ผลประเมิน CC)</strong><br>
+          id, interview_id, cc1_score, cc2_score, cc3_score, cc4_score, cc5_score, comments
+        </div>
+        <div class="p-2 rounded bg-slate-50 border border-slate-200">
+          <strong class="text-emerald-600">3. background_checks (ตรวจสอบประวัติ)</strong><br>
+          id, candidate_id, check_type, status, result_notes, verified_by, verified_at
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- KPI Cards -->
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
     <div class="card text-center border-l-4 border-pp7-500" onclick="openDrill('openPos')">
