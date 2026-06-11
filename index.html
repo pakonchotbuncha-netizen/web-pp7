@@ -8,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="dev_data.js"></script>
   <script>
 // emp_data.js — ข้อมูลจำลองสำหรับ PP7 Dashboard
 // สร้างเมื่อ 2026-05-14
@@ -2774,40 +2775,80 @@ window.RESIGNATION_PIPELINE = {
       </div>
     </div>
 
-    <div class="card"><h3 class="font-semibold text-pp7-800 mb-3">📊 Training Hours by Department</h3><div class="chart-box"><canvas id="chart-training-hrs"></canvas></div></div>
+  <!-- Mock Form: IDP / Training Registration -->
+  <div class="card bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+    <h3 class="font-bold text-pp7-800 mb-3 flex items-center gap-2">
+      <span class="bg-blue-600 text-white px-2 py-1 rounded text-xs">📝 Mock Form</span>
+      เสนอแผนพัฒนา (IDP) / ลงทะเบียนฝึกอบรม
+    </h3>
+    <form id="dev-form" onsubmit="handleDevFormSubmit(event)" class="grid md:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">ชื่อ-สกุล</label>
+        <input type="text" id="dev-name" required class="w-full px-3 py-2 rounded border border-slate-300 text-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none">
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">ฝ่าย/แผนก</label>
+        <select id="dev-dept" required class="w-full px-3 py-2 rounded border border-slate-300 text-sm focus:ring-2 focus:ring-blue-400 outline-none">
+          <option value="Tech">Tech</option>
+          <option value="Sales">Sales</option>
+          <option value="Finance">Finance</option>
+          <option value="HR">HR</option>
+          <option value="Management">Management</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">หลักสูตร / กิจกรรมพัฒนา</label>
+        <select id="dev-course" required class="w-full px-3 py-2 rounded border border-slate-300 text-sm focus:ring-2 focus:ring-blue-400 outline-none">
+          <!-- จะถูกเติมโดย JS -->
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">จำนวนชั่วโมง</label>
+        <input type="number" id="dev-hours" required min="1" class="w-full px-3 py-2 rounded border border-slate-300 text-sm focus:ring-2 focus:ring-blue-400 outline-none">
+      </div>
+      <div class="md:col-span-2 flex justify-end">
+        <button type="submit" class="px-6 py-2 rounded-lg bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 transition shadow-md">บันทึกข้อมูล (Mock)</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Charts & Table -->
+  <div class="grid lg:grid-cols-2 gap-6">
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">📊 Training Hours by Department</h3>
+      <div class="chart-box"><canvas id="chart-training-hrs"></canvas></div>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">📈 Skill Gap Closure Rate</h3>
+      <div class="chart-box"><canvas id="chart-skill-gap"></canvas></div>
+    </div>
+  </div>
+
   <div class="card">
-    <h3 class="font-semibold text-pp7-800 mb-3">📋 <span data-i18n="devTable">คอร์สและการพัฒนา</span></h3>
+    <h3 class="font-semibold text-pp7-800 mb-3 flex items-center gap-2">
+      <span class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs">ข้อมูลจริง</span>
+      📋 <span data-i18n="devTable">คอร์สและการพัฒนา</span>
+    </h3>
     <div class="overflow-x-auto">
       <table id="dev-table" data-sortable="true">
-        <thead><tr><th data-i18n="id">ID</th><th data-i18n="name">ชื่อ-สกุล</th><th data-i18n="course">คอร์ส</th><th data-i18n="hours">ชั่วโมง</th><th data-i18n="score">คะแนน</th><th data-i18n="status">สถานะ</th><th data-i18n="completed">เสร็จสิ้น</th></tr></thead>
-        <tbody><tr><td>D-001</td><td>วรรณ์วิภา จันทร์เพ็ญ</td><td>AWS Solutions Architect</td><td>32</td><td>3.4</td><td><span class="badge badge-amber">กำลังเรียน</span></td><td>—</td></tr>
-<tr><td>D-002</td><td>กิตติชัย ศรีจันทร์</td><td>Advanced Sales Strategy</td><td>32</td><td>4.7</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-03-05</td></tr>
-<tr><td>D-003</td><td>วิไลวรรณ แก้วประเสริฐ</td><td>Finance Leadership Program</td><td>48</td><td>3.4</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-02-18</td></tr>
-<tr><td>D-004</td><td>กิตติ ทองดี</td><td>Machine Learning Specialization</td><td>20</td><td>3.8</td><td><span class="badge badge-amber">กำลังเรียน</span></td><td>—</td></tr>
-<tr><td>D-005</td><td>พิชัย ใจดี</td><td>Kubernetes Certification</td><td>28</td><td>4.7</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-03-04</td></tr>
-<tr><td>D-006</td><td>ธนพร แก้วประเสริฐ</td><td>Agile/Scrum Master</td><td>20</td><td>4.8</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-03-12</td></tr>
-<tr><td>D-007</td><td>ธนวัฒน์ รุ่งเรือง</td><td>Leadership Excellence</td><td>48</td><td>5.0</td><td><span class="badge badge-amber">กำลังเรียน</span></td><td>—</td></tr>
-<tr><td>D-008</td><td>วิทยา ทองประเสริฐ</td><td>Data Analytics with Python</td><td>24</td><td>4.4</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-01-06</td></tr>
-<tr><td>D-009</td><td>ชัยณรงค์ ศิริชัย</td><td>Digital Marketing Pro</td><td>32</td><td>3.1</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-03-21</td></tr>
-<tr><td>D-010</td><td>ชัยวัฒน์ จันทร์สว่าง</td><td>Project Management (PMP)</td><td>32</td><td>4.4</td><td><span class="badge badge-amber">กำลังเรียน</span></td><td>—</td></tr>
-<tr><td>D-011</td><td>ชัยวัฒน์ สุขสมบูรณ์</td><td>Negotiation Skills</td><td>24</td><td>5.0</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-03-13</td></tr>
-<tr><td>D-012</td><td>พิชัย มั่นคง</td><td>Financial Modeling</td><td>48</td><td>3.2</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-02-08</td></tr>
-<tr><td>D-013</td><td>วลัยพร มั่นคง</td><td>UI/UX Design Mastery</td><td>32</td><td>3.4</td><td><span class="badge badge-amber">กำลังเรียน</span></td><td>—</td></tr>
-<tr><td>D-014</td><td>ณัฐกานต์ ศรีจันทร์</td><td>Cybersecurity Fundamentals</td><td>20</td><td>4.5</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-02-14</td></tr>
-<tr><td>D-015</td><td>ปรียา แสงจันทร์</td><td>Six Sigma Green Belt</td><td>48</td><td>3.2</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-01-28</td></tr>
-<tr><td>D-016</td><td>ปิยาภรณ์ วงศ์สุวรรณ</td><td>Advanced Excel</td><td>28</td><td>4.7</td><td><span class="badge badge-amber">กำลังเรียน</span></td><td>—</td></tr>
-<tr><td>D-017</td><td>ณัฐกานต์ แก้วมณี</td><td>Public Speaking</td><td>28</td><td>3.7</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-01-26</td></tr>
-<tr><td>D-018</td><td>ธนากร จันทร์เพ็ญ</td><td>Cloud Architecture</td><td>28</td><td>4.3</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-02-03</td></tr>
-<tr><td>D-019</td><td>วิสุทธิ์ ศรีจันทร์</td><td>Data Science Bootcamp</td><td>20</td><td>4.2</td><td><span class="badge badge-amber">กำลังเรียน</span></td><td>—</td></tr>
-<tr><td>D-020</td><td>ณัฐกานต์ รัตนมาลี</td><td>Python for Business</td><td>28</td><td>3.9</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-03-02</td></tr>
-<tr><td>D-021</td><td>กัลยา มั่นคง</td><td>AWS Solutions Architect</td><td>20</td><td>4.3</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-01-12</td></tr>
-<tr><td>D-022</td><td>สุรศักดิ์ ธรรมรักษ์</td><td>Advanced Sales Strategy</td><td>48</td><td>3.4</td><td><span class="badge badge-amber">กำลังเรียน</span></td><td>—</td></tr>
-<tr><td>D-023</td><td>พิชัย จันทร์เพ็ญ</td><td>Finance Leadership Program</td><td>28</td><td>4.5</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-01-13</td></tr>
-<tr><td>D-024</td><td>ประมวล ใจดี</td><td>Machine Learning Specialization</td><td>36</td><td>3.0</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-02-27</td></tr>
-<tr><td>D-025</td><td>วิไลวรรณ ธรรมรักษ์</td><td>Kubernetes Certification</td><td>24</td><td>3.8</td><td><span class="badge badge-amber">กำลังเรียน</span></td><td>—</td></tr>
-<tr><td>D-026</td><td>วรรณี รุ่งโรจน์</td><td>Agile/Scrum Master</td><td>40</td><td>3.5</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-01-14</td></tr>
-<tr><td>D-027</td><td>วิชัย ธรรมรักษ์</td><td>Leadership Excellence</td><td>24</td><td>3.0</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-01-11</td></tr>
-<tr><td>D-028</td><td>สุรกิจ ใจดี</td><td>Data Analytics with Python</td><td>32</td><td>3.9</td><td><span class="badge badge-amber">กำลังเรียน</span></td><td>—</td></tr>
+        <thead>
+          <tr>
+            <th data-i18n="id">ID</th>
+            <th data-i18n="name">ชื่อ-สกุล</th>
+            <th>ฝ่าย</th>
+            <th data-i18n="course">คอร์ส</th>
+            <th data-i18n="hours">ชั่วโมง</th>
+            <th data-i18n="score">คะแนน</th>
+            <th data-i18n="status">สถานะ</th>
+            <th data-i18n="completed">เสร็จสิ้น</th>
+          </tr>
+        </thead>
+        <tbody id="dev-tbody">
+          <!-- ข้อมูลจะถูกโหลดโดย JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
 <tr><td>D-029</td><td>ชัยยศ ทองดี</td><td>Digital Marketing Pro</td><td>36</td><td>4.3</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-02-15</td></tr>
 <tr><td>D-030</td><td>ณัฐกานต์ จันทร์สว่าง</td><td>Project Management (PMP)</td><td>48</td><td>3.8</td><td><span class="badge badge-green">เสร็จสิ้น</span></td><td>2026-01-18</td></tr>
 </tbody>
@@ -4319,6 +4360,128 @@ function applyLogin(session){
   } catch(e){
     document.getElementById('app-wrapper') && document.getElementById('app-wrapper').classList.add('content-blur');
   }
+
+  // === P5 Develop Tab Logic ===
+  function initDevTab() {
+    // 1. Populate course dropdown
+    const courseSelect = document.getElementById('dev-course');
+    if (courseSelect && typeof DEV_DATA !== 'undefined') {
+      DEV_DATA.courses.forEach(course => {
+        const option = document.createElement('option');
+        option.value = course;
+        option.textContent = course;
+        courseSelect.appendChild(option);
+      });
+    }
+
+    // 2. Render table
+    renderDevTable();
+
+    // 3. Render charts
+    renderDevCharts();
+  }
+
+  function renderDevTable() {
+    const tbody = document.getElementById('dev-tbody');
+    if (!tbody || typeof DEV_DATA === 'undefined') return;
+    
+    tbody.innerHTML = '';
+    DEV_DATA.records.forEach((r, index) => {
+      const tr = document.createElement('tr');
+      const statusClass = r.status === 'เสร็จสิ้น' ? 'badge-green' : 'badge-amber';
+      tr.innerHTML = `
+        <td>${r.id || 'D-' + String(index + 1).padStart(3, '0')}</td>
+        <td>${r.name}</td>
+        <td>${r.dept || '—'}</td>
+        <td>${r.course}</td>
+        <td>${r.hours}</td>
+        <td>${r.score}</td>
+        <td><span class="badge ${statusClass}">${r.status}</span></td>
+        <td>${r.completed}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function handleDevFormSubmit(event) {
+    event.preventDefault();
+    const name = document.getElementById('dev-name').value;
+    const dept = document.getElementById('dev-dept').value;
+    const course = document.getElementById('dev-course').value;
+    const hours = document.getElementById('dev-hours').value;
+    
+    const newId = 'D-' + String(DEV_DATA.records.length + 1).padStart(3, '0');
+    const newRecord = {
+      id: newId,
+      name: name,
+      dept: dept,
+      course: course,
+      hours: parseInt(hours),
+      score: '—',
+      status: 'กำลังเรียน',
+      completed: '—'
+    };
+    
+    addDevRecord(newRecord);
+    document.getElementById('dev-form').reset();
+    alert('✅ บันทึกข้อมูลสำเร็จ! (Mock)');
+  }
+
+  function renderDevCharts() {
+    if (typeof Chart === 'undefined') return;
+    
+    // Training Hours by Department
+    const ctxHrs = document.getElementById('chart-training-hrs');
+    if (ctxHrs) {
+      // Calculate real hours from DEV_DATA
+      const deptHours = {};
+      DEV_DATA.records.forEach(r => {
+        if (r.status === 'เสร็จสิ้น') {
+          deptHours[r.dept] = (deptHours[r.dept] || 0) + r.hours;
+        }
+      });
+      
+      new Chart(ctxHrs, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(deptHours).length > 0 ? Object.keys(deptHours) : ['Tech', 'Sales', 'Finance', 'HR', 'Management'],
+          datasets: [{
+            label: 'ชั่วโมงฝึกอบรมที่เสร็จสิ้น',
+            data: Object.keys(deptHours).length > 0 ? Object.values(deptHours) : [56, 32, 48, 20, 48],
+            backgroundColor: ['#3b82f6', '#ef4444', '#8b5cf6', '#f59e0b', '#10b981']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, title: { display: true, text: 'ชั่วโมง' } } }
+        }
+      });
+    }
+
+    // Skill Gap Closure Rate
+    const ctxGap = document.getElementById('chart-skill-gap');
+    if (ctxGap) {
+      new Chart(ctxGap, {
+        type: 'doughnut',
+        data: {
+          labels: ['ปิด Gap แล้ว', 'กำลังพัฒนา', 'ยังไม่ได้เริ่ม'],
+          datasets: [{
+            data: [45, 35, 20],
+            backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+  }
+
+  // Call initDevTab after page load
+  initDevTab();
+
   showTab('executive');
   initDashboardData();
   checkAlerts();
