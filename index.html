@@ -1594,34 +1594,58 @@ window.RESIGNATION_PIPELINE = {
     </div>
   </div>
 
-  <!-- กระบวนการแสวงหา - Step Flow -->
+  <!-- กระบวนการแสวงหา - PM WI LDC-PAO-PM-001 Workflow -->
   <div class="card bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-    <h3 class="font-bold text-pp7-800 mb-3 text-lg">📌 กระบวนการแสวงหาบุคลากร</h3>
+    <h3 class="font-bold text-pp7-800 mb-3 text-lg flex items-center gap-2">
+      <span class="bg-pp7-600 text-white px-2 py-1 rounded text-xs">LDC-PAO-PM-001</span>
+      📌 กระบวนการแสวงหาบุคลากร (Web PP7 Operation Flow)
+    </h3>
     <div class="grid md:grid-cols-5 gap-3 text-sm">
-      <div class="text-center p-3 rounded-lg bg-white shadow-sm">
-        <div class="text-2xl mb-1">📝</div>
-        <div class="font-semibold text-pp7-700">1. เปิดรับสมัคร</div>
-        <div class="text-slate-600 mt-1">ประกาศตำแหน่งว่าง</div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-blue-400">
+        <div class="text-2xl mb-1">📱</div>
+        <div class="font-semibold text-pp7-700">1. รับสมัคร</div>
+        <div class="text-slate-600 mt-1 text-xs">ผู้สมัครสแกน QR / กรอกฟอร์มออนไลน์</div>
       </div>
-      <div class="text-center p-3 rounded-lg bg-white shadow-sm">
-        <div class="text-2xl mb-1">📥</div>
-        <div class="font-semibold text-pp7-700">2. รับสมัคร</div>
-        <div class="text-slate-600 mt-1">เก็บข้อมูลผู้สมัคร</div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-indigo-400">
+        <div class="text-2xl mb-1">🤖</div>
+        <div class="font-semibold text-pp7-700">2. AI Validation</div>
+        <div class="text-slate-600 mt-1 text-xs">ตรวจสอบความครบถ้วน & สกัดข้อมูล Resume</div>
       </div>
-      <div class="text-center p-3 rounded-lg bg-white shadow-sm">
-        <div class="text-2xl mb-1">🎯</div>
-        <div class="font-semibold text-pp7-700">3. คัดกรอง</div>
-        <div class="text-slate-600 mt-1">ตรวจสอบคุณสมบัติ</div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-purple-400">
+        <div class="text-2xl mb-1">💾</div>
+        <div class="font-semibold text-pp7-700">3. บันทึก DB</div>
+        <div class="text-slate-600 mt-1 text-xs">Single Source of Truth + สถานะ "ผู้สมัครใหม่"</div>
       </div>
-      <div class="text-center p-3 rounded-lg bg-white shadow-sm">
-        <div class="text-2xl mb-1">💬</div>
-        <div class="font-semibold text-pp7-700">4. สัมภาษณ์</div>
-        <div class="text-slate-600 mt-1">ประเมินเบื้องต้น</div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-amber-400">
+        <div class="text-2xl mb-1">🔔</div>
+        <div class="font-semibold text-pp7-700">4. แจ้งเตือน</div>
+        <div class="text-slate-600 mt-1 text-xs">แจ้งเตือน HR/ผู้คัดกรองผ่าน Telegram ทันที</div>
       </div>
-      <div class="text-center p-3 rounded-lg bg-white shadow-sm">
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-emerald-400">
         <div class="text-2xl mb-1">📤</div>
-        <div class="font-semibold text-pp7-700">5. ส่งต่อ</div>
-        <div class="text-slate-600 mt-1">เข้าหยั่งประเมิน</div>
+        <div class="font-semibold text-pp7-700">5. ส่งต่อ P2</div>
+        <div class="text-slate-600 mt-1 text-xs">HR คัดกรองเบื้องต้น → เปลี่ยนสถานะ "รอประเมิน"</div>
+      </div>
+    </div>
+    
+    <!-- Data Structure Preview -->
+    <div class="mt-4 p-4 rounded-lg bg-white/80 border border-blue-200">
+      <h4 class="font-semibold text-pp7-700 text-sm mb-2 flex items-center gap-2">
+        <span class="text-lg">🗄️</span> โครงสร้างข้อมูลหลัก (Database Schema)
+      </h4>
+      <div class="grid md:grid-cols-3 gap-3 text-xs text-slate-700">
+        <div class="p-2 rounded bg-slate-50 border border-slate-200">
+          <strong class="text-pp7-600">1. positions (ตำแหน่งงาน)</strong><br>
+          id, title, department, is_vacant, updated_at
+        </div>
+        <div class="p-2 rounded bg-slate-50 border border-slate-200">
+          <strong class="text-pp7-600">2. candidates (ข้อมูลผู้สมัคร)</strong><br>
+          id, position_id, full_name, contact_info, resume_url, pdpa_consent, status, created_at
+        </div>
+        <div class="p-2 rounded bg-slate-50 border border-slate-200">
+          <strong class="text-pp7-600">3. candidate_references (บุคคลอ้างอิง)</strong><br>
+          id, candidate_id, relation, name, phone
+        </div>
       </div>
     </div>
   </div>
