@@ -2653,12 +2653,69 @@ window.RESIGNATION_PIPELINE = {
 <!-- ==================== TAB: DEVELOP ==================== -->
 <section id="tab-develop" class="tab-pane fade-in hidden space-y-6">
   <div class="flex flex-wrap items-center gap-4">
-    <h2 class="text-xl font-bold text-pp7-800 flex-1">🎓 <span data-i18n="tabDevFull">พัฒนาบุคลากร</span></h2>
+    <h2 class="text-xl font-bold text-pp7-800 flex-1">🎓 <span data-i18n="tabDevFull">พัฒนาบุคลากร (P5)</span></h2>
     <div class="search-box w-64">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
       <input type="text" placeholder="ค้นหา ID, ชื่อ..." oninput="searchTable('dev-table',this.value)" data-i18n-placeholder="search">
     </div>
   </div>
+
+  <!-- กระบวนการพัฒนา - PM/WI P5 Workflow (S4/S5/S7 Implementation) -->
+  <div class="card bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200" id="section-p5-workflow">
+    <h3 class="font-bold text-pp7-800 mb-3 text-lg flex items-center gap-2">
+      <span class="bg-emerald-600 text-white px-2 py-1 rounded text-xs font-mono">[P5-Develop]</span>
+      📌 กระบวนการพัฒนาบุคลากร (Web PP7 Operation Flow)
+    </h3>
+    <div class="grid md:grid-cols-5 gap-3 text-sm">
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-emerald-400">
+        <div class="text-2xl mb-1">📊</div>
+        <div class="font-semibold text-pp7-700">1. วิเคราะห์ Gap</div>
+        <div class="text-slate-600 mt-1 text-xs">ดึงผลประเมิน CC จาก P4 เพื่อหาจุดพัฒนา</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-teal-400">
+        <div class="text-2xl mb-1">📝</div>
+        <div class="font-semibold text-pp7-700">2. จัดทำ IDP</div>
+        <div class="text-slate-600 mt-1 text-xs">พนักงานและหัวหน้าร่วมจัดทำแผนพัฒนารายบุคคล</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-cyan-400">
+        <div class="text-2xl mb-1">🤝</div>
+        <div class="font-semibold text-pp7-700">3. จับคู่/มอบหมาย</div>
+        <div class="text-slate-600 mt-1 text-xs">ระบบแนะนำพี่เลี้ยง (Mentor) หรือหลักสูตรฝึกอบรม</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-blue-400">
+        <div class="text-2xl mb-1">📈</div>
+        <div class="font-semibold text-pp7-700">4. ติดตามผล</div>
+        <div class="text-slate-600 mt-1 text-xs">บันทึก Learning Log และความคืบหน้าแบบ Real-time</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-indigo-400">
+        <div class="text-2xl mb-1">✅</div>
+        <div class="font-semibold text-pp7-700">5. ประเมินผลลัพธ์</div>
+        <div class="text-slate-600 mt-1 text-xs">วัดผลพัฒนาการ CC และอัปเดตสถานะความพร้อม</div>
+      </div>
+    </div>
+    
+    <!-- Data Structure Preview for P5 -->
+    <div class="mt-4 p-4 rounded-lg bg-white/80 border border-emerald-200">
+      <h4 class="font-semibold text-pp7-700 text-sm mb-2 flex items-center gap-2">
+        <span class="text-lg">🗄️</span> โครงสร้างข้อมูลหลัก (Database Schema - S7 Task)
+      </h4>
+      <div class="grid md:grid-cols-3 gap-3 text-xs text-slate-700">
+        <div class="p-2 rounded bg-slate-50 border border-slate-200">
+          <strong class="text-emerald-600">1. idp_plans (แผนพัฒนารายบุคคล)</strong><br>
+          id, employee_id, target_cc, action_plan, target_date, status, manager_approval
+        </div>
+        <div class="p-2 rounded bg-slate-50 border border-slate-200">
+          <strong class="text-emerald-600">2. mentoring_pairs (ระบบพี่เลี้ยง)</strong><br>
+          id, mentor_id, mentee_id, start_date, end_date, meeting_frequency, goals
+        </div>
+        <div class="p-2 rounded bg-slate-50 border border-slate-200">
+          <strong class="text-emerald-600">3. training_records (บันทึกการฝึกอบรม)</strong><br>
+          id, employee_id, course_id, completion_date, score, feedback, certificate_url
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
     <div class="card text-center"><div class="text-sm text-slate-400">Training Completion</div><div class="kpi-num text-emerald-600">92%</div></div>
     <div class="card text-center"><div class="text-sm text-slate-400" data-i18n="coursesQ1">คอร์สเปิด Q1</div><div class="kpi-num text-pp7-600">48</div></div>
