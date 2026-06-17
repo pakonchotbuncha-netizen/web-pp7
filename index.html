@@ -167,8 +167,8 @@ const NEW_PROCESS_DATA = {
 </head>
 <body>
 
-<!-- ===== LOGIN OVERLAY ===== -->
-<div id="loginOverlay">
+<!-- ===== LOGIN OVERLAY (Disabled for Public Preview) ===== -->
+<div id="loginOverlay" class="hidden" style="display:none !important;">
  <div class="login-card">
  <div class="login-logo">🔐</div>
  <h2>Pakorn HRMS</h2>
@@ -678,15 +678,14 @@ function handleDevFormSubmit(event) {
 }
 
 (function(){
+  // Disabled login requirement for easy public preview and testing
   try {
     const saved = JSON.parse(localStorage.getItem('pakorn_session'));
     if(saved && saved.user && USERS[saved.user]){
       applyLogin(saved);
-    } else {
-      document.getElementById('app-wrapper').classList.add('content-blur');
     }
   } catch(e){
-    document.getElementById('app-wrapper').classList.add('content-blur');
+    // Ignore error, allow access
   }
   showTab('executive');
 })();
