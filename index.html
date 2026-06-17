@@ -415,7 +415,7 @@ const NEW_PROCESS_DATA = {
     <div class="flex items-center justify-between mb-4">
       <div>
         <h2 class="text-xl font-bold text-pp7-800">📝 แบบฟอร์มเบิกค่าเบี้ยเลี้ยงนักศึกษาฝึกงาน (LDC-WCD-WI-001)</h2>
-        <p class="text-gray-600 text-sm mt-1">ระบบคำนวณวันทำงานจริง (หักวันอาทิตย์อัตโนมัติ) และเตรียมเอกสารสำหรับหัวหน้างานอนุมัติ</p>
+        <p class="text-gray-600 text-sm mt-1">หัวหน้างานกรอกจำนวนวันที่ทำงานจริง (ตามใบลงเวลาที่ตรวจสอบแล้ว) เพื่อคำนวณและขออนุมัติจ่ายเงิน</p>
       </div>
     </div>
     
@@ -430,19 +430,20 @@ const NEW_PROCESS_DATA = {
           <label class="block text-sm font-medium text-gray-700">แผนก / หัวหน้างานผู้ควบคุม</label>
           <input type="text" id="wi001-supervisor" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" placeholder="ระบุแผนกและชื่อหัวหน้างาน">
         </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">เดือน/ปีที่เบิก</label>
+          <input type="month" id="wi001-month" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500">
+        </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700">วันที่เริ่มฝึกงาน</label>
-            <input type="date" id="wi001-start-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" onchange="calculateWI001()">
+            <label class="block text-sm font-medium text-gray-700">จำนวนวันทำงานจริง (ตามใบลงเวลา)</label>
+            <input type="number" id="wi001-days" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500 font-bold text-pp7-700" placeholder="0" oninput="calculateWI001()">
+            <p class="text-xs text-gray-500 mt-1">* หัวหน้างานตรวจสอบจากใบลงเวลาจริงก่อนกรอก</p>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700">วันที่สิ้นสุด</label>
-            <input type="date" id="wi001-end-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" onchange="calculateWI001()">
+            <label class="block text-sm font-medium text-gray-700">อัตราค่าเบี้ยเลี้ยง (บาท/วัน)</label>
+            <input type="number" value="35" readonly class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm p-2 border text-gray-500 cursor-not-allowed font-bold">
           </div>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700">อัตราค่าเบี้ยเลี้ยง (บาท/วัน)</label>
-          <input type="number" id="wi001-rate" value="35" readonly class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm p-2 border text-gray-500 cursor-not-allowed">
         </div>
       </div>
 
@@ -450,7 +451,7 @@ const NEW_PROCESS_DATA = {
       <div class="space-y-4 bg-blue-50 p-5 rounded-lg border border-blue-100">
         <h3 class="font-semibold text-pp7-800 text-lg">💰 สรุปผลการคำนวณอัตโนมัติ</h3>
         <div class="flex justify-between items-center border-b border-blue-200 pb-2">
-          <span class="text-sm text-gray-600">จำนวนวันทำงานจริง (หักวันอาทิตย์)</span>
+          <span class="text-sm text-gray-600">จำนวนวันทำงานจริง (ที่หัวหน้างานยืนยัน)</span>
           <span class="font-bold text-lg text-gray-800" id="wi001-working-days">0 วัน</span>
         </div>
         <div class="flex justify-between items-center border-b border-blue-200 pb-2">
@@ -465,7 +466,7 @@ const NEW_PROCESS_DATA = {
         <div class="mt-6 space-y-3 pt-4 border-t border-blue-200">
           <label class="flex items-start space-x-2 text-sm text-gray-700 cursor-pointer">
             <input type="checkbox" class="mt-1 rounded text-pp7-600 focus:ring-pp7-500" id="wi001-doc-check">
-            <span>ยืนยันการแนบไฟล์ "เอกสารเบิกค่าเบี้ยเลี้ยงนักศึกษาฝึกงาน" เรียบร้อยแล้ว</span>
+            <span>ยืนยันการแนบไฟล์ "ใบลงเวลาและเอกสารเบิกค่าเบี้ยเลี้ยง" ที่หัวหน้างานเซ็นตรวจสอบแล้ว</span>
           </label>
           
           <button onclick="generateWI001Doc()" class="w-full bg-pp7-600 hover:bg-pp7-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm">
@@ -575,64 +576,45 @@ function showNewProcessSubTab(subTabName) {
 
 // ========== WI-001: เบี้ยเลี้ยงนักศึกษาฝึกงาน ==========
 function calculateWI001() {
-  const startDateStr = document.getElementById('wi001-start-date').value;
-  const endDateStr = document.getElementById('wi001-end-date').value;
+  const daysInput = document.getElementById('wi001-days').value;
   const rate = 35;
-
-  if (startDateStr && endDateStr) {
-    const startDate = new Date(startDateStr);
-    const endDate = new Date(endDateStr);
-    
-    if (startDate > endDate) {
-      alert('⚠️ วันที่สิ้นสุดต้องมากกว่าหรือเท่ากับวันที่เริ่มฝึกงาน');
-      document.getElementById('wi001-working-days').textContent = '0 วัน';
-      document.getElementById('wi001-total-amount').textContent = '0.00 บาท';
-      return;
-    }
-
-    let workingDays = 0;
-    let curDate = new Date(startDate);
-    
-    // นับวันทำงานโดยหักวันอาทิตย์ (Day 0) ออก
-    while (curDate <= endDate) {
-      if (curDate.getDay() !== 0) {
-        workingDays++;
-      }
-      curDate.setDate(curDate.getDate() + 1);
-    }
-
-    const totalAmount = workingDays * rate;
-
-    document.getElementById('wi001-working-days').textContent = workingDays + ' วัน';
-    document.getElementById('wi001-total-amount').textContent = totalAmount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' บาท';
-  } else {
-    document.getElementById('wi001-working-days').textContent = '0 วัน';
-    document.getElementById('wi001-total-amount').textContent = '0.00 บาท';
+  let days = parseInt(daysInput) || 0;
+  
+  if (days < 0) {
+    days = 0;
+    document.getElementById('wi001-days').value = 0;
   }
+
+  const totalAmount = days * rate;
+
+  document.getElementById('wi001-working-days').textContent = days + ' วัน';
+  document.getElementById('wi001-total-amount').textContent = totalAmount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' บาท';
 }
 
 function generateWI001Doc() {
   const name = document.getElementById('wi001-intern-name').value || 'ไม่ระบุชื่อ';
   const supervisor = document.getElementById('wi001-supervisor').value || 'ไม่ระบุหัวหน้างาน';
+  const month = document.getElementById('wi001-month').value || 'ไม่ระบุเดือน';
   const days = document.getElementById('wi001-working-days').textContent;
   const total = document.getElementById('wi001-total-amount').textContent;
   const docChecked = document.getElementById('wi001-doc-check').checked;
 
   if (!docChecked) {
-    alert('⚠️ กรุณายืนยันการแนบไฟล์ "เอกสารเบิกค่าเบี้ยเลี้ยงนักศึกษาฝึกงาน" ก่อนดำเนินสร้างคำขออนุมัติ');
+    alert('⚠️ กรุณายืนยันการแนบไฟล์ "ใบลงเวลาและเอกสารเบิกค่าเบี้ยเลี้ยง" ที่หัวหน้างานเซ็นตรวจสอบแล้ว ก่อนดำเนินสร้างคำขออนุมัติ');
     return;
   }
 
-  if (days === '0 วัน') {
-    alert('⚠️ กรุณาระบุวันที่เริ่มและสิ้นสุดการฝึกงานให้ถูกต้อง');
+  if (parseInt(days) === 0) {
+    alert('⚠️ กรุณาระบุจำนวนวันทำงานจริงให้ถูกต้อง (ต้องมากกว่า 0 วัน)');
     return;
   }
 
   const msg = `✅ สร้างคำขออนุมัติเรียบร้อยแล้ว!\n\n` +
-              `👤 นักศึกษา: ${name}\n` +
-              `🏢 หัวหน้างาน: ${supervisor}\n` +
-              `📅 จำนวนวันทำงาน: ${days}\n` +
-              `💰 ยอดรวมค่าเบี้ยเลี้ยง: ${total}\n\n` +
+              `👤 นักศึกษาฝึกงาน: ${name}\n` +
+              `🏢 หัวหน้างานผู้ควบคุม: ${supervisor}\n` +
+              `📅 เดือนที่เบิก: ${month}\n` +
+              `⏱️ จำนวนวันทำงานจริง (ตามที่ตรวจสอบ): ${days}\n` +
+              `💰 ยอดรวมค่าเบี้ยเลี้ยงที่เบิกได้: ${total}\n\n` +
               `📌 สถานะต่อไป: เอกสารถูกเตรียมไว้สำหรับหัวหน้างานเซ็นอนุมัติผ่าน Nitro Sign ` +
               `เมื่อเซ็นเสร็จแล้ว ระบบจะแจ้งเตือนไปยังฝ่ายการเงินเพื่อดำเนินการโอนเงินครับ`;
   
