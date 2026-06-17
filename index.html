@@ -72,6 +72,24 @@ const RECRUIT_CLEAN_DATA = {
  { running:'A1-003', fullNameNoPrefix:'วิชัย สุขสมบูรณ์', jobPosition1:'Operations Supervisor', schoolName:'Job Board', status_register:'มาสัมภาษณ์', employmentStatus:'', applicationDate:'2026-04-01' }
  ]
 };
+
+// ====== กระบวนการใหม่ (S4) ======
+const NEW_PROCESS_DATA = {
+  p1_4: [
+    { doc: "LDC-PAO-WI-002", name: "การคัดเลือกพนักงานจากภายนอก (สรรหา)", s4: "🔄 กระบวนการใหม่: 1. AI สรุป/ตรวจสอบใบขออัตรากำลังคนอัตโนมัติ 2. AI จัดเรียง/คัดกรองใบสมัครจาก 10 ช่องทาง 3. AI ช่วยสัมภาษณ์เบื้องต้น + ประเมินทักษะ", task: "1. ออกแบบ DB schema 2. สร้าง UI Form 3. เขียน Automation script 4. เชื่อม API ภายนอก 5. สร้าง Dashboard 6. ทดสอบ (UAT) + Deploy", owner: "ทีมพัฒนาโปรแกรม", status: "รอดำเนินการ" },
+    { doc: "LDC-PAO-WI-001", name: "การขออนุมัติจัดหากำลังคน (สรรหา)", s4: "🔄 กระบวนการใหม่: 1. BU คีย์ฟอร์มขออัตรากำลัง → AI ตรวจสอบความถูกต้องทันที 2. หากข้อมูลไม่ครบ AI แจ้งเตือน BU ให้แก้ไขและปิดใบสมัครเก่าอัตโนมัติ 3. ประกาศรับสมัครอัตโนมัติ", task: "1. ออกแบบ DB schema 2. สร้าง UI Form 3. เขียน Automation script 4. เชื่อม API ภายนอก 5. สร้าง Dashboard 6. ทดสอบ (UAT) + Deploy", owner: "ทีมพัฒนาโปรแกรม", status: "รอดำเนินการ" },
+    { doc: "LDC-PAO-PM-001", name: "การแสวงหา_ผู้สมัครงาน (สรรหา)", s4: "🔄 กระบวนการใหม่: 1. AI ตรวจสอบใบขออัตรากำลังคน + คัดกรองใบสมัครทุกช่องทาง 2. AI ช่วยสัมภาษณ์เบื้องต้น + ประเมินทักษะ 3. AI จับคู่คนกับงานจากโปรไฟล์ + ปิดใบสมัครไม่ผ่านอัตโนมัติ", task: "1. ออกแบบ DB schema 2. สร้าง UI Form 3. เขียน Automation script 4. เชื่อม API ภายนอก 5. สร้าง Dashboard 6. ทดสอบ (UAT) + Deploy", owner: "ทีมพัฒนาโปรแกรม", status: "รอดำเนินการ" }
+  ],
+  p5: [
+    { doc: "LDC-PAD-PM-001", name: "ระบบพี่เลี้ยงและน้องเลี้ยง", s4: "🔄 กระบวนการใหม่: 1. ดึงข้อมูล+ตรวจสอบ → รวมขั้นตอนเดียว 2. กำหนดกลุ่ม+Set ระบบ → ทำครั้งเดียว 3. ตรวจสอบวินัย+สรุปคะแนน → อัตโนมัติ", task: "1. ออกแบบ DB schema สมาชิก กลุ่มน้องเลี้ยง พี่เลี้ยง รหัส DTA รายงานวินัย 2. ระบบดึงข้อมูลสมาชิกจาก PP7 อัตโนมัติ 3. ระบบกำหนดกลุ่มน้องเลี้ยงอัตโนมัติ 4. ระบบ Set BCT + รหัส DTA อัตโนมัติ 5. ระบบสร้าง Line Group + แจ้งเงื่อนไข อัตโนมัติ 6. ระบบส่งรายงาน DTA ออนไลน์", owner: "ทีมพัฒนาโปรแกรม", status: "รอดำเนินการ" },
+    { doc: "LDC-PAD-WI-001", name: "กระบวนการเปิดอบรมภายใน", s4: "🔄 กระบวนการใหม่: 1. PAD ตรวจสอบ + พิจารณา → รวมเป็นขั้นตอนเดียว 2. AI ตรวจสอบเอกสารตาม Checklist อัตโนมัติ 3. AI แจ้งผลการตรวจอัตโนมัติ", task: "1. ออกแบบ database schema หลักสูตร วิทยากร เอกสาร Checklist 2. สร้าง UI form วิทยากร Upload หลักสูตร 3. สร้างระบบตรวจสอบเอกสารตาม Checklist อัตโนมัติ 4. สร้าง UI form PAD พิจารณาอนุมัติ 5. เขียนระบบแจ้งผลการตรวจอัตโนมัติ 6. สร้างระบบระบุวันที่เปิดอบรม", owner: "ทีมพัฒนาโปรแกรม", status: "รอดำเนินการ" }
+  ],
+  p6_7: [
+    { doc: "LDC-WCD-WI-001", name: "การจ่ายค่าเบี้ยเลี้ยงนักศึกษาฝึกงาน (สวัสดิการ)", s4: "🔄 กระบวนการใหม่: 1. ลงเวลาผ่านฟอร์มกลาง Web PP7 2. ระบบตรวจสอบความถูกต้องอัตโนมัติ 3. HR/PAO อนุมัติผ่าน Dashboard 4. คำนวณเบี้ยเลี้ยงสิ้นเดือนอัตโนมัติ 5. ส่งออกข้อมูลไป BCT Payroll", task: "1. สร้าง DB schema 2. พัฒนา UI ลงเวลา 3. พัฒนา UI Admin 4. ระบบคำนวณเบี้ยเลี้ยง 5. รายงานสรุป 6. ระบบแจ้งเตือน 7. เชื่อม API 8. ทดสอบ+Deploy", owner: "ทีมพัฒนาโปรแกรม", status: "รอดำเนินการ" },
+    { doc: "LDC-WCD-WI-002", name: "การทำยอดเงินสมทบอายุงานสมาชิกลาออก (สวัสดิการ)", s4: "🔄 กระบวนการใหม่: 1. รับข้อมูลอนุมัติลาออกผ่าน Telegram อัตโนมัติ 2. ดึงข้อมูลอายุงานและคำนวณสิทธิประโยชน์อัตโนมัติ 3. PAO ตรวจสอบความถูกต้อง 4. ส่งแจ้งรายละเอียดสิทธิ์ล่วงหน้า 5. เมื่อพ้นสภาพ โอนเงินภายใน 7 วัน 6. แจ้งเตือนยืนยัน", task: "1. ออกแบบ DB schema 2. สร้าง UI form ตรวจสอบ+คำนวณ 3. สร้าง UI นำส่ง+แจ้งผล 4. เขียน automation script 5. เชื่อม API 6. สร้าง Dashboard 7. Notification 8. ทดสอบ+Deploy", owner: "ทีมพัฒนาโปรแกรม", status: "รอดำเนินการ" },
+    { doc: "LDC-WCD-WI-003", name: "การเบิกสวัสดิการสมาชิก (สวัสดิการ)", s4: "🔄 กระบวนการใหม่: 1. ยื่นคำขอผ่าน App MS24/Web PP7 2. แจ้งเตือนห้อง TG และ Dashboard อัตโนมัติ 3. PAO/การเงิน ตรวจสอบผ่านระบบกลาง 4. ตรงเงื่อนไข: ระบบสร้าง VC ส่ง BCT อัตโนมัติ 5. ไม่ตรง: แจ้งเตือนสมาชิก 6. การเงินโอนเงิน 7. แจ้งเตือน Line/TG 8. MSP/Cashout อัตโนมัติ", task: "1. ออกแบบ DB schema 2. ระบบกรอกฟอร์มใน App MS24 3. ระบบแจ้งเตือน PAO/การเงิน 4. ระบบตรวจสอบหลักฐานอัตโนมัติ 5. ระบบตั้ง VC อัตโนมัติ 6. ระบบโอนเงินอัตโนมัติ 7. แจ้งเตือน Line/TG 8. MSP/Cashout อัตโนมัติ 9. เชื่อม API 10. Dashboard 11. ทดสอบ+Deploy", owner: "ทีมพัฒนาโปรแกรม", status: "รอดำเนินการ" }
+  ]
+};
 </script>
  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
  <style>
@@ -202,6 +220,7 @@ const RECRUIT_CLEAN_DATA = {
  <button class="tab-btn" data-tab="develop" onclick="showTab('develop')">🎓 พัฒนา</button>
  <button class="tab-btn" data-tab="welfare" onclick="showTab('welfare')">💰 สวัสดิการ</button>
  <button class="tab-btn" data-tab="quality" onclick="showTab('quality')">🌿 คุณภาพชีวิต</button>
+ <button class="tab-btn" data-tab="new-process" onclick="showTab('new-process')">🔄 กระบวนการใหม่ (S4)</button>
  </div>
 </nav>
 
@@ -303,6 +322,88 @@ const RECRUIT_CLEAN_DATA = {
   </div>
 </section>
 
+<!-- ========== กระบวนการใหม่ (S4) ========== -->
+<section id="tab-new-process" class="tab-pane fade-in hidden space-y-6">
+  <div class="card">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-xl font-bold text-pp7-800">🔄 กระบวนการใหม่ (S4) - พร้อมใช้งานสำหรับทีม HR</h2>
+        <p class="text-gray-600 text-sm mt-1">พื้นที่ทำงานสำหรับทีม HR เพื่อดูและติดตาม "กระบวนการใหม่" ที่ได้รับการออกแบบและลดความซ้ำซ้อนแล้ว แทนการใช้ Google Sheets Board</p>
+      </div>
+      <button onclick="renderNewProcessTab()" class="btn btn-primary flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+        รีเฟรชข้อมูล
+      </button>
+    </div>
+
+    <div class="flex gap-2 mb-6 border-b border-gray-200">
+      <button class="new-process-subtab-btn px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600 transition-colors" data-subtab="p1-4" onclick="showNewProcessSubTab('p1-4')">P1-P4</button>
+      <button class="new-process-subtab-btn px-4 py-2 font-medium text-gray-500 hover:text-blue-600 transition-colors" data-subtab="p5" onclick="showNewProcessSubTab('p5')">P5</button>
+      <button class="new-process-subtab-btn px-4 py-2 font-medium text-gray-500 hover:text-blue-600 transition-colors" data-subtab="p6-7" onclick="showNewProcessSubTab('p6-7')">P6-P7</button>
+    </div>
+
+    <div id="new-process-p1-4" class="new-process-subpane">
+      <div class="overflow-x-auto rounded-lg border border-gray-200">
+        <table class="w-full text-sm">
+          <thead class="bg-blue-50 text-pp7-800">
+            <tr>
+              <th class="p-3 text-left font-semibold border-b">รหัสเอกสาร</th>
+              <th class="p-3 text-left font-semibold border-b">ชื่อกระบวนการ</th>
+              <th class="p-3 text-left font-semibold border-b w-1/3">กระบวนการใหม่ (S4)</th>
+              <th class="p-3 text-left font-semibold border-b w-1/3">Task สำหรับ Web PP7</th>
+              <th class="p-3 text-left font-semibold border-b">ผู้รับผิดชอบ</th>
+              <th class="p-3 text-left font-semibold border-b">สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="table-p1-4-body" class="divide-y divide-gray-100 bg-white">
+            <tr><td colspan="6" class="p-4 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="new-process-p5" class="new-process-subpane hidden">
+      <div class="overflow-x-auto rounded-lg border border-gray-200">
+        <table class="w-full text-sm">
+          <thead class="bg-blue-50 text-pp7-800">
+            <tr>
+              <th class="p-3 text-left font-semibold border-b">รหัสเอกสาร</th>
+              <th class="p-3 text-left font-semibold border-b">ชื่อกระบวนการ</th>
+              <th class="p-3 text-left font-semibold border-b w-1/3">กระบวนการใหม่ (S4)</th>
+              <th class="p-3 text-left font-semibold border-b w-1/3">Task สำหรับ Web PP7</th>
+              <th class="p-3 text-left font-semibold border-b">ผู้รับผิดชอบ</th>
+              <th class="p-3 text-left font-semibold border-b">สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="table-p5-body" class="divide-y divide-gray-100 bg-white">
+            <tr><td colspan="6" class="p-4 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="new-process-p6-7" class="new-process-subpane hidden">
+      <div class="overflow-x-auto rounded-lg border border-gray-200">
+        <table class="w-full text-sm">
+          <thead class="bg-blue-50 text-pp7-800">
+            <tr>
+              <th class="p-3 text-left font-semibold border-b">รหัสเอกสาร</th>
+              <th class="p-3 text-left font-semibold border-b">ชื่อกระบวนการ</th>
+              <th class="p-3 text-left font-semibold border-b w-1/3">กระบวนการใหม่ (S4)</th>
+              <th class="p-3 text-left font-semibold border-b w-1/3">Task สำหรับ Web PP7</th>
+              <th class="p-3 text-left font-semibold border-b">ผู้รับผิดชอบ</th>
+              <th class="p-3 text-left font-semibold border-b">สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="table-p6-7-body" class="divide-y divide-gray-100 bg-white">
+            <tr><td colspan="6" class="p-4 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
 </main></div>
 
 <script>
@@ -355,6 +456,46 @@ function showTab(tabId){
   document.getElementById('tab-' + tabId).classList.remove('hidden');
   document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
   if(tabId === 'develop') initDevTab();
+  if(tabId === 'new-process') renderNewProcessTab();
+}
+
+function renderNewProcessTab() {
+  function renderTable(dataArray, tbodyId) {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    if (!dataArray || dataArray.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">ยังไม่มีข้อมูล</td></tr>';
+      return;
+    }
+    tbody.innerHTML = dataArray.map(row => `
+      <tr class="hover:bg-blue-50 transition-colors">
+        <td class="p-3 border-b font-medium text-pp7-700">${row.doc || '-'}</td>
+        <td class="p-3 border-b">${row.name || '-'}</td>
+        <td class="p-3 border-b text-sm text-gray-700 whitespace-pre-line">${row.s4 || '-'}</td>
+        <td class="p-3 border-b text-sm text-gray-600 whitespace-pre-line">${row.task || '-'}</td>
+        <td class="p-3 border-b"><span class="badge badge-blue">${row.owner || '-'}</span></td>
+        <td class="p-3 border-b"><span class="badge badge-amber">${row.status || '-'}</span></td>
+      </tr>
+    `).join('');
+  }
+  renderTable(NEW_PROCESS_DATA.p1_4, 'table-p1-4-body');
+  renderTable(NEW_PROCESS_DATA.p5, 'table-p5-body');
+  renderTable(NEW_PROCESS_DATA.p6_7, 'table-p6-7-body');
+}
+
+function showNewProcessSubTab(subTabName) {
+  document.querySelectorAll('.new-process-subpane').forEach(el => el.classList.add('hidden'));
+  document.getElementById('new-process-' + subTabName).classList.remove('hidden');
+  
+  document.querySelectorAll('.new-process-subtab-btn').forEach(btn => {
+    btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+    btn.classList.add('text-gray-500');
+  });
+  const activeBtn = document.querySelector(`.new-process-subtab-btn[data-subtab="${subTabName}"]`);
+  if (activeBtn) {
+    activeBtn.classList.remove('text-gray-500');
+    activeBtn.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+  }
 }
 
 function initDevTab() {
