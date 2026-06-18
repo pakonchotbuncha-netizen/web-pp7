@@ -224,6 +224,7 @@ const NEW_PROCESS_DATA = {
  <button class="tab-btn" data-tab="develop" onclick="showTab('develop')">🎓 พัฒนา</button>
  <button class="tab-btn" data-tab="welfare" onclick="showTab('welfare')">💰 สวัสดิการ</button>
  <button class="tab-btn" data-tab="wi001" onclick="showTab('wi001')">📝 เบี้ยเลี้ยงฝึกงาน (WI-001)</button>
+ <button class="tab-btn" data-tab="wi002" onclick="showTab('wi002')">💼 สมทบอายุงาน (WI-002)</button>
  <button class="tab-btn" data-tab="quality" onclick="showTab('quality')">🌿 คุณภาพชีวิต</button>
  <button class="tab-btn" data-tab="new-process" onclick="showTab('new-process')">🔄 กระบวนการใหม่ (S4)</button>
  </div>
@@ -480,6 +481,167 @@ const NEW_PROCESS_DATA = {
   </div>
 </section>
 
+<!-- ========== WI-002: เงินสมทบอายุงานเมื่อสมาชิกลาออก ========== -->
+<section id="tab-wi002" class="tab-pane fade-in hidden space-y-6">
+  <div class="card">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-xl font-bold text-pp7-800">💼 คำนวณเงินสมทบอายุงานเมื่อสมาชิกลาออก (LDC-WCD-WI-002)</h2>
+        <p class="text-gray-600 text-sm mt-1">ระบบคำนวณเงินสมทบตามอายุงาน + รายการหัก (สหกรณ์/ภาษี/อื่นๆ) เพื่อเสนอจ่ายสุทธิ</p>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- Form Inputs -->
+      <div class="space-y-4">
+        <div class="border-b border-gray-200 pb-2">
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">📋 ข้อมูลสมาชิก</h3>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">รหัสสมาชิก</label>
+            <input type="text" id="wi002-member-id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" placeholder="EMP-001">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">ชื่อสมาชิก</label>
+            <input type="text" id="wi002-member-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" placeholder="ชื่อ-สกุล">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">วันที่เริ่มงาน</label>
+            <input type="date" id="wi002-start-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" oninput="calculateWI002()">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">วันที่ลาออก</label>
+            <input type="date" id="wi002-end-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" oninput="calculateWI002()">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">เงินเดือนล่าสุด (บาท)</label>
+          <input type="number" id="wi002-salary" min="0" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500 font-bold text-pp7-700" placeholder="0.00" oninput="calculateWI002()">
+        </div>
+
+        <div class="border-b border-gray-200 pb-2 pt-4">
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">💸 รายการหักก่อนจ่าย</h3>
+        </div>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-600">💳 เงินกู้สหกรณ์ (CU) คงค้าง</label>
+            <input type="number" id="wi002-cu-loan" min="0" step="0.01" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" placeholder="0.00" oninput="calculateWI002()">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600">💧 ค่าใช้จ่ายสวัสดิการค้างชำระ</label>
+            <input type="number" id="wi002-welfare-due" min="0" step="0.01" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" placeholder="0.00" oninput="calculateWI002()">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600">⚠️ ค่าเสียหาย/ค่าปรับจากงาน</label>
+            <input type="number" id="wi002-damage" min="0" step="0.01" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" placeholder="0.00" oninput="calculateWI002()">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600">🏦 เงินกองทุนสำรองเลี้ยงชีพ</label>
+            <input type="number" id="wi002-pension" min="0" step="0.01" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" placeholder="0.00" oninput="calculateWI002()">
+          </div>
+          <p class="text-xs text-gray-500 italic">* ภาษี ณ ที่จ่าย 3% จะถูกคำนวณอัตโนมัติ (หลังหักเงินกู้ CU)</p>
+        </div>
+      </div>
+
+      <!-- Calculation & Output -->
+      <div class="space-y-3 bg-amber-50 p-5 rounded-lg border border-amber-200">
+        <h3 class="font-semibold text-pp7-800 text-lg">📊 สรุปผลการคำนวณอัตโนมัติ</h3>
+
+        <!-- Duration -->
+        <div class="bg-white rounded p-3 space-y-1">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">ระยะเวลาทำงานจริง (เศษปี)</span>
+            <span class="font-bold text-gray-800" id="wi002-duration-display">0.00 ปี</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">เกณฑ์การสมทบตามอายุงาน</span>
+            <span class="font-bold text-pp7-700" id="wi002-tier-display">0% (ยังไม่ถึงเกณฑ์)</span>
+          </div>
+        </div>
+
+        <!-- Gross calculation -->
+        <div class="bg-white rounded p-3 space-y-1">
+          <div class="text-xs font-semibold text-gray-700 mb-2">💰 การคำนวณเงินสมทบ</div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">เงินสะสม 2% ต่อปี</span>
+            <span class="font-medium" id="wi002-annual-saving">0.00 ฿</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">× จำนวนปีทำงานจริง</span>
+            <span class="font-medium" id="wi002-total-saving">0.00 ฿</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">× % สมทบตามเกณฑ์</span>
+            <span class="font-medium" id="wi002-tier-multiplier">0%</span>
+          </div>
+          <div class="flex justify-between text-sm border-t border-gray-200 pt-1 mt-1">
+            <span class="font-semibold text-gray-700">💵 ยอดเงินสมทบ (ก่อนหัก)</span>
+            <span class="font-bold text-lg text-green-700" id="wi002-gross-amount">0.00 ฿</span>
+          </div>
+        </div>
+
+        <!-- Deductions -->
+        <div class="bg-white rounded p-3 space-y-1">
+          <div class="text-xs font-semibold text-gray-700 mb-2">💸 รายการหัก (ตามลำดับ)</div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">① หักเงินกู้สหกรณ์ (CU)</span>
+            <span class="font-medium text-red-600" id="wi002-deduct-cu">- 0.00 ฿</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">⤷ เหลือหลังหัก CU</span>
+            <span class="font-medium" id="wi002-after-cu">0.00 ฿</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">② ภาษี ณ ที่จ่าย 3%</span>
+            <span class="font-medium text-red-600" id="wi002-deduct-tax">- 0.00 ฿</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">③ ค่าสวัสดิการค้างชำระ</span>
+            <span class="font-medium text-red-600" id="wi002-deduct-welfare">- 0.00 ฿</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">④ ค่าเสียหาย/ค่าปรับ</span>
+            <span class="font-medium text-red-600" id="wi002-deduct-damage">- 0.00 ฿</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">⑤ กองทุนสำรองเลี้ยงชีพ</span>
+            <span class="font-medium text-red-600" id="wi002-deduct-pension">- 0.00 ฿</span>
+          </div>
+          <div class="flex justify-between text-sm border-t border-gray-200 pt-1 mt-1">
+            <span class="font-semibold text-gray-700">รวมรายการหักทั้งหมด</span>
+            <span class="font-bold text-red-600" id="wi002-total-deduction">- 0.00 ฿</span>
+          </div>
+        </div>
+
+        <!-- Net -->
+        <div class="bg-pp7-600 text-white rounded-lg p-4 shadow-md">
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-semibold">🎯 ยอดสุทธิที่จะจ่ายสมาชิกลาออก</span>
+            <span class="font-bold text-2xl" id="wi002-net-amount">0.00 ฿</span>
+          </div>
+          <p class="text-xs text-amber-100 mt-1">* ปัดเป็นทศนิยม 2 หลักตามระบบโอนเงิน (ไม่ปัดเศษ)</p>
+        </div>
+
+        <div class="mt-2 space-y-2 pt-2 border-t border-amber-200">
+          <label class="flex items-start space-x-2 text-sm text-gray-700 cursor-pointer">
+            <input type="checkbox" class="mt-1 rounded text-pp7-600 focus:ring-pp7-500" id="wi002-doc-check">
+            <span>ยืนยันการแนบ "เอกสารแสดงยอดค้างชำระทั้งหมด" ที่สมาชิกเซ็นรับทราบแล้ว</span>
+          </label>
+
+          <button onclick="generateWI002Doc()" class="w-full bg-pp7-600 hover:bg-pp7-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            สร้างเอกสารส่งผู้อนุมัติ (Nitro Sign)
+          </button>
+          <p class="text-xs text-gray-500 text-center leading-relaxed">* Flow: หัวหน้างาน → PAO/WCD Manager → HR Manager → ฝ่ายการเงิน</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 </main></div>
 
 <script>
@@ -617,6 +779,133 @@ function generateWI001Doc() {
               `💰 ยอดรวมค่าเบี้ยเลี้ยงที่เบิกได้: ${total}\n\n` +
               `📌 สถานะต่อไป: เอกสารถูกเตรียมไว้สำหรับหัวหน้างานเซ็นอนุมัติผ่าน Nitro Sign ` +
               `เมื่อเซ็นเสร็จแล้ว ระบบจะแจ้งเตือนไปยังฝ่ายการเงินเพื่อดำเนินการโอนเงินครับ`;
+  
+  alert(msg);
+}
+
+// ========== WI-002: เงินสมทบอายุงานเมื่อสมาชิกลาออก ==========
+function calculateWI002() {
+  const startStr = document.getElementById('wi002-start-date').value;
+  const endStr = document.getElementById('wi002-end-date').value;
+  const salary = parseFloat(document.getElementById('wi002-salary').value) || 0;
+  const cuLoan = parseFloat(document.getElementById('wi002-cu-loan').value) || 0;
+  const welfareDue = parseFloat(document.getElementById('wi002-welfare-due').value) || 0;
+  const damage = parseFloat(document.getElementById('wi002-damage').value) || 0;
+  const pension = parseFloat(document.getElementById('wi002-pension').value) || 0;
+
+  // Helper: จัดรูปแบบเลข
+  const fmt = (n) => n.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  if (!startStr || !endStr || salary <= 0) {
+    // Reset display
+    document.getElementById('wi002-duration-display').textContent = '0.00 ปี';
+    document.getElementById('wi002-tier-display').textContent = '0% (ยังไม่ถึงเกณฑ์)';
+    document.getElementById('wi002-annual-saving').textContent = '0.00 ฿';
+    document.getElementById('wi002-total-saving').textContent = '0.00 ฿';
+    document.getElementById('wi002-tier-multiplier').textContent = '0%';
+    document.getElementById('wi002-gross-amount').textContent = '0.00 ฿';
+    document.getElementById('wi002-deduct-cu').textContent = '- 0.00 ฿';
+    document.getElementById('wi002-after-cu').textContent = '0.00 ฿';
+    document.getElementById('wi002-deduct-tax').textContent = '- 0.00 ฿';
+    document.getElementById('wi002-deduct-welfare').textContent = '- 0.00 ฿';
+    document.getElementById('wi002-deduct-damage').textContent = '- 0.00 ฿';
+    document.getElementById('wi002-deduct-pension').textContent = '- 0.00 ฿';
+    document.getElementById('wi002-total-deduction').textContent = '- 0.00 ฿';
+    document.getElementById('wi002-net-amount').textContent = '0.00 ฿';
+    return;
+  }
+
+  const startDate = new Date(startStr);
+  const endDate = new Date(endStr);
+
+  if (endDate <= startDate) {
+    alert('⚠️ วันที่ลาออกต้องมากกว่าวันที่เริ่มงาน');
+    return;
+  }
+
+  // 1. คำนวณจำนวนปี (เศษปีแบบวันจริง)
+  const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+  const yearsWorked = totalDays / 365.25; // ใช้ 365.25 เฉลี่ยปีอธิกสุรทิน
+  document.getElementById('wi002-duration-display').textContent = yearsWorked.toFixed(2) + ' ปี (' + Math.round(totalDays) + ' วัน)';
+
+  // 2. ตรวจสอบ % ตามเกณฑ์อายุงาน
+  let tierPercent = 0;
+  let tierLabel = '0% (ยังไม่ถึงเกณฑ์)';
+  if (yearsWorked >= 20) { tierPercent = 100; tierLabel = '100% (อายุงาน ≥ 20 ปี)'; }
+  else if (yearsWorked >= 15) { tierPercent = 75; tierLabel = '75% (อายุงาน ≥ 15 ปี)'; }
+  else if (yearsWorked >= 10) { tierPercent = 50; tierLabel = '50% (อายุงาน ≥ 10 ปี)'; }
+  else if (yearsWorked >= 5) { tierPercent = 25; tierLabel = '25% (อายุงาน ≥ 5 ปี)'; }
+  document.getElementById('wi002-tier-display').textContent = tierLabel;
+  document.getElementById('wi002-tier-multiplier').textContent = tierPercent + '%';
+
+  // 3. คำนวณเงินสมทบ (ไม่ปัดเศษ ตามระบบโอนเงิน)
+  const monthlySaving = salary * 0.02;        // 2% ของเงินเดือน
+  const annualSaving = monthlySaving * 12;      // ต่อปี
+  const totalSaving = annualSaving * yearsWorked; // รวมทุกปี
+  const grossAmount = totalSaving * (tierPercent / 100); // สมทบ %ตามเกณฑ์
+
+  document.getElementById('wi002-annual-saving').textContent = fmt(monthlySaving) + ' × 12 = ' + fmt(annualSaving) + ' ฿';
+  document.getElementById('wi002-total-saving').textContent = fmt(annualSaving) + ' × ' + yearsWorked.toFixed(2) + ' = ' + fmt(totalSaving) + ' ฿';
+  document.getElementById('wi002-gross-amount').textContent = fmt(grossAmount) + ' ฿';
+
+  // 4. หักตามลำดับ: CU → ภาษี 3% (จากยอดหลัง CU) → อื่นๆ
+  const afterCu = Math.max(0, grossAmount - cuLoan);
+  const taxAmount = afterCu * 0.03;
+  
+  const totalDeduction = cuLoan + taxAmount + welfareDue + damage + pension;
+  const netAmount = grossAmount - totalDeduction;
+
+  document.getElementById('wi002-deduct-cu').textContent = '- ' + fmt(cuLoan) + ' ฿';
+  document.getElementById('wi002-after-cu').textContent = fmt(afterCu) + ' ฿';
+  document.getElementById('wi002-deduct-tax').textContent = '- ' + fmt(taxAmount) + ' ฿';
+  document.getElementById('wi002-deduct-welfare').textContent = '- ' + fmt(welfareDue) + ' ฿';
+  document.getElementById('wi002-deduct-damage').textContent = '- ' + fmt(damage) + ' ฿';
+  document.getElementById('wi002-deduct-pension').textContent = '- ' + fmt(pension) + ' ฿';
+  document.getElementById('wi002-total-deduction').textContent = '- ' + fmt(totalDeduction) + ' ฿';
+  document.getElementById('wi002-net-amount').textContent = fmt(netAmount) + ' ฿';
+}
+
+function generateWI002Doc() {
+  const memberId = document.getElementById('wi002-member-id').value || 'ไม่ระบุ';
+  const memberName = document.getElementById('wi002-member-name').value || 'ไม่ระบุชื่อ';
+  const startDate = document.getElementById('wi002-start-date').value;
+  const endDate = document.getElementById('wi002-end-date').value;
+  const salary = parseFloat(document.getElementById('wi002-salary').value) || 0;
+  
+  const duration = document.getElementById('wi002-duration-display').textContent;
+  const tier = document.getElementById('wi002-tier-display').textContent;
+  const gross = document.getElementById('wi002-gross-amount').textContent;
+  const totalDeduct = document.getElementById('wi002-total-deduction').textContent;
+  const net = document.getElementById('wi002-net-amount').textContent;
+  
+  const docChecked = document.getElementById('wi002-doc-check').checked;
+
+  if (!startDate || !endDate) {
+    alert('⚠️ กรุณาระบุวันที่เริ่มงานและวันที่ลาออกให้ครบถ้วน');
+    return;
+  }
+
+  if (salary <= 0) {
+    alert('⚠️ กรุณาระบุเงินเดือนล่าสุดให้ถูกต้อง');
+    return;
+  }
+
+  if (!docChecked) {
+    alert('⚠️ กรุณายืนยันการแนบ "เอกสารแสดงยอดค้างชำระทั้งหมด" ที่สมาชิกเซ็นรับทราบแล้ว');
+    return;
+  }
+
+  const msg = `✅ สร้างเอกสารสมทบอายุงานเรียบร้อยแล้ว!\n\n` +
+              `👤 สมาชิก: ${memberName} (${memberId})\n` +
+              `📅 วันเริ่มงาน: ${startDate}\n` +
+              `📅 วันลาออก: ${endDate}\n` +
+              `⏱️ ระยะเวลาทำงาน: ${duration}\n` +
+              `💰 เกณฑ์สมทบ: ${tier}\n` +
+              `💵 ยอดสมทบก่อนหัก: ${gross}\n` +
+              `💸 รวมรายการหัก: ${totalDeduct}\n` +
+              `🎯 ยอดสุทธิที่จะจ่าย: ${net}\n\n` +
+              `📌 Flow อนุมัติ: หัวหน้างาน → PAO/WCD Manager → HR Manager → ฝ่ายการเงิน\n` +
+              `เอกสารถูกเตรียมไว้สำหรับเซ็นผ่าน Nitro Sign ตามลำดับครับ`;
   
   alert(msg);
 }
