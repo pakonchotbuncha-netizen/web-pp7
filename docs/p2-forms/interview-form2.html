@@ -80,19 +80,25 @@
             <section class="form-section bg-white rounded-xl shadow-md p-6">
                 <h2 class="text-xl font-bold text-primary-800 border-b-2 border-primary-100 pb-3 mb-4">
                     <span class="bg-primary-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">A</span>
-                    ข้อมูลสมาชิก (ดึงจากสมุดพก)
+                    ข้อมูลสมาชิก (ดึงจากสมุดพกอัตโนมัติ)
                 </h2>
                 <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
-                    <p class="text-sm text-purple-700">💡 <strong>หมายเหตุ:</strong> ข้อมูลสมาชิกจะถูกดึงจากฐานข้อมูลสมุดพกอัตโนมัติเมื่อระบุรหัส</p>
+                    <p class="text-sm text-purple-700">💡 <strong>ระบบอัตโนมัติ:</strong> กรอกรหัสสมาชิก แล้วระบบจะดึงข้อมูลทั้งหมดจากสมุดพกให้เอง</p>
                 </div>
                 <div class="grid md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อสมาชิก <span class="text-red-500">*</span></label>
-                        <input type="text" name="member_name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">รหัสสมาชิก <span class="text-red-500">*</span></label>
+                        <div class="flex gap-2">
+                            <input type="text" name="member_code" required placeholder="เช่น 6407049" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500" onblur="autoFetchEmployee()">
+                            <button type="button" onclick="autoFetchEmployee()" class="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition">
+                                🤖 ดึงข้อมูล
+                            </button>
+                        </div>
+                        <div id="autoFillStatus" class="text-sm mt-2 text-gray-500"></div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">รหัสสมาชิก <span class="text-red-500">*</span></label>
-                        <input type="text" name="member_code" required placeholder="PKG001" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อสมาชิก <span class="text-red-500">*</span></label>
+                        <input type="text" name="member_name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500" readonly>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">สถานะการจ้าง <span class="text-red-500">*</span></label>
@@ -106,15 +112,15 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">ตำแหน่งปัจจุบัน</label>
-                        <input type="text" name="current_position" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                        <input type="text" name="current_position" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500" readonly>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">หน่วยงานปัจจุบัน</label>
-                        <input type="text" name="current_department" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                        <input type="text" name="current_department" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500" readonly>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">อายุงาน (ปี)</label>
-                        <input type="number" name="tenure_years" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                        <input type="number" name="tenure_years" min="0" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 bg-gray-50" readonly>
                     </div>
                 </div>
             </section>
@@ -441,6 +447,11 @@
                 </div>
             </section>
 
+            <!-- Auto-save status -->
+            <div class="no-print text-right text-sm text-gray-500 mb-2 px-6">
+                <span id="autoSaveStatus">💾 บันทึกอัตโนมัติ: ยังไม่มีการบันทึก</span>
+            </div>
+
             <!-- Action Buttons -->
             <section class="no-print space-y-4">
                 <div class="bg-white rounded-xl shadow-md p-6">
@@ -466,8 +477,12 @@
 
             <!-- ผลลัพธ์ JSON -->
             <section id="resultSection" class="hidden bg-white rounded-xl shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-800 border-b-2 border-gray-100 pb-3 mb-4">📦 ผลลัพธ์ข้อมูล (JSON)</h2>
-                <pre id="resultJSON" class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm max-h-96"></pre>
+                <h2 class="text-xl font-bold text-gray-800 border-b-2 border-gray-100 pb-3 mb-4">📦 สรุปผลการประเมิน</h2>
+                <div id="resultSummary" class="mb-4"></div>
+                <details class="mt-4">
+                    <summary class="cursor-pointer text-sm text-gray-500 hover:text-gray-700">🔍 ดูข้อมูลละเอียด (JSON)</summary>
+                    <pre id="resultJSON" class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm max-h-96 mt-2"></pre>
+                </details>
             </section>
         </form>
     </main>
@@ -604,10 +619,89 @@
 
     function saveForm() {
         const data = collectFormData();
+        data.summary = {
+            applicant: data.sections.A_member.name,
+            memberCode: data.sections.A_member.code,
+            totalScore: data.sections.B_tcc.total,
+            passStatus: data.sections.B_tcc.result,
+            interviewResult: data.sections.F_result.decision,
+            position: data.sections.G_position.new_position,
+            recommendedAction: getRecommendedAction(data)
+        };
         localStorage.setItem('p2_interview_form2', JSON.stringify(data));
+        
+        // Stop auto-save
+        if (typeof autoSaveTimer !== 'undefined' && autoSaveTimer) {
+            clearInterval(autoSaveTimer);
+            const el = document.getElementById('autoSaveStatus');
+            if (el) el.textContent = '💾 บันทึกถาวร: ' + new Date().toLocaleTimeString();
+        }
+        
+        // Display summary
         document.getElementById('resultSection').classList.remove('hidden');
+        document.getElementById('resultSummary').innerHTML = \`
+            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-600">สมาชิก</div>
+                    <div class="text-xl font-bold text-purple-800">\${data.summary.applicant}</div>
+                    <div class="text-xs text-gray-500">รหัส: \${data.summary.memberCode}</div>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-600">ตำแหน่งใหม่</div>
+                    <div class="text-xl font-bold text-blue-800">\${data.summary.position || '—'}</div>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-4 mb-4">
+                <div class="bg-gray-50 p-4 rounded-lg text-center">
+                    <div class="text-sm text-gray-600 mb-1">คะแนน TCC</div>
+                    <div class="text-3xl font-bold">\${data.summary.totalScore}/50</div>
+                </div>
+                <div class="bg-\${data.summary.passStatus === 'ผ่าน' ? 'green' : 'red'}-50 p-4 rounded-lg text-center">
+                    <div class="text-sm text-gray-600 mb-1">ผล TCC</div>
+                    <div class="text-2xl font-bold">\${data.summary.passStatus}</div>
+                </div>
+                <div class="bg-\${data.summary.interviewResult === 'pass' ? 'green' : 'red'}-50 p-4 rounded-lg text-center">
+                    <div class="text-sm text-gray-600 mb-1">สัมภาษณ์</div>
+                    <div class="text-2xl font-bold">\${data.summary.interviewResult === 'pass' ? '✅ ผ่าน' : '❌ ไม่ผ่าน'}</div>
+                </div>
+            </div>
+            <div class="bg-cyan-50 border border-cyan-300 p-4 rounded-lg">
+                <div class="text-sm font-semibold text-cyan-800 mb-1">🎯 การดำเนินการที่แนะนำ</div>
+                <div class="text-cyan-700">\${data.summary.recommendedAction}</div>
+            </div>
+        \`;
         document.getElementById('resultJSON').textContent = JSON.stringify(data, null, 2);
+        
+        // Auto-notification
+        autoNotify(data.summary);
         showToast('✅ บันทึกแบบฟอร์มสำเร็จ!', 'success');
+    }
+
+    function getRecommendedAction(data) {
+        const tccPass = data.sections.B_tcc.result === 'ผ่าน';
+        const interviewPass = data.sections.F_result.decision === 'pass';
+        if (tccPass && interviewPass) return '✅ <strong>ผ่านเกณฑ์ทั้งหมด</strong> — ดำเนินการโอนย้าย/เลื่อนตำแหน่งตามขั้นตอน';
+        else if (tccPass && !interviewPass) return '⚠️ <strong>TCC ผ่าน แต่สัมภาษณ์ไม่ผ่าน</strong> — พิจารณาเพิ่มเติมหรือมอบหมายงานอื่น';
+        else if (!tccPass && interviewPass) return '⚠️ <strong>TCC ไม่ผ่าน แต่สัมภาษณ์ผ่าน</strong> — วางแผนพัฒนาก่อนโอนย้าย';
+        else return '❌ <strong>ไม่ผ่านเกณฑ์</strong> — แจ้งสมาชิกและพิจารณาทางเลือกอื่น';
+    }
+
+    function autoNotify(summary) {
+        const notification = {
+            type: 'P2_TRANSFER_EVALUATION',
+            timestamp: new Date().toISOString(),
+            applicant: summary.applicant,
+            memberCode: summary.memberCode,
+            position: summary.position,
+            tccScore: summary.totalScore,
+            result: summary.interviewResult,
+            nextStep: summary.recommendedAction
+        };
+        let notifications = JSON.parse(localStorage.getItem('p2_notifications') || '[]');
+        notifications.unshift(notification);
+        notifications = notifications.slice(0, 50);
+        localStorage.setItem('p2_notifications', JSON.stringify(notifications));
+        console.log('📤 Auto-notification sent:', notification);
     }
 
     function exportCSV() {
@@ -647,6 +741,67 @@
         document.getElementById('passFailBadge').className = 'px-3 py-1 rounded-full text-sm bg-gray-200 text-gray-600';
     }
 
+    // ===== Auto-fetch employee data from employee database =====
+    async function autoFetchEmployee() {
+        const codeInput = document.querySelector("input[name='member_code']");
+        const statusDiv = document.getElementById("autoFillStatus");
+        const memberCode = codeInput.value.trim();
+        
+        if (!memberCode) {
+            statusDiv.innerHTML = '<span class="text-yellow-600">⚠️ กรุณาระบุรหัสสมาชิกก่อน</span>';
+            return;
+        }
+        
+        statusDiv.innerHTML = '<span class="text-blue-600">🔄 กำลังดึงข้อมูล...</span>';
+        
+        try {
+            // Try to load emp_data.js if not loaded
+            if (typeof EMPLOYEES === "undefined") {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement("script");
+                    script.src = "../../emp_data.js";
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            }
+            
+            // Search employee by ID
+            const emp = EMPLOYEES.find(e => e.id === memberCode);
+            
+            if (emp) {
+                // Auto-fill all fields
+                const form = document.getElementById("interviewForm");
+                if (form.elements["member_name"]) form.elements["member_name"].value = emp.name;
+                if (form.elements["current_position"]) form.elements["current_position"].value = emp.position;
+                if (form.elements["current_department"]) form.elements["current_department"].value = emp.wg;
+                if (form.elements["employment_status"]) {
+                    form.elements["employment_status"].value = emp.status.includes("ประจำ") ? "permanent" : emp.status.includes("ทดลอง") ? "probation" : "contract";
+                }
+                
+                // Calculate tenure from start date
+                if (emp.start) {
+                    const parts = emp.start.split("/");
+                    if (parts.length === 3) {
+                        const startDate = new Date(parts[2], parseInt(parts[1]) - 1, parts[0]);
+                        const now = new Date();
+                        const years = emp.tenure || ((now - startDate) / (1000 * 60 * 60 * 24 * 365.25)).toFixed(1);
+                        if (form.elements["tenure_years"]) form.elements["tenure_years"].value = years;
+                    }
+                }
+                
+                statusDiv.innerHTML = '<span class="text-green-600">✅ เจอข้อมูล: <strong>' + emp.name + '</strong> (' + emp.position + ')</span>';
+                updateProgress();
+                showToast("🤖 ดึงข้อมูลจากสมุดพกสำเร็จ!", "success");
+            } else {
+                statusDiv.innerHTML = '<span class="text-red-600">❌ ไม่พบพนักงานรหัส ' + memberCode + ' ในระบบ</span>';
+            }
+        } catch (err) {
+            console.error(err);
+            statusDiv.innerHTML = '<span class="text-red-600">❌ ไม่สามารถโหลดฐานข้อมูลพนักงานได้</span>';
+        }
+    }
+
     // ===== Load Applicant Data from P1 =====
     function loadApplicantFromP1() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -671,7 +826,6 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         initTCC(); initEVP(); loadApplicantFromP1();
-        loadApplicantFromP1();
         document.getElementById('interviewForm').addEventListener('input', updateProgress);
         document.getElementById('interviewForm').addEventListener('change', updateProgress);
     });

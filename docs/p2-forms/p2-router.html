@@ -204,13 +204,55 @@
             </div>
         `;
 
-        // Auto-select category based on applicant type
+        // Auto-detect and select category based on applicant data
+        autoDetectCategory();
+    }
+
+    // ===== Auto-detect category based on applicant characteristics =====
+    function autoDetectCategory() {
+        if (!applicantData) return;
+
+        let detectedType = null;
+        let confidence = 'medium'; // low, medium, high
+
+        // Rule 1: Explicit type from P1
         if (applicantData.type === 'internal') {
-            selectCategory('form2');
+            detectedType = 'form2';
+            confidence = 'high';
         } else if (applicantData.type === 'intern') {
-            selectCategory('form3');
+            detectedType = 'form3';
+            confidence = 'high';
         } else if (applicantData.type === 'external') {
-            selectCategory('form1');
+            detectedType = 'form1';
+            confidence = 'high';
+        }
+        // Rule 2: Auto-detect from age (if not specified)
+        else if (applicantData.age) {
+            const age = parseInt(applicantData.age);
+            if (age < 23) {
+                detectedType = 'form3'; // intern
+                confidence = 'medium';
+            } else if (age >= 23) {
+                detectedType = 'form1'; // external new member
+                confidence = 'medium';
+            }
+        }
+
+        // Rule 3: Check if has employee ID (means internal transfer)
+        if (applicantData.employee_id && applicantData.type !== 'intern') {
+            detectedType = 'form2';
+            confidence = 'high';
+        }
+
+        // Auto-select if detected
+        if (detectedType) {
+            setTimeout(() => {
+                const card = document.querySelector(`[onclick*="${detectedType}"]`);
+                if (card && !card.classList.contains('selected')) {
+                    card.click();
+                    showToast(`🤖 ระบบเลือก "${getCategoryName(detectedType)}" อัตโนมัติ (${confidence === 'high' ? 'มั่นใจสูง' : 'ประมาณการ'})`, 'info');
+                }
+            }, 500); // Give user 0.5s to see the applicant info
         }
     }
 

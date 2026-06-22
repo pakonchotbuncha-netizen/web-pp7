@@ -387,6 +387,9 @@
             <!-- Action Buttons -->
             <section class="no-print space-y-4">
                 <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="mb-3 text-right">
+                        <span id="autoSaveStatus" class="text-sm text-gray-500">💾 บันทึกอัตโนมัติ: ยังไม่มีการบันทึก</span>
+                    </div>
                     <div class="flex flex-wrap gap-3 justify-center">
                         <button type="button" onclick="saveForm()" class="btn-primary text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all">
                             💾 บันทึกแบบฟอร์ม
@@ -409,8 +412,12 @@
 
             <!-- ผลลัพธ์ (JSON) -->
             <section id="resultSection" class="hidden bg-white rounded-xl shadow-md p-6">
-                <h2 class="text-xl font-bold text-gray-800 border-b-2 border-gray-100 pb-3 mb-4">📦 ผลลัพธ์ข้อมูล (JSON)</h2>
-                <pre id="resultJSON" class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm max-h-96"></pre>
+                <h2 class="text-xl font-bold text-gray-800 border-b-2 border-gray-100 pb-3 mb-4">📦 สรุปผลการประเมิน</h2>
+                <div id="resultSummary" class="mb-4"></div>
+                <details class="mt-4">
+                    <summary class="cursor-pointer text-sm text-gray-500 hover:text-gray-700">🔍 ดูข้อมูลละเอียด (JSON)</summary>
+                    <pre id="resultJSON" class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm max-h-96 mt-2"></pre>
+                </details>
             </section>
         </form>
     </main>
@@ -636,13 +643,110 @@
         return data;
     }
 
-    // ===== Save Form =====
+    // ===== Save Form with Auto-Summary =====
     function saveForm() {
         const data = collectFormData();
+        
+        // Auto-calculate summary
+        const summary = {
+            applicant: data.sections.A_personal.applicant_name,
+            totalScore: data.sections.B_tcc_total,
+            passStatus: data.sections.B_tcc_result,
+            interviewResult: data.sections.D_result.interview_result,
+            position: data.sections.E_position.position,
+            recommendedAction: getRecommendedAction(data)
+        };
+        
+        // Save with summary
+        data.summary = summary;
         localStorage.setItem('p2_interview_form1', JSON.stringify(data));
+        
+        // Stop auto-save timer
+        if (autoSaveTimer) {
+            clearInterval(autoSaveTimer);
+            document.getElementById('autoSaveStatus').textContent = '💾 บันทึกถาวร: ' + new Date().toLocaleTimeString();
+        }
+        
+        // Display summary
         document.getElementById('resultSection').classList.remove('hidden');
+        document.getElementById('resultSummary').innerHTML = `
+            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-600">ผู้สมัคร</div>
+                    <div class="text-xl font-bold text-blue-800">${summary.applicant}</div>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-600">ตำแหน่ง</div>
+                    <div class="text-xl font-bold text-purple-800">${summary.position || '—'}</div>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-4 mb-4">
+                <div class="bg-gray-50 p-4 rounded-lg text-center">
+                    <div class="text-sm text-gray-600 mb-1">คะแนน TCC</div>
+                    <div class="text-3xl font-bold">${summary.totalScore}/50</div>
+                </div>
+                <div class="bg-${summary.passStatus === 'ผ่าน' ? 'green' : 'red'}-50 p-4 rounded-lg text-center">
+                    <div class="text-sm text-gray-600 mb-1">ผล TCC</div>
+                    <div class="text-2xl font-bold">${summary.passStatus}</div>
+                </div>
+                <div class="bg-${summary.interviewResult === 'pass' ? 'green' : 'red'}-50 p-4 rounded-lg text-center">
+                    <div class="text-sm text-gray-600 mb-1">สัมภาษณ์</div>
+                    <div class="text-2xl font-bold">${summary.interviewResult === 'pass' ? '✅ ผ่าน' : '❌ ไม่ผ่าน'}</div>
+                </div>
+            </div>
+            <div class="bg-cyan-50 border border-cyan-300 p-4 rounded-lg">
+                <div class="text-sm font-semibold text-cyan-800 mb-1">🎯 การดำเนินการที่แนะนำ</div>
+                <div class="text-cyan-700">${summary.recommendedAction}</div>
+            </div>
+        `;
         document.getElementById('resultJSON').textContent = JSON.stringify(data, null, 2);
+        
+        // Auto-notification
+        autoNotify(summary, data);
+        
         showToast('✅ บันทึกแบบฟอร์มสำเร็จ!', 'success');
+    }
+
+    // ===== Auto-determine recommended action =====
+    function getRecommendedAction(data) {
+        const tccPass = data.sections.B_tcc_result === 'ผ่าน';
+        const interviewPass = data.sections.D_result.interview_result === 'pass';
+        
+        if (tccPass && interviewPass) {
+            return '✅ <strong>ผ่านเกณฑ์ทั้งหมด</strong> — ส่งต่อ P3 จับคู่คนกับงาน พร้อมเตรียมเอกสารจ้าง';
+        } else if (tccPass && !interviewPass) {
+            return '⚠️ <strong>TCC ผ่าน แต่สัมภาษณ์ไม่ผ่าน</strong> — พิจารณาเพิ่มหรือเก็บไว้พิจารณาในตำแหน่งอื่น';
+        } else if (!tccPass && interviewPass) {
+            return '⚠️ <strong>TCC ไม่ผ่าน แต่สัมภาษณ์ผ่าน</strong> — พิจารณาเพิ่มเติมจากข้อสังเกตของกรรมการ';
+        } else {
+            return '❌ <strong>ไม่ผ่านเกณฑ์</strong> — แจ้งผลผู้สมัครและปิดใบสมัคร';
+        }
+    }
+
+    // ===== Auto-notification to HR system =====
+    function autoNotify(summary, data) {
+        // Mock notification (in production: call API to send to Telegram/Line/Email)
+        const notification = {
+            type: 'P2_INTERVIEW_COMPLETE',
+            timestamp: new Date().toISOString(),
+            applicant: summary.applicant,
+            position: summary.position,
+            tccScore: summary.totalScore,
+            result: summary.interviewResult,
+            nextStep: summary.recommendedAction,
+            assignedTo: 'HR/PAO Team'
+        };
+        
+        // Save notification to localStorage (mock)
+        let notifications = JSON.parse(localStorage.getItem('p2_notifications') || '[]');
+        notifications.unshift(notification);
+        notifications = notifications.slice(0, 50); // Keep last 50
+        localStorage.setItem('p2_notifications', JSON.stringify(notifications));
+        
+        console.log('📤 Auto-notification sent:', notification);
+        
+        // In production, this would call:
+        // fetch('/api/notify', { method: 'POST', body: JSON.stringify(notification) });
     }
 
     // ===== Export CSV =====
@@ -771,6 +875,23 @@
         updateProgress();
     }
 
+    // ===== Auto-save every 30 seconds =====
+    let autoSaveTimer = null;
+    function startAutoSave() {
+        autoSaveTimer = setInterval(() => {
+            const form = document.getElementById('interviewForm');
+            if (form && form.checkValidity()) {
+                const data = collectFormData();
+                localStorage.setItem('p2_interview_form1_autosave', JSON.stringify({
+                    data: data,
+                    timestamp: new Date().toISOString(),
+                    auto: true
+                }));
+                document.getElementById('autoSaveStatus').textContent = '💾 บันทึกอัตโนมัติ: ' + new Date().toLocaleTimeString();
+            }
+        }, 30000); // 30 seconds
+    }
+
     // ===== Init =====
     document.addEventListener('DOMContentLoaded', () => {
         initTCC();
@@ -778,6 +899,7 @@
         loadApplicantFromP1();
         document.getElementById('interviewForm').addEventListener('input', updateProgress);
         document.getElementById('interviewForm').addEventListener('change', updateProgress);
+        startAutoSave();
     });
     </script>
 </body>
