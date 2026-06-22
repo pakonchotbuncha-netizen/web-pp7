@@ -719,10 +719,63 @@
         });
     });
 
+    // ===== Load Applicant Data from P1 =====
+    function loadApplicantFromP1() {
+        // Try URL params first
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('name') && urlParams.has('id')) {
+            const data = {
+                id: urlParams.get('id'),
+                name: urlParams.get('name') || '',
+                phone: urlParams.get('phone') || '',
+                age: urlParams.get('age') || '',
+                education: urlParams.get('education') || '',
+                experience: urlParams.get('experience') || ''
+            };
+            fillApplicantData(data);
+            localStorage.setItem('p2_router_applicant', JSON.stringify(data));
+            showToast('📥 โอนข้อมูลผู้สมัครจาก P1 สำเร็จ!', 'success');
+            return;
+        }
+
+        // Try localStorage (from router)
+        const routerData = localStorage.getItem('p2_router_data');
+        if (routerData) {
+            const parsed = JSON.parse(routerData);
+            if (parsed.applicant) {
+                fillApplicantData(parsed.applicant);
+                showToast('📥 โอนข้อมูลผู้สมัครจาก Router สำเร็จ!', 'success');
+            }
+        }
+    }
+
+    function fillApplicantData(data) {
+        const form = document.getElementById('interviewForm');
+        // Fill basic info
+        if (data.name && form.elements['applicant_name']) {
+            form.elements['applicant_name'].value = data.name;
+        }
+        if (data.phone && form.elements['phone']) {
+            form.elements['phone'].value = data.phone;
+        }
+        if (data.age && form.elements['age']) {
+            form.elements['age'].value = data.age;
+        }
+        if (data.education && form.elements['education_level']) {
+            form.elements['education_level'].value = data.education;
+        }
+        if (data.experience && form.elements['experience']) {
+            form.elements['experience'].value = data.experience;
+        }
+        // Trigger progress update
+        updateProgress();
+    }
+
     // ===== Init =====
     document.addEventListener('DOMContentLoaded', () => {
         initTCC();
         initEVP();
+        loadApplicantFromP1();
         document.getElementById('interviewForm').addEventListener('input', updateProgress);
         document.getElementById('interviewForm').addEventListener('change', updateProgress);
     });

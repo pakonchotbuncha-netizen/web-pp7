@@ -406,8 +406,31 @@
         r.addEventListener('change', function() { document.getElementById('failReasonDiv').classList.toggle('hidden', this.value !== 'fail'); });
     });
 
+    // ===== Load Applicant Data from P1 =====
+    function loadApplicantFromP1() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('name') && urlParams.has('id')) {
+            const data = { id: urlParams.get('id'), name: urlParams.get('name') || '' };
+            fillApplicantData(data);
+            showToast('📥 โอนข้อมูลจาก P1 สำเร็จ!', 'success');
+            return;
+        }
+        const routerData = localStorage.getItem('p2_router_data');
+        if (routerData) {
+            const parsed = JSON.parse(routerData);
+            if (parsed.applicant) fillApplicantData(parsed.applicant);
+        }
+    }
+    function fillApplicantData(data) {
+        const form = document.getElementById('internForm');
+        if (data.name && form.elements['full_name']) form.elements['full_name'].value = data.name;
+        if (data.age && form.elements['age']) form.elements['age'].value = data.age;
+        if (data.education && form.elements['education']) form.elements['education'].value = data.education;
+        updateProgress();
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-        initScoreTable();
+        initScoreTable(); loadApplicantFromP1();
         document.getElementById('internForm').addEventListener('input', updateProgress);
         document.getElementById('internForm').addEventListener('change', updateProgress);
     });

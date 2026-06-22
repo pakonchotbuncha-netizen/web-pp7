@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔀 P2 Form Router — เลือกประเภทการสัมภาษณ์ | Web PP7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Sarabun', sans-serif; }
+        body { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%); min-height: 100vh; }
+        .glass-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .router-card { transition: all 0.3s ease; cursor: pointer; }
+        .router-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .router-card.selected { border-color: #22d3ee; box-shadow: 0 0 30px rgba(34,211,238,0.4); }
+        .flow-step { opacity: 0; animation: fadeIn 0.5s forwards; }
+        .flow-step:nth-child(1) { animation-delay: 0.1s; }
+        .flow-step:nth-child(2) { animation-delay: 0.3s; }
+        .flow-step:nth-child(3) { animation-delay: 0.5s; }
+        @keyframes fadeIn { to { opacity: 1; } }
+        .pulse-dot { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Header -->
+    <header class="py-8 text-center">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">🔀 P2 Form Router</h1>
+            <p class="text-indigo-300">ระบบเส้นทางอัตโนมัติ — เลือกประเภทการสัมภาษณ์</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 pb-16 max-w-5xl">
+        <!-- Flow Progress -->
+        <div class="flex items-center justify-center gap-4 mb-10">
+            <div class="flow-step flex items-center gap-2">
+                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">✓</div>
+                <span class="text-sm text-green-300">P1 แสวงหา</span>
+            </div>
+            <div class="flow-step text-2xl">→</div>
+            <div class="flow-step flex items-center gap-2">
+                <div class="w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center pulse-dot">2</div>
+                <span class="text-sm text-cyan-300 font-bold">เลือกประเภท</span>
+            </div>
+            <div class="flow-step text-2xl">→</div>
+            <div class="flow-step flex items-center gap-2">
+                <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">3</div>
+                <span class="text-sm text-gray-400">แบบฟอร์มสัมภาษณ์</span>
+            </div>
+        </div>
+
+        <!-- Applicant Info Card -->
+        <section class="glass-card rounded-2xl p-6 mb-8" id="applicantCard">
+            <h2 class="text-lg font-bold text-cyan-300 mb-4 flex items-center gap-2">
+                <span class="text-2xl">👤</span>
+                ข้อมูลผู้สมัครจาก P1
+            </h2>
+            <div id="applicantInfo" class="text-gray-400 text-center py-4">
+                <p class="mb-2">📭 ยังไม่มีข้อมูลผู้สมัคร</p>
+                <p class="text-sm">กลับไปที่ tab "แสวงหา" แล้วกดปุ่ม "เข้าสู่ P2" ที่แถวผู้สมัคร</p>
+            </div>
+        </section>
+
+        <!-- Category Selection -->
+        <section class="mb-8">
+            <h2 class="text-xl font-bold text-center mb-6">📋 เลือกประเภทผู้สมัครเพื่อเริ่มสัมภาษณ์</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Form 1: สมาชิกใหม่ -->
+                <div class="router-card glass-card rounded-2xl p-6 border-2 border-transparent" onclick="selectCategory('form1')">
+                    <div class="text-center">
+                        <div class="text-5xl mb-4">📋</div>
+                        <h3 class="text-xl font-bold text-blue-300 mb-2">แบบที่ 1</h3>
+                        <p class="text-blue-200 font-medium mb-3">สัมภาษณ์สมาชิกใหม่</p>
+                        <div class="inline-block px-3 py-1 bg-blue-500/20 rounded-full text-xs text-blue-300 mb-4">LDC-PAO-WI-002</div>
+                        <div class="text-left text-sm text-gray-400 space-y-1">
+                            <div class="flex items-center gap-2"><span class="text-blue-400">✓</span> ผู้สมัครภายนอกองค์กร</div>
+                            <div class="flex items-center gap-2"><span class="text-blue-400">✓</span> TCC ทัศนคติพื้นฐาน</div>
+                            <div class="flex items-center gap-2"><span class="text-blue-400">✓</span> 8 ส่วน (A-H)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form 2: โอนย้าย -->
+                <div class="router-card glass-card rounded-2xl p-6 border-2 border-transparent" onclick="selectCategory('form2')">
+                    <div class="text-center">
+                        <div class="text-5xl mb-4">🔄</div>
+                        <h3 class="text-xl font-bold text-purple-300 mb-2">แบบที่ 2</h3>
+                        <p class="text-purple-200 font-medium mb-3">โอนย้าย/เลื่อนตำแหน่ง</p>
+                        <div class="inline-block px-3 py-1 bg-purple-500/20 rounded-full text-xs text-purple-300 mb-4">LDC-PAO-WI-004</div>
+                        <div class="text-left text-sm text-gray-400 space-y-1">
+                            <div class="flex items-center gap-2"><span class="text-purple-400">✓</span> สมาชิกภายในองค์กร</div>
+                            <div class="flex items-center gap-2"><span class="text-purple-400">✓</span> TCC ภาวะผู้นำ</div>
+                            <div class="flex items-center gap-2"><span class="text-purple-400">✓</span> 9 ส่วน (A-I)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form 3: ฝึกงาน -->
+                <div class="router-card glass-card rounded-2xl p-6 border-2 border-transparent" onclick="selectCategory('form3')">
+                    <div class="text-center">
+                        <div class="text-5xl mb-4">🎓</div>
+                        <h3 class="text-xl font-bold text-amber-300 mb-2">แบบที่ 3</h3>
+                        <p class="text-amber-200 font-medium mb-3">นักศึกษาฝึกงาน</p>
+                        <div class="inline-block px-3 py-1 bg-amber-500/20 rounded-full text-xs text-amber-300 mb-4">LDC-PAO-WI-Intern</div>
+                        <div class="text-left text-sm text-gray-400 space-y-1">
+                            <div class="flex items-center gap-2"><span class="text-amber-400">✓</span> นักศึกษาฝึก</div>
+                            <div class="flex items-center gap-2"><span class="text-amber-400">✓</span> 10 หัวข้อประเมิน</div>
+                            <div class="flex items-center gap-2"><span class="text-amber-400">✓</span> 5 ส่วน (A-E)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Action Button -->
+        <section class="text-center">
+            <button id="proceedBtn" onclick="proceedToForm()" disabled class="px-8 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-xl font-bold text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed hover:from-cyan-700 hover:to-blue-700 transition-all">
+                🚀 ไปยังแบบฟอร์ม →
+            </button>
+            <p id="hintText" class="text-gray-500 text-sm mt-3">เลือกประเภทด้านล่างเพื่อเริ่ม</p>
+        </section>
+
+        <!-- Recent P2 Sessions -->
+        <section class="glass-card rounded-2xl p-6 mt-10">
+            <h2 class="text-lg font-bold text-gray-300 mb-4 flex items-center gap-2">
+                <span>📊</span>
+                ประวัติการส่งต่อ P2 (ล่าสุด)
+            </h2>
+            <div id="recentSessions" class="text-sm text-gray-400">
+                <p class="text-center py-4">ยังไม่มีประวัติ</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+    let selectedCategory = null;
+    let applicantData = null;
+
+    // Load applicant data from localStorage
+    function loadApplicantData() {
+        const stored = localStorage.getItem('p2_router_applicant');
+        if (stored) {
+            applicantData = JSON.parse(stored);
+            displayApplicantInfo();
+            // Clear after displaying
+            // localStorage.removeItem('p2_router_applicant');
+        } else {
+            // Try URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('id')) {
+                // Simulate loading from P1 table
+                applicantData = {
+                    id: urlParams.get('id'),
+                    name: urlParams.get('name') || 'ไม่ระบุชื่อ',
+                    phone: urlParams.get('phone') || '',
+                    age: urlParams.get('age') || '',
+                    education: urlParams.get('education') || '',
+                    experience: urlParams.get('experience') || '',
+                    type: urlParams.get('type') || 'external' // external, internal, intern
+                };
+                if (applicantData.name && applicantData.name !== 'ไม่ระบุชื่อ') {
+                    localStorage.setItem('p2_router_applicant', JSON.stringify(applicantData));
+                    displayApplicantInfo();
+                }
+            }
+        }
+        loadRecentSessions();
+    }
+
+    function displayApplicantInfo() {
+        if (!applicantData) return;
+        const card = document.getElementById('applicantInfo');
+        card.innerHTML = `
+            <div class="grid md:grid-cols-2 gap-4 text-left">
+                <div>
+                    <div class="text-gray-500 text-xs mb-1">รหัสผู้สมัคร</div>
+                    <div class="text-white font-mono text-lg">${applicantData.id || '—'}</div>
+                </div>
+                <div>
+                    <div class="text-gray-500 text-xs mb-1">ชื่อ-นามสกุล</div>
+                    <div class="text-white font-medium">${applicantData.name || '—'}</div>
+                </div>
+                <div>
+                    <div class="text-gray-500 text-xs mb-1">เบอร์โทรศัพท์</div>
+                    <div class="text-white">${applicantData.phone || '—'}</div>
+                </div>
+                <div>
+                    <div class="text-gray-500 text-xs mb-1">อายุ</div>
+                    <div class="text-white">${applicantData.age || '—'} ปี</div>
+                </div>
+                <div>
+                    <div class="text-gray-500 text-xs mb-1">วุฒิการศึกษา</div>
+                    <div class="text-white">${applicantData.education || '—'}</div>
+                </div>
+                <div>
+                    <div class="text-gray-500 text-xs mb-1">ประสบการณ์</div>
+                    <div class="text-white text-sm">${applicantData.experience || '—'}</div>
+                </div>
+            </div>
+            <div class="mt-4 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-lg text-sm text-cyan-200">
+                💡 <strong>คำแนะนำ:</strong> เลือกประเภทผู้สมัครด้านล่าง ระบบจะโอนข้อมูลผู้สมัครไปยังแบบฟอร์มอัตโนมัติ
+            </div>
+        `;
+
+        // Auto-select category based on applicant type
+        if (applicantData.type === 'internal') {
+            selectCategory('form2');
+        } else if (applicantData.type === 'intern') {
+            selectCategory('form3');
+        } else if (applicantData.type === 'external') {
+            selectCategory('form1');
+        }
+    }
+
+    function selectCategory(category) {
+        selectedCategory = category;
+        document.querySelectorAll('.router-card').forEach(card => card.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+        document.getElementById('proceedBtn').disabled = false;
+        document.getElementById('hintText').textContent = `✓ เลือกแล้ว: ${getCategoryName(category)}`;
+        document.getElementById('hintText').classList.remove('text-gray-500');
+        document.getElementById('hintText').classList.add('text-cyan-400');
+    }
+
+    function getCategoryName(cat) {
+        const names = { form1: 'แบบที่ 1 — สมาชิกใหม่', form2: 'แบบที่ 2 — โอนย้าย/เลื่อน', form3: 'แบบที่ 3 — ฝึกงาน' };
+        return names[cat] || cat;
+    }
+
+    function proceedToForm() {
+        if (!selectedCategory) return;
+
+        // Save routing info
+        const routerData = {
+            from: 'p1_recruit',
+            to: selectedCategory,
+            applicant: applicantData,
+            timestamp: new Date().toISOString()
+        };
+        localStorage.setItem('p2_router_data', JSON.stringify(routerData));
+
+        // Add to recent sessions
+        saveRecentSession(routerData);
+
+        // Navigate to form (with data transfer)
+        const formUrls = {
+            form1: 'interview-form1.html',
+            form2: 'interview-form2.html',
+            form3: 'interview-form3.html'
+        };
+
+        // Also pass applicant data via URL for fallback
+        let url = formUrls[selectedCategory];
+        if (applicantData) {
+            const params = new URLSearchParams();
+            if (applicantData.id) params.set('id', applicantData.id);
+            if (applicantData.name) params.set('name', applicantData.name);
+            if (applicantData.phone) params.set('phone', applicantData.phone);
+            if (applicantData.age) params.set('age', applicantData.age);
+            if (applicantData.education) params.set('education', applicantData.education);
+            if (applicantData.experience) params.set('experience', applicantData.experience);
+            url += '?' + params.toString();
+        }
+
+        window.location.href = url;
+    }
+
+    function saveRecentSession(data) {
+        let sessions = JSON.parse(localStorage.getItem('p2_recent_sessions') || '[]');
+        sessions.unshift({
+            applicant: data.applicant?.name || 'ไม่ระบุ',
+            form: getCategoryName(data.to),
+            date: data.timestamp,
+            status: 'กำลังประเมิน'
+        });
+        // Keep only last 5
+        sessions = sessions.slice(0, 5);
+        localStorage.setItem('p2_recent_sessions', JSON.stringify(sessions));
+        loadRecentSessions();
+    }
+
+    function loadRecentSessions() {
+        const sessions = JSON.parse(localStorage.getItem('p2_recent_sessions') || '[]');
+        const container = document.getElementById('recentSessions');
+        if (sessions.length === 0) {
+            container.innerHTML = '<p class="text-center py-4">ยังไม่มีประวัติ</p>';
+            return;
+        }
+        container.innerHTML = `
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b border-white/10 text-gray-400">
+                        <th class="px-3 py-2 text-left">ผู้สมัคร</th>
+                        <th class="px-3 py-2 text-left">แบบฟอร์ม</th>
+                        <th class="px-3 py-2 text-left">วันที่</th>
+                        <th class="px-3 py-2 text-left">สถานะ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${sessions.map(s => `
+                        <tr class="border-b border-white/5">
+                            <td class="px-3 py-2 text-white">${s.applicant}</td>
+                            <td class="px-3 py-2 text-gray-300">${s.form}</td>
+                            <td class="px-3 py-2 text-gray-400">${new Date(s.date).toLocaleDateString('th-TH')}</td>
+                            <td class="px-3 py-2"><span class="px-2 py-0.5 bg-cyan-500/20 text-cyan-300 rounded text-xs">${s.status}</span></td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', loadApplicantData);
+    </script>
+</body>
+</html>

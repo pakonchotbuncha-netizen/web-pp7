@@ -647,8 +647,31 @@
         document.getElementById('passFailBadge').className = 'px-3 py-1 rounded-full text-sm bg-gray-200 text-gray-600';
     }
 
+    // ===== Load Applicant Data from P1 =====
+    function loadApplicantFromP1() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('name') && urlParams.has('id')) {
+            const data = { id: urlParams.get('id'), name: urlParams.get('name') || '' };
+            fillApplicantData(data);
+            showToast('📥 โอนข้อมูลจาก P1 สำเร็จ!', 'success');
+            return;
+        }
+        const routerData = localStorage.getItem('p2_router_data');
+        if (routerData) {
+            const parsed = JSON.parse(routerData);
+            if (parsed.applicant) fillApplicantData(parsed.applicant);
+        }
+    }
+    function fillApplicantData(data) {
+        const form = document.getElementById('interviewForm');
+        if (data.name && form.elements['member_name']) form.elements['member_name'].value = data.name;
+        if (data.id && form.elements['member_code']) form.elements['member_code'].value = data.id;
+        updateProgress();
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-        initTCC(); initEVP();
+        initTCC(); initEVP(); loadApplicantFromP1();
+        loadApplicantFromP1();
         document.getElementById('interviewForm').addEventListener('input', updateProgress);
         document.getElementById('interviewForm').addEventListener('change', updateProgress);
     });
