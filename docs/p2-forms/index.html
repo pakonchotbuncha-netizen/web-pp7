@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 P2 หยิ่งประเมิน — แบบฟอร์มสัมภาษณ์ 3 แบบ | Web PP7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Sarabun', sans-serif; }
+        body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%); min-height: 100vh; }
+        .glass-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease; }
+        .glass-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.2); }
+        .form-card-blue { border-left: 4px solid #3b82f6; }
+        .form-card-purple { border-left: 4px solid #8b5cf6; }
+        .form-card-amber { border-left: 4px solid #f59e0b; }
+        .glow-blue { box-shadow: 0 0 20px rgba(59,130,246,0.3); }
+        .glow-purple { box-shadow: 0 0 20px rgba(139,92,246,0.3); }
+        .glow-amber { box-shadow: 0 0 20px rgba(245,158,11,0.3); }
+        .flow-arrow { animation: flowPulse 2s infinite; }
+        @keyframes flowPulse { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
+        .compare-row:hover { background: rgba(255,255,255,0.05); }
+        .btn-download { transition: all 0.2s; }
+        .btn-download:hover { transform: scale(1.02); }
+        .stat-number { background: linear-gradient(135deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Hero Header -->
+    <header class="py-12 text-center">
+        <div class="container mx-auto px-4">
+            <div class="inline-flex items-center gap-2 px-4 py-1 mb-4 rounded-full bg-white/10 text-sm">
+                <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                Web PP7 — ระบบบริหารบุคลากร
+            </div>
+            <h1 class="text-3xl md:text-5xl font-bold mb-4">
+                <span class="bg-gradient-to-r from-blue-400 via-purple-400 to-amber-400 bg-clip-text text-transparent">
+                    🎯 P2 หยิ่งประเมิน
+                </span>
+            </h1>
+            <p class="text-gray-400 text-lg max-w-2xl mx-auto">แบบฟอร์มสัมภาษณ์ 3 แบบ — ระบบประเมิน Core Competency ก่อนรับเข้าทำงาน</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 pb-16 max-w-6xl">
+        <!-- Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+            <div class="glass-card rounded-xl p-5 text-center">
+                <div class="stat-number text-4xl font-bold">3</div>
+                <div class="text-gray-400 text-sm mt-1">แบบฟอร์ม</div>
+            </div>
+            <div class="glass-card rounded-xl p-5 text-center">
+                <div class="stat-number text-4xl font-bold">50</div>
+                <div class="text-gray-400 text-sm mt-1">คะแนนเต็ม</div>
+            </div>
+            <div class="glass-card rounded-xl p-5 text-center">
+                <div class="stat-number text-4xl font-bold">65%</div>
+                <div class="text-gray-400 text-sm mt-1">เกณฑ์ผ่าน</div>
+            </div>
+            <div class="glass-card rounded-xl p-5 text-center">
+                <div class="stat-number text-4xl font-bold">10</div>
+                <div class="text-gray-400 text-sm mt-1">ข้อประเมิน/แบบ</div>
+            </div>
+        </div>
+
+        <!-- Form Routing -->
+        <section class="glass-card rounded-2xl p-6 mb-10">
+            <h2 class="text-xl font-bold text-center mb-6 text-gray-200">📐 เส้นทางการใช้แบบฟอร์ม (Form Routing)</h2>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-4">
+                <div class="bg-slate-700 rounded-xl px-6 py-4 text-center">
+                    <div class="text-2xl mb-1">📥</div>
+                    <div class="font-semibold">P1 แสวงหา</div>
+                    <div class="text-xs text-gray-400">ได้ผู้สมัคร</div>
+                </div>
+                <div class="text-2xl flow-arrow text-yellow-400 rotate-90 md:rotate-0">→</div>
+                <div class="bg-yellow-500/20 border border-yellow-500/40 rounded-xl px-6 py-4 text-center">
+                    <div class="text-2xl mb-1">🤔</div>
+                    <div class="font-semibold text-yellow-300">ประเภทผู้สมัคร?</div>
+                </div>
+                <div class="text-2xl flow-arrow text-green-400 rotate-90 md:rotate-0">→</div>
+                <div class="flex flex-col gap-3">
+                    <div class="bg-blue-500/20 border border-blue-500/40 rounded-lg px-4 py-2 text-center text-sm">📋 <strong>แบบที่ 1</strong> สมาชิกใหม่</div>
+                    <div class="bg-purple-500/20 border border-purple-500/40 rounded-lg px-4 py-2 text-center text-sm">🔄 <strong>แบบที่ 2</strong> โอนย้าย/เลื่อน</div>
+                    <div class="bg-amber-500/20 border border-amber-500/40 rounded-lg px-4 py-2 text-center text-sm">🎓 <strong>แบบที่ 3</strong> ฝึกงาน</div>
+                </div>
+                <div class="text-2xl flow-arrow text-green-400 rotate-90 md:rotate-0">→</div>
+                <div class="bg-green-600/30 border border-green-500/40 rounded-xl px-6 py-4 text-center">
+                    <div class="text-2xl mb-1">🤝</div>
+                    <div class="font-semibold text-green-300">P3 จับคู่</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Select -->
+        <section class="mb-10">
+            <h2 class="text-xl font-bold text-center mb-2 text-gray-200">🚀 เลือกแบบฟอร์ม</h2>
+            <p class="text-center text-gray-500 mb-6">คลิกเพื่อเปิดแบบฟอร์มที่กรอกได้จริง</p>
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Form 1 -->
+                <div class="glass-card form-card-blue rounded-2xl p-6 glow-blue">
+                    <div class="text-center mb-4">
+                        <div class="inline-block bg-blue-500/20 rounded-full w-16 h-16 flex items-center justify-center text-3xl mx-auto mb-3">📋</div>
+                        <h3 class="text-lg font-bold text-blue-300">แบบที่ 1</h3>
+                        <p class="text-blue-200 font-medium">สัมภาษณ์สมาชิกใหม่</p>
+                        <span class="inline-block mt-2 px-3 py-0.5 bg-blue-500/20 rounded-full text-xs text-blue-300">LDC-PAO-WI-002</span>
+                    </div>
+                    <div class="space-y-2 text-sm text-gray-300 mb-5">
+                        <div class="flex items-center gap-2"><span class="text-blue-400">●</span> ผู้สมัครภายนอก</div>
+                        <div class="flex items-center gap-2"><span class="text-blue-400">●</span> TCC ทัศนคติพื้นฐาน</div>
+                        <div class="flex items-center gap-2"><span class="text-blue-400">●</span> 8 ส่วน (A-H)</div>
+                        <div class="flex items-center gap-2"><span class="text-blue-400">●</span> 7 EVP + ค่าตอบแทน</div>
+                    </div>
+                    <a href="interview-form1.html" target="_blank" class="block text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg btn-download">🔍 เปิดแบบฟอร์ม</a>
+                    <a href="interview-form1.html" download class="block text-center mt-2 border border-blue-500/40 text-blue-300 hover:bg-blue-500/10 py-2 rounded-lg text-sm btn-download">📥 ดาวน์โหลด HTML</a>
+                </div>
+
+                <!-- Form 2 -->
+                <div class="glass-card form-card-purple rounded-2xl p-6 glow-purple">
+                    <div class="text-center mb-4">
+                        <div class="inline-block bg-purple-500/20 rounded-full w-16 h-16 flex items-center justify-center text-3xl mx-auto mb-3">🔄</div>
+                        <h3 class="text-lg font-bold text-purple-300">แบบที่ 2</h3>
+                        <p class="text-purple-200 font-medium">โอนย้าย/เลื่อนตำแหน่ง</p>
+                        <span class="inline-block mt-2 px-3 py-0.5 bg-purple-500/20 rounded-full text-xs text-purple-300">LDC-PAO-WI-004</span>
+                    </div>
+                    <div class="space-y-2 text-sm text-gray-300 mb-5">
+                        <div class="flex items-center gap-2"><span class="text-purple-400">●</span> สมาชิกภายใน</div>
+                        <div class="flex items-center gap-2"><span class="text-purple-400">●</span> TCC ภาวะผู้นำ</div>
+                        <div class="flex items-center gap-2"><span class="text-purple-400">●</span> 9 ส่วน (A-I)</div>
+                        <div class="flex items-center gap-2"><span class="text-purple-400">●</span> 5 คำถามบังคับ</div>
+                    </div>
+                    <a href="interview-form2.html" target="_blank" class="block text-center bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 rounded-lg btn-download">🔍 เปิดแบบฟอร์ม</a>
+                    <a href="interview-form2.html" download class="block text-center mt-2 border border-purple-500/40 text-purple-300 hover:bg-purple-500/10 py-2 rounded-lg text-sm btn-download">📥 ดาวน์โหลด HTML</a>
+                </div>
+
+                <!-- Form 3 -->
+                <div class="glass-card form-card-amber rounded-2xl p-6 glow-amber">
+                    <div class="text-center mb-4">
+                        <div class="inline-block bg-amber-500/20 rounded-full w-16 h-16 flex items-center justify-center text-3xl mx-auto mb-3">🎓</div>
+                        <h3 class="text-lg font-bold text-amber-300">แบบที่ 3</h3>
+                        <p class="text-amber-200 font-medium">นักศึกษาฝึกงาน</p>
+                        <span class="inline-block mt-2 px-3 py-0.5 bg-amber-500/20 rounded-full text-xs text-amber-300">LDC-PAO-WI-Intern</span>
+                    </div>
+                    <div class="space-y-2 text-sm text-gray-300 mb-5">
+                        <div class="flex items-center gap-2"><span class="text-amber-400">●</span> นักศึกษาฝึก</div>
+                        <div class="flex items-center gap-2"><span class="text-amber-400">●</span> 10 หัวข้อประเมิน</div>
+                        <div class="flex items-center gap-2"><span class="text-amber-400">●</span> 5 ส่วน (A-E)</div>
+                        <div class="flex items-center gap-2"><span class="text-amber-400">●</span> พี่เลี้ยง + ระยะเวลา</div>
+                    </div>
+                    <a href="interview-form3.html" target="_blank" class="block text-center bg-amber-600 hover:bg-amber-700 text-white font-medium py-2.5 rounded-lg btn-download">🔍 เปิดแบบฟอร์ม</a>
+                    <a href="interview-form3.html" download class="block text-center mt-2 border border-amber-500/40 text-amber-300 hover:bg-amber-500/10 py-2 rounded-lg text-sm btn-download">📥 ดาวน์โหลด HTML</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comparison Table -->
+        <section class="glass-card rounded-2xl p-6 mb-10">
+            <h2 class="text-xl font-bold text-center mb-6 text-gray-200">📊 เปรียบเทียบแบบฟอร์ม</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-white/10">
+                            <th class="px-4 py-3 text-left text-gray-400">หัวข้อ</th>
+                            <th class="px-4 py-3 text-center text-blue-300">📋 แบบที่ 1</th>
+                            <th class="px-4 py-3 text-center text-purple-300">🔄 แบบที่ 2</th>
+                            <th class="px-4 py-3 text-center text-amber-300">🎓 แบบที่ 3</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        <tr class="compare-row">
+                            <td class="px-4 py-3 font-medium">กลุ่มเป้าหมาย</td>
+                            <td class="px-4 py-3 text-center text-gray-300">ผู้สมัครภายนอก</td>
+                            <td class="px-4 py-3 text-center text-gray-300">สมาชิกภายใน</td>
+                            <td class="px-4 py-3 text-center text-gray-300">นักศึกษาฝึก</td>
+                        </tr>
+                        <tr class="compare-row">
+                            <td class="px-4 py-3 font-medium">TCC ประเมิน</td>
+                            <td class="px-4 py-3 text-center"><span class="bg-blue-500/20 px-2 py-0.5 rounded text-blue-300 text-xs">ทัศนคติพื้นฐาน</span></td>
+                            <td class="px-4 py-3 text-center"><span class="bg-purple-500/20 px-2 py-0.5 rounded text-purple-300 text-xs">ภาวะผู้นำ</span></td>
+                            <td class="px-4 py-3 text-center"><span class="bg-amber-500/20 px-2 py-0.5 rounded text-amber-300 text-xs">บุคลิก+ทักษะ</span></td>
+                        </tr>
+                        <tr class="compare-row">
+                            <td class="px-4 py-3 font-medium">เกณฑ์ผ่าน</td>
+                            <td class="px-4 py-3 text-center text-green-400">≥ 65% (32.5/50)</td>
+                            <td class="px-4 py-3 text-center text-green-400">≥ 65% (32.5/50)</td>
+                            <td class="px-4 py-3 text-center text-green-400">≥ 65% (32.5/50)</td>
+                        </tr>
+                        <tr class="compare-row">
+                            <td class="px-4 py-3 font-medium">EVP</td>
+                            <td class="px-4 py-3 text-center text-gray-300">7 ข้อ</td>
+                            <td class="px-4 py-3 text-center text-gray-300">6 ข้อ</td>
+                            <td class="px-4 py-3 text-center text-gray-500">—</td>
+                        </tr>
+                        <tr class="compare-row">
+                            <td class="px-4 py-3 font-medium">คำถามบังคับ</td>
+                            <td class="px-4 py-3 text-center text-gray-500">—</td>
+                            <td class="px-4 py-3 text-center text-yellow-400">5 ข้อ</td>
+                            <td class="px-4 py-3 text-center text-gray-500">—</td>
+                        </tr>
+                        <tr class="compare-row">
+                            <td class="px-4 py-3 font-medium">ขั้นตอนสัมภาษณ์</td>
+                            <td class="px-4 py-3 text-center text-gray-500">—</td>
+                            <td class="px-4 py-3 text-center text-purple-400">1.30 ชม.</td>
+                            <td class="px-4 py-3 text-center text-gray-500">—</td>
+                        </tr>
+                        <tr class="compare-row">
+                            <td class="px-4 py-3 font-medium">คกก. สัมภาษณ์</td>
+                            <td class="px-4 py-3 text-center text-gray-300">สูงสุด 5 คน</td>
+                            <td class="px-4 py-3 text-center text-gray-300">สูงสุด 3 คน</td>
+                            <td class="px-4 py-3 text-center text-gray-300">สูงสุด 3 คน</td>
+                        </tr>
+                        <tr class="compare-row">
+                            <td class="px-4 py-3 font-medium">พี่เลี้ยง</td>
+                            <td class="px-4 py-3 text-center text-gray-300">สายงาน 2 + ทุน 1</td>
+                            <td class="px-4 py-3 text-center text-gray-300">สายงาน 2 + ทุน 1</td>
+                            <td class="px-4 py-3 text-center text-gray-300">2 คน</td>
+                        </tr>
+                        <tr class="compare-row">
+                            <td class="px-4 py-3 font-medium">ค่าตอบแทน</td>
+                            <td class="px-4 py-3 text-center"><span class="text-green-400">✓ 7 รายการ</span></td>
+                            <td class="px-4 py-3 text-center"><span class="text-green-400">✓ 6 รายการ</span></td>
+                            <td class="px-4 py-3 text-center text-gray-500">—</td>
+                        </tr>
+                        <tr class="compare-row">
+                            <td class="px-4 py-3 font-medium">เป้าหมายปฏิบัติงาน</td>
+                            <td class="px-4 py-3 text-center text-gray-500">—</td>
+                            <td class="px-4 py-3 text-center text-yellow-400">5 เรื่อง</td>
+                            <td class="px-4 py-3 text-center text-gray-500">—</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="glass-card rounded-2xl p-6 mb-10">
+            <h2 class="text-xl font-bold text-center mb-6 text-gray-200">✨ ระบบที่มีในแต่ละแบบฟอร์ม</h2>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="bg-white/5 rounded-xl p-4">
+                    <div class="text-2xl mb-2">📊</div>
+                    <h4 class="font-semibold text-gray-200 mb-1">TCC Score Engine</h4>
+                    <p class="text-sm text-gray-400">คำนวณคะแนนอัตโนมัติ 10 ข้อ × 5 คะแนน แสดงผลผ่าน/ไม่ผ่านเรียลไทม์</p>
+                </div>
+                <div class="bg-white/5 rounded-xl p-4">
+                    <div class="text-2xl mb-2">📈</div>
+                    <h4 class="font-semibold text-gray-200 mb-1">Progress Tracking</h4>
+                    <p class="text-sm text-gray-400">Progress bar แสดงความสมบูรณ์ของกรอกข้อมูล</p>
+                </div>
+                <div class="bg-white/5 rounded-xl p-4">
+                    <div class="text-2xl mb-2">✅</div>
+                    <h4 class="font-semibold text-gray-200 mb-1">Validation</h4>
+                    <p class="text-sm text-gray-400">ตรวจสอบฟิลด์บังคับ + pattern (เบอร์โทร, email) ก่อน submit</p>
+                </div>
+                <div class="bg-white/5 rounded-xl p-4">
+                    <div class="text-2xl mb-2">💾</div>
+                    <h4 class="font-semibold text-gray-200 mb-1">LocalStorage</h4>
+                    <p class="text-sm text-gray-400">บันทึกข้อมูลอัตโนมัติใน browser (mock database)</p>
+                </div>
+                <div class="bg-white/5 rounded-xl p-4">
+                    <div class="text-2xl mb-2">📥</div>
+                    <h4 class="font-semibold text-gray-200 mb-1">Export CSV/PDF</h4>
+                    <p class="text-sm text-gray-400">ส่งออกข้อมูลเป็น CSV และ PDF ผ่าน browser print</p>
+                </div>
+                <div class="bg-white/5 rounded-xl p-4">
+                    <div class="text-2xl mb-2">📤</div>
+                    <h4 class="font-semibold text-gray-200 mb-1">Notification</h4>
+                    <p class="text-sm text-gray-400">แจ้งเตือนผลสัมภาษณ์ (mock Line/Telegram)</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-gray-500 text-sm py-6 border-t border-white/10">
+            <p>Web PP7 — P2 หยิ่งประเมิน | แบบฟอร์มสัมภาษณ์ 3 แบบ</p>
+            <p class="mt-1">© 2026 PKG Group | <a href="https://github.com/pakonchotbuncha-netizen/web-pp7" class="text-blue-400 hover:underline">GitHub</a></p>
+        </footer>
+    </main>
+</body>
+</html>

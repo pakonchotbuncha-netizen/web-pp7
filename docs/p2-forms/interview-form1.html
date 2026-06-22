@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📋 แบบสัมภาษณ์สมาชิกใหม่ — P2 หยิ่งประเมิน | Web PP7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sarabun: ['Sarabun', 'sans-serif'] },
+                    colors: {
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af' },
+                        success: { 50: '#f0fdf4', 500: '#22c55e', 600: '#16a34a' },
+                        danger: { 50: '#fef2f2', 500: '#ef4444', 600: '#dc2626' },
+                        warning: { 50: '#fffbeb', 500: '#f59e0b', 600: '#d97706' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Sarabun', sans-serif; }
+        body { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); }
+        .form-section { transition: all 0.3s ease; }
+        .form-section:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        .score-input:focus { background: #eff6ff; }
+        .score-pass { background: #dcfce7 !important; border-color: #22c55e !important; }
+        .score-fail { background: #fef2f2 !important; border-color: #ef4444 !important; }
+        .progress-bar { transition: width 0.5s ease; }
+        .badge-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .btn-primary { background: linear-gradient(135deg, #2563eb, #3b82f6); }
+        .btn-primary:hover { background: linear-gradient(135deg, #1d4ed8, #2563eb); }
+        .btn-success { background: linear-gradient(135deg, #16a34a, #22c55e); }
+        .btn-danger { background: linear-gradient(135deg, #dc2626, #ef4444); }
+        @media print {
+            body { background: white; }
+            .no-print { display: none !important; }
+            .form-section { break-inside: avoid; box-shadow: none; border: 1px solid #e2e8f0; }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-primary-800 to-primary-600 text-white py-6 shadow-lg no-print">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold">📋 แบบสัมภาษณ์สมาชิกใหม่</h1>
+                    <p class="text-primary-100 mt-1">P2 หยิ่งประเมิน | Web PP7 — LDC-PAO-WI-002</p>
+                </div>
+                <div class="hidden md:flex items-center gap-3">
+                    <span class="px-3 py-1 bg-white/20 rounded-full text-sm">ผู้สมัครภายนอก</span>
+                    <span class="badge-pulse px-3 py-1 bg-yellow-400 text-yellow-900 rounded-full text-sm font-semibold">⏳ กรอกข้อมูล</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Progress Bar -->
+    <div class="bg-white shadow-sm sticky top-0 z-50 no-print">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-600">ความสมบูรณ์ของแบบฟอร์ม</span>
+                <span id="progressText" class="text-sm font-bold text-primary-600">0%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div id="progressBar" class="progress-bar bg-primary-600 h-2 rounded-full" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container mx-auto px-4 py-6 max-w-4xl">
+        <form id="interviewForm" class="space-y-6">
+
+            <!-- ส่วน A: ข้อมูลผู้สมัคร -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-primary-800 border-b-2 border-primary-100 pb-3 mb-4">
+                    <span class="bg-primary-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">A</span>
+                    ข้อมูลผู้สมัคร
+                </h2>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้สมัคร <span class="text-red-500">*</span></label>
+                        <input type="text" name="applicant_name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อเล่น <span class="text-red-500">*</span></label>
+                        <input type="text" name="nickname" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">อายุ <span class="text-red-500">*</span></label>
+                        <input type="number" name="age" min="15" max="80" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label>
+                        <input type="tel" name="phone" required pattern="[0-9]{9,10}" placeholder="0xxxxxxxxx" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">จำนวนพี่น้อง <span class="text-red-500">*</span></label>
+                        <input type="number" name="siblings_count" min="0" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">เป็นคนที่ <span class="text-red-500">*</span></label>
+                        <input type="number" name="birth_order" min="1" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">อาชีพพ่อ <span class="text-red-500">*</span></label>
+                        <input type="text" name="father_occupation" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">อาชีพแม่ <span class="text-red-500">*</span></label>
+                        <input type="text" name="mother_occupation" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">สถานภาพ <span class="text-red-500">*</span></label>
+                        <select name="marital_status" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                            <option value="">-- เลือก --</option>
+                            <option value="single">โสด</option>
+                            <option value="married">สมรส</option>
+                            <option value="widowed">หม้าย</option>
+                            <option value="divorced">หย่า</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">สถานศึกษา <span class="text-red-500">*</span></label>
+                        <input type="text" name="institution" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">วุฒิการศึกษา <span class="text-red-500">*</span></label>
+                        <select name="education_level" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                            <option value="">-- เลือก --</option>
+                            <option value="m6">มัธยมศึกษาปีที่ 6</option>
+                            <option value="pvc">ปวช.</option>
+                            <option value="hnc">ปวส. / อนุปริญญา</option>
+                            <option value="bachelor">ปริญญาตรี</option>
+                            <option value="master">ปริญญาโท</option>
+                            <option value="doctorate">ปริญญาเอก</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">สาขาที่เรียน <span class="text-red-500">*</span></label>
+                        <input type="text" name="major" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ที่อยู่ปัจจุบัน <span class="text-red-500">*</span></label>
+                        <textarea name="address" rows="2" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"></textarea>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ประสบการณ์ทำงาน <span class="text-red-500">*</span></label>
+                        <textarea name="experience" rows="3" required placeholder="ระบุบริษัท, ตำแหน่ง, ระยะเวลา" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">พิกัดบ้าน (Google Map) <span class="text-red-500">*</span></label>
+                        <input type="text" name="google_map_url" required placeholder="https://maps.google.com/..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">รูปผู้สมัคร <span class="text-red-500">*</span></label>
+                        <input type="file" name="applicant_photo" accept="image/*" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                </div>
+            </section>
+
+            <!-- ส่วน B: TCC คะแนนสัมภาษณ์ -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-primary-800 border-b-2 border-primary-100 pb-3 mb-4">
+                    <span class="bg-primary-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">B</span>
+                    TCC คะแนนสัมภาษณ์
+                    <span class="text-sm font-normal text-gray-500 ml-2">(คะแนนเต็ม 50, ผ่าน ≥ 65% = 32.5 คะแนน)</span>
+                </h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-3 py-2 text-left text-sm font-medium text-gray-700 w-12">#</th>
+                                <th class="px-3 py-2 text-left text-sm font-medium text-gray-700">ความสามารถ</th>
+                                <th class="px-3 py-2 text-center text-sm font-medium text-gray-700 w-48">คะแนน (0-5)</th>
+                                <th class="px-3 py-2 text-center text-sm font-medium text-gray-700 w-24">ผ่าน?</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100" id="tccScoreBody">
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-primary-50 font-bold">
+                                <td colspan="2" class="px-3 py-3 text-right">รวมคะแนน:</td>
+                                <td class="px-3 py-3 text-center"><span id="totalScore" class="text-xl text-primary-700">0</span>/50</td>
+                                <td class="px-3 py-3 text-center">
+                                    <span id="passFailBadge" class="px-3 py-1 rounded-full text-sm bg-gray-200 text-gray-600">รอประเมิน</span>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ส่วน C: 7 EVP -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-primary-800 border-b-2 border-primary-100 pb-3 mb-4">
+                    <span class="bg-primary-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">C</span>
+                    7 EVP — จัดลำดับความสำคัญ
+                    <span class="text-sm font-normal text-gray-500 ml-2">(ลากหรือระบุลำดับ 1-7)</span>
+                </h2>
+                <div class="space-y-3" id="evpList">
+                </div>
+            </section>
+
+            <!-- ส่วน D: ผลการสัมภาษณ์ -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-primary-800 border-b-2 border-primary-100 pb-3 mb-4">
+                    <span class="bg-primary-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">D</span>
+                    ผลการสัมภาษณ์
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">ผลการสัมภาษณ์ <span class="text-red-500">*</span></label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="interview_result" value="pass" required class="w-4 h-4 text-success-500">
+                                <span class="px-4 py-2 bg-success-50 border border-success-500 rounded-lg text-success-600 font-medium">✅ ผ่าน</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="interview_result" value="fail" class="w-4 h-4 text-danger-500">
+                                <span class="px-4 py-2 bg-danger-50 border border-danger-500 rounded-lg text-danger-600 font-medium">❌ ไม่ผ่าน</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="failReasonDiv" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">เหตุผลที่ไม่ผ่าน</label>
+                        <textarea name="fail_reason" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">สถานะการจ้าง</label>
+                        <select name="employment_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                            <option value="">-- เลือก --</option>
+                            <option value="hired">จ้างงานแล้ว</option>
+                            <option value="probation">ทดลองงาน</option>
+                            <option value="pending">รออนุมัติ</option>
+                            <option value="rejected">ไม่จ้าง</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ส่วน E: ข้อมูลตำแหน่งงาน -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-primary-800 border-b-2 border-primary-100 pb-3 mb-4">
+                    <span class="bg-primary-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">E</span>
+                    ข้อมูลตำแหน่งงาน
+                </h2>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">บริษัท</label>
+                        <input type="text" name="company" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">บริษัทบริหาร</label>
+                        <input type="text" name="management_company" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">สาขา (ตัวย่อ)</label>
+                        <input type="text" name="branch_code" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ฝ่าย</label>
+                        <input type="text" name="department" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ทีม</label>
+                        <input type="text" name="team" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ตำแหน่ง</label>
+                        <input type="text" name="position" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                </div>
+            </section>
+
+            <!-- ส่วน F: ค่าตอบแทน -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-primary-800 border-b-2 border-primary-100 pb-3 mb-4">
+                    <span class="bg-primary-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">F</span>
+                    ค่าตอบแทน
+                </h2>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">เงินเดือนทดลองงาน (บาท)</label>
+                        <input type="number" name="salary_probation" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">เงินเดือนบรรจุ (บาท)</label>
+                        <input type="number" name="salary_confirmed" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">เบี้ยท้องถิ่น (บาท)</label>
+                        <input type="number" name="local_allowance" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">เงินพิเศษ (บาท)</label>
+                        <input type="number" name="special_bonus" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ค่าน้ำมันรถ (บาท)</label>
+                        <input type="number" name="fuel_allowance" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ค่าโทรศัพท์ (บาท)</label>
+                        <input type="number" name="phone_allowance" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ค่าวิชาชีพ (บาท)</label>
+                        <input type="number" name="professional_allowance" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                </div>
+            </section>
+
+            <!-- ส่วน G: พี่เลี้ยง -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-primary-800 border-b-2 border-primary-100 pb-3 mb-4">
+                    <span class="bg-primary-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">G</span>
+                    พี่เลี้ยง
+                </h2>
+                <div class="space-y-4">
+                    <div class="border border-blue-200 rounded-lg p-4 bg-blue-50">
+                        <h3 class="font-semibold text-blue-800 mb-3">👨‍🏫 สายงาน</h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">คนที่ 1 (รหัส - ชื่อ)</label>
+                                <input type="text" name="mentor_line_1" placeholder="เช่น PKG001 - สมชาย ใจดี" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">คนที่ 2 (รหัส - ชื่อ)</label>
+                                <input type="text" name="mentor_line_2" placeholder="เช่น PKG002 - สมหญิง รักงาน" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border border-yellow-200 rounded-lg p-4 bg-yellow-50">
+                        <h3 class="font-semibold text-yellow-800 mb-3">🏢 ทุนองค์กร</h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">คนที่ 1 (รหัส - ชื่อ)</label>
+                                <input type="text" name="mentor_corporate" placeholder="เช่น PKG003 - วิชัย ผู้นำ" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">เหตุผลที่เลือก</label>
+                                <input type="text" name="mentor_corporate_reason" placeholder="ระบุเหตุผล" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ส่วน H: ผู้อนุมัติและผู้ประเมิน -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-primary-800 border-b-2 border-primary-100 pb-3 mb-4">
+                    <span class="bg-primary-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">H</span>
+                    ผู้อนุมัติและผู้ประเมิน
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ผู้อนุมัติใบลา</label>
+                        <input type="text" name="leave_approver" placeholder="ชื่อ-นามสกุล" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-700 mb-3">👥 ผู้ประเมินรายวัน</h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ผู้รับใช้ทีม (1 คน)</label>
+                                <input type="text" name="evaluator_team_lead" placeholder="ชื่อ-นามสกุล" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">เพื่อนร่วมงาน (4 คน)</label>
+                                <input type="text" name="evaluator_peers" placeholder="คั่นด้วย , เช่น สมชาย, สมหญิง, วิชัย, ประภา" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">กรรมการสัมภาษณ์ (สูงสุด 5 คน)</label>
+                        <input type="text" name="interviewers" placeholder="คั่นด้วย ," class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Action Buttons -->
+            <section class="no-print space-y-4">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex flex-wrap gap-3 justify-center">
+                        <button type="button" onclick="saveForm()" class="btn-primary text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all">
+                            💾 บันทึกแบบฟอร์ม
+                        </button>
+                        <button type="button" onclick="exportCSV()" class="bg-purple-600 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all hover:bg-purple-700">
+                            📥 Export CSV
+                        </button>
+                        <button type="button" onclick="exportPDF()" class="bg-red-600 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all hover:bg-red-700">
+                            📄 Export PDF
+                        </button>
+                        <button type="button" onclick="sendNotification()" class="btn-success text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all">
+                            📤 แจ้งผลสัมภาษณ์
+                        </button>
+                        <button type="reset" onclick="resetProgress()" class="bg-gray-500 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all hover:bg-gray-600">
+                            🔄 รีเซ็ต
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ผลลัพธ์ (JSON) -->
+            <section id="resultSection" class="hidden bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 border-b-2 border-gray-100 pb-3 mb-4">📦 ผลลัพธ์ข้อมูล (JSON)</h2>
+                <pre id="resultJSON" class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm max-h-96"></pre>
+            </section>
+        </form>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <div id="toastContent" class="px-6 py-3 rounded-lg shadow-lg text-white font-medium"></div>
+    </div>
+
+    <script>
+    // ===== TCC Criteria (10 Items - Form 1) =====
+    const tccCriteria = [
+        { id: 'tcc1', label: 'เก่งทัศนคติเชิงบวก' },
+        { id: 'tcc2', label: 'เก่งความสามารถในการปรับตัว' },
+        { id: 'tcc3', label: 'เก่งความยืดหยุ่น' },
+        { id: 'tcc4', label: 'เก่งการทำงานเป็นทีม' },
+        { id: 'tcc5', label: 'เก่งใจรักการเรียนรู้' },
+        { id: 'tcc6', label: 'เก่งความรับผิดชอบ' },
+        { id: 'tcc7', label: 'เก่งความคิดริเริ่ม' },
+        { id: 'tcc8', label: 'เก่งความกระตือรือร้น' },
+        { id: 'tcc9', label: 'เก่งความซื่อสัตย์' },
+        { id: 'tcc10', label: 'เก่งการประยุกต์ใช้เทคโนโลยี' }
+    ];
+
+    // ===== 7 EVP =====
+    const evpList = [
+        { id: 'evp1', label: 'TRUST', desc: 'ความเชื่อมั่นในตนเองและไว้วางใจซึ่งกันและกัน' },
+        { id: 'evp2', label: 'RESPECT', desc: 'ความเคารพและให้เกียรติซึ่งกันและกัน' },
+        { id: 'evp3', label: 'PRIDE', desc: 'ความภาคภูมิใจในตนเอง ทีม และองค์กร' },
+        { id: 'evp4', label: 'FREEDOM', desc: 'ความเป็นอิสระที่จะคิดสร้างสรรค์' },
+        { id: 'evp5', label: 'FUN', desc: 'บรรยากาศสนุก สร้างสรรค์ มีอารมณ์ขัน' },
+        { id: 'evp6', label: 'LEARNING & GROWTH', desc: 'สนับสนุนการเรียนรู้เติบโต' },
+        { id: 'evp7', label: 'SUSTAINABLE & SATISFACTORY PAY', desc: 'ผลตอบแทนน่าพึงพอใจและยั่งยืน' }
+    ];
+
+    // ===== Initialize TCC Score Table =====
+    function initTCC() {
+        const tbody = document.getElementById('tccScoreBody');
+        tbody.innerHTML = tccCriteria.map((item, i) => `
+            <tr>
+                <td class="px-3 py-2 text-center text-sm text-gray-500">${i + 1}</td>
+                <td class="px-3 py-2 text-sm">${item.label}</td>
+                <td class="px-3 py-2 text-center">
+                    <input type="number" name="${item.id}" min="0" max="5" step="0.5" 
+                        class="score-input w-20 px-2 py-1 border border-gray-300 rounded text-center focus:ring-2 focus:ring-primary-500"
+                        oninput="updateScore('${item.id}', this.value)">
+                </td>
+                <td class="px-3 py-2 text-center">
+                    <span id="${item.id}_status" class="px-2 py-1 rounded text-xs bg-gray-100 text-gray-400">—</span>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // ===== Initialize EVP Ranking =====
+    function initEVP() {
+        const container = document.getElementById('evpList');
+        container.innerHTML = evpList.map((item, i) => `
+            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-blue-50 transition-colors">
+                <span class="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">${i + 1}</span>
+                <div class="flex-1">
+                    <div class="font-semibold text-gray-800">${item.label}</div>
+                    <div class="text-sm text-gray-500">${item.desc}</div>
+                </div>
+                <select name="${item.id}" class="w-20 px-2 py-1 border border-gray-300 rounded text-center focus:ring-2 focus:ring-primary-500">
+                    <option value="">ลำดับ</option>
+                    ${[1,2,3,4,5,6,7].map(n => `<option value="${n}">${n}</option>`).join('')}
+                </select>
+            </div>
+        `).join('');
+    }
+
+    // ===== Score Calculation =====
+    function updateScore(id, value) {
+        const score = parseFloat(value);
+        const statusEl = document.getElementById(`${id}_status`);
+        const inputEl = document.querySelector(`input[name="${id}"]`);
+
+        if (isNaN(score)) {
+            statusEl.textContent = '—';
+            statusEl.className = 'px-2 py-1 rounded text-xs bg-gray-100 text-gray-400';
+            inputEl.classList.remove('score-pass', 'score-fail');
+        } else if (score >= 3.5) {
+            statusEl.textContent = '✅ ผ่าน';
+            statusEl.className = 'px-2 py-1 rounded text-xs bg-green-100 text-green-700';
+            inputEl.classList.remove('score-fail');
+            inputEl.classList.add('score-pass');
+        } else {
+            statusEl.textContent = '❌ไม่ผ่าน';
+            statusEl.className = 'px-2 py-1 rounded text-xs bg-red-100 text-red-700';
+            inputEl.classList.remove('score-pass');
+            inputEl.classList.add('score-fail');
+        }
+        calculateTotal();
+    }
+
+    function calculateTotal() {
+        let total = 0;
+        tccCriteria.forEach(item => {
+            const input = document.querySelector(`input[name="${item.id}"]`);
+            const val = parseFloat(input.value);
+            if (!isNaN(val)) total += val;
+        });
+        document.getElementById('totalScore').textContent = total.toFixed(1);
+
+        const badge = document.getElementById('passFailBadge');
+        if (total >= 32.5) {
+            badge.textContent = '✅ ผ่าน';
+            badge.className = 'px-3 py-1 rounded-full text-sm bg-green-100 text-green-700 font-bold';
+        } else if (total > 0) {
+            badge.textContent = '❌ ไม่ผ่าน';
+            badge.className = 'px-3 py-1 rounded-full text-sm bg-red-100 text-red-700 font-bold';
+        } else {
+            badge.textContent = 'รอประเมิน';
+            badge.className = 'px-3 py-1 rounded-full text-sm bg-gray-200 text-gray-600';
+        }
+    }
+
+    // ===== Progress Tracking =====
+    function updateProgress() {
+        const form = document.getElementById('interviewForm');
+        const requiredFields = form.querySelectorAll('[required]');
+        let filled = 0;
+        requiredFields.forEach(field => {
+            if (field.value && field.value.trim() !== '') filled++;
+        });
+        const percent = Math.round((filled / requiredFields.length) * 100);
+        document.getElementById('progressBar').style.width = percent + '%';
+        document.getElementById('progressText').textContent = percent + '%';
+    }
+
+    // ===== Collect Form Data =====
+    function collectFormData() {
+        const form = document.getElementById('interviewForm');
+        const formData = new FormData(form);
+        const data = {
+            form_type: 'แบบที่ 1: สัมภาษณ์สมาชิกใหม่',
+            form_code: 'LDC-PAO-WI-002',
+            timestamp: new Date().toISOString(),
+            sections: {}
+        };
+
+        // Section A: ข้อมูลผู้สมัคร
+        data.sections.A_personal = {
+            applicant_name: formData.get('applicant_name'),
+            nickname: formData.get('nickname'),
+            age: formData.get('age'),
+            phone: formData.get('phone'),
+            siblings_count: formData.get('siblings_count'),
+            birth_order: formData.get('birth_order'),
+            father_occupation: formData.get('father_occupation'),
+            mother_occupation: formData.get('mother_occupation'),
+            marital_status: formData.get('marital_status'),
+            institution: formData.get('institution'),
+            education_level: formData.get('education_level'),
+            major: formData.get('major'),
+            address: formData.get('address'),
+            experience: formData.get('experience'),
+            google_map_url: formData.get('google_map_url')
+        };
+
+        // Section B: TCC
+        data.sections.B_tcc_scores = {};
+        let totalTCC = 0;
+        tccCriteria.forEach(item => {
+            const val = parseFloat(formData.get(item.id));
+            data.sections.B_tcc_scores[item.id] = { label: item.label, score: isNaN(val) ? 0 : val, pass: (!isNaN(val) && val >= 3.5) };
+            if (!isNaN(val)) totalTCC += val;
+        });
+        data.sections.B_tcc_total = totalTCC;
+        data.sections.B_tcc_result = totalTCC >= 32.5 ? 'ผ่าน' : 'ไม่ผ่าน';
+
+        // Section C: EVP
+        data.sections.C_evp_ranking = {};
+        evpList.forEach(item => {
+            data.sections.C_evp_ranking[item.id] = formData.get(item.id) || '';
+        });
+
+        // Section D: ผลการสัมภาษณ์
+        data.sections.D_result = {
+            interview_result: formData.get('interview_result'),
+            fail_reason: formData.get('fail_reason'),
+            employment_status: formData.get('employment_status')
+        };
+
+        // Section E: ตำแหน่งงาน
+        data.sections.E_position = {
+            company: formData.get('company'),
+            management_company: formData.get('management_company'),
+            branch_code: formData.get('branch_code'),
+            department: formData.get('department'),
+            team: formData.get('team'),
+            position: formData.get('position')
+        };
+
+        // Section F: ค่าตอบแทน
+        data.sections.F_compensation = {
+            salary_probation: formData.get('salary_probation'),
+            salary_confirmed: formData.get('salary_confirmed'),
+            local_allowance: formData.get('local_allowance'),
+            special_bonus: formData.get('special_bonus'),
+            fuel_allowance: formData.get('fuel_allowance'),
+            phone_allowance: formData.get('phone_allowance'),
+            professional_allowance: formData.get('professional_allowance')
+        };
+
+        // Section G: พี่เลี้ยง
+        data.sections.G_mentors = {
+            mentor_line_1: formData.get('mentor_line_1'),
+            mentor_line_2: formData.get('mentor_line_2'),
+            mentor_corporate: formData.get('mentor_corporate'),
+            mentor_corporate_reason: formData.get('mentor_corporate_reason')
+        };
+
+        // Section H: ผู้อนุมัติ
+        data.sections.H_approvers = {
+            leave_approver: formData.get('leave_approver'),
+            evaluator_team_lead: formData.get('evaluator_team_lead'),
+            evaluator_peers: formData.get('evaluator_peers'),
+            interviewers: formData.get('interviewers')
+        };
+
+        return data;
+    }
+
+    // ===== Save Form =====
+    function saveForm() {
+        const data = collectFormData();
+        localStorage.setItem('p2_interview_form1', JSON.stringify(data));
+        document.getElementById('resultSection').classList.remove('hidden');
+        document.getElementById('resultJSON').textContent = JSON.stringify(data, null, 2);
+        showToast('✅ บันทึกแบบฟอร์มสำเร็จ!', 'success');
+    }
+
+    // ===== Export CSV =====
+    function exportCSV() {
+        const data = collectFormData();
+        let csv = '字段,ค่า\n';
+        csv += `แบบฟอร์ม,${data.form_type}\n`;
+        csv += `รหัสแบบฟอร์ม,${data.form_code}\n`;
+        csv += `วันที่บันทึก,${data.timestamp}\n`;
+        csv += `ชื่อผู้สมัคร,${data.sections.A_personal.applicant_name}\n`;
+        csv += `TCC รวม,${data.sections.B_tcc_total}\n`;
+        csv += `ผล TCC,${data.sections.B_tcc_result}\n`;
+        csv += `ผลการสัมภาษณ์,${data.sections.D_result.interview_result || ''}\n`;
+        csv += `บริษัท,${data.sections.E_position.company}\n`;
+        csv += `ตำแหน่ง,${data.sections.E_position.position}\n`;
+
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `P2_Interview_Form1_${data.sections.A_personal.applicant_name || 'draft'}.csv`;
+        a.click();
+        showToast('📥 Export CSV สำเร็จ!', 'info');
+    }
+
+    // ===== Export PDF =====
+    function exportPDF() {
+        window.print();
+        showToast('📄 แสดงตัวอย่าง PDF', 'info');
+    }
+
+    // ===== Send Notification =====
+    function sendNotification() {
+        const data = collectFormData();
+        const result = data.sections.D_result.interview_result;
+        if (!result) {
+            showToast('⚠️ กรุณาระบุผลการสัมภาษณ์ก่อน', 'warning');
+            return;
+        }
+        // Mock notification (in production: API call)
+        showToast('📤 แจ้งผลสัมภาษณ์เรียบร้อย!', 'success');
+        console.log('[P2-Notification]', {
+            channel: 'line/telegram',
+            applicant: data.sections.A_personal.applicant_name,
+            result: result,
+            tcc_score: data.sections.B_tcc_total
+        });
+    }
+
+    // ===== Toast =====
+    function showToast(msg, type) {
+        const toast = document.getElementById('toast');
+        const content = document.getElementById('toastContent');
+        const colors = { success: 'bg-green-600', error: 'bg-red-600', warning: 'bg-yellow-600', info: 'bg-blue-600' };
+        content.className = `px-6 py-3 rounded-lg shadow-lg text-white font-medium ${colors[type]}`;
+        content.textContent = msg;
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
+    }
+
+    // ===== Reset =====
+    function resetProgress() {
+        document.getElementById('progressBar').style.width = '0%';
+        document.getElementById('progressText').textContent = '0%';
+        document.getElementById('totalScore').textContent = '0';
+        document.getElementById('passFailBadge').textContent = 'รอประเมิน';
+        document.getElementById('passFailBadge').className = 'px-3 py-1 rounded-full text-sm bg-gray-200 text-gray-600';
+        document.getElementById('resultSection').classList.add('hidden');
+    }
+
+    // ===== Show/Hide Fail Reason =====
+    document.querySelectorAll('input[name="interview_result"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.getElementById('failReasonDiv').classList.toggle('hidden', this.value !== 'fail');
+        });
+    });
+
+    // ===== Init =====
+    document.addEventListener('DOMContentLoaded', () => {
+        initTCC();
+        initEVP();
+        document.getElementById('interviewForm').addEventListener('input', updateProgress);
+        document.getElementById('interviewForm').addEventListener('change', updateProgress);
+    });
+    </script>
+</body>
+</html>
