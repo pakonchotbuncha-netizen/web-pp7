@@ -285,6 +285,130 @@ const NEW_PROCESS_DATA = {
       <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-indigo-400"><div class="text-2xl mb-1">📤</div><div class="font-semibold text-pp7-700">5. ส่งต่ออนุมัติจ้าง</div><div class="text-slate-600 mt-1 text-xs">เสนอผลต่อผู้บริหาร → ส่งต่อข้อมูลไปยัง P3/P4</div></div>
     </div>
   </div>
+<section id="tab-assess" class="tab-pane fade-in hidden space-y-8">
+  <div class="flex flex-wrap items-center gap-4 pb-4 border-b border-slate-200">
+    <h2 class="text-xl font-bold text-pp7-800 flex-1">🧭 หยั่งประเมินศักยภาพ (P2)</h2>
+    <div class="search-box w-64">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="search-assess" placeholder="ค้นหา ID, ชื่อ..." oninput="searchTable('assess-table',this.value)">
+    </div>
+  </div>
+
+  <!-- P2 Workflow -->
+  <div class="card bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200">
+    <h3 class="font-bold text-pp7-800 mb-3 text-lg flex items-center gap-2">
+      <span class="bg-purple-600 text-white px-2 py-1 rounded text-xs">LDC-PAO-PM-002</span>
+      📌 กระบวนการหยั่งประเมินศักยภาพ (Web PP7 Operation Flow)
+    </h3>
+    <div class="grid md:grid-cols-5 gap-3 text-sm">
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-purple-400"><div class="text-2xl mb-1">📥</div><div class="font-semibold text-pp7-700">1. รับผู้สมัคร</div><div class="text-slate-600 mt-1 text-xs">รับข้อมูลจาก P1 (แสวงหา)</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-indigo-400"><div class="text-2xl mb-1">🤔</div><div class="font-semibold text-pp7-700">2. เลือกแบบฟอร์ม</div><div class="text-slate-600 mt-1 text-xs">จำแนกประเภท: ภายนอก/ภายใน/ฝึกงาน</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-cyan-400"><div class="text-2xl mb-1">📝</div><div class="font-semibold text-pp7-700">3. สัมภาษณ์+ประเมิน</div><div class="text-slate-600 mt-1 text-xs">กรอกแบบฟอร์ม + คำนวณคะแนน TCC</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-blue-400"><div class="text-2xl mb-1">📊</div><div class="font-semibold text-pp7-700">4. สรุปผล</div><div class="text-slate-600 mt-1 text-xs">ผ่าน ≥65% (32.5/50) หรือพิจารณาเพิ่ม</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-emerald-400"><div class="text-2xl mb-1">📤</div><div class="font-semibold text-pp7-700">5. ส่งต่อ P3</div><div class="text-slate-600 mt-1 text-xs">จับคู่คนกับงาน / แจ้งผล</div></div>
+    </div>
+  </div>
+
+  <!-- แบบฟอร์มสัมภาษณ์ 3 แบบ -->
+  <div class="card bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 mt-8">
+    <h3 class="font-bold text-pp7-800 mb-4 text-lg flex items-center gap-2">
+      <span class="bg-blue-600 text-white px-2 py-1 rounded text-xs">P2-Forms</span>
+      📋 แบบฟอร์มสัมภาษณ์ 3 กรณี
+    </h3>
+    <p class="text-slate-600 text-sm mb-4">เลือกแบบฟอร์มตามประเภทผู้สมัคร — ทุกแบบมีเกณฑ์ผ่าน ≥ 65% (32.5/50 คะแนน)</p>
+
+    <div class="grid md:grid-cols-3 gap-4">
+      <!-- Form 1: สมาชิกใหม่ -->
+      <div class="bg-white rounded-xl border-l-4 border-blue-500 p-4 shadow-sm hover:shadow-lg transition-shadow">
+        <div class="text-center mb-3">
+          <div class="text-3xl mb-2">📋</div>
+          <h4 class="font-bold text-blue-700 text-base">แบบที่ 1: สัมภาษณ์สมาชิกใหม่</h4>
+          <span class="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs">LDC-PAO-WI-002</span>
+        </div>
+        <div class="space-y-1 text-xs text-slate-600 mb-3">
+          <div class="flex items-center gap-1"><span class="text-blue-500">●</span> ผู้สมัครภายนอกองค์กร</div>
+          <div class="flex items-center gap-1"><span class="text-blue-500">●</span> TCC ทัศนคติพื้นฐาน (10 ข้อ)</div>
+          <div class="flex items-center gap-1"><span class="text-blue-500">●</span> 8 ส่วน (A-H): ข้อมูล, TCC, EVP, ผล, ตำแหน่ง, ค่าตอบแทน, พี่เลี้ยง, อนุมัติ</div>
+          <div class="flex items-center gap-1"><span class="text-blue-500">●</span> 7 EVP + ค่าตอบแทน 7 รายการ</div>
+        </div>
+        <a href="docs/p2-forms/interview-form1.html" target="_blank" class="block text-center bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium transition">🔍 เปิดแบบฟอร์ม</a>
+      </div>
+
+      <!-- Form 2: โอนย้าย/เลื่อน -->
+      <div class="bg-white rounded-xl border-l-4 border-purple-500 p-4 shadow-sm hover:shadow-lg transition-shadow">
+        <div class="text-center mb-3">
+          <div class="text-3xl mb-2">🔄</div>
+          <h4 class="font-bold text-purple-700 text-base">แบบที่ 2: โอนย้าย/เลื่อนตำแหน่ง</h4>
+          <span class="inline-block mt-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs">LDC-PAO-WI-004</span>
+        </div>
+        <div class="space-y-1 text-xs text-slate-600 mb-3">
+          <div class="flex items-center gap-1"><span class="text-purple-500">●</span> สมาชิกภายในองค์กร</div>
+          <div class="flex items-center gap-1"><span class="text-purple-500">●</span> TCC ภาวะผู้นำ (10 ข้อ)</div>
+          <div class="flex items-center gap-1"><span class="text-purple-500">●</span> 9 ส่วน (A-I): ข้อมูล, TCC, EVP, คำถามบังคับ, ขั้นตอน, ผล, ตำแหน่ง, ค่าตอบแทน, พี่เลี้ยง</div>
+          <div class="flex items-center gap-1"><span class="text-purple-500">●</span> 5 คำถามบังคับ + ขั้นตอน 1.30 ชม.</div>
+        </div>
+        <a href="docs/p2-forms/interview-form2.html" target="_blank" class="block text-center bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg text-sm font-medium transition">🔍 เปิดแบบฟอร์ม</a>
+      </div>
+
+      <!-- Form 3: ฝึกงาน -->
+      <div class="bg-white rounded-xl border-l-4 border-amber-500 p-4 shadow-sm hover:shadow-lg transition-shadow">
+        <div class="text-center mb-3">
+          <div class="text-3xl mb-2">🎓</div>
+          <h4 class="font-bold text-amber-700 text-base">แบบที่ 3: นักศึกษาฝึกงาน</h4>
+          <span class="inline-block mt-1 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs">LDC-PAO-WI-Intern</span>
+        </div>
+        <div class="space-y-1 text-xs text-slate-600 mb-3">
+          <div class="flex items-center gap-1"><span class="text-amber-500">●</span> นักศึกษาฝึกงาน</div>
+          <div class="flex items-center gap-1"><span class="text-amber-500">●</span> เกณฑ์ประเมิน 10 หัวข้อ</div>
+          <div class="flex items-center gap-1"><span class="text-amber-500">●</span> 5 ส่วน (A-E): ข้อมูล, ประเมิน, ผล, พี่เลี้ยง, เพิ่มเติม</div>
+          <div class="flex items-center gap-1"><span class="text-amber-500">●</span> พี่เลี้ยง 2 คน + ระยะเวลาฝึก</div>
+        </div>
+        <a href="docs/p2-forms/interview-form3.html" target="_blank" class="block text-center bg-amber-600 hover:bg-amber-700 text-white py-2 rounded-lg text-sm font-medium transition">🔍 เปิดแบบฟอร์ม</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ตารางเปรียบเทียบ -->
+  <div class="card mt-8">
+    <h3 class="font-bold text-pp7-800 mb-3 flex items-center gap-2">📊 เปรียบเทียบแบบฟอร์มทั้ง 3 แบบ</h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm" id="assess-table">
+        <thead>
+          <tr class="bg-slate-100">
+            <th class="px-3 py-2 text-left font-semibold text-slate-700">หัวข้อ</th>
+            <th class="px-3 py-2 text-center text-blue-600 font-semibold">📋 แบบที่ 1</th>
+            <th class="px-3 py-2 text-center text-purple-600 font-semibold">🔄 แบบที่ 2</th>
+            <th class="px-3 py-2 text-center text-amber-600 font-semibold">🎓 แบบที่ 3</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr><td class="px-3 py-2 font-medium">กลุ่มเป้าหมาย</td><td class="px-3 py-2 text-center text-slate-600">ผู้สมัครภายนอก</td><td class="px-3 py-2 text-center text-slate-600">สมาชิกภายใน</td><td class="px-3 py-2 text-center text-slate-600">นักศึกษาฝึก</td></tr>
+          <tr><td class="px-3 py-2 font-medium">TCC ประเมิน</td><td class="px-3 py-2 text-center"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">ทัศนคติพื้นฐาน</span></td><td class="px-3 py-2 text-center"><span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs">ภาวะผู้นำ</span></td><td class="px-3 py-2 text-center"><span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs">บุคลิก+ทักษะ</span></td></tr>
+          <tr><td class="px-3 py-2 font-medium">เกณฑ์ผ่าน</td><td class="px-3 py-2 text-center text-green-600">≥ 65% (32.5/50)</td><td class="px-3 py-2 text-center text-green-600">≥ 65% (32.5/50)</td><td class="px-3 py-2 text-center text-green-600">≥ 65% (32.5/50)</td></tr>
+          <tr><td class="px-3 py-2 font-medium">EVP</td><td class="px-3 py-2 text-center text-slate-600">7 ข้อ</td><td class="px-3 py-2 text-center text-slate-600">6 ข้อ</td><td class="px-3 py-2 text-center text-slate-400">—</td></tr>
+          <tr><td class="px-3 py-2 font-medium">คำถามบังคับ</td><td class="px-3 py-2 text-center text-slate-400">—</td><td class="px-3 py-2 text-center text-yellow-600">5 ข้อ</td><td class="px-3 py-2 text-center text-slate-400">—</td></tr>
+          <tr><td class="px-3 py-2 font-medium">ขั้นตอนสัมภาษณ์</td><td class="px-3 py-2 text-center text-slate-400">—</td><td class="px-3 py-2 text-center text-purple-600">1.30 ชม.</td><td class="px-3 py-2 text-center text-slate-400">—</td></tr>
+          <tr><td class="px-3 py-2 font-medium">คกก. สัมภาษณ์</td><td class="px-3 py-2 text-center text-slate-600">สูงสุด 5 คน</td><td class="px-3 py-2 text-center text-slate-600">สูงสุด 3 คน</td><td class="px-3 py-2 text-center text-slate-600">สูงสุด 3 คน</td></tr>
+          <tr><td class="px-3 py-2 font-medium">พี่เลี้ยง</td><td class="px-3 py-2 text-center text-slate-600">สายงาน 2 + ทุน 1</td><td class="px-3 py-2 text-center text-slate-600">สายงาน 2 + ทุน 1</td><td class="px-3 py-2 text-center text-slate-600">2 คน</td></tr>
+          <tr><td class="px-3 py-2 font-medium">ค่าตอบแทน</td><td class="px-3 py-2 text-center"><span class="text-green-600">✓ 7 รายการ</span></td><td class="px-3 py-2 text-center"><span class="text-green-600">✓ 6 รายการ</span></td><td class="px-3 py-2 text-center text-slate-400">—</td></tr>
+          <tr><td class="px-3 py-2 font-medium">เป้าหมายปฏิบัติงาน</td><td class="px-3 py-2 text-center text-slate-400">—</td><td class="px-3 py-2 text-center text-yellow-600">5 เรื่อง</td><td class="px-3 py-2 text-center text-slate-400">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- คุณสมบัติระบบ -->
+  <div class="card mt-8 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+    <h3 class="font-bold text-pp7-800 mb-3 flex items-center gap-2">✨ ระบบที่มีในแต่ละแบบฟอร์ม</h3>
+    <div class="grid md:grid-cols-3 gap-3 text-sm">
+      <div class="flex items-center gap-2"><span class="text-green-600">📊</span><span class="text-slate-700">TCC Score Engine (เต็ม 50, ผ่าน ≥ 65%)</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">📈</span><span class="text-slate-700">Progress Bar (ความสมบูรณ์)</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">✅</span><span class="text-slate-700">Field Validation (ฟิลด์บังคับ)</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">💾</span><span class="text-slate-700">LocalStorage (mock database)</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">📥</span><span class="text-slate-700">Export CSV + PDF</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">📤</span><span class="text-slate-700">Notification (Line/Telegram)</span></div>
+    </div>
+  </div>
 </section>
 
 <section id="tab-develop" class="tab-pane fade-in hidden space-y-6">
