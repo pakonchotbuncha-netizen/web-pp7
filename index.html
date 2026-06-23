@@ -1022,12 +1022,50 @@ function applyLogin(session){
 }
 
 function showTab(tabId){
+  const targetSection = document.getElementById('tab-' + tabId);
+  const targetButton = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+  
+  // Null check เพื่อป้องกัน error
+  if (!targetSection) {
+    console.warn(`⚠️ Section 'tab-${tabId}' ไม่มีในหน้านี้ กรุณา hard refresh (Ctrl+F5)`);
+    alert(`❌ ไม่พบเนื้อหาสำหรับ Tabนี้\n\nกรุณา Refresh หน้าเว็บ:\n• Windows: Ctrl+F5\n• Mac: Cmd+Shift+R\n\nหรือเปิดไฟล์ใหม่จาก GitHub Pages`);
+    return;
+  }
+  if (!targetButton) {
+    console.warn(`⚠️ Tab button 'data-tab="${tabId}"' ไม่มี`);
+    return;
+  }
+  
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + tabId).classList.remove('hidden');
-  document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+  targetSection.classList.remove('hidden');
+  targetButton.classList.add('active');
+  
   if(tabId === 'develop') initDevTab();
   if(tabId === 'new-process') renderNewProcessTab();
+  if(tabId === 'match') {
+    console.log('✅ P3 Tab loaded successfully');
+    // โหลดสถิติ P3 (ถ้ามี)
+    loadP3Stats();
+  }
+}
+
+// ฟังก์ชันโหลดสถิติ P3
+function loadP3Stats() {
+  const stats = JSON.parse(localStorage.getItem('p3_member_stats') || '{}');
+  if (stats.total !== undefined) {
+    const totalEl = document.getElementById('p3-total');
+    const activeEl = document.getElementById('p3-active');
+    const probationEl = document.getElementById('p3-probation');
+    const permanentEl = document.getElementById('p3-permanent');
+    const resignedEl = document.getElementById('p3-resigned');
+    
+    if (totalEl) totalEl.textContent = stats.total || 0;
+    if (activeEl) activeEl.textContent = stats.active || 0;
+    if (probationEl) probationEl.textContent = stats.probation || 0;
+    if (permanentEl) permanentEl.textContent = stats.permanent || 0;
+    if (resignedEl) resignedEl.textContent = stats.resigned || 0;
+  }
 }
 
 function renderNewProcessTab() {
