@@ -8,6 +8,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <script src="../p3-forms/member-data.js"></script>
   <script src="payroll.js"></script>
+  <script src="validation.js"></script>
   <script src="bulk-import.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -353,77 +354,139 @@
         <!-- Step 2: Upload CSV -->
         <div class="bg-white border border-blue-200 rounded-lg p-4 mb-4">
           <h4 class="font-bold text-blue-800 mb-3">📤 ขั้นตอนที่ 2: อัปโหลดไฟล์ CSV</h4>
-          <div class="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center bg-blue-50 mb-3 hover:bg-blue-100 transition-colors">
-            <input type="file" id="incCSVFile" accept=".csv" onchange="handleCSVUpload(event)" class="hidden">
-            <label for="incCSVFile" class="cursor-pointer">
+          <div id="dropZone" class="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center bg-blue-50 mb-3 hover:bg-blue-100 transition-all duration-200">
+            <input type="file" id="incCSVFile" accept=".csv,.txt,.tsv" onchange="handleCSVUpload(event)" class="hidden">
+            <label for="incCSVFile" class="cursor-pointer block">
               <div class="text-4xl mb-2">📂</div>
-              <div class="text-sm text-blue-800 font-semibold">คลิกเพื่อเลือกไฟล์ CSV หรือลากมาวาง</div>
-              <div class="text-xs text-blue-600 mt-1">ไฟล์ต้องเป็น .csv (UTF-8) ที่ export จาก Google Sheets</div>
+              <div class="text-sm text-blue-800 font-semibold">คลิกเลือกไฟล์ หรือลากไฟล์มาวางที่นี่</div>
+              <div class="text-xs text-blue-600 mt-1">รองรับ .csv, .txt, .tsv (UTF-8, TIS-620)</div>
             </label>
+          </div>
+          <div id="fileInfo" class="hidden bg-gray-50 border rounded p-2 text-xs mb-3">
+            <span class="font-semibold">📄 ไฟล์:</span> <span id="fileName">-</span> | 
+            <span class="font-semibold">📏 ขนาด:</span> <span id="fileSize">-</span> |
+            <span id="fileStatus" class="ml-2"></span>
           </div>
           <div class="grid md:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-medium text-gray-600 mb-1">เดือน (override)</label>
+              <label class="block text-xs font-medium text-gray-600 mb-1">เดือน (override — ว่าง = ใช้ในไฟล์)</label>
               <input type="month" id="bulkMonth" class="w-full px-2 py-1.5 border rounded text-sm">
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-600 mb-1">BU Code (override)</label>
+              <label class="block text-xs font-medium text-gray-600 mb-1">BU Code (override — ว่าง = ใช้ในไฟล์)</label>
               <input type="text" id="bulkBU" placeholder="BULK-IMP" class="w-full px-2 py-1.5 border rounded text-sm">
             </div>
           </div>
         </div>
 
-        <!-- Step 3: Preview -->
-        <div id="bulkPreview" class="hidden bg-white border border-amber-200 rounded-lg p-4 mb-4">
-          <h4 class="font-bold text-amber-800 mb-3 flex items-center justify-between">
-            <span>👁️ ขั้นตอนที่ 3: ตรวจสอบข้อมูลก่อนนำเข้า</span>
-            <span id="previewStats" class="text-sm font-normal"></span>
+        <!-- Column Mapping (แสดงถ้าตรวจพบปัญหา) -->
+        <div id="columnMappingPanel" class="hidden bg-white border border-amber-200 rounded-lg p-4 mb-4">
+          <h4 class="font-bold text-amber-800 mb-2 flex items-center gap-2">
+            <span class="text-xl">🔧</span>
+            ขั้นตอนที่ 2.5: ปรับ Column Mapping
+          </h4>
+          <p class="text-xs text-gray-600 mb-3">ระบบตรวจพบ columns ที่จับคู่ไม่ตรง — กรุณาเลือก column ที่ถูกต้อง</p>
+          <div id="missingColumnsAlert" class="hidden bg-red-50 border-l-4 border-red-500 p-3 mb-3 rounded">
+            <div class="font-bold text-red-800 text-sm">🚨 ข้อผิดพลาดร้ายแรง — ไม่สามารถ Import ได้!</div>
+            <div id="missingColumnsList" class="text-xs text-red-700 mt-1"></div>
+          </div>
+          <div id="unmappedColumnsAlert" class="hidden bg-amber-50 border-l-4 border-amber-400 p-3 mb-3 rounded">
+            <div class="font-bold text-amber-800 text-sm">⚠️ Column ที่ระบบจับคู่ไม่ตรง:</div>
+            <div id="unmappedColumnsList" class="mt-2 space-y-2"></div>
+          </div>
+          <div id="confidenceReport" class="bg-blue-50 border border-blue-200 p-3 mb-3 rounded">
+            <div class="font-bold text-blue-800 text-sm mb-1">💡 การจับคู่ที่ระบบตรวจพบ:</div>
+            <div id="confidenceList" class="text-xs text-blue-700 space-y-0.5 max-h-32 overflow-y-auto"></div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="applyColumnMapping()" class="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 text-sm font-semibold">🔄 นำ Column Mapping ไปใช้</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Validation Report -->
+        <div id="validationReport" class="hidden bg-white border border-indigo-200 rounded-lg p-4 mb-4">
+          <h4 class="font-bold text-indigo-800 mb-3 flex items-center justify-between">
+            <span class="flex items-center gap-2">
+              <span class="text-xl">👁️</span>
+              ขั้นตอนที่ 3: รายงานผลการตรวจสอบ
+            </span>
+            <span id="reportVersion" class="text-xs text-gray-500 font-normal">Validation v2.0</span>
           </h4>
           
-          <!-- Stats -->
-          <div class="grid grid-cols-4 gap-2 mb-3">
-            <div class="bg-blue-50 border border-blue-200 rounded p-2 text-center">
-              <div class="text-xs text-gray-600">รวม</div>
-              <div id="prevTotal" class="text-xl font-bold text-blue-700">0</div>
+          <!-- Overall Stats -->
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">
+            <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-3 text-center">
+              <div class="text-xs text-gray-600 font-medium">📊 ทั้งหมด</div>
+              <div id="statTotal" class="text-2xl font-bold text-blue-700">0</div>
             </div>
-            <div class="bg-green-50 border border-green-200 rounded p-2 text-center">
-              <div class="text-xs text-gray-600">ใช้ได้</div>
-              <div id="prevValid" class="text-xl font-bold text-green-700">0</div>
+            <div class="bg-green-50 border-2 border-green-300 rounded-lg p-3 text-center">
+              <div class="text-xs text-gray-600 font-medium">✅ ผ่าน</div>
+              <div id="statValid" class="text-2xl font-bold text-green-700">0</div>
             </div>
-            <div class="bg-red-50 border border-red-200 rounded p-2 text-center">
-              <div class="text-xs text-gray-600">ผิดพลาด</div>
-              <div id="prevError" class="text-xl font-bold text-red-700">0</div>
+            <div class="bg-red-50 border-2 border-red-300 rounded-lg p-3 text-center">
+              <div class="text-xs text-gray-600 font-medium">❌ ผิดพลาด</div>
+              <div id="statInvalid" class="text-2xl font-bold text-red-700">0</div>
             </div>
-            <div class="bg-purple-50 border border-purple-200 rounded p-2 text-center">
-              <div class="text-xs text-gray-600">Points รวม</div>
-              <div id="prevPoints" class="text-xl font-bold text-purple-700">0 P</div>
+            <div class="bg-amber-50 border-2 border-amber-300 rounded-lg p-3 text-center">
+              <div class="text-xs text-gray-600 font-medium">⚠️ คำเตือน</div>
+              <div id="statWarnings" class="text-2xl font-bold text-amber-700">0</div>
+            </div>
+            <div class="bg-purple-50 border-2 border-purple-300 rounded-lg p-3 text-center">
+              <div class="text-xs text-gray-600 font-medium">💎 Points รวม</div>
+              <div id="statPoints" class="text-2xl font-bold text-purple-700">0</div>
             </div>
           </div>
 
-          <!-- Validation Result Tables -->
-          <div class="grid md:grid-cols-2 gap-3">
-            <div>
-              <div class="bg-green-100 text-green-900 px-3 py-1.5 rounded font-semibold text-sm">✅ รายการที่ตรวจสอบผ่าน</div>
-              <div id="prevValidList" class="max-h-64 overflow-y-auto border border-green-300 rounded">
-                <div class="text-center p-3 text-gray-500 text-sm">ยังไม่มีข้อมูล</div>
+          <!-- Validation Report (detailed errors) -->
+          <div id="validationDetail" class="space-y-3 mb-4">
+            <!-- Column Detection -->
+            <div id="detailColumnDetection" class="hidden">
+              <div class="bg-gray-50 border border-gray-200 rounded p-3">
+                <div class="font-semibold text-gray-700 text-sm mb-2">🔗 Column Mapping ที่ตรวจพบ:</div>
+                <div id="detectedColumns" class="flex flex-wrap gap-1 text-xs"></div>
               </div>
             </div>
-            <div>
-              <div class="bg-red-100 text-red-900 px-3 py-1.5 rounded font-semibold text-sm">❌ รายการที่มีปัญหา</div>
-              <div id="prevErrorList" class="max-h-64 overflow-y-auto border border-red-300 rounded">
-                <div class="text-center p-3 text-gray-500 text-sm">ยังไม่มีข้อมูล</div>
+
+            <!-- Error Groups (by error type) -->
+            <div id="errorGroups" class="space-y-3"></div>
+
+            <!-- Warnings -->
+            <div id="warningsSection" class="hidden">
+              <div class="bg-amber-50 border border-amber-200 rounded p-3">
+                <div class="font-semibold text-amber-800 text-sm mb-2">⚠️ รายการที่มีคำเตือน (Import ได้ แต่ควรตรวจสอบ):</div>
+                <div id="warningsList" class="space-y-1 text-xs max-h-48 overflow-y-auto"></div>
               </div>
             </div>
           </div>
 
           <!-- Action Buttons -->
-          <div class="flex gap-2 mt-3">
-            <button onclick="importBulkINC()" id="btnImport" class="flex-1 px-5 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-semibold shadow-md">
-              ✅ นำเข้าที่ตรวจสอบผ่าน
+          <div class="flex flex-wrap gap-2 border-t pt-3">
+            <button onclick="importValidRows()" id="btnImportValid" class="flex-1 px-4 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-semibold shadow-md text-sm">
+              ✅ นำเข้าเฉพาะที่ผ่าน (<span id="importCount">0</span> รายการ)
             </button>
-            <button onclick="hideBulkPreview()" class="px-4 py-2.5 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
-              ✖️ ยกเลิก
+            <button onclick="showReportText()" class="px-3 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 border text-sm">
+              📋 ดูรายงานฉบับเต็ม
             </button>
+            <button onclick="downloadErrorCSV()" class="px-3 py-2.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 border border-red-300 text-sm">
+              ⬇️ ดาวน์โหลดรายการผิดพลาด
+            </button>
+            <button onclick="hideValidationReport()" class="px-3 py-2.5 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-sm">
+              ✖️ ปิด
+            </button>
+          </div>
+        </div>
+
+        <!-- Full Report Modal -->
+        <div id="fullReportModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="bg-indigo-600 text-white px-4 py-3 font-bold flex items-center justify-between">
+              <span>📋 รายงานผลการตรวจสอบข้อมูลฉบับเต็ม</span>
+              <button onclick="document.getElementById('fullReportModal').classList.add('hidden')" class="text-white hover:text-gray-200 text-xl">✕</button>
+            </div>
+            <pre id="fullReportText" class="p-4 overflow-auto text-xs font-mono bg-gray-50 flex-1"></pre>
+            <div class="p-3 bg-gray-100 border-t flex justify-end">
+              <button onclick="copyReportText()" class="px-3 py-1.5 bg-white border rounded text-sm hover:bg-gray-50">📋 Copy</button>
+            </div>
           </div>
         </div>
 
@@ -954,8 +1017,10 @@
       a.click();
     }
 
-    // ============ Bulk Import Functions ============
-    let _bulkValidationResult = null;
+    // ============ Bulk Import v2.0 with Validation System ============
+    let _validationResult = null;
+    let _csvText = null;
+    let _fileInfo = null;
 
     function downloadINCTemplate() {
       if (typeof BulkImport === 'undefined') {
@@ -974,170 +1039,357 @@
       const file = event.target.files[0];
       if (!file) return;
       
-      if (!file.name.endsWith('.csv')) {
-        alert('⚠️ ต้องเป็นไฟล์ .csv เท่านั้น');
+      // Check file extension
+      const validExts = ['.csv', '.txt', '.tsv'];
+      const ext = '.' + file.name.split('.').pop().toLowerCase();
+      if (!validExts.includes(ext)) {
+        alert(`⚠️ ไฟล์ไม่รองรับ "${file.name}"\n\n✅ รองรับ: .csv, .txt, .tsv`);
         return;
       }
 
+      // Show file info
+      document.getElementById('fileInfo').classList.remove('hidden');
+      document.getElementById('fileName').textContent = file.name;
+      document.getElementById('fileSize').textContent = formatFileSize(file.size);
+      document.getElementById('fileStatus').innerHTML = '<span class="text-blue-600">⏳ กำลังอ่านไฟล์...</span>';
+
       const reader = new FileReader();
       reader.onload = function(e) {
-        const csvText = e.target.result;
+        _csvText = e.target.result;
+        _fileInfo = { name: file.name, size: file.size };
         
-        if (typeof BulkImport === 'undefined') {
-          alert('⚠️ ระบบ Bulk Import ยังไม่ได้โหลด');
+        if (typeof ValidationSystem === 'undefined') {
+          alert('⚠️ ระบบ Validation ยังไม่ได้โหลด');
+          document.getElementById('fileStatus').innerHTML = '<span class="text-red-600">❌ ระบบไม่พร้อม</span>';
           return;
         }
 
-        // Parse & Validate
-        const { headers, rows } = BulkImport.parseCSV(csvText);
-        
-        if (rows.length === 0) {
-          alert('⚠️ ไฟล์ CSV ไม่มีข้อมูล');
+        // Validate using ValidationSystem
+        const validation = ValidationSystem.validateImport(_csvText, 'inc');
+        _validationResult = validation;
+
+        if (!validation.success) {
+          document.getElementById('fileStatus').innerHTML = `<span class="text-red-600">❌ ${validation.error}</span>`;
+          alert('❌ ' + validation.error);
           return;
         }
 
-        // Override month/bu from options
-        const overrideMonth = document.getElementById('bulkMonth').value;
-        const overrideBU = document.getElementById('bulkBU').value;
-        
-        rows.forEach(row => {
-          if (overrideMonth && !row.month) row.month = overrideMonth;
-          if (overrideBU && !row.bu_code) row.bu_code = overrideBU;
-        });
+        // Update file status
+        document.getElementById('fileStatus').innerHTML = `<span class="text-green-600">✅ อ่านสำเร็จ (${validation.totalRows} แถว)</span>`;
 
-        const validation = BulkImport.validateINCRows(rows);
-        _bulkValidationResult = { validation, month: overrideMonth, buCode: overrideBU };
-
-        // Show preview
-        showBulkPreview(validation);
+        // Show validation report
+        showValidationReport();
       };
-      reader.readAsText(file);
+      
+      reader.onerror = function() {
+        document.getElementById('fileStatus').innerHTML = '<span class="text-red-600">❌ อ่านไฟล์ไม่สำเร็จ</span>';
+        alert('❌ ไม่สามารถอ่านไฟล์ได้');
+      };
+      
+      reader.readAsText(file, 'UTF-8');
     }
 
-    function showBulkPreview(validation) {
-      document.getElementById('bulkPreview').classList.remove('hidden');
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function showValidationReport() {
+      const v = _validationResult;
+      if (!v) return;
+
+      // Show panel
+      document.getElementById('validationReport').classList.remove('hidden');
+
+      // Update stats
+      document.getElementById('statTotal').textContent = v.totalRows.toLocaleString();
+      document.getElementById('statValid').textContent = v.validCount.toLocaleString();
+      document.getElementById('statInvalid').textContent = v.invalidCount.toLocaleString();
+      document.getElementById('statWarnings').textContent = v.warnings.length.toLocaleString();
       
-      // Stats
-      document.getElementById('prevTotal').textContent = validation.total;
-      document.getElementById('prevValid').textContent = validation.validRows.length;
-      document.getElementById('prevError').textContent = validation.errors.length;
-      
-      const totalPoints = validation.validRows.reduce((s, r) => s + Math.round(r.amount_num * 10), 0);
-      document.getElementById('prevPoints').textContent = totalPoints.toLocaleString() + ' P';
-      
-      document.getElementById('previewStats').innerHTML = `<span class="text-xs text-gray-500">${validation.validRows.length}/${validation.total} ผ่านการตรวจสอบ</span>`;
-      
-      // Valid list
-      const validList = document.getElementById('prevValidList');
-      if (validation.validRows.length === 0) {
-        validList.innerHTML = '<div class="text-center p-3 text-gray-500 text-sm">ไม่มีรายการที่ผ่าน</div>';
-      } else {
-        validList.innerHTML = `<table class="w-full text-xs">
-          <thead class="bg-green-50"><tr>
-            <th class="p-1.5 text-left">รหัส</th>
-            <th class="p-1.5 text-left">ชื่อ</th>
-            <th class="p-1.5 text-center">ประเภท</th>
-            <th class="p-1.5 text-right">บาท</th>
-            <th class="p-1.5 text-right">Points</th>
-          </tr></thead>
-          <tbody>${validation.validRows.slice(0, 100).map(r => `
-            <tr class="border-t hover:bg-green-50">
-              <td class="p-1.5 font-mono text-xs">${r.member_id}</td>
-              <td class="p-1.5">${r._member?.personal?.name || r.name || '-'}</td>
-              <td class="p-1.5 text-center"><span class="px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">${r.inc_type}</span></td>
-              <td class="p-1.5 text-right">฿${r.amount_num.toLocaleString()}</td>
-              <td class="p-1.5 text-right font-bold text-purple-700">${Math.round(r.amount_num * 10).toLocaleString()}</td>
-            </tr>`).join('')}</tbody>
-        </table>
-        ${validation.validRows.length > 100 ? `<div class="text-center text-xs text-gray-500 p-1">... และอีก ${validation.validRows.length - 100} รายการ</div>` : ''}`;
-      }
-      
-      // Error list
-      const errorList = document.getElementById('prevErrorList');
-      if (validation.errors.length === 0) {
-        errorList.innerHTML = '<div class="text-center p-3 text-green-600 text-sm">✨ ไม่มีข้อผิดพลาด!</div>';
-      } else {
-        errorList.innerHTML = validation.errors.map(e => `
-          <div class="p-2 border-b text-xs">
-            <div class="font-semibold text-red-700">Row ${e.row}: ${e.row_id}</div>
-            <div class="text-red-600 mt-0.5">${e.errors.join(' | ')}</div>
-          </div>
-        `).join('');
-      }
-      
-      // Disable import if no valid rows
-      const btnImport = document.getElementById('btnImport');
-      if (validation.validRows.length === 0) {
+      const totalPoints = v.validRows.reduce((sum, row) => sum + Math.round((row.amount || 0) * 10), 0);
+      document.getElementById('statPoints').textContent = totalPoints.toLocaleString();
+
+      // Update import button
+      document.getElementById('importCount').textContent = v.validCount;
+      const btnImport = document.getElementById('btnImportValid');
+      if (v.validCount === 0 || v.fatalErrors.length > 0) {
         btnImport.disabled = true;
         btnImport.classList.add('opacity-50', 'cursor-not-allowed');
+        btnImport.textContent = v.fatalErrors.length > 0 ? '❌ ไม่สามารถ Import ได้' : '❌ ไม่มีข้อมูลให้ import';
       } else {
         btnImport.disabled = false;
         btnImport.classList.remove('opacity-50', 'cursor-not-allowed');
+        btnImport.innerHTML = `✅ นำเข้าเฉพาะที่ผ่าน (<span id="importCount">${v.validCount}</span> รายการ)`;
+      }
+
+      // Show column detection
+      const cd = v.columnDetection;
+      if (cd.missing.length > 0) {
+        const panel = document.getElementById('columnMappingPanel');
+        panel.classList.remove('hidden');
+        const alert = document.getElementById('missingColumnsAlert');
+        alert.classList.remove('hidden');
+        document.getElementById('missingColumnsList').innerHTML = cd.missing.map(m => {
+          return `<div class="mt-1">🔸 <strong>${m.label}</strong> — ตัวอย่าง: ${m.example || '(ไม่มีตัวอย่าง)'}</div>`;
+        }).join('');
       }
       
-      // Scroll to preview
-      document.getElementById('bulkPreview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (cd.unmapped.length > 0) {
+        const panel = document.getElementById('columnMappingPanel');
+        panel.classList.remove('hidden');
+        document.getElementById('unmappedColumnsAlert').classList.remove('hidden');
+        document.getElementById('unmappedColumnsList').innerHTML = cd.unmapped.map(u => {
+          const suggestion = cd.suggestions.find(s => s.unmappedHeader === u.headerName);
+          const sugText = suggestion ? `<span class="text-gray-600 ml-2">→ แนะนำเป็น "${suggestion.suggestedLabel}"</span>` : '';
+          return `<div class="text-xs">• "${u.headerName}"<input type="text" class="ml-2 px-2 py-0.5 border rounded text-xs" placeholder="เลือก column..." data-unmapped="${u.headerIndex}">${sugText}</div>`;
+        }).join('');
+      }
+
+      // Show confidence report
+      if (cd.mapping && Object.keys(cd.mapping).length > 0) {
+        document.getElementById('confidenceList').innerHTML = Object.entries(cd.mapping).map(([colName, info]) => {
+          const confidenceBadge = info.confidence === 'exact' 
+            ? '<span class="bg-green-100 text-green-700 px-1 rounded text-xs">✓ ตรงกัน</span>'
+            : '<span class="bg-amber-100 text-amber-700 px-1 rounded text-xs">~ เดาเอา</span>';
+          return `<div class="flex items-center gap-2">• "<strong>${info.headerName}</strong>" → "<strong>${colName}</strong>" ${confidenceBadge}</div>`;
+        }).join('');
+      }
+
+      // Show column detection summary
+      document.getElementById('detailColumnDetection').classList.remove('hidden');
+      document.getElementById('detectedColumns').innerHTML = Object.entries(cd.mapping).map(([colName, info]) => {
+        const bgClass = info.confidence === 'exact' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800';
+        return `<span class="${bgClass} px-2 py-0.5 rounded text-xs">✓ ${info.headerName} → ${colName}</span>`;
+      }).join('');
+
+      // Generate error groups
+      generateErrorGroups(v.invalidRows);
+
+      // Show warnings
+      if (v.warnings.length > 0) {
+        document.getElementById('warningsSection').classList.remove('hidden');
+        document.getElementById('warningsList').innerHTML = v.warnings.slice(0, 20).map(w => {
+          return `<div class="bg-white border-l-2 border-amber-400 p-2">🔸 แถวที่ ${w.rowNum}: ${w.warnings.map(ww => ww.messages.join(', ')).join(' | ')}</div>`;
+        }).join('');
+        if (v.warnings.length > 20) {
+          document.getElementById('warningsList').innerHTML += `<div class="text-center text-gray-500 text-xs mt-2">... และอีก ${v.warnings.length - 20} คำเตือน</div>`;
+        }
+      }
+
+      // Scroll to report
+      document.getElementById('validationReport').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    function importBulkINC() {
-      if (!_bulkValidationResult || _bulkValidationResult.validation.validRows.length === 0) {
-        alert('⚠️ ไม่มีข้อมูลให้ import');
+    function generateErrorGroups(invalidRows) {
+      const errorGroups = {};
+      
+      invalidRows.forEach(row => {
+        row.errors.forEach(err => {
+          const key = `${err.column}|${err.field}`;
+          if (!errorGroups[key]) {
+            errorGroups[key] = { column: err.column, field: err.field, errors: [] };
+          }
+          err.messages.forEach(msg => {
+            errorGroups[key].errors.push({ rowNum: row.rowNum, message: msg, cellValue: err.cellValue });
+          });
+        });
+      });
+
+      const container = document.getElementById('errorGroups');
+      if (Object.keys(errorGroups).length === 0) {
+        container.innerHTML = '<div class="text-center p-4 text-green-600 text-sm">✨ ไม่พบข้อผิดพลาด!</div>';
         return;
       }
 
-      const { validRows, month: overrideMonth } = _bulkValidationResult;
-      const buCode = _bulkValidationResult.buCode || 'BULK-IMP';
-      
+      container.innerHTML = Object.values(errorGroups).map(group => {
+        const errorType = group.errors[0]?.message || '';
+        const errorIcon = errorType.includes('❌') ? '❌' : '⚠️';
+        
+        return `
+          <div class="bg-red-50 border-l-4 border-red-500 rounded p-3">
+            <div class="font-bold text-red-800 text-sm mb-2">
+              ${errorIcon} Column "${group.column}" (${group.errors.length} รายการ)
+            </div>
+            <div class="space-y-1 max-h-48 overflow-y-auto">
+              ${group.errors.slice(0, 10).map(e => `
+                <div class="flex items-start gap-2 text-xs">
+                  <span class="text-red-600 font-mono bg-red-100 px-1.5 py-0.5 rounded">แถว ${e.rowNum}</span>
+                  <span class="text-red-700 flex-1">${e.message}</span>
+                  <span class="text-gray-500 text-xs">"${e.cellValue}"</span>
+                </div>
+              `).join('')}
+              ${group.errors.length > 10 ? `<div class="text-center text-gray-500 text-xs mt-2">... และอีก ${group.errors.length - 10} รายการ</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function applyColumnMapping() {
+      // TODO: Interactive column mapping UI
+      alert('🔧 ยังไม่เปิดใช้งาน — ระบบยังใช้ auto-detection\n\n💡 แนะนำ: แก้ไฟล์ CSV ให้ตรง schema แล้วอัปโหลดใหม่');
+    }
+
+    function importValidRows() {
+      const v = _validationResult;
+      if (!v || !v.canImport) {
+        alert('❌ ไม่มีข้อมูลให้ import');
+        return;
+      }
+
+      const overrideMonth = document.getElementById('bulkMonth').value;
+      const overrideBU = document.getElementById('bulkBU').value || 'BULK-IMP';
+
+      const totalCash = v.validRows.reduce((sum, r) => sum + r.amount, 0);
+      const totalPoints = Math.round(totalCash * 10);
+
       const confirmMsg = `✅ ยืนยันการนำเข้าข้อมูล INC?
 
-📋 จำนวน: ${validRows.length} รายการ
-💰 รวม: ฿${validRows.reduce((s, r) => s + r.amount_num, 0).toLocaleString()}
-💎 Points: ${validRows.reduce((s, r) => s + Math.round(r.amount_num * 10), 0).toLocaleString()} P
-👤 BU: ${buCode}
-📅 เดือน: ${overrideMonth || 'ตามข้อมูลในไฟล์'}`;
+📋 จำนวน: ${v.validRows} รายการ
+💰 รวม: ฿${totalCash.toLocaleString()}
+💎 Points: ${totalPoints.toLocaleString()} P
+👤 BU: ${overrideBU}
+📅 เดือน: ${overrideMonth || 'ตามข้อมูลในไฟล์'}
+
+⚠️ จะ import เฉพาะ ${v.validCount} รายการที่ผ่านการตรวจสอบ`;
 
       if (!confirm(confirmMsg)) return;
 
-      // Re-read file and import (to reset parsing state)
-      const fileInput = document.getElementById('incCSVFile');
-      const file = fileInput.files[0];
-      
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const csvText = e.target.result;
-        
-        const result = BulkImport.importINCFromCSV(csvText, {
-          month: overrideMonth,
-          buCode: buCode
-        });
-        
-        let msg = `✅ นำเข้าสำเร็จ!
+      // Apply overrides
+      const finalRows = v.validRows.map(row => {
+        return {
+          ...row,
+          month: overrideMonth || row.month,
+          bu_code: overrideBU || row.bu_code
+        };
+      });
 
-📥 สำเร็จ: ${result.success} รายการ
-❌ ผิดพลาด: ${result.failed} รายการ
-💰 รวมเงินสด: ฿${result.total_cash.toLocaleString()}
-💎 รวม Points: ${result.total_points.toLocaleString()} P`;
-        
-        if (result.errors && result.errors.length > 0) {
-          msg += `\n\n⚠️ มีข้อผิดพลาด ${result.errors.length} รายการ:`;
-          msg += result.errors.slice(0, 5).map(e => `\n- Row ${e.row}: ${e.errors.join(', ')}`).join('');
-        }
-        
-        alert(msg);
-        
-        // Hide preview & reload summary
-        hideBulkPreview();
-        document.getElementById('incMonth').value = overrideMonth || new Date().toISOString().slice(0, 7);
-        loadIncSummary();
-      };
-      reader.readAsText(file);
+      // Import using BulkImport
+      let imported = 0;
+      let totalImportedCash = 0;
+      let totalImportedPoints = 0;
+
+      finalRows.forEach(row => {
+        const result = PayrollSystem.saveIncentivePoints(
+          row.member_id,
+          row.month,
+          row.amount,
+          row.inc_type,
+          row.remark,
+          row.bu_code
+        );
+        imported++;
+        totalImportedCash += row.amount;
+        totalImportedPoints += result.points;
+      });
+
+      let msg = `✅ นำเข้าสำเร็จ!
+
+📥 สำเร็จ: ${imported} รายการ
+💰 รวมเงินสด: ฿${totalImportedCash.toLocaleString()}
+💎 รวม Points: ${totalImportedPoints.toLocaleString()} P`;
+      
+      if (v.invalidCount > 0) {
+        msg += `\n\n⚠️ ข้าม ${v.invalidCount} รายการที่มีข้อผิดพลาด\n💡 ดูรายงานฉบับเต็มเพื่อดูรายละเอียด`;
+      }
+
+      alert(msg);
+
+      // Hide report & reload summary
+      hideValidationReport();
+      document.getElementById('incMonth').value = overrideMonth || new Date().toISOString().slice(0, 7);
+      loadIncSummary();
     }
 
-    function hideBulkPreview() {
-      document.getElementById('bulkPreview').classList.add('hidden');
-      _bulkValidationResult = null;
+    function showReportText() {
+      if (!_validationResult) return;
+      const report = ValidationSystem.generateValidationReport(_validationResult);
+      document.getElementById('fullReportText').textContent = report;
+      document.getElementById('fullReportModal').classList.remove('hidden');
+    }
+
+    function copyReportText() {
+      const text = document.getElementById('fullReportText').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('✅ คัดลอกรายงานแล้ว');
+      }).catch(() => {
+        alert('❌ ไม่สามารถคัดลอกได้');
+      });
+    }
+
+    function downloadErrorCSV() {
+      const v = _validationResult;
+      if (!v || v.invalidCount === 0) {
+        alert('⚠️ ไม่มีรายการผิดพลาด');
+        return;
+      }
+
+      const headers = ['Row Number', 'Column', 'Field', 'Error Message', 'Original Value'];
+      const rows = [];
+      
+      v.invalidRows.forEach(row => {
+        row.errors.forEach(err => {
+          err.messages.forEach(msg => {
+            rows.push([row.rowNum, err.column, err.field, msg, err.cellValue || '']);
+          });
+        });
+      });
+
+      const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `P6_Import_Errors_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+    }
+
+    function hideValidationReport() {
+      document.getElementById('validationReport').classList.add('hidden');
+      document.getElementById('columnMappingPanel').classList.add('hidden');
+      document.getElementById('fileInfo').classList.add('hidden');
+      _validationResult = null;
+      _csvText = null;
+      _fileInfo = null;
       document.getElementById('incCSVFile').value = '';
     }
+
+    // ============ Drag & Drop Support ============
+    document.addEventListener('DOMContentLoaded', function() {
+      const dropZone = document.getElementById('dropZone');
+      if (!dropZone) return;
+
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+      });
+
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+          dropZone.classList.add('border-blue-500', 'bg-blue-100');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+          dropZone.classList.remove('border-blue-500', 'bg-blue-100');
+        }, false);
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length > 0) {
+          document.getElementById('incCSVFile').files = files;
+          handleCSVUpload({ target: { files: files } });
+        }
+      });
+    });
   </script>
 
 </body>
