@@ -10,6 +10,8 @@
   <script src="payroll.js"></script>
   <script src="validation.js"></script>
   <script src="bulk-import.js"></script>
+  <script src="notification.js"></script>
+  <script src="notification-ui.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'Prompt', sans-serif; }
@@ -36,6 +38,12 @@
           <p class="text-emerald-100 mt-1">ระบบจ่ายเงินเดือนและสวัสดิการ — Web PP7</p>
         </div>
         <a href="../../index.html" onclick="parent.showTab && parent.showTab('welfare')" class="px-4 py-2 bg-emerald-800 hover:bg-emerald-900 rounded-lg">← กลับ</a>
+        <button onclick="showNotificationHistory()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg" title="ดูประวัติการแจ้งเตือน">
+          🔔 <span id="notifCount" class="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full ml-1">0</span>
+        </button>
+        <button onclick="showNotificationSettings()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg" title="ตั้งค่าการแจ้งเตือน">
+          ⚙️
+        </button>
       </div>
     </div>
   </header>
@@ -1296,6 +1304,14 @@
       }
 
       alert(msg);
+
+      // Send notification
+      if (typeof Notifications !== 'undefined') {
+        Notifications.notifyImportSuccess(_fileInfo.name, imported, totalImportedPoints);
+        if (v.invalidCount > 0) {
+          Notifications.notifyImportError(_fileInfo.name, v.invalidRows.slice(0, 10));
+        }
+      }
 
       // Hide report & reload summary
       hideValidationReport();
