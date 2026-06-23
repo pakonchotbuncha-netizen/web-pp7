@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>P6 ค่าตอบแทนและแรงจูงใจ | Web PP7</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="payroll.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Prompt', sans-serif; }
+    body { 
+      background: linear-gradient(135deg, #065f46 0%, #047857 50%, #064e3b 100%);
+      min-height: 100vh;
+    }
+    .glass-card {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body class="text-gray-800">
+  
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-emerald-700 to-green-600 text-white py-6 shadow-lg">
+    <div class="container mx-auto px-4 max-w-7xl">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold">💰 P6 ค่าตอบแทนและแรงจูงใจ</h1>
+          <p class="text-emerald-100 mt-1">ระบบจ่ายเงินเดือนและสวัสดิการ — Web PP7</p>
+        </div>
+        <a href="../../index.html" onclick="parent.showTab && parent.showTab('welfare')" class="px-4 py-2 bg-emerald-800 hover:bg-emerald-900 rounded-lg">← กลับ</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 max-w-7xl py-6 space-y-6">
+
+    <!-- Process Flow -->
+    <div class="glass-card p-6">
+      <h2 class="text-xl font-bold text-emerald-800 mb-4 flex items-center gap-2">
+        <span class="bg-emerald-600 text-white px-2 py-1 rounded text-xs font-mono">LDC-WCD-WI-004</span>
+        📋 กระบวนการจ่ายเงินเดือน (รอบรายเดือน)
+      </h2>
+      <div class="grid md:grid-cols-4 gap-3 text-sm">
+        <div class="text-center p-3 rounded-lg bg-blue-50 border-t-4 border-blue-500">
+          <div class="text-3xl mb-1">📅</div>
+          <div class="font-bold text-blue-800">วันที่ 1-5</div>
+          <div class="text-xs text-gray-600 mt-1">PAO อัปเดตสถานะบริษัท + สถานะสมาชิก</div>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-purple-50 border-t-4 border-purple-500">
+          <div class="text-3xl mb-1">💼</div>
+          <div class="font-bold text-purple-800">วันที่ 1-10</div>
+          <div class="text-xs text-gray-600 mt-1">BU คีย์ INC (Incentive) เปิดสิทธิ์</div>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-amber-50 border-t-4 border-amber-500">
+          <div class="text-3xl mb-1">💳</div>
+          <div class="font-bold text-amber-800">วันที่ 10</div>
+          <div class="text-xs text-gray-600 mt-1">ดึงข้อมูล CU (สหกรณ์) รวมยอดอัตโนมัติ</div>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-emerald-50 border-t-4 border-emerald-500">
+          <div class="text-3xl mb-1">✅</div>
+          <div class="font-bold text-emerald-800">วันที่ 11</div>
+          <div class="text-xs text-gray-600 mt-1">ปิดสิทธิ์ INC + กระทบยอด + โอนเงิน</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="glass-card p-6 text-center hover:shadow-xl transition cursor-pointer" onclick="showPayrollForm()">
+        <div class="text-5xl mb-3">💵</div>
+        <h3 class="text-lg font-bold text-emerald-800">คำนวณเงินเดือน</h3>
+        <p class="text-sm text-gray-600 mt-1">ดึงข้อมูลจาก P3 อัตโนมัติ</p>
+        <div class="mt-3 text-xs text-emerald-600">ดึงค่าตอบแทน + คำนวณสุทธิ</div>
+      </div>
+      <div class="glass-card p-6 text-center hover:shadow-xl transition cursor-pointer bg-gradient-to-br from-blue-50 to-blue-100" onclick="showRetirementForm()">
+        <div class="text-5xl mb-3">👴</div>
+        <h3 class="text-lg font-bold text-blue-800">ระบบเกษียณ (WI-006)</h3>
+        <p class="text-sm text-gray-600 mt-1">คำนวณเงินชดเชยตามอายุงาน</p>
+        <div class="mt-3 text-xs text-blue-600">เกณฑ์ตามกฎหมายแรงงาน</div>
+      </div>
+      <div class="glass-card p-6 text-center hover:shadow-xl transition cursor-pointer bg-gradient-to-br from-purple-50 to-purple-100" onclick="showIncentiveForm()">
+        <div class="text-5xl mb-3">🎯</div>
+        <h3 class="text-lg font-bold text-purple-800">บันทึก INC</h3>
+        <p class="text-sm text-gray-600 mt-1">BU บันทึก Incentive รายเดือน</p>
+        <div class="mt-3 text-xs text-purple-600">เชื่อม BU → Payroll อัตโนมัติ</div>
+      </div>
+    </div>
+
+    <!-- Payroll Calculator Form -->
+    <div id="payrollForm" class="glass-card p-6 hidden">
+      <h2 class="text-xl font-bold text-emerald-800 mb-4">💵 คำนวณเงินเดือน</h2>
+      
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Input -->
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">เลือกสมาชิก (จาก P3)</label>
+            <select id="memberSelect" onchange="loadMemberData()" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500">
+              <option value="">-- เลือกสมาชิก --</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">เดือนที่จ่าย</label>
+            <input type="month" id="payMonth" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500">
+          </div>
+          
+          <!-- Member Info -->
+          <div id="memberInfo" class="p-3 bg-gray-50 rounded-lg text-sm hidden">
+            <div class="font-semibold text-gray-700 mb-2">📋 ข้อมูล P3</div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div>บริษัท: <span id="info-comp" class="font-medium">-</span></div>
+              <div>ฝ่าย: <span id="info-dept" class="font-medium">-</span></div>
+              <div>ตำแหน่ง: <span id="info-pos" class="font-medium">-</span></div>
+              <div>สถานะ: <span id="info-status" class="font-medium">-</span></div>
+            </div>
+          </div>
+
+          <!-- Allowances -->
+          <div class="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+            <div class="font-semibold text-yellow-800 mb-2">💰 รายการเพิ่ม (จาก P3)</div>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between"><span>เงินเดือนพื้นฐาน:</span><span id="calc-base" class="font-bold">0</span></div>
+              <div class="flex justify-between"><span>ค่าครองชีพ (Local):</span><span id="calc-local" class="font-bold">0</span></div>
+              <div class="flex justify-between"><span>โบนัสพิเศษ:</span><span id="calc-special" class="font-bold">0</span></div>
+              <div class="flex justify-between"><span>ค่าน้ำมัน:</span><span id="calc-fuel" class="font-bold">0</span></div>
+              <div class="flex justify-between"><span>ค่าโทรศัพท์:</span><span id="calc-phone" class="font-bold">0</span></div>
+              <div class="flex justify-between"><span>ค่าวิชาชีพ:</span><span id="calc-prof" class="font-bold">0</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Output -->
+        <div class="p-4 bg-gradient-to-br from-emerald-50 to-green-100 rounded-lg border-2 border-emerald-300">
+          <h3 class="font-bold text-emerald-900 mb-3">📊 สรุปผลการคำนวณ</h3>
+          
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between bg-white p-2 rounded"><span>💵 รายได้ brut:</span><span id="out-gross" class="font-bold text-lg text-green-700">฿0</span></div>
+            
+            <div class="pt-2 border-t border-emerald-300">
+              <div class="font-semibold text-red-700 mb-1">💸 รายการหัก</div>
+              <div class="flex justify-between"><span>ประกันสังคม (5%):</span><span id="out-ssf" class="text-red-600">-฿0</span></div>
+              <div class="flex justify-between"><span>กองทุนสำรองเลี้ยงชีพ (3%):</span><span id="out-pvd" class="text-red-600">-฿0</span></div>
+              <div class="flex justify-between"><span>ภาษี ณ ที่จ่าย (3%):</span><span id="out-tax" class="text-red-600">-฿0</span></div>
+              <div class="flex justify-between"><span>หักอื่น ๆ:</span><span id="out-other" class="text-red-600">-฿0</span></div>
+            </div>
+
+            <div class="pt-3 border-t-2 border-emerald-500">
+              <div class="bg-emerald-800 text-white p-3 rounded-lg">
+                <div class="flex justify-between items-center">
+                  <span class="font-bold">💰 เงินสุทธิต้องจ่าย</span>
+                  <span id="out-net" class="text-2xl font-bold">฿0</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-2 text-xs text-gray-600">
+              <div class="flex justify-between"><span>นายจ้าง จ่ายประกันสังคม:</span><span id="out-ssf-e">฿0</span></div>
+              <div class="flex justify-between"><span>นายจ้าง จ่าย PVD:</span><span id="out-pvd-e">฿0</span></div>
+              <div class="flex justify-between font-bold"><span>ต้นทุนรวมต่อนายจ้าง:</span><span id="out-total-cost">฿0</span></div>
+            </div>
+          </div>
+
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button onclick="recordPayroll()" class="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-semibold">💾 บันทึกการจ่าย</button>
+            <button onclick="exportCSV()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">📄 CSV</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Retirement Form -->
+    <div id="retirementForm" class="glass-card p-6 hidden">
+      <h2 class="text-xl font-bold text-blue-800 mb-4">👴 ระบบเกษียณ (LDC-WCD-WI-006)</h2>
+      
+      <div class="p-4 bg-blue-50 border-l-4 border-blue-500 mb-4 text-sm">
+        <strong>⚙️ เกณฑ์เงินชดเชยตามกฎหมายแรงงาน:</strong>
+        <ul class="list-disc list-inside mt-2 space-y-1">
+          <li>ทำงาน 1-3 ปี: 30 วัน</li>
+          <li>3-5 ปี: 90 วัน</li>
+          <li>5-7 ปี: 120 วัน</li>
+          <li>7-10 ปี: 180 วัน</li>
+          <li>10-15 ปี: 240 วัน</li>
+          <li>15-20 ปี: 300 วัน</li>
+          <li>20 ปีขึ้นไป: 400 วัน</li>
+        </ul>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">เลือกสมาชิก</label>
+          <select id="retireMember" onchange="calcRetirement()" class="w-full px-3 py-2 border rounded-lg">
+            <option value="">-- เลือกสมาชิก --</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="retireResult" class="mt-4 p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-300 hidden">
+        <h3 class="font-bold text-blue-900 mb-3">📊 สรุปเงินชดเชย</h3>
+        <div class="grid md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <div class="flex justify-between mb-1"><span>ชื่อสมาชิก:</span><span id="ret-name" class="font-bold">-</span></div>
+            <div class="flex justify-between mb-1"><span>อายุ:</span><span id="ret-age">-</span> ปี</div>
+            <div class="flex justify-between mb-1"><span>อายุงาน:</span><span id="ret-years">-</span> ปี</div>
+            <div class="flex justify-between mb-1"><span>เงินเดือนสุดท้าย:</span><span id="ret-salary">-</span></div>
+            <div class="flex justify-between mb-1"><span>เกณฑ์ชดเชย:</span><span id="ret-mult" class="font-bold text-blue-700">-</span></div>
+          </div>
+          <div class="bg-white p-3 rounded-lg">
+            <div class="text-center">
+              <div class="text-sm text-gray-600">💰 เงินชดเชยเกษียณ</div>
+              <div id="ret-severance" class="text-3xl font-bold text-blue-700 mt-2">฿0</div>
+              <div id="ret-eligible" class="mt-2 text-xs px-3 py-1 rounded-full inline-block"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Near Retirement Members -->
+      <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <h3 class="font-bold text-yellow-800 mb-3">⏰ สมาชิดใกล้เกษียณ (อายุ ≥ 53)</h3>
+        <div id="nearRetireList" class="space-y-2 text-sm">
+          <p class="text-gray-500 text-center py-4">ยังไม่มีข้อมูล — ข้อมูลจะดึงจาก P3 อัตโนมัติ</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Incentive Form -->
+    <div id="incentiveForm" class="glass-card p-6 hidden">
+      <h2 class="text-xl font-bold text-purple-800 mb-4">🎯 บันทึก INC (Incentive)</h2>
+      
+      <form onsubmit="return saveInc()" class="space-y-4">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">สมาชิก</label>
+            <select id="incMember" required class="w-full px-3 py-2 border rounded-lg">
+              <option value="">-- เลือก --</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">เดือน</label>
+            <input type="month" id="incMonth" required class="w-full px-3 py-2 border rounded-lg">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">จำนวนเงิน (บาท)</label>
+            <input type="number" id="incAmount" required min="0" step="0.01" class="w-full px-3 py-2 border rounded-lg" placeholder="0.00">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+            <input type="text" id="incRemark" class="w-full px-3 py-2 border rounded-lg" placeholder="เช่น ยอดขาย, KPI A, etc.">
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button type="submit" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold">💾 บันทึก INC</button>
+          <button type="button" onclick="loadIncHistory()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">📋 ดูประวัติ</button>
+        </div>
+      </form>
+
+      <div id="incHistory" class="mt-4 hidden">
+        <h3 class="font-bold text-gray-700 mb-2">📋 ประวัติ INC</h3>
+        <div id="incList" class="space-y-2 text-sm"></div>
+      </div>
+    </div>
+
+    <!-- Data Flow Diagram -->
+    <div class="glass-card p-6">
+      <h2 class="text-xl font-bold text-emerald-800 mb-4">🔗 Data Flow P6 ↔ ระบบอื่น</h2>
+      <div class="grid md:grid-cols-4 gap-3 text-sm">
+        <div class="p-3 bg-purple-50 rounded-lg border-l-4 border-purple-500">
+          <div class="font-bold text-purple-800">📥 จาก P3</div>
+          <div class="text-xs text-gray-600 mt-1">ข้อมูลสมาชิก, ตำแหน่ง, ค่าตอบแทนพื้นฐาน, ค่าเบี้ยเลี้ยงต่าง ๆ</div>
+        </div>
+        <div class="p-3 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+          <div class="font-bold text-blue-800">📥 จาก BU</div>
+          <div class="text-xs text-gray-600 mt-1">บันทึก INC (Incentive) เดือนนั้น</div>
+        </div>
+        <div class="p-3 bg-amber-50 rounded-lg border-l-4 border-amber-500">
+          <div class="font-bold text-amber-800">💳 จาก CU</div>
+          <div class="text-xs text-gray-600 mt-1">ยอดเงินกู้สหกรณ์ค้างชำระ (ดึงอัตโนมัติ วัน 10)</div>
+        </div>
+        <div class="p-3 bg-emerald-50 rounded-lg border-l-4 border-emerald-500">
+          <div class="font-bold text-emerald-800">📤 ออก BCT</div>
+          <div class="text-xs text-gray-600 mt-1">Export ไป BCT Payroll สำหรับโอนเงิน</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    let currentResult = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAllMembers();
+      document.getElementById('payMonth').value = new Date().toISOString().slice(0, 7);
+      document.getElementById('incMonth').value = new Date().toISOString().slice(0, 7);
+    });
+
+    function loadAllMembers() {
+      const members = PayrollSystem.getP3Members();
+      const options = members
+        .filter(m => m.status?.current === 'active')
+        .map(m => `<option value="${m.member_id}">${m.member_id} - ${m.personal?.name || '-'} (${m.organization?.company || '-'})</option>`)
+        .join('');
+      
+      ['memberSelect', 'retireMember', 'incMember'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (sel) {
+          const first = sel.querySelector('option').outerHTML;
+          sel.innerHTML = first + options;
+        }
+      });
+    }
+
+    function showPayrollForm() {
+      ['payrollForm', 'retirementForm', 'incentiveForm'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById('payrollForm').classList.remove('hidden');
+    }
+
+    function showRetirementForm() {
+      ['payrollForm', 'retirementForm', 'incentiveForm'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById('retirementForm').classList.remove('hidden');
+      loadNearRetirement();
+    }
+
+    function showIncentiveForm() {
+      ['payrollForm', 'retirementForm', 'incentiveForm'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById('incentiveForm').classList.remove('hidden');
+    }
+
+    function loadMemberData() {
+      const id = document.getElementById('memberSelect').value;
+      if (!id) {
+        document.getElementById('memberInfo').classList.add('hidden');
+        return;
+      }
+      const members = PayrollSystem.getP3Members();
+      const m = members.find(x => x.member_id === id);
+      if (!m) return;
+
+      // แสดงข้อมูล P3
+      document.getElementById('info-comp').textContent = m.organization?.company || '-';
+      document.getElementById('info-dept').textContent = m.organization?.department || '-';
+      document.getElementById('info-pos').textContent = m.organization?.position || '-';
+      document.getElementById('info-status').textContent = m.employment?.status || '-';
+      document.getElementById('memberInfo').classList.remove('hidden');
+
+      const comp = m.compensation || {};
+      document.getElementById('calc-base').textContent = (comp.salary_confirmed || comp.salary_probation || 0).toLocaleString();
+      document.getElementById('calc-local').textContent = (comp.local_allowance || 0).toLocaleString();
+      document.getElementById('calc-special').textContent = (comp.special_bonus || 0).toLocaleString();
+      document.getElementById('calc-fuel').textContent = (comp.fuel_allowance || 0).toLocaleString();
+      document.getElementById('calc-phone').textContent = (comp.phone_allowance || 0).toLocaleString();
+      document.getElementById('calc-prof').textContent = (comp.professional_allowance || 0).toLocaleString();
+
+      // คำนวณ
+      currentResult = PayrollSystem.calculateNetPay(m);
+      updateOutput();
+    }
+
+    function updateOutput() {
+      if (!currentResult) return;
+      const r = currentResult;
+      document.getElementById('out-gross').textContent = '฿' + r.gross.toLocaleString(undefined, {maximumFractionDigits: 2});
+      document.getElementById('out-ssf').textContent = '-฿' + r.ssf.employee.toLocaleString(undefined, {maximumFractionDigits: 2});
+      document.getElementById('out-pvd').textContent = '-฿' + r.pvd.employee.toLocaleString(undefined, {maximumFractionDigits: 2});
+      document.getElementById('out-tax').textContent = '-฿' + r.tax.toLocaleString(undefined, {maximumFractionDigits: 2});
+      document.getElementById('out-other').textContent = '-฿' + r.other_deductions.toLocaleString(undefined, {maximumFractionDigits: 2});
+      document.getElementById('out-net').textContent = '฿' + r.net.toLocaleString(undefined, {maximumFractionDigits: 2});
+      document.getElementById('out-ssf-e').textContent = '฿' + r.ssf.employer.toLocaleString();
+      document.getElementById('out-pvd-e').textContent = '฿' + r.pvd.employer.toLocaleString();
+      const totalCost = r.net + r.ssf.employer + r.pvd.employer;
+      document.getElementById('out-total-cost').textContent = '฿' + totalCost.toLocaleString(undefined, {maximumFractionDigits: 2});
+    }
+
+    function calcRetirement() {
+      const id = document.getElementById('retireMember').value;
+      if (!id) return;
+      const members = PayrollSystem.getP3Members();
+      const m = members.find(x => x.member_id === id);
+      if (!m) return;
+
+      const result = PayrollSystem.calculateRetirement(m);
+      document.getElementById('retireResult').classList.remove('hidden');
+      document.getElementById('ret-name').textContent = result.name;
+      document.getElementById('ret-age').textContent = result.age;
+      document.getElementById('ret-years').textContent = result.yearsWorked;
+      document.getElementById('ret-salary').textContent = '฿' + result.lastSalary.toLocaleString();
+      document.getElementById('ret-mult').textContent = result.multiplier + ' วัน';
+      document.getElementById('ret-severance').textContent = '฿' + result.severance.toLocaleString(undefined, {maximumFractionDigits: 2});
+      
+      const el = document.getElementById('ret-eligible');
+      if (result.retirementEligible) {
+        el.textContent = '✅ เกษียณได้ (อายุ ≥ 55)';
+        el.className = 'mt-2 text-xs px-3 py-1 rounded-full inline-block bg-green-100 text-green-800';
+      } else {
+        el.textContent = '⏳ ยังไม่ครบเกษียณ';
+        el.className = 'mt-2 text-xs px-3 py-1 rounded-full inline-block bg-yellow-100 text-yellow-800';
+      }
+    }
+
+    function loadNearRetirement() {
+      const list = PayrollSystem.getNearRetirementMembers();
+      const container = document.getElementById('nearRetireList');
+      if (list.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-4">ยังไม่มีข้อมูล (เพิ่มสมาชิกอายุ ≥ 53 ใน P3)</p>';
+        return;
+      }
+      container.innerHTML = list.map(r => `
+        <div class="flex justify-between items-center p-2 bg-white rounded border ${r.retirementEligible ? 'border-green-300' : 'border-yellow-300'}">
+          <div>
+            <div class="font-semibold">${r.name}</div>
+            <div class="text-xs text-gray-600">อายุ ${r.age} | ทำงาน ${r.yearsWorked} ปี</div>
+          </div>
+          <div class="text-right">
+            <div class="font-bold text-blue-700">฿${r.severance.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+            <div class="text-xs ${r.retirementEligible ? 'text-green-600' : 'text-yellow-600'}">${r.retirementEligible ? '✅ เกษียณ' : '⏳ รอ'}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function recordPayroll() {
+      if (!currentResult) {
+        alert('⚠️ กรุณาเลือกสมาชิกก่อน');
+        return;
+      }
+      const month = document.getElementById('payMonth').value;
+      if (!month) {
+        alert('⚠️ กรุณาเลือกเดือน');
+        return;
+      }
+      if (!confirm('ยืนยันการบันทึกการจ่ายเงินเดือน?')) return;
+      
+      const summary = PayrollSystem.calculateAllPayroll(month);
+      alert(`✅ บันทึกสำเร็จ!\n\n📅 เดือน: ${month}\n💼 สมาชิกทั้งหมด: ${summary.total_members}\n💰 โอนไปสมาชิก: ฿${summary.total_net.toLocaleString(undefined, {maximumFractionDigits: 2})}\n💵 ต้นทุนนายจ้างรวม: ฿${(summary.total_net + summary.total_ssf_employer + summary.total_pvd_employer).toLocaleString(undefined, {maximumFractionDigits: 2})}`);
+    }
+
+    function saveInc() {
+      const memberId = document.getElementById('incMember').value;
+      const month = document.getElementById('incMonth').value;
+      const amount = parseFloat(document.getElementById('incAmount').value);
+      const remark = document.getElementById('incRemark').value;
+
+      if (!memberId || !month || isNaN(amount)) {
+        alert('⚠️ กรุณากรอกข้อมูลให้ครบ');
+        return false;
+      }
+
+      PayrollSystem.saveIncentive(memberId, month, amount, remark);
+      alert(`✅ บันทึก INC สำเร็จ!\n💰 ฿${amount.toLocaleString()} สำหรับเดือน ${month}`);
+      
+      document.getElementById('incAmount').value = '';
+      document.getElementById('incRemark').value = '';
+      return false;
+    }
+
+    function loadIncHistory() {
+      const container = document.getElementById('incList');
+      const history = document.getElementById('incHistory');
+      history.classList.toggle('hidden');
+      
+      const month = document.getElementById('incMonth').value;
+      const data = JSON.parse(localStorage.getItem(`p6_inc_${month}`) || '[]');
+      
+      if (data.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-2">ยังไม่มีข้อมูล INC เดือนนี้</p>';
+        return;
+      }
+
+      const members = PayrollSystem.getP3Members();
+      container.innerHTML = data.map(d => {
+        const m = members.find(x => x.member_id === d.member_id);
+        return `
+          <div class="flex justify-between items-center p-2 bg-purple-50 rounded">
+            <div>
+              <div class="font-semibold">${m?.personal?.name || d.member_id}</div>
+              <div class="text-xs text-gray-600">${d.remark || '-'}</div>
+            </div>
+            <div class="font-bold text-purple-700">฿${d.amount.toLocaleString()}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function exportCSV() {
+      if (!currentResult) {
+        alert('⚠️ กรุณาเลือกสมาชิกก่อน');
+        return;
+      }
+      const r = currentResult;
+      const month = document.getElementById('payMonth').value || 'export';
+      const csv = `รหัสสมาชิก,ชื่อ,บริษัท,ฝ่าย,เงินเดือนพื้นฐาน,เบี้ยเลี้ยงรวม,รายได้ brut,ประกันสังคม (จน),กองทุนสำรองเลี้ยงชีพ (จน),ภาษี 3%,หักอื่น,เงินสุทธิ,SSF นายจ้าง,PVD นายจ้าง\n${r.member_id},${r.name},${r.company},${r.department},${r.base},${r.allowances},${r.gross},${r.ssf.employee},${r.pvd.employee},${r.tax},${r.other_deductions},${r.net},${r.ssf.employer},${r.pvd.employer}`;
+      
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `P6_Payroll_${r.member_id}_${month}.csv`;
+      a.click();
+    }
+  </script>
+
+</body>
+</html>
