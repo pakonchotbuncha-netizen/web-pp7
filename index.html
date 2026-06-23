@@ -231,6 +231,9 @@ const NEW_PROCESS_DATA = {
  <button class="tab-btn" data-tab="wi001" onclick="showTab('wi001')">📝 เบี้ยเลี้ยงฝึกงาน (WI-001)</button>
  <button class="tab-btn" data-tab="wi002" onclick="showTab('wi002')">💼 สมทบอายุงาน (WI-002)</button>
  <button class="tab-btn" data-tab="quality" onclick="showTab('quality')">🌿 คุณภาพชีวิต</button>
+ <button class="tab-btn" data-tab="labor-law" onclick="showTab('labor-law')">⚖️ กฎหมาย</button>
+ <button class="tab-btn" data-tab="pkg-rules" onclick="showTab('pkg-rules')">📜 ระเบียบ</button>
+ <button class="tab-btn" data-tab="research" onclick="showTab('research')">🔬 วิจัย</button>
  <button class="tab-btn" data-tab="new-process" onclick="showTab('new-process')">🔄 กระบวนการใหม่ (S4)</button>
  </div>
 </nav>
@@ -1180,6 +1183,542 @@ const NEW_PROCESS_DATA = {
     </div>
     <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
       🚧 <strong>ระบบ P7 กำลังพัฒนา — เป้าหมายคือระบบดูแลอัจฉริยะ (AI Wellbeing Tracker)</strong>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Labor Law (กฎหมายแรงงาน) ========== -->
+<section id="tab-labor-law" class="tab-pane fade-in hidden space-y-6">
+  <div class="card">
+    <h2 class="text-xl font-bold text-pp7-800">⚖️ กฎหมายแรงงาน</h2>
+    <p class="text-gray-600 mb-4">คลังข้อมูลกฎหมายแรงงานและสิทธิแรงงาน — อ้างอิง compliance สำหรับระบบ PP7</p>
+    
+    <!-- Overview Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+        <div class="text-3xl text-red-600">🇹🇭</div>
+        <div class="text-2xl font-bold text-red-800">ไทย</div>
+        <div class="text-sm text-gray-600">พ.ร.บ. คุ้มครองแรงงาน</div>
+      </div>
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+        <div class="text-3xl text-blue-600">🇱🇦</div>
+        <div class="text-2xl font-bold text-blue-800">ลาว</div>
+        <div class="text-sm text-gray-600">กฎหมายแรงงานลาว</div>
+      </div>
+      <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+        <div class="text-3xl text-green-600">🇰🇭</div>
+        <div class="text-2xl font-bold text-green-800">กัมพูชา</div>
+        <div class="text-sm text-gray-600">Labour Law Cambodia</div>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
+        <div class="text-3xl text-amber-600">📋</div>
+        <div class="text-2xl font-bold text-amber-800">เปรียบเทียบ</div>
+        <div class="text-sm text-gray-600">Comparative Summary</div>
+      </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="bg-gray-50 border rounded-lg p-4 mb-6">
+      <div class="flex flex-wrap gap-3">
+        <input type="text" id="lawSearch" placeholder="🔍 ค้นหากฎหมาย... (เช่น OT, La, termination)" class="flex-1 min-w-48 px-3 py-2 border rounded-lg">
+        <select id="lawCountry" class="px-3 py-2 border rounded-lg">
+          <option value="">ทุกประเทศ</option>
+          <option value="th">🇹🇭 ไทย</option>
+          <option value="la">🇱🇦 ลาว</option>
+          <option value="kh">🇰🇭 กัมพูชา</option>
+        </select>
+        <select id="lawCategory" class="px-3 py-2 border rounded-lg">
+          <option value="">ทุกหมวด</option>
+          <option value="time">เวลาทำงาน/OT</option>
+          <option value="leave">วันลา</option>
+          <option value="wage">ค่าจ้าง/เงินเดือน</option>
+          <option value="severance">ค่าชดเชย</option>
+          <option value="social">ประกันสังคม</option>
+          <option value="termination">การเลิกจ้าง</option>
+          <option value="safety">ความปลอดภัย</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Law Categories -->
+    <div class="space-y-4">
+      <h3 class="text-lg font-bold text-gray-800">📚 หมวดหมู่กฎหมายแรงงาน</h3>
+      
+      <div class="grid md:grid-cols-2 gap-4">
+        <!-- Working Time & OT -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow transition">
+          <h4 class="font-bold text-blue-700 mb-3">⏰ เวลาทำงานและ OT</h4>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded"><strong>🇹🇭 ไทย:</strong> ไม่เกิน 48 ชม./สัปดาห์, OT ไม่เกิน 36 ชม./สัปดาห์</div>
+            <div class="bg-green-50 p-2 rounded"><strong>🇱🇦 ลาว:</strong> ไม่เกิน 48 ชม./สัปดาห์, OT ไม่เกิน 10 ชม./สัปดาห์</div>
+            <div class="bg-amber-50 p-2 rounded"><strong>🇰🇭 กัมพูชา:</strong> ไม่เกิน 48 ชม./สัปดาห์, OT ไม่เกิน 4 ชม./วัน</div>
+          </div>
+        </div>
+
+        <!-- Leave -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow transition">
+          <h4 class="font-bold text-purple-700 mb-3">🏖️ วันลา</h4>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded"><strong>🇹🇭 ไทย:</strong> ลาป่วย (ป่วยจริง), ลาพักผ่อน 6 วัน/ปี (หลัง 1 ปี)</div>
+            <div class="bg-green-50 p-2 rounded"><strong>🇱🇦 ลาว:</strong> ลาพักผ่อน 15 วัน/ปี, ลาป่วย 30 วัน/ปี</div>
+            <div class="bg-amber-50 p-2 rounded"><strong>🇰🇭 กัมพูชา:</strong> ลาพักผ่อน 18 วัน/ปี, ลาป่วย (ตามใบรับรองแพทย์)</div>
+          </div>
+        </div>
+
+        <!-- Wage & Salary -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow transition">
+          <h4 class="font-bold text-emerald-700 mb-3">💰 ค่าจ้างและเงินเดือน</h4>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded"><strong>🇹🇭 ไทย:</strong> ค่าจ้างขั้นต่ำ 330-370 บาท/วัน (แต่ละจังหวัด), จ่ายทุก 15 วัน</div>
+            <div class="bg-green-50 p-2 rounded"><strong>🇱🇦 ลาว:</strong> ค่าจ้างขั้นต่ำ 11,000 LAK/เดือน (~1,100 USD)</div>
+            <div class="bg-amber-50 p-2 rounded"><strong>🇰🇭 กัมพูชา:</strong> ค่าจ้างขั้นต่ำ 204 USD/เดือน (ปี 2024)</div>
+          </div>
+        </div>
+
+        <!-- Severance Pay -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow transition">
+          <h4 class="font-bold text-red-700 mb-3">💵 ค่าชดเชยเลิกจ้าง</h4>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded"><strong>🇹🇭 ไทย:</strong> 120 วัน-20 ปี: 30-400 วัน ขึ้นกับอายุงาน</div>
+            <div class="bg-green-50 p-2 rounded"><strong>🇱🇦 ลาว:</strong> 10 วัน/ปี × จำนวนปีทำงาน (กรณีเลิกจ้างโดยไม่มีเหตุผล)</div>
+            <div class="bg-amber-50 p-2 rounded"><strong>🇰🇭 กัมพูชา:</strong> ค่าชดเชยตามสัญญา หรือตามกฎหมายขั้นต่ำ</div>
+          </div>
+        </div>
+
+        <!-- Social Security -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow transition">
+          <h4 class="font-bold text-cyan-700 mb-3">🏥 ประกันสังคม</h4>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded"><strong>🇹🇭 ไทย:</strong> นายจ้าง 5% + ลูกจ้าง 5% (ฐานสูงสุด 15,000 บาท)</div>
+            <div class="bg-green-50 p-2 rounded"><strong>🇱🇦 ลาว:</strong> นายจ้าง 9% + ลูกจ้าง 5% (ประกันสังคม)</div>
+            <div class="bg-amber-50 p-2 rounded"><strong>🇰🇭 กัมพูชา:</strong> นายจ้าง 4.65% + ลูกจ้าง 2.75%</div>
+          </div>
+        </div>
+
+        <!-- Termination Rights -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow transition">
+          <h4 class="font-bold text-orange-700 mb-3">🚪 การเลิกจ้าง</h4>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded"><strong>🇹🇭 ไทย:</strong> แจ้งล่วงหน้า 1 งวดการจ่าย, จ่ายค่าชดเชย + ค่าเสียหาย</div>
+            <div class="bg-green-50 p-2 rounded"><strong>🇱🇦 ลาว:</strong> แจ้งล่วงหน้า 30 วัน + ค่าชดเชย</div>
+            <div class="bg-amber-50 p-2 rounded"><strong>🇰🇭 กัมพูชา:</strong> สัญญาจ้างกำหนดระยะเวลา (FDC/UDC)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Development Phases -->
+    <div class="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+      <h4 class="font-bold text-green-900 mb-3">🚀 แผนพัฒนาระบบกฎหมายแรงงาน</h4>
+      <div class="space-y-2 text-sm">
+        <div class="flex items-start gap-2">
+          <span class="bg-red-500 text-white px-2 py-0.5 rounded text-xs">Phase 1</span>
+          <div>คลังข้อมูลกฎหมายแรงงาน, ระบบค้นหา & กรอง, ระบบอ้างอิง</div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="bg-orange-500 text-white px-2 py-0.5 rounded text-xs">Phase 2</span>
+          <div>ติดตามเวอร์ชัน + เชื่อมกับ workflow PP7 (P1-P7)</div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="bg-yellow-500 text-white px-2 py-0.5 rounded text-xs">Phase 3</span>
+          <div>ระบบเตือนประเด็นเสี่ยงด้านกฎหมาย (Legal Risk Alert)</div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="bg-green-500 text-white px-2 py-0.5 rounded text-xs">Phase 4</span>
+          <div>Dashboard สถานะความพร้อมด้านกฎหมาย</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PKG Rules (ระเบียบบริษัท) ========== -->
+<section id="tab-pkg-rules" class="tab-pane fade-in hidden space-y-6">
+  <div class="card">
+    <h2 class="text-xl font-bold text-pp7-800">📜 ระเบียบ PKG</h2>
+    <p class="text-gray-600 mb-4">คลังนโยบาย ระเบียบ และ Work Instruction (WI) ภายใน PKG — มาตรฐานและกติกาภายใน</p>
+    
+    <!-- Overview Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">📋</div>
+        <div class="text-2xl font-bold text-blue-800">48</div>
+        <div class="text-sm text-gray-600">Work Instructions</div>
+      </div>
+      <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">📑</div>
+        <div class="text-2xl font-bold text-purple-800">12</div>
+        <div class="text-sm text-gray-600">Policy Manuals</div>
+      </div>
+      <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">📝</div>
+        <div class="text-2xl font-bold text-emerald-800">25</div>
+        <div class="text-sm text-gray-600">Process Maps</div>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">⭐</div>
+        <div class="text-2xl font-bold text-amber-800">CEO</div>
+        <div class="text-sm text-gray-600">Contract of Extreme Ownership</div>
+      </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="bg-gray-50 border rounded-lg p-4 mb-6">
+      <div class="flex flex-wrap gap-3">
+        <input type="text" id="rulesSearch" placeholder="🔍 ค้นหาระเบียบ... (เช่น WI-001, LDC, leave)" class="flex-1 min-w-48 px-3 py-2 border rounded-lg">
+        <select id="rulesType" class="px-3 py-2 border rounded-lg">
+          <option value="">ทุกประเภท</option>
+          <option value="wi">Work Instructions (WI)</option>
+          <option value="pm">Process Maps (PM)</option>
+          <option value="policy">Policy Manuals</option>
+          <option value="disciplinary">Disciplinary Rules</option>
+        </select>
+        <select id="rulesDept" class="px-3 py-2 border rounded-lg">
+          <option value="">ทุกฝ่าย</option>
+          <option value="wcd">WCD - ฝ่ายค่าตอบแทน/สวัสดิการ</option>
+          <option value="pao">PAO - ฝ่ายบริหารงานบุคคล</option>
+          <option value="pad">PAD - ฝ่ายพัฒนาบุคลากร</option>
+          <option value="rec">REC - ฝ่ายสรรหา</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Key Concepts -->
+    <div class="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-4 mb-6">
+      <h4 class="font-bold text-amber-900 mb-2">⭐ แนวคิดสำคัญ: CEO (Contract of Extreme Ownership)</h4>
+      <p class="text-sm text-gray-700">
+        <strong>CEO = Contract of Extreme Ownership</strong> (สัญญาแห่งความเป็นเจ้าของอย่างสุดขั้ว)<br>
+        ใช้เป็นกรอบแทน LIA ในบริบทที่เกี่ยวข้อง — เน้น ownership, commitment, การเป็นเจ้าของผลลัพธ์ และการไม่ผลักภาระ<br>
+        นำไปใช้ในงานประเมิน จับคู่คนกับงาน ค่าตอบแทน และการออกแบบพฤติกรรมที่องค์กรต้องการ
+      </p>
+    </div>
+
+    <!-- Rules Categories -->
+    <div class="space-y-4">
+      <h3 class="text-lg font-bold text-gray-800">📂 หมวดหมู่ระเบียบ</h3>
+      
+      <div class="grid md:grid-cols-3 gap-4">
+        <!-- Work Instructions -->
+        <div class="border border-blue-200 rounded-lg p-4 hover:shadow-lg transition bg-gradient-to-br from-blue-50 to-white">
+          <h4 class="font-bold text-blue-700 mb-2">📋 Work Instructions</h4>
+          <div class="text-2xl font-bold text-blue-900 mb-1">48 รายการ</div>
+          <div class="text-sm text-gray-600 mb-3">ขั้นตอนการปฏิบัติงานที่ชัดเจน</div>
+          <ul class="text-xs space-y-1 text-gray-700">
+            <li>• LDC-PAO-WI-001 ถึง LDC-PAO-WI-010</li>
+            <li>• LDC-PAD-WI-001 ถึง LDC-PAD-WI-015</li>
+            <li>• LDC-WCD-WI-001 ถึง LDC-WCD-WI-010</li>
+            <li>• และอื่นๆ</li>
+          </ul>
+        </div>
+
+        <!-- Process Maps -->
+        <div class="border border-emerald-200 rounded-lg p-4 hover:shadow-lg transition bg-gradient-to-br from-emerald-50 to-white">
+          <h4 class="font-bold text-emerald-700 mb-2">📊 Process Maps</h4>
+          <div class="text-2xl font-bold text-emerald-900 mb-1">25 รายการ</div>
+          <div class="text-sm text-gray-600 mb-3">ผังกระบวนการใน PP7</div>
+          <ul class="text-xs space-y-1 text-gray-700">
+            <li>• P1-P7: Core Processes</li>
+            <li>• Data Flow ระหว่างระบบ</li>
+            <li>• Approval Workflow</li>
+            <li>• Integration Points</li>
+          </ul>
+        </div>
+
+        <!-- Policy Manuals -->
+        <div class="border border-purple-200 rounded-lg p-4 hover:shadow-lg transition bg-gradient-to-br from-purple-50 to-white">
+          <h4 class="font-bold text-purple-700 mb-2">📑 Policy Manuals</h4>
+          <div class="text-2xl font-bold text-purple-900 mb-1">12 เล่ม</div>
+          <div class="text-sm text-gray-600 mb-3">คู่มือนโยบายต่างๆ</div>
+          <ul class="text-xs space-y-1 text-gray-700">
+            <li>• Employee Handbook</li>
+            <li>• Code of Conduct</li>
+            <li>• Disciplinary Policy</li>
+            <li>• Compensation Policy</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Disciplinary Rules -->
+      <div class="border border-red-200 rounded-lg p-4 bg-red-50 mt-4">
+        <h4 class="font-bold text-red-700 mb-2">⚠️ ระเบียบวินัย (Disciplinary Rules)</h4>
+        <div class="grid md:grid-cols-3 gap-3 text-sm">
+          <div>
+            <div class="font-semibold">ระดับเตือน (Warning)</div>
+            <ul class="text-xs text-gray-700 space-y-0.5">
+              <li>• สาย/ขาดงานโดยไม่แจ้ง</li>
+              <li>• ไม่ปฏิบัติตามคำสั่ง</li>
+              <li>• ละเมิดระเบียบการแต่งกาย</li>
+            </ul>
+          </div>
+          <div>
+            <div class="font-semibold">ระดับพักงาน (Suspension)</div>
+            <ul class="text-xs text-gray-700 space-y-0.5">
+              <li>• ทำผิดซ้ำหลังได้รับคำเตือน</li>
+              <li>• ประมาทเลินเล่อจนเกิดความเสียหาย</li>
+              <li>• ไม่ปฏิบัติตามขั้นตอนความปลอดภัย</li>
+            </ul>
+          </div>
+          <div>
+            <div class="font-semibold">ระดับเลิกจ้าง (Termination)</div>
+            <ul class="text-xs text-gray-700 space-y-0.5">
+              <li>•ทุจริตต่อหน้าที่</li>
+              <li>• ทำผิดกฎหมายอาญา</li>
+              <li>• ละเมิดความลับของบริษัท</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Development Phases -->
+    <div class="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+      <h4 class="font-bold text-green-900 mb-3">🚀 แผนพัฒนาระบบระเบียบ PKG</h4>
+      <div class="space-y-2 text-sm">
+        <div class="flex items-start gap-2">
+          <span class="bg-red-500 text-white px-2 py-0.5 rounded text-xs">Phase 1</span>
+          <div>คลังข้อมูลระเบียบ PKG, ระบบค้นหา & กรอง,เอกสารอ้างอิง</div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="bg-orange-500 text-white px-2 py-0.5 rounded text-xs">Phase 2</span>
+          <div>ติดตามเวอร์ชันระเบียบ + เชื่อม workflow PP7</div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="bg-yellow-500 text-white px-2 py-0.5 rounded text-xs">Phase 3</span>
+          <div>สื่อสารระเบียบกับผู้ใช้อย่างมีประสิทธิภาพ</div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="bg-green-500 text-white px-2 py-0.5 rounded text-xs">Phase 4</span>
+          <div>Dashboard สถานะความครบถ้วนของระเบียบ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PP7 Research (วิจัย PP7) ========== -->
+<section id="tab-research" class="tab-pane fade-in hidden space-y-6">
+  <div class="card">
+    <h2 class="text-xl font-bold text-pp7-800">🔬 วิจัย PP7</h2>
+    <p class="text-gray-600 mb-4">คลังงานวิจัย หลักฐานเชิงประจักษ์ และ best practices จากทั่วโลก — "เรียนแบบ" ไม่ใช่ "เลียนแบบ"</p>
+
+    <!-- Research Philosophy -->
+    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 rounded-lg p-4 mb-6">
+      <h4 class="font-bold text-indigo-900 mb-2">💡 ปรัชญาการออกแบบ PP7</h4>
+      <p class="text-sm text-gray-700">
+        <strong>"เรียนแบบ" ไม่ใช่ "เลียนแบบ"</strong> — ศึกษางานวิจัยและความสำเร็จของบริษัททั่วโลก,
+        เรียนรู้หลักการที่พิสูจน์แล้ว, แล้วนำมาปรับใช้ให้สอดคล้องกับบริบทและคุณค่าขององค์กร (PKG)
+      </p>
+      <div class="grid md:grid-cols-3 gap-3 mt-3 text-xs">
+        <div class="bg-white p-2 rounded border border-indigo-200">
+          <div class="font-bold text-indigo-700">1. ค้นหา</div>
+          <div class="text-gray-600">ข้อมูลความสำเร็จของคนอื่น</div>
+        </div>
+        <div class="bg-white p-2 rounded border border-indigo-200">
+          <div class="font-bold text-indigo-700">2. เรียนรู้</div>
+          <div class="text-gray-600">หลักการจากงานวิจัยที่เชื่อถือได้</div>
+        </div>
+        <div class="bg-white p-2 rounded border border-indigo-200">
+          <div class="font-bold text-indigo-700">3. ปรับใช้</div>
+          <div class="text-gray-600">ให้เหมาะกับบริบท PKG</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Research Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">📚</div>
+        <div class="text-2xl font-bold text-blue-800">35+</div>
+        <div class="text-sm text-gray-600">งานวิจัยที่ศึกษา</div>
+      </div>
+      <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">🏢</div>
+        <div class="text-2xl font-bold text-purple-800">15+</div>
+        <div class="text-sm text-gray-600">Case Studies</div>
+      </div>
+      <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">🌍</div>
+        <div class="text-2xl font-bold text-emerald-800">5</div>
+        <div class="text-sm text-gray-600">ประเทศที่ศึกษา</div>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">🎯</div>
+        <div class="text-2xl font-bold text-amber-800">7</div>
+        <div class="text-sm text-gray-600">หัวข้อความสำคัญ</div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="bg-gray-50 border rounded-lg p-4 mb-6">
+      <div class="flex flex-wrap gap-3">
+        <input type="text" id="researchSearch" placeholder="🔍 ค้นหางานวิจัย... (เช่น performance engagement OKR)" class="flex-1 min-w-48 px-3 py-2 border rounded-lg">
+        <select id="researchCategory" class="px-3 py-2 border rounded-lg">
+          <option value="">ทุกหมวด</option>
+          <option value="assessment">การประเมิน (Assessment)</option>
+          <option value="compensation">ค่าตอบแทน (Compensation)</option>
+          <option value="development">การพัฒนา (Development)</option>
+          <option value="engagement">ความผูกพัน (Engagement)</option>
+          <option value="performance">Performance</option>
+          <option value="wellbeing">Wellbeing</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Key Research Areas -->
+    <div class="space-y-4">
+      <h3 class="text-lg font-bold text-gray-800">📖 หัวข้อวิจัยสำคัญใน PP7</h3>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <!-- Performance Evaluation -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition">
+          <h4 class="font-bold text-amber-700 mb-3">📊 P4: การประเมินผลเชิงประจักษ์</h4>
+          <div class="bg-red-50 p-2 rounded text-xs text-red-700 mb-2">
+            <strong>ปัญหาเดิม:</strong> การประเมินเครดิตประจำปีใช้ความรู้สึก/อารมณ์เป็นหลัก
+          </div>
+          <div class="bg-green-50 p-2 rounded text-xs text-green-700 mb-3">
+            <strong>เป้าหมาย:</strong> ออกแบบให้วัดผลได้ ลดอคติ, ครบ 360° (5 มุมมอง)
+          </div>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded">
+              <strong>🏢 Workday / SAP SuccessFactors:</strong> Continuous Performance Management + AI-powered feedback
+            </div>
+            <div class="bg-purple-50 p-2 rounded">
+              <strong>📚 Gallup Q12:</strong> Employee Engagement → Performance Predictor
+            </div>
+            <div class="bg-emerald-50 p-2 rounded">
+              <strong>📚 Google re:Work:</strong> OKRs — ตั้งเป้า measurable data-driven
+            </div>
+          </div>
+        </div>
+
+        <!-- Competency Assessment -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition">
+          <h4 class="font-bold text-blue-700 mb-3">🎯 P2: Core Competency Assessment</h4>
+          <div class="text-xs text-gray-700 mb-3">การประเมิน CC 5 ประการของ PKG โดยใช้หลัก IO Psychology</div>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded">
+              <strong>📚 SIOP (Society for I/O Psychology):</strong> Competency-based interview frameworks
+            </div>
+            <div class="bg-purple-50 p-2 rounded">
+              <strong>📊 McClelland's Iceberg Model:</strong> Skills (visible) vs Attitude/Values (hidden)
+            </div>
+            <div class="bg-emerald-50 p-2 rounded">
+              <strong>🏢 Amazon:</strong> Leadership Principles-based hiring + assessment
+            </div>
+          </div>
+        </div>
+
+        <!-- Compensation & Incentive -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition">
+          <h4 class="font-bold text-green-700 mb-3">💰 P6: Total Rewards & Points System</h4>
+          <div class="text-xs text-gray-700 mb-3">ระบบค่าตอบแทน + INC Points ใหม่ (Cash → Points → MSP App)</div>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded">
+              <strong>📚 WorldatWork:</strong> Total Rewards Model (Compensation + Benefits + Work-Life + Performance + Development)
+            </div>
+            <div class="bg-purple-50 p-2 rounded">
+              <strong>🏢 Salesforce:</strong> Points-based recognition system + peer-to-peer rewards
+            </div>
+            <div class="bg-emerald-50 p-2 rounded">
+              <strong>📊 Self-Determination Theory:</strong> Intrinsic + Extrinsic motivation balance
+            </div>
+          </div>
+        </div>
+
+        <!-- Wellbeing & Quality of Life -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition">
+          <h4 class="font-bold text-pink-700 mb-3">🌿 P7: 5 องค์ประกอบคุณภาพชีวิต</h4>
+          <div class="text-xs text-gray-700 mb-3">Health, Wealth, Well-being, Time, Fun</div>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded">
+              <strong>📚 PERMA Model (Martin Seligman):</strong> Positive Emotions, Engagement, Relationships, Meaning, Accomplishment
+            </div>
+            <div class="bg-purple-50 p-2 rounded">
+              <strong>🏢 Google's Project Aristotle:</strong> Psychological safety = key to team performance
+            </div>
+            <div class="bg-emerald-50 p-2 rounded">
+              <strong>📚 Gallup Wellbeing Index:</strong> 5 elements — Career, Social, Financial, Physical, Community
+            </div>
+          </div>
+        </div>
+
+        <!-- People Matching -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition">
+          <h4 class="font-bold text-cyan-700 mb-3">🤝 P3: People-Job Matching</h4>
+          <div class="text-xs text-gray-700 mb-3">จับคู่คนกับงาน + ระบบพี่เลี้ยง</div>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded">
+              <strong>📚 Holland Codes (RIASEC):</strong> Person-Environment Fit theory
+            </div>
+            <div class="bg-purple-50 p-2 rounded">
+              <strong>🏢 Netflix's Talent Density:</strong> Right people in right seats → high performance
+            </div>
+            <div class="bg-emerald-50 p-2 rounded">
+              <strong>📚 Mentoring Research:</strong> 3-tier mentor model (สายงาน + ทุนองค์กร) — unique to PKG
+            </div>
+          </div>
+        </div>
+
+        <!-- Servant Leadership -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition">
+          <h4 class="font-bold text-red-700 mb-3">⭐ CC1: Servant Leadership</h4>
+          <div class="text-xs text-gray-700 mb-3">CC1: ความเก่งในการนำผู้รับใช้ — กรอบคิดเฉพาะของ PKG (6 รับ + 8 อุปนิสัย + 5 บทบาท)</div>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded">
+              <strong>📚 Robert Greenleaf:</strong> Servant Leadership — The servant-leader is servant first
+            </div>
+            <div class="bg-purple-50 p-2 rounded">
+              <strong>📊 Larry Spears (10 Characteristics):</strong> Listening, Empathy, Healing, Awareness, Persuasion...
+            </div>
+            <div class="bg-emerald-50 p-2 rounded">
+              <strong>🏢 Southwest Airlines/Starbucks:</strong> Servant-first culture → business success
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Research Projects -->
+    <div class="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+      <h4 class="font-bold text-green-900 mb-3">🔬 โครงการวิจัยที่กำลังดำเนินการ</h4>
+      <div class="space-y-3">
+        <div class="bg-white border-l-4 border-amber-400 rounded p-3">
+          <h5 class="font-bold text-gray-800">1. การประเมินเครดิตประจำปีแบบใหม่ (P4 Redesign)</h5>
+          <p class="text-sm text-gray-600 mt-1">Deadline: ต้องเสร็จภายในปี 2569</p>
+          <div class="text-xs text-gray-500 mt-2">การศึกษา: Workday, SAP, Oracle HCM, Gallup, Google re:Work</div>
+        </div>
+        <div class="bg-white border-l-4 border-blue-400 rounded p-3">
+          <h5 class="font-bold text-gray-800">2. INC Points System Design (P6)</h5>
+          <p class="text-sm text-gray-600 mt-1">ศึกษา: Total Rewards, Points-based Recognition, Gamification</p>
+        </div>
+        <div class="bg-white border-l-4 border-purple-400 rounded p-3">
+          <h5 class="font-bold text-gray-800">3. Wellbeing Tracker Framework (P7)</h5>
+          <p class="text-sm text-gray-600 mt-1">ศึกษา: PERMA, WHO Wellbeing Index, AI-based Sentiment Analysis</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resources & Links -->
+    <div id="research-links" class="mt-6">
+      <h4 class="font-bold text-gray-800 mb-3">🔗 แหล่งข้อมูล</h4>
+      <div class="grid md:grid-cols-2 gap-3 text-sm">
+        <div class="border rounded-lg p-3 hover:bg-gray-50 transition cursor-pointer" onclick="window.open('https://rework.withgoogle.com/','_blank')">
+          <div class="font-semibold text-blue-700">🌐 Google re:Work</div>
+          <div class="text-xs text-gray-600">People analytics + best practices from Google</div>
+        </div>
+        <div class="border rounded-lg p-3 hover:bg-gray-50 transition cursor-pointer" onclick="window.open('https://www.gallup.com/workplace','_blank')">
+          <div class="font-semibold text-purple-700">📊 Gallup Workplace</div>
+          <div class="text-xs text-gray-600">Employee engagement + Q12 research</div>
+        </div>
+        <div class="border rounded-lg p-3 hover:bg-gray-50 transition cursor-pointer" onclick="window.open('https://www.worldatwork.org/','_blank')">
+          <div class="font-semibold text-emerald-700">💰 WorldatWork</div>
+          <div class="text-xs text-gray-600">Total rewards + compensation research</div>
+        </div>
+        <div class="border rounded-lg p-3 hover:bg-gray-50 transition cursor-pointer" onclick="window.open('https://positivepsychology.com/perma-model/','_blank')">
+          <div class="font-semibold text-pink-700">🌿 PERMA Model</div>
+          <div class="text-xs text-gray-600">Martin Seligman's Wellbeing framework</div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
