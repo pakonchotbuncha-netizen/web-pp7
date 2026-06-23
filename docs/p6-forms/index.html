@@ -86,7 +86,207 @@
         <div class="text-5xl mb-3">🎯</div>
         <h3 class="text-lg font-bold text-purple-800">บันทึก INC</h3>
         <p class="text-sm text-gray-600 mt-1">BU บันทึก Incentive รายเดือน</p>
-        <div class="mt-3 text-xs text-purple-600">เชื่อม BU → Payroll อัตโนมัติ</div>
+        <div class="mt-3 text-xs text-purple-600">BU → P6 → MSP App (Points)</div>
+      </div>
+    </div>
+
+    <!-- Incentive Point System -->
+    <div id="incentiveSystem" class="glass-card p-6">
+      <h2 class="text-xl font-bold text-purple-800 mb-4 flex items-center gap-2">
+        <span class="bg-purple-600 text-white px-2 py-1 rounded text-xs font-mono">MSP-INC</span>
+        🎯 ระบบ Incentive Point + MSP Cashout
+      </h2>
+
+      <!-- Flow Diagram -->
+      <div class="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4 mb-6">
+        <h3 class="font-bold text-purple-900 mb-3 text-sm">🔄 Flow การทำงาน (กระบวนการเดิม → ใหม่)</h3>
+        <div class="grid md:grid-cols-5 gap-3 text-sm">
+          <div class="bg-white p-3 rounded-lg border-t-4 border-purple-400 text-center">
+            <div class="text-2xl mb-1">📝</div>
+            <div class="font-semibold text-purple-800">1. BU จัดทำข้อมูล</div>
+            <div class="text-xs text-gray-600 mt-1">เลือกสมาชิก + ประเภท INC + จำนวนเงิน</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border-t-4 border-blue-400 text-center">
+            <div class="text-2xl mb-1">💰</div>
+            <div class="font-semibold text-blue-800">2. P6 ตรวจสอบ</div>
+            <div class="text-xs text-gray-600 mt-1">ระบบตรวจสอบ + เพิ่ม INC อัตโนมัติ</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border-t-4 border-emerald-400 text-center">
+            <div class="text-2xl mb-1">🔢</div>
+            <div class="font-semibold text-emerald-800">3. แปลงเป็น Points</div>
+            <div class="text-xs text-gray-600 mt-1">1 บาท = 10 Points (อัตโนมัติ)</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border-t-4 border-amber-400 text-center">
+            <div class="text-2xl mb-1">📤</div>
+            <div class="font-semibold text-amber-800">4. โอนไป MSP</div>
+            <div class="text-xs text-gray-600 mt-1">ส่ง Points เข้า App MSP รายเดือน</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border-t-4 border-green-400 text-center">
+            <div class="text-2xl mb-1">💸</div>
+            <div class="font-semibold text-green-800">5. สมาชิก Cashout</div>
+            <div class="text-xs text-gray-600 mt-1">สมาชิกใช้ Points ตามต้องการ (ถอน/แลก/ใช้)</div>
+          </div>
+        </div>
+        <div class="mt-3 p-2 bg-yellow-50 border-l-4 border-yellow-400 text-xs text-yellow-900">
+          <strong>📌 ข้อดี:</strong> ลดงาน HR, สมาชิกมีอิสระในการใช้ Points, ไม่มี deadline, ไม่ต้องรอ end of month
+        </div>
+      </div>
+
+      <!-- INC Form -->
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Input Form -->
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">เลือกสมาชิก (จาก P3)</label>
+            <select id="incMember" onchange="incUpdatePreview()" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+              <option value="">-- เลือกสมาชิก --</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">ประเภท Incentive</label>
+            <select id="incType" onchange="incUpdatePreview()" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+              <option value="">-- เลือกประเภท --</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">เดือน</label>
+            <input type="month" id="incMonth" value="2026-06" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">จำนวนเงินสด (บาท) <span class="text-red-500">*</span></label>
+            <input type="number" id="incAmount" min="0" step="0.01" placeholder="0.00" oninput="incUpdatePreview()" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">BU Code (ผู้บันทึก)</label>
+            <input type="text" id="incBU" placeholder="เช่น BU-SALES-01" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+            <textarea id="incRemark" rows="2" placeholder="เช่น ยอดขาย Q2, KPI Achievement..." class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"></textarea>
+          </div>
+
+          <div class="flex gap-2 pt-2">
+            <button onclick="saveIncPoints()" class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold shadow-md">
+              💾 บันทึก INC Point
+            </button>
+            <button onclick="loadIncSummary()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+              📋 ดูสรุป
+            </button>
+          </div>
+        </div>
+
+        <!-- Preview Card -->
+        <div class="bg-gradient-to-br from-purple-100 to-pink-100 border-2 border-purple-300 rounded-lg p-5">
+          <h3 class="font-bold text-purple-900 mb-4 text-lg flex items-center gap-2">
+            <span class="text-2xl">💎</span>
+            Preview: Cash → Points
+          </h3>
+          
+          <div class="space-y-3">
+            <div class="bg-white p-3 rounded-lg">
+              <div class="text-xs text-gray-600">สมาชิก</div>
+              <div id="prevMember" class="font-semibold text-purple-800">-</div>
+            </div>
+
+            <div class="bg-white p-3 rounded-lg">
+              <div class="text-xs text-gray-600">ประเภท</div>
+              <div id="prevType" class="font-semibold text-purple-800">-</div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-white p-3 rounded-lg text-center">
+                <div class="text-xs text-gray-600">จำนวนเงิน</div>
+                <div id="prevCash" class="text-2xl font-bold text-purple-700">฿0</div>
+              </div>
+              <div class="bg-gradient-to-br from-purple-500 to-pink-500 p-3 rounded-lg text-center text-white">
+                <div class="text-xs opacity-90">Points ที่ได้</div>
+                <div id="prevPoints" class="text-2xl font-bold">0 P</div>
+              </div>
+            </div>
+
+            <div class="bg-yellow-50 border border-yellow-300 p-2 rounded text-xs text-yellow-900">
+              <strong>💡 อัตราแลกเปลี่ยน:</strong> 1 บาท = 10 Points<br>
+              <strong>💠 สมาชิกสามารถ:</strong> Cashout / แลกของ / โอนให้คนอื่น
+            </div>
+
+            <div class="bg-white p-3 rounded-lg text-center">
+              <div class="text-xs text-gray-600 mb-1">Status</div>
+              <div class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
+                ⏳ Pending Transfer ไป MSP
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monthly Summary -->
+      <div id="incSummary" class="mt-6 hidden">
+        <h3 class="font-bold text-purple-800 mb-3 text-lg">📊 สรุป INC เดือน <span id="sumMonth"></span></h3>
+        
+        <div class="grid md:grid-cols-4 gap-3 mb-4">
+          <div class="bg-purple-50 border border-purple-200 rounded-lg p-3 text-center">
+            <div class="text-xs text-gray-600">จำนวนรายการ</div>
+            <div id="sumTotal" class="text-2xl font-bold text-purple-700">0</div>
+          </div>
+          <div class="bg-pink-50 border border-pink-200 rounded-lg p-3 text-center">
+            <div class="text-xs text-gray-600">ยอดเงินสด</div>
+            <div id="sumCash" class="text-2xl font-bold text-pink-700">฿0</div>
+          </div>
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+            <div class="text-xs text-gray-600">Points ทั้งหมด</div>
+            <div id="sumPoints" class="text-2xl font-bold text-blue-700">0 P</div>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-center">
+            <div class="text-xs text-gray-600">สถานะ</div>
+            <div id="sumStatus" class="text-sm font-semibold text-emerald-700 mt-1">-</div>
+          </div>
+        </div>
+
+        <!-- Breakdown by Type -->
+        <div class="bg-white border rounded-lg overflow-hidden mb-4">
+          <table class="w-full text-sm">
+            <thead class="bg-purple-100">
+              <tr>
+                <th class="text-left p-2 font-semibold text-purple-900">ประเภท</th>
+                <th class="text-center p-2 font-semibold text-purple-900">จำนวน</th>
+                <th class="text-right p-2 font-semibold text-purple-900">บาท</th>
+                <th class="text-right p-2 font-semibold text-purple-900">Points</th>
+              </tr>
+            </thead>
+            <tbody id="sumTypeBody">
+              <tr><td colspan="4" class="text-center p-3 text-gray-500">ยังไม่มีข้อมูล</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Transfer Button -->
+        <div class="flex gap-3 mb-4">
+          <button onclick="transferMSP()" class="flex-1 px-5 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 font-semibold shadow-md">
+            📤 โอน Points ไป MSP App
+          </button>
+          <button onclick="exportMSPCSV()" class="px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            📄 Export CSV
+          </button>
+        </div>
+
+        <!-- Records List -->
+        <div class="bg-white border rounded-lg overflow-hidden">
+          <div class="bg-gray-50 p-3 font-semibold text-gray-700 border-b">📋 รายการ INC เดือนนี้</div>
+          <div id="sumRecords" class="max-h-96 overflow-y-auto">
+            <div class="text-center p-4 text-gray-500 text-sm">ยังไม่มีข้อมูล</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Card -->
+      <div class="mt-4 bg-blue-50 border-l-4 border-blue-400 p-3 rounded text-sm">
+        <div class="font-bold text-blue-900 mb-1">💡 ระบบ INC ใน Web PP7</div>
+        <ul class="list-disc list-inside text-xs text-gray-700 space-y-1">
+          <li><strong>BU:</strong> บันทึกข้อมูล INC รายคน + ประเภท</li>
+          <li><strong>P6:</strong> ตรวจสอบ + แปลง Cash → Points อัตโนมัติ</li>
+          <li><strong>HR/PAO:</strong> โอน Points เข้า App MSP</li>
+          <li><strong>สมาชิก:</strong> ใช้ Points ตามต้องการ (cashout / แลก / โอน) ผ่าน App MSP</li>
+        </ul>
       </div>
     </div>
 
@@ -227,43 +427,6 @@
       </div>
     </div>
 
-    <!-- Incentive Form -->
-    <div id="incentiveForm" class="glass-card p-6 hidden">
-      <h2 class="text-xl font-bold text-purple-800 mb-4">🎯 บันทึก INC (Incentive)</h2>
-      
-      <form onsubmit="return saveInc()" class="space-y-4">
-        <div class="grid md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">สมาชิก</label>
-            <select id="incMember" required class="w-full px-3 py-2 border rounded-lg">
-              <option value="">-- เลือก --</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">เดือน</label>
-            <input type="month" id="incMonth" required class="w-full px-3 py-2 border rounded-lg">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">จำนวนเงิน (บาท)</label>
-            <input type="number" id="incAmount" required min="0" step="0.01" class="w-full px-3 py-2 border rounded-lg" placeholder="0.00">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
-            <input type="text" id="incRemark" class="w-full px-3 py-2 border rounded-lg" placeholder="เช่น ยอดขาย, KPI A, etc.">
-          </div>
-        </div>
-        <div class="flex gap-2">
-          <button type="submit" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold">💾 บันทึก INC</button>
-          <button type="button" onclick="loadIncHistory()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">📋 ดูประวัติ</button>
-        </div>
-      </form>
-
-      <div id="incHistory" class="mt-4 hidden">
-        <h3 class="font-bold text-gray-700 mb-2">📋 ประวัติ INC</h3>
-        <div id="incList" class="space-y-2 text-sm"></div>
-      </div>
-    </div>
-
     <!-- Data Flow Diagram -->
     <div class="glass-card p-6">
       <h2 class="text-xl font-bold text-emerald-800 mb-4">🔗 Data Flow P6 ↔ ระบบอื่น</h2>
@@ -296,6 +459,7 @@
       loadAllMembers();
       document.getElementById('payMonth').value = new Date().toISOString().slice(0, 7);
       document.getElementById('incMonth').value = new Date().toISOString().slice(0, 7);
+      populateIncTypes();
     });
 
     function loadAllMembers() {
@@ -315,14 +479,14 @@
     }
 
     function showPayrollForm() {
-      ['payrollForm', 'retirementForm', 'incentiveForm'].forEach(id => {
+      ['payrollForm', 'retirementForm'].forEach(id => {
         document.getElementById(id).classList.add('hidden');
       });
       document.getElementById('payrollForm').classList.remove('hidden');
     }
 
     function showRetirementForm() {
-      ['payrollForm', 'retirementForm', 'incentiveForm'].forEach(id => {
+      ['payrollForm', 'retirementForm'].forEach(id => {
         document.getElementById(id).classList.add('hidden');
       });
       document.getElementById('retirementForm').classList.remove('hidden');
@@ -330,10 +494,9 @@
     }
 
     function showIncentiveForm() {
-      ['payrollForm', 'retirementForm', 'incentiveForm'].forEach(id => {
-        document.getElementById(id).classList.add('hidden');
-      });
-      document.getElementById('incentiveForm').classList.remove('hidden');
+      // Scroll to incentive system
+      const el = document.getElementById('incentiveSystem');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function loadMemberData() {
@@ -444,51 +607,183 @@
       alert(`✅ บันทึกสำเร็จ!\n\n📅 เดือน: ${month}\n💼 สมาชิกทั้งหมด: ${summary.total_members}\n💰 โอนไปสมาชิก: ฿${summary.total_net.toLocaleString(undefined, {maximumFractionDigits: 2})}\n💵 ต้นทุนนายจ้างรวม: ฿${(summary.total_net + summary.total_ssf_employer + summary.total_pvd_employer).toLocaleString(undefined, {maximumFractionDigits: 2})}`);
     }
 
-    function saveInc() {
-      const memberId = document.getElementById('incMember').value;
-      const month = document.getElementById('incMonth').value;
-      const amount = parseFloat(document.getElementById('incAmount').value);
-      const remark = document.getElementById('incRemark').value;
-
-      if (!memberId || !month || isNaN(amount)) {
-        alert('⚠️ กรุณากรอกข้อมูลให้ครบ');
-        return false;
-      }
-
-      PayrollSystem.saveIncentive(memberId, month, amount, remark);
-      alert(`✅ บันทึก INC สำเร็จ!\n💰 ฿${amount.toLocaleString()} สำหรับเดือน ${month}`);
-      
-      document.getElementById('incAmount').value = '';
-      document.getElementById('incRemark').value = '';
-      return false;
+    // =========== INC Points System (MSP App) ===========
+    function populateIncTypes() {
+      const types = PayrollSystem.incConfig.types;
+      const sel = document.getElementById('incType');
+      if (!sel) return;
+      sel.innerHTML = '<option value="">-- เลือกประเภท INC --</option>' + 
+        types.map(t => `<option value="${t.id}">${t.name} - ${t.description}</option>`).join('');
     }
 
-    function loadIncHistory() {
-      const container = document.getElementById('incList');
-      const history = document.getElementById('incHistory');
-      history.classList.toggle('hidden');
+    function incUpdatePreview() {
+      const memberId = document.getElementById('incMember').value;
+      const typeId = document.getElementById('incType').value;
+      const amount = parseFloat(document.getElementById('incAmount').value) || 0;
       
+      // Member name
+      const members = PayrollSystem.getP3Members();
+      const member = members.find(m => m.member_id === memberId);
+      const memberName = member ? `${member.personal?.name || '-'} (${memberId})` : '-';
+      document.getElementById('prevMember').textContent = memberName;
+      
+      // Type name
+      const type = PayrollSystem.incConfig.types.find(t => t.id === typeId);
+      document.getElementById('prevType').textContent = type ? `${type.name}` : '-';
+      
+      // Cash & Points
+      const cash = amount;
+      const points = Math.round(cash * PayrollSystem.incConfig.cash_to_points_rate);
+      document.getElementById('prevCash').textContent = '฿' + cash.toLocaleString();
+      document.getElementById('prevPoints').textContent = points.toLocaleString() + ' P';
+    }
+
+    function saveIncPoints() {
+      const memberId = document.getElementById('incMember').value;
+      const typeId = document.getElementById('incType').value;
       const month = document.getElementById('incMonth').value;
-      const data = JSON.parse(localStorage.getItem(`p6_inc_${month}`) || '[]');
+      const amount = parseFloat(document.getElementById('incAmount').value);
+      const buCode = document.getElementById('incBU').value;
+      const remark = document.getElementById('incRemark').value;
       
-      if (data.length === 0) {
-        container.innerHTML = '<p class="text-gray-500 text-center py-2">ยังไม่มีข้อมูล INC เดือนนี้</p>';
+      if (!memberId) { alert('⚠️ กรุณาเลือกสมาชิก'); return; }
+      if (!typeId) { alert('⚠️ กรุณาเลือกประเภท INC'); return; }
+      if (!month) { alert('⚠️ กรุณาเลือกเดือน'); return; }
+      if (!amount || amount <= 0) { alert('⚠️ กรุณากรอกจำนวนเงิน'); return; }
+      
+      const record = PayrollSystem.saveIncentivePoints(
+        memberId, month, amount, typeId, remark, buCode
+      );
+      
+      alert(`✅ บันทึก INC Point สำเร็จ!
+
+👤 ${document.getElementById('prevMember').textContent}
+💰 ฿${amount.toLocaleString()} = ${record.points.toLocaleString()} Points
+📅 เดือน: ${month}
+🔑 TxID: ${record.transaction_id}
+📤 สถานะ: รอโอนไป MSP App
+
+สมาชิกสามารถ cashout ผ่าน App MSP ได้ทันทีหลังโอน`);
+      
+      // Clear form
+      document.getElementById('incAmount').value = '';
+      document.getElementById('incRemark').value = '';
+      document.getElementById('incBU').value = '';
+      
+      // Reload summary
+      loadIncSummary();
+    }
+
+    function loadIncSummary() {
+      const month = document.getElementById('incMonth').value;
+      if (!month) { alert('⚠️ กรุณาเลือกเดือน'); return; }
+      
+      const summary = PayrollSystem.getMonthlyIncentiveSummary(month);
+      document.getElementById('incSummary').classList.remove('hidden');
+      document.getElementById('sumMonth').textContent = month;
+      document.getElementById('sumTotal').textContent = summary.total_records.toLocaleString();
+      document.getElementById('sumCash').textContent = '฿' + summary.total_cash.toLocaleString();
+      document.getElementById('sumPoints').textContent = summary.total_points.toLocaleString() + ' P';
+      
+      const pending = summary.records.filter(r => r.status === 'pending_transfer').length;
+      const transferred = summary.records.filter(r => r.status === 'transferred').length;
+      document.getElementById('sumStatus').innerHTML = 
+        `<span class="text-blue-600">⏳ ${pending} รอโอน</span> | <span class="text-green-600">✅ ${transferred} โอนแล้ว</span>`;
+      
+      // Breakdown by type
+      const typeBody = document.getElementById('sumTypeBody');
+      const types = PayrollSystem.incConfig.types;
+      const rows = types
+        .map(t => {
+          const data = summary.by_type[t.id];
+          if (data.count === 0) return '';
+          return `<tr class="border-t hover:bg-gray-50">
+            <td class="p-2"><span class="inline-block px-2 py-0.5 bg-purple-100 text-purple-800 rounded text-xs">${t.name}</span></td>
+            <td class="p-2 text-center">${data.count}</td>
+            <td class="p-2 text-right">฿${data.cash.toLocaleString()}</td>
+            <td class="p-2 text-right font-semibold text-purple-700">${data.points.toLocaleString()} P</td>
+          </tr>`;
+        })
+        .join('');
+      typeBody.innerHTML = rows || '<tr><td colspan="4" class="text-center p-3 text-gray-500">ยังไม่มีข้อมูล</td></tr>';
+      
+      // Records list
+      const container = document.getElementById('sumRecords');
+      if (summary.records.length === 0) {
+        container.innerHTML = '<div class="text-center p-4 text-gray-500 text-sm">ยังไม่มีข้อมูล</div>';
         return;
       }
-
-      const members = PayrollSystem.getP3Members();
-      container.innerHTML = data.map(d => {
-        const m = members.find(x => x.member_id === d.member_id);
-        return `
-          <div class="flex justify-between items-center p-2 bg-purple-50 rounded">
-            <div>
-              <div class="font-semibold">${m?.personal?.name || d.member_id}</div>
-              <div class="text-xs text-gray-600">${d.remark || '-'}</div>
+      container.innerHTML = summary.records.map(r => `
+        <div class="flex justify-between items-center p-3 border-b hover:bg-gray-50">
+          <div class="flex-1">
+            <div class="font-semibold text-gray-800">${r.member_name} <span class="text-xs text-gray-500">(${r.member_id})</span></div>
+            <div class="text-xs text-gray-600 mt-1">
+              <span class="inline-block px-2 py-0.5 bg-purple-100 text-purple-700 rounded">${r.inc_type}</span>
+              ${r.remark || ''}
             </div>
-            <div class="font-bold text-purple-700">฿${d.amount.toLocaleString()}</div>
           </div>
-        `;
-      }).join('');
+          <div class="text-right">
+            <div class="font-bold text-purple-700">${r.points.toLocaleString()} P</div>
+            <div class="text-xs text-gray-600">฿${r.cash_amount.toLocaleString()}</div>
+            <div class="text-xs mt-1 ${r.status === 'transferred' ? 'text-green-600' : 'text-amber-600'}">
+              ${r.status === 'transferred' ? '✅ โอนแล้ว' : '⏳ รอโอน'}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function transferMSP() {
+      const month = document.getElementById('incMonth').value;
+      if (!month) { alert('⚠️ กรุณาเลือกเดือน'); return; }
+      
+      const summary = PayrollSystem.getMonthlyIncentiveSummary(month);
+      const pending = summary.records.filter(r => r.status === 'pending_transfer').length;
+      
+      if (pending === 0) {
+        alert('🎉 ไม่มีรายการรอโอน'); return;
+      }
+      
+      if (!confirm(`📤 ยืนยันการโอน Points ไป MSP App?
+
+📅 เดือน: ${month}
+📋 จำนวน: ${pending} รายการ
+💎 Points: ${summary.total_points.toLocaleString()} P
+💰 มูลค่า: ฿${summary.total_cash.toLocaleString()}
+
+⚙️ ระบบจะส่ง Points เข้า App MSP ของสมาชิกแต่ละคน
+สมาชิกสามารถ cashout ผ่าน App MSP ได้ทันทีหลังโอนสำเร็จ`)) return;
+      
+      const result = PayrollSystem.transferToMSP(month);
+      alert(`✅ โอน Points ไป MSP App สำเร็จ!
+
+📤 โอนแล้ว: ${result.transferred} รายการ
+📅 เดือน: ${result.month}
+🔔 สมาชิกจะได้รับแจ้งเตือนผ่าน App MSP
+💡 สมาชิกสามารถ cashout ผ่าน MSP ได้ทันที`);
+      
+      loadIncSummary();
+    }
+
+    function exportMSPCSV() {
+      const month = document.getElementById('incMonth').value;
+      const summary = PayrollSystem.getMonthlyIncentiveSummary(month);
+      
+      if (summary.total_records === 0) {
+        alert('⚠️ ไม่มีข้อมูล'); return;
+      }
+      
+      const header = 'TxID,รหัสสมาชิก,ชื่อ,ประเภท,สถานะ,บาท,Points,หมายเหตุ,วันที่บันทึก';
+      const rows = summary.records.map(r => 
+        `${r.transaction_id},${r.member_id},"${r.member_name}",${r.inc_type},${r.status},${r.cash_amount},${r.points},"${r.remark}",${r.created_at}`
+      ).join('\n');
+      
+      const csv = '\uFEFF' + header + '\n' + rows;
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `P6_MSP_INC_${month}.csv`;
+      a.click();
     }
 
     function exportCSV() {
