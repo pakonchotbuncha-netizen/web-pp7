@@ -312,7 +312,14 @@ const NEW_PROCESS_DATA = {
       <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-indigo-400"><div class="text-2xl mb-1">🤔</div><div class="font-semibold text-pp7-700">2. เลือกแบบฟอร์ม</div><div class="text-slate-600 mt-1 text-xs">จำแนกประเภท: ภายนอก/ภายใน/ฝึกงาน</div></div>
       <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-cyan-400"><div class="text-2xl mb-1">📝</div><div class="font-semibold text-pp7-700">3. สัมภาษณ์+ประเมิน</div><div class="text-slate-600 mt-1 text-xs">กรอกแบบฟอร์ม + คำนวณคะแนน TCC</div></div>
       <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-blue-400"><div class="text-2xl mb-1">📊</div><div class="font-semibold text-pp7-700">4. สรุปผล</div><div class="text-slate-600 mt-1 text-xs">ผ่าน ≥65% (32.5/50) หรือพิจารณาเพิ่ม</div></div>
-      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-emerald-400"><div class="text-2xl mb-1">📤</div><div class="font-semibold text-pp7-700">5. ส่งต่อ P3</div><div class="text-slate-600 mt-1 text-xs">จับคู่คนกับงาน / แจ้งผล</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-emerald-400">
+        <div class="text-2xl mb-1">📤</div>
+        <div class="font-semibold text-pp7-700">5. ส่งต่อ P3</div>
+        <div class="text-slate-600 mt-1 text-xs">จับคู่คนกับงาน / แจ้งผล</div>
+        <a href="#" onclick="showTab('match')" class="mt-2 inline-block px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs rounded font-medium transition">
+          🚀 ไป P3
+        </a>
+      </div>
     </div>
   </div>
 
@@ -440,6 +447,170 @@ const NEW_PROCESS_DATA = {
       <div class="flex items-center gap-2"><span class="text-green-600">💾</span><span class="text-slate-700">LocalStorage (mock database)</span></div>
       <div class="flex items-center gap-2"><span class="text-green-600">📥</span><span class="text-slate-700">Export CSV + PDF</span></div>
       <div class="flex items-center gap-2"><span class="text-green-600">📤</span><span class="text-slate-700">Notification (Line/Telegram)</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- P3 จับคู่คนกับงาน (Member Management) -->
+<!-- ============================================ -->
+<section id="tab-match" class="tab-pane fade-in hidden space-y-8">
+  <div class="flex flex-wrap items-center gap-4 pb-4 border-b border-slate-200">
+    <h2 class="text-xl font-bold text-pp7-800 flex-1">🤝 จับคู่คนกับงาน (P3) — ฐานข้อมูลสมาชิก</h2>
+    <div class="search-box w-64">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="search-member" placeholder="ค้นหาสมาชิก...">
+    </div>
+  </div>
+
+  <!-- P3 Workflow -->
+  <div class="card bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+    <h3 class="font-bold text-pp7-800 mb-3 text-lg flex items-center gap-2">
+      <span class="bg-emerald-600 text-white px-2 py-1 rounded text-xs">LDC-PAO-PM-003</span>
+      📌 P3 จับคู่คนกับงาน — วงจรการบริหารสมาชิก
+    </h3>
+    <div class="grid md:grid-cols-6 gap-2 text-sm">
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-purple-400">
+        <div class="text-2xl mb-1">📥</div>
+        <div class="font-semibold text-pp7-700">1. รับจาก P2</div>
+        <div class="text-slate-600 mt-1 text-xs">Auto-Import สมาชิกผ่านเกณฑ์</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-blue-400">
+        <div class="text-2xl mb-1">👥</div>
+        <div class="font-semibold text-pp7-700">2. ฐานข้อมูลสมาชิก</div>
+        <div class="text-slate-600 mt-1 text-xs">Single Source of Truth</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-cyan-400">
+        <div class="text-2xl mb-1">🔄</div>
+        <div class="font-semibold text-pp7-700">3. โอนย้าย</div>
+        <div class="text-slate-600 mt-1 text-xs">WI-003</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-purple-400">
+        <div class="text-2xl mb-1">📈</div>
+        <div class="font-semibold text-pp7-700">4. เลื่อนตำแหน่ง</div>
+        <div class="text-slate-600 mt-1 text-xs">WI-004</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-red-400">
+        <div class="text-2xl mb-1">🚪</div>
+        <div class="font-semibold text-pp7-700">5. ลาออก</div>
+        <div class="text-slate-600 mt-1 text-xs">WI-005 → แจ้ง P1</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-amber-400">
+        <div class="text-2xl mb-1">📤</div>
+        <div class="font-semibold text-pp7-700">6. ไป P4</div>
+        <div class="text-slate-600 mt-1 text-xs">ประเมินผล + พี่เลี้ยง</div>
+      </div>
+    </div>
+    <!-- Data Flow Loop -->
+    <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-center text-sm text-yellow-800">
+      🔄 <strong>Loop กลับ P1:</strong> เมื่อสมาชิกลาออก (WI-005) → ระบบแจ้งเตือนกลับ P1 ว่ามีตำแหน่งว่าง → สรรหาใหม่
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+    <div class="card border-l-4 border-l-emerald-500">
+      <div class="text-sm text-slate-400">สมาชิกทั้งหมด</div>
+      <div class="kpi-num text-emerald-600" id="p3-total">—</div>
+    </div>
+    <div class="card border-l-4 border-l-blue-500">
+      <div class="text-sm text-slate-400">Active</div>
+      <div class="kpi-num text-blue-600" id="p3-active">—</div>
+    </div>
+    <div class="card border-l-4 border-l-yellow-500">
+      <div class="text-sm text-slate-400">ทดลองงาน</div>
+      <div class="kpi-num text-yellow-600" id="p3-probation">—</div>
+    </div>
+    <div class="card border-l-4 border-l-green-500">
+      <div class="text-sm text-slate-400">ประจำ</div>
+      <div class="kpi-num text-green-600" id="p3-permanent">—</div>
+    </div>
+    <div class="card border-l-4 border-l-red-500">
+      <div class="text-sm text-slate-400">ลาออก</div>
+      <div class="kpi-num text-red-600" id="p3-resigned">—</div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="grid md:grid-cols-3 gap-4">
+    <!-- WI-003: โอนย้าย -->
+    <a href="docs/p3-forms/transfer-form.html" target="_blank" class="card bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-lg transition cursor-pointer group">
+      <div class="text-center">
+        <div class="text-4xl mb-2">🔄</div>
+        <h4 class="font-bold text-blue-800 text-lg">โอนย้ายสมาชิก</h4>
+        <p class="text-xs text-blue-600 font-mono mt-1">LDC-PAO-WI-003</p>
+        <p class="text-sm text-slate-600 mt-2">เปลี่ยนบริษัท/สาขา/ฝ่าย/ทีม</p>
+        <div class="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium group-hover:bg-blue-700 transition">เปิดฟอร์ม →</div>
+      </div>
+    </a>
+
+    <!-- WI-004: เลื่อนตำแหน่ง -->
+    <a href="docs/p3-forms/promote-form.html" target="_blank" class="card bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-lg transition cursor-pointer group">
+      <div class="text-center">
+        <div class="text-4xl mb-2">📈</div>
+        <h4 class="font-bold text-purple-800 text-lg">เลื่อนตำแหน่ง</h4>
+        <p class="text-xs text-purple-600 font-mono mt-1">LDC-PAO-WI-004</p>
+        <p class="text-sm text-slate-600 mt-2">ปรับตำแหน่ง + เงินเดือน</p>
+        <div class="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium group-hover:bg-purple-700 transition">เปิดฟอร์ม →</div>
+      </div>
+    </a>
+
+    <!-- WI-005: ลาออก -->
+    <a href="docs/p3-forms/resign-form.html" target="_blank" class="card bg-gradient-to-br from-red-50 to-red-100 border-red-200 hover:shadow-lg transition cursor-pointer group">
+      <div class="text-center">
+        <div class="text-4xl mb-2">🚪</div>
+        <h4 class="font-bold text-red-800 text-lg">ลาออก</h4>
+        <p class="text-xs text-red-600 font-mono mt-1">LDC-PAO-WI-005</p>
+        <p class="text-sm text-slate-600 mt-2">เปลี่ยนสถานะ + แจ้ง P1</p>
+        <div class="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium group-hover:bg-red-700 transition">เปิดฟอร์ม →</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- P3 Full Dashboard Link -->
+  <div class="card bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <h4 class="font-bold text-green-800 text-lg mb-1">📊 Dashboard ฐานข้อมูลสมาชิก (P3 Full Dashboard)</h4>
+        <p class="text-sm text-slate-600">ดูสมาชิกทั้งหมด, ประวัติ, การแจ้งเตือน, และข้อมูลสำหรับระบบพี่เลี้ยง</p>
+      </div>
+      <a href="docs/p3-forms/index.html" target="_blank" class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-bold shadow-lg hover:from-green-700 hover:to-emerald-700 transition-all">
+        🚀 เปิด P3 Dashboard
+      </a>
+    </div>
+  </div>
+
+  <!-- เชื่อมต่อไป P4 + ระบบพี่เลี้ยง -->
+  <div class="card bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200">
+    <h3 class="font-bold text-pp7-800 mb-3 text-lg flex items-center gap-2">
+      🔗 Data Flow จาก P3
+    </h3>
+    <div class="grid md:grid-cols-3 gap-4 text-sm">
+      <div class="p-3 bg-white rounded-lg border-l-4 border-emerald-400">
+        <div class="font-semibold text-emerald-700 mb-1">📊 → P4 ประเมินผล</div>
+        <div class="text-slate-600">ข้อมูลสมาชิก → ใช้ประเมิน CC หลังทำงาน</div>
+      </div>
+      <div class="p-3 bg-white rounded-lg border-l-4 border-blue-400">
+        <div class="font-semibold text-blue-700 mb-1">👨‍🏫 → ระบบพี่เลี้ยง</div>
+        <div class="text-slate-600">getMentorData() → LDC-PAD-PM-001</div>
+      </div>
+      <div class="p-3 bg-white rounded-lg border-l-4 border-red-400">
+        <div class="font-semibold text-red-700 mb-1">🔄 → P1 สรรหาใหม่</div>
+        <div class="text-slate-600">notifyP1Vacancy() → เมื่อมีลาออก</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="card">
+    <h4 class="font-semibold text-pp7-700 mb-3">🚀 ฟีเจอร์อัตโนมัติ</h4>
+    <div class="grid md:grid-cols-2 gap-2 text-sm">
+      <div class="flex items-center gap-2"><span class="text-green-600">🤖</span><span class="text-slate-700">Auto-Import จาก P2 (addMemberFromP2)</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">📋</span><span class="text-slate-700">บันทึกประวัติทุกครั้ง (History Log)</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">📢</span><span class="text-slate-700">Auto-notify P1 เมื่อลาออก</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">💾</span><span class="text-slate-700">LocalStorage (mock database)</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">📥</span><span class="text-slate-700">Export CSV ทุกฟอร์ม</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">📤</span><span class="text-slate-700">ส่งข้อมูลไป P4 + พี่เลี้ยง</span></div>
     </div>
   </div>
 </section>

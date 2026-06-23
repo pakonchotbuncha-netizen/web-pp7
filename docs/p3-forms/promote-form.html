@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📈 เลื่อนตำแหน่ง — WI-004 | Web PP7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="member-data.js"></script>
+    <style>
+        * { font-family: 'Sarabun', sans-serif; }
+        body { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%); min-height: 100vh; }
+        .form-section { transition: all 0.3s; }
+        .form-section:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+        .progress-bar { transition: width 0.5s; }
+        @media print { body { background: white; } .no-print { display: none !important; } }
+    </style>
+</head>
+<body>
+    <header class="bg-gradient-to-r from-purple-700 to-purple-600 text-white py-6 shadow-lg no-print">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold">📈 เลื่อนตำแหน่งสมาชิก</h1>
+                    <p class="text-purple-100 mt-1">P3 จับคู่คนกับงาน | Web PP7 — LDC-PAO-WI-004</p>
+                </div>
+                <a href="index.html" class="px-4 py-2 bg-purple-800 hover:bg-purple-900 rounded-lg transition">← กลับ</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="bg-white shadow-sm sticky top-0 z-50 no-print">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-600">ความสมบูรณ์</span>
+                <span id="progressText" class="text-sm font-bold text-purple-600">0%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div id="progressBar" class="progress-bar bg-purple-600 h-2 rounded-full" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container mx-auto px-4 py-6 max-w-4xl">
+        <form id="promoteForm" class="space-y-6">
+
+            <!-- เลือกสมาชิก -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-purple-800 border-b-2 border-purple-100 pb-3 mb-4">
+                    <span class="bg-purple-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">1</span>
+                    เลือกสมาชิกเพื่อเลื่อนตำแหน่ง
+                </h2>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">เลือกสมาชิก <span class="text-red-500">*</span></label>
+                    <select name="member_id" required onchange="loadMemberInfo(this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                        <option value="">-- เลือกสมาชิก --</option>
+                    </select>
+                </div>
+
+                <div id="currentInfo" class="hidden mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                    <h3 class="font-semibold text-purple-800 mb-3">📋 ข้อมูลปัจจุบัน</h3>
+                    <div class="grid md:grid-cols-2 gap-3 text-sm">
+                        <div><span class="text-gray-600">ชื่อ:</span> <span id="info-name" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">รหัส:</span> <span id="info-id" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">ตำแหน่งปัจจุบัน:</span> <span id="info-position" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">เงินเดือน:</span> <span id="info-salary" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">ฝ่าย:</span> <span id="info-dept" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">อายุงาน:</span> <span id="info-tenure" class="font-medium">-</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ข้อมูลการเลื่อนตำแหน่ง -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-purple-800 border-b-2 border-purple-100 pb-3 mb-4">
+                    <span class="bg-purple-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">2</span>
+                    ข้อมูลการเลื่อนตำแหน่ง
+                </h2>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ตำแหน่งใหม่ <span class="text-red-500">*</span></label>
+                        <input type="text" name="new_position" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ระดับใหม่</label>
+                        <select name="new_level" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            <option value="">-- เลือกระดับ --</option>
+                            <option value="senior">Senior (อาวุโส)</option>
+                            <option value="lead">Lead (หัวหน้าสาย)</option>
+                            <option value="manager">Manager (ผู้จัดการ)</option>
+                            <option value="director">Director (ผู้อำนวยการ)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">สถานะใหม่ <span class="text-red-500">*</span></label>
+                        <select name="new_status" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            <option value="">-- เลือก --</option>
+                            <option value="permanent">ประจำ</option>
+                            <option value="contract">สัญญา</option>
+                            <option value="probation">ทดลองงาน (ลดตำแหน่ง)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">เงินเดือนใหม่ (บาท)</label>
+                        <input type="number" name="new_salary" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">วันที่มีผล <span class="text-red-500">*</span></label>
+                        <input type="date" name="effective_date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                    </div>
+                </div>
+            </section>
+
+            <!-- เหตุผล -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-purple-800 border-b-2 border-purple-100 pb-3 mb-4">
+                    <span class="bg-purple-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">3</span>
+                    เหตุผลและผลงาน
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ผลงานที่โดดเด่น <span class="text-red-500">*</span></label>
+                        <textarea name="achievement" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="ระบุผลงานที่ทำได้ดีจนสมควรได้รับเลื่อนตำแหน่ง"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">คะแนน P4 (ประเมินผลล่าสุด)</label>
+                        <div class="grid grid-cols-5 gap-2">
+                            <label class="flex flex-col items-center cursor-pointer">
+                                <input type="radio" name="p4_score" value="1" class="w-4 h-4">
+                                <span class="text-xs mt-1">1 ต่ำ</span>
+                            </label>
+                            <label class="flex flex-col items-center cursor-pointer">
+                                <input type="radio" name="p4_score" value="2" class="w-4 h-4">
+                                <span class="text-xs mt-1">2</span>
+                            </label>
+                            <label class="flex flex-col items-center cursor-pointer">
+                                <input type="radio" name="p4_score" value="3" class="w-4 h-4">
+                                <span class="text-xs mt-1">3 ปานกลาง</span>
+                            </label>
+                            <label class="flex flex-col items-center cursor-pointer">
+                                <input type="radio" name="p4_score" value="4" class="w-4 h-4">
+                                <span class="text-xs mt-1">4 ดี</span>
+                            </label>
+                            <label class="flex flex-col items-center cursor-pointer">
+                                <input type="radio" name="p4_score" value="5" class="w-4 h-4">
+                                <span class="text-xs mt-1">5 ดีมาก</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ผู้เสนอเลื่อนตำแหน่ง</label>
+                        <input type="text" name="proposed_by" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Action Buttons -->
+            <section class="no-print">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex flex-wrap gap-3 justify-center">
+                        <button type="button" onclick="savePromotion()" class="px-6 py-3 bg-purple-600 text-white rounded-lg font-medium shadow-lg hover:bg-purple-700 transition">
+                            💾 บันทึกการเลื่อนตำแหน่ง
+                        </button>
+                        <button type="button" onclick="exportCSV()" class="px-6 py-3 bg-green-600 text-white rounded-lg font-medium shadow-lg hover:bg-green-700 transition">
+                            📄 Export CSV
+                        </button>
+                        <button type="reset" onclick="resetForm()" class="px-6 py-3 bg-gray-500 text-white rounded-lg font-medium shadow-lg hover:bg-gray-600 transition">
+                            🔄 รีเซ็ต
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ผลลัพธ์ -->
+            <section id="resultSection" class="hidden bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 border-b-2 border-gray-100 pb-3 mb-4">📦 สรุปผลการเลื่อนตำแหน่ง</h2>
+                <div id="resultSummary" class="mb-4"></div>
+                <details class="mt-4">
+                    <summary class="cursor-pointer text-sm text-gray-500 hover:text-gray-700">🔍 ดูข้อมูลละเอียด</summary>
+                    <pre id="resultJSON" class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm max-h-96 mt-2"></pre>
+                </details>
+            </section>
+        </form>
+    </main>
+
+    <script>
+        let selectedMember = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMembers(); populateMemberSelect();
+        });
+
+        function populateMemberSelect() {
+            const select = document.querySelector('select[name="member_id"]');
+            MEMBERS.forEach(m => {
+                if (m.status.current === 'active') {
+                    const option = document.createElement('option');
+                    option.value = m.member_id;
+                    option.textContent = `${m.member_id} - ${m.personal.name} (${m.organization.position})`;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function loadMemberInfo(memberId) {
+            if (!memberId) { document.getElementById('currentInfo').classList.add('hidden'); return; }
+            selectedMember = findMember(memberId);
+            if (!selectedMember) return;
+
+            document.getElementById('info-name').textContent = selectedMember.personal.name || '-';
+            document.getElementById('info-id').textContent = selectedMember.member_id || '-';
+            document.getElementById('info-position').textContent = selectedMember.organization.position || '-';
+            document.getElementById('info-salary').textContent = `${(selectedMember.compensation.salary_confirmed || selectedMember.compensation.salary_probation || 0).toLocaleString()} บาท`;
+            document.getElementById('info-dept').textContent = selectedMember.organization.department || '-';
+            const start = new Date(selectedMember.employment.start_date);
+            const now = new Date();
+            const years = ((now - start) / (1000*60*60*24*365.25)).toFixed(1);
+            document.getElementById('info-tenure').textContent = `${years} ปี`;
+            document.getElementById('currentInfo').classList.remove('hidden');
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const form = document.getElementById('promoteForm');
+            const required = form.querySelectorAll('[required]');
+            let filled = 0;
+            required.forEach(f => { if (f.value && f.value.trim() !== '') filled++; });
+            const pct = Math.round((filled / required.length) * 100);
+            document.getElementById('progressBar').style.width = pct + '%';
+            document.getElementById('progressText').textContent = pct + '%';
+        }
+
+        function savePromotion() {
+            if (!selectedMember) { alert('⚠️ กรุณาเลือกสมาชิกก่อน'); return; }
+            const fd = new FormData(document.getElementById('promoteForm'));
+            const promoteData = {
+                new_position: fd.get('new_position'),
+                new_level: fd.get('new_level'),
+                new_status: fd.get('new_status'),
+                new_salary: fd.get('new_salary'),
+                effective_date: fd.get('effective_date'),
+                achievement: fd.get('achievement'),
+                p4_score: fd.get('p4_score'),
+                proposed_by: fd.get('proposed_by')
+            };
+
+            if (!promoteData.new_position || !promoteData.effective_date || !promoteData.achievement) {
+                alert('⚠️ กรุณากรอกข้อมูลที่จำเป็นให้ครบ'); return;
+            }
+
+            const updated = promoteMember(selectedMember.member_id, promoteData);
+            if (updated) {
+                document.getElementById('resultSection').classList.remove('hidden');
+                document.getElementById('resultSummary').innerHTML = `
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="text-4xl">🎉</div>
+                            <div>
+                                <div class="text-xl font-bold text-green-800">เลื่อนตำแหน่งสำเร็จ!</div>
+                                <div class="text-sm text-gray-600">บันทึกเมื่อ ${new Date().toLocaleString('th-TH')}</div>
+                            </div>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-3 text-sm">
+                            <div><span class="text-gray-600">สมาชิก:</span> <strong>${updated.personal.name}</strong></div>
+                            <div><span class="text-gray-600">ตำแหน่งใหม่:</span> <strong class="text-purple-600">${updated.organization.position}</strong></div>
+                            <div><span class="text-gray-600">สถานะใหม่:</span> <strong>${getStatusText(updated.employment.status)}</strong></div>
+                            <div><span class="text-gray-600">เงินเดือนใหม่:</span> <strong>${(updated.compensation?.salary_confirmed || promoteData.new_salary || '-').toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')} บาท</strong></div>
+                            <div><span class="text-gray-600">วันที่มีผล:</span> <strong>${promoteData.effective_date}</strong></div>
+                            <div><span class="text-gray-600">คะแนน P4:</span> <strong>${promoteData.p4_score || '-'}/5</strong></div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('resultJSON').textContent = JSON.stringify(updated, null, 2);
+                alert('✅ บันทึกการเลื่อนตำแหน่งสำเร็จ!');
+            } else { alert('❌ ไม่สามารถบันทึกได้'); }
+        }
+
+        function getStatusText(s) {
+            return { 'probation': 'ทดลองงาน', 'permanent': 'ประจำ', 'contract': 'สัญญา' }[s] || s;
+        }
+
+        function resetForm() {
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressText').textContent = '0%';
+            document.getElementById('currentInfo').classList.add('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+            selectedMember = null;
+        }
+
+        function exportCSV() {
+            if (!selectedMember) { alert('⚠️ กรุณาเลือกสมาชิกก่อน'); return; }
+            const fd = new FormData(document.getElementById('promoteForm'));
+            const csv = `รหัส,ชื่อ,ตำแหน่งเดิม,ตำแหน่งใหม่,เงินเดือนใหม่,วันที่มีผล,คะแนนP4\n${selectedMember.member_id},${selectedMember.personal.name},"${selectedMember.organization.position}","${fd.get('new_position')}",${fd.get('new_salary') || ''},${fd.get('effective_date')},${fd.get('p4_score') || ''}`;
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `P3_Promote_${selectedMember.member_id}.csv`;
+            a.click();
+        }
+
+        document.getElementById('promoteForm').addEventListener('input', updateProgress);
+        document.getElementById('promoteForm').addEventListener('change', updateProgress);
+    </script>
+</body>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚪 ลาออก — WI-005 | Web PP7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="member-data.js"></script>
+    <style>
+        * { font-family: 'Sarabun', sans-serif; }
+        body { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%); min-height: 100vh; }
+        .form-section { transition: all 0.3s; }
+        .form-section:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+        .progress-bar { transition: width 0.5s; }
+        .warning-box { background: linear-gradient(135deg, #fef3c7, #fde68a); border-left: 4px solid #f59e0b; }
+        @media print { body { background: white; } .no-print { display: none !important; } }
+    </style>
+</head>
+<body>
+    <header class="bg-gradient-to-r from-red-700 to-red-600 text-white py-6 shadow-lg no-print">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold">🚪 ลาออกสมาชิก</h1>
+                    <p class="text-red-100 mt-1">P3 จับคู่คนกับงาน | Web PP7 — LDC-PAO-WI-005</p>
+                </div>
+                <a href="index.html" class="px-4 py-2 bg-red-800 hover:bg-red-900 rounded-lg transition">← กลับ</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="bg-white shadow-sm sticky top-0 z-50 no-print">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-600">ความสมบูรณ์</span>
+                <span id="progressText" class="text-sm font-bold text-red-600">0%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div id="progressBar" class="progress-bar bg-red-600 h-2 rounded-full" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container mx-auto px-4 py-6 max-w-4xl">
+        <form id="resignForm" class="space-y-6">
+
+            <!-- เลือกสมาชิก -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-red-800 border-b-2 border-red-100 pb-3 mb-4">
+                    <span class="bg-red-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">1</span>
+                    เลือกสมาชิกลาออก
+                </h2>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">เลือกสมาชิก <span class="text-red-500">*</span></label>
+                    <select name="member_id" required onchange="loadMemberInfo(this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                        <option value="">-- เลือกสมาชิก --</option>
+                    </select>
+                </div>
+
+                <div id="currentInfo" class="hidden mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <h3 class="font-semibold text-red-800 mb-3">📋 ข้อมูลสมาชิกที่จะลาออก</h3>
+                    <div class="grid md:grid-cols-2 gap-3 text-sm">
+                        <div><span class="text-gray-600">ชื่อ:</span> <span id="info-name" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">รหัส:</span> <span id="info-id" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">บริษัท:</span> <span id="info-company" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">ตำแหน่ง:</span> <span id="info-position" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">วันเริ่มงาน:</span> <span id="info-start" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">อายุงาน:</span> <span id="info-tenure" class="font-medium">-</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ข้อมูลการลาออก -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-red-800 border-b-2 border-red-100 pb-3 mb-4">
+                    <span class="bg-red-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">2</span>
+                    ข้อมูลการลาออก
+                </h2>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">วันที่ลาออก <span class="text-red-500">*</span></label>
+                        <input type="date" name="end_date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ประเภทการลาออก <span class="text-red-500">*</span></label>
+                        <select name="resign_type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                            <option value="">-- เลือก --</option>
+                            <option value="voluntary_voluntary">สมัครใจ (แจ้งล่วงหน้า)</option>
+                            <option value="voluntary_no_notice">สมัครใจ (ไม่แจ้ง)</option>
+                            <option value="involuntary_company">เลิกจ้าง (บริษัท)</option>
+                            <option value="involuntary_retirement">เกษียณอายุ</option>
+                            <option value="involuntary_contract">หมดสัญญา</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">วันที่แจ้งล่วงหน้า</label>
+                        <input type="date" name="notice_date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">วันที่ทำงานวันสุดท้าย</label>
+                        <input type="date" name="last_working_day" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                    </div>
+                </div>
+            </section>
+
+            <!-- เหตุผล -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-red-800 border-b-2 border-red-100 pb-3 mb-4">
+                    <span class="bg-red-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">3</span>
+                    เหตุผลและข้อมูลออกจากงาน
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">เหตุผลในการลาออก <span class="text-red-500">*</span></label>
+                        <select name="resign_reason" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 mb-2">
+                            <option value="">-- เลือกเหตุผล --</option>
+                            <option value="personal">เหตุผลส่วนตัว/ครอบครัว</option>
+                            <option value="health">สุขภาพ</option>
+                            <option value="relocation">ย้ายถิ่นที่อยู่</option>
+                            <option value="better_offer">ได้รับข้อเสนอที่ดีกว่า</option>
+                            <option value="conflict">ปัญหาความขัดแย้ง</option>
+                            <option value="career_change">เปลี่ยนสายอาชีพ</option>
+                            <option value="education">ศึกษาต่อ</option>
+                            <option value="return_home">กลับภูมิลำเนา</option>
+                            <option value="voluntary_resignation">ลาออกเพราะไม่พอใจงาน</option>
+                            <option value="other">อื่นๆ</option>
+                        </select>
+                        <textarea name="resign_reason_details" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500" placeholder="ระบุรายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
+                    </div>
+
+                    <!-- Checklist ส่งคืนทรัพย์สิน -->
+                    <div class="border border-amber-300 bg-amber-50 rounded-lg p-4">
+                        <h3 class="font-bold text-amber-800 mb-3">📦 Checklist ส่งคืนทรัพย์สิน</h3>
+                        <div class="grid md:grid-cols-2 gap-2">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="return_card" class="w-4 h-4">
+                                <span class="text-sm">บัตรพนักงาน</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="return_uniform" class="w-4 h-4">
+                                <span class="text-sm">ชุดยูนิฟอร์ม</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="return_phone" class="w-4 h-4">
+                                <span class="text-sm">โทรศัพท์บริษัท</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="return_key" class="w-4 h-4">
+                                <span class="text-sm">กุญแจ/Access Card</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="return_tool" class="w-4 h-4">
+                                <span class="text-sm">อุปกรณ์ทำงาน</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="return_other" class="w-4 h-4">
+                                <span class="text-sm">อื่น ๆ</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- ตรวจสอบหนี้ -->
+                    <div class="border border-orange-300 bg-orange-50 rounded-lg p-4">
+                        <h3 class="font-bold text-orange-800 mb-3">💰 ตรวจสอบหนี้/เงินค้ำประกัน</h3>
+                        <div class="grid md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">เงินค้ำประกัน (บาท)</label>
+                                <input type="number" name="bond_amount" min="0" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">หนี้ค้างจ่าย (บาท)</label>
+                                <input type="number" name="debt_amount" min="0" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ผู้รับคำขอลาออก</label>
+                        <input type="text" name="received_by" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                    </div>
+                </div>
+            </section>
+
+            <!-- ⚠️ Warning -->
+            <section class="warning-box rounded-lg p-4 no-print">
+                <div class="flex items-start gap-3">
+                    <div class="text-2xl">⚠️</div>
+                    <div>
+                        <h3 class="font-bold text-amber-900 mb-1">แจ้งเตือน!</h3>
+                        <p class="text-sm text-amber-800">เมื่อบันทึก: สถานะสมาชิกจะเปลี่ยนเป็น <strong>"ลาออก"</strong> และระบบจะแจ้งเตือนกลับไปที่ <strong>P1 แสวงหา</strong> ว่ามีตำแหน่งงานว่าง (Loop กลับไปสรรหาใหม่)</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Action Buttons -->
+            <section class="no-print">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex flex-wrap gap-3 justify-center">
+                        <button type="button" onclick="saveResign()" class="px-6 py-3 bg-red-600 text-white rounded-lg font-medium shadow-lg hover:bg-red-700 transition">
+                            💾 บันทึกการลาออก
+                        </button>
+                        <button type="button" onclick="exportCSV()" class="px-6 py-3 bg-green-600 text-white rounded-lg font-medium shadow-lg hover:bg-green-700 transition">
+                            📄 Export CSV
+                        </button>
+                        <button type="reset" onclick="resetForm()" class="px-6 py-3 bg-gray-500 text-white rounded-lg font-medium shadow-lg hover:bg-gray-600 transition">
+                            🔄 รีเซ็ต
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ผลลัพธ์ -->
+            <section id="resultSection" class="hidden bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 border-b-2 border-gray-100 pb-3 mb-4">📦 สรุปผลการลาออก</h2>
+                <div id="resultSummary" class="mb-4"></div>
+                <details class="mt-4">
+                    <summary class="cursor-pointer text-sm text-gray-500 hover:text-gray-700">🔍 ดูข้อมูลละเอียด (JSON)</summary>
+                    <pre id="resultJSON" class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm max-h-96 mt-2"></pre>
+                </details>
+            </section>
+        </form>
+    </main>
+
+    <script>
+        let selectedMember = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMembers(); populateMemberSelect();
+        });
+
+        function populateMemberSelect() {
+            const select = document.querySelector('select[name="member_id"]');
+            MEMBERS.forEach(m => {
+                if (m.status.current === 'active') {
+                    const option = document.createElement('option');
+                    option.value = m.member_id;
+                    option.textContent = `${m.member_id} - ${m.personal.name} (${m.organization.position})`;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function loadMemberInfo(memberId) {
+            if (!memberId) { document.getElementById('currentInfo').classList.add('hidden'); return; }
+            selectedMember = findMember(memberId);
+            if (!selectedMember) return;
+
+            document.getElementById('info-name').textContent = selectedMember.personal.name || '-';
+            document.getElementById('info-id').textContent = selectedMember.member_id || '-';
+            document.getElementById('info-company').textContent = selectedMember.organization.company || '-';
+            document.getElementById('info-position').textContent = selectedMember.organization.position || '-';
+            document.getElementById('info-start').textContent = selectedMember.employment.start_date || '-';
+            const start = new Date(selectedMember.employment.start_date);
+            const now = new Date();
+            const years = ((now - start) / (1000*60*60*24*365.25)).toFixed(1);
+            document.getElementById('info-tenure').textContent = `${years} ปี`;
+            document.getElementById('currentInfo').classList.remove('hidden');
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const form = document.getElementById('resignForm');
+            const required = form.querySelectorAll('[required]');
+            let filled = 0;
+            required.forEach(f => { if (f.value && f.value.trim() !== '') filled++; });
+            const pct = Math.round((filled / required.length) * 100);
+            document.getElementById('progressBar').style.width = pct + '%';
+            document.getElementById('progressText').textContent = pct + '%';
+        }
+
+        function saveResign() {
+            if (!selectedMember) { alert('⚠️ กรุณาเลือกสมาชิกก่อน'); return; }
+            if (!confirm('⚠️ ยืนยันการบันทึกการลาออก?\n\nเมื่อบันทึกแล้ว: \n• สถานะจะเปลี่ยนเป็น "ลาออก"\n• ระบบจะแจ้งกลับ P1 ว่ามีตำแหน่งว่าง')) {
+                return;
+            }
+
+            const fd = new FormData(document.getElementById('resignForm'));
+            const resignData = {
+                end_date: fd.get('end_date'),
+                resign_type: fd.get('resign_type'),
+                notice_date: fd.get('notice_date'),
+                last_working_day: fd.get('last_working_day'),
+                reason: fd.get('resign_reason'),
+                reason_details: fd.get('resign_reason_details'),
+                bond_amount: fd.get('bond_amount'),
+                debt_amount: fd.get('debt_amount'),
+                received_by: fd.get('received_by'),
+                returned_items: []
+            };
+
+            // เก็บรายการคืนทรัพย์สิน
+            ['return_card', 'return_uniform', 'return_phone', 'return_key', 'return_tool', 'return_other'].forEach(item => {
+                if (fd.get(item)) resignData.returned_items.push(item);
+            });
+
+            if (!resignData.end_date || !resignData.resign_type || !resignData.reason) {
+                alert('⚠️ กรุณากรอกข้อมูลที่จำเป็นให้ครบ'); return;
+            }
+
+            const updated = resignMember(selectedMember.member_id, resignData);
+            if (updated) {
+                document.getElementById('resultSection').classList.remove('hidden');
+                document.getElementById('resultSummary').innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="text-4xl">🚪</div>
+                            <div>
+                                <div class="text-xl font-bold text-red-800">บันทึกการลาออกสำเร็จ</div>
+                                <div class="text-sm text-gray-600">บันทึกเมื่อ ${new Date().toLocaleString('th-TH')}</div>
+                            </div>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-3 text-sm">
+                            <div><span class="text-gray-600">สมาชิก:</span> <strong>${updated.personal.name}</strong></div>
+                            <div><span class="text-gray-600">รหัส:</span> <strong>${updated.member_id}</strong></div>
+                            <div><span class="text-gray-600">วันที่ออก:</span> <strong>${resignData.end_date}</strong></div>
+                            <div><span class="text-gray-600">ประเภท:</span> <strong>${getResignTypeText(resignData.resign_type)}</strong></div>
+                            <div><span class="text-gray-600">เหตุผล:</span> <strong>${getResignReasonText(resignData.reason)}</strong></div>
+                            <div><span class="text-gray-600">เงินค้ำประกัน:</span> <strong>${parseInt(resignData.bond_amount || 0).toLocaleString()} บาท</strong></div>
+                        </div>
+                        <div class="mt-4 p-3 bg-yellow-50 border border-yellow-300 rounded-lg">
+                            <div class="text-sm font-semibold text-yellow-800 mb-1">📢 แจ้ง P1 กลับสรรหาแล้ว</div>
+                            <div class="text-xs text-yellow-700">ระบบได้แจ้งเตือนว่าตำแหน่ง <strong>${updated.organization.position}</strong> ที่ <strong>${updated.organization.company}</strong> ว่างแล้ว</div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('resultJSON').textContent = JSON.stringify(updated, null, 2);
+                alert('✅ บันทึกการลาออกสำเร็จ!\n\n📢 แจ้ง P1 กลับไปสรรหาคนเพิ่มแล้ว');
+            } else { alert('❌ ไม่สามารถบันทึกได้'); }
+        }
+
+        function getResignTypeText(t) {
+            return {
+                'voluntary_voluntary': 'สมัครใจ (แจ้งล่วงหน้า)',
+                'voluntary_no_notice': 'สมัครใจ (ไม่แจ้ง)',
+                'involuntary_company': 'เลิกจ้าง',
+                'involuntary_retirement': 'เกษียณ',
+                'involuntary_contract': 'หมดสัญญา'
+            }[t] || t;
+        }
+
+        function getResignReasonText(r) {
+            return {
+                'personal': 'ส่วนตัว/ครอบครัว',
+                'health': 'สุขภาพ',
+                'relocation': 'ย้ายที่อยู่',
+                'better_offer': 'ได้ข้อเสนอที่ดีกว่า',
+                'conflict': 'ปัญหาความขัดแย้ง',
+                'career_change': 'เปลี่ยนสายอาชีพ',
+                'education': 'ศึกษาต่อ',
+                'return_home': 'กลับภูมิลำเนา',
+                'voluntary_resignation': 'ไม่พอใจงาน',
+                'other': 'อื่นๆ'
+            }[r] || r;
+        }
+
+        function resetForm() {
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressText').textContent = '0%';
+            document.getElementById('currentInfo').classList.add('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+            selectedMember = null;
+        }
+
+        function exportCSV() {
+            if (!selectedMember) { alert('⚠️ กรุณาเลือกสมาชิกก่อน'); return; }
+            const fd = new FormData(document.getElementById('resignForm'));
+            const csv = `รหัส,ชื่อ,ตำแหน่ง,วันออก,ประเภท,เหตุผล,เงินค้ำประกัน\n${selectedMember.member_id},${selectedMember.personal.name},"${selectedMember.organization.position}",${fd.get('end_date')},${fd.get('resign_type')},${fd.get('resign_reason')},${fd.get('bond_amount') || 0}`;
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `P3_Resign_${selectedMember.member_id}.csv`;
+            a.click();
+        }
+
+        document.getElementById('resignForm').addEventListener('input', updateProgress);
+        document.getElementById('resignForm').addEventListener('change', updateProgress);
+    </script>
+</body>
+</html>
