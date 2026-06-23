@@ -227,7 +227,7 @@ const NEW_PROCESS_DATA = {
  <button class="tab-btn" data-tab="match" onclick="showTab('match')">🤝 จับคู่</button>
  <button class="tab-btn" data-tab="performance" onclick="showTab('performance')">📊 ประเมินผล</button>
  <button class="tab-btn" data-tab="develop" onclick="showTab('develop')">🎓 พัฒนา</button>
- <button class="tab-btn" data-tab="welfare" onclick="showTab('welfare')">💰 สวัสดิการ</button>
+ <button class="tab-btn" data-tab="welfare" onclick="showTab('welfare')">💰 ค่าตอบแทน</button>
  <button class="tab-btn" data-tab="wi001" onclick="showTab('wi001')">📝 เบี้ยเลี้ยงฝึกงาน (WI-001)</button>
  <button class="tab-btn" data-tab="wi002" onclick="showTab('wi002')">💼 สมทบอายุงาน (WI-002)</button>
  <button class="tab-btn" data-tab="quality" onclick="showTab('quality')">🌿 คุณภาพชีวิต</button>
@@ -1039,31 +1039,31 @@ const NEW_PROCESS_DATA = {
   <div class="card">
     <div class="flex items-center justify-between mb-4">
       <div>
-        <h2 class="text-xl font-bold text-pp7-800">💰 ค่าตอบแทนและสวัสดิการ (P6)</h2>
-        <p class="text-gray-600 text-sm mt-1">ระบบจ่ายเงินเดือนและค่าตอบแทน — เชื่อมข้อมูลจาก P3 อัตโนมัติ</p>
+        <h2 class="text-xl font-bold text-pp7-800">💰 ค่าตอบแทนและแรงจูงใจ (P6)</h2>
+        <p class="text-gray-600 text-sm mt-1">ระบบจ่ายเงินเดือน, ค่าตอบแทน และ Incentive Points — เชื่อมข้อมูลจาก P3 อัตโนมัติ</p>
       </div>
       <a href="docs/p6-forms/index.html" target="_blank" class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700">🚀 เปิด P6 Dashboard</a>
     </div>
 
     <div class="grid md:grid-cols-3 gap-4">
-      <div class="border border-green-200 rounded-lg p-4 bg-green-50 text-center hover:shadow-lg transition cursor-pointer" onclick="openP6('payroll')">
+      <a href="docs/p6-forms/index.html?mode=payroll" target="_blank" class="border border-green-200 rounded-lg p-4 bg-green-50 text-center hover:shadow-lg transition cursor-pointer block">
         <div class="text-4xl mb-2">💵</div>
         <h3 class="font-bold text-green-800">คำนวณเงินเดือน</h3>
         <p class="text-xs text-gray-600 mt-1">ดึงข้อมูลจาก P3 อัตโนมัติ</p>
         <p class="text-xs text-green-600 mt-2">LDC-WCD-WI-004</p>
-      </div>
-      <div class="border border-blue-200 rounded-lg p-4 bg-blue-50 text-center hover:shadow-lg transition cursor-pointer" onclick="openP6('retirement')">
+      </a>
+      <a href="docs/p6-forms/index.html?mode=retirement" target="_blank" class="border border-blue-200 rounded-lg p-4 bg-blue-50 text-center hover:shadow-lg transition cursor-pointer block">
         <div class="text-4xl mb-2">👴</div>
         <h3 class="font-bold text-blue-800">ระบบเกษียณ</h3>
         <p class="text-xs text-gray-600 mt-1">คำนวณเงินชดเชยตามกฎหมาย</p>
         <p class="text-xs text-blue-600 mt-2">LDC-WCD-WI-006</p>
-      </div>
-      <div class="border border-purple-200 rounded-lg p-4 bg-purple-50 text-center hover:shadow-lg transition cursor-pointer" onclick="openP6('incentive')">
+      </a>
+      <a href="docs/p6-forms/index.html?mode=incentive" target="_blank" class="border border-purple-200 rounded-lg p-4 bg-purple-50 text-center hover:shadow-lg transition cursor-pointer block">
         <div class="text-4xl mb-2">🎯</div>
-        <h3 class="font-bold text-purple-800">บันทึก INC</h3>
-        <p class="text-xs text-gray-600 mt-1">BU บันทึก Incentive</p>
-        <p class="text-xs text-purple-600 mt-2">เชื่อม BU → Payroll</p>
-      </div>
+        <h3 class="font-bold text-purple-800">Incentive Points</h3>
+        <p class="text-xs text-gray-600 mt-1">BU บันทึก → โอน MSP App</p>
+        <p class="text-xs text-purple-600 mt-2">Cash → Points → Cashout</p>
+      </a>
     </div>
 
     <div class="mt-6">
@@ -1111,7 +1111,7 @@ const NEW_PROCESS_DATA = {
           </div>
           <span class="text-green-600 text-xs">→ เปิด</span>
         </div>
-        <div class="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded border border-green-300 hover:shadow-md transition cursor-pointer" onclick="openP6('payroll')">
+        <a href="docs/p6-forms/index.html?mode=payroll" target="_blank" class="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded border border-green-300 hover:shadow-md transition cursor-pointer">
           <div class="flex items-center gap-3">
             <span class="text-2xl">💵</span>
             <div>
@@ -1120,8 +1120,8 @@ const NEW_PROCESS_DATA = {
             </div>
           </div>
           <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">🚀 ใหม่</span>
-        </div>
-        <div class="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded border border-blue-300 hover:shadow-md transition cursor-pointer" onclick="openP6('retirement')">
+        </a>
+        <a href="docs/p6-forms/index.html?mode=retirement" target="_blank" class="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded border border-blue-300 hover:shadow-md transition cursor-pointer">
           <div class="flex items-center gap-3">
             <span class="text-2xl">👴</span>
             <div>
@@ -1130,16 +1130,11 @@ const NEW_PROCESS_DATA = {
             </div>
           </div>
           <span class="bg-blue-600 text-white px-2 py-1 rounded text-xs">🚀 ใหม่</span>
-        </div>
+        </a>
       </div>
     </div>
   </div>
 
-  <script>
-    function openP6(mode) {
-      window.open('docs/p6-forms/index.html?mode=' + mode, '_blank');
-    }
-  </script>
 </section>
 
 <!-- ========== Quality of Life (P7) ========== -->
