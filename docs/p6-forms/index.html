@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>P6 ค่าตอบแทนและแรงจูงใจ | Web PP7</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="../p3-forms/member-data.js"></script>
   <script src="payroll.js"></script>
+  <script src="bulk-import.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'Prompt', sans-serif; }
@@ -282,12 +285,161 @@
       <div class="mt-4 bg-blue-50 border-l-4 border-blue-400 p-3 rounded text-sm">
         <div class="font-bold text-blue-900 mb-1">💡 ระบบ INC ใน Web PP7</div>
         <ul class="list-disc list-inside text-xs text-gray-700 space-y-1">
-          <li><strong>BU:</strong> บันทึกข้อมูล INC รายคน + ประเภท</li>
+          <li><strong>BU:</strong> บันทึกข้อมูล INC รายคน + ประเภท หรือกรอกผ่าน Google Sheets</li>
           <li><strong>P6:</strong> ตรวจสอบ + แปลง Cash → Points อัตโนมัติ</li>
           <li><strong>HR/PAO:</strong> โอน Points เข้า App MSP</li>
           <li><strong>สมาชิก:</strong> ใช้ Points ตามต้องการ (cashout / แลก / โอน) ผ่าน App MSP</li>
         </ul>
       </div>
+
+      <!-- ============ BULK IMPORT SECTION ============ -->
+      <div class="mt-6 border-t-4 border-purple-300 pt-6">
+        <h2 class="text-xl font-bold text-purple-800 mb-4 flex items-center gap-2">
+          <span class="bg-purple-600 text-white px-2 py-1 rounded text-xs font-mono">BULK IMPORT</span>
+          📥 นำเข้าข้อมูล INC จาก Google Sheets / CSV
+        </h2>
+        
+        <div class="bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-lg p-4 mb-4">
+          <h3 class="font-bold text-teal-900 mb-3 flex items-center gap-2">
+            <span class="text-2xl">📝</span>
+            Flow การทำงาน (Google Sheets → Web PP7)
+          </h3>
+          <div class="grid md:grid-cols-4 gap-3 text-sm">
+            <div class="bg-white p-3 rounded-lg border-t-4 border-teal-400 text-center">
+              <div class="text-3xl mb-1">📋</div>
+              <div class="font-semibold text-teal-800">1. ดาวน์โหลด Template</div>
+              <div class="text-xs text-gray-600 mt-1">หรือเปิด Google Sheets Template</div>
+            </div>
+            <div class="bg-white p-3 rounded-lg border-t-4 border-blue-400 text-center">
+              <div class="text-3xl mb-1">✍️</div>
+              <div class="font-semibold text-blue-800">2. กรอกข้อมูลพร้อมกัน</div>
+              <div class="text-xs text-gray-600 mt-1">BU หลายๆ คนกรอกได้พร้อมกัน</div>
+            </div>
+            <div class="bg-white p-3 rounded-lg border-t-4 border-amber-400 text-center">
+              <div class="text-3xl mb-1">💾</div>
+              <div class="font-semibold text-amber-800">3. Export CSV</div>
+              <div class="text-xs text-gray-600 mt-1">File → Download → CSV</div>
+            </div>
+            <div class="bg-white p-3 rounded-lg border-t-4 border-emerald-400 text-center">
+              <div class="text-3xl mb-1">📤</div>
+              <div class="font-semibold text-emerald-800">4. Bulk Import</div>
+              <div class="text-xs text-gray-600 mt-1">Upload + Validate + Submit</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 1: Download Template -->
+        <div class="bg-white border border-purple-200 rounded-lg p-4 mb-4">
+          <div class="flex items-center justify-between flex-wrap gap-3 mb-3">
+            <div>
+              <h4 class="font-bold text-purple-800">📋 ขั้นตอนที่ 1: ดาวน์โหลด Template</h4>
+              <p class="text-xs text-gray-600 mt-1">ดาวน์โหลดไฟล์ CSV หรือเปิด Google Sheets Template</p>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="downloadINCTemplate()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-semibold">
+                ⬇️ ดาวน์โหลด CSV Template
+              </button>
+              <a href="https://docs.google.com/spreadsheets/d/1yP_l-WmsnlkMDCkZB7ulhe6oS_AAex8iE3LYdPdg-uc/edit?usp=sharing" target="_blank" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-semibold inline-flex items-center gap-1">
+                📊 เปิด Google Sheets
+              </a>
+            </div>
+          </div>
+          <div class="bg-purple-50 border-l-4 border-purple-400 p-2 text-xs text-purple-900">
+            <strong>📌 Columns ที่ต้องกรอก:</strong> member_id, name, inc_type, amount, month, bu_code, remark<br>
+            <strong>💡 inc_type:</strong> sales, kpi, project, attendance, referral, innovation, customer_service, other
+          </div>
+        </div>
+
+        <!-- Step 2: Upload CSV -->
+        <div class="bg-white border border-blue-200 rounded-lg p-4 mb-4">
+          <h4 class="font-bold text-blue-800 mb-3">📤 ขั้นตอนที่ 2: อัปโหลดไฟล์ CSV</h4>
+          <div class="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center bg-blue-50 mb-3 hover:bg-blue-100 transition-colors">
+            <input type="file" id="incCSVFile" accept=".csv" onchange="handleCSVUpload(event)" class="hidden">
+            <label for="incCSVFile" class="cursor-pointer">
+              <div class="text-4xl mb-2">📂</div>
+              <div class="text-sm text-blue-800 font-semibold">คลิกเพื่อเลือกไฟล์ CSV หรือลากมาวาง</div>
+              <div class="text-xs text-blue-600 mt-1">ไฟล์ต้องเป็น .csv (UTF-8) ที่ export จาก Google Sheets</div>
+            </label>
+          </div>
+          <div class="grid md:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">เดือน (override)</label>
+              <input type="month" id="bulkMonth" class="w-full px-2 py-1.5 border rounded text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">BU Code (override)</label>
+              <input type="text" id="bulkBU" placeholder="BULK-IMP" class="w-full px-2 py-1.5 border rounded text-sm">
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Preview -->
+        <div id="bulkPreview" class="hidden bg-white border border-amber-200 rounded-lg p-4 mb-4">
+          <h4 class="font-bold text-amber-800 mb-3 flex items-center justify-between">
+            <span>👁️ ขั้นตอนที่ 3: ตรวจสอบข้อมูลก่อนนำเข้า</span>
+            <span id="previewStats" class="text-sm font-normal"></span>
+          </h4>
+          
+          <!-- Stats -->
+          <div class="grid grid-cols-4 gap-2 mb-3">
+            <div class="bg-blue-50 border border-blue-200 rounded p-2 text-center">
+              <div class="text-xs text-gray-600">รวม</div>
+              <div id="prevTotal" class="text-xl font-bold text-blue-700">0</div>
+            </div>
+            <div class="bg-green-50 border border-green-200 rounded p-2 text-center">
+              <div class="text-xs text-gray-600">ใช้ได้</div>
+              <div id="prevValid" class="text-xl font-bold text-green-700">0</div>
+            </div>
+            <div class="bg-red-50 border border-red-200 rounded p-2 text-center">
+              <div class="text-xs text-gray-600">ผิดพลาด</div>
+              <div id="prevError" class="text-xl font-bold text-red-700">0</div>
+            </div>
+            <div class="bg-purple-50 border border-purple-200 rounded p-2 text-center">
+              <div class="text-xs text-gray-600">Points รวม</div>
+              <div id="prevPoints" class="text-xl font-bold text-purple-700">0 P</div>
+            </div>
+          </div>
+
+          <!-- Validation Result Tables -->
+          <div class="grid md:grid-cols-2 gap-3">
+            <div>
+              <div class="bg-green-100 text-green-900 px-3 py-1.5 rounded font-semibold text-sm">✅ รายการที่ตรวจสอบผ่าน</div>
+              <div id="prevValidList" class="max-h-64 overflow-y-auto border border-green-300 rounded">
+                <div class="text-center p-3 text-gray-500 text-sm">ยังไม่มีข้อมูล</div>
+              </div>
+            </div>
+            <div>
+              <div class="bg-red-100 text-red-900 px-3 py-1.5 rounded font-semibold text-sm">❌ รายการที่มีปัญหา</div>
+              <div id="prevErrorList" class="max-h-64 overflow-y-auto border border-red-300 rounded">
+                <div class="text-center p-3 text-gray-500 text-sm">ยังไม่มีข้อมูล</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-2 mt-3">
+            <button onclick="importBulkINC()" id="btnImport" class="flex-1 px-5 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-semibold shadow-md">
+              ✅ นำเข้าที่ตรวจสอบผ่าน
+            </button>
+            <button onclick="hideBulkPreview()" class="px-4 py-2.5 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+              ✖️ ยกเลิก
+            </button>
+          </div>
+        </div>
+
+        <!-- Help for Google Sheets Template -->
+        <div class="bg-teal-50 border border-teal-200 rounded-lg p-3 text-xs text-teal-900">
+          <strong class="text-sm">💡 เทคนิคการใช้ Google Sheets + Bulk Import:</strong>
+          <ul class="list-disc list-inside mt-1 space-y-0.5">
+            <li>BU หลายๆ คนสามารถกรอกข้อมูลใน Google Sheets พร้อมกันได้ (Share link)</li>
+            <li>PAO/HR ตรวจสอบ แล้วสั่ง Export CSV มา Import ที่ระบบ Web PP7</li>
+            <li>ข้อมูลจะถูก Validate อัตโนมัติ (member_id, amount, month format, inc_type)</li>
+            <li>ข้อมูลที่ผิดพลาดจะถูกแยกออกไป — สามารถแก้ไขแล้ว Import ใหม่ได้</li>
+          </ul>
+        </div>
+      </div>
+      <!-- ============ END BULK IMPORT SECTION ============ -->
+
     </div>
 
     <!-- Payroll Calculator Form -->
@@ -800,6 +952,191 @@
       a.href = URL.createObjectURL(blob);
       a.download = `P6_Payroll_${r.member_id}_${month}.csv`;
       a.click();
+    }
+
+    // ============ Bulk Import Functions ============
+    let _bulkValidationResult = null;
+
+    function downloadINCTemplate() {
+      if (typeof BulkImport === 'undefined') {
+        alert('⚠️ ระบบ Bulk Import ยังไม่ได้โหลด');
+        return;
+      }
+      const csv = BulkImport.generateINCTemplateCSV();
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `P6_INC_Template.csv`;
+      a.click();
+    }
+
+    function handleCSVUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      if (!file.name.endsWith('.csv')) {
+        alert('⚠️ ต้องเป็นไฟล์ .csv เท่านั้น');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const csvText = e.target.result;
+        
+        if (typeof BulkImport === 'undefined') {
+          alert('⚠️ ระบบ Bulk Import ยังไม่ได้โหลด');
+          return;
+        }
+
+        // Parse & Validate
+        const { headers, rows } = BulkImport.parseCSV(csvText);
+        
+        if (rows.length === 0) {
+          alert('⚠️ ไฟล์ CSV ไม่มีข้อมูล');
+          return;
+        }
+
+        // Override month/bu from options
+        const overrideMonth = document.getElementById('bulkMonth').value;
+        const overrideBU = document.getElementById('bulkBU').value;
+        
+        rows.forEach(row => {
+          if (overrideMonth && !row.month) row.month = overrideMonth;
+          if (overrideBU && !row.bu_code) row.bu_code = overrideBU;
+        });
+
+        const validation = BulkImport.validateINCRows(rows);
+        _bulkValidationResult = { validation, month: overrideMonth, buCode: overrideBU };
+
+        // Show preview
+        showBulkPreview(validation);
+      };
+      reader.readAsText(file);
+    }
+
+    function showBulkPreview(validation) {
+      document.getElementById('bulkPreview').classList.remove('hidden');
+      
+      // Stats
+      document.getElementById('prevTotal').textContent = validation.total;
+      document.getElementById('prevValid').textContent = validation.validRows.length;
+      document.getElementById('prevError').textContent = validation.errors.length;
+      
+      const totalPoints = validation.validRows.reduce((s, r) => s + Math.round(r.amount_num * 10), 0);
+      document.getElementById('prevPoints').textContent = totalPoints.toLocaleString() + ' P';
+      
+      document.getElementById('previewStats').innerHTML = `<span class="text-xs text-gray-500">${validation.validRows.length}/${validation.total} ผ่านการตรวจสอบ</span>`;
+      
+      // Valid list
+      const validList = document.getElementById('prevValidList');
+      if (validation.validRows.length === 0) {
+        validList.innerHTML = '<div class="text-center p-3 text-gray-500 text-sm">ไม่มีรายการที่ผ่าน</div>';
+      } else {
+        validList.innerHTML = `<table class="w-full text-xs">
+          <thead class="bg-green-50"><tr>
+            <th class="p-1.5 text-left">รหัส</th>
+            <th class="p-1.5 text-left">ชื่อ</th>
+            <th class="p-1.5 text-center">ประเภท</th>
+            <th class="p-1.5 text-right">บาท</th>
+            <th class="p-1.5 text-right">Points</th>
+          </tr></thead>
+          <tbody>${validation.validRows.slice(0, 100).map(r => `
+            <tr class="border-t hover:bg-green-50">
+              <td class="p-1.5 font-mono text-xs">${r.member_id}</td>
+              <td class="p-1.5">${r._member?.personal?.name || r.name || '-'}</td>
+              <td class="p-1.5 text-center"><span class="px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">${r.inc_type}</span></td>
+              <td class="p-1.5 text-right">฿${r.amount_num.toLocaleString()}</td>
+              <td class="p-1.5 text-right font-bold text-purple-700">${Math.round(r.amount_num * 10).toLocaleString()}</td>
+            </tr>`).join('')}</tbody>
+        </table>
+        ${validation.validRows.length > 100 ? `<div class="text-center text-xs text-gray-500 p-1">... และอีก ${validation.validRows.length - 100} รายการ</div>` : ''}`;
+      }
+      
+      // Error list
+      const errorList = document.getElementById('prevErrorList');
+      if (validation.errors.length === 0) {
+        errorList.innerHTML = '<div class="text-center p-3 text-green-600 text-sm">✨ ไม่มีข้อผิดพลาด!</div>';
+      } else {
+        errorList.innerHTML = validation.errors.map(e => `
+          <div class="p-2 border-b text-xs">
+            <div class="font-semibold text-red-700">Row ${e.row}: ${e.row_id}</div>
+            <div class="text-red-600 mt-0.5">${e.errors.join(' | ')}</div>
+          </div>
+        `).join('');
+      }
+      
+      // Disable import if no valid rows
+      const btnImport = document.getElementById('btnImport');
+      if (validation.validRows.length === 0) {
+        btnImport.disabled = true;
+        btnImport.classList.add('opacity-50', 'cursor-not-allowed');
+      } else {
+        btnImport.disabled = false;
+        btnImport.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+      
+      // Scroll to preview
+      document.getElementById('bulkPreview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function importBulkINC() {
+      if (!_bulkValidationResult || _bulkValidationResult.validation.validRows.length === 0) {
+        alert('⚠️ ไม่มีข้อมูลให้ import');
+        return;
+      }
+
+      const { validRows, month: overrideMonth } = _bulkValidationResult;
+      const buCode = _bulkValidationResult.buCode || 'BULK-IMP';
+      
+      const confirmMsg = `✅ ยืนยันการนำเข้าข้อมูล INC?
+
+📋 จำนวน: ${validRows.length} รายการ
+💰 รวม: ฿${validRows.reduce((s, r) => s + r.amount_num, 0).toLocaleString()}
+💎 Points: ${validRows.reduce((s, r) => s + Math.round(r.amount_num * 10), 0).toLocaleString()} P
+👤 BU: ${buCode}
+📅 เดือน: ${overrideMonth || 'ตามข้อมูลในไฟล์'}`;
+
+      if (!confirm(confirmMsg)) return;
+
+      // Re-read file and import (to reset parsing state)
+      const fileInput = document.getElementById('incCSVFile');
+      const file = fileInput.files[0];
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const csvText = e.target.result;
+        
+        const result = BulkImport.importINCFromCSV(csvText, {
+          month: overrideMonth,
+          buCode: buCode
+        });
+        
+        let msg = `✅ นำเข้าสำเร็จ!
+
+📥 สำเร็จ: ${result.success} รายการ
+❌ ผิดพลาด: ${result.failed} รายการ
+💰 รวมเงินสด: ฿${result.total_cash.toLocaleString()}
+💎 รวม Points: ${result.total_points.toLocaleString()} P`;
+        
+        if (result.errors && result.errors.length > 0) {
+          msg += `\n\n⚠️ มีข้อผิดพลาด ${result.errors.length} รายการ:`;
+          msg += result.errors.slice(0, 5).map(e => `\n- Row ${e.row}: ${e.errors.join(', ')}`).join('');
+        }
+        
+        alert(msg);
+        
+        // Hide preview & reload summary
+        hideBulkPreview();
+        document.getElementById('incMonth').value = overrideMonth || new Date().toISOString().slice(0, 7);
+        loadIncSummary();
+      };
+      reader.readAsText(file);
+    }
+
+    function hideBulkPreview() {
+      document.getElementById('bulkPreview').classList.add('hidden');
+      _bulkValidationResult = null;
+      document.getElementById('incCSVFile').value = '';
     }
   </script>
 
