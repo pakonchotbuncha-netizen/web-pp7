@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P2 — Interview Management | PP7</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Prompt', sans-serif; }
+    body { background: #f1f5f9; color: #1e293b; }
+
+    .sidebar { width: 260px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 30; transition: transform 0.3s; }
+    .sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.25rem; color: #94a3b8; font-size: 0.875rem; border-radius: 0.5rem; margin: 0.15rem 0.75rem; transition: all 0.15s; text-decoration: none; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+    .sidebar-link.active { background: rgba(59,130,246,0.15); color: #60a5fa; font-weight: 500; }
+    .sidebar-section { padding: 0.5rem 1.25rem; font-size: 0.65rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.75rem; }
+
+    .stat-card { background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(15,23,42,0.07); padding: 1.25rem 1.5rem; transition: transform 0.15s; }
+    .stat-card:hover { transform: translateY(-2px); }
+
+    .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-purple { background: #f3e8ff; color: #6b21a8; }
+    .badge-gray { background: #f1f5f9; color: #475569; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 0.7rem 1rem; font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #e2e8f0; background: #f8fafc; }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.875rem; }
+    tr:hover td { background: #f8fafc; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.4); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 1rem; max-width: 640px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(15,23,42,0.2); }
+    .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.75rem; }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-label { display: block; font-size: 0.8rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem; }
+    .form-input { width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.875rem; outline: none; transition: border 0.15s; font-family: 'Prompt'; }
+    .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+    textarea.form-input { resize: vertical; }
+
+    .btn { padding: 0.45rem 1rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; font-family: 'Prompt'; display: inline-flex; align-items: center; gap: 0.4rem; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-success { background: #10b981; color: #fff; }
+    .btn-success:hover { background: #059669; }
+    .btn-outline { background: #fff; border: 1px solid #e2e8f0; color: #64748b; }
+    .btn-outline:hover { background: #f8fafc; }
+    .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.7rem; }
+
+    .search-box { position: relative; }
+    .search-box input { width: 100%; padding: 0.55rem 1rem 0.55rem 2.25rem; border-radius: 0.5rem; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 0.875rem; outline: none; font-family: 'Prompt'; }
+    .search-box input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+    .search-box svg { position: absolute; left: 0.65rem; top: 50%; transform: translateY(-50%); color: #94a3b8; width: 16px; height: 16px; }
+
+    .pagination { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; }
+    .page-btn { padding: 0.35rem 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.375rem; font-size: 0.8rem; cursor: pointer; background: #fff; font-family: 'Prompt'; }
+    .page-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Score stars */
+    .score-display { display: inline-flex; align-items: center; gap: 0.15rem; }
+    .score-bar { width: 60px; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; display: inline-block; vertical-align: middle; margin-left: 4px; }
+    .score-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 1024px) {
+      .sidebar { transform: translateX(-260px); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0 !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="p-5 border-b border-white/10">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-blue-500 rounded-lg flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </div>
+      <div>
+        <h1 class="text-white font-semibold text-sm">PP7 System</h1>
+        <p class="text-slate-400 text-xs">Phase 1-2 Module</p>
+      </div>
+    </div>
+  </div>
+  <div class="py-3">
+    <div class="sidebar-section">P1 — แสวงหา</div>
+    <a href="p1-headcount.html" class="sidebar-link">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Headcount Request
+    </a>
+    <a href="p1-candidates.html" class="sidebar-link">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      Candidate Pipeline
+    </a>
+    <div class="sidebar-section">P2 — หยั่งประเมิน</div>
+    <a href="p2-interviews.html" class="sidebar-link active">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      Interview
+    </a>
+    <a href="p2-assessment.html" class="sidebar-link">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+      Assessment
+    </a>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<div class="main-content transition-all duration-300" style="margin-left:260px;">
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-20 px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button class="lg:hidden btn btn-outline" onclick="toggleSidebar()">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div>
+        <h2 class="text-lg font-semibold text-gray-800">📅 Interview Management</h2>
+        <p class="text-xs text-gray-500">P2.1 — จัดการนัดสัมภาษณ์และบันทึกผล</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="btn btn-outline" onclick="importFromP1()" title="นำเข้าจาก P1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+        Import from P1
+      </button>
+      <button class="btn btn-primary" onclick="openAddModal()">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        เพิ่มรายการ
+      </button>
+    </div>
+  </header>
+
+  <div class="p-6 fade-in">
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+      <div class="stat-card border-l-4 border-blue-500">
+        <div class="text-2xl font-bold text-blue-600" id="stat-total">0</div>
+        <div class="text-xs text-gray-500">ทั้งหมด</div>
+      </div>
+      <div class="stat-card border-l-4 border-amber-500">
+        <div class="text-2xl font-bold text-amber-600" id="stat-scheduled">0</div>
+        <div class="text-xs text-gray-500">นัดแล้ว</div>
+      </div>
+      <div class="stat-card border-l-4 border-cyan-500">
+        <div class="text-2xl font-bold text-cyan-600" id="stat-completed">0</div>
+        <div class="text-xs text-gray-500">สัมภาษณ์แล้ว</div>
+      </div>
+      <div class="stat-card border-l-4 border-green-500">
+        <div class="text-2xl font-bold text-green-600" id="stat-pass">0</div>
+        <div class="text-xs text-gray-500">ผ่าน</div>
+      </div>
+      <div class="stat-card border-l-4 border-red-500">
+        <div class="text-2xl font-bold text-red-600" id="stat-fail">0</div>
+        <div class="text-xs text-gray-500">ไม่ผ่าน</div>
+      </div>
+    </div>
+
+    <!-- Import Alert -->
+    <div id="importAlert" class="hidden mb-4 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-blue-800">📥 มีข้อมูลจาก P1 รอนำเข้า <span id="importCount" class="font-bold"></span> รายการ</p>
+        <p class="text-xs text-blue-600 mt-1">ผู้สมัครที่เข้าสู่ขั้นตอน Interview ใน P1</p>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="doImportFromP1()">นำเข้าเลย →</button>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4">
+      <div class="flex flex-wrap items-center gap-3 justify-between">
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="search-box">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" id="searchInput" placeholder="ค้นหาผู้สมัคร, ตำแหน่ง..." oninput="filterData()">
+          </div>
+          <select class="form-input" style="width:auto;" id="filterStatus" onchange="filterData()">
+            <option value="all">ทุกสถานะ</option>
+            <option value="Scheduled">นัดแล้ว</option>
+            <option value="Completed">สัมภาษณ์แล้ว</option>
+            <option value="Pass">ผ่าน</option>
+            <option value="Fail">ไม่ผ่าน</option>
+            <option value="Cancelled">ยกเลิก</option>
+          </select>
+          <input type="date" class="form-input" style="width:auto;" id="filterDate" onchange="filterData()" title="กรองตามวันที่">
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table>
+          <thead>
+            <tr>
+              <th>วันที่</th>
+              <th>เวลา</th>
+              <th>ผู้สมัคร</th>
+              <th>ตำแหน่ง</th>
+              <th>BU</th>
+              <th>ผู้สัมภาษณ์</th>
+              <th>คะแนน</th>
+              <th>สถานะ</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="9" class="text-center py-10 text-gray-400">กำลังโหลด...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="px-4 border-t border-gray-100">
+        <div class="pagination">
+          <div class="flex items-center gap-2 text-sm text-gray-500">
+            <span>แสดง</span>
+            <select class="form-input" style="width:auto;padding:0.3rem 0.5rem;font-size:0.8rem;" id="pageSize" onchange="changePageSize()">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+            <span id="pageInfo">หน้า 1 / 1</span>
+          </div>
+          <div class="flex items-center gap-1" id="pageButtons"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add/Edit Interview -->
+<div class="modal-overlay" id="formModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">เพิ่มนัดสัมภาษณ์</h3>
+      <button class="text-2xl text-gray-400 hover:text-gray-800 bg-transparent border-none cursor-pointer" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="formId">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="form-group">
+          <label class="form-label">วันที่สัมภาษณ์ *</label>
+          <input type="date" class="form-input" id="formDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">เวลา *</label>
+          <input type="time" class="form-input" id="formTime" value="09:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ชื่อผู้สมัคร *</label>
+          <input type="text" class="form-input" id="formCandidate" placeholder="ชื่อผู้สมัคร">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Candidate ID (จาก P1)</label>
+          <input type="text" class="form-input" id="formCandidateId" placeholder="เช่น CD-001">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ตำแหน่ง *</label>
+          <input type="text" class="form-input" id="formPosition" placeholder="ตำแหน่ง">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Business Unit</label>
+          <input type="text" class="form-input" id="formBU" placeholder="BU">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ผู้สัมภาษณ์</label>
+          <input type="text" class="form-input" id="formInterviewer" placeholder="ชื่อผู้สัมภาษณ์">
+        </div>
+        <div class="form-group">
+          <label class="form-label">รอบสัมภาษณ์</label>
+          <select class="form-input" id="formRound">
+            <option value="1">รอบที่ 1 — HR Screen</option>
+            <option value="2">รอบที่ 2 — Technical</option>
+            <option value="3">รอบที่ 3 — Management</option>
+            <option value="4">รอบที่ 4 — Final</option>
+          </select>
+        </div>
+        <div class="form-group md:col-span-2">
+          <label class="form-label">หมายเหตุ</label>
+          <textarea class="form-input" id="formNotes" rows="2" placeholder="รายละเอียดเพิ่มเติม..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveRecord()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Record Result -->
+<div class="modal-overlay" id="resultModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <h3>📝 บันทึกผลการสัมภาษณ์</h3>
+      <button class="text-2xl text-gray-400 hover:text-gray-800 bg-transparent border-none cursor-pointer" onclick="closeResultModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="resultId">
+      <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+        <p class="text-sm font-medium" id="resultCandidateName">—</p>
+        <p class="text-xs text-gray-500" id="resultPosition">—</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">ผลสัมภาษณ์ *</label>
+        <select class="form-input" id="resultDecision">
+          <option value="">— เลือกผล —</option>
+          <option value="Pass">✅ ผ่าน</option>
+          <option value="Fail">❌ ไม่ผ่าน</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">คะแนน (1-10) *</label>
+        <input type="range" class="w-full" id="resultScore" min="1" max="10" value="5" oninput="updateScoreDisplay()">
+        <div class="flex justify-between text-xs text-gray-400 mt-1">
+          <span>1 (ต่ำ)</span>
+          <span class="font-bold text-lg" id="scoreValue">5</span>
+          <span>10 (สูง)</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">จุดแข็ง</label>
+        <textarea class="form-input" id="resultStrengths" rows="2" placeholder="จุดแข็งของผู้สมัคร..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">จุดที่ควรพัฒนา</label>
+        <textarea class="form-input" id="resultWeaknesses" rows="2" placeholder="จุดที่ควรพัฒนา..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">หมายเหตุเพิ่มเติม</label>
+        <textarea class="form-input" id="resultNotes" rows="2" placeholder="หมายเหตุ..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeResultModal()">ยกเลิก</button>
+      <button class="btn btn-success" onclick="saveResult()">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        บันทึกผล
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirm Delete -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <h3>⚠️ ยืนยันการลบ</h3>
+      <button class="text-2xl text-gray-400 hover:text-gray-800 bg-transparent border-none cursor-pointer" onclick="closeConfirm()">&times;</button>
+    </div>
+    <div class="modal-body text-center">
+      <p class="text-gray-600" id="confirmMessage">คุณแน่ใจหรือไม่ว่าต้องการลบ?</p>
+    </div>
+    <div class="modal-footer justify-center">
+      <button class="btn btn-outline" onclick="closeConfirm()">ยกเลิก</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">ลบ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-6 right-6 z-[200] hidden">
+  <div class="bg-gray-800 text-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-2 text-sm">
+    <span id="toastMsg"></span>
+  </div>
+</div>
+
+<script src="../api-adapter.js"></script>
+<script>
+// ============================================================
+// State
+// ============================================================
+var allData = [];
+var filteredData = [];
+var currentPage = 1;
+var pageSize = 10;
+var deleteTargetId = null;
+
+// ============================================================
+// Mock Data
+// ============================================================
+var MOCK_DATA = [
+  {
+    id: 'IV-001', date: '2025-07-01', time: '09:00', candidate_name: 'สมชาย ใจดี',
+    candidate_id: 'CD-001', position: 'IT Manager', business_unit: 'Corporate',
+    interviewer: 'ดร.สมศักดิ์', round: 1, status: 'Pass', score: 8,
+    strengths: 'ประสบการณ์ดี มีภาวะผู้นำ', weaknesses: 'อาจต้องเรียนรู้ระบบใหม่',
+    notes: 'แนะนำส่งต่อ Assessment'
+  },
+  {
+    id: 'IV-002', date: '2025-07-02', time: '10:30', candidate_name: 'สมหญิง รักงาน',
+    candidate_id: 'CD-002', position: 'Production Supervisor', business_unit: 'Meat Processing',
+    interviewer: 'คุณวิภา', round: 2, status: 'Completed', score: null,
+    strengths: '', weaknesses: '', notes: 'รอประเมินผล'
+  },
+  {
+    id: 'IV-003', date: '2025-07-03', time: '14:00', candidate_name: 'Nattaya Srisuk',
+    candidate_id: 'CD-004', position: 'Logistics Coordinator', business_unit: 'Logistics',
+    interviewer: 'คุณธนา', round: 1, status: 'Scheduled', score: null,
+    strengths: '', weaknesses: '', notes: ''
+  },
+  {
+    id: 'IV-004', date: '2025-06-28', time: '11:00', candidate_name: 'วิชัย มั่นคง',
+    candidate_id: 'CD-005', position: 'Sales Manager', business_unit: 'Retail',
+    interviewer: 'ดร.สมศักดิ์', round: 3, status: 'Fail', score: 4,
+    strengths: 'บุคลิกดี', weaknesses: 'ขาดทักษะการจัดการทีม', notes: 'ไม่ผ่านรอบ Management'
+  }
+];
+
+// ============================================================
+// Init
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  loadData();
+  checkP1Imports();
+});
+
+async function loadData() {
+  try {
+    if (PP7API_CONFIG.BASE_URL && typeof PP7API !== 'undefined') {
+      var response = await PP7API.getInterviews();
+      if (response && response.success && response.data && response.data.length > 0) {
+        allData = response.data;
+        updateUI();
+        return;
+      }
+    }
+  } catch (e) {
+    console.log('API not ready');
+  }
+  allData = MOCK_DATA.slice();
+  updateUI();
+}
+
+function updateUI() {
+  updateStats();
+  filterData();
+}
+
+// ============================================================
+// Stats
+// ============================================================
+function updateStats() {
+  document.getElementById('stat-total').textContent = allData.length;
+  document.getElementById('stat-scheduled').textContent = allData.filter(function(d) { return d.status === 'Scheduled'; }).length;
+  document.getElementById('stat-completed').textContent = allData.filter(function(d) { return d.status === 'Completed'; }).length;
+  document.getElementById('stat-pass').textContent = allData.filter(function(d) { return d.status === 'Pass'; }).length;
+  document.getElementById('stat-fail').textContent = allData.filter(function(d) { return d.status === 'Fail'; }).length;
+}
+
+// ============================================================
+// Import from P1
+// ============================================================
+function checkP1Imports() {
+  var pending = JSON.parse(localStorage.getItem('pp7_pending_interviews') || '[]');
+  if (pending.length > 0) {
+    document.getElementById('importAlert').classList.remove('hidden');
+    document.getElementById('importCount').textContent = pending.length;
+  }
+}
+
+function importFromP1() {
+  checkP1Imports();
+  if (document.getElementById('importAlert').classList.contains('hidden')) {
+    showToast('ไม่มีข้อมูลจาก P1 รอนำเข้า');
+  }
+}
+
+function doImportFromP1() {
+  var pending = JSON.parse(localStorage.getItem('pp7_pending_interviews') || '[]');
+  pending.forEach(function(item) {
+    var maxNum = 0;
+    allData.forEach(function(d) {
+      var num = parseInt(d.id.replace('IV-', ''));
+      if (num > maxNum) maxNum = num;
+    });
+    var newInterview = {
+      id: 'IV-' + String(maxNum + 1).padStart(3, '0'),
+      date: item.scheduled_date || new Date().toISOString().slice(0, 10),
+      time: '09:00',
+      candidate_name: item.candidate_name || 'Unknown',
+      candidate_id: item.candidate_id || '',
+      position: item.position || '',
+      business_unit: item.business_unit || '',
+      interviewer: '',
+      round: 1,
+      status: 'Scheduled',
+      score: null,
+      strengths: '',
+      weaknesses: '',
+      notes: 'Imported from P1 Pipeline'
+    };
+    allData.push(newInterview);
+  });
+
+  localStorage.removeItem('pp7_pending_interviews');
+  document.getElementById('importAlert').classList.add('hidden');
+  updateUI();
+  showToast('นำเข้าจาก P1 สำเร็จ ' + pending.length + ' รายการ ✅');
+}
+
+// ============================================================
+// Filter
+// ============================================================
+function filterData() {
+  var search = document.getElementById('searchInput').value.toLowerCase();
+  var statusFilter = document.getElementById('filterStatus').value;
+  var dateFilter = document.getElementById('filterDate').value;
+
+  filteredData = allData.filter(function(item) {
+    var matchSearch = !search ||
+      (item.candidate_name && item.candidate_name.toLowerCase().includes(search)) ||
+      (item.position && item.position.toLowerCase().includes(search)) ||
+      (item.interviewer && item.interviewer.toLowerCase().includes(search));
+    var matchStatus = statusFilter === 'all' || item.status === statusFilter;
+    var matchDate = !dateFilter || item.date === dateFilter;
+    return matchSearch && matchStatus && matchDate;
+  });
+
+  // Sort by date desc
+  filteredData.sort(function(a, b) {
+    return (b.date || '').localeCompare(a.date || '');
+  });
+
+  currentPage = 1;
+  renderTable();
+  renderPagination();
+}
+
+// ============================================================
+// Table
+// ============================================================
+function renderTable() {
+  var tbody = document.getElementById('tableBody');
+  var start = (currentPage - 1) * pageSize;
+  var end = start + pageSize;
+  var pageData = filteredData.slice(start, end);
+
+  if (pageData.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center py-10 text-gray-400">ไม่พบข้อมูล</td></tr>';
+    return;
+  }
+
+  var html = '';
+  pageData.forEach(function(item) {
+    html += '<tr>';
+    html += '<td>' + formatDate(item.date) + '</td>';
+    html += '<td class="text-sm">' + (item.time || '—') + '</td>';
+    html += '<td class="font-medium">' + escapeHtml(item.candidate_name) + '</td>';
+    html += '<td>' + escapeHtml(item.position) + '</td>';
+    html += '<td>' + escapeHtml(item.business_unit) + '</td>';
+    html += '<td>' + escapeHtml(item.interviewer || '—') + '</td>';
+    html += '<td>' + renderScore(item.score) + '</td>';
+    html += '<td>' + renderStatus(item.status) + '</td>';
+    html += '<td>';
+    html += '<div class="flex items-center gap-1">';
+    if (item.status === 'Scheduled' || item.status === 'Completed') {
+      html += '<button class="btn btn-success btn-sm" onclick="openResultModal(\'' + item.id + '\')" title="บันทึกผล">📝</button>';
+    }
+    html += '<button class="btn btn-outline btn-sm" onclick="openEditModal(\'' + item.id + '\')" title="แก้ไข">✏️</button>';
+    html += '<button class="btn btn-danger btn-sm" onclick="askDelete(\'' + item.id + '\')" title="ลบ">🗑️</button>';
+    html += '</div>';
+    html += '</td>';
+    html += '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+function renderScore(score) {
+  if (!score && score !== 0) return '<span class="text-gray-400 text-sm">—</span>';
+  var color = score >= 7 ? '#10b981' : score >= 5 ? '#f59e0b' : '#ef4444';
+  return '<div class="flex items-center gap-1">';
+  html = '<span class="font-bold" style="color:' + color + '">' + score + '/10</span>';
+  html += '<div class="score-bar"><div class="score-fill" style="width:' + (score * 10) + '%;background:' + color + '"></div></div>';
+  return html + '</div>';
+}
+
+function renderStatus(status) {
+  var map = {
+    'Scheduled': '<span class="badge badge-amber">📅 นัดแล้ว</span>',
+    'Completed': '<span class="badge badge-blue">💬 สัมภาษณ์แล้ว</span>',
+    'Pass': '<span class="badge badge-green">✅ ผ่าน</span>',
+    'Fail': '<span class="badge badge-red">❌ ไม่ผ่าน</span>',
+    'Cancelled': '<span class="badge badge-gray">🚫 ยกเลิก</span>'
+  };
+  return map[status] || '<span class="badge badge-gray">' + (status || '—') + '</span>';
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  var d = new Date(dateStr);
+  return d.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ============================================================
+// Pagination
+// ============================================================
+function renderPagination() {
+  var totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
+  document.getElementById('pageInfo').textContent = 'หน้า ' + currentPage + ' / ' + totalPages;
+
+  var btns = '';
+  btns += '<button class="page-btn" onclick="goToPage(' + (currentPage - 1) + ')" ' + (currentPage <= 1 ? 'disabled' : '') + '>‹</button>';
+  var s = Math.max(1, currentPage - 2);
+  var e = Math.min(totalPages, currentPage + 2);
+  for (var i = s; i <= e; i++) {
+    btns += '<button class="page-btn' + (i === currentPage ? ' active' : '') + '" onclick="goToPage(' + i + ')">' + i + '</button>';
+  }
+  btns += '<button class="page-btn" onclick="goToPage(' + (currentPage + 1) + ')" ' + (currentPage >= totalPages ? 'disabled' : '') + '>›</button>';
+  document.getElementById('pageButtons').innerHTML = btns;
+}
+
+function goToPage(page) {
+  var total = Math.ceil(filteredData.length / pageSize);
+  if (page < 1 || page > total) return;
+  currentPage = page;
+  renderTable();
+  renderPagination();
+}
+
+function changePageSize() {
+  pageSize = parseInt(document.getElementById('pageSize').value);
+  currentPage = 1;
+  renderTable();
+  renderPagination();
+}
+
+// ============================================================
+// Modal: Add / Edit
+// ============================================================
+function openAddModal() {
+  document.getElementById('modalTitle').textContent = '➕ เพิ่มนัดสัมภาษณ์';
+  document.getElementById('formId').value = '';
+  document.getElementById('formDate').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('formTime').value = '09:00';
+  document.getElementById('formCandidate').value = '';
+  document.getElementById('formCandidateId').value = '';
+  document.getElementById('formPosition').value = '';
+  document.getElementById('formBU').value = '';
+  document.getElementById('formInterviewer').value = '';
+  document.getElementById('formRound').value = '1';
+  document.getElementById('formNotes').value = '';
+  document.getElementById('formModal').classList.add('open');
+}
+
+function openEditModal(id) {
+  var record = allData.find(function(d) { return d.id === id; });
+  if (!record) return;
+  document.getElementById('modalTitle').textContent = '✏️ แก้ไขนัดสัมภาษณ์ ' + id;
+  document.getElementById('formId').value = record.id;
+  document.getElementById('formDate').value = record.date || '';
+  document.getElementById('formTime').value = record.time || '09:00';
+  document.getElementById('formCandidate').value = record.candidate_name || '';
+  document.getElementById('formCandidateId').value = record.candidate_id || '';
+  document.getElementById('formPosition').value = record.position || '';
+  document.getElementById('formBU').value = record.business_unit || '';
+  document.getElementById('formInterviewer').value = record.interviewer || '';
+  document.getElementById('formRound').value = record.round || 1;
+  document.getElementById('formNotes').value = record.notes || '';
+  document.getElementById('formModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('formModal').classList.remove('open');
+}
+
+// ============================================================
+// Save
+// ============================================================
+async function saveRecord() {
+  var id = document.getElementById('formId').value;
+  var record = {
+    date: document.getElementById('formDate').value,
+    time: document.getElementById('formTime').value,
+    candidate_name: document.getElementById('formCandidate').value,
+    candidate_id: document.getElementById('formCandidateId').value,
+    position: document.getElementById('formPosition').value,
+    business_unit: document.getElementById('formBU').value,
+    interviewer: document.getElementById('formInterviewer').value,
+    round: parseInt(document.getElementById('formRound').value),
+    notes: document.getElementById('formNotes').value
+  };
+
+  if (!record.date || !record.candidate_name || !record.position) {
+    showToast('กรุณากรอก วันที่, ชื่อผู้สมัคร, และตำแหน่ง', true);
+    return;
+  }
+
+  // ถ้าสถานะเดิมเป็นScheduled และไม่ได้เซ็ต status ไว้ ให้คงไว้
+  if (id) {
+    var existing = allData.find(function(d) { return d.id === id; });
+    if (existing) record.status = existing.status || 'Scheduled';
+  } else {
+    record.status = 'Scheduled';
+  }
+
+  try {
+    if (PP7API_CONFIG.BASE_URL && typeof PP7API !== 'undefined') {
+      if (id) {
+        await PP7API.updateRecord('interviews', id, record);
+      } else {
+        await PP7API.createInterview(record);
+      }
+      closeModal();
+      loadData();
+      showToast(id ? 'อัปเดตเรียบร้อย ✅' : 'สร้างเรียบร้อย ✅');
+      return;
+    }
+  } catch (e) { console.log('API error'); }
+
+  // Local
+  if (id) {
+    var idx = allData.findIndex(function(d) { return d.id === id; });
+    if (idx !== -1) Object.assign(allData[idx], record);
+    showToast('อัปเดตเรียบร้อย ✅');
+  } else {
+    var maxNum = 0;
+    allData.forEach(function(d) {
+      var num = parseInt(d.id.replace('IV-', ''));
+      if (num > maxNum) maxNum = num;
+    });
+    record.id = 'IV-' + String(maxNum + 1).padStart(3, '0');
+    allData.push(record);
+    showToast('สร้างเรียบร้อย ✅');
+  }
+
+  closeModal();
+  updateUI();
+}
+
+// ============================================================
+// Result Modal
+// ============================================================
+function openResultModal(id) {
+  var record = allData.find(function(d) { return d.id === id; });
+  if (!record) return;
+  document.getElementById('resultId').value = id;
+  document.getElementById('resultCandidateName').textContent = '🎯 ' + record.candidate_name;
+  document.getElementById('resultPosition').textContent = record.position + ' | ' + (record.business_unit || '');
+  document.getElementById('resultDecision').value = record.status === 'Pass' ? 'Pass' : record.status === 'Fail' ? 'Fail' : '';
+  document.getElementById('resultScore').value = record.score || 5;
+  updateScoreDisplay();
+  document.getElementById('resultStrengths').value = record.strengths || '';
+  document.getElementById('resultWeaknesses').value = record.weaknesses || '';
+  document.getElementById('resultNotes').value = record.notes || '';
+  document.getElementById('resultModal').classList.add('open');
+}
+
+function closeResultModal() {
+  document.getElementById('resultModal').classList.remove('open');
+}
+
+function updateScoreDisplay() {
+  document.getElementById('scoreValue').textContent = document.getElementById('resultScore').value;
+}
+
+async function saveResult() {
+  var id = document.getElementById('resultId').value;
+  var decision = document.getElementById('resultDecision').value;
+  var score = parseInt(document.getElementById('resultScore').value);
+
+  if (!decision) {
+    showToast('กรุณาเลือกผลสัมภาษณ์ (ผ่าน/ไม่ผ่าน)', true);
+    return;
+  }
+
+  try {
+    if (PP7API_CONFIG.BASE_URL && typeof PP7API !== 'undefined') {
+      await PP7API.updateRecord('interviews', id, {
+        status: decision,
+        score: score,
+        strengths: document.getElementById('resultStrengths').value,
+        weaknesses: document.getElementById('resultWeaknesses').value,
+        notes: document.getElementById('resultNotes').value
+      });
+      closeResultModal();
+      showToast('บันทึกผลสัมภาษณ์เรียบร้อย ✅');
+
+      // ถ้าผ่าน → แจ้งสร้าง Assessment
+      if (decision === 'Pass') {
+        if (confirm('ผู้สมัครผ่านสัมภาษณ์ ต้องการไปสร้างแบบประเมิน Competency (P2 Assessment) หรือไม่?')) {
+          window.location.href = 'p2-assessment.html?candidate=' + encodeURIComponent(id);
+        }
+      }
+
+      loadData();
+      return;
+    }
+  } catch (e) { console.log('API error'); }
+
+  // Local
+  var idx = allData.findIndex(function(d) { return d.id === id; });
+  if (idx !== -1) {
+    allData[idx].status = decision;
+    allData[idx].score = score;
+    allData[idx].strengths = document.getElementById('resultStrengths').value;
+    allData[idx].weaknesses = document.getElementById('resultWeaknesses').value;
+    allData[idx].notes = document.getElementById('resultNotes').value;
+    showToast('บันทึกผลสัมภาษณ์เรียบร้อย ✅');
+
+    if (decision === 'Pass') {
+      // เก็บข้อมูลเพื่อส่งไป Assessment
+      var pendingAssess = JSON.parse(localStorage.getItem('pp7_pending_assessments') || '[]');
+      pendingAssess.push({
+        interview_id: id,
+        candidate_name: allData[idx].candidate_name,
+        candidate_id: allData[idx].candidate_id,
+        position: allData[idx].position,
+        score: score
+      });
+      localStorage.setItem('pp7_pending_assessments', JSON.stringify(pendingAssess));
+      showToast('💡 บันทึกแล้ว — สามารถไปสร้างแบบประเมิน Competency ได้ที่หน้า Assessment');
+    }
+  }
+
+  closeResultModal();
+  updateUI();
+}
+
+// ============================================================
+// Delete
+// ============================================================
+function askDelete(id) {
+  deleteTargetId = id;
+  document.getElementById('confirmMessage').textContent = 'คุณแน่ใจหรือไม่ว่าต้องการลบรายการสัมภาษณ์ ' + id + '?';
+  document.getElementById('confirmModal').classList.add('open');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.remove('open');
+  deleteTargetId = null;
+}
+
+async function confirmDelete() {
+  if (!deleteTargetId) return;
+  try {
+    if (PP7API_CONFIG.BASE_URL) {
+      await PP7API.deleteRecord('interviews', deleteTargetId);
+      closeConfirm();
+      loadData();
+      showToast('ลบเรียบร้อย 🗑️');
+      return;
+    }
+  } catch (e) {}
+  allData = allData.filter(function(d) { return d.id !== deleteTargetId; });
+  closeConfirm();
+  showToast('ลบเรียบร้อย 🗑️');
+  updateUI();
+}
+
+// ============================================================
+// Utility
+// ============================================================
+function showToast(message, isError) {
+  var toast = document.getElementById('toast');
+  var inner = toast.querySelector('div');
+  document.getElementById('toastMsg').textContent = message;
+  inner.className = (isError ? 'bg-red-600' : 'bg-gray-800') + ' text-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-2 text-sm';
+  toast.classList.remove('hidden');
+  setTimeout(function() { toast.classList.add('hidden'); }, 3000);
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+</script>
+</body>
+</html>

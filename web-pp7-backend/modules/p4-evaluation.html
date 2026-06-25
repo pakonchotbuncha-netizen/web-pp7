@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P4 — Performance Evaluation | PP7</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../api-adapter.js"></script>
+  <style>
+    * { font-family: 'Prompt', sans-serif; }
+    body { background: #f1f5f9; color: #1e293b; margin: 0; }
+
+    /* Sidebar */
+    .sidebar { width: 260px; background: #0f172a; color: #e2e8f0; min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 40; transition: transform 0.3s; }
+    .sidebar-hidden { transform: translateX(-100%); }
+    .sidebar .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.25rem; color: #94a3b8; text-decoration: none; font-size: 0.875rem; border-radius: 0.5rem; margin: 0.15rem 0.75rem; transition: all 0.15s; }
+    .sidebar .nav-link:hover { background: #1e293b; color: #e2e8f0; }
+    .sidebar .nav-link.active { background: #2563eb; color: #fff; font-weight: 500; }
+    .sidebar .nav-section { padding: 0.5rem 1.25rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-top: 0.75rem; }
+    .main-content { margin-left: 260px; transition: margin-left 0.3s; }
+
+    /* Cards */
+    .card { background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(15,23,42,.07); padding: 1.5rem; }
+    .stat-card { position: relative; overflow: hidden; }
+    .stat-card::before { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; border-radius: 0 0 0 80px; opacity: 0.1; }
+    .stat-card.blue::before { background: #3b82f6; }
+    .stat-card.green::before { background: #10b981; }
+    .stat-card.amber::before { background: #f59e0b; }
+    .stat-card.purple::before { background: #8b5cf6; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 0.7rem 1rem; font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #e2e8f0; background: #f8fafc; cursor: pointer; user-select: none; white-space: nowrap; }
+    th:hover { background: #e2e8f0; }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.875rem; }
+    tr:hover td { background: #f8fafc; }
+
+    /* Badge */
+    .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-gray { background: #f1f5f9; color: #475569; }
+    .badge-purple { background: #f3e8ff; color: #7c3aed; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.4); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 1rem; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(15,23,42,.2); }
+    .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
+    .modal-body { padding: 1.5rem; }
+
+    /* Form */
+    .form-label { display: block; font-size: 0.8rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem; }
+    .form-input { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; transition: border 0.15s; }
+    .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.12); }
+    .form-select { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; background: #fff; }
+    textarea.form-input { min-height: 80px; resize: vertical; }
+
+    /* Buttons */
+    .btn { padding: 0.45rem 1rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-outline { background: #fff; border: 1px solid #e2e8f0; color: #64748b; }
+    .btn-outline:hover { background: #f8fafc; }
+    .btn-success { background: #10b981; color: #fff; }
+    .btn-danger { background: #ef4444; color: #fff; }
+
+    /* Search */
+    .search-box { position: relative; }
+    .search-box input { width: 100%; padding: 0.65rem 1rem 0.65rem 2.5rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 0.875rem; outline: none; }
+    .search-box input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.12); }
+    .search-box svg { position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+
+    /* Score input */
+    .score-input { width: 60px; text-align: center; padding: 0.4rem; border: 1px solid #d1d5db; border-radius: 0.375rem; font-size: 0.9rem; font-weight: 600; }
+    .score-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.12); outline: none; }
+
+    /* Status stepper */
+    .status-stepper { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .step { display: flex; align-items: center; gap: 0.25rem; font-size: 0.8rem; }
+    .step-dot { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: #fff; }
+    .step-dot.done { background: #10b981; }
+    .step-dot.current { background: #3b82f6; }
+    .step-dot.pending { background: #d1d5db; }
+    .step-line { width: 30px; height: 2px; background: #e2e8f0; }
+    .step-line.done { background: #10b981; }
+
+    /* Pagination */
+    .pagination-btn { padding: 0.35rem 0.7rem; border: 1px solid #e2e8f0; border-radius: 0.375rem; font-size: 0.8rem; cursor: pointer; background: #fff; color: #64748b; }
+    .pagination-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Loading */
+    .loading-spinner { border: 3px solid #e2e8f0; border-top-color: #3b82f6; border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* KPI list */
+    .kpi-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: #f8fafc; border-radius: 0.5rem; margin-bottom: 0.5rem; }
+    .kpi-item input { flex: 1; }
+    .kpi-item .remove-kpi { color: #ef4444; cursor: pointer; font-size: 1.2rem; }
+
+    /* CC Score indicator */
+    .cc-score { display: inline-flex; align-items: center; gap: 0.25rem; }
+    .cc-star { color: #f59e0b; font-size: 0.9rem; }
+    .cc-star.empty { color: #d1d5db; }
+
+    /* Signature */
+    .signature-box { border: 2px dashed #d1d5db; border-radius: 0.75rem; padding: 1rem; text-align: center; min-height: 80px; display: flex; align-items: center; justify-content: center; }
+    .signature-box.signed { border-color: #10b981; background: #f0fdf4; }
+
+    /* Print */
+    .star-rating { display: inline-flex; gap: 2px; }
+    .star-rating .star { cursor: pointer; font-size: 1.2rem; color: #d1d5db; transition: color 0.1s; }
+    .star-rating .star.active { color: #f59e0b; }
+    .star-rating .star:hover { color: #fbbf24; }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="p-4 border-b border-gray-700">
+      <h1 class="text-lg font-bold text-white">🦾 PP7 System</h1>
+      <p class="text-xs text-gray-400 mt-1">Performance Evaluation (P4)</p>
+    </div>
+    <nav class="py-2">
+      <div class="nav-section">กระบวนการ PP7</div>
+      <a href="p1-recruitment.html" class="nav-link">📋 P1 แสวงหา</a>
+      <a href="p2-assessment.html" class="nav-link">🔍 P2 หยั่งประเมิน</a>
+      <a href="p3-matching.html" class="nav-link">🎯 P3 จับคู่คนกับงาน</a>
+      <a href="p4-evaluation.html" class="nav-link active">📊 P4 ประเมินผล</a>
+      <a href="p4-evaluation-360.html" class="nav-link">🔄 P4 ประเมิน 360°</a>
+      <a href="p4-dashboard.html" class="nav-link">📈 P4 Dashboard</a>
+      <div class="nav-section">อื่นๆ</div>
+      <a href="../index.html" class="nav-link">🏠 หน้าหลัก</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content" id="mainContent">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-30 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button class="md:hidden text-gray-600" onclick="toggleSidebar()">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">📊 P4 — ประเมินผลการทำงาน</h2>
+            <p class="text-sm text-gray-500">Performance Evaluation Module</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="btn btn-primary" onclick="openAddModal()">
+            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            สร้างแบบประเมิน
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="p-6 space-y-6 fade-in">
+      <!-- Stats -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="card stat-card blue">
+          <div class="text-sm text-gray-500">แบบประเมินทั้งหมด</div>
+          <div class="text-3xl font-bold text-gray-800 mt-1" id="statTotal">-</div>
+          <div class="text-xs text-blue-600 mt-1">ทุกรายการ</div>
+        </div>
+        <div class="card stat-card green">
+          <div class="text-sm text-gray-500">รอบประเมินปัจจุบัน</div>
+          <div class="text-3xl font-bold text-gray-800 mt-1" id="statPeriod">-</div>
+          <div class="text-xs text-green-600 mt-1">Q2/2025</div>
+        </div>
+        <div class="card stat-card amber">
+          <div class="text-sm text-gray-500">ตาม BU</div>
+          <div class="text-3xl font-bold text-gray-800 mt-1" id="statBU">-</div>
+          <div class="text-xs text-amber-600 mt-1">Business Units</div>
+        </div>
+        <div class="card stat-card purple">
+          <div class="text-sm text-gray-500">อัตราเสร็จสมบูรณ์</div>
+          <div class="text-3xl font-bold text-gray-800 mt-1" id="statCompletion">-</div>
+          <div class="text-xs text-purple-600 mt-1">Finalized / Total</div>
+        </div>
+      </div>
+
+      <!-- Table Card -->
+      <div class="card">
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+          <div class="search-box flex-1 min-w-[200px]">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" placeholder="ค้นหาพนักงาน/ผู้ประเมิน..." id="searchInput" oninput="handleSearch()">
+          </div>
+          <select class="form-select w-auto" id="filterBU" onchange="handleFilter()">
+            <option value="">ทุก BU</option>
+          </select>
+          <select class="form-select w-auto" id="filterStatus" onchange="handleFilter()">
+            <option value="">ทุกสถานะ</option>
+            <option value="draft">Draft</option>
+            <option value="submitted">Submitted</option>
+            <option value="manager_review">Manager Review</option>
+            <option value="finalized">Finalized</option>
+          </select>
+          <select class="form-select w-auto" id="filterPeriod" onchange="handleFilter()">
+            <option value="">ทุกรอบ</option>
+            <option value="Q1/2025">Q1/2025</option>
+            <option value="Q2/2025">Q2/2025</option>
+          </select>
+        </div>
+
+        <!-- Loading -->
+        <div class="flex items-center justify-center py-12" id="loadingState" style="display:none;">
+          <div class="loading-spinner"></div>
+          <span class="ml-3 text-gray-500">กำลังโหลด...</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table id="evalTable">
+            <thead>
+              <tr>
+                <th onclick="sortTable('id')">ID <span class="sort-icon">↕</span></th>
+                <th onclick="sortTable('employee')">พนักงาน <span class="sort-icon">↕</span></th>
+                <th onclick="sortTable('position')">ตำแหน่ง <span class="sort-icon">↕</span></th>
+                <th onclick="sortTable('bu')">BU <span class="sort-icon">↕</span></th>
+                <th onclick="sortTable('period')">รอบประเมิน <span class="sort-icon">↕</span></th>
+                <th onclick="sortTable('evaluator')">ผู้ประเมิน <span class="sort-icon">↕</span></th>
+                <th onclick="sortTable('status')">สถานะ <span class="sort-icon">↕</span></th>
+                <th onclick="sortTable('score')">คะแนน <span class="sort-icon">↕</span></th>
+                <th>จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="evalTableBody">
+              <!-- Filled by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex flex-wrap items-center justify-between mt-4 gap-3">
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-500">แสดง</span>
+            <select class="form-select w-auto text-sm" id="pageSize" onchange="changePageSize()">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+            <span class="text-sm text-gray-500" id="pageInfo">-</span>
+          </div>
+          <div class="flex items-center gap-1" id="pageButtons"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add/Edit Evaluation Modal -->
+  <div class="modal-overlay" id="evalModal">
+    <div class="modal" style="max-width: 900px;">
+      <div class="modal-header">
+        <h3 id="evalModalTitle">📝 สร้างแบบประเมินใหม่</h3>
+        <button class="text-2xl text-gray-400 hover:text-gray-700" onclick="closeEvalModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="evalForm" onsubmit="saveEvaluation(event)">
+          <input type="hidden" id="evalFormId">
+
+          <!-- Employee Info (from P3) -->
+          <fieldset class="mb-6">
+            <legend class="font-semibold text-gray-700 mb-3">👤 ข้อมูลพนักงาน (ดึงจาก P3)</legend>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="form-label">เลือกพนักงาน *</label>
+                <select class="form-select" id="fEmployee" required onchange="autoFillEmployee()">
+                  <option value="">เลือกพนักงาน</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">ตำแหน่ง</label>
+                <input type="text" class="form-input" id="fPosition" readonly>
+              </div>
+              <div>
+                <label class="form-label">BU</label>
+                <input type="text" class="form-input" id="fBU" readonly>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Evaluation Period -->
+          <fieldset class="mb-6">
+            <legend class="font-semibold text-gray-700 mb-3">📅 รอบการประเมิน</legend>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="form-label">รอบประเมิน *</label>
+                <select class="form-select" id="fPeriod" required>
+                  <option value="Q1/2025">Q1/2025 (ม.ค. - มี.ค.)</option>
+                  <option value="Q2/2025" selected>Q2/2025 (เม.ย. - มิ.ย.)</option>
+                  <option value="Q3/2025">Q3/2025 (ก.ค. - ก.ย.)</option>
+                  <option value="Q4/2025">Q4/2025 (ต.ค. - ธ.ค.)</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">วันที่เริ่มต้น *</label>
+                <input type="date" class="form-input" id="fStartDate" required>
+              </div>
+              <div>
+                <label class="form-label">วันที่สิ้นสุด *</label>
+                <input type="date" class="form-input" id="fEndDate" required>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- KPI Goals -->
+          <fieldset class="mb-6">
+            <legend class="font-semibold text-gray-700 mb-3">🎯 เป้าหมาย KPI</legend>
+            <div id="kpiList">
+              <div class="kpi-item">
+                <input type="text" class="form-input" placeholder="รายละเอียด KPI" value="บรรลุเป้าหมายยอดขาย 100%">
+                <input type="number" class="score-input" placeholder="น้ำหนัก" min="0" max="100" value="30">
+                <span class="text-xs text-gray-400">%</span>
+                <span class="remove-kpi" onclick="removeKPI(this)">&times;</span>
+              </div>
+              <div class="kpi-item">
+                <input type="text" class="form-input" placeholder="รายละเอียด KPI" value="ความพึงพอใจลูกค้า ≥ 90%">
+                <input type="number" class="score-input" placeholder="น้ำหนัก" min="0" max="100" value="25">
+                <span class="text-xs text-gray-400">%</span>
+                <span class="remove-kpi" onclick="removeKPI(this)">&times;</span>
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline text-sm mt-2" onclick="addKPI()">+ เพิ่ม KPI</button>
+            <div class="text-sm text-gray-500 mt-2">น้ำหนักรวม: <span id="kpiTotal" class="font-semibold">55</span>%</div>
+          </fieldset>
+
+          <!-- Core Competency Scores -->
+          <fieldset class="mb-6">
+            <legend class="font-semibold text-gray-700 mb-3">💡 Core Competency (5 ด้าน)</legend>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <div class="font-medium">1. การสื่อสาร (Communication)</div>
+                  <div class="text-xs text-gray-500">สื่อสารชัดเจน มีประสิทธิภาพ</div>
+                </div>
+                <div class="star-rating" data-cc="cc1">
+                  <span class="star active" onclick="setCC('cc1',1)">★</span>
+                  <span class="star active" onclick="setCC('cc1',2)">★</span>
+                  <span class="star active" onclick="setCC('cc1',3)">★</span>
+                  <span class="star active" onclick="setCC('cc1',4)">★</span>
+                  <span class="star" onclick="setCC('cc1',5)">★</span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <div class="font-medium">2. การทำงานเป็นทีม (Teamwork)</div>
+                  <div class="text-xs text-gray-500">ร่วมมือ ร่วมทำงานได้ดี</div>
+                </div>
+                <div class="star-rating" data-cc="cc2">
+                  <span class="star active" onclick="setCC('cc2',1)">★</span>
+                  <span class="star active" onclick="setCC('cc2',2)">★</span>
+                  <span class="star active" onclick="setCC('cc2',3)">★</span>
+                  <span class="star" onclick="setCC('cc2',4)">★</span>
+                  <span class="star" onclick="setCC('cc2',5)">★</span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <div class="font-medium">3. ความเป็นผู้นำ (Leadership)</div>
+                  <div class="text-xs text-gray-500">นำทีม ตัดสินใจ รับผิดชอบ</div>
+                </div>
+                <div class="star-rating" data-cc="cc3">
+                  <span class="star active" onclick="setCC('cc3',1)">★</span>
+                  <span class="star active" onclick="setCC('cc3',2)">★</span>
+                  <span class="star active" onclick="setCC('cc3',3)">★</span>
+                  <span class="star" onclick="setCC('cc3',4)">★</span>
+                  <span class="star" onclick="setCC('cc3',5)">★</span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <div class="font-medium">4. การแก้ปัญหา (Problem Solving)</div>
+                  <div class="text-xs text-gray-500">วิเคราะห์ แก้ปัญหาได้ efektif</div>
+                </div>
+                <div class="star-rating" data-cc="cc4">
+                  <span class="star active" onclick="setCC('cc4',1)">★</span>
+                  <span class="star active" onclick="setCC('cc4',2)">★</span>
+                  <span class="star active" onclick="setCC('cc4',3)">★</span>
+                  <span class="star active" onclick="setCC('cc4',4)">★</span>
+                  <span class="star" onclick="setCC('cc4',5)">★</span>
+                </div>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <div class="font-medium">5. การพัฒนาตนเอง (Self Development)</div>
+                  <div class="text-xs text-gray-500">เรียนรู้ ปรับปรุงต่อเนื่อง</div>
+                </div>
+                <div class="star-rating" data-cc="cc5">
+                  <span class="star active" onclick="setCC('cc5',1)">★</span>
+                  <span class="star active" onclick="setCC('cc5',2)">★</span>
+                  <span class="star" onclick="setCC('cc5',3)">★</span>
+                  <span class="star" onclick="setCC('cc5',4)">★</span>
+                  <span class="star" onclick="setCC('cc5',5)">★</span>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Overall Rating -->
+          <fieldset class="mb-6">
+            <legend class="font-semibold text-gray-700 mb-3">📊 คะแนนรวม (Overall Rating)</legend>
+            <div class="flex items-center gap-4">
+              <div class="star-rating" data-cc="overall" id="overallRating">
+                <span class="star active" onclick="setCC('overall',1)">★</span>
+                <span class="star active" onclick="setCC('overall',2)">★</span>
+                <span class="star active" onclick="setCC('overall',3)">★</span>
+                <span class="star active" onclick="setCC('overall',4)">★</span>
+                <span class="star" onclick="setCC('overall',5)">★</span>
+              </div>
+              <span class="text-lg font-bold" id="overallScoreDisplay">4/5</span>
+            </div>
+          </fieldset>
+
+          <!-- Comments -->
+          <fieldset class="mb-6">
+            <legend class="font-semibold text-gray-700 mb-3">💬 ความคิดเห็น / ข้อเสนอแนะ</legend>
+            <textarea class="form-input" id="fComments" placeholder="บันทึกความคิดเห็นของผู้ประเมิน..."></textarea>
+          </fieldset>
+
+          <!-- Evaluator & Signature -->
+          <fieldset class="mb-6">
+            <legend class="font-semibold text-gray-700 mb-3">✍️ ผู้ประเมิน</legend>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="form-label">ชื่อผู้ประเมิน *</label>
+                <input type="text" class="form-input" id="fEvaluator" required placeholder="ชื่อ-นามสกุล ผู้ประเมิน">
+              </div>
+              <div>
+                <label class="form-label">ตำแหน่งผู้ประเมิน</label>
+                <input type="text" class="form-input" id="fEvaluatorPos" placeholder="เช่น Manager, Director">
+              </div>
+            </div>
+            <div class="mt-4">
+              <label class="form-label">ลายเซ็นผู้ประเมิน</label>
+              <div class="signature-box" id="signatureBox">
+                <button type="button" class="btn btn-outline" onclick="addSignature()">✍️ ลายเซ็นดิจิทัล</button>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Status -->
+          <div class="flex items-center justify-between mt-4 pt-4 border-t">
+            <div>
+              <label class="form-label">สถานะ</label>
+              <select class="form-select w-auto" id="fStatus">
+                <option value="draft">Draft (ร่าง)</option>
+                <option value="submitted">Submitted (ส่งแล้ว)</option>
+                <option value="manager_review">Manager Review (ผจก. ตรวจสอบ)</option>
+                <option value="finalized">Finalized (เสร็จสิ้น)</option>
+              </select>
+            </div>
+            <div class="flex gap-2">
+              <button type="button" class="btn btn-outline" onclick="closeEvalModal()">ยกเลิก</button>
+              <button type="submit" class="btn btn-primary">💾 บันทึก</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Dialog -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal" style="max-width: 420px;">
+      <div class="modal-body text-center py-6">
+        <div class="text-4xl mb-3">⚠️</div>
+        <h3 class="text-lg font-semibold mb-2" id="confirmTitle">ยืนยัน</h3>
+        <p class="text-gray-500 mb-6" id="confirmMessage">คุณแน่ใจหรือไม่?</p>
+        <div class="flex justify-center gap-3">
+          <button class="btn btn-outline" onclick="closeConfirm()">ยกเลิก</button>
+          <button class="btn btn-danger" id="confirmBtn" onclick="executeConfirm()">ยืนยัน</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden">
+    <div class="bg-gray-800 text-white px-5 py-3 rounded-lg shadow-lg text-sm">
+      <span id="toastMsg"></span>
+    </div>
+  </div>
+
+  <script>
+    // ============================================================
+    // CORE COMPETENCY labels
+    // ============================================================
+    const CC_LABELS = [
+      'การสื่อสาร', 'การทำงานเป็นทีม', 'ความเป็นผู้นำ', 'การแก้ปัญหา', 'การพัฒนาตนเอง'
+    ];
+
+    // ============================================================
+    // EMPLOYEES (จาก P3 Mock Data)
+    // ============================================================
+    const employees = [
+      { id: 'EMP001', name: 'สมชาย ใจดี', position: 'Senior Developer', bu: 'PKG-BKK' },
+      { id: 'EMP002', name: 'สมหญิง รักงาน', position: 'HR Manager', bu: 'PKG-BKK' },
+      { id: 'EMP003', name: 'วิชัย แก้วมงคล', position: 'Financial Analyst', bu: 'PKG-CMN' },
+      { id: 'EMP004', name: 'อรุณี สว่างจิต', position: 'Marketing Specialist', bu: 'PKG-BKK' },
+      { id: 'EMP005', name: 'ธนากร พัฒนา', position: 'Operations Lead', bu: 'PKG-EST' },
+      { id: 'EMP006', name: 'พิมพ์ชนก ศรีสุข', position: 'UX Designer', bu: 'PKG-BKK' },
+      { id: 'EMP008', name: 'นภัสสร วงศ์ทวี', position: 'Data Analyst', bu: 'PKG-CMN' }
+    ];
+
+    // ============================================================
+    // MOCK DATA — 5 evaluations
+    // ============================================================
+    let mockEvaluations = [
+      {
+        id: 'EVAL001', employeeId: 'EMP001', employee: 'สมชาย ใจดี', position: 'Senior Developer', bu: 'PKG-BKK',
+        period: 'Q1/2025', startDate: '2025-01-01', endDate: '2025-03-31', evaluator: 'ดร.สมศักดิ์ หัวหน้าแผนก',
+        evaluatorPos: 'IT Director', status: 'finalized', score: 4.2,
+        kpis: [{ text: 'พัฒนาฟีเจอร์ใหม่ 3 ตัว', weight: 40 }, { text: 'Code quality ≥ 90%', weight: 30 }],
+        cc: { cc1: 4, cc2: 5, cc3: 3, cc4: 4, cc5: 5 },
+        overall: 4, comments: 'ทำงานได้ดีมาก มีพัฒนาการต่อเนื่อง', signed: true
+      },
+      {
+        id: 'EVAL002', employeeId: 'EMP002', employee: 'สมหญิง รักงาน', position: 'HR Manager', bu: 'PKG-BKK',
+        period: 'Q1/2025', startDate: '2025-01-01', endDate: '2025-03-31', evaluator: 'คุณวิมล HR Director',
+        evaluatorPos: 'HR Director', status: 'manager_review', score: 3.8,
+        kpis: [{ text: 'ลดอัตราการลาออก < 5%', weight: 35 }],
+        cc: { cc1: 4, cc2: 4, cc3: 4, cc4: 3, cc5: 4 },
+        overall: 4, comments: 'บริหารจัดการได้ดี รอ ผอ. อนุมัติ', signed: true
+      },
+      {
+        id: 'EVAL003', employeeId: 'EMP003', employee: 'วิชัย แก้วมงคล', position: 'Financial Analyst', bu: 'PKG-CMN',
+        period: 'Q2/2025', startDate: '2025-04-01', endDate: '2025-06-30', evaluator: 'คุณประเสริฐ FIN Manager',
+        evaluatorPos: 'Finance Manager', status: 'submitted', score: null,
+        kpis: [{ text: 'จัดทำรายงานการเงินตรงเวลา', weight: 50 }],
+        cc: { cc1: 3, cc2: 3, cc3: 2, cc4: 4, cc5: 3 },
+        overall: 3, comments: '', signed: false
+      },
+      {
+        id: 'EVAL004', employeeId: 'EMP004', employee: 'อรุณี สว่างจิต', position: 'Marketing Specialist', bu: 'PKG-BKK',
+        period: 'Q2/2025', startDate: '2025-04-01', endDate: '2025-06-30', evaluator: 'คุณนุชนาถ MKT Director',
+        evaluatorPos: 'Marketing Director', status: 'draft', score: null,
+        kpis: [{ text: 'เพิ่ม leads 20%', weight: 40 }, { text: 'จัด campaign 2 ครั้ง', weight: 30 }],
+        cc: { cc1: 5, cc2: 4, cc3: 3, cc4: 4, cc5: 4 },
+        overall: 4, comments: 'ร่างแบบประเมิน ยังไม่ส่ง', signed: false
+      },
+      {
+        id: 'EVAL005', employeeId: 'EMP006', employee: 'พิมพ์ชนก ศรีสุข', position: 'UX Designer', bu: 'PKG-BKK',
+        period: 'Q1/2025', startDate: '2025-01-01', endDate: '2025-03-31', evaluator: 'คุณธนัตถ์ IT Director',
+        evaluatorPos: 'IT Director', status: 'finalized', score: 4.5,
+        kpis: [{ text: ' redesign 3 หน้าจอหลัก', weight: 45 }],
+        cc: { cc1: 4, cc2: 5, cc3: 4, cc4: 5, cc5: 5 },
+        overall: 5, comments: 'ผลงานยอดเยี่ยม เป็น top performer', signed: true
+      }
+    ];
+
+    // ============================================================
+    // STATE
+    // ============================================================
+    let filteredData = [...mockEvaluations];
+    let currentPage = 1;
+    let pageSize = 10;
+    let sortField = 'id';
+    let sortOrder = 'asc';
+    let confirmCallback = null;
+    let ccScores = { cc1: 3, cc2: 3, cc3: 3, cc4: 4, cc5: 2, overall: 4 };
+    let signed = false;
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      loadData();
+    });
+
+    async function loadData() {
+      showLoading(true);
+      try {
+        if (typeof PP7API !== 'undefined' && PP7API_CONFIG.BASE_URL) {
+          const result = await PP7API.getPerformanceEvaluations({ page: 1, pageSize: 100 });
+          if (result && result.data && result.data.length > 0) {
+            mockEvaluations = result.data;
+          }
+        }
+      } catch (e) {
+        console.log('Using mock data');
+      }
+      filteredData = [...mockEvaluations];
+      populateFilters();
+      updateStats();
+      renderTable();
+      showLoading(false);
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('mobile-open');
+    }
+
+    // ============================================================
+    // STATISTICS
+    // ============================================================
+    function updateStats() {
+      document.getElementById('statTotal').textContent = mockEvaluations.length;
+      document.getElementById('statPeriod').textContent = mockEvaluations.filter(e => e.period === 'Q2/2025').length;
+      const buCount = [...new Set(mockEvaluations.map(e => e.bu))].length;
+      document.getElementById('statBU').textContent = buCount;
+      const finalized = mockEvaluations.filter(e => e.status === 'finalized').length;
+      const rate = mockEvaluations.length > 0 ? Math.round((finalized / mockEvaluations.length) * 100) : 0;
+      document.getElementById('statCompletion').textContent = rate + '%';
+    }
+
+    // ============================================================
+    // FILTERS
+    // ============================================================
+    function populateFilters() {
+      const bus = [...new Set(mockEvaluations.map(e => e.bu))];
+      document.getElementById('filterBU').innerHTML = '<option value="">ทุก BU</option>' + bus.map(b => `<option value="${b}">${b}</option>`).join('');
+    }
+
+    function handleSearch() { applyFilters(); }
+    function handleFilter() { applyFilters(); }
+
+    function applyFilters() {
+      const search = document.getElementById('searchInput').value.toLowerCase().trim();
+      const bu = document.getElementById('filterBU').value;
+      const status = document.getElementById('filterStatus').value;
+      const period = document.getElementById('filterPeriod').value;
+
+      filteredData = mockEvaluations.filter(ev => {
+        if (search && !ev.employee.toLowerCase().includes(search) && !ev.evaluator.toLowerCase().includes(search)) return false;
+        if (bu && ev.bu !== bu) return false;
+        if (status && ev.status !== status) return false;
+        if (period && ev.period !== period) return false;
+        return true;
+      });
+      currentPage = 1;
+      sortData();
+      renderTable();
+    }
+
+    // ============================================================
+    // SORTING
+    // ============================================================
+    function sortTable(field) {
+      if (sortField === field) sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+      else { sortField = field; sortOrder = 'asc'; }
+      sortData();
+      renderTable();
+    }
+
+    function sortData() {
+      filteredData.sort((a, b) => {
+        let vA = a[sortField], vB = b[sortField];
+        if (typeof vA === 'string') vA = vA.toLowerCase();
+        if (typeof vB === 'string') vB = vB.toLowerCase();
+        if (vA == null) vA = '';
+        if (vB == null) vB = '';
+        if (vA < vB) return sortOrder === 'asc' ? -1 : 1;
+        if (vA > vB) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    // ============================================================
+    // TABLE RENDER
+    // ============================================================
+    function renderTable() {
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      const pageData = filteredData.slice(start, end);
+
+      const tbody = document.getElementById('evalTableBody');
+      if (!pageData.length) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-gray-400">ไม่พบข้อมูล</td></tr>`;
+      } else {
+        tbody.innerHTML = pageData.map(ev => `
+          <tr>
+            <td><span class="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">${ev.id}</span></td>
+            <td><div class="font-medium">${ev.employee}</div></td>
+            <td>${ev.position}</td>
+            <td><span class="badge badge-blue">${ev.bu}</span></td>
+            <td>${ev.period}</td>
+            <td class="text-sm">${ev.evaluator}</td>
+            <td>${getStatusBadge(ev.status)}</td>
+            <td>${ev.score != null ? `<span class="font-bold text-lg" style="color:${getScoreColor(ev.score)}">${ev.score.toFixed(1)}</span>` : '<span class="text-gray-400">-</span>'}</td>
+            <td>
+              <div class="flex gap-1">
+                <button class="btn btn-outline text-xs py-1 px-2" onclick="editEvaluation('${ev.id}')" title="แก้ไข">✏️</button>
+                <button class="btn btn-outline text-xs py-1 px-2" onclick="changeStatus('${ev.id}')" title="เปลี่ยนสถานะ">⏭</button>
+                <button class="btn btn-outline text-xs py-1 px-2" onclick="confirmDelete('${ev.id}')" title="ลบ">🗑</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      }
+      renderPagination();
+    }
+
+    function getStatusBadge(status) {
+      const map = {
+        draft: '<span class="badge badge-gray">Draft</span>',
+        submitted: '<span class="badge badge-amber">Submitted</span>',
+        manager_review: '<span class="badge badge-blue">Manager Review</span>',
+        finalized: '<span class="badge badge-green">Finalized ✓</span>'
+      };
+      return map[status] || status;
+    }
+
+    function getScoreColor(score) {
+      if (score >= 4) return '#10b981';
+      if (score >= 3) return '#f59e0b';
+      return '#ef4444';
+    }
+
+    // ============================================================
+    // PAGINATION
+    // ============================================================
+    function renderPagination() {
+      const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
+      const start = (currentPage - 1) * pageSize + 1;
+      const end = Math.min(currentPage * pageSize, filteredData.length);
+      document.getElementById('pageInfo').textContent = `${start}-${end} จาก ${filteredData.length} รายการ`;
+
+      const container = document.getElementById('pageButtons');
+      let html = `<button class="pagination-btn" onclick="goPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>‹</button>`;
+      for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+      }
+      html += `<button class="pagination-btn" onclick="goPage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>›</button>`;
+      container.innerHTML = html;
+    }
+
+    function goPage(page) {
+      const total = Math.ceil(filteredData.length / pageSize);
+      if (page < 1 || page > total) return;
+      currentPage = page;
+      renderTable();
+    }
+
+    function changePageSize() {
+      pageSize = parseInt(document.getElementById('pageSize').value);
+      currentPage = 1;
+      renderTable();
+    }
+
+    // ============================================================
+    // MODAL — Add/Edit Evaluation
+    // ============================================================
+    function openAddModal() {
+      document.getElementById('evalModalTitle').textContent = '📝 สร้างแบบประเมินใหม่';
+      document.getElementById('evalFormId').value = '';
+      document.getElementById('fEmployee').value = '';
+      document.getElementById('fPosition').value = '';
+      document.getElementById('fBU').value = '';
+      document.getElementById('fPeriod').value = 'Q2/2025';
+      document.getElementById('fStartDate').value = '2025-04-01';
+      document.getElementById('fEndDate').value = '2025-06-30';
+      document.getElementById('fEvaluator').value = '';
+      document.getElementById('fEvaluatorPos').value = '';
+      document.getElementById('fComments').value = '';
+      document.getElementById('fStatus').value = 'draft';
+      ccScores = { cc1: 3, cc2: 3, cc3: 3, cc4: 3, cc5: 3, overall: 3 };
+      signed = false;
+      document.getElementById('signatureBox').innerHTML = '<button type="button" class="btn btn-outline" onclick="addSignature()">✍️ ลายเซ็นดิจิทัล</button>';
+      document.getElementById('signatureBox').classList.remove('signed');
+      populateEmployeeSelect();
+      updateCCDisplay();
+      document.getElementById('evalModal').classList.add('open');
+    }
+
+    function editEvaluation(id) {
+      const ev = mockEvaluations.find(e => e.id === id);
+      if (!ev) return;
+
+      document.getElementById('evalModalTitle').textContent = '✏️ แก้ไขแบบประเมิน';
+      document.getElementById('evalFormId').value = ev.id;
+      populateEmployeeSelect();
+      document.getElementById('fEmployee').value = ev.employeeId;
+      document.getElementById('fPosition').value = ev.position;
+      document.getElementById('fBU').value = ev.bu;
+      document.getElementById('fPeriod').value = ev.period;
+      document.getElementById('fStartDate').value = ev.startDate;
+      document.getElementById('fEndDate').value = ev.endDate;
+      document.getElementById('fEvaluator').value = ev.evaluator;
+      document.getElementById('fEvaluatorPos').value = ev.evaluatorPos || '';
+      document.getElementById('fComments').value = ev.comments || '';
+      document.getElementById('fStatus').value = ev.status;
+
+      // Restore CC scores
+      ccScores = { ...ev.cc, overall: ev.overall || 3 };
+      signed = ev.signed || false;
+
+      if (signed) {
+        document.getElementById('signatureBox').innerHTML = '<span class="text-green-600 font-medium">✍️ ลงชื่อแล้ว — ' + ev.evaluator + '</span>';
+        document.getElementById('signatureBox').classList.add('signed');
+      }
+
+      updateCCDisplay();
+      document.getElementById('evalModal').classList.add('open');
+    }
+
+    function closeEvalModal() {
+      document.getElementById('evalModal').classList.remove('open');
+    }
+
+    function populateEmployeeSelect() {
+      const select = document.getElementById('fEmployee');
+      select.innerHTML = '<option value="">เลือกพนักงาน</option>' + employees.map(e => `<option value="${e.id}">${e.id} — ${e.name}</option>`).join('');
+    }
+
+    function autoFillEmployee() {
+      const id = document.getElementById('fEmployee').value;
+      const emp = employees.find(e => e.id === id);
+      if (emp) {
+        document.getElementById('fPosition').value = emp.position;
+        document.getElementById('fBU').value = emp.bu;
+      } else {
+        document.getElementById('fPosition').value = '';
+        document.getElementById('fBU').value = '';
+      }
+    }
+
+    // ============================================================
+    // CC STAR RATING
+    // ============================================================
+    function setCC(key, value) {
+      ccScores[key] = value;
+      updateCCDisplay();
+    }
+
+    function updateCCDisplay() {
+      // Update star displays
+      ['cc1', 'cc2', 'cc3', 'cc4', 'cc5', 'overall'].forEach(key => {
+        const container = document.querySelector(`.star-rating[data-cc="${key}"]`);
+        if (!container) return;
+        const stars = container.querySelectorAll('.star');
+        const val = ccScores[key] || 0;
+        stars.forEach((s, i) => {
+          s.classList.toggle('active', i < val);
+        });
+      });
+
+      // Update overall display
+      const overall = ccScores.overall || 0;
+      document.getElementById('overallScoreDisplay').textContent = overall + '/5';
+    }
+
+    // ============================================================
+    // KPI LIST
+    // ============================================================
+    function addKPI() {
+      const list = document.getElementById('kpiList');
+      const div = document.createElement('div');
+      div.className = 'kpi-item';
+      div.innerHTML = `
+        <input type="text" class="form-input" placeholder="รายละเอียด KPI">
+        <input type="number" class="score-input" placeholder="น้ำหนัก" min="0" max="100" value="0">
+        <span class="text-xs text-gray-400">%</span>
+        <span class="remove-kpi" onclick="removeKPI(this)">&times;</span>
+      `;
+      list.appendChild(div);
+      updateKPITotal();
+    }
+
+    function removeKPI(el) {
+      el.closest('.kpi-item').remove();
+      updateKPITotal();
+    }
+
+    function updateKPITotal() {
+      const weights = document.querySelectorAll('#kpiList .score-input');
+      let total = 0;
+      weights.forEach(w => total += parseInt(w.value) || 0);
+      document.getElementById('kpiTotal').textContent = total;
+    }
+
+    // ============================================================
+    // SIGNATURE
+    // ============================================================
+    function addSignature() {
+      const evaluator = document.getElementById('fEvaluator').value || 'Unknown';
+      signed = true;
+      document.getElementById('signatureBox').innerHTML = `<span class="text-green-600 font-medium">✍️ ลงชื่อแล้ว — ${evaluator}</span>`;
+      document.getElementById('signatureBox').classList.add('signed');
+    }
+
+    // ============================================================
+    // SAVE
+    // ============================================================
+    async function saveEvaluation(e) {
+      e.preventDefault();
+      const id = document.getElementById('evalFormId').value;
+
+      // Collect KPIs
+      const kpiItems = document.querySelectorAll('#kpiList .kpi-item');
+      const kpis = [];
+      kpiItems.forEach(item => {
+        const inputs = item.querySelectorAll('input');
+        if (inputs[0].value.trim()) {
+          kpis.push({ text: inputs[0].value.trim(), weight: parseInt(inputs[1].value) || 0 });
+        }
+      });
+
+      // Calculate average CC score
+      const ccAvg = (ccScores.cc1 + ccScores.cc2 + ccScores.cc3 + ccScores.cc4 + ccScores.cc5) / 5;
+      const overallRating = ccScores.overall || 3;
+
+      const data = {
+        employeeId: document.getElementById('fEmployee').value,
+        employee: employees.find(e => e.id === document.getElementById('fEmployee').value)?.name || '',
+        position: document.getElementById('fPosition').value,
+        bu: document.getElementById('fBU').value,
+        period: document.getElementById('fPeriod').value,
+        startDate: document.getElementById('fStartDate').value,
+        endDate: document.getElementById('fEndDate').value,
+        evaluator: document.getElementById('fEvaluator').value,
+        evaluatorPos: document.getElementById('fEvaluatorPos').value,
+        status: document.getElementById('fStatus').value,
+        kpis: kpis,
+        cc: { cc1: ccScores.cc1, cc2: ccScores.cc2, cc3: ccScores.cc3, cc4: ccScores.cc4, cc5: ccScores.cc5 },
+        overall: overallRating,
+        score: Math.round((ccAvg * 0.6 + overallRating * 0.4) * 10) / 10 || null,
+        comments: document.getElementById('fComments').value,
+        signed: signed
+      };
+
+      // API call
+      try {
+        if (typeof PP7API !== 'undefined' && PP7API_CONFIG.BASE_URL) {
+          if (id) {
+            await PP7API.updateRecord('performance_evaluations', id, data);
+          } else {
+            await PP7API.createEvaluation(data);
+          }
+        }
+      } catch (err) { console.log('API fallback'); }
+
+      // Update local
+      if (id) {
+        const idx = mockEvaluations.findIndex(e => e.id === id);
+        if (idx >= 0) mockEvaluations[idx] = { ...mockEvaluations[idx], ...data, id };
+      } else {
+        data.id = 'EVAL' + String(mockEvaluations.length + 1).padStart(3, '0');
+        mockEvaluations.push(data);
+      }
+
+      closeEvalModal();
+      filteredData = [...mockEvaluations];
+      updateStats();
+      sortData();
+      renderTable();
+      showToast(id ? '✅ แก้ไขแบบประเมินแล้ว' : '✅ สร้างแบบประเมินแล้ว');
+    }
+
+    // ============================================================
+    // STATUS WORKFLOW
+    // ============================================================
+    function changeStatus(id) {
+      const ev = mockEvaluations.find(e => e.id === id);
+      if (!ev) return;
+
+      const workflow = ['draft', 'submitted', 'manager_review', 'finalized'];
+      const currentIdx = workflow.indexOf(ev.status);
+      if (currentIdx >= workflow.length - 1) {
+        showToast('⚠️ แบบประเมินนี้เสร็จสิ้นแล้ว');
+        return;
+      }
+
+      const nextStatus = workflow[currentIdx + 1];
+      const statusLabels = { draft: 'Draft', submitted: 'Submitted', manager_review: 'Manager Review', finalized: 'Finalized' };
+
+      document.getElementById('confirmTitle').textContent = '⏭ เปลี่ยนสถานะ';
+      document.getElementById('confirmMessage').textContent = `เปลี่ยนจาก "${statusLabels[ev.status]}" → "${statusLabels[nextStatus]}" ?`;
+      confirmCallback = () => {
+        ev.status = nextStatus;
+        if (nextStatus === 'finalized' && ev.score == null) {
+          const ccAvg = (ev.cc.cc1 + ev.cc.cc2 + ev.cc.cc3 + ev.cc.cc4 + ev.cc.cc5) / 5;
+          ev.score = Math.round((ccAvg * 0.6 + (ev.overall || 3) * 0.4) * 10) / 10;
+        }
+        filteredData = [...mockEvaluations];
+        updateStats();
+        renderTable();
+        showToast(`✅ เปลี่ยนสถานะเป็น "${statusLabels[nextStatus]}" แล้ว`);
+      };
+      document.getElementById('confirmModal').classList.add('open');
+    }
+
+    // ============================================================
+    // DELETE
+    // ============================================================
+    function confirmDelete(id) {
+      const ev = mockEvaluations.find(e => e.id === id);
+      if (!ev) return;
+      document.getElementById('confirmTitle').textContent = '🗑 ลบแบบประเมิน';
+      document.getElementById('confirmMessage').textContent = `ลบแบบประเมิน "${ev.employee}" รอบ ${ev.period}? การดำเนินการนี้ไม่สามารถย้อนกลับได้`;
+      confirmCallback = () => {
+        // API call
+        try {
+          if (typeof PP7API !== 'undefined' && PP7API_CONFIG.BASE_URL) {
+            PP7API.deleteRecord('performance_evaluations', id);
+          }
+        } catch (e) {}
+
+        mockEvaluations = mockEvaluations.filter(e => e.id !== id);
+        filteredData = [...mockEvaluations];
+        updateStats();
+        renderTable();
+        showToast('🗑 ลบแบบประเมินแล้ว');
+      };
+      document.getElementById('confirmModal').classList.add('open');
+    }
+
+    function closeConfirm() {
+      document.getElementById('confirmModal').classList.remove('open');
+      confirmCallback = null;
+    }
+
+    function executeConfirm() {
+      if (confirmCallback) confirmCallback();
+      closeConfirm();
+    }
+
+    // ============================================================
+    // UTILITIES
+    // ============================================================
+    function showLoading(show) {
+      document.getElementById('loadingState').style.display = show ? 'flex' : 'none';
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P4 — 360° Evaluation + Annual Credit | PP7</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../api-adapter.js"></script>
+  <style>
+    * { font-family: 'Prompt', sans-serif; }
+    body { background: #f1f5f9; color: #1e293b; margin: 0; }
+
+    .sidebar { width: 260px; background: #0f172a; color: #e2e8f0; min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 40; transition: transform 0.3s; }
+    .sidebar .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.25rem; color: #94a3b8; text-decoration: none; font-size: 0.875rem; border-radius: 0.5rem; margin: 0.15rem 0.75rem; transition: all 0.15s; }
+    .sidebar .nav-link:hover { background: #1e293b; color: #e2e8f0; }
+    .sidebar .nav-link.active { background: #2563eb; color: #fff; font-weight: 500; }
+    .sidebar .nav-section { padding: 0.5rem 1.25rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-top: 0.75rem; }
+    .main-content { margin-left: 260px; transition: margin-left 0.3s; }
+
+    .card { background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(15,23,42,.07); padding: 1.5rem; }
+
+    /* Perspective tabs */
+    .persp-tab { padding: 0.6rem 1.2rem; border-radius: 0.5rem; font-size: 0.85rem; font-weight: 500; cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #64748b; transition: all 0.15s; }
+    .persp-tab:hover { background: #f8fafc; }
+    .persp-tab.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 0.7rem 1rem; font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #e2e8f0; background: #f8fafc; cursor: pointer; white-space: nowrap; }
+    th:hover { background: #e2e8f0; }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.875rem; }
+    tr:hover td { background: #f8fafc; }
+
+    .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-gray { background: #f1f5f9; color: #475569; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.4); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 1rem; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(15,23,42,.2); }
+    .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
+    .modal-body { padding: 1.5rem; }
+
+    .form-label { display: block; font-size: 0.8rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem; }
+    .form-input { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; }
+    .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.12); }
+    .form-select { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; background: #fff; }
+
+    .btn { padding: 0.45rem 1rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-outline { background: #fff; border: 1px solid #e2e8f0; color: #64748b; }
+    .btn-outline:hover { background: #f8fafc; }
+    .btn-success { background: #10b981; color: #fff; }
+    .btn-danger { background: #ef4444; color: #fff; }
+
+    /* Search */
+    .search-box { position: relative; }
+    .search-box input { width: 100%; padding: 0.65rem 1rem 0.65rem 2.5rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 0.875rem; outline: none; }
+    .search-box input:focus { border-color: #3b82f6; }
+    .search-box svg { position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+
+    /* Score input row */
+    .score-row { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-radius: 0.5rem; margin-bottom: 0.5rem; }
+    .score-slider { -webkit-appearance: none; width: 180px; height: 6px; border-radius: 3px; background: #e2e8f0; outline: none; }
+    .score-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #3b82f6; cursor: pointer; }
+    .score-value { font-size: 1.5rem; font-weight: 700; width: 40px; text-align: center; }
+
+    /* Radar chart */
+    .radar-container { position: relative; width: 100%; max-width: 400px; margin: 0 auto; }
+
+    /* Risk flag */
+    .risk-flag { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 0.5rem; background: #fef2f2; border: 1px solid #fecaca; }
+    .risk-flag.safe { background: #f0fdf4; border-color: #bbf7d0; }
+
+    /* Pagination */
+    .pagination-btn { padding: 0.35rem 0.7rem; border: 1px solid #e2e8f0; border-radius: 0.375rem; font-size: 0.8rem; cursor: pointer; background: #fff; }
+    .pagination-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+
+    .loading-spinner { border: 3px solid #e2e8f0; border-top-color: #3b82f6; border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="p-4 border-b border-gray-700">
+      <h1 class="text-lg font-bold text-white">🦾 PP7 System</h1>
+      <p class="text-xs text-gray-400 mt-1">360° Evaluation (P4)</p>
+    </div>
+    <nav class="py-2">
+      <div class="nav-section">กระบวนการ PP7</div>
+      <a href="p1-recruitment.html" class="nav-link">📋 P1 แสวงหา</a>
+      <a href="p2-assessment.html" class="nav-link">🔍 P2 หยั่งประเมิน</a>
+      <a href="p3-matching.html" class="nav-link">🎯 P3 จับคู่คนกับงาน</a>
+      <a href="p4-evaluation.html" class="nav-link">📊 P4 ประเมินผล</a>
+      <a href="p4-evaluation-360.html" class="nav-link active">🔄 P4 ประเมิน 360°</a>
+      <a href="p4-dashboard.html" class="nav-link">📈 P4 Dashboard</a>
+      <div class="nav-section">อื่นๆ</div>
+      <a href="../index.html" class="nav-link">🏠 หน้าหลัก</a>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content" id="mainContent">
+    <header class="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-30 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button class="md:hidden text-gray-600" onclick="document.getElementById('sidebar').classList.toggle('mobile-open')">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">🔄 P4 — ประเมิน 360° + Annual Credit</h2>
+            <p class="text-sm text-gray-500">360° Multi-Source Evaluation with Weighted Scoring</p>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="openScoringModal()">📝 กรอกคะแนน 360°</button>
+      </div>
+    </header>
+
+    <div class="p-6 space-y-6 fade-in">
+      <!-- Employee Selector -->
+      <div class="card">
+        <div class="flex flex-wrap items-center gap-4">
+          <div class="flex-1 min-w-[250px]">
+            <label class="form-label">เลือกพนักงานเพื่อประเมิน</label>
+            <select class="form-select" id="employeeSelect" onchange="selectEmployee()">
+              <option value="">— เลือกพนักงาน —</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">รอบประเมิน</label>
+            <select class="form-select" id="periodSelect" onchange="selectEmployee()">
+              <option value="2025">ปี 2025</option>
+              <option value="2024">ปี 2024</option>
+              <option value="2023">ปี 2023</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <div id="employeeInfo" class="text-sm text-gray-500"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 360 Scoring Section -->
+      <div class="card" id="scoringSection" style="display:none;">
+        <h3 class="font-semibold text-gray-700 mb-4">📐 คะแนนจาก 5 Perspectives</h3>
+        <p class="text-sm text-gray-500 mb-4">เกณฑ์ชัดเจน วัดผลได้ — ไม่ใช่ความรู้สึก/อารมณ์ (ต่างจากระบบเดิม)</p>
+
+        <!-- Perspective Tabs -->
+        <div class="flex flex-wrap gap-2 mb-6" id="perspTabs">
+          <button class="persp-tab active" onclick="selectPerspective(0)">🪞 1. Self</button>
+          <button class="persp-tab" onclick="selectPerspective(1)">👔 2. Manager</button>
+          <button class="persp-tab" onclick="selectPerspective(2)">👥 3. Peer</button>
+          <button class="persp-tab" onclick="selectPerspective(3)">👇 4. Subordinate</button>
+          <button class="persp-tab" onclick="selectPerspective(4)">🛒 5. Customer</button>
+        </div>
+
+        <!-- Scoring Form -->
+        <div id="scoringForm">
+          <!-- CC Scores -->
+          <div class="space-y-3 mb-6">
+            <h4 class="font-medium text-gray-600 text-sm">Core Competency Scores (1-5)</h4>
+            <div id="ccScoreRows"><!-- filled by JS --></div>
+          </div>
+
+          <!-- KPI Scores -->
+          <div class="space-y-3 mb-6">
+            <h4 class="font-medium text-gray-600 text-sm">KPI Achievement Scores (1-5)</h4>
+            <div id="kpiScoreRows"><!-- filled by JS --></div>
+          </div>
+
+          <!-- Perspective Weight -->
+          <div class="p-3 bg-blue-50 rounded-lg flex items-center justify-between">
+            <span class="text-sm text-blue-700">น้ำหนักของ Perspective นี้:</span>
+            <select class="form-select w-auto text-sm" id="perspWeight" onchange="calculateWeightedAvg()">
+              <option value="0.10">10%</option>
+              <option value="0.15">15%</option>
+              <option value="0.20" selected>20%</option>
+              <option value="0.25">25%</option>
+              <option value="0.30">30%</option>
+            </select>
+          </div>
+
+          <!-- Perspective Average -->
+          <div class="mt-4 flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <span class="text-sm font-medium text-gray-600">คะแนนเฉลี่ยของ Perspective นี้:</span>
+            <span class="text-2xl font-bold" id="perspAvgDisplay">-</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Section: Radar + Weighted Average -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="resultsSection" style="display:none;">
+        <!-- Radar Chart -->
+        <div class="card">
+          <h3 class="font-semibold text-gray-700 mb-4">📊 Radar Chart — 5 Perspectives</h3>
+          <div class="radar-container">
+            <canvas id="radarChart"></canvas>
+          </div>
+          <!-- Weighted Average -->
+          <div class="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg text-center">
+            <div class="text-sm text-gray-500">คะแนน 360° ถ่วงน้ำหนัก (Weighted Average)</div>
+            <div class="text-4xl font-bold mt-1" id="weightedAvgDisplay">-</div>
+            <div class="text-sm mt-1" id="weightedAvgLabel">-</div>
+          </div>
+        </div>
+
+        <!-- Annual Credit Summary -->
+        <div class="card">
+          <h3 class="font-semibold text-gray-700 mb-4">📈 Annual Credit — ย้อนหลัง 3 ปี</h3>
+          <div style="height: 250px;">
+            <canvas id="trendChart"></canvas>
+          </div>
+          <!-- Risk Flags -->
+          <div class="mt-4">
+            <h4 class="font-medium text-gray-600 text-sm mb-2">🚩 Risk Flags</h4>
+            <div id="riskFlags">
+              <div class="risk-flag safe">
+                <span>✅</span>
+                <span class="text-sm">ไม่มีข้อบ่งชี้ความเสี่ยง — คะแนนทุกด้าน ≥ 3.0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evaluation Table -->
+      <div class="card">
+        <h3 class="font-semibold text-gray-700 mb-4">📋 สรุปคะแนน 360° ทั้งหมด</h3>
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+          <div class="search-box flex-1 min-w-[200px]">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" placeholder="ค้นหาพนักงาน..." id="searchInput" oninput="handleSearch()">
+          </div>
+          <select class="form-select w-auto" id="filterYear" onchange="handleFilter()">
+            <option value="">ทุกปี</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+          </select>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table>
+            <thead>
+              <tr>
+                <th>พนักงาน</th>
+                <th>ปี</th>
+                <th>Self</th>
+                <th>Manager</th>
+                <th>Peer</th>
+                <th>Subordinate</th>
+                <th>Customer</th>
+                <th>Weighted Avg</th>
+                <th>สถานะ</th>
+                <th>จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="summaryTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between mt-4 gap-3">
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-500">แสดง</span>
+            <select class="form-select w-auto text-sm" id="pageSize" onchange="changePageSize()">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+            <span class="text-sm text-gray-500" id="pageInfo">-</span>
+          </div>
+          <div class="flex items-center gap-1" id="pageButtons"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 360 Scoring Modal (full form) -->
+  <div class="modal-overlay" id="fullScoringModal">
+    <div class="modal" style="max-width: 900px;">
+      <div class="modal-header">
+        <h3>📝 กรอกคะแนน 360° — ทั้งหมดในครั้งเดียว</h3>
+        <button class="text-2xl text-gray-400 hover:text-gray-700" onclick="closeFullScoringModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="form-label">พนักงาน *</label>
+            <select class="form-select" id="fullEmpSelect" required></select>
+          </div>
+          <div>
+            <label class="form-label">ปีประเมิน *</label>
+            <select class="form-select" id="fullYearSelect" required>
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+            </select>
+          </div>
+        </div>
+
+        <p class="text-sm text-gray-500 mb-4 bg-yellow-50 p-3 rounded-lg">⚡ ระบบเดิมใช้ความรู้สึก/อารมณ์ → ระบบใหม่มีเกณฑ์ชัดเจน (Criteria-based) วัดผลได้ทุก Perspective</p>
+
+        <!-- 5 Perspectives scoring grids -->
+        <div id="fullPerspScoring"><!-- filled by JS --></div>
+
+        <div class="flex justify-end gap-3 mt-6">
+          <button class="btn btn-outline" onclick="closeFullScoringModal()">ยกเลิก</button>
+          <button class="btn btn-primary" onclick="saveFull360()">💾 บันทึกคะแนน 360°</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Dialog -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-body text-center py-6">
+        <div class="text-4xl mb-3">⚠️</div>
+        <h3 class="text-lg font-semibold mb-2" id="confirmTitle">ยืนยัน</h3>
+        <p class="text-gray-500 mb-6" id="confirmMessage"></p>
+        <div class="flex justify-center gap-3">
+          <button class="btn btn-outline" onclick="closeConfirm()">ยกเลิก</button>
+          <button class="btn btn-danger" onclick="executeConfirm()">ยืนยัน</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden">
+    <div class="bg-gray-800 text-white px-5 py-3 rounded-lg shadow-lg text-sm"><span id="toastMsg"></span></div>
+  </div>
+
+  <script>
+    // ============================================================
+    // CONFIGURATION
+    // ============================================================
+    const PERSPECTIVES = ['Self', 'Manager', 'Peer', 'Subordinate', 'Customer'];
+    const PERSPECTIVE_WEIGHTS_DEFAULT = [0.10, 0.30, 0.20, 0.20, 0.20];
+    const CC_NAMES = [
+      'การสื่อสาร', 'การทำงานเป็นทีม', 'ความเป็นผู้นำ', 'การแก้ปัญหา', 'การพัฒนาตนเอง'
+    ];
+    const KPI_NAMES = ['KPI 1: ผลปฏิบัติงาน', 'KPI 2: เป้าหมายทีม', 'KPI 3: นวัตกรรม'];
+
+    // ============================================================
+    // MOCK DATA — 3 employees with 360 evaluations
+    // ============================================================
+    const employees = [
+      { id: 'EMP001', name: 'สมชาย ใจดี', position: 'Senior Developer', bu: 'PKG-BKK' },
+      { id: 'EMP002', name: 'สมหญิง รักงาน', position: 'HR Manager', bu: 'PKG-BKK' },
+      { id: 'EMP006', name: 'พิมพ์ชนก ศรีสุข', position: 'UX Designer', bu: 'PKG-BKK' }
+    ];
+
+    // Mock 360 data: each employee has scores for 3 years
+    let mock360Data = {
+      'EMP001': {
+        name: 'สมชาย ใจดี', position: 'Senior Developer', bu: 'PKG-BKK',
+        years: {
+          '2025': {
+            perspectives: [
+              { cc: [4, 5, 3, 4, 4], kpi: [4, 4, 3], weight: 0.10 }, // Self
+              { cc: [4, 4, 4, 4, 3], kpi: [4, 4, 4], weight: 0.30 }, // Manager
+              { cc: [3, 4, 3, 4, 4], kpi: [3, 4, 3], weight: 0.20 }, // Peer
+              { cc: [4, 5, 4, 3, 4], kpi: [4, 3, 4], weight: 0.20 }, // Subordinate
+              { cc: [4, 4, 3, 5, 4], kpi: [5, 4, 4], weight: 0.20 }  // Customer
+            ]
+          },
+          '2024': {
+            perspectives: [
+              { cc: [3, 4, 3, 3, 3], kpi: [3, 3, 3], weight: 0.10 },
+              { cc: [3, 3, 3, 4, 3], kpi: [3, 3, 4], weight: 0.30 },
+              { cc: [3, 3, 3, 3, 3], kpi: [3, 3, 3], weight: 0.20 },
+              { cc: [3, 4, 3, 3, 3], kpi: [3, 3, 3], weight: 0.20 },
+              { cc: [3, 3, 3, 4, 3], kpi: [3, 3, 3], weight: 0.20 }
+            ]
+          },
+          '2023': {
+            perspectives: [
+              { cc: [2, 3, 2, 3, 2], kpi: [2, 2, 3], weight: 0.10 },
+              { cc: [3, 3, 2, 3, 2], kpi: [3, 2, 2], weight: 0.30 },
+              { cc: [2, 3, 2, 3, 2], kpi: [2, 2, 2], weight: 0.20 },
+              { cc: [2, 3, 2, 2, 2], kpi: [2, 2, 3], weight: 0.20 },
+              { cc: [3, 2, 2, 3, 2], kpi: [2, 2, 2], weight: 0.20 }
+            ]
+          }
+        }
+      },
+      'EMP002': {
+        name: 'สมหญิง รักงาน', position: 'HR Manager', bu: 'PKG-BKK',
+        years: {
+          '2025': {
+            perspectives: [
+              { cc: [4, 4, 4, 3, 4], kpi: [4, 3, 3], weight: 0.10 },
+              { cc: [4, 4, 4, 3, 4], kpi: [4, 4, 3], weight: 0.30 },
+              { cc: [4, 4, 3, 3, 4], kpi: [3, 3, 3], weight: 0.20 },
+              { cc: [3, 4, 3, 3, 3], kpi: [3, 3, 3], weight: 0.20 },
+              { cc: [4, 4, 4, 3, 4], kpi: [4, 4, 3], weight: 0.20 }
+            ]
+          },
+          '2024': {
+            perspectives: [
+              { cc: [3, 4, 3, 3, 3], kpi: [3, 3, 3], weight: 0.10 },
+              { cc: [4, 4, 3, 3, 4], kpi: [3, 4, 3], weight: 0.30 },
+              { cc: [3, 3, 3, 3, 3], kpi: [3, 3, 3], weight: 0.20 },
+              { cc: [3, 3, 3, 3, 3], kpi: [3, 3, 3], weight: 0.20 },
+              { cc: [3, 4, 3, 3, 3], kpi: [3, 3, 3], weight: 0.20 }
+            ]
+          },
+          '2023': {
+            perspectives: [
+              { cc: [3, 3, 3, 2, 3], kpi: [3, 2, 3], weight: 0.10 },
+              { cc: [3, 3, 3, 3, 3], kpi: [3, 3, 3], weight: 0.30 },
+              { cc: [3, 3, 2, 3, 3], kpi: [2, 3, 3], weight: 0.20 },
+              { cc: [2, 3, 2, 3, 3], kpi: [2, 3, 2], weight: 0.20 },
+              { cc: [3, 3, 3, 3, 3], kpi: [3, 2, 3], weight: 0.20 }
+            ]
+          }
+        }
+      },
+      'EMP006': {
+        name: 'พิมพ์ชนก ศรีสุข', position: 'UX Designer', bu: 'PKG-BKK',
+        years: {
+          '2025': {
+            perspectives: [
+              { cc: [4, 5, 4, 5, 5], kpi: [5, 4, 5], weight: 0.10 },
+              { cc: [5, 5, 4, 5, 5], kpi: [5, 5, 4], weight: 0.30 },
+              { cc: [4, 5, 4, 4, 5], kpi: [4, 5, 4], weight: 0.20 },
+              { cc: [5, 5, 4, 4, 5], kpi: [5, 4, 5], weight: 0.20 },
+              { cc: [5, 4, 4, 5, 5], kpi: [5, 5, 4], weight: 0.20 }
+            ]
+          },
+          '2024': {
+            perspectives: [
+              { cc: [4, 4, 3, 4, 4], kpi: [4, 4, 4], weight: 0.10 },
+              { cc: [4, 4, 4, 4, 4], kpi: [4, 4, 4], weight: 0.30 },
+              { cc: [3, 4, 3, 4, 4], kpi: [3, 4, 4], weight: 0.20 },
+              { cc: [4, 4, 3, 4, 4], kpi: [4, 4, 3], weight: 0.20 },
+              { cc: [4, 4, 4, 4, 4], kpi: [4, 4, 4], weight: 0.20 }
+            ]
+          },
+          '2023': {
+            perspectives: [
+              { cc: [3, 3, 3, 3, 3], kpi: [3, 3, 3], weight: 0.10 },
+              { cc: [3, 4, 3, 3, 3], kpi: [3, 3, 3], weight: 0.30 },
+              { cc: [3, 3, 2, 3, 3], kpi: [3, 3, 3], weight: 0.20 },
+              { cc: [3, 3, 3, 3, 3], kpi: [3, 3, 2], weight: 0.20 },
+              { cc: [3, 3, 3, 3, 3], kpi: [3, 3, 3], weight: 0.20 }
+            ]
+          }
+        }
+      }
+    };
+
+    // ============================================================
+    // STATE
+    // ============================================================
+    let selectedEmployeeId = null;
+    let selectedYear = '2025';
+    let currentPerspective = 0;
+    let currentPage = 1;
+    let currentPageSize = 10;
+    let filteredSummary = [];
+    let radarChart = null;
+    let trendChart = null;
+    let confirmCallback = null;
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      populateEmployeeSelects();
+      buildSummaryData();
+      renderSummaryTable();
+    });
+
+    function populateEmployeeSelects() {
+      const options = '<option value="">— เลือกพนักงาน —</option>' + employees.map(e => `<option value="${e.id}">${e.id} — ${e.name} (${e.position})</option>`).join('');
+      document.getElementById('employeeSelect').innerHTML = options;
+
+      const fullOptions = employees.map(e => `<option value="${e.id}">${e.id} — ${e.name}</option>`).join('');
+      document.getElementById('fullEmpSelect').innerHTML = fullOptions;
+    }
+
+    // ============================================================
+    // EMPLOYEE SELECTION
+    // ============================================================
+    function selectEmployee() {
+      selectedEmployeeId = document.getElementById('employeeSelect').value;
+      selectedYear = document.getElementById('periodSelect').value;
+
+      if (!selectedEmployeeId || !mock360Data[selectedEmployeeId]) {
+        document.getElementById('scoringSection').style.display = 'none';
+        document.getElementById('resultsSection').style.display = 'none';
+        document.getElementById('employeeInfo').textContent = '';
+        return;
+      }
+
+      const emp = employees.find(e => e.id === selectedEmployeeId);
+      document.getElementById('employeeInfo').innerHTML = `<span class="font-medium">${emp.name}</span> — ${emp.position} | ${emp.bu}`;
+
+      document.getElementById('scoringSection').style.display = 'block';
+      document.getElementById('resultsSection').style.display = 'grid';
+
+      currentPerspective = 0;
+      selectPerspective(0);
+      renderRadarChart();
+      renderTrendChart();
+      calculateWeightedAvg();
+      updateRiskFlags();
+    }
+
+    // ============================================================
+    // PERSPECTIVE TABS & SCORING
+    // ============================================================
+    function selectPerspective(idx) {
+      currentPerspective = idx;
+
+      // Update tab styles
+      document.querySelectorAll('.persp-tab').forEach((tab, i) => {
+        tab.classList.toggle('active', i === idx);
+      });
+
+      if (!selectedEmployeeId || !mock360Data[selectedEmployeeId]?.years[selectedYear]) return;
+
+      const yearData = mock360Data[selectedEmployeeId].years[selectedYear];
+      const persp = yearData.perspectives[idx];
+
+      // Render CC score rows
+      let ccHtml = '';
+      CC_NAMES.forEach((name, i) => {
+        const val = persp.cc[i];
+        ccHtml += `
+          <div class="score-row bg-gray-50">
+            <div class="flex-1">
+              <div class="text-sm font-medium">${i + 1}. ${name}</div>
+            </div>
+            <input type="range" class="score-slider" min="1" max="5" value="${val}"
+              oninput="updateCCScore(${idx}, ${i}, this.value)" id="cc_${idx}_${i}">
+            <span class="score-value" style="color:${getCCColor(val)}" id="cc_val_${idx}_${i}">${val}</span>
+          </div>
+        `;
+      });
+      document.getElementById('ccScoreRows').innerHTML = ccHtml;
+
+      // Render KPI score rows
+      let kpiHtml = '';
+      KPI_NAMES.forEach((name, i) => {
+        const val = persp.kpi[i];
+        kpiHtml += `
+          <div class="score-row bg-gray-50">
+            <div class="flex-1">
+              <div class="text-sm font-medium">${name}</div>
+            </div>
+            <input type="range" class="score-slider" min="1" max="5" value="${val}"
+              oninput="updateKPIScore(${idx}, ${i}, this.value)" id="kpi_${idx}_${i}">
+            <span class="score-value" style="color:${getCCColor(val)}" id="kpi_val_${idx}_${i}">${val}</span>
+          </div>
+        `;
+      });
+      document.getElementById('kpiScoreRows').innerHTML = kpiHtml;
+
+      // Set weight
+      document.getElementById('perspWeight').value = persp.weight;
+
+      // Calculate perspective avg
+      updatePerspAvg();
+    }
+
+    function updateCCScore(perspIdx, ccIdx, value) {
+      value = parseInt(value);
+      if (!selectedEmployeeId || !mock360Data[selectedEmployeeId]?.years[selectedYear]) return;
+      mock360Data[selectedEmployeeId].years[selectedYear].perspectives[perspIdx].cc[ccIdx] = value;
+
+      document.getElementById(`cc_val_${perspIdx}_${ccIdx}`).textContent = value;
+      document.getElementById(`cc_val_${perspIdx}_${ccIdx}`).style.color = getCCColor(value);
+      updatePerspAvg();
+      if (perspIdx === currentPerspective) {
+        renderRadarChart();
+        calculateWeightedAvg();
+        updateRiskFlags();
+      }
+    }
+
+    function updateKPIScore(perspIdx, kpiIdx, value) {
+      value = parseInt(value);
+      if (!selectedEmployeeId || !mock360Data[selectedEmployeeId]?.years[selectedYear]) return;
+      mock360Data[selectedEmployeeId].years[selectedYear].perspectives[perspIdx].kpi[kpiIdx] = value;
+
+      document.getElementById(`kpi_val_${perspIdx}_${kpiIdx}`).textContent = value;
+      document.getElementById(`kpi_val_${perspIdx}_${kpiIdx}`).style.color = getCCColor(value);
+      updatePerspAvg();
+      if (perspIdx === currentPerspective) {
+        renderRadarChart();
+        calculateWeightedAvg();
+      }
+    }
+
+    function updatePerspAvg() {
+      if (!selectedEmployeeId || !mock360Data[selectedEmployeeId]?.years[selectedYear]) return;
+      const persp = mock360Data[selectedEmployeeId].years[selectedYear].perspectives[currentPerspective];
+
+      // Average of all CC + KPI scores for this perspective
+      const allScores = [...persp.cc, ...persp.kpi];
+      const avg = allScores.reduce((a, b) => a + b, 0) / allScores.length;
+      const rounded = Math.round(avg * 100) / 100;
+
+      document.getElementById('perspAvgDisplay').textContent = rounded.toFixed(2);
+      document.getElementById('perspAvgDisplay').style.color = getCCColor(Math.round(avg));
+    }
+
+    // ============================================================
+    // WEIGHTED AVERAGE CALCULATION
+    // ============================================================
+    function calculateWeightedAvg() {
+      if (!selectedEmployeeId || !mock360Data[selectedEmployeeId]?.years[selectedYear]) return;
+
+      const yearData = mock360Data[selectedEmployeeId].years[selectedYear];
+      let totalWeight = 0;
+      let weightedSum = 0;
+
+      yearData.perspectives.forEach(persp => {
+        const allScores = [...persp.cc, ...persp.kpi];
+        const avg = allScores.reduce((a, b) => a + b, 0) / allScores.length;
+        weightedSum += avg * persp.weight;
+        totalWeight += persp.weight;
+      });
+
+      const weightedAvg = totalWeight > 0 ? weightedSum / totalWeight : 0;
+      const rounded = Math.round(weightedAvg * 100) / 100;
+
+      document.getElementById('weightedAvgDisplay').textContent = rounded.toFixed(2);
+      document.getElementById('weightedAvgDisplay').style.color = getScoreColor(weightedAvg);
+      document.getElementById('weightedAvgLabel').textContent = getRatingLabel(weightedAvg);
+    }
+
+    function getPerspectiveAvg(persp) {
+      const allScores = [...persp.cc, ...persp.kpi];
+      return allScores.length > 0 ? allScores.reduce((a, b) => a + b, 0) / allScores.length : 0;
+    }
+
+    function getCCColor(val) {
+      if (val >= 4) return '#10b981';
+      if (val >= 3) return '#f59e0b';
+      return '#ef4444';
+    }
+
+    function getScoreColor(score) {
+      if (score >= 4) return '#10b981';
+      if (score >= 3) return '#f59e0b';
+      return '#ef4444';
+    }
+
+    function getRatingLabel(score) {
+      if (score >= 4.5) return '🌟 Excellent (ดีเยี่ยม)';
+      if (score >= 3.5) return '✅ Good (ดี)';
+      if (score >= 2.5) return '⚠️ Fair (พอใช้)';
+      return '🚨 Poor (ต้องปรับปรุง)';
+    }
+
+    // ============================================================
+    // RADAR CHART
+    // ============================================================
+    function renderRadarChart() {
+      if (!selectedEmployeeId || !mock360Data[selectedEmployeeId]?.years[selectedYear]) return;
+
+      const yearData = mock360Data[selectedEmployeeId].years[selectedYear];
+      const labels = PERSPECTIVES;
+      const data = yearData.perspectives.map(p => Math.round(getPerspectiveAvg(p) * 100) / 100);
+
+      const ctx = document.getElementById('radarChart').getContext('2d');
+      if (radarChart) radarChart.destroy();
+
+      radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'คะแนน 360°',
+            data: data,
+            backgroundColor: 'rgba(59, 130, 246, 0.15)',
+            borderColor: '#3b82f6',
+            borderWidth: 2,
+            pointBackgroundColor: '#3b82f6',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            r: {
+              beginAtZero: true,
+              max: 5,
+              min: 0,
+              ticks: { stepSize: 1, font: { family: 'Prompt', size: 11 } },
+              pointLabels: { font: { family: 'Prompt', size: 12, weight: '500' } },
+              grid: { color: '#e2e8f0' }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    // ============================================================
+    // TREND CHART (Annual Credit)
+    // ============================================================
+    function renderTrendChart() {
+      if (!selectedEmployeeId || !mock360Data[selectedEmployeeId]) return;
+
+      const emp = mock360Data[selectedEmployeeId];
+      const years = ['2023', '2024', '2025'];
+      const trendData = years.map(y => {
+        if (!emp.years[y]) return 0;
+        const yearData = emp.years[y];
+        let totalWeight = 0, weightedSum = 0;
+        yearData.perspectives.forEach(p => {
+          const avg = getPerspectiveAvg(p);
+          weightedSum += avg * p.weight;
+          totalWeight += p.weight;
+        });
+        return totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 100) / 100 : 0;
+      });
+
+      const ctx = document.getElementById('trendChart').getContext('2d');
+      if (trendChart) trendChart.destroy();
+
+      trendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: years,
+          datasets: [{
+            label: 'Annual Score',
+            data: trendData,
+            borderColor: '#8b5cf6',
+            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 6,
+            pointBackgroundColor: trendData.map(v => v >= 3 ? '#10b981' : '#ef4444'),
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            borderWidth: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 5,
+              ticks: { stepSize: 1, font: { family: 'Prompt', size: 11 } },
+              grid: { color: '#f1f5f9' }
+            },
+            x: {
+              ticks: { font: { family: 'Prompt', size: 12 } },
+              grid: { display: false }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            annotation: {}
+          }
+        }
+      });
+    }
+
+    // ============================================================
+    // RISK FLAGS
+    // ============================================================
+    function updateRiskFlags() {
+      if (!selectedEmployeeId || !mock360Data[selectedEmployeeId]?.years[selectedYear]) return;
+
+      const yearData = mock360Data[selectedEmployeeId].years[selectedYear];
+      const flags = [];
+
+      // Check each perspective average
+      yearData.perspectives.forEach((p, i) => {
+        const avg = getPerspectiveAvg(p);
+        if (avg < 3.0) {
+          flags.push({ perspective: PERSPECTIVES[i], score: avg.toFixed(2) });
+        }
+      });
+
+      // Check individual CC across all perspectives
+      CC_NAMES.forEach((ccName, ccIdx) => {
+        const ccAvgs = yearData.perspectives.map(p => p.cc[ccIdx]);
+        const ccOverallAvg = ccAvgs.reduce((a, b) => a + b, 0) / ccAvgs.length;
+        if (ccOverallAvg < 3.0) {
+          flags.push({ perspective: `CC: ${ccName}`, score: ccOverallAvg.toFixed(2) });
+        }
+      });
+
+      const container = document.getElementById('riskFlags');
+      if (flags.length === 0) {
+        container.innerHTML = `
+          <div class="risk-flag safe">
+            <span>✅</span>
+            <span class="text-sm">ไม่มีข้อบ่งชี้ความเสี่ยง — คะแนนทุกด้าน ≥ 3.0</span>
+          </div>
+        `;
+      } else {
+        container.innerHTML = flags.map(f => `
+          <div class="risk-flag mb-2">
+            <span>🚨</span>
+            <span class="text-sm"><strong>${f.perspective}</strong> — คะแนนเฉลี่ย ${f.score} (&lt; 3.0)</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    // ============================================================
+    // SUMMARY TABLE
+    // ============================================================
+    function buildSummaryData() {
+      filteredSummary = [];
+      Object.entries(mock360Data).forEach(([empId, emp]) => {
+        Object.entries(emp.years).forEach(([year, yearData]) => {
+          let totalWeight = 0, weightedSum = 0;
+          const perspAvgs = yearData.perspectives.map(p => {
+            const avg = getPerspectiveAvg(p);
+            weightedSum += avg * p.weight;
+            totalWeight += p.weight;
+            return Math.round(avg * 100) / 100;
+          });
+          const wAvg = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 100) / 100 : 0;
+
+          filteredSummary.push({
+            empId, name: emp.name, position: emp.position, bu: emp.bu,
+            year, perspAvgs, weightedAvg: wAvg
+          });
+        });
+      });
+    }
+
+    function handleSearch() { applyTableFilter(); }
+    function handleFilter() { applyTableFilter(); }
+
+    function applyTableFilter() {
+      const search = document.getElementById('searchInput').value.toLowerCase().trim();
+      const yearFilter = document.getElementById('filterYear').value;
+
+      buildSummaryData();
+      filteredSummary = filteredSummary.filter(row => {
+        if (search && !row.name.toLowerCase().includes(search)) return false;
+        if (yearFilter && row.year !== yearFilter) return false;
+        return true;
+      });
+
+      currentPage = 1;
+      renderSummaryTable();
+    }
+
+    function renderSummaryTable() {
+      const start = (currentPage - 1) * currentPageSize;
+      const end = start + currentPageSize;
+      const pageData = filteredSummary.slice(start, end);
+
+      const tbody = document.getElementById('summaryTableBody');
+      if (!pageData.length) {
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-gray-400">ไม่พบข้อมูล</td></tr>`;
+      } else {
+        tbody.innerHTML = pageData.map(row => {
+          const hasRisk = row.perspAvgs.some(a => a < 3.0);
+          return `
+            <tr>
+              <td>
+                <div class="font-medium">${row.name}</div>
+                <div class="text-xs text-gray-400">${row.position}</div>
+              </td>
+              <td>${row.year}</td>
+              ${row.perspAvgs.map(a => `<td><span class="font-medium" style="color:${getScoreColor(a)}">${a.toFixed(1)}</span></td>`).join('')}
+              <td><span class="text-lg font-bold" style="color:${getScoreColor(row.weightedAvg)}">${row.weightedAvg.toFixed(2)}</span></td>
+              <td>${hasRisk ? '<span class="badge badge-red">⚠️ Risk</span>' : '<span class="badge badge-green">✅ OK</span>'}</td>
+              <td>
+                <button class="btn btn-outline text-xs py-1 px-2" onclick="viewEmployee360('${row.empId}', '${row.year}')">👁 ดู</button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Pagination
+      const totalPages = Math.max(1, Math.ceil(filteredSummary.length / currentPageSize));
+      const s = (currentPage - 1) * currentPageSize + 1;
+      const e = Math.min(currentPage * currentPageSize, filteredSummary.length);
+      document.getElementById('pageInfo').textContent = `${s}-${e} จาก ${filteredSummary.length} รายการ`;
+
+      const container = document.getElementById('pageButtons');
+      let html = `<button class="pagination-btn" onclick="goPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>‹</button>`;
+      for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+      }
+      html += `<button class="pagination-btn" onclick="goPage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>›</button>`;
+      container.innerHTML = html;
+    }
+
+    function goPage(page) {
+      const total = Math.ceil(filteredSummary.length / currentPageSize);
+      if (page < 1 || page > total) return;
+      currentPage = page;
+      renderSummaryTable();
+    }
+
+    function changePageSize() {
+      currentPageSize = parseInt(document.getElementById('pageSize').value);
+      currentPage = 1;
+      renderSummaryTable();
+    }
+
+    function viewEmployee360(empId, year) {
+      document.getElementById('employeeSelect').value = empId;
+      document.getElementById('periodSelect').value = year;
+      selectEmployee();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ============================================================
+    // FULL SCORING MODAL (all perspectives at once)
+    // ============================================================
+    function openScoringModal() {
+      // Build all 5 perspectives grids
+      let html = '';
+      PERSPECTIVES.forEach((name, pIdx) => {
+        html += `
+          <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h4 class="font-semibold text-gray-700 mb-3">${['🪞','👔','👥','👇','🛒'][pIdx]} ${pIdx + 1}. ${name} Evaluation</h4>
+            <div class="space-y-2">
+              <div class="grid grid-cols-5 gap-2 text-xs text-gray-500 font-medium px-2">
+                <div>${CC_NAMES[0]}</div><div>${CC_NAMES[1]}</div><div>${CC_NAMES[2]}</div><div>${CC_NAMES[3]}</div><div>${CC_NAMES[4]}</div>
+              </div>
+              <div class="grid grid-cols-5 gap-2">
+                ${CC_NAMES.map((_, ccIdx) => `
+                  <div class="text-center">
+                    <input type="number" class="form-input text-center" min="1" max="5" value="3" id="full_cc_${pIdx}_${ccIdx}" style="padding:0.4rem">
+                  </div>
+                `).join('')}
+              </div>
+              <div class="grid grid-cols-3 gap-2 mt-2 text-xs text-gray-500 font-medium px-2">
+                <div>${KPI_NAMES[0]}</div><div>${KPI_NAMES[1]}</div><div>${KPI_NAMES[2]}</div>
+              </div>
+              <div class="grid grid-cols-3 gap-2">
+                ${KPI_NAMES.map((_, kIdx) => `
+                  <div class="text-center">
+                    <input type="number" class="form-input text-center" min="1" max="5" value="3" id="full_kpi_${pIdx}_${kIdx}" style="padding:0.4rem">
+                  </div>
+                `).join('')}
+              </div>
+              <div class="mt-2 flex items-center gap-2">
+                <span class="text-xs text-gray-500">Weight:</span>
+                <select class="form-select w-auto text-sm" id="full_weight_${pIdx}">
+                  <option value="0.10" ${PERSPECTIVE_WEIGHTS_DEFAULT[pIdx]===0.10?'selected':''}>10%</option>
+                  <option value="0.15">15%</option>
+                  <option value="0.20" ${PERSPECTIVE_WEIGHTS_DEFAULT[pIdx]===0.20?'selected':''}>20%</option>
+                  <option value="0.25">25%</option>
+                  <option value="0.30" ${PERSPECTIVE_WEIGHTS_DEFAULT[pIdx]===0.30?'selected':''}>30%</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      document.getElementById('fullPerspScoring').innerHTML = html;
+      document.getElementById('fullScoringModal').classList.add('open');
+    }
+
+    function closeFullScoringModal() {
+      document.getElementById('fullScoringModal').classList.remove('open');
+    }
+
+    function saveFull360() {
+      const empId = document.getElementById('fullEmpSelect').value;
+      const year = document.getElementById('fullYearSelect').value;
+      if (!empId) { showToast('⚠️ กรุณาเลือกพนักงาน'); return; }
+
+      // Build perspectives data
+      const perspectives = [];
+      for (let pIdx = 0; pIdx < 5; pIdx++) {
+        const cc = [];
+        for (let ccIdx = 0; ccIdx < 5; ccIdx++) {
+          cc.push(parseInt(document.getElementById(`full_cc_${pIdx}_${ccIdx}`).value) || 3);
+        }
+        const kpi = [];
+        for (let kIdx = 0; kIdx < 3; kIdx++) {
+          kpi.push(parseInt(document.getElementById(`full_kpi_${pIdx}_${kIdx}`).value) || 3);
+        }
+        const weight = parseFloat(document.getElementById(`full_weight_${pIdx}`).value) || 0.20;
+        perspectives.push({ cc, kpi, weight });
+      }
+
+      // API call
+      try {
+        if (typeof PP7API !== 'undefined' && PP7API_CONFIG.BASE_URL) {
+          PP7API.createRecord('evaluation_360', { employee_id: empId, year: year, perspectives: perspectives });
+          PP7API.createRecord('annual_credit', { employee_id: empId, year: year });
+        }
+      } catch (e) { console.log('API fallback'); }
+
+      // Save to mock data
+      if (!mock360Data[empId]) {
+        const emp = employees.find(e => e.id === empId);
+        mock360Data[empId] = { name: emp?.name || 'Unknown', position: emp?.position || '', bu: emp?.bu || '', years: {} };
+      }
+      mock360Data[empId].years[year] = { perspectives };
+
+      closeFullScoringModal();
+      buildSummaryData();
+      renderSummaryTable();
+
+      // If same employee is selected, refresh views
+      if (selectedEmployeeId === empId && selectedYear === year) {
+        selectPerspective(0);
+        renderRadarChart();
+        renderTrendChart();
+        calculateWeightedAvg();
+        updateRiskFlags();
+      }
+
+      showToast('✅ บันทึกคะแนน 360° สำเร็จ');
+    }
+
+    // ============================================================
+    // CONFIRM DIALOG
+    // ============================================================
+    function closeConfirm() { document.getElementById('confirmModal').classList.remove('open'); confirmCallback = null; }
+    function executeConfirm() { if (confirmCallback) confirmCallback(); closeConfirm(); }
+
+    // ============================================================
+    // UTILITIES
+    // ============================================================
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+  </script>
+</body>
+</html>

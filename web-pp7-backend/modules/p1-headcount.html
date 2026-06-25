@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P1 — Headcount Request | PP7</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Prompt', sans-serif; }
+    body { background: #f1f5f9; color: #1e293b; }
+
+    /* Sidebar */
+    .sidebar { width: 260px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 30; transition: transform 0.3s; }
+    .sidebar-collapsed { transform: translateX(-260px); }
+    .sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.25rem; color: #94a3b8; font-size: 0.875rem; font-weight: 400; border-radius: 0.5rem; margin: 0.15rem 0.75rem; transition: all 0.15s; text-decoration: none; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+    .sidebar-link.active { background: rgba(59,130,246,0.15); color: #60a5fa; font-weight: 500; }
+    .sidebar-section { padding: 0.5rem 1.25rem; font-size: 0.65rem; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.75rem; }
+
+    /* Cards */
+    .stat-card { background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(15,23,42,0.07); padding: 1.25rem 1.5rem; transition: transform 0.15s, box-shadow 0.15s; }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(15,23,42,0.12); }
+    .stat-card .value { font-size: 2rem; font-weight: 700; line-height: 1.1; }
+    .stat-card .label { font-size: 0.75rem; color: #64748b; font-weight: 500; margin-top: 0.25rem; }
+
+    /* Badge */
+    .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-purple { background: #f3e8ff; color: #6b21a8; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 0.7rem 1rem; font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #e2e8f0; background: #f8fafc; cursor: pointer; user-select: none; }
+    th:hover { background: #e2e8f0; }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.875rem; }
+    tr:hover td { background: #f8fafc; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.4); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 1rem; max-width: 640px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(15,23,42,0.2); }
+    .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.75rem; }
+
+    /* Form */
+    .form-group { margin-bottom: 1rem; }
+    .form-label { display: block; font-size: 0.8rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem; }
+    .form-input { width: 100%; padding: 0.6rem 0.85rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.875rem; outline: none; transition: border 0.15s; font-family: 'Prompt'; }
+    .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+    select.form-input { appearance: auto; }
+
+    /* Buttons */
+    .btn { padding: 0.45rem 1rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; font-family: 'Prompt'; display: inline-flex; align-items: center; gap: 0.4rem; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-success { background: #10b981; color: #fff; }
+    .btn-success:hover { background: #059669; }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-outline { background: #fff; border: 1px solid #e2e8f0; color: #64748b; }
+    .btn-outline:hover { background: #f8fafc; }
+    .btn-amber { background: #f59e0b; color: #fff; }
+    .btn-amber:hover { background: #d97706; }
+
+    /* Search */
+    .search-box { position: relative; }
+    .search-box input { width: 100%; padding: 0.55rem 1rem 0.55rem 2.25rem; border-radius: 0.5rem; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 0.875rem; outline: none; transition: border 0.15s; font-family: 'Prompt'; }
+    .search-box input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+    .search-box svg { position: absolute; left: 0.65rem; top: 50%; transform: translateY(-50%); color: #94a3b8; width: 16px; height: 16px; }
+
+    /* Pagination */
+    .pagination { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; }
+    .page-btn { padding: 0.35rem 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.375rem; font-size: 0.8rem; cursor: pointer; background: #fff; font-family: 'Prompt'; }
+    .page-btn:hover { background: #f1f5f9; }
+    .page-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Loading */
+    .loading-spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #e2e8f0; border-top-color: #2563eb; border-radius: 50%; animation: spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Mobile responsive */
+    @media (max-width: 1024px) {
+      .sidebar { transform: translateX(-260px); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0 !important; }
+    }
+
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Priority indicator */
+    .priority-high { color: #ef4444; }
+    .priority-medium { color: #f59e0b; }
+    .priority-low { color: #10b981; }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar Navigation -->
+<aside class="sidebar" id="sidebar">
+  <div class="p-5 border-b border-white/10">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 bg-blue-500 rounded-lg flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </div>
+      <div>
+        <h1 class="text-white font-semibold text-sm">PP7 System</h1>
+        <p class="text-slate-400 text-xs">Phase 1-2 Module</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="py-3">
+    <div class="sidebar-section">P1 — แสวงหา</div>
+    <a href="p1-headcount.html" class="sidebar-link active">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Headcount Request
+    </a>
+    <a href="p1-candidates.html" class="sidebar-link">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      Candidate Pipeline
+    </a>
+
+    <div class="sidebar-section">P2 — หยั่งประเมิน</div>
+    <a href="p2-interviews.html" class="sidebar-link">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      Interview
+    </a>
+    <a href="p2-assessment.html" class="sidebar-link">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+      Assessment
+    </a>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<div class="main-content transition-all duration-300" style="margin-left:260px;">
+  <!-- Top Bar -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-20 px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button class="lg:hidden btn btn-outline" onclick="toggleSidebar()">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div>
+        <h2 class="text-lg font-semibold text-gray-800">📋 Headcount Request</h2>
+        <p class="text-xs text-gray-500">P1.1 — จัดการคำขออัตรากำลังคน</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-xs text-gray-400" id="lastUpdated">อัปเดตล่าสุด: —</span>
+    </div>
+  </header>
+
+  <div class="p-6 fade-in">
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+      <div class="stat-card border-l-4 border-blue-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="value text-blue-600" id="stat-total">0</div>
+            <div class="label">คำขอทั้งหมด</div>
+          </div>
+          <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card border-l-4 border-amber-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="value text-amber-600" id="stat-pending">0</div>
+            <div class="label">รอดำเนินการ</div>
+          </div>
+          <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card border-l-4 border-green-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="value text-green-600" id="stat-approved">0</div>
+            <div class="label">อนุมัติแล้ว</div>
+          </div>
+          <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card border-l-4 border-red-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="value text-red-600" id="stat-rejected">0</div>
+            <div class="label">ไม่อนุมัติ</div>
+          </div>
+          <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card border-l-4 border-purple-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="value text-purple-600" id="stat-recruiting">0</div>
+            <div class="label">กำลังสรรหา</div>
+          </div>
+          <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+            <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4">
+      <div class="flex flex-wrap items-center gap-3 justify-between">
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Search -->
+          <div class="search-box">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" id="searchInput" placeholder="ค้นหา BU, ตำแหน่ง..." oninput="filterData()">
+          </div>
+          <!-- Status Filter -->
+          <select class="form-input" style="width:auto;" id="filterStatus" onchange="filterData()">
+            <option value="all">ทุกสถานะ</option>
+            <option value="Pending">รอดำเนินการ</option>
+            <option value="Approved">อนุมัติ</option>
+            <option value="Rejected">ไม่อนุมัติ</option>
+            <option value="Recruiting">กำลังสรรหา</option>
+          </select>
+          <!-- Priority Filter -->
+          <select class="form-input" style="width:auto;" id="filterPriority" onchange="filterData()">
+            <option value="all">ทุกลำดับความสำคัญ</option>
+            <option value="High">สูง</option>
+            <option value="Medium">กลาง</option>
+            <option value="Low">ต่ำ</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="btn btn-success" onclick="exportExcel()">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Export Excel
+          </button>
+          <button class="btn btn-primary" onclick="openAddModal()">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            เพิ่มคำขอ
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table>
+          <thead>
+            <tr>
+              <th onclick="sortTable('id')">ID <span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('business_unit')">BU <span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('position')">ตำแหน่ง <span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('count')">จำนวน <span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('priority')">Priority <span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('deadline')">Deadline <span class="sort-icon">↕</span></th>
+              <th onclick="sortTable('status')">Status <span class="sort-icon">↕</span></th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- Loading state -->
+            <tr><td colspan="8" class="text-center py-10"><div class="loading-spinner mx-auto mb-2"></div><span class="text-gray-400 text-sm">กำลังโหลด...</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="px-4 border-t border-gray-100">
+        <div class="pagination">
+          <div class="flex items-center gap-2 text-sm text-gray-500">
+            <span>แสดง</span>
+            <select class="form-input" style="width:auto;padding:0.3rem 0.5rem;font-size:0.8rem;" id="pageSize" onchange="changePageSize()">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+            <span id="pageInfo">หน้า 1 / 1</span>
+          </div>
+          <div class="flex items-center gap-1" id="pageButtons"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add/Edit Headcount Request -->
+<div class="modal-overlay" id="formModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">เพิ่มคำขอ Headcount</h3>
+      <button class="text-2xl text-gray-400 hover:text-gray-800 bg-transparent border-none cursor-pointer" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="formId">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="form-group">
+          <label class="form-label">Business Unit *</label>
+          <select class="form-input" id="formBU">
+            <option value="">— เลือก BU —</option>
+            <option value="Corporate">Corporate</option>
+            <option value="Meat Processing">Meat Processing</option>
+            <option value="Frozen Food">Frozen Food</option>
+            <option value="Logistics">Logistics</option>
+            <option value="Retail">Retail</option>
+            <option value="Export">Export</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ตำแหน่ง *</label>
+          <input type="text" class="form-input" id="formPosition" placeholder="เช่น Senior Developer">
+        </div>
+        <div class="form-group">
+          <label class="form-label">จำนวน *</label>
+          <input type="number" class="form-input" id="formCount" value="1" min="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Priority *</label>
+          <select class="form-input" id="formPriority">
+            <option value="High">สูง (High)</option>
+            <option value="Medium" selected>กลาง (Medium)</option>
+            <option value="Low">ต่ำ (Low)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Deadline *</label>
+          <input type="date" class="form-input" id="formDeadline">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-input" id="formStatus">
+            <option value="Pending">รอดำเนินการ</option>
+            <option value="Approved">อนุมัติ</option>
+            <option value="Rejected">ไม่อนุมัติ</option>
+            <option value="Recruiting">กำลังสรรหา</option>
+          </select>
+        </div>
+        <div class="form-group md:col-span-2">
+          <label class="form-label">หมายเหตุ</label>
+          <textarea class="form-input" id="formNotes" rows="2" placeholder="รายละเอียดเพิ่มเติม..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveRecord()">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        บันทึก
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Confirmation Dialog -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <h3>⚠️ ยืนยันการลบ</h3>
+      <button class="text-2xl text-gray-400 hover:text-gray-800 bg-transparent border-none cursor-pointer" onclick="closeConfirm()">&times;</button>
+    </div>
+    <div class="modal-body text-center">
+      <p class="text-gray-600" id="confirmMessage">คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?</p>
+      <p class="text-sm text-gray-400 mt-2">การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>
+    </div>
+    <div class="modal-footer justify-center">
+      <button class="btn btn-outline" onclick="closeConfirm()">ยกเลิก</button>
+      <button class="btn btn-danger" id="confirmBtn" onclick="confirmDelete()">ลบ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div id="toast" class="fixed bottom-6 right-6 z-[200] hidden">
+  <div class="bg-gray-800 text-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-2 text-sm">
+    <span id="toastMsg"></span>
+  </div>
+</div>
+
+<script src="../api-adapter.js"></script>
+<script>
+// ============================================================
+// State Management
+// ============================================================
+let allData = [];
+let filteredData = [];
+let currentPage = 1;
+let pageSize = 10;
+let sortField = 'id';
+let sortDir = 'asc';
+let deleteTargetId = null;
+
+// ============================================================
+// Mock Data — ใช้เมื่อ Backend ยังไม่พร้อม
+// ============================================================
+const MOCK_DATA = [
+  { id: 'HC-001', business_unit: 'Corporate', position: 'IT Manager', count: 1, priority: 'High', deadline: '2025-07-15', status: 'Approved', notes: 'แทนตำแหน่งที่ว่าง' },
+  { id: 'HC-002', business_unit: 'Meat Processing', position: 'Production Supervisor', count: 2, priority: 'High', deadline: '2025-07-20', status: 'Recruiting', notes: 'ขยายไลน์การผลิต' },
+  { id: 'HC-003', business_unit: 'Frozen Food', position: 'QC Inspector', count: 3, priority: 'Medium', deadline: '2025-08-01', status: 'Pending', notes: 'เปิดกะใหม่' },
+  { id: 'HC-004', business_unit: 'Logistics', position: 'Warehouse Officer', count: 1, priority: 'Low', deadline: '2025-08-15', status: 'Pending', notes: '' },
+  { id: 'HC-005', business_unit: 'Retail', position: 'Sales Manager', count: 1, priority: 'Medium', deadline: '2025-07-25', status: 'Rejected', notes: 'งบไม่เพียงพอ Q3' },
+  { id: 'HC-006', business_unit: 'Export', position: 'Export Coordinator', count: 2, priority: 'High', deadline: '2025-07-10', status: 'Approved', notes: 'เปิดตลาดใหม่ AEC' }
+];
+
+// ============================================================
+// Initialization
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  loadData();
+});
+
+// ============================================================
+// Data Loading — API with mock fallback
+// ============================================================
+async function loadData() {
+  try {
+    // ลองเรียก API ก่อน
+    if (PP7API_CONFIG.BASE_URL && typeof PP7API !== 'undefined') {
+      const response = await PP7API.getHeadcountRequests();
+      if (response && response.success && response.data && response.data.length > 0) {
+        allData = response.data;
+        updateUI();
+        return;
+      }
+    }
+  } catch (e) {
+    console.log('API ไม่พร้อม ใช้ mock data', e);
+  }
+  // Fallback: mock data
+  allData = [...MOCK_DATA];
+  updateUI();
+}
+
+function updateUI() {
+  updateStats();
+  filterData();
+  document.getElementById('lastUpdated').textContent = 'อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
+}
+
+// ============================================================
+// Statistics
+// ============================================================
+function updateStats() {
+  document.getElementById('stat-total').textContent = allData.length;
+  document.getElementById('stat-pending').textContent = allData.filter(d => d.status === 'Pending').length;
+  document.getElementById('stat-approved').textContent = allData.filter(d => d.status === 'Approved').length;
+  document.getElementById('stat-rejected').textContent = allData.filter(d => d.status === 'Rejected').length;
+  document.getElementById('stat-recruiting').textContent = allData.filter(d => d.status === 'Recruiting').length;
+}
+
+// ============================================================
+// Filter & Search
+// ============================================================
+function filterData() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const statusFilter = document.getElementById('filterStatus').value;
+  const priorityFilter = document.getElementById('filterPriority').value;
+
+  filteredData = allData.filter(function(item) {
+    const matchSearch = !search ||
+      (item.business_unit && item.business_unit.toLowerCase().includes(search)) ||
+      (item.position && item.position.toLowerCase().includes(search)) ||
+      (item.id && item.id.toLowerCase().includes(search));
+    const matchStatus = statusFilter === 'all' || item.status === statusFilter;
+    const matchPriority = priorityFilter === 'all' || item.priority === priorityFilter;
+    return matchSearch && matchStatus && matchPriority;
+  });
+
+  applySorting();
+  currentPage = 1;
+  renderTable();
+  renderPagination();
+}
+
+// ============================================================
+// Sorting
+// ============================================================
+function sortTable(field) {
+  if (sortField === field) {
+    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField = field;
+    sortDir = 'asc';
+  }
+  applySorting();
+  renderTable();
+}
+
+function applySorting() {
+  filteredData.sort(function(a, b) {
+    let valA = a[sortField] || '';
+    let valB = b[sortField] || '';
+    if (typeof valA === 'string') valA = valA.toLowerCase();
+    if (typeof valB === 'string') valB = valB.toLowerCase();
+    if (valA < valB) return sortDir === 'asc' ? -1 : 1;
+    if (valA > valB) return sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+}
+
+// ============================================================
+// Table Rendering
+// ============================================================
+function renderTable() {
+  var tbody = document.getElementById('tableBody');
+  var start = (currentPage - 1) * pageSize;
+  var end = start + pageSize;
+  var pageData = filteredData.slice(start, end);
+
+  if (pageData.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-10 text-gray-400"><svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>ไม่พบข้อมูล</td></tr>';
+    return;
+  }
+
+  var html = '';
+  pageData.forEach(function(item) {
+    html += '<tr>';
+    html += '<td class="font-medium text-blue-600">' + escapeHtml(item.id) + '</td>';
+    html += '<td>' + escapeHtml(item.business_unit) + '</td>';
+    html += '<td class="font-medium">' + escapeHtml(item.position) + '</td>';
+    html += '<td class="text-center">' + item.count + '</td>';
+    html += '<td>' + renderPriority(item.priority) + '</td>';
+    html += '<td>' + formatDate(item.deadline) + '</td>';
+    html += '<td>' + renderStatus(item.status) + '</td>';
+    html += '<td>';
+    html += '<div class="flex items-center gap-1">';
+    html += '<button class="btn btn-outline text-xs py-1 px-2" onclick="openEditModal(\'' + item.id + '\')" title="แก้ไข">✏️</button>';
+    html += '<button class="btn btn-danger text-xs py-1 px-2" onclick="askDelete(\'' + item.id + '\')" title="ลบ">🗑️</button>';
+    html += '</div>';
+    html += '</td>';
+    html += '</tr>';
+  });
+  tbody.innerHTML = html;
+}
+
+function renderStatus(status) {
+  var map = {
+    'Pending': '<span class="badge badge-amber">⏳ รอ</span>',
+    'Approved': '<span class="badge badge-green">✅ อนุมัติ</span>',
+    'Rejected': '<span class="badge badge-red">❌ ไม่อนุมัติ</span>',
+    'Recruiting': '<span class="badge badge-purple">🔍 สรรหา</span>'
+  };
+  return map[status] || '<span class="badge badge-blue">' + escapeHtml(status) + '</span>';
+}
+
+function renderPriority(priority) {
+  var map = {
+    'High': '<span class="priority-high font-semibold">🔴 สูง</span>',
+    'Medium': '<span class="priority-medium font-semibold">🟡 กลาง</span>',
+    'Low': '<span class="priority-low font-semibold">🟢 ต่ำ</span>'
+  };
+  return map[priority] || escapeHtml(priority);
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  var d = new Date(dateStr);
+  return d.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ============================================================
+// Pagination
+// ============================================================
+function renderPagination() {
+  var totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
+  document.getElementById('pageInfo').textContent = 'หน้า ' + currentPage + ' / ' + totalPages;
+
+  var btns = '';
+  btns += '<button class="page-btn" onclick="goToPage(' + (currentPage - 1) + ')" ' + (currentPage <= 1 ? 'disabled' : '') + '>‹</button>';
+
+  var startPage = Math.max(1, currentPage - 2);
+  var endPage = Math.min(totalPages, currentPage + 2);
+
+  for (var i = startPage; i <= endPage; i++) {
+    btns += '<button class="page-btn' + (i === currentPage ? ' active' : '') + '" onclick="goToPage(' + i + ')">' + i + '</button>';
+  }
+
+  btns += '<button class="page-btn" onclick="goToPage(' + (currentPage + 1) + ')" ' + (currentPage >= totalPages ? 'disabled' : '') + '>›</button>';
+
+  document.getElementById('pageButtons').innerHTML = btns;
+}
+
+function goToPage(page) {
+  var totalPages = Math.ceil(filteredData.length / pageSize);
+  if (page < 1 || page > totalPages) return;
+  currentPage = page;
+  renderTable();
+  renderPagination();
+}
+
+function changePageSize() {
+  pageSize = parseInt(document.getElementById('pageSize').value);
+  currentPage = 1;
+  renderTable();
+  renderPagination();
+}
+
+// ============================================================
+// Modal — Add / Edit
+// ============================================================
+function openAddModal() {
+  document.getElementById('modalTitle').textContent = '➕ เพิ่มคำขอ Headcount';
+  document.getElementById('formId').value = '';
+  document.getElementById('formBU').value = '';
+  document.getElementById('formPosition').value = '';
+  document.getElementById('formCount').value = '1';
+  document.getElementById('formPriority').value = 'Medium';
+  document.getElementById('formDeadline').value = '';
+  document.getElementById('formStatus').value = 'Pending';
+  document.getElementById('formNotes').value = '';
+  document.getElementById('formModal').classList.add('open');
+}
+
+function openEditModal(id) {
+  var record = allData.find(function(d) { return d.id === id; });
+  if (!record) return;
+
+  document.getElementById('modalTitle').textContent = '✏️ แก้ไขคำขอ ' + id;
+  document.getElementById('formId').value = record.id;
+  document.getElementById('formBU').value = record.business_unit || '';
+  document.getElementById('formPosition').value = record.position || '';
+  document.getElementById('formCount').value = record.count || 1;
+  document.getElementById('formPriority').value = record.priority || 'Medium';
+  document.getElementById('formDeadline').value = record.deadline || '';
+  document.getElementById('formStatus').value = record.status || 'Pending';
+  document.getElementById('formNotes').value = record.notes || '';
+  document.getElementById('formModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('formModal').classList.remove('open');
+}
+
+// ============================================================
+// Save Record
+// ============================================================
+async function saveRecord() {
+  var id = document.getElementById('formId').value;
+  var record = {
+    business_unit: document.getElementById('formBU').value,
+    position: document.getElementById('formPosition').value,
+    count: parseInt(document.getElementById('formCount').value) || 1,
+    priority: document.getElementById('formPriority').value,
+    deadline: document.getElementById('formDeadline').value,
+    status: document.getElementById('formStatus').value,
+    notes: document.getElementById('formNotes').value
+  };
+
+  // Validation
+  if (!record.business_unit || !record.position || !record.deadline) {
+    showToast('กรุณากรอกข้อมูลให้ครบ (BU, ตำแหน่ง, Deadline)', true);
+    return;
+  }
+
+  try {
+    if (PP7API_CONFIG.BASE_URL && typeof PP7API !== 'undefined') {
+      if (id) {
+        await PP7API.updateRecord('headcount_requests', id, record);
+      } else {
+        await PP7API.createHeadcountRequest(record);
+      }
+      showToast(id ? 'อัปเดตเรียบร้อย ✅' : 'สร้างคำขอใหม่ ✅');
+      closeModal();
+      loadData();
+      return;
+    }
+  } catch (e) {
+    console.log('API error, updating locally', e);
+  }
+
+  // Local update (mock mode)
+  if (id) {
+    var idx = allData.findIndex(function(d) { return d.id === id; });
+    if (idx !== -1) {
+      Object.assign(allData[idx], record);
+    }
+    showToast('อัปเดตเรียบร้อย ✅');
+  } else {
+    // Generate new ID
+    var maxNum = 0;
+    allData.forEach(function(d) {
+      var num = parseInt(d.id.replace('HC-', ''));
+      if (num > maxNum) maxNum = num;
+    });
+    record.id = 'HC-' + String(maxNum + 1).padStart(3, '0');
+    allData.push(record);
+    showToast('สร้างคำขอใหม่ ✅');
+  }
+
+  closeModal();
+  updateUI();
+}
+
+// ============================================================
+// Delete
+// ============================================================
+function askDelete(id) {
+  deleteTargetId = id;
+  document.getElementById('confirmMessage').textContent = 'คุณแน่ใจหรือไม่ว่าต้องการลบรายการ ' + id + '?';
+  document.getElementById('confirmModal').classList.add('open');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.remove('open');
+  deleteTargetId = null;
+}
+
+async function confirmDelete() {
+  if (!deleteTargetId) return;
+
+  try {
+    if (PP7API_CONFIG.BASE_URL && typeof PP7API !== 'undefined') {
+      await PP7API.deleteRecord('headcount_requests', deleteTargetId);
+      showToast('ลบเรียบร้อย 🗑️');
+      closeConfirm();
+      loadData();
+      return;
+    }
+  } catch (e) {
+    console.log('API error, deleting locally', e);
+  }
+
+  // Local delete (mock mode)
+  allData = allData.filter(function(d) { return d.id !== deleteTargetId; });
+  showToast('ลบเรียบร้อย 🗑️');
+  closeConfirm();
+  updateUI();
+}
+
+// ============================================================
+// Export to Excel
+// ============================================================
+function exportExcel() {
+  var exportData = filteredData.map(function(d) {
+    return {
+      'ID': d.id,
+      'Business Unit': d.business_unit,
+      'ตำแหน่ง': d.position,
+      'จำนวน': d.count,
+      'Priority': d.priority,
+      'Deadline': d.deadline,
+      'Status': d.status,
+      'หมายเหตุ': d.notes || ''
+    };
+  });
+
+  var ws = XLSX.utils.json_to_sheet(exportData);
+  var wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Headcount Requests');
+  XLSX.writeFile(wb, 'PP7_Headcount_Requests_' + new Date().toISOString().slice(0, 10) + '.xlsx');
+  showToast('Export Excel สำเร็จ 📊');
+}
+
+// ============================================================
+// Toast Notification
+// ============================================================
+function showToast(message, isError) {
+  var toast = document.getElementById('toast');
+  var toastMsg = document.getElementById('toastMsg');
+  toastMsg.textContent = message;
+  var inner = toast.querySelector('div');
+  inner.className = (isError ? 'bg-red-600' : 'bg-gray-800') + ' text-white px-5 py-3 rounded-lg shadow-lg flex items-center gap-2 text-sm';
+  toast.classList.remove('hidden');
+  setTimeout(function() { toast.classList.add('hidden'); }, 3000);
+}
+
+// ============================================================
+// Sidebar Toggle
+// ============================================================
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// Close sidebar on outside click (mobile)
+document.addEventListener('click', function(e) {
+  var sidebar = document.getElementById('sidebar');
+  if (window.innerWidth < 1024 && sidebar.classList.contains('open') && !sidebar.contains(e.target) && !e.target.closest('[onclick*="toggleSidebar"]')) {
+    sidebar.classList.remove('open');
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P4 — Analytics Dashboard | PP7</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../api-adapter.js"></script>
+  <style>
+    * { font-family: 'Prompt', sans-serif; }
+    body { background: #f1f5f9; color: #1e293b; margin: 0; }
+
+    .sidebar { width: 260px; background: #0f172a; color: #e2e8f0; min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 40; transition: transform 0.3s; }
+    .sidebar .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.25rem; color: #94a3b8; text-decoration: none; font-size: 0.875rem; border-radius: 0.5rem; margin: 0.15rem 0.75rem; transition: all 0.15s; }
+    .sidebar .nav-link:hover { background: #1e293b; color: #e2e8f0; }
+    .sidebar .nav-link.active { background: #2563eb; color: #fff; font-weight: 500; }
+    .sidebar .nav-section { padding: 0.5rem 1.25rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-top: 0.75rem; }
+    .main-content { margin-left: 260px; transition: margin-left 0.3s; }
+
+    .card { background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(15,23,42,.07); padding: 1.5rem; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 0.7rem 1rem; font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #e2e8f0; background: #f8fafc; cursor: pointer; white-space: nowrap; }
+    th:hover { background: #e2e8f0; }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.875rem; }
+    tr:hover td { background: #f8fafc; }
+
+    .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+
+    .btn { padding: 0.45rem 1rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-outline { background: #fff; border: 1px solid #e2e8f0; color: #64748b; }
+    .btn-outline:hover { background: #f8fafc; }
+    .btn-success { background: #10b981; color: #fff; }
+
+    .form-select { padding: 0.55rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; background: #fff; }
+
+    .chart-box { position: relative; width: 100%; height: 280px; }
+
+    /* Rank badge */
+    .rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; font-weight: 700; font-size: 0.8rem; }
+    .rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; }
+    .rank-2 { background: linear-gradient(135deg, #d1d5db, #9ca3af); color: #fff; }
+    .rank-3 { background: linear-gradient(135deg, #f59e0b, #b45309); color: #fff; }
+    .rank-other { background: #f1f5f9; color: #475569; }
+
+    /* Completion bar */
+    .completion-bar { height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; }
+    .completion-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
+
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Print */
+    @media print {
+      .sidebar, .no-print { display: none !important; }
+      .main-content { margin-left: 0 !important; }
+      .card { break-inside: avoid; box-shadow: none; border: 1px solid #e2e8f0; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="p-4 border-b border-gray-700">
+      <h1 class="text-lg font-bold text-white">🦾 PP7 System</h1>
+      <p class="text-xs text-gray-400 mt-1">P4 Analytics Dashboard</p>
+    </div>
+    <nav class="py-2">
+      <div class="nav-section">กระบวนการ PP7</div>
+      <a href="p1-recruitment.html" class="nav-link">📋 P1 แสวงหา</a>
+      <a href="p2-assessment.html" class="nav-link">🔍 P2 หยั่งประเมิน</a>
+      <a href="p3-matching.html" class="nav-link">🎯 P3 จับคู่คนกับงาน</a>
+      <a href="p4-evaluation.html" class="nav-link">📊 P4 ประเมินผล</a>
+      <a href="p4-evaluation-360.html" class="nav-link">🔄 P4 ประเมิน 360°</a>
+      <a href="p4-dashboard.html" class="nav-link active">📈 P4 Dashboard</a>
+      <div class="nav-section">อื่นๆ</div>
+      <a href="../index.html" class="nav-link">🏠 หน้าหลัก</a>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content" id="mainContent">
+    <header class="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-30 shadow-sm no-print">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button class="md:hidden text-gray-600" onclick="document.getElementById('sidebar').classList.toggle('mobile-open')">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">📈 P4 — Analytics Dashboard</h2>
+            <p class="text-sm text-gray-500">ภาพรวมผลการประเมิน across organization</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 no-print">
+          <select class="form-select" id="dashPeriod" onchange="refreshDashboard()">
+            <option value="all">ทุกรอบ</option>
+            <option value="Q1/2025">Q1/2025</option>
+            <option value="Q2/2025" selected>Q2/2025</option>
+          </select>
+          <button class="btn btn-success" onclick="exportPDF()">
+            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+            Export PDF
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="p-6 space-y-6 fade-in" id="dashboardContent">
+      <!-- Summary Stats -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="card" style="border-left:4px solid #3b82f6">
+          <div class="text-sm text-gray-500">ประเมินทั้งหมด</div>
+          <div class="text-3xl font-bold mt-1" id="dashTotal">-</div>
+          <div class="text-xs text-blue-600 mt-1">รายการประเมิน</div>
+        </div>
+        <div class="card" style="border-left:4px solid #10b981">
+          <div class="text-sm text-gray-500">คะแนนเฉลี่ยองค์กร</div>
+          <div class="text-3xl font-bold mt-1" id="dashAvgScore">-</div>
+          <div class="text-xs text-green-600 mt-1">จากทุก BU</div>
+        </div>
+        <div class="card" style="border-left:4px solid #f59e0b">
+          <div class="text-sm text-gray-500">อัตราเสร็จสมบูรณ์</div>
+          <div class="text-3xl font-bold mt-1" id="dashCompletion">-</div>
+          <div class="text-xs text-amber-600 mt-1">Finalized rate</div>
+        </div>
+        <div class="card" style="border-left:4px solid #ef4444">
+          <div class="text-sm text-gray-500">ต้องปรับปรุง</div>
+          <div class="text-3xl font-bold mt-1" id="dashNeedImprove">-</div>
+          <div class="text-xs text-red-600 mt-1">คะแนน &lt; 3.0</div>
+        </div>
+      </div>
+
+      <!-- Charts Row 1: Bar + Line -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="card">
+          <h3 class="font-semibold text-gray-700 mb-3">📊 คะแนนเฉลี่ยตาม BU</h3>
+          <div class="chart-box">
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="font-semibold text-gray-700 mb-3">📈 Performance Trend (รายไตรมาส)</h3>
+          <div class="chart-box">
+            <canvas id="lineChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row 2: Pie + Radar -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="card">
+          <h3 class="font-semibold text-gray-700 mb-3">🥧 Distribution by Rating</h3>
+          <div class="chart-box">
+            <canvas id="pieChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <h3 class="font-semibold text-gray-700 mb-3">🎯 CC Average Across Organization</h3>
+          <div class="chart-box">
+            <canvas id="orgRadarChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top 10 Performers -->
+      <div class="card">
+        <h3 class="font-semibold text-gray-700 mb-3">🏆 Top 10 Performers</h3>
+        <div class="overflow-x-auto">
+          <table>
+            <thead>
+              <tr>
+                <th>อันดับ</th>
+                <th>พนักงาน</th>
+                <th>ตำแหน่ง</th>
+                <th>BU</th>
+                <th>คะแนน</th>
+                <th>ระดับ</th>
+              </tr>
+            </thead>
+            <tbody id="topPerformersBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Improvement Needed -->
+      <div class="card">
+        <h3 class="font-semibold text-gray-700 mb-3">⚠️ ต้องปรับปรุง (Score &lt; 3.0)</h3>
+        <div class="overflow-x-auto">
+          <table>
+            <thead>
+              <tr>
+                <th>พนักงาน</th>
+                <th>ตำแหน่ง</th>
+                <th>BU</th>
+                <th>คะแนน</th>
+                <th>ด้านที่ต้องปรับปรุง</th>
+                <th>ข้อเสนอแนะ</th>
+              </tr>
+            </thead>
+            <tbody id="improvementBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Completion Rate by BU -->
+      <div class="card">
+        <h3 class="font-semibold text-gray-700 mb-3">📋 Evaluation Completion Rate by BU</h3>
+        <div class="space-y-4" id="completionByBU">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden no-print">
+    <div class="bg-gray-800 text-white px-5 py-3 rounded-lg shadow-lg text-sm"><span id="toastMsg"></span></div>
+  </div>
+
+  <script>
+    // ============================================================
+    // MOCK DATA — Aggregated from 360 evaluations
+    // ============================================================
+    const CC_NAMES = ['การสื่อสาร', 'การทำงานเป็นทีม', 'ความเป็นผู้นำ', 'การแก้ปัญหา', 'การพัฒนาตนเอง'];
+
+    // All evaluation data (aggregated mock)
+    const allEvaluations = [
+      { id: 'EMP001', name: 'สมชาย ใจดี', position: 'Senior Developer', bu: 'PKG-BKK', score: 4.2, rating: 'Good', cc: [4, 4.5, 3.5, 4, 4.5], status: 'finalized', quarter: 'Q1/2025' },
+      { id: 'EMP002', name: 'สมหญิง รักงาน', position: 'HR Manager', bu: 'PKG-BKK', score: 3.8, rating: 'Good', cc: [4, 4, 3.5, 3, 4], status: 'finalized', quarter: 'Q1/2025' },
+      { id: 'EMP003', name: 'วิชัย แก้วมงคล', position: 'Financial Analyst', bu: 'PKG-CMN', score: 2.8, rating: 'Fair', cc: [3, 3, 2.5, 3.5, 3], status: 'finalized', quarter: 'Q1/2025' },
+      { id: 'EMP004', name: 'อรุณี สว่างจิต', position: 'Marketing Specialist', bu: 'PKG-BKK', score: 3.5, rating: 'Good', cc: [4, 3.5, 3, 3.5, 3.5], status: 'submitted', quarter: 'Q2/2025' },
+      { id: 'EMP005', name: 'ธนากร พัฒนา', position: 'Operations Lead', bu: 'PKG-EST', score: 2.5, rating: 'Fair', cc: [2.5, 3, 2, 3, 2.5], status: 'finalized', quarter: 'Q2/2025' },
+      { id: 'EMP006', name: 'พิมพ์ชนก ศรีสุข', position: 'UX Designer', bu: 'PKG-BKK', score: 4.6, rating: 'Excellent', cc: [4.5, 5, 4, 4.5, 5], status: 'finalized', quarter: 'Q1/2025' },
+      { id: 'EMP007', name: 'พิชัย มั่นคง', position: 'Civil Engineer', bu: 'PKG-EST', score: 3.2, rating: 'Good', cc: [3, 3.5, 3, 3.5, 3], status: 'finalized', quarter: 'Q2/2025' },
+      { id: 'EMP008', name: 'นภัสสร วงศ์ทวี', position: 'Data Analyst', bu: 'PKG-CMN', score: 4.0, rating: 'Good', cc: [4, 4, 3.5, 4, 4.5], status: 'finalized', quarter: 'Q2/2025' },
+      { id: 'EMP009', name: 'กนกวรรณ แสงทอง', position: 'Accountant', bu: 'PKG-CMN', score: 3.6, rating: 'Good', cc: [3.5, 3.5, 3, 3.5, 4], status: 'finalized', quarter: 'Q1/2025' },
+      { id: 'EMP010', name: 'สุรศักดิ์ เจริญสุข', position: 'Project Manager', bu: 'PKG-BKK', score: 4.3, rating: 'Good', cc: [4.5, 4, 4.5, 4, 4], status: 'finalized', quarter: 'Q2/2025' },
+      { id: 'EMP011', name: 'มณียา รักษ์ดี', position: 'Recruiter', bu: 'PKG-BKK', score: 2.9, rating: 'Fair', cc: [3, 2.5, 2.5, 3, 3.5], status: 'finalized', quarter: 'Q1/2025' },
+      { id: 'EMP012', name: 'ธนวัฒน์ ศรีสุข', position: 'DevOps Engineer', bu: 'PKG-EST', score: 4.1, rating: 'Good', cc: [4, 4, 3.5, 4.5, 4.5], status: 'finalized', quarter: 'Q2/2025' },
+      { id: 'EMP013', name: 'ปิยะนุช ใจเย็น', position: 'QA Lead', bu: 'PKG-CMN', score: 3.9, rating: 'Good', cc: [3.5, 4, 3.5, 4, 4.5], status: 'submitted', quarter: 'Q1/2025' },
+      { id: 'EMP014', name: 'อนุชา พัฒนา', position: 'Backend Dev', bu: 'PKG-BKK', score: 2.2, rating: 'Poor', cc: [2, 2.5, 2, 2.5, 2], status: 'finalized', quarter: 'Q2/2025' },
+      { id: 'EMP015', name: 'ศิวพร แสงใส', position: 'UI Designer', bu: 'PKG-BKK', score: 4.8, rating: 'Excellent', cc: [5, 4.5, 4, 5, 5], status: 'finalized', quarter: 'Q1/2025' }
+    ];
+
+    // Quarterly trend data
+    const quarterlyTrend = {
+      labels: ['Q3/2024', 'Q4/2024', 'Q1/2025', 'Q2/2025'],
+      data: [3.2, 3.4, 3.6, 3.7]
+    };
+
+    // BU completion rates
+    const buCompletionData = {
+      'PKG-BKK': { total: 8, completed: 6 },
+      'PKG-CMN': { total: 4, completed: 3 },
+      'PKG-EST': { total: 3, completed: 3 }
+    };
+
+    // ============================================================
+    // CHART INSTANCES
+    // ============================================================
+    let barChartInstance = null;
+    let lineChartInstance = null;
+    let pieChartInstance = null;
+    let radarChartInstance = null;
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshDashboard();
+    });
+
+    function refreshDashboard() {
+      const period = document.getElementById('dashPeriod').value;
+      let data = [...allEvaluations];
+      if (period !== 'all') {
+        data = data.filter(e => e.quarter === period);
+      }
+
+      updateSummaryStats(data);
+      renderBarChart(data);
+      renderLineChart();
+      renderPieChart(data);
+      renderOrgRadar(data);
+      renderTopPerformers(data);
+      renderImprovement(data);
+      renderCompletionByBU();
+    }
+
+    // ============================================================
+    // SUMMARY STATS
+    // ============================================================
+    function updateSummaryStats(data) {
+      document.getElementById('dashTotal').textContent = data.length;
+
+      const avgScore = data.length > 0 ? (data.reduce((s, e) => s + e.score, 0) / data.length) : 0;
+      document.getElementById('dashAvgScore').textContent = avgScore.toFixed(1);
+
+      const finalized = data.filter(e => e.status === 'finalized').length;
+      const rate = data.length > 0 ? Math.round((finalized / data.length) * 100) : 0;
+      document.getElementById('dashCompletion').textContent = rate + '%';
+
+      const needImprove = data.filter(e => e.score < 3.0).length;
+      document.getElementById('dashNeedImprove').textContent = needImprove;
+    }
+
+    // ============================================================
+    // BAR CHART — Average score by BU
+    // ============================================================
+    function renderBarChart(data) {
+      const bus = [...new Set(data.map(e => e.bu))];
+      const buScores = bus.map(bu => {
+        const buData = data.filter(e => e.bu === bu);
+        return buData.length > 0 ? Math.round((buData.reduce((s, e) => s + e.score, 0) / buData.length) * 100) / 100 : 0;
+      });
+
+      const ctx = document.getElementById('barChart').getContext('2d');
+      if (barChartInstance) barChartInstance.destroy();
+
+      barChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: bus,
+          datasets: [{
+            label: 'คะแนนเฉลี่ย',
+            data: buScores,
+            backgroundColor: buScores.map(s => s >= 4 ? '#10b981' : s >= 3 ? '#f59e0b' : '#ef4444'),
+            borderRadius: 8,
+            barPercentage: 0.6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, max: 5, ticks: { font: { family: 'Prompt' }, stepSize: 1 }, grid: { color: '#f1f5f9' } },
+            x: { ticks: { font: { family: 'Prompt', weight: '500' } }, grid: { display: false } }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    // ============================================================
+    // LINE CHART — Quarterly trend
+    // ============================================================
+    function renderLineChart() {
+      const ctx = document.getElementById('lineChart').getContext('2d');
+      if (lineChartInstance) lineChartInstance.destroy();
+
+      lineChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: quarterlyTrend.labels,
+          datasets: [{
+            label: 'คะแนนเฉลี่ยองค์กร',
+            data: quarterlyTrend.data,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 6,
+            pointBackgroundColor: '#3b82f6',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            borderWidth: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: false, min: 2, max: 5, ticks: { font: { family: 'Prompt' }, stepSize: 0.5 }, grid: { color: '#f1f5f9' } },
+            x: { ticks: { font: { family: 'Prompt' } }, grid: { display: false } }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    // ============================================================
+    // PIE CHART — Distribution by rating
+    // ============================================================
+    function renderPieChart(data) {
+      const ratings = { 'Excellent': 0, 'Good': 0, 'Fair': 0, 'Poor': 0 };
+      data.forEach(e => { if (ratings[e.rating] !== undefined) ratings[e.rating]++; });
+
+      const ctx = document.getElementById('pieChart').getContext('2d');
+      if (pieChartInstance) pieChartInstance.destroy();
+
+      pieChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Excellent (4.5+)', 'Good (3.5-4.4)', 'Fair (2.5-3.4)', 'Poor (<2.5)'],
+          datasets: [{
+            data: [ratings.Excellent, ratings.Good, ratings.Fair, ratings.Poor],
+            backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'],
+            borderWidth: 3,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '60%',
+          plugins: {
+            legend: { position: 'bottom', labels: { font: { family: 'Prompt', size: 12 }, padding: 15 } }
+          }
+        }
+      });
+    }
+
+    // ============================================================
+    // RADAR CHART — CC average across org
+    // ============================================================
+    function renderOrgRadar(data) {
+      const ccAvgs = CC_NAMES.map((_, i) => {
+        const scores = data.map(e => e.cc[i]);
+        return Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 100) / 100;
+      });
+
+      const ctx = document.getElementById('orgRadarChart').getContext('2d');
+      if (radarChartInstance) radarChartInstance.destroy();
+
+      radarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: CC_NAMES,
+          datasets: [{
+            label: 'เฉลี่ยองค์กร',
+            data: ccAvgs,
+            backgroundColor: 'rgba(139, 92, 246, 0.15)',
+            borderColor: '#8b5cf6',
+            borderWidth: 2,
+            pointBackgroundColor: '#8b5cf6',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              beginAtZero: true, max: 5, min: 0,
+              ticks: { stepSize: 1, font: { family: 'Prompt', size: 10 } },
+              pointLabels: { font: { family: 'Prompt', size: 11, weight: '500' } },
+              grid: { color: '#e2e8f0' }
+            }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    // ============================================================
+    // TOP 10 PERFORMERS
+    // ============================================================
+    function renderTopPerformers(data) {
+      const sorted = [...data].sort((a, b) => b.score - a.score).slice(0, 10);
+
+      document.getElementById('topPerformersBody').innerHTML = sorted.map((e, i) => {
+        const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+        const ratingBadge = e.rating === 'Excellent' ? '<span class="badge badge-green">🌟 Excellent</span>' :
+          e.rating === 'Good' ? '<span class="badge badge-blue">✅ Good</span>' :
+          '<span class="badge badge-amber">⚠️ Fair</span>';
+
+        return `
+          <tr>
+            <td><span class="rank-badge ${rankClass}">${i + 1}</span></td>
+            <td class="font-medium">${e.name}</td>
+            <td>${e.position}</td>
+            <td><span class="badge badge-blue">${e.bu}</span></td>
+            <td><span class="text-lg font-bold" style="color:${e.score >= 4 ? '#10b981' : e.score >= 3 ? '#f59e0b' : '#ef4444'}">${e.score.toFixed(1)}</span></td>
+            <td>${ratingBadge}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ============================================================
+    // IMPROVEMENT NEEDED
+    // ============================================================
+    function renderImprovement(data) {
+      const needImprove = data.filter(e => e.score < 3.0).sort((a, b) => a.score - b.score);
+
+      if (needImprove.length === 0) {
+        document.getElementById('improvementBody').innerHTML = `<tr><td colspan="6" class="text-center py-6 text-green-600">✅ ไม่มีผู้ต้องปรับปรุง — ยอดเยี่ยม!</td></tr>`;
+        return;
+      }
+
+      document.getElementById('improvementBody').innerHTML = needImprove.map(e => {
+        // Find weakest CC areas
+        const weakAreas = CC_NAMES.filter((_, i) => e.cc[i] < 3.0);
+        const weakLabels = weakAreas.length > 0 ? weakAreas.join(', ') : 'KPI ต่ำ';
+
+        return `
+          <tr>
+            <td class="font-medium">${e.name}</td>
+            <td>${e.position}</td>
+            <td><span class="badge badge-blue">${e.bu}</span></td>
+            <td><span class="text-lg font-bold text-red-500">${e.score.toFixed(1)}</span></td>
+            <td><span class="badge badge-red">${weakLabels}</span></td>
+            <td class="text-sm text-gray-500">สร้างแผนพัฒนา (P5) + Mentor 1-on-1</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ============================================================
+    // COMPLETION RATE BY BU
+    // ============================================================
+    function renderCompletionByBU() {
+      const container = document.getElementById('completionByBU');
+      let html = '';
+
+      Object.entries(buCompletionData).forEach(([bu, data]) => {
+        const rate = Math.round((data.completed / data.total) * 100);
+        const color = rate >= 80 ? '#10b981' : rate >= 50 ? '#f59e0b' : '#ef4444';
+
+        html += `
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-medium text-sm">${bu}</span>
+              <span class="text-sm font-semibold" style="color:${color}">${data.completed}/${data.total} (${rate}%)</span>
+            </div>
+            <div class="completion-bar">
+              <div class="completion-fill" style="width:${rate}%;background:${color}"></div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // ============================================================
+    // EXPORT PDF
+    // ============================================================
+    function exportPDF() {
+      showToast('📄 กำลังสร้าง PDF...');
+
+      const content = document.getElementById('dashboardContent');
+      const opt = {
+        margin: [10, 10, 10, 10],
+        filename: `P4_Dashboard_${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'] }
+      };
+
+      html2pdf().set(opt).from(content).save().then(() => {
+        showToast('📥 Export PDF สำเร็จ');
+      }).catch(() => {
+        showToast('❌ เกิดข้อผิดพลาดในการ Export');
+      });
+    }
+
+    // ============================================================
+    // UTILITIES
+    // ============================================================
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+  </script>
+</body>
+</html>
