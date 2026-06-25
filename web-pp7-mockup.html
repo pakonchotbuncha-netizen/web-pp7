@@ -1,0 +1,2026 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบบริหารบุคลากร PP7</title>
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* ===== Global Styles ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Prompt', sans-serif; background: #f1f5f9; }
+        
+        /* ===== Login Screen ===== */
+        .login-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 30%, #3b82f6 60%, #06b6d4 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 48px 40px;
+            width: 420px;
+            max-width: 90vw;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            animation: fadeInUp 0.8s ease-out;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+
+        /* ===== Sidebar ===== */
+        .sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: #1e293b;
+            color: #e2e8f0;
+            transition: width 0.3s ease, transform 0.3s ease;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 40;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        .sidebar.collapsed { width: 70px; }
+        .sidebar.collapsed .sidebar-text { display: none; }
+        .sidebar.collapsed .sidebar-logo-text { display: none; }
+        .sidebar.collapsed .submenu { display: none !important; }
+        .sidebar.collapsed .menu-item { justify-content: center; padding-left: 0; padding-right: 0; }
+        .sidebar.collapsed .menu-icon { margin-right: 0; }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .menu-item:hover { background: #334155; }
+        .menu-item.active { background: #334155; border-left-color: #3b82f6; }
+        .menu-icon { font-size: 18px; margin-right: 12px; min-width: 24px; text-align: center; }
+        .submenu { background: rgba(0,0,0,0.15); }
+        .submenu .menu-item { padding-left: 52px; font-size: 13px; }
+
+        /* ===== Main Content ===== */
+        .main-content {
+            margin-left: 260px;
+            transition: margin-left 0.3s ease;
+            min-height: 100vh;
+        }
+        .main-content.expanded { margin-left: 70px; }
+
+        /* ===== Header ===== */
+        .app-header {
+            background: white;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 30;
+        }
+
+        /* ===== Cards ===== */
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        /* ===== Tables ===== */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 14px;
+        }
+        .data-table thead th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+        }
+        .data-table tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+        }
+        .data-table tbody tr:hover { background: #f8fafc; }
+
+        /* ===== Status Badges ===== */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge-green { background: #dcfce7; color: #166534; }
+        .badge-yellow { background: #fef9c3; color: #854d0e; }
+        .badge-red { background: #fee2e2; color: #991b1b; }
+        .badge-blue { background: #dbeafe; color: #1e40af; }
+        .badge-gray { background: #f1f5f9; color: #64748b; }
+        .badge-purple { background: #f3e8ff; color: #6b21a8; }
+
+        /* ===== Pipeline ===== */
+        .pipeline-stage {
+            text-align: center;
+            padding: 16px;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            position: relative;
+        }
+        .pipeline-stage::after {
+            content: '→';
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #94a3b8;
+        }
+        .pipeline-stage:last-child::after { display: none; }
+
+        /* ===== Modal ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            width: 600px;
+            max-width: 90vw;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        /* ===== Buttons ===== */
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 10px;
+            border: none;
+            font-family: 'Prompt', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); }
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 10px 24px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            font-family: 'Prompt', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover { background: #e2e8f0; }
+
+        /* ===== Coming Soon ===== */
+        .coming-soon-card {
+            text-align: center;
+            padding: 80px 40px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .progress-bar-track {
+            background: #e2e8f0;
+            border-radius: 9999px;
+            height: 12px;
+            overflow: hidden;
+            margin: 24px auto;
+            max-width: 400px;
+        }
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #3b82f6, #06b6d4);
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 1s ease-out;
+        }
+
+        /* ===== Form Inputs ===== */
+        .form-input {
+            width: 100%;
+            padding: 10px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .form-select {
+            width: 100%;
+            padding: 10px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: 'Prompt', sans-serif;
+            font-size: 14px;
+            background: white;
+        }
+
+        /* ===== Likert Scale ===== */
+        .likert-group { display: flex; gap: 8px; }
+        .likert-btn {
+            width: 44px; height: 44px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            cursor: pointer;
+            font-family: 'Prompt', sans-serif;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .likert-btn:hover { border-color: #3b82f6; background: #eff6ff; }
+        .likert-btn.selected { border-color: #2563eb; background: #2563eb; color: white; }
+
+        /* ===== Notification Dropdown ===== */
+        .notif-dropdown {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 8px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            width: 320px;
+            display: none;
+            z-index: 50;
+        }
+        .notif-dropdown.active { display: block; }
+
+        /* ===== User Dropdown ===== */
+        .user-dropdown {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 8px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            width: 200px;
+            display: none;
+            z-index: 50;
+        }
+        .user-dropdown.active { display: block; }
+        .user-dropdown a {
+            display: block;
+            padding: 10px 16px;
+            color: #334155;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        .user-dropdown a:hover { background: #f1f5f9; }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.mobile-open { transform: translateX(0); }
+            .main-content { margin-left: 0 !important; }
+        }
+
+        /* ===== Scrollbar ===== */
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-track { background: transparent; }
+        .sidebar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+
+        /* ===== Misc ===== */
+        .chart-container { position: relative; height: 280px; }
+        .section-title { font-size: 20px; font-weight: 600; color: #1e293b; margin-bottom: 20px; }
+        .page-section { display: none; }
+        .page-section.active { display: block; animation: fadeIn 0.3s ease-out; }
+    </style>
+</head>
+<body>
+
+<!-- ===== หน้า Login ===== -->
+<div id="loginScreen" class="login-bg">
+    <div class="login-card">
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center shadow-lg">
+                <span class="text-3xl text-white font-bold">PP7</span>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800">ระบบบริหารบุคลากร PP7</h1>
+            <p class="text-gray-500 text-sm mt-2">Personnel Performance & Potential Program</p>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อผู้ใช้</label>
+                <input type="text" id="loginUsername" class="form-input" value="admin" placeholder="กรอกชื่อผู้ใช้">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
+                <input type="password" id="loginPassword" class="form-input" value="admin123" placeholder="กรอกรหัสผ่าน">
+            </div>
+            <button onclick="doLogin()" class="btn-primary w-full text-center py-3">
+                🔐 เข้าสู่ระบบ
+            </button>
+            <button onclick="doMockLogin()" class="btn-secondary w-full text-center py-3">
+                ⚡ เข้าสู่ระบบแบบทดสอบ (Mock)
+            </button>
+        </div>
+        <p class="text-center text-xs text-gray-400 mt-6">v1.0.0-dev — สำหรับทดสอบเท่านั้น</p>
+    </div>
+</div>
+
+<!-- ===== หน้าแอปหลัก (ซ่อนไว้ก่อน login) ===== -->
+<div id="appMain" class="hidden">
+
+    <!-- ===== Sidebar ===== -->
+    <aside id="sidebar" class="sidebar">
+        <!-- Logo -->
+        <div class="p-5 border-b border-slate-700 flex items-center">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center flex-shrink-0">
+                <span class="text-white font-bold text-sm">PP7</span>
+            </div>
+            <span class="sidebar-logo-text ml-3 font-semibold text-white text-sm">PP7 Management</span>
+        </div>
+
+        <!-- Menu -->
+        <nav class="py-4">
+            <!-- Dashboard -->
+            <div class="menu-item active" onclick="navigateTo('dashboard')">
+                <span class="menu-icon">📊</span>
+                <span class="sidebar-text">Dashboard</span>
+            </div>
+
+            <!-- P1 แสวงหา -->
+            <div class="menu-item" onclick="toggleSubmenu('p1')">
+                <span class="menu-icon">📥</span>
+                <span class="sidebar-text flex-1">P1 แสวงหา</span>
+                <span class="sidebar-text text-xs">▾</span>
+            </div>
+            <div id="submenu-p1" class="submenu hidden">
+                <div class="menu-item" onclick="navigateTo('p1-request')">
+                    <span class="sidebar-text">ขออัตรากำลัง</span>
+                </div>
+                <div class="menu-item" onclick="navigateTo('p1-candidates')">
+                    <span class="sidebar-text">ผู้สมัคร</span>
+                </div>
+            </div>
+
+            <!-- P2 หยั่งประเมิน -->
+            <div class="menu-item" onclick="toggleSubmenu('p2')">
+                <span class="menu-icon">🎯</span>
+                <span class="sidebar-text flex-1">P2 หยั่งประเมิน</span>
+                <span class="sidebar-text text-xs">▾</span>
+            </div>
+            <div id="submenu-p2" class="submenu hidden">
+                <div class="menu-item" onclick="navigateTo('p2-interview')">
+                    <span class="sidebar-text">สัมภาษณ์</span>
+                </div>
+                <div class="menu-item" onclick="navigateTo('p2-cc')">
+                    <span class="sidebar-text">ประเมิน CC</span>
+                </div>
+            </div>
+
+            <!-- P3 จับคู่ -->
+            <div class="menu-item" onclick="toggleSubmenu('p3')">
+                <span class="menu-icon">🔗</span>
+                <span class="sidebar-text flex-1">P3 จับคู่</span>
+                <span class="sidebar-text text-xs">▾</span>
+            </div>
+            <div id="submenu-p3" class="submenu hidden">
+                <div class="menu-item" onclick="navigateTo('p3-match')">
+                    <span class="sidebar-text">จับคู่คนงาน</span>
+                </div>
+            </div>
+
+            <!-- P4 ประเมินผล -->
+            <div class="menu-item" onclick="toggleSubmenu('p4')">
+                <span class="menu-icon">📈</span>
+                <span class="sidebar-text flex-1">P4 ประเมินผล</span>
+                <span class="sidebar-text text-xs">▾</span>
+            </div>
+            <div id="submenu-p4" class="submenu hidden">
+                <div class="menu-item" onclick="navigateTo('p4-kpi')">
+                    <span class="sidebar-text">ประเมิน KPI</span>
+                </div>
+                <div class="menu-item" onclick="navigateTo('p4-360')">
+                    <span class="sidebar-text">360°</span>
+                </div>
+                <div class="menu-item" onclick="navigateTo('p4-dashboard')">
+                    <span class="sidebar-text">Dashboard P4</span>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-700 my-3 mx-4"></div>
+
+            <!-- P5 พัฒนา -->
+            <div class="menu-item" onclick="navigateTo('p5')">
+                <span class="menu-icon">🌱</span>
+                <span class="sidebar-text flex-1">P5 พัฒนา</span>
+                <span class="badge badge-blue sidebar-text text-xs">Soon</span>
+            </div>
+
+            <!-- P6 ค่าตอบแทน -->
+            <div class="menu-item" onclick="navigateTo('p6')">
+                <span class="menu-icon">💰</span>
+                <span class="sidebar-text flex-1">P6 ค่าตอบแทน</span>
+                <span class="badge badge-blue sidebar-text text-xs">Soon</span>
+            </div>
+
+            <!-- P7 คุณภาพชีวิต -->
+            <div class="menu-item" onclick="navigateTo('p7')">
+                <span class="menu-icon">❤️</span>
+                <span class="sidebar-text flex-1">P7 คุณภาพชีวิต</span>
+                <span class="badge badge-blue sidebar-text text-xs">Soon</span>
+            </div>
+
+            <!-- Admin -->
+            <div class="menu-item" onclick="navigateTo('admin')">
+                <span class="menu-icon">⚙️</span>
+                <span class="sidebar-text flex-1">Admin</span>
+                <span class="badge badge-blue sidebar-text text-xs">Soon</span>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- ===== Main Content ===== -->
+    <div id="mainContent" class="main-content">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="text-gray-500 hover:text-gray-700 text-xl p-1">
+                    <span id="hamburgerIcon">☰</span>
+                </button>
+                <div class="hidden md:flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2 w-64">
+                    <span class="text-gray-400">🔍</span>
+                    <input type="text" placeholder="ค้นหา..." class="bg-transparent border-none outline-none text-sm flex-1 font-[Prompt]">
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <!-- Notification Bell -->
+                <div class="relative">
+                    <button onclick="toggleNotif()" class="text-gray-500 hover:text-gray-700 text-xl p-2 relative">
+                        🔔
+                        <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                    </button>
+                    <div id="notifDropdown" class="notif-dropdown">
+                        <div class="p-4 border-b"><span class="font-semibold text-sm">การแจ้งเตือน</span></div>
+                        <div class="p-3 hover:bg-gray-50 border-b cursor-pointer">
+                            <p class="text-sm font-medium">คำขออัตรากำลังใหม่</p>
+                            <p class="text-xs text-gray-500 mt-1">ฝ่ายผลิต ยื่นขอ 3 อัตรา</p>
+                            <p class="text-xs text-gray-400 mt-1">5 นาทีที่แล้ว</p>
+                        </div>
+                        <div class="p-3 hover:bg-gray-50 border-b cursor-pointer">
+                            <p class="text-sm font-medium">สัมภาษณ์เสร็จสิ้น</p>
+                            <p class="text-xs text-gray-500 mt-1">สมชาย ไร่ทอง ผ่านประเมิน</p>
+                            <p class="text-xs text-gray-400 mt-1">30 นาทีที่แล้ว</p>
+                        </div>
+                        <div class="p-3 hover:bg-gray-50 cursor-pointer">
+                            <p class="text-sm font-medium">KPI Quarter 3 พร้อม review</p>
+                            <p class="text-xs text-gray-500 mt-1">รอการอนุมัติ 12 รายการ</p>
+                            <p class="text-xs text-gray-400 mt-1">2 ชั่วโมงที่แล้ว</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Menu -->
+                <div class="relative">
+                    <button onclick="toggleUserMenu()" class="flex items-center gap-2 hover:bg-gray-100 rounded-lg px-3 py-2 transition">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+                            <span class="text-white text-xs font-bold">A</span>
+                        </div>
+                        <span id="headerUsername" class="text-sm font-medium text-gray-700 hidden md:inline">Admin</span>
+                        <span class="text-xs text-gray-400 hidden md:inline">▾</span>
+                    </button>
+                    <div id="userDropdown" class="user-dropdown">
+                        <div class="p-3 border-b">
+                            <p class="text-sm font-medium">Administrator</p>
+                            <p class="text-xs text-gray-500">admin@pp7.co.th</p>
+                        </div>
+                        <a href="#" onclick="navigateTo('dashboard')">👤 โปรไฟล์</a>
+                        <a href="#" onclick="doLogout()" class="text-red-500">🚪 ออกจากระบบ</a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <main class="p-6">
+
+            <!-- ===== Dashboard ===== -->
+            <div id="page-dashboard" class="page-section active">
+                <h2 class="section-title">📊 Dashboard ภาพรวม</h2>
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500">สมาชิกทั้งหมด</p>
+                                <p class="text-3xl font-bold text-gray-800 mt-1">1,248</p>
+                                <p class="text-xs text-green-600 mt-1">↑ +12 จากเดือนที่แล้ว</p>
+                            </div>
+                            <div class="w-14 h-14 rounded-2xl bg-blue-100 flex items-center justify-center text-2xl">👥</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500">ผู้สมัครเดือนนี้</p>
+                                <p class="text-3xl font-bold text-gray-800 mt-1">47</p>
+                                <p class="text-xs text-green-600 mt-1">↑ +8 จากเดือนที่แล้ว</p>
+                            </div>
+                            <div class="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center text-2xl">📥</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500">Performance Avg</p>
+                                <p class="text-3xl font-bold text-gray-800 mt-1">3.8<span class="text-lg text-gray-400">/5</span></p>
+                                <p class="text-xs text-green-600 mt-1">↑ +0.2 จาก Q trước</p>
+                            </div>
+                            <div class="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center text-2xl">📊</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500">Engagement Score</p>
+                                <p class="text-3xl font-bold text-gray-800 mt-1">82<span class="text-lg text-gray-400">%</span></p>
+                                <p class="text-xs text-red-500 mt-1">↓ -1% จาก Q ก่อน</p>
+                            </div>
+                            <div class="w-14 h-14 rounded-2xl bg-pink-100 flex items-center justify-center text-2xl">❤️</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row 1 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white rounded-2xl p-6 shadow-sm">
+                        <h3 class="font-semibold text-gray-700 mb-4">📊 จำนวนสมาชิกแยกตาม BU</h3>
+                        <div class="chart-container"><canvas id="chartBUDist"></canvas></div>
+                    </div>
+                    <div class="bg-white rounded-2xl p-6 shadow-sm">
+                        <h3 class="font-semibold text-gray-700 mb-4">📈 แนวโน้ม Performance รายไตรมาส</h3>
+                        <div class="chart-container"><canvas id="chartPerfTrend"></canvas></div>
+                    </div>
+                </div>
+                <!-- Charts Row 2 -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-2xl p-6 shadow-sm">
+                        <h3 class="font-semibold text-gray-700 mb-4">🎯 สัดส่วนตามบทบาท</h3>
+                        <div class="chart-container"><canvas id="chartRoleDist"></canvas></div>
+                    </div>
+                    <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm">
+                        <h3 class="font-semibold text-gray-700 mb-4">📋 กิจกรรมล่าสุด</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">📥</div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium">ผู้สมัครใหม่: วิภาดา แสงทอง</p>
+                                    <p class="text-xs text-gray-500">ตำแหน่ง นักพัฒนาซอฟต์แวร์ — ฝ่ายเทคโนโลยี</p>
+                                </div>
+                                <span class="text-xs text-gray-400">10 นาทีที่แล้ว</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">✅</div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium">สัมภาษณ์ผ่าน: สมชาย ไร่ทอง</p>
+                                    <p class="text-xs text-gray-500">ตำแหน่ง วิศวกรผลิต — ฝ่ายผลิต</p>
+                                </div>
+                                <span class="text-xs text-gray-400">1 ชั่วโมงที่แล้ว</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                                <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center">📈</div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium">KPI Q3 ส่งครบทุกฝ่าย</p>
+                                    <p class="text-xs text-gray-500"> awaiting approval จากผู้บริหาร</p>
+                                </div>
+                                <span class="text-xs text-gray-400">3 ชั่วโมงที่แล้ว</span>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">🔗</div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium">จับคู่สำเร็จ: อรุณี ดาวสว่าง → โครงการ Alpha</p>
+                                    <p class="text-xs text-gray-500">ตำแหน่ง Project Manager — ฝ่ายโครงการ</p>
+                                </div>
+                                <span class="text-xs text-gray-400">5 ชั่วโมงที่แล้ว</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== P1 ขออัตรากำลัง ===== -->
+            <div id="page-p1-request" class="page-section">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <h2 class="section-title mb-0">📥ขออัตรากำลัง (HC Request)</h2>
+                    <button class="btn-primary" onclick="openModal('modalNewRequest')">+ ยื่นคำขอใหม่</button>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="stat-card text-center">
+                        <p class="text-2xl font-bold text-gray-800">8</p>
+                        <p class="text-xs text-gray-500">ทั้งหมด</p>
+                    </div>
+                    <div class="stat-card text-center">
+                        <p class="text-2xl font-bold text-yellow-600">3</p>
+                        <p class="text-xs text-gray-500">รออนุมัติ</p>
+                    </div>
+                    <div class="stat-card text-center">
+                        <p class="text-2xl font-bold text-green-600">4</p>
+                        <p class="text-xs text-gray-500">อนุมัติแล้ว</p>
+                    </div>
+                    <div class="stat-card text-center">
+                        <p class="text-2xl font-bold text-red-600">1</p>
+                        <p class="text-xs text-gray-500">ปฏิเสธ</p>
+                    </div>
+                </div>
+
+                <!-- Filter + Search -->
+                <div class="bg-white rounded-2xl p-4 shadow-sm mb-6 flex flex-wrap gap-4 items-center">
+                    <input type="text" placeholder="🔍 ค้นหา..." class="form-input max-w-xs" id="searchRequest" onkeyup="filterRequestTable()">
+                    <select class="form-select max-w-xs">
+                        <option value="">ทุกสถานะ</option>
+                        <option>รออนุมัติ</option>
+                        <option>อนุมัติแล้ว</option>
+                        <option>ปฏิเสธ</option>
+                    </select>
+                    <select class="form-select max-w-xs">
+                        <option value="">ทุกฝ่าย</option>
+                        <option>ฝ่ายผลิต</option>
+                        <option>ฝ่ายเทคโนโลยี</option>
+                        <option>ฝ่ายขาย</option>
+                        <option>ฝ่ายบุคคล</option>
+                    </select>
+                </div>
+
+                <!-- Table -->
+                <div class="bg-white rounded-2xl shadow-sm overflow-x-auto">
+                    <table class="data-table" id="requestTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>ฝ่าย</th>
+                                <th>ตำแหน่ง</th>
+                                <th>จำนวน</th>
+                                <th>Priority</th>
+                                <th>Deadline</th>
+                                <th>สถานะ</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-mono text-xs">HC-2569-001</td>
+                                <td>ฝ่ายผลิต</td>
+                                <td>วิศวกรผลิต</td>
+                                <td>3</td>
+                                <td><span class="badge badge-red">สูง</span></td>
+                                <td>30 ก.ค. 2569</td>
+                                <td><span class="badge badge-green">อนุมัติแล้ว</span></td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono text-xs">HC-2569-002</td>
+                                <td>ฝ่ายเทคโนโลยี</td>
+                                <td>นักพัฒนาซอฟต์แวร์</td>
+                                <td>2</td>
+                                <td><span class="badge badge-red">สูง</span></td>
+                                <td>15 ส.ค. 2569</td>
+                                <td><span class="badge badge-yellow">รออนุมัติ</span></td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono text-xs">HC-2569-003</td>
+                                <td>ฝ่ายขาย</td>
+                                <td>ผู้บริหารฝ่ายขาย</td>
+                                <td>1</td>
+                                <td><span class="badge badge-yellow">กลาง</span></td>
+                                <td>31 ส.ค. 2569</td>
+                                <td><span class="badge badge-yellow">รออนุมัติ</span></td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono text-xs">HC-2569-004</td>
+                                <td>ฝ่ายบุคคล</td>
+                                <td>เจ้าหน้าที่ HR</td>
+                                <td>1</td>
+                                <td><span class="badge badge-green">ต่ำ</span></td>
+                                <td>30 ก.ย. 2569</td>
+                                <td><span class="badge badge-green">อนุมัติแล้ว</span></td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono text-xs">HC-2569-005</td>
+                                <td>ฝ่ายผลิต</td>
+                                <td>ช่างเทคนิค</td>
+                                <td>5</td>
+                                <td><span class="badge badge-red">สูง</span></td>
+                                <td>31 ก.ค. 2569</td>
+                                <td><span class="badge badge-green">อนุมัติแล้ว</span></td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono text-xs">HC-2569-006</td>
+                                <td>ฝ่ายการเงิน</td>
+                                <td>นักวิเคราะห์การเงิน</td>
+                                <td>1</td>
+                                <td><span class="badge badge-yellow">กลาง</span></td>
+                                <td>15 ส.ค. 2569</td>
+                                <td><span class="badge badge-yellow">รออนุมัติ</span></td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono text-xs">HC-2569-007</td>
+                                <td>ฝ่ายเทคโนโลยี</td>
+                                <td>DevOps Engineer</td>
+                                <td>2</td>
+                                <td><span class="badge badge-red">สูง</span></td>
+                                <td>30 ก.ย. 2569</td>
+                                <td><span class="badge badge-green">อนุมัติแล้ว</span></td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono text-xs">HC-2569-008</td>
+                                <td>ฝ่ายขาย</td>
+                                <td>เจ้าหน้าที่ขาย</td>
+                                <td>3</td>
+                                <td><span class="badge badge-green">ต่ำ</span></td>
+                                <td>31 ต.ค. 2569</td>
+                                <td><span class="badge badge-red">ปฏิเสธ</span></td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== P1 ผู้สมัคร ===== -->
+            <div id="page-p1-candidates" class="page-section">
+                <h2 class="section-title">📥 ผู้สมัคร (Candidate Pipeline)</h2>
+
+                <!-- Pipeline Visual -->
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+                    <div class="pipeline-stage">
+                        <p class="text-2xl font-bold text-blue-600">5</p>
+                        <p class="text-sm font-medium text-gray-700">ใหม่</p>
+                        <p class="text-xs text-gray-400">New</p>
+                    </div>
+                    <div class="pipeline-stage">
+                        <p class="text-2xl font-bold text-indigo-600">3</p>
+                        <p class="text-sm font-medium text-gray-700">คัดกรอง</p>
+                        <p class="text-xs text-gray-400">Screening</p>
+                    </div>
+                    <div class="pipeline-stage">
+                        <p class="text-2xl font-bold text-purple-600">4</p>
+                        <p class="text-sm font-medium text-gray-700">สัมภาษณ์</p>
+                        <p class="text-xs text-gray-400">Interview</p>
+                    </div>
+                    <div class="pipeline-stage">
+                        <p class="text-2xl font-bold text-amber-600">2</p>
+                        <p class="text-sm font-medium text-gray-700">เสนอจ้าง</p>
+                        <p class="text-xs text-gray-400">Offered</p>
+                    </div>
+                    <div class="pipeline-stage">
+                        <p class="text-2xl font-bold text-green-600">1</p>
+                        <p class="text-sm font-medium text-gray-700">เข้าทำงาน</p>
+                        <p class="text-xs text-gray-400">Hired</p>
+                    </div>
+                    <div class="pipeline-stage">
+                        <p class="text-2xl font-bold text-red-500">1</p>
+                        <p class="text-sm font-medium text-gray-700">ปฏิเสธ</p>
+                        <p class="text-xs text-gray-400">Rejected</p>
+                    </div>
+                </div>
+
+                <!-- Candidate Table -->
+                <div class="bg-white rounded-2xl shadow-sm overflow-x-auto">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ชื่อ-นามสกุล</th>
+                                <th>ตำแหน่ง</th>
+                                <th>ฝ่าย</th>
+                                <th>วันที่สมัคร</th>
+                                <th>สถานะ</th>
+                                <th>คะแนน</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-medium">วิภาดา แสงทอง</td>
+                                <td>นักพัฒนาซอฟต์แวร์</td>
+                                <td>ฝ่ายเทคโนโลยี</td>
+                                <td>20 มิ.ย. 2569</td>
+                                <td><span class="badge badge-blue">ใหม่</span></td>
+                                <td>—</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">ธนากร เจริญสุข</td>
+                                <td>วิศวกรผลิต</td>
+                                <td>ฝ่ายผลิต</td>
+                                <td>18 มิ.ย. 2569</td>
+                                <td><span class="badge badge-purple">คัดกรอง</span></td>
+                                <td>—</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">สมชาย ไร่ทอง</td>
+                                <td>วิศวกรผลิต</td>
+                                <td>ฝ่ายผลิต</td>
+                                <td>15 มิ.ย. 2569</td>
+                                <td><span class="badge badge-green">สัมภาษณ์</span></td>
+                                <td>4.2/5</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">อรุณี ดาวสว่าง</td>
+                                <td>Project Manager</td>
+                                <td>ฝ่ายโครงการ</td>
+                                <td>12 มิ.ย. 2569</td>
+                                <td><span class="badge badge-yellow">เสนอจ้าง</span></td>
+                                <td>4.5/5</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">พิชิต ชัยวัฒน์</td>
+                                <td>DevOps Engineer</td>
+                                <td>ฝ่ายเทคโนโลยี</td>
+                                <td>10 มิ.ย. 2569</td>
+                                <td><span class="badge badge-green">เข้าทำงาน</span></td>
+                                <td>4.7/5</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">นภัสสร พิมพ์ทอง</td>
+                                <td>เจ้าหน้าที่ขาย</td>
+                                <td>ฝ่ายขาย</td>
+                                <td>8 มิ.ย. 2569</td>
+                                <td><span class="badge badge-red">ปฏิเสธ</span></td>
+                                <td>2.1/5</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== P2 สัมภาษณ์ ===== -->
+            <div id="page-p2-interview" class="page-section">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <h2 class="section-title mb-0">🎯 ตารางสัมภาษณ์</h2>
+                    <button class="btn-primary" onclick="openModal('modalNewInterview')">+ เพิ่มนัดสัมภาษณ์</button>
+                </div>
+
+                <!-- Upcoming -->
+                <div class="bg-white rounded-2xl shadow-sm overflow-x-auto mb-6">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>วันที่</th>
+                                <th>เวลา</th>
+                                <th>ผู้สมัคร</th>
+                                <th>ตำแหน่ง</th>
+                                <th>ผู้สัมภาษณ์</th>
+                                <th>รูปแบบ</th>
+                                <th>สถานะ</th>
+                                <th>ผล</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>26 มิ.ย. 2569</td>
+                                <td>09:00</td>
+                                <td class="font-medium">วิภาดา แสงทอง</td>
+                                <td>นักพัฒนาซอฟต์แวร์</td>
+                                <td>สมศักดิ์ เทพสุวรรณ</td>
+                                <td><span class="badge badge-blue">On-site</span></td>
+                                <td><span class="badge badge-yellow">นัดหมาย</span></td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td>26 มิ.ย. 2569</td>
+                                <td>13:00</td>
+                                <td class="font-medium">ธนากร เจริญสุข</td>
+                                <td>วิศวกรผลิต</td>
+                                <td>ประวิตร มั่นคง</td>
+                                <td><span class="badge badge-purple">Online</span></td>
+                                <td><span class="badge badge-yellow">นัดหมาย</span></td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td>25 มิ.ย. 2569</td>
+                                <td>10:00</td>
+                                <td class="font-medium">สมชาย ไร่ทอง</td>
+                                <td>วิศวกรผลิต</td>
+                                <td>ประวิตร มั่นคง</td>
+                                <td><span class="badge badge-blue">On-site</span></td>
+                                <td><span class="badge badge-green">เสร็จสิ้น</span></td>
+                                <td>
+                                    <span class="badge badge-green">ผ่าน</span>
+                                    <span class="text-sm font-bold text-green-600 ml-1">4.2</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>24 มิ.ย. 2569</td>
+                                <td>14:00</td>
+                                <td class="font-medium">กัลยา รุ่งเรือง</td>
+                                <td>นักวิเคราะห์การเงิน</td>
+                                <td>วิชัย ศรีสวัสดิ์</td>
+                                <td><span class="badge badge-purple">Online</span></td>
+                                <td><span class="badge badge-green">เสร็จสิ้น</span></td>
+                                <td>
+                                    <span class="badge badge-green">ผ่าน</span>
+                                    <span class="text-sm font-bold text-green-600 ml-1">3.8</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>23 มิ.ย. 2569</td>
+                                <td>11:00</td>
+                                <td class="font-medium">นภัสสร พิมพ์ทอง</td>
+                                <td>เจ้าหน้าที่ขาย</td>
+                                <td>สุรีย์ ทองดี</td>
+                                <td><span class="badge badge-blue">On-site</span></td>
+                                <td><span class="badge badge-green">เสร็จสิ้น</span></td>
+                                <td>
+                                    <span class="badge badge-red">ไม่ผ่าน</span>
+                                    <span class="text-sm font-bold text-red-500 ml-1">2.1</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== P2 ประเมิน CC ===== -->
+            <div id="page-p2-cc" class="page-section">
+                <h2 class="section-title">🎯 ประเมิน Core Competencies (CC)</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Form -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-2xl shadow-sm p-6">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <p class="text-sm text-gray-500">ผู้ถูกประเมิน</p>
+                                    <p class="font-semibold text-lg">สมชาย ไร่ทอง</p>
+                                    <p class="text-sm text-gray-500">ตำแหน่ง: วิศวกรผลิต — ฝ่ายผลิต</p>
+                                </div>
+                                <select class="form-select max-w-[200px]">
+                                    <option>รอบ Q3/2569</option>
+                                    <option>รอบ Q2/2569</option>
+                                    <option>รอบ Q1/2569</option>
+                                </select>
+                            </div>
+
+                            <!-- CC1: ความเป็นผู้นำ -->
+                            <div class="mb-6 border-b pb-4">
+                                <h4 class="font-semibold text-blue-600 mb-3">CC1 — ความเป็นผู้นำ (Leadership)</h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between"><span class="text-sm">สามารถกำหนดทิศทางและวิสัยทัศน์ได้ชัดเจน</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn selected" onclick="selectLikert(this)">3</button><button class="likert-btn" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">สร้างแรงบันดาลใจให้ทีมงาน</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn selected" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">ตัดสินใจได้อย่างมีประสิทธิภาพภายใต้แรงกดดัน</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn" onclick="selectLikert(this)">4</button><button class="likert-btn selected" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">พัฒนาลูกน้องได้อย่างมีประสิทธิภาพ</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn selected" onclick="selectLikert(this)">3</button><button class="likert-btn" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">ส่งเสริมการทำงานเป็นทีม</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn" onclick="selectLikert(this)">4</button><button class="likert-btn selected" onclick="selectLikert(this)">5</button></div></div>
+                                </div>
+                            </div>
+
+                            <!-- CC2: การขับเคลื่อนผลลัพธ์ -->
+                            <div class="mb-6 border-b pb-4">
+                                <h4 class="font-semibold text-green-600 mb-3">CC2 — การขับเคลื่อนผลลัพธ์ (Result Drive)</h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between"><span class="text-sm">ตั้งเป้าหมายที่สูงและท้าทาย</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn selected" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">ทำงานได้สำเร็จตามกำหนดเวลา</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn" onclick="selectLikert(this)">4</button><button class="likert-btn selected" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">วิเคราะห์ปัญหาและหาแนวทางแก้ไข</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn selected" onclick="selectLikert(this)">3</button><button class="likert-btn" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">มุ่งเน้นคุณภาพของงาน</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn selected" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">วัดผลและติดตามความก้าวหน้า</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn selected" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                </div>
+                            </div>
+
+                            <!-- CC3: ความคิดเชิงกลยุทธ์ -->
+                            <div class="mb-6 border-b pb-4">
+                                <h4 class="font-semibold text-purple-600 mb-3">CC3 — ความคิดเชิงกลยุทธ์ (Strategic Thinking)</h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between"><span class="text-sm">มองเห็นภาพรวมและแนวโน้ม</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn selected" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">วางแผนระยะยาวได้อย่างมีประสิทธิภาพ</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn selected" onclick="selectLikert(this)">3</button><button class="likert-btn" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">ระบุโอกาสและความเสี่ยง</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn selected" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">เชื่อมโยงงานเข้ากับเป้าหมายองค์กร</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn selected" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">ปรับตัวต่อการเปลี่ยนแปลง</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn" onclick="selectLikert(this)">4</button><button class="likert-btn selected" onclick="selectLikert(this)">5</button></div></div>
+                                </div>
+                            </div>
+
+                            <!-- CC4: การทำงานร่วมกับผู้อื่น -->
+                            <div class="mb-6 border-b pb-4">
+                                <h4 class="font-semibold text-amber-600 mb-3">CC4 — การทำงานร่วมกับผู้อื่น (Collaboration)</h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between"><span class="text-sm">สื่อสารได้อย่างชัดเจนและมีประสิทธิภาพ</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn selected" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">สร้างเครือข่ายความร่วมมือ</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn selected" onclick="selectLikert(this)">3</button><button class="likert-btn" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">แก้ไขความขัดแย้งได้อย่างสร้างสรรค์</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn selected" onclick="selectLikert(this)">3</button><button class="likert-btn" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">ให้ความช่วยเหลือเพื่อนร่วมงาน</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn" onclick="selectLikert(this)">4</button><button class="likert-btn selected" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">เคารพในความหลากหลาย</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn selected" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                </div>
+                            </div>
+
+                            <!-- CC5: การเรียนรู้และพัฒนา -->
+                            <div class="mb-6 pb-4">
+                                <h4 class="font-semibold text-pink-600 mb-3">CC5 — การเรียนรู้และพัฒนา (Learning & Development)</h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between"><span class="text-sm">แสวงหาความรู้ใหม่อย่างสม่ำเสมอ</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn selected" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">นำบทเรียนไปปรับปรุงการทำงาน</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn selected" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">เปิดรับข้อเสนอแนะ</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn" onclick="selectLikert(this)">4</button><button class="likert-btn selected" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">แบ่งปันความรู้ให้ผู้อื่น</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn selected" onclick="selectLikert(this)">3</button><button class="likert-btn" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                    <div class="flex items-center justify-between"><span class="text-sm">พัฒนาตนเองอย่างต่อเนื่อง</span><div class="likert-group"><button class="likert-btn" onclick="selectLikert(this)">1</button><button class="likert-btn" onclick="selectLikert(this)">2</button><button class="likert-btn" onclick="selectLikert(this)">3</button><button class="likert-btn selected" onclick="selectLikert(this)">4</button><button class="likert-btn" onclick="selectLikert(this)">5</button></div></div>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-3">
+                                <button class="btn-primary">💾 บันทึกผลประเมิน</button>
+                                <button class="btn-secondary">ยกเลิก</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Radar Chart -->
+                    <div>
+                        <div class="bg-white rounded-2xl shadow-sm p-6 sticky top-20">
+                            <h4 class="font-semibold text-gray-700 mb-4">📊 ผลคะแนนรวม</h4>
+                            <div class="chart-container" style="height: 300px;"><canvas id="chartCCRadar"></canvas></div>
+                            <div class="mt-4 space-y-2 text-sm">
+                                <div class="flex justify-between"><span>CC1 ความเป็นผู้นำ</span><span class="font-bold text-blue-600">4.0</span></div>
+                                <div class="flex justify-between"><span>CC2 ขับเคลื่อนผลลัพธ์</span><span class="font-bold text-green-600">4.2</span></div>
+                                <div class="flex justify-between"><span>CC3 ความคิดเชิงกลยุทธ์</span><span class="font-bold text-purple-600">3.6</span></div>
+                                <div class="flex justify-between"><span>CC4 ทำงานร่วมกับผู้อื่น</span><span class="font-bold text-amber-600">4.0</span></div>
+                                <div class="flex justify-between"><span>CC5 การเรียนรู้และพัฒนา</span><span class="font-bold text-pink-600">4.0</span></div>
+                                <div class="border-t pt-2 flex justify-between font-bold"><span>คะแนนรวมเฉลี่ย</span><span class="text-blue-600">3.96</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== P3 จับคู่ ===== -->
+            <div id="page-p3-match" class="page-section">
+                <h2 class="section-title">🔗 จับคู่คนกับงาน (Matching)</h2>
+
+                <!-- Pipeline -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="pipeline-stage">
+                        <p class="text-2xl font-bold text-blue-600">3</p>
+                        <p class="text-sm font-medium text-gray-700">Assessment Pass</p>
+                    </div>
+                    <div class="pipeline-stage">
+                        <p class="text-2xl font-bold text-amber-600">2</p>
+                        <p class="text-sm font-medium text-gray-700">Match Review</p>
+                    </div>
+                    <div class="pipeline-stage">
+                        <p class="text-2xl font-bold text-purple-600">2</p>
+                        <p class="text-sm font-medium text-gray-700">Assigned</p>
+                    </div>
+                    <div class="pipeline-stage">
+                        <p class="text-2xl font-bold text-green-600">1</p>
+                        <p class="text-sm font-medium text-gray-700">Onboarded</p>
+                    </div>
+                </div>
+
+                <!-- Employee List -->
+                <div class="bg-white rounded-2xl shadow-sm overflow-x-auto">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ชื่อ-นามสกุล</th>
+                                <th>ตำแหน่งปัจจุบัน</th>
+                                <th>ฝ่าย</th>
+                                <th>คะแนน Assessment</th>
+                                <th>สถานะ</th>
+                                <th>ตำแหน่งใหม่</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-medium">สมชาย ไร่ทอง</td>
+                                <td>วิศวกรผลิต</td>
+                                <td>ฝ่ายผลิต</td>
+                                <td><span class="font-bold text-green-600">4.2</span></td>
+                                <td><span class="badge badge-blue">Assessment Pass</span></td>
+                                <td>—</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">จับคู่</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">วิภาดา แสงทอง</td>
+                                <td>นักพัฒนาซอฟต์แวร์</td>
+                                <td>ฝ่ายเทคโนโลยี</td>
+                                <td><span class="font-bold text-green-600">4.5</span></td>
+                                <td><span class="badge badge-yellow">Match Review</span></td>
+                                <td>Senior Developer</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">อรุณี ดาวสว่าง</td>
+                                <td>Project Manager</td>
+                                <td>ฝ่ายโครงการ</td>
+                                <td><span class="font-bold text-green-600">4.7</span></td>
+                                <td><span class="badge badge-purple">Assigned</span></td>
+                                <td>โครงการ Alpha</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">พิชิต ชัยวัฒน์</td>
+                                <td>DevOps Engineer</td>
+                                <td>ฝ่ายเทคโนโลยี</td>
+                                <td><span class="font-bold text-green-600">4.8</span></td>
+                                <td><span class="badge badge-green">Onboarded</span></td>
+                                <td>Tech Lead — โครงการ Beta</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">กัลยา รุ่งเรือง</td>
+                                <td>นักวิเคราะห์การเงิน</td>
+                                <td>ฝ่ายการเงิน</td>
+                                <td><span class="font-bold text-green-600">3.9</span></td>
+                                <td><span class="badge badge-blue">Assessment Pass</span></td>
+                                <td>—</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">จับคู่</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">ธนากร เจริญสุข</td>
+                                <td>วิศวกรผลิต</td>
+                                <td>ฝ่ายผลิต</td>
+                                <td><span class="font-bold text-green-600">4.0</span></td>
+                                <td><span class="badge badge-yellow">Match Review</span></td>
+                                <td>หัวหน้างานผลิต</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="font-medium text-gray-400 line-through">สมพร ใจดี</span>
+                                    <span class="badge badge-gray ml-2">ออกจากงาน</span>
+                                </td>
+                                <td class="text-gray-400">เจ้าหน้าที่ขาย</td>
+                                <td class="text-gray-400">ฝ่ายขาย</td>
+                                <td class="text-gray-400">2.3</td>
+                                <td><span class="badge badge-gray">Soft Deleted</span></td>
+                                <td class="text-gray-400">—</td>
+                                <td class="text-gray-300 text-xs">ไม่สามารถจัดการได้</td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium">มานี มีสุข</td>
+                                <td>HR Specialist</td>
+                                <td>ฝ่ายบุคคล</td>
+                                <td><span class="font-bold text-green-600">4.1</span></td>
+                                <td><span class="badge badge-purple">Assigned</span></td>
+                                <td>HR Manager</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== P4 ประเมิน KPI ===== -->
+            <div id="page-p4-kpi" class="page-section">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <h2 class="section-title mb-0">📈 ประเมิน KPI</h2>
+                    <button class="btn-primary" onclick="openModal('modalNewKPI')">+ สร้างการประเมิน</button>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm overflow-x-auto">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>พนักงาน</th>
+                                <th>ฝ่าย</th>
+                                <th>รอบประเมิน</th>
+                                <th>คะแนน KPI</th>
+                                <th>สถานะ</th>
+                                <th>วันที่อัปเดต</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-mono text-xs">KPI-2569-001</td>
+                                <td class="font-medium">พิชิต ชัยวัฒน์</td>
+                                <td>ฝ่ายเทคโนโลยี</td>
+                                <td>Q3/2569</td>
+                                <td><span class="font-bold text-green-600">4.8</span></td>
+                                <td><span class="badge badge-green">Finalized</span></td>
+                                <td>20 มิ.ย. 2569</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono text-xs">KPI-2569-002</td>
+                                <td class="font-medium">อรุณี ดาวสว่าง</td>
+                                <td>ฝ่ายโครงการ</td>
+                                <td>Q3/2569</td>
+                                <td><span class="font-bold text-green-600">4.5</span></td>
+                                <td><span class="badge badge-blue">Review</span></td>
+                                <td>19 มิ.ย. 2569</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono text-xs">KPI-2569-003</td>
+                                <td class="font-medium">สมชาย ไร่ทอง</td>
+                                <td>ฝ่ายผลิต</td>
+                                <td>Q3/2569</td>
+                                <td><span class="font-bold text-green-600">4.2</span></td>
+                                <td><span class="badge badge-yellow">Submitted</span></td>
+                                <td>18 มิ.ย. 2569</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono text-xs">KPI-2569-004</td>
+                                <td class="font-medium">วิภาดา แสงทอง</td>
+                                <td>ฝ่ายเทคโนโลยี</td>
+                                <td>Q3/2569</td>
+                                <td><span class="font-bold text-gray-400">—</span></td>
+                                <td><span class="badge badge-gray">Draft</span></td>
+                                <td>—</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">แก้ไข</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono text-xs">KPI-2569-005</td>
+                                <td class="font-medium">กัลยา รุ่งเรือง</td>
+                                <td>ฝ่ายการเงิน</td>
+                                <td>Q3/2569</td>
+                                <td><span class="font-bold text-green-600">3.9</span></td>
+                                <td><span class="badge badge-yellow">Submitted</span></td>
+                                <td>17 มิ.ย. 2569</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                            <tr>
+                                <td class="font-mono text-xs">KPI-2569-006</td>
+                                <td class="font-medium">ธนากร เจริญสุข</td>
+                                <td>ฝ่ายผลิต</td>
+                                <td>Q3/2569</td>
+                                <td><span class="font-bold text-green-600">4.0</span></td>
+                                <td><span class="badge badge-blue">Review</span></td>
+                                <td>16 มิ.ย. 2569</td>
+                                <td><button class="text-blue-600 text-xs hover:underline">ดู</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== P4 360° ===== -->
+            <div id="page-p4-360" class="page-section">
+                <h2 class="section-title">🔄 ประเมิน 360°</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- 360 Radar -->
+                    <div class="bg-white rounded-2xl shadow-sm p-6">
+                        <h3 class="font-semibold text-gray-700 mb-4">📡 ผล 360° — สมชาย ไร่ทอง</h3>
+                        <div class="chart-container" style="height: 320px;"><canvas id="chart360Radar"></canvas></div>
+                    </div>
+
+                    <!-- Annual Trend -->
+                    <div class="bg-white rounded-2xl shadow-sm p-6">
+                        <h3 class="font-semibold text-gray-700 mb-4">📈 แนวโน้มรายปี</h3>
+                        <div class="chart-container" style="height: 320px;"><canvas id="chart360Trend"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- Risk Flags -->
+                <div class="bg-white rounded-2xl shadow-sm p-6">
+                    <h3 class="font-semibold text-gray-700 mb-4">⚠️ Risk Flags</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
+                            <span class="text-2xl">🚨</span>
+                            <div class="flex-1">
+                                <p class="font-medium text-red-800">คะแนน Self-Assessment สูงกว่า Manager เกิน 1.5 คะแนน</p>
+                                <p class="text-sm text-red-600">พนักงาน: นภัสสร พิมพ์ทอง — Self: 4.8, Manager: 3.1</p>
+                            </div>
+                            <button class="text-red-600 text-xs hover:underline">ดูรายละเอียด</button>
+                        </div>
+                        <div class="flex items-center gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                            <span class="text-2xl">⚠️</span>
+                            <div class="flex-1">
+                                <p class="font-medium text-yellow-800">คะแนน Peer ลดลง 0.5+ จากไตรมาสก่อน</p>
+                                <p class="text-sm text-yellow-600">พนักงาน: ธนากร เจริญสุข — Q2: 4.2 → Q3: 3.6</p>
+                            </div>
+                            <button class="text-yellow-600 text-xs hover:underline">ดูรายละเอียด</button>
+                        </div>
+                        <div class="flex items-center gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                            <span class="text-2xl">⚠️</span>
+                            <div class="flex-1">
+                                <p class="font-medium text-yellow-800">ยังไม่ส่งประเมิน 360° ครบทุกคน</p>
+                                <p class="text-sm text-yellow-600">ฝ่ายผลิต — ขาด 3 คน (กำหนด 25 มิ.ย. 2569)</p>
+                            </div>
+                            <button class="text-yellow-600 text-xs hover:underline">ดูรายละเอียด</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== P4 Dashboard ===== -->
+            <div id="page-p4-dashboard" class="page-section">
+                <h2 class="section-title">📈 Dashboard P4 — ประเมินผล</h2>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Avg Score by BU -->
+                    <div class="bg-white rounded-2xl shadow-sm p-6">
+                        <h3 class="font-semibold text-gray-700 mb-4">📊 คะแนนเฉลี่ยแยกตาม BU</h3>
+                        <div class="chart-container"><canvas id="chartP4BU"></canvas></div>
+                    </div>
+                    <!-- Quarterly Trend -->
+                    <div class="bg-white rounded-2xl shadow-sm p-6">
+                        <h3 class="font-semibold text-gray-700 mb-4">📈 แนวโน้มรายไตรมาส</h3>
+                        <div class="chart-container"><canvas id="chartP4Trend"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Top 10 -->
+                    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm p-6">
+                        <h3 class="font-semibold text-gray-700 mb-4">🏆 Top 10 Performers</h3>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>ชื่อ-นามสกุล</th>
+                                    <th>ฝ่าย</th>
+                                    <th>คะแนน</th>
+                                    <th>Rating</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>1</td><td class="font-medium">พิชิต ชัยวัฒน์</td><td>ฝ่ายเทคโนโลยี</td><td class="font-bold text-green-600">4.8</td><td><span class="badge badge-green">ยอดเยี่ยม</span></td></tr>
+                                <tr><td>2</td><td class="font-medium">อรุณี ดาวสว่าง</td><td>ฝ่ายโครงการ</td><td class="font-bold text-green-600">4.7</td><td><span class="badge badge-green">ยอดเยี่ยม</span></td></tr>
+                                <tr><td>3</td><td class="font-medium">วิภาดา แสงทอง</td><td>ฝ่ายเทคโนโลยี</td><td class="font-bold text-green-600">4.5</td><td><span class="badge badge-green">ดีเยี่ยม</span></td></tr>
+                                <tr><td>4</td><td class="font-medium">มานี มีสุข</td><td>ฝ่ายบุคคล</td><td class="font-bold text-green-600">4.3</td><td><span class="badge badge-green">ดีเยี่ยม</span></td></tr>
+                                <tr><td>5</td><td class="font-medium">สมชาย ไร่ทอง</td><td>ฝ่ายผลิต</td><td class="font-bold text-green-600">4.2</td><td><span class="badge badge-blue">ดีมาก</span></td></tr>
+                                <tr><td>6</td><td class="font-medium">สมศักดิ์ เทพสุวรรณ</td><td>ฝ่ายเทคโนโลยี</td><td class="font-bold text-green-600">4.1</td><td><span class="badge badge-blue">ดีมาก</span></td></tr>
+                                <tr><td>7</td><td class="font-medium">ธนากร เจริญสุข</td><td>ฝ่ายผลิต</td><td class="font-bold text-green-600">4.0</td><td><span class="badge badge-blue">ดีมาก</span></td></tr>
+                                <tr><td>8</td><td class="font-medium">ประวิตร มั่นคง</td><td>ฝ่ายผลิต</td><td class="font-bold text-green-600">3.9</td><td><span class="badge badge-blue">ดี</span></td></tr>
+                                <tr><td>9</td><td class="font-medium">กัลยา รุ่งเรือง</td><td>ฝ่ายการเงิน</td><td class="font-bold text-green-600">3.9</td><td><span class="badge badge-blue">ดี</span></td></tr>
+                                <tr><td>10</td><td class="font-medium">วิชัย ศรีสวัสดิ์</td><td>ฝ่ายการเงิน</td><td class="font-bold text-green-600">3.8</td><td><span class="badge badge-blue">ดี</span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Rating Distribution -->
+                    <div class="bg-white rounded-2xl shadow-sm p-6">
+                        <h3 class="font-semibold text-gray-700 mb-4">🎯 สัดส่วน Rating</h3>
+                        <div class="chart-container" style="height: 300px;"><canvas id="chartP4Rating"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== P5 Coming Soon ===== -->
+            <div id="page-p5" class="page-section">
+                <div class="coming-soon-card">
+                    <p class="text-6xl mb-6">🌱</p>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">P5 — พัฒนา</h2>
+                    <p class="text-gray-500 mb-6">🚧 กำลังพัฒนา คาดเสร็จ ส.ค. 2569</p>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" style="width: 35%;"></div>
+                    </div>
+                    <p class="text-sm text-gray-400">ความก้าวหน้า: 35%</p>
+                </div>
+            </div>
+
+            <!-- ===== P6 Coming Soon ===== -->
+            <div id="page-p6" class="page-section">
+                <div class="coming-soon-card">
+                    <p class="text-6xl mb-6">💰</p>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">P6 — ค่าตอบแทน</h2>
+                    <p class="text-gray-500 mb-6">🚧 กำลังพัฒนา คาดเสร็จ ส.ค. 2569</p>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" style="width: 20%;"></div>
+                    </div>
+                    <p class="text-sm text-gray-400">ความก้าวหน้า: 20%</p>
+                </div>
+            </div>
+
+            <!-- ===== P7 Coming Soon ===== -->
+            <div id="page-p7" class="page-section">
+                <div class="coming-soon-card">
+                    <p class="text-6xl mb-6">❤️</p>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">P7 — คุณภาพชีวิต</h2>
+                    <p class="text-gray-500 mb-6">🚧 กำลังพัฒนา คาดเสร็จ ส.ค. 2569</p>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" style="width: 15%;"></div>
+                    </div>
+                    <p class="text-sm text-gray-400">ความก้าวหน้า: 15%</p>
+                </div>
+            </div>
+
+            <!-- ===== Admin Coming Soon ===== -->
+            <div id="page-admin" class="page-section">
+                <div class="coming-soon-card">
+                    <p class="text-6xl mb-6">⚙️</p>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Admin Panel</h2>
+                    <p class="text-gray-500 mb-6">🚧 กำลังพัฒนา คาดเสร็จ ส.ค. 2569</p>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" style="width: 10%;"></div>
+                    </div>
+                    <p class="text-sm text-gray-400">ความก้าวหน้า: 10%</p>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="text-center py-4 text-sm text-gray-400 border-t bg-white">
+            ระบบบริหารบุคลากร PP7 — Version v1.0.0-dev
+        </footer>
+    </div>
+</div>
+
+<!-- ===== Modal: ยื่นคำขออัตรากำลังใหม่ ===== -->
+<div id="modalNewRequest" class="modal-overlay" onclick="if(event.target===this)closeModal('modalNewRequest')">
+    <div class="modal-content">
+        <h3 class="text-xl font-bold text-gray-800 mb-6">📝 ยื่นคำขออัตรากำลังใหม่</h3>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">ฝ่าย</label>
+                <select class="form-select">
+                    <option>ฝ่ายผลิต</option>
+                    <option>ฝ่ายเทคโนโลยี</option>
+                    <option>ฝ่ายขาย</option>
+                    <option>ฝ่ายบุคคล</option>
+                    <option>ฝ่ายการเงิน</option>
+                    <option>ฝ่ายโครงการ</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">ตำแหน่ง</label>
+                <input type="text" class="form-input" placeholder="เช่น วิศวกรผลิต">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">จำนวน</label>
+                    <input type="number" class="form-input" value="1" min="1">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                    <select class="form-select">
+                        <option>สูง</option>
+                        <option>กลาง</option>
+                        <option>ต่ำ</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">กำหนดส่ง</label>
+                <input type="date" class="form-input">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">เหตุผล / คำอธิบาย</label>
+                <textarea class="form-input" rows="3" placeholder="อธิบายเหตุผลที่ต้องการอัตรา..."></textarea>
+            </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+            <button class="btn-primary" onclick="closeModal('modalNewRequest')">💾 ส่งคำขอ</button>
+            <button class="btn-secondary" onclick="closeModal('modalNewRequest')">ยกเลิก</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Modal: เพิ่มนัดสัมภาษณ์ ===== -->
+<div id="modalNewInterview" class="modal-overlay" onclick="if(event.target===this)closeModal('modalNewInterview')">
+    <div class="modal-content">
+        <h3 class="text-xl font-bold text-gray-800 mb-6">📅 เพิ่มนัดสัมภาษณ์</h3>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">ผู้สมัคร</label>
+                <select class="form-select">
+                    <option>วิภาดา แสงทอง — นักพัฒนาซอฟต์แวร์</option>
+                    <option>ธนากร เจริญสุข — วิศวกรผลิต</option>
+                    <option>กัลยา รุ่งเรือง — นักวิเคราะห์การเงิน</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">วันที่</label>
+                    <input type="date" class="form-input">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">เวลา</label>
+                    <input type="time" class="form-input" value="09:00">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">ผู้สัมภาษณ์</label>
+                <select class="form-select">
+                    <option>สมศักดิ์ เทพสุวรรณ</option>
+                    <option>ประวิตร มั่นคง</option>
+                    <option>วิชัย ศรีสวัสดิ์</option>
+                    <option>สุรีย์ ทองดี</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">รูปแบบ</label>
+                <select class="form-select">
+                    <option>On-site</option>
+                    <option>Online</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+                <textarea class="form-input" rows="2" placeholder="หมายเหตุเพิ่มเติม..."></textarea>
+            </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+            <button class="btn-primary" onclick="closeModal('modalNewInterview')">💾 บันทึก</button>
+            <button class="btn-secondary" onclick="closeModal('modalNewInterview')">ยกเลิก</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Modal: สร้างการประเมิน KPI ===== -->
+<div id="modalNewKPI" class="modal-overlay" onclick="if(event.target===this)closeModal('modalNewKPI')">
+    <div class="modal-content">
+        <h3 class="text-xl font-bold text-gray-800 mb-6">📊 สร้างการประเมิน KPI</h3>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">พนักงาน</label>
+                <select class="form-select">
+                    <option>พิชิต ชัยวัฒน์</option>
+                    <option>อรุณี ดาวสว่าง</option>
+                    <option>สมชาย ไร่ทอง</option>
+                    <option>วิภาดา แสงทอง</option>
+                    <option>กัลยา รุ่งเรือง</option>
+                    <option>ธนากร เจริญสุข</option>
+                    <option>มานี มีสุข</option>
+                    <option>ประวิตร มั่นคง</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">รอบประเมิน</label>
+                <select class="form-select">
+                    <option>Q3/2569 (ก.ค. - ก.ย. 2569)</option>
+                    <option>Q4/2569 (ต.ค. - ธ.ค. 2569)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">KPI 1 — ผลผลิต (น้ำหนัก 30%)</label>
+                <input type="number" class="form-input" placeholder="คะแนน 1-5" step="0.1" min="1" max="5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">KPI 2 — คุณภาพ (น้ำหนัก 25%)</label>
+                <input type="number" class="form-input" placeholder="คะแนน 1-5" step="0.1" min="1" max="5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">KPI 3 — ความร่วมมือ (น้ำหนัก 20%)</label>
+                <input type="number" class="form-input" placeholder="คะแนน 1-5" step="0.1" min="1" max="5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">KPI 4 — นวัตกรรม (น้ำหนัก 15%)</label>
+                <input type="number" class="form-input" placeholder="คะแนน 1-5" step="0.1" min="1" max="5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">KPI 5 — การพัฒนา (น้ำหนัก 10%)</label>
+                <input type="number" class="form-input" placeholder="คะแนน 1-5" step="0.1" min="1" max="5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+                <textarea class="form-input" rows="2" placeholder="หมายเหตุ..."></textarea>
+            </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+            <button class="btn-primary" onclick="closeModal('modalNewKPI')">💾 สร้างและบันทึก</button>
+            <button class="btn-secondary" onclick="closeModal('modalNewKPI')">ยกเลิก</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== JavaScript ===== -->
+<script>
+// ===== ระบบ Login =====
+function doLogin() {
+    const username = document.getElementById('loginUsername').value || 'admin';
+    const password = document.getElementById('loginPassword').value;
+    if (username && password) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('appMain').classList.remove('hidden');
+        document.getElementById('headerUsername').textContent = username === 'admin' ? 'Admin' : username;
+        initCharts();
+    }
+}
+
+function doMockLogin() {
+    document.getElementById('loginUsername').value = 'admin';
+    document.getElementById('loginPassword').value = 'mock123';
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appMain').classList.remove('hidden');
+    document.getElementById('headerUsername').textContent = 'Admin (Mock)';
+    initCharts();
+}
+
+function doLogout() {
+    document.getElementById('appMain').classList.add('hidden');
+    document.getElementById('loginScreen').style.display = 'flex';
+    closeAllDropdowns();
+}
+
+// ===== Navigation =====
+function navigateTo(pageId) {
+    // Hide all pages
+    document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+    // Show target page
+    const target = document.getElementById('page-' + pageId);
+    if (target) target.classList.add('active');
+
+    // Update active menu
+    document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+    event && event.currentTarget && event.currentTarget.classList.add('active');
+
+    // Close mobile sidebar
+    if (window.innerWidth < 768) {
+        document.getElementById('sidebar').classList.remove('mobile-open');
+    }
+
+    closeAllDropdowns();
+
+    // Re-render charts if needed
+    if (pageId === 'p2-cc') setTimeout(() => { if(ccRadarChart) ccRadarChart.resize(); }, 100);
+    if (pageId === 'p4-360') setTimeout(() => { if(radar360Chart) radar360Chart.resize(); if(trend360Chart) trend360Chart.resize(); }, 100);
+    if (pageId === 'p4-dashboard') setTimeout(() => { 
+        if(p4BUChart) p4BUChart.resize(); 
+        if(p4TrendChart) p4TrendChart.resize(); 
+        if(p4RatingChart) p4RatingChart.resize(); 
+    }, 100);
+}
+
+// ===== Sidebar Toggle =====
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const main = document.getElementById('mainContent');
+    if (window.innerWidth < 768) {
+        sidebar.classList.toggle('mobile-open');
+    } else {
+        sidebar.classList.toggle('collapsed');
+        main.classList.toggle('expanded');
+    }
+}
+
+// ===== Submenu Toggle =====
+function toggleSubmenu(id) {
+    const submenu = document.getElementById('submenu-' + id);
+    if (submenu) {
+        submenu.classList.toggle('hidden');
+    }
+}
+
+// ===== Dropdowns =====
+function toggleNotif() {
+    closeAllDropdowns();
+    document.getElementById('notifDropdown').classList.toggle('active');
+}
+
+function toggleUserMenu() {
+    closeAllDropdowns();
+    document.getElementById('userDropdown').classList.toggle('active');
+}
+
+function closeAllDropdowns() {
+    document.getElementById('notifDropdown').classList.remove('active');
+    document.getElementById('userDropdown').classList.remove('active');
+}
+
+// ===== Modal =====
+function openModal(id) {
+    document.getElementById(id).classList.add('active');
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+}
+
+// ===== Likert Scale =====
+function selectLikert(btn) {
+    const group = btn.parentElement;
+    group.querySelectorAll('.likert-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+}
+
+// ===== Filter Request Table =====
+function filterRequestTable() {
+    const search = document.getElementById('searchRequest').value.toLowerCase();
+    const rows = document.querySelectorAll('#requestTable tbody tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(search) ? '' : 'none';
+    });
+}
+
+// ===== Charts =====
+let buChart, perfTrendChart, roleChart, ccRadarChart, radar360Chart, trend360Chart, p4BUChart, p4TrendChart, p4RatingChart;
+
+Chart.defaults.font.family = 'Prompt';
+Chart.defaults.font.size = 12;
+
+function initCharts() {
+    // === Dashboard: BU Distribution ===
+    const ctx1 = document.getElementById('chartBUDist');
+    if (ctx1) {
+        buChart = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: ['ฝ่ายผลิต', 'ฝ่ายเทคโนโลยี', 'ฝ่ายขาย', 'ฝ่ายบุคคล', 'ฝ่ายการเงิน', 'ฝ่ายโครงการ'],
+                datasets: [{
+                    label: 'จำนวนสมาชิก',
+                    data: [420, 280, 215, 128, 95, 110],
+                    backgroundColor: ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#06b6d4'],
+                    borderRadius: 8,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // === Dashboard: Performance Trend ===
+    const ctx2 = document.getElementById('chartPerfTrend');
+    if (ctx2) {
+        perfTrendChart = new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: ['Q1/2568', 'Q2/2568', 'Q3/2568', 'Q4/2568', 'Q1/2569', 'Q2/2569', 'Q3/2569'],
+                datasets: [{
+                    label: 'คะแนนเฉลี่ย',
+                    data: [3.2, 3.4, 3.5, 3.6, 3.7, 3.6, 3.8],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#3b82f6'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { min: 2.5, max: 5, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // === Dashboard: Role Distribution ===
+    const ctx3 = document.getElementById('chartRoleDist');
+    if (ctx3) {
+        roleChart = new Chart(ctx3, {
+            type: 'doughnut',
+            data: {
+                labels: ['ฝ่ายผลิต', 'เทคโนโลยี', 'ขาย', 'บุคคล', 'การเงิน', 'โครงการ'],
+                datasets: [{
+                    data: [420, 280, 215, 128, 95, 110],
+                    backgroundColor: ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#06b6d4'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: { legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true } } }
+            }
+        });
+    }
+
+    // === CC Radar Chart ===
+    const ctx4 = document.getElementById('chartCCRadar');
+    if (ctx4) {
+        ccRadarChart = new Chart(ctx4, {
+            type: 'radar',
+            data: {
+                labels: ['CC1 ความเป็นผู้นำ', 'CC2 ผลลัพธ์', 'CC3 เชิงกลยุทธ์', 'CC4 ร่วมมือ', 'CC5 เรียนรู้'],
+                datasets: [{
+                    label: 'คะแนน CC',
+                    data: [4.0, 4.2, 3.6, 4.0, 4.0],
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    borderColor: '#3b82f6',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#3b82f6',
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { r: { min: 0, max: 5, ticks: { stepSize: 1 } } },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // === 360 Radar ===
+    const ctx5 = document.getElementById('chart360Radar');
+    if (ctx5) {
+        radar360Chart = new Chart(ctx5, {
+            type: 'radar',
+            data: {
+                labels: ['ตนเอง', 'หัวหน้างาน', 'เพื่อนร่วมงาน', 'ลูกน้อง', 'ลูกค้า'],
+                datasets: [{
+                    label: '360° ผลประเมิน',
+                    data: [4.2, 3.8, 4.0, 3.9, 4.1],
+                    backgroundColor: 'rgba(139, 92, 246, 0.15)',
+                    borderColor: '#8b5cf6',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#8b5cf6',
+                    pointRadius: 5
+                }, {
+                    label: 'เป้าหมาย',
+                    data: [4.0, 4.0, 4.0, 4.0, 4.0],
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderColor: '#10b981',
+                    borderWidth: 1,
+                    borderDash: [5, 5],
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { r: { min: 0, max: 5, ticks: { stepSize: 1 } } },
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    }
+
+    // === 360 Annual Trend ===
+    const ctx6 = document.getElementById('chart360Trend');
+    if (ctx6) {
+        trend360Chart = new Chart(ctx6, {
+            type: 'line',
+            data: {
+                labels: ['2566', 'Q1/2567', 'Q2/2567', 'Q3/2567', 'Q4/2567', 'Q1/2568', 'Q2/2568', 'Q3/2568', 'Q4/2568', 'Q1/2569', 'Q2/2569', 'Q3/2569'],
+                datasets: [{
+                    label: 'ตนเอง',
+                    data: [3.0, 3.2, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1, 4.1, 4.2],
+                    borderColor: '#3b82f6', tension: 0.3
+                }, {
+                    label: 'หัวหน้างาน',
+                    data: [2.8, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.7, 3.8, 3.8],
+                    borderColor: '#ef4444', tension: 0.3
+                }, {
+                    label: 'เพื่อนร่วมงาน',
+                    data: [2.9, 3.1, 3.2, 3.3, 3.5, 3.6, 3.7, 3.8, 3.8, 3.9, 4.0, 4.0],
+                    borderColor: '#10b981', tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { min: 2, max: 5, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false }, ticks: { maxRotation: 45 } }
+                },
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    }
+
+    // === P4 Dashboard: Avg Score by BU ===
+    const ctx7 = document.getElementById('chartP4BU');
+    if (ctx7) {
+        p4BUChart = new Chart(ctx7, {
+            type: 'bar',
+            data: {
+                labels: ['ฝ่ายผลิต', 'ฝ่ายเทคโนโลยี', 'ฝ่ายขาย', 'ฝ่ายบุคคล', 'ฝ่ายการเงิน', 'ฝ่ายโครงการ'],
+                datasets: [{
+                    label: 'คะแนนเฉลี่ย',
+                    data: [3.9, 4.3, 3.6, 4.1, 3.8, 4.2],
+                    backgroundColor: ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#06b6d4'],
+                    borderRadius: 8,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { min: 0, max: 5, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // === P4 Dashboard: Quarterly Trend ===
+    const ctx8 = document.getElementById('chartP4Trend');
+    if (ctx8) {
+        p4TrendChart = new Chart(ctx8, {
+            type: 'line',
+            data: {
+                labels: ['Q1/2568', 'Q2/2568', 'Q3/2568', 'Q4/2568', 'Q1/2569', 'Q2/2569', 'Q3/2569'],
+                datasets: [
+                    { label: 'ฝ่ายผลิต', data: [3.5, 3.6, 3.7, 3.7, 3.8, 3.8, 3.9], borderColor: '#3b82f6', tension: 0.3 },
+                    { label: 'ฝ่ายเทคโนโลยี', data: [3.8, 3.9, 4.0, 4.1, 4.1, 4.2, 4.3], borderColor: '#8b5cf6', tension: 0.3 },
+                    { label: 'ฝ่ายขาย', data: [3.2, 3.3, 3.4, 3.5, 3.5, 3.5, 3.6], borderColor: '#f59e0b', tension: 0.3 },
+                    { label: 'ฝ่ายบุคคล', data: [3.7, 3.8, 3.8, 3.9, 4.0, 4.0, 4.1], borderColor: '#10b981', tension: 0.3 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { min: 2.5, max: 5, grid: { color: '#f1f5f9' } },
+                    x: { grid: { display: false } }
+                },
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    }
+
+    // === P4 Dashboard: Rating Distribution ===
+    const ctx9 = document.getElementById('chartP4Rating');
+    if (ctx9) {
+        p4RatingChart = new Chart(ctx9, {
+            type: 'doughnut',
+            data: {
+                labels: ['ยอดเยี่ยม (4.5+)', 'ดีเยี่ยม (4.0-4.4)', 'ดีมาก (3.5-3.9)', 'ดี (3.0-3.4)', 'ต้องปรับปรุง (<3.0)'],
+                datasets: [{
+                    data: [15, 35, 40, 8, 2],
+                    backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: { legend: { position: 'bottom', labels: { padding: 8, usePointStyle: true, font: { size: 11 } } } }
+            }
+        });
+    }
+}
+
+// ===== Close dropdowns on outside click =====
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('[onclick*="toggleNotif"]') && !e.target.closest('#notifDropdown')) {
+        document.getElementById('notifDropdown')?.classList.remove('active');
+    }
+    if (!e.target.closest('[onclick*="toggleUserMenu"]') && !e.target.closest('#userDropdown')) {
+        document.getElementById('userDropdown')?.classList.remove('active');
+    }
+});
+</script>
+
+</body>
+</html>
