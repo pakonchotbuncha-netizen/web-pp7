@@ -874,6 +874,195 @@ const NEW_PROCESS_DATA = {
       <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-indigo-400"><div class="text-2xl mb-1">📤</div><div class="font-semibold text-pp7-700">5. ส่งต่ออนุมัติจ้าง</div><div class="text-slate-600 mt-1 text-xs">เสนอผลต่อผู้บริหาร → ส่งต่อข้อมูลไปยัง P3/P4</div></div>
     </div>
   </div>
+
+  <!-- Candidate Pipeline Dashboard -->
+  <div class="card bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200 mt-8">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">📊 Candidate Pipeline Dashboard</h3>
+      <button onclick="openCandidateModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition">
+        ➕ เพิ่มผู้สมัคร
+      </button>
+    </div>
+
+    <!-- Pipeline Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
+      <div class="bg-white rounded-lg border border-blue-200 p-3 text-center">
+        <div class="text-2xl font-bold text-blue-600" id="cp-total">0</div>
+        <div class="text-xs text-slate-600 mt-1">ผู้สมัครทั้งหมด</div>
+      </div>
+      <div class="bg-white rounded-lg border border-slate-200 p-3 text-center">
+        <div class="text-2xl font-bold text-slate-600" id="cp-new">0</div>
+        <div class="text-xs text-slate-600 mt-1">🆕 ใหม่</div>
+      </div>
+      <div class="bg-white rounded-lg border border-amber-200 p-3 text-center">
+        <div class="text-2xl font-bold text-amber-600" id="cp-screening">0</div>
+        <div class="text-xs text-slate-600 mt-1">🔍 คัดกรอง</div>
+      </div>
+      <div class="bg-white rounded-lg border border-purple-200 p-3 text-center">
+        <div class="text-2xl font-bold text-purple-600" id="cp-interview">0</div>
+        <div class="text-xs text-slate-600 mt-1">💬 สัมภาษณ์</div>
+      </div>
+      <div class="bg-white rounded-lg border border-green-200 p-3 text-center">
+        <div class="text-2xl font-bold text-green-600" id="cp-offered">0</div>
+        <div class="text-xs text-slate-600 mt-1">✅ เสนอจ้าง</div>
+      </div>
+      <div class="bg-white rounded-lg border border-emerald-200 p-3 text-center">
+        <div class="text-2xl font-bold text-emerald-600" id="cp-hired">0</div>
+        <div class="text-xs text-slate-600 mt-1">🎉 จ้างแล้ว</div>
+      </div>
+    </div>
+
+    <!-- Pipeline Visual Flow -->
+    <div class="bg-white rounded-lg border border-slate-200 p-4 mb-6">
+      <h4 class="font-semibold text-sm text-slate-700 mb-3">🔄 Pipeline Visual</h4>
+      <div class="flex items-center justify-between overflow-x-auto">
+        <div class="flex items-center gap-2 min-w-max">
+          <div class="px-3 py-2 bg-blue-100 text-blue-700 rounded font-semibold text-xs" id="pipeline-new">0 ใหม่</div>
+          <span class="text-slate-400">→</span>
+          <div class="px-3 py-2 bg-amber-100 text-amber-700 rounded font-semibold text-xs" id="pipeline-screening">0 คัดกรอง</div>
+          <span class="text-slate-400">→</span>
+          <div class="px-3 py-2 bg-purple-100 text-purple-700 rounded font-semibold text-xs" id="pipeline-interview">0 สัมภาษณ์</div>
+          <span class="text-slate-400">→</span>
+          <div class="px-3 py-2 bg-green-100 text-green-700 rounded font-semibold text-xs" id="pipeline-offered">0 เสนอจ้าง</div>
+          <span class="text-slate-400">→</span>
+          <div class="px-3 py-2 bg-emerald-100 text-emerald-700 rounded font-semibold text-xs" id="pipeline-hired">0 จ้างแล้ว</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg border border-slate-200 p-4 mb-4">
+      <div class="grid md:grid-cols-4 gap-3">
+        <input type="text" id="cp-search" placeholder="🔍 ชื่อ/ตำแหน่ง..." 
+               class="px-3 py-2 border border-slate-300 rounded-lg text-sm"
+               oninput="filterCandidates()">
+        <select id="cp-filter-status" class="px-3 py-2 border border-slate-300 rounded-lg text-sm" onchange="filterCandidates()">
+          <option value="">ทุกสถานะ</option>
+          <option value="new">🆕 ใหม่</option>
+          <option value="screening">🔍 คัดกรอง</option>
+          <option value="interview">💬 สัมภาษณ์</option>
+          <option value="offered">✅ เสนอจ้าง</option>
+          <option value="hired">🎉 จ้างแล้ว</option>
+          <option value="rejected">❌ ปฏิเสธ</option>
+        </select>
+        <select id="cp-filter-source" class="px-3 py-2 border border-slate-300 rounded-lg text-sm" onchange="filterCandidates()">
+          <option value="">ทุกช่องทาง</option>
+          <option value="facebook">Facebook</option>
+          <option value="linkedin">LinkedIn</option>
+          <option value="jobthai">JobThai</option>
+          <option value="referral">Referral</option>
+          <option value="website">Website</option>
+          <option value="walkin">Walk-in</option>
+        </select>
+        <button onclick="resetCandidateFilter()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium">🔄 รีเซ็ต</button>
+      </div>
+    </div>
+
+    <!-- Candidate Table -->
+    <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-100 border-b-2 border-slate-300">
+          <tr>
+            <th class="px-3 py-2 text-left font-semibold text-slate-700">ID</th>
+            <th class="px-3 py-2 text-left font-semibold text-slate-700">ชื่อ-นามสกุล</th>
+            <th class="px-3 py-2 text-left font-semibold text-slate-700">ตำแหน่ง</th>
+            <th class="px-3 py-2 text-left font-semibold text-slate-700">BU</th>
+            <th class="px-3 py-2 text-center font-semibold text-slate-700">ช่องทาง</th>
+            <th class="px-3 py-2 text-center font-semibold text-slate-700">สถานะ</th>
+            <th class="px-3 py-2 text-center font-semibold text-slate-700">วันที่สมัคร</th>
+            <th class="px-3 py-2 text-center font-semibold text-slate-700">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="candidate-table" class="divide-y divide-slate-100">
+          <!-- ข้อมูลจะถูกเติมด้วย JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between mt-4">
+      <div class="text-sm text-slate-600">
+        แสดง <span id="cp-start">0</span>-<span id="cp-end">0</span> จาก <span id="cp-total">0</span> รายการ
+      </div>
+      <div class="flex gap-2">
+        <button onclick="cpPrevPage()" id="cp-prev-btn" class="px-3 py-1 border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50" disabled>← ก่อนหน้า</button>
+        <button onclick="cpNextPage()" id="cp-next-btn" class="px-3 py-1 border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50" disabled>ถัดไป →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: เพิ่มผู้สมัคร -->
+  <div id="candidate-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+        <h3 class="text-xl font-bold text-slate-800">👤 เพิ่มผู้สมัครใหม่</h3>
+        <button onclick="closeCandidateModal()" class="text-slate-500 hover:text-slate-700 text-2xl">&times;</button>
+      </div>
+      <form id="candidate-form" onsubmit="saveCandidate(event)" class="p-6 space-y-4">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อ-นามสกุล *</label>
+            <input type="text" id="cand-name" required class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">ตำแหน่ง *</label>
+            <input type="text" id="cand-position" required class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">BU</label>
+            <select id="cand-bu" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+              <option value="">เลือก BU</option>
+              <option value="PMSG">PMSG</option>
+              <option value="AAMG">AAMG</option>
+              <option value="CPDG">CPDG</option>
+              <option value="RPLCG">RPLCG</option>
+              <option value="RAFCOG">RAFCOG</option>
+              <option value="PGHG">PGHG</option>
+              <option value="21RTG">21RTG</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">ช่องทาง *</label>
+            <select id="cand-source" required class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+              <option value="">เลือกช่องทาง</option>
+              <option value="facebook">Facebook</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="jobthai">JobThai</option>
+              <option value="referral">Referral</option>
+              <option value="website">Website</option>
+              <option value="walkin">Walk-in</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">เบอร์โทร</label>
+            <input type="tel" id="cand-phone" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <input type="email" id="cand-email" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">หมายเหตุ</label>
+          <textarea id="cand-notes" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-lg"></textarea>
+        </div>
+
+        <input type="hidden" id="cand-edit-id">
+
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+          <button type="button" onclick="closeCandidateModal()" class="px-6 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50">ยกเลิก</button>
+          <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">💾 บันทึก</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </section>
 
 <section id="tab-assess" class="tab-pane fade-in hidden space-y-8">
@@ -2817,6 +3006,7 @@ function showTab(tabId){
   if(tabId === 'members') initMembersTab();
   if(tabId === 'assess') loadInterviewHistory();
   if(tabId === 'headcount-request') loadHeadcount();
+  if(tabId === 'recruit') loadCandidates();
   if(tabId === 'match') {
     // โหลดสถิติ P3 (ถ้ามี)
     loadP3Stats();
@@ -3101,6 +3291,249 @@ function handleDevFormSubmit(event) {
 }
 
 // ===== Members Database CRUD Functions =====
+// ===== Candidate Pipeline Module (P1) =====
+let candidateData = [];
+let filteredCandidates = [];
+let cpCurrentPage = 1;
+const cpItemsPerPage = 10;
+
+// Mock Candidate Data
+const MOCK_CANDIDATES = [
+  { id: 'C-001', name: 'สมชาย ใจดี', position: 'Software Engineer', bu: 'PGHG', source: 'linkedin', status: 'interview', phone: '0812345678', email: 'somchai@email.com', appliedDate: '2026-06-15', notes: 'ประสบการณ์ 5 ปี', createdAt: '2026-06-15T10:00:00Z' },
+  { id: 'C-002', name: 'สมหญิง รักเรียน', position: 'Sales Executive', bu: 'AAMG', source: 'jobthai', status: 'screening', phone: '0823456789', email: 'somying@email.com', appliedDate: '2026-06-18', notes: 'จบใหม่ ป.โท บริหาร', createdAt: '2026-06-18T14:30:00Z' },
+  { id: 'C-003', name: 'วิชัย ทองดี', position: 'Operations Supervisor', bu: 'CPDG', source: 'referral', status: 'hired', phone: '0834567890', email: 'wichai@email.com', appliedDate: '2026-06-10', notes: 'Refer โดยหัวหน้าทีม', createdAt: '2026-06-10T09:15:00Z' },
+  { id: 'C-004', name: 'พรทิพย์ ดีงาม', position: 'Marketing Specialist', bu: 'PMSG', source: 'facebook', status: 'new', phone: '0845678901', email: 'porntip@email.com', appliedDate: '2026-06-22', notes: '', createdAt: '2026-06-22T11:45:00Z' },
+  { id: 'C-005', name: 'กิตติ ประเสริฐ', position: 'Accountant', bu: 'RAFCOG', source: 'walkin', status: 'rejected', phone: '0856789012', email: 'kitti@email.com', appliedDate: '2026-06-12', notes: 'ขาดคุณสมบัติ', createdAt: '2026-06-12T16:00:00Z' },
+  { id: 'C-006', name: 'ธนากร มั่งคั่ง', position: 'HR Coordinator', bu: '21RTG', source: 'website', status: 'offered', phone: '0867890123', email: 'thanakorn@email.com', appliedDate: '2026-06-20', notes: 'รอตอบรับ offer', createdAt: '2026-06-20T13:20:00Z' },
+];
+
+// Load candidate data
+function loadCandidates() {
+  const saved = localStorage.getItem('candidate_data');
+  if (saved) {
+    candidateData = JSON.parse(saved);
+  } else {
+    candidateData = MOCK_CANDIDATES;
+    localStorage.setItem('candidate_data', JSON.stringify(candidateData));
+  }
+  filteredCandidates = [...candidateData];
+  updateCandidateTable();
+  updateCandidateStats();
+}
+
+// Update candidate table display
+function updateCandidateTable() {
+  const tbody = document.getElementById('candidate-table');
+  if (!tbody) return;
+
+  const start = (cpCurrentPage - 1) * cpItemsPerPage;
+  const end = start + cpItemsPerPage;
+  const pageData = filteredCandidates.slice(start, end);
+
+  tbody.innerHTML = '';
+  pageData.forEach(data => {
+    const sourceIcons = {
+      facebook: '📘 FB', linkedin: '💼 LI', jobthai: '📋 JT',
+      referral: '🔗 Ref', website: '🌐 Web', walkin: '🚶 Walk-in'
+    };
+    const statusMap = {
+      new: { class: 'bg-blue-100 text-blue-800', text: '🆕 ใหม่' },
+      screening: { class: 'bg-amber-100 text-amber-800', text: '🔍 คัดกรอง' },
+      interview: { class: 'bg-purple-100 text-purple-800', text: '💬 สัมภาษณ์' },
+      offered: { class: 'bg-green-100 text-green-800', text: '✅ เสนอจ้าง' },
+      hired: { class: 'bg-emerald-100 text-emerald-800', text: '🎉 จ้างแล้ว' },
+      rejected: { class: 'bg-red-100 text-red-800', text: '❌ ปฏิเสธ' }
+    };
+    const st = statusMap[data.status] || statusMap.new;
+
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-slate-50';
+    tr.innerHTML = `
+      <td class="px-3 py-2 font-mono text-xs text-slate-500">${data.id}</td>
+      <td class="px-3 py-2 font-medium text-slate-900">${data.name}</td>
+      <td class="px-3 py-2 text-slate-700">${data.position}</td>
+      <td class="px-3 py-2 text-slate-600">${data.bu || '-'}</td>
+      <td class="px-3 py-2 text-center text-xs">${sourceIcons[data.source] || data.source}</td>
+      <td class="px-3 py-2 text-center">
+        <span class="px-2 py-1 text-xs font-semibold rounded-full ${st.class}">${st.text}</span>
+      </td>
+      <td class="px-3 py-2 text-center text-xs text-slate-500">${formatDate(data.appliedDate)}</td>
+      <td class="px-3 py-2 text-center">
+        <button onclick="editCandidate('${data.id}')" class="text-blue-600 hover:text-blue-800 text-xs mr-1" title="แก้ไข">✏️</button>
+        <button onclick="advanceCandidate('${data.id}')" class="text-green-600 hover:text-green-800 text-xs mr-1" title="ขั้นถัดไป">⏭️</button>
+        <button onclick="sendToP2('${data.id}')" class="text-purple-600 hover:text-purple-800 text-xs mr-1" title="ส่งไป P2">🚀</button>
+        <button onclick="deleteCandidate('${data.id}')" class="text-red-600 hover:text-red-800 text-xs" title="ลบ">🗑️</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('cp-start').textContent = filteredCandidates.length > 0 ? start + 1 : 0;
+  document.getElementById('cp-end').textContent = Math.min(end, filteredCandidates.length);
+  document.getElementById('cp-total').textContent = filteredCandidates.length;
+  document.getElementById('cp-prev-btn').disabled = cpCurrentPage === 1;
+  document.getElementById('cp-next-btn').disabled = end >= filteredCandidates.length;
+}
+
+// Update candidate stats
+function updateCandidateStats() {
+  const total = candidateData.length;
+  const counts = { new: 0, screening: 0, interview: 0, offered: 0, hired: 0, rejected: 0 };
+  candidateData.forEach(c => { if (counts[c.status] !== undefined) counts[c.status]++; });
+
+  document.getElementById('cp-total').textContent = total;
+  document.getElementById('cp-new').textContent = counts.new;
+  document.getElementById('cp-screening').textContent = counts.screening;
+  document.getElementById('cp-interview').textContent = counts.interview;
+  document.getElementById('cp-offered').textContent = counts.offered;
+  document.getElementById('cp-hired').textContent = counts.hired;
+
+  // Update pipeline visual
+  document.getElementById('pipeline-new').textContent = counts.new + ' ใหม่';
+  document.getElementById('pipeline-screening').textContent = counts.screening + ' คัดกรอง';
+  document.getElementById('pipeline-interview').textContent = counts.interview + ' สัมภาษณ์';
+  document.getElementById('pipeline-offered').textContent = counts.offered + ' เสนอจ้าง';
+  document.getElementById('pipeline-hired').textContent = counts.hired + ' จ้างแล้ว';
+}
+
+// Filter candidates
+function filterCandidates() {
+  const search = document.getElementById('cp-search').value.toLowerCase();
+  const status = document.getElementById('cp-filter-status').value;
+  const source = document.getElementById('cp-filter-source').value;
+
+  filteredCandidates = candidateData.filter(data => {
+    if (search && !data.name.toLowerCase().includes(search) && !data.position.toLowerCase().includes(search)) return false;
+    if (status && data.status !== status) return false;
+    if (source && data.source !== source) return false;
+    return true;
+  });
+  cpCurrentPage = 1;
+  updateCandidateTable();
+}
+
+function resetCandidateFilter() {
+  document.getElementById('cp-search').value = '';
+  document.getElementById('cp-filter-status').value = '';
+  document.getElementById('cp-filter-source').value = '';
+  filteredCandidates = [...candidateData];
+  cpCurrentPage = 1;
+  updateCandidateTable();
+}
+
+// Modal functions
+function openCandidateModal(editId = null) {
+  document.getElementById('candidate-modal').classList.remove('hidden');
+  document.getElementById('candidate-form').reset();
+  if (editId) {
+    const data = candidateData.find(d => d.id === editId);
+    if (data) {
+      document.getElementById('cand-edit-id').value = editId;
+      document.getElementById('cand-name').value = data.name;
+      document.getElementById('cand-position').value = data.position;
+      document.getElementById('cand-bu').value = data.bu || '';
+      document.getElementById('cand-source').value = data.source;
+      document.getElementById('cand-phone').value = data.phone || '';
+      document.getElementById('cand-email').value = data.email || '';
+      document.getElementById('cand-notes').value = data.notes || '';
+    }
+  }
+}
+
+function closeCandidateModal() {
+  document.getElementById('candidate-modal').classList.add('hidden');
+}
+
+function saveCandidate(event) {
+  event.preventDefault();
+  const editId = document.getElementById('cand-edit-id').value;
+  const newData = {
+    id: editId || 'C-' + String(candidateData.length + 1).padStart(3, '0'),
+    name: document.getElementById('cand-name').value,
+    position: document.getElementById('cand-position').value,
+    bu: document.getElementById('cand-bu').value,
+    source: document.getElementById('cand-source').value,
+    phone: document.getElementById('cand-phone').value,
+    email: document.getElementById('cand-email').value,
+    notes: document.getElementById('cand-notes').value,
+    status: 'new',
+    appliedDate: new Date().toISOString().split('T')[0],
+    createdAt: new Date().toISOString()
+  };
+  if (editId) {
+    const idx = candidateData.findIndex(d => d.id === editId);
+    if (idx >= 0) { newData.status = candidateData[idx].status; candidateData[idx] = newData; }
+  } else {
+    candidateData.unshift(newData);
+  }
+  localStorage.setItem('candidate_data', JSON.stringify(candidateData));
+  filteredCandidates = [...candidateData];
+  cpCurrentPage = 1;
+  updateCandidateTable();
+  updateCandidateStats();
+  closeCandidateModal();
+  alert(editId ? '✅ แก้ไขสำเร็จ' : '✅ เพิ่มผู้สมัครสำเร็จ');
+}
+
+function editCandidate(id) { openCandidateModal(id); }
+
+function deleteCandidate(id) {
+  if (!confirm('ต้องการลบผู้สมัครนี้หรือไม่?')) return;
+  candidateData = candidateData.filter(d => d.id !== id);
+  localStorage.setItem('candidate_data', JSON.stringify(candidateData));
+  filteredCandidates = [...candidateData];
+  updateCandidateTable();
+  updateCandidateStats();
+}
+
+// Advance candidate to next stage
+function advanceCandidate(id) {
+  const data = candidateData.find(d => d.id === id);
+  if (!data) return;
+  const stages = ['new', 'screening', 'interview', 'offered', 'hired'];
+  const idx = stages.indexOf(data.status);
+  if (idx >= stages.length - 1) { alert('ผู้สมัครนี้ถึงขั้นตอนสุดท้ายแล้ว'); return; }
+  data.status = stages[idx + 1];
+  localStorage.setItem('candidate_data', JSON.stringify(candidateData));
+  filteredCandidates = [...candidateData];
+  updateCandidateTable();
+  updateCandidateStats();
+  alert(`✅ ${data.name} → สถานะ: ${data.status}`);
+}
+
+// Send to P2 (Assessment) - ส่งผู้สมัครไปหยั่งประเมิน
+function sendToP2(id) {
+  const data = candidateData.find(d => d.id === id);
+  if (!data) return;
+  if (data.status !== 'screening' && data.status !== 'interview') {
+    alert('ผู้สมัครต้องผ่านขั้นตอนคัดกรองหรือสัมภาษณ์ก่อน');
+    return;
+  }
+  if (!confirm(`ส่ง "${data.name}" ไป P2 (หยั่งประเมิน) หรือไม่?`)) return;
+  // เพิ่มประวัติการสัมภาษณ์ใน P2
+  const interviewHistory = JSON.parse(localStorage.getItem('interview_history') || '[]');
+  interviewHistory.unshift({
+    id: 'INT' + String(interviewHistory.length + 1).padStart(3, '0'),
+    date: new Date().toISOString().split('T')[0],
+    name: data.name,
+    type: 'new',
+    position: data.position,
+    score: 0,
+    result: 'pending',
+    interviewer: '',
+    notes: `ส่งมาจาก P1 (ID: ${data.id})`,
+    createdAt: new Date().toISOString()
+  });
+  localStorage.setItem('interview_history', JSON.stringify(interviewHistory));
+  alert(`✅ ส่ง ${data.name} ไป P2 สำเร็จ\n\nกรุณาไปที่ Tab "P2 หยั่งประเมิน" เพื่อประเมินต่อไป`);
+}
+
+function cpPrevPage() { if (cpCurrentPage > 1) { cpCurrentPage--; updateCandidateTable(); } }
+function cpNextPage() {
+  const totalPages = Math.ceil(filteredCandidates.length / cpItemsPerPage);
+  if (cpCurrentPage < totalPages) { cpCurrentPage++; updateCandidateTable(); }
+}
+
 // ===== Headcount Request Module =====
 let headcountData = [];
 let filteredHeadcount = [];
