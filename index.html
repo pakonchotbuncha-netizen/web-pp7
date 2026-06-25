@@ -236,7 +236,7 @@ const NEW_PROCESS_DATA = {
  <button class="tab-btn" data-tab="members" onclick="showTab('members')">👥 ฐานข้อมูลสมาชิก</button>
  <button class="tab-btn" data-tab="headcount-request" onclick="showTab('headcount-request')">📋 ขออัตรากำลัง</button>
  <button class="tab-btn" data-tab="recruit" onclick="showTab('recruit')">🔎 แสวงหา</button>
- <button class="tab-btn" data-tab="assess" onclick="showTab('assess')">🧭 ประเมินศักยภาพ</button>
+ <button class="tab-btn" data-tab="assess" onclick="showTab('assess')">🧭 หยั่งประเมิน</button>
  <button class="tab-btn" data-tab="match" onclick="showTab('match')">🤝 จับคู่</button>
  <button class="tab-btn" data-tab="performance" onclick="showTab('performance')">📊 ประเมินผล</button>
  <button class="tab-btn" data-tab="develop" onclick="showTab('develop')">🎓 พัฒนา</button>
@@ -280,7 +280,7 @@ const NEW_PROCESS_DATA = {
   </div>
 
   <!-- Stats Cards -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
     <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-lg shadow">
       <div class="text-3xl font-bold">1,247</div>
       <div class="text-sm opacity-90">สมาชิกทั้งหมด</div>
@@ -296,6 +296,10 @@ const NEW_PROCESS_DATA = {
     <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 rounded-lg shadow">
       <div class="text-3xl font-bold">12</div>
       <div class="text-sm opacity-90">ใหม่ในเดือนนี้</div>
+    </div>
+    <div class="bg-gradient-to-br from-red-500 to-red-600 text-white p-4 rounded-lg shadow">
+      <div class="text-3xl font-bold">0</div>
+      <div class="text-sm opacity-90">ลาออก</div>
     </div>
   </div>
 
@@ -496,7 +500,7 @@ const NEW_PROCESS_DATA = {
 
 <section id="tab-assess" class="tab-pane fade-in hidden space-y-8">
   <div class="flex flex-wrap items-center gap-4 pb-4 border-b border-slate-200">
-    <h2 class="text-xl font-bold text-pp7-800 flex-1">🧭 หยั่งประเมินศักยภาพ (P2)</h2>
+    <h2 class="text-xl font-bold text-pp7-800 flex-1">🧭 หยั่งประเมิน (P2)</h2>
     <div class="search-box w-64">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
       <input type="text" id="search-assess" placeholder="ค้นหา ID, ชื่อ..." oninput="searchTable('assess-table',this.value)">
@@ -507,7 +511,7 @@ const NEW_PROCESS_DATA = {
   <div class="card bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200">
     <h3 class="font-bold text-pp7-800 mb-3 text-lg flex items-center gap-2">
       <span class="bg-purple-600 text-white px-2 py-1 rounded text-xs">LDC-PAO-PM-002</span>
-      📌 กระบวนการหยั่งประเมินศักยภาพ (Web PP7 Operation Flow)
+      📌 กระบวนการหยั่งประเมิน (ค้นหาและอ่าน CC, potential, attitude, skill)
     </h3>
     <div class="grid md:grid-cols-5 gap-3 text-sm">
       <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-purple-400"><div class="text-2xl mb-1">📥</div><div class="font-semibold text-pp7-700">1. รับผู้สมัคร</div><div class="text-slate-600 mt-1 text-xs">รับข้อมูลจาก P1 (แสวงหา)</div></div>
@@ -2584,8 +2588,14 @@ function updateMembersTable() {
         <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${statusText}</span>
       </td>
       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-        <button onclick="editMember('${m.id}')" class="text-blue-600 hover:text-blue-900 mr-3">แก้ไข</button>
-        <button onclick="deleteMember('${m.id}')" class="text-red-600 hover:text-red-900">ลบ</button>
+        ${m.status === 'resigned' ? 
+          `<button onclick="reinstateMember('${m.id}')" class="text-green-600 hover:text-green-900 mr-3">คืนค่า</button>` :
+          `<button onclick="editMember('${m.id}')" class="text-blue-600 hover:text-blue-900 mr-3">แก้ไข</button>`
+        }
+        ${m.status !== 'resigned' ? 
+          `<button onclick="deleteMember('${m.id}')" class="text-red-600 hover:text-red-900">ลาออก</button>` :
+          `<span class="text-xs text-gray-500">ออก ${m.resignedDate || ''}</span>`
+        }
       </td>
     `;
     tbody.appendChild(tr);
@@ -2603,6 +2613,7 @@ function updateMembersStats() {
   const total = membersData.length;
   const regular = membersData.filter(m => m.status === 'regular').length;
   const probation = membersData.filter(m => m.status === 'probation').length;
+  const resigned = membersData.filter(m => m.status === 'resigned').length;
   const thisMonth = membersData.filter(m => {
     const start = new Date(m.startDate);
     const now = new Date();
@@ -2610,11 +2621,12 @@ function updateMembersStats() {
   }).length;
   
   const stats = document.querySelectorAll('#tab-members .text-3xl.font-bold');
-  if (stats.length >= 4) {
+  if (stats.length >= 5) {
     stats[0].textContent = total.toLocaleString();
     stats[1].textContent = regular.toLocaleString();
     stats[2].textContent = probation.toLocaleString();
     stats[3].textContent = thisMonth.toLocaleString();
+    stats[4].textContent = resigned.toLocaleString();
   }
 }
 
@@ -2630,12 +2642,40 @@ function editMember(id) {
 
 // Delete member
 function deleteMember(id) {
-  if (confirm('ต้องการลบสมาชิกนี้หรือไม่?')) {
-    membersData = membersData.filter(m => m.id !== id);
+  const member = membersData.find(m => m.id === id);
+  if (!member) return;
+
+  if (confirm(`ต้องการให้สมาชิก "${member.firstName} ${member.lastName}" ลาออกหรือไม่?`)) {
+    // Soft delete: เปลี่ยน status เป็น "resigned" แทนการลบข้อมูลจริง
+    member.status = 'resigned';
+    member.resignedDate = new Date().toISOString().split('T')[0];
+    member.resignReason = prompt('กรุณาระบุสาเหตุการลาออก (ถ้ามี):', '') || 'ไม่ได้ระบุ';
+
     localStorage.setItem('members_data', JSON.stringify(membersData));
     updateMembersTable();
     updateMembersStats();
-    alert('✅ ลบสมาชิกสำเร็จ');
+    alert('✅ บันทึกสถานะลาออกแล้ว (ข้อมูลยังเก็บไว้ สำหรับอนาคต)');
+  }
+}
+
+// คืนค่าสมาชิกที่ลาออก → กลับมาเป็น regular
+function reinstateMember(id) {
+  const member = membersData.find(m => m.id === id);
+  if (!member || member.status !== 'resigned') {
+    alert('ไม่พบข้อมูลสมาชิกที่ลาออก');
+    return;
+  }
+
+  if (confirm(`ต้องการคืนค่าสมาชิก "${member.firstName} ${member.lastName}" ให้กลับมาทำงานอีกครั้งหรือไม่?`)) {
+    member.status = 'regular';
+    member.resignReason = null;
+    member.resignReason = null;
+    member.reinstatedDate = new Date().toISOString().split('T')[0];
+
+    localStorage.setItem('members_data', JSON.stringify(membersData));
+    updateMembersTable();
+    updateMembersStats();
+    alert('✅ คืนค่าสมาชิกสำเร็จ — ข้อมูลถูกส่งต่อไปยัง P3 จับคู่คนกับงาน');
   }
 }
 
