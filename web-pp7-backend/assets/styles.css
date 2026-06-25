@@ -1,0 +1,451 @@
+/**
+ * PP7 Main Layout — Custom Styles
+ * สไตล์เพิ่มเติมที่ไม่สามารถใช้ Tailwind utility classes ได้
+ */
+
+/* ============================================================ */
+/* BASE                                                          */
+/* ============================================================ */
+
+* {
+  font-family: 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ซ่อน scrollbar ใน sidebar แต่ยังคง scroll ได้ */
+#appSidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+#appSidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#appSidebar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 2px;
+}
+
+#appSidebar::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
+
+/* ============================================================ */
+/* LOGIN SCREEN                                                  */
+/* ============================================================ */
+
+#loginScreen input:focus {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+#loginBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ============================================================ */
+/* SIDEBAR                                                       */
+/* ============================================================ */
+
+/* Menu group separator */
+.sidebar-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+  margin: 0.5rem 0;
+}
+
+/* Section label */
+.sidebar-section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 0.5rem;
+}
+
+/* Individual menu item */
+.sidebar-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  margin: 1px 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  position: relative;
+  user-select: none;
+}
+
+.sidebar-menu-item:hover {
+  background: #f8fafc;
+  color: #334155;
+}
+
+.sidebar-menu-item.active {
+  background: #dbeafe;
+  color: #2563eb;
+  font-weight: 500;
+}
+
+.sidebar-menu-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sidebar-menu-item.disabled:hover {
+  background: transparent;
+  color: #64748b;
+}
+
+/* Menu icon */
+.sidebar-menu-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+/* Menu text */
+.sidebar-menu-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Badge on menu items */
+.sidebar-menu-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.375rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  background: #fee2e2;
+  color: #991b1b;
+  flex-shrink: 0;
+}
+
+.sidebar-menu-badge.info {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.sidebar-menu-badge.warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* Coming soon badge */
+.sidebar-coming-soon {
+  font-size: 0.6rem;
+  font-weight: 500;
+  color: #94a3b8;
+  background: #f1f5f9;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+}
+
+/* Collapsed sidebar (tablet mode) */
+.sidebar-collapsed #appSidebar {
+  width: 64px !important;
+}
+
+.sidebar-collapsed .sidebar-menu-text,
+.sidebar-collapsed .sidebar-menu-badge,
+.sidebar-collapsed .sidebar-section-label span,
+.sidebar-collapsed .sidebar-coming-soon {
+  display: none;
+}
+
+.sidebar-collapsed .sidebar-menu-item {
+  justify-content: center;
+  padding: 0.625rem;
+  margin: 2px 4px;
+}
+
+.sidebar-collapsed .sidebar-menu-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: 1.1rem;
+}
+
+.sidebar-collapsed .sidebar-section-label {
+  padding: 0.25rem;
+  justify-content: center;
+}
+
+.sidebar-collapsed #mainWrapper {
+  margin-left: 64px !important;
+}
+
+.sidebar-collapsed #appFooter {
+  margin-left: 64px !important;
+}
+
+/* ============================================================ */
+/* CONTENT AREA                                                  */
+/* ============================================================ */
+
+/* iframe loading state */
+.module-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 7rem);
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.module-loading .spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid #e2e8f0;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================ */
+/* BREADCRUMB                                                    */
+/* ============================================================ */
+
+#breadcrumb a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ============================================================ */
+/* NOTIFICATIONS                                                 */
+/* ============================================================ */
+
+.notif-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s;
+}
+
+.notif-item:hover {
+  background: #f8fafc;
+}
+
+.notif-item:last-child {
+  border-bottom: none;
+}
+
+.notif-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: #2563eb;
+  flex-shrink: 0;
+  margin-top: 0.375rem;
+}
+
+.notif-dot.read {
+  background: #cbd5e1;
+}
+
+/* ============================================================ */
+/* RESPONSIVE                                                    */
+/* ============================================================ */
+
+/* Desktop: default sidebar visible */
+@media (min-width: 1024px) {
+  /* Sidebar always visible on desktop */
+  #appSidebar {
+    transform: translateX(0) !important;
+  }
+}
+
+/* Tablet: collapsed sidebar */
+@media (min-width: 768px) and (max-width: 1023px) {
+  #appSidebar {
+    width: 64px;
+  }
+  
+  .sidebar-menu-text,
+  .sidebar-menu-badge,
+  .sidebar-section-label span,
+  .sidebar-coming-soon {
+    display: none;
+  }
+  
+  .sidebar-menu-item {
+    justify-content: center;
+    padding: 0.625rem;
+    margin: 2px 4px;
+  }
+  
+  .sidebar-menu-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 1.1rem;
+  }
+  
+  .sidebar-section-label {
+    padding: 0.25rem;
+    justify-content: center;
+  }
+  
+  #mainWrapper {
+    margin-left: 64px !important;
+  }
+  
+  #appFooter {
+    margin-left: 64px !important;
+  }
+  
+  #sidebarToggle {
+    display: none;
+  }
+}
+
+/* Mobile: hamburger menu, overlay sidebar */
+@media (max-width: 767px) {
+  #appSidebar {
+    transform: translateX(-100%);
+    box-shadow: none;
+    z-index: 25;
+  }
+  
+  #appSidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+  }
+  
+  #mainWrapper {
+    margin-left: 0 !important;
+  }
+  
+  #appFooter {
+    margin-left: 0 !important;
+  }
+  
+  /* Full-width mobile iframe */
+  #moduleFrame {
+    min-height: calc(100vh - 9rem);
+  }
+}
+
+/* ============================================================ */
+/* USER MENU DROPDOWN                                            */
+/* ============================================================ */
+
+#userMenu {
+  animation: dropdownFade 0.15s ease;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================ */
+/* TRANSITIONS                                                   */
+/* ============================================================ */
+
+/* Smooth transitions for sidebar toggle */
+#mainWrapper,
+#appFooter,
+#appSidebar {
+  transition: margin-left 0.3s ease, width 0.3s ease, transform 0.3s ease;
+}
+
+/* ============================================================ */
+/* PRINT                                                         */
+/* ============================================================ */
+
+@media print {
+  #appSidebar,
+  #appHeader,
+  #appFooter,
+  #breadcrumb {
+    display: none !important;
+  }
+  
+  #mainWrapper {
+    margin-left: 0 !important;
+    padding-top: 0 !important;
+  }
+  
+  #moduleFrame {
+    min-height: auto;
+    height: auto;
+  }
+}
+
+/* ============================================================ */
+/* ACCESSIBILITY                                                 */
+/* ============================================================ */
+
+/* Focus visible ring */
+:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================ */
+/* TOOLTIP (for collapsed sidebar)                               */
+/* ============================================================ */
+
+.sidebar-tooltip {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  background: #1e293b;
+  color: #fff;
+  font-size: 0.75rem;
+  border-radius: 0.375rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  z-index: 50;
+}
+
+.sidebar-menu-item:hover .sidebar-tooltip {
+  opacity: 1;
+}

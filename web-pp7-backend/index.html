@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบบริหารบุคลากร PP7</title>
+  
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            prompt: ['Prompt', 'sans-serif'],
+          },
+          colors: {
+            primary: { DEFAULT: '#2563eb', light: '#dbeafe', dark: '#1d4ed8' },
+            secondary: { DEFAULT: '#64748b', light: '#f1f5f9', dark: '#475569' },
+            success: { DEFAULT: '#10b981', light: '#dcfce7', dark: '#059669' },
+            warning: { DEFAULT: '#f59e0b', light: '#fef3c7', dark: '#d97706' },
+            danger: { DEFAULT: '#ef4444', light: '#fee2e2', dark: '#dc2626' },
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Google Fonts: Prompt -->
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- API Adapter -->
+  <script src="api-adapter.js"></script>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body class="font-prompt bg-secondary-light text-slate-800 min-h-screen">
+
+  <!-- ============================================================ -->
+  <!-- LOGIN SCREEN                                                  -->
+  <!-- ============================================================ -->
+  <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-blue-600 via-blue-700 to-slate-900">
+    <!-- Background pattern -->
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.4&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+    </div>
+    
+    <div class="relative w-full max-w-md mx-4">
+      <!-- Logo area -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl mb-4">
+          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+        </div>
+        <h1 class="text-3xl font-bold text-white">PP7</h1>
+        <p class="text-blue-200 mt-1 text-sm">ระบบบริหารบุคลากร</p>
+      </div>
+      
+      <!-- Login Card -->
+      <div class="bg-white rounded-2xl shadow-2xl p-8">
+        <h2 class="text-xl font-semibold text-slate-800 mb-1">เข้าสู่ระบบ</h2>
+        <p class="text-sm text-slate-500 mb-6">กรอกอีเมลและรหัสผ่านเพื่อใช้งาน</p>
+        
+        <!-- Alert area -->
+        <div id="loginAlert" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
+        
+        <form id="loginForm" onsubmit="handleLogin(event)">
+          <div class="space-y-4">
+            <!-- Email -->
+            <div>
+              <label for="loginEmail" class="block text-sm font-medium text-slate-700 mb-1">อีเมล</label>
+              <input 
+                type="email" 
+                id="loginEmail" 
+                name="email"
+                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-sm"
+                placeholder="your@email.com"
+                required
+                autocomplete="email"
+              >
+            </div>
+            
+            <!-- Password -->
+            <div>
+              <label for="loginPassword" class="block text-sm font-medium text-slate-700 mb-1">รหัสผ่าน</label>
+              <div class="relative">
+                <input 
+                  type="password" 
+                  id="loginPassword" 
+                  name="password"
+                  class="w-full px-4 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-sm pr-10"
+                  placeholder="••••••••"
+                  required
+                  autocomplete="current-password"
+                >
+                <button type="button" onclick="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                  <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Submit -->
+            <button 
+              type="submit" 
+              id="loginBtn"
+              class="w-full bg-primary hover:bg-primary-dark text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200 text-sm flex items-center justify-center gap-2"
+            >
+              <span id="loginBtnText">เข้าสู่ระบบ</span>
+              <svg id="loginSpinner" class="hidden animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+            </button>
+          </div>
+        </form>
+        
+        <!-- Dev mode note -->
+        <div class="mt-6 pt-4 border-t border-slate-100">
+          <p class="text-xs text-slate-400 text-center">
+            🛠️ Dev Mode — ใช้ Mock Login ขณะพัฒนา
+          </p>
+          <button 
+            onclick="handleMockLogin()" 
+            class="mt-2 w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium py-2 px-4 rounded-lg transition-all text-xs"
+          >
+            🔑 Login as Admin (Mock)
+          </button>
+        </div>
+      </div>
+      
+      <p class="text-center text-blue-200/60 text-xs mt-6">v1.0.0-dev • PP7 Human Resource Management</p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- MAIN APPLICATION                                              -->
+  <!-- ============================================================ -->
+  <div id="mainApp" class="hidden min-h-screen flex flex-col">
+    
+    <!-- ======== HEADER ======== -->
+    <header id="appHeader" class="fixed top-0 left-0 right-0 z-30 bg-white border-b border-slate-200 shadow-sm h-16">
+      <div class="flex items-center justify-between h-full px-4 lg:px-6">
+        <!-- Left: Hamburger + Logo -->
+        <div class="flex items-center gap-3">
+          <button 
+            id="sidebarToggle" 
+            onclick="toggleSidebar()" 
+            class="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
+            aria-label="Toggle sidebar"
+          >
+            <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+          
+          <!-- Logo -->
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
+            </div>
+            <div class="hidden sm:block">
+              <h1 class="text-sm font-semibold text-slate-800">PP7</h1>
+              <p class="text-xs text-slate-500 -mt-0.5">ระบบบริหารบุคลากร</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right: Notifications + User -->
+        <div class="flex items-center gap-2 sm:gap-4">
+          <!-- Notification Bell -->
+          <button 
+            id="notifBtn"
+            onclick="toggleNotifications()"
+            class="relative p-2 rounded-lg hover:bg-slate-100 transition-colors"
+            title="การแจ้งเตือน"
+          >
+            <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+            <span id="notifBadge" class="hidden absolute -top-0.5 -right-0.5 w-5 h-5 bg-danger text-white text-xs font-bold rounded-full flex items-center justify-center">0</span>
+          </button>
+          
+          <!-- User dropdown -->
+          <div class="relative">
+            <button 
+              id="userMenuBtn"
+              onclick="toggleUserMenu()"
+              class="flex items-center gap-2 px-2 sm:px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+            >
+              <div id="userAvatar" class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                A
+              </div>
+              <div class="hidden sm:block text-left">
+                <p id="headerUserName" class="text-sm font-medium text-slate-700 leading-tight">Admin User</p>
+                <p id="headerUserRole" class="text-xs text-slate-500">Administrator</p>
+              </div>
+              <svg class="w-4 h-4 text-slate-400 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            
+            <!-- Dropdown Menu -->
+            <div id="userMenu" class="hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-50">
+              <!-- User info (mobile) -->
+              <div class="px-4 py-2 border-b border-slate-100 sm:hidden">
+                <p class="text-sm font-medium text-slate-700" id="menuUserName">Admin User</p>
+                <p class="text-xs text-slate-500" id="menuUserEmail">admin@pp7.local</p>
+              </div>
+              
+              <a href="#" onclick="navigateTo('settings'); return false;" class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                ตั้งค่า
+              </a>
+              
+              <a href="#" onclick="handleLogout(); return false;" class="flex items-center gap-3 px-4 py-2 text-sm text-danger hover:bg-red-50 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                ออกจากระบบ
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ======== SIDEBAR ======== -->
+    <aside 
+      id="appSidebar" 
+      class="fixed left-0 top-16 bottom-0 z-20 w-[250px] bg-white border-r border-slate-200 overflow-y-auto transition-all duration-300 ease-in-out shadow-sm"
+    >
+      <nav class="py-3 px-3">
+        <!-- Sidebar Menu Items will be rendered by JavaScript -->
+        <div id="sidebarMenu"></div>
+      </nav>
+    </aside>
+    
+    <!-- Sidebar Overlay (mobile) -->
+    <div id="sidebarOverlay" class="hidden fixed inset-0 z-10 bg-black/50 lg:hidden" onclick="closeSidebar()"></div>
+
+    <!-- ======== MAIN CONTENT ======== -->
+    <div id="mainWrapper" class="flex-1 pt-16 transition-all duration-300" style="margin-left: 250px;">
+      <!-- Breadcrumb -->
+      <div id="breadcrumb" class="bg-white border-b border-slate-200 px-4 lg:px-6 py-2.5 hidden">
+        <nav class="flex items-center gap-1.5 text-sm">
+          <a href="#" onclick="navigateTo('dashboard'); return false;" class="text-slate-500 hover:text-primary transition-colors flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            </svg>
+            หน้าแรก
+          </a>
+          <span id="breadcrumbMiddle" class="text-slate-300">›</span>
+          <span id="breadcrumbSection" class="text-slate-500"></span>
+          <span id="breadcrumbPageSep" class="text-slate-300 hidden">›</span>
+          <span id="breadcrumbPage" class="text-slate-800 font-medium"></span>
+        </nav>
+      </div>
+      
+      <!-- iframe Content Area -->
+      <main id="contentArea" class="p-0 min-h-[calc(100vh-7rem)]">
+        <iframe 
+          id="moduleFrame" 
+          class="w-full border-0" 
+          style="min-height: calc(100vh - 7rem);"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+          title="Module Content"
+        ></iframe>
+      </main>
+    </div>
+
+    <!-- ======== FOOTER ======== -->
+    <footer id="appFooter" class="bg-white border-t border-slate-200 px-4 lg:px-6 py-3 transition-all duration-300" style="margin-left: 250px;">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+        <div class="flex items-center gap-3">
+          <span class="font-medium text-slate-600">PP7 v1.0.0-dev</span>
+          <span class="text-slate-300">|</span>
+          <span>อัปเดต: <span id="footerUpdated">—</span></span>
+        </div>
+        <div>
+          © 2025 PP7 Human Resource Management System
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ======== NOTIFICATION PANEL ======== -->
+  <div id="notifPanel" class="hidden fixed right-4 top-16 z-40 w-80 bg-white rounded-xl shadow-xl border border-slate-200">
+    <div class="px-4 py-3 border-b border-slate-100">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-slate-800">การแจ้งเตือน</h3>
+        <button onclick="clearNotifications()" class="text-xs text-primary hover:text-primary-dark">ล้างทั้งหมด</button>
+      </div>
+    </div>
+    <div id="notifList" class="max-h-64 overflow-y-auto">
+      <div class="px-4 py-6 text-center text-sm text-slate-400">
+        ไม่มีการแจ้งเตือน
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Logic -->
+  <script src="assets/app.js"></script>
+</body>
+</html>
