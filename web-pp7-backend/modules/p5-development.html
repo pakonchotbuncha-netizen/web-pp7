@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P5 — Development Management | PP7</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../api-adapter.js"></script>
+  <style>
+    * { font-family: 'Prompt', sans-serif; }
+    body { background: #f1f5f9; color: #1e293b; margin: 0; }
+
+    /* Sidebar */
+    .sidebar { width: 260px; background: #0f172a; color: #e2e8f0; min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 40; transition: transform 0.3s; }
+    .sidebar-hidden { transform: translateX(-100%); }
+    .sidebar .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.25rem; color: #94a3b8; text-decoration: none; font-size: 0.875rem; border-radius: 0.5rem; margin: 0.15rem 0.75rem; transition: all 0.15s; }
+    .sidebar .nav-link:hover { background: #1e293b; color: #e2e8f0; }
+    .sidebar .nav-link.active { background: #2563eb; color: #fff; font-weight: 500; }
+    .sidebar .nav-section { padding: 0.5rem 1.25rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-top: 0.75rem; }
+    .main-content { margin-left: 260px; transition: margin-left 0.3s; }
+
+    /* Cards */
+    .card { background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(15,23,42,.07); padding: 1.5rem; }
+    .stat-card { position: relative; overflow: hidden; }
+    .stat-card::before { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; border-radius: 0 0 0 80px; opacity: 0.1; }
+    .stat-card.blue::before { background: #3b82f6; }
+    .stat-card.green::before { background: #10b981; }
+    .stat-card.amber::before { background: #f59e0b; }
+    .stat-card.purple::before { background: #8b5cf6; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 0.7rem 1rem; font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #e2e8f0; background: #f8fafc; cursor: pointer; user-select: none; white-space: nowrap; }
+    th:hover { background: #e2e8f0; }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.875rem; }
+    tr:hover td { background: #f8fafc; }
+
+    /* Badge */
+    .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-gray { background: #f1f5f9; color: #475569; }
+    .badge-purple { background: #f3e8ff; color: #7c3aed; }
+    .badge-cyan { background: #cffafe; color: #155e75; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.4); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 1rem; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(15,23,42,.2); }
+    .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
+    .modal-body { padding: 1.5rem; }
+
+    /* Form */
+    .form-label { display: block; font-size: 0.8rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem; }
+    .form-input { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; transition: border 0.15s; }
+    .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.12); }
+    .form-select { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; background: #fff; }
+    textarea.form-input { min-height: 80px; resize: vertical; }
+
+    /* Buttons */
+    .btn { padding: 0.45rem 1rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-outline { background: #fff; border: 1px solid #e2e8f0; color: #64748b; }
+    .btn-outline:hover { background: #f8fafc; }
+    .btn-success { background: #10b981; color: #fff; }
+    .btn-success:hover { background: #059669; }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-warning { background: #f59e0b; color: #fff; }
+    .btn-warning:hover { background: #d97706; }
+
+    /* Search */
+    .search-box { position: relative; }
+    .search-box input { width: 100%; padding: 0.65rem 1rem 0.65rem 2.5rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 0.875rem; outline: none; }
+    .search-box input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.12); }
+    .search-box svg { position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+
+    /* Pagination */
+    .pagination-btn { padding: 0.35rem 0.7rem; border: 1px solid #e2e8f0; border-radius: 0.375rem; font-size: 0.8rem; cursor: pointer; background: #fff; color: #64748b; }
+    .pagination-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Loading */
+    .loading-spinner { border: 3px solid #e2e8f0; border-top-color: #3b82f6; border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360px); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Tab navigation */
+    .tab-nav { display: flex; gap: 0.25rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.5rem; }
+    .tab-btn { padding: 0.6rem 1.2rem; font-size: 0.875rem; font-weight: 500; color: #64748b; border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+    .tab-btn:hover { color: #2563eb; }
+    .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Skill gap matrix */
+    .skill-cell { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; color: #fff; }
+    .skill-low { background: #ef4444; }
+    .skill-mid-low { background: #f97316; }
+    .skill-mid { background: #f59e0b; }
+    .skill-mid-high { background: #84cc16; }
+    .skill-high { background: #10b981; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: #1e293b; color: #fff; padding: 0.75rem 1.5rem; border-radius: 0.75rem; font-size: 0.875rem; z-index: 200; box-shadow: 0 8px 30px rgba(0,0,0,.15); transition: opacity 0.3s; }
+    .toast.hidden { opacity: 0; pointer-events: none; }
+
+    /* Chart container */
+    .chart-container { position: relative; height: 300px; }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="p-4 border-b border-gray-700">
+      <h1 class="text-lg font-bold text-white">🦾 PP7 System</h1>
+      <p class="text-xs text-gray-400 mt-1">Development (P5)</p>
+    </div>
+    <nav class="py-2">
+      <div class="nav-section">กระบวนการ PP7</div>
+      <a href="p1-candidates.html" class="nav-link">📋 P1 แสวงหา</a>
+      <a href="p2-assessment.html" class="nav-link">🔍 P2 หยั่งประเมิน</a>
+      <a href="p3-matching.html" class="nav-link">🎯 P3 จับคู่คนกับงาน</a>
+      <a href="p4-evaluation.html" class="nav-link">📊 P4 ประเมินผล</a>
+      <a href="p5-development.html" class="nav-link active">🎓 P5 พัฒนา</a>
+      <a href="p6-compensation.html" class="nav-link">💰 P6 ค่าตอบแทน</a>
+      <div class="nav-section">อื่นๆ</div>
+      <a href="../index.html" class="nav-link">🏠 หน้าหลัก</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content" id="mainContent">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-30 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button class="md:hidden text-gray-600" onclick="toggleSidebar()">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">🎓 P5 — พัฒนาบุคลากร</h2>
+            <p class="text-sm text-gray-500">Development Management Module</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="btn btn-outline" onclick="exportToExcel()">
+            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            Export Excel
+          </button>
+          <button class="btn btn-primary" onclick="openDevPlanModal()">
+            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            สร้างแผนพัฒนา
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="p-6 space-y-6 fade-in">
+      <!-- Stats Dashboard -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="card stat-card blue">
+          <div class="text-sm text-gray-500">แผนพัฒนาทั้งหมด</div>
+          <div class="text-3xl font-bold text-gray-800 mt-1" id="statTotalPlans">-</div>
+          <div class="text-xs text-blue-600 mt-1">Total Development Plans</div>
+        </div>
+        <div class="card stat-card green">
+          <div class="text-sm text-gray-500">การอบรมที่กำลังดำเนินการ</div>
+          <div class="text-3xl font-bold text-gray-800 mt-1" id="statActiveTraining">-</div>
+          <div class="text-xs text-green-600 mt-1">Active Training</div>
+        </div>
+        <div class="card stat-card amber">
+          <div class="text-sm text-gray-500">คะแนน Skill Gap เฉลี่ย</div>
+          <div class="text-3xl font-bold text-gray-800 mt-1" id="statSkillGap">-</div>
+          <div class="text-xs text-amber-600 mt-1">Average Skill Gap Score</div>
+        </div>
+        <div class="card stat-card purple">
+          <div class="text-sm text-gray-500">อัตราสำเร็จ</div>
+          <div class="text-3xl font-bold text-gray-800 mt-1" id="statCompletionRate">-</div>
+          <div class="text-xs text-purple-600 mt-1">Completion Rate</div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="card">
+        <div class="tab-nav">
+          <button class="tab-btn active" onclick="switchTab('training')">📋 บันทึกการอบรม</button>
+          <button class="tab-btn" onclick="switchTab('skillgap')">🔍 Skill Gap Analysis</button>
+          <button class="tab-btn" onclick="switchTab('devplans')">📝 แผนพัฒนา</button>
+        </div>
+
+        <!-- TAB: Training Records -->
+        <div class="tab-content active" id="tab-training">
+          <div class="flex flex-wrap items-center gap-3 mb-4">
+            <div class="search-box flex-1 min-w-[200px]">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input type="text" placeholder="ค้นหาพนักงาน/หลักสูตร..." id="searchTraining" oninput="filterTraining()">
+            </div>
+            <select class="form-select w-auto" id="filterTrainingType" onchange="filterTraining()">
+              <option value="">ทุกประเภท</option>
+              <option value="Internal">Internal</option>
+              <option value="External">External</option>
+              <option value="Online">Online</option>
+            </select>
+            <select class="form-select w-auto" id="filterTrainingStatus" onchange="filterTraining()">
+              <option value="">ทุกสถานะ</option>
+              <option value="Planned">Planned</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+              <option value="Evaluated">Evaluated</option>
+            </select>
+            <select class="form-select w-auto" id="filterTrainingBU" onchange="filterTraining()">
+              <option value="">ทุก BU</option>
+            </select>
+            <button class="btn btn-success" onclick="openAddTrainingModal()">
+              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              เพิ่มการอบรม
+            </button>
+          </div>
+
+          <!-- Loading State -->
+          <div class="flex items-center justify-center py-12" id="loadingTraining" style="display:none;">
+            <div class="loading-spinner"></div>
+            <span class="ml-3 text-gray-500">กำลังโหลด...</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table id="trainingTable">
+              <thead>
+                <tr>
+                  <th onclick="sortTraining('id')">ID ↕</th>
+                  <th onclick="sortTraining('employee')">พนักงาน ↕</th>
+                  <th onclick="sortTraining('trainingName')">หลักสูตร ↕</th>
+                  <th onclick="sortTraining('type')">ประเภท ↕</th>
+                  <th onclick="sortTraining('startDate')">วันที่เริ่ม ↕</th>
+                  <th onclick="sortTraining('endDate')">วันที่จบ ↕</th>
+                  <th onclick="sortTraining('status')">สถานะ ↕</th>
+                  <th onclick="sortTraining('cost')">ค่าใช้จ่าย ↕</th>
+                  <th onclick="sortTraining('bu')">BU ↕</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="trainingTableBody"></tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="flex flex-wrap items-center justify-between mt-4 gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-gray-500">แสดง</span>
+              <select class="form-select w-auto text-sm" id="trainingPageSize" onchange="changeTrainingPageSize()">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+              </select>
+              <span class="text-sm text-gray-500" id="trainingPageInfo">-</span>
+            </div>
+            <div class="flex items-center gap-1" id="trainingPageButtons"></div>
+          </div>
+        </div>
+
+        <!-- TAB: Skill Gap Analysis -->
+        <div class="tab-content" id="tab-skillgap">
+          <div class="mb-4 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-700">🔍 Skill Gap Matrix — พนักงาน x Competency (CC1-CC10)</h3>
+            <div class="flex gap-2">
+              <select class="form-select w-auto text-sm" id="skillGapBU" onchange="updateSkillGapMatrix()">
+                <option value="">ทุก BU</option>
+              </select>
+            </div>
+          </div>
+          
+          <p class="text-sm text-gray-500 mb-3">🟢 คะแนนสูง (4-5) | 🟡 คะแนนกลาง (3) | 🔴 คะแนนต่ำ (1-2) — คลิกที่ cell เพื่อดูรายละเอียด</p>
+
+          <!-- Skill Gap Matrix -->
+          <div class="overflow-x-auto mb-6">
+            <table id="skillGapTable">
+              <thead>
+                <tr>
+                  <th>พนักงาน</th>
+                  <th>BU</th>
+                  <th>CC1</th>
+                  <th>CC2</th>
+                  <th>CC3</th>
+                  <th>CC4</th>
+                  <th>CC5</th>
+                  <th>CC6</th>
+                  <th>CC7</th>
+                  <th>CC8</th>
+                  <th>CC9</th>
+                  <th>CC10</th>
+                  <th>Gap Score</th>
+                  <th>แนะนำอบรม</th>
+                </tr>
+              </thead>
+              <tbody id="skillGapTableBody"></tbody>
+            </table>
+          </div>
+
+          <!-- Radar Chart: Before/After Training -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <div class="card bg-gray-50">
+              <h4 class="font-semibold text-gray-700 mb-3">📊 เปรียบเทียบ Before / After Training</h4>
+              <div class="chart-container">
+                <canvas id="radarChart"></canvas>
+              </div>
+            </div>
+            <div class="card bg-gray-50">
+              <h4 class="font-semibold text-gray-700 mb-3">📈 Training Recommendations</h4>
+              <div class="space-y-3" id="trainingRecommendations">
+                <!-- Filled by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: Development Plans -->
+        <div class="tab-content" id="tab-devplans">
+          <div class="flex flex-wrap items-center gap-3 mb-4">
+            <div class="search-box flex-1 min-w-[200px]">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input type="text" placeholder="ค้นหาแผนพัฒนา..." id="searchDevPlan" oninput="filterDevPlans()">
+            </div>
+            <select class="form-select w-auto" id="filterDevPlanStatus" onchange="filterDevPlans()">
+              <option value="">ทุกสถานะ</option>
+              <option value="Draft">Draft</option>
+              <option value="Submitted">Submitted</option>
+              <option value="Approved">Approved</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+            <button class="btn btn-warning" onclick="importFromP4()">
+              ⚡ Import จาก P4 (คะแนนต่ำ)
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table id="devPlanTable">
+              <thead>
+                <tr>
+                  <th onclick="sortDevPlan('id')">ID ↕</th>
+                  <th onclick="sortDevPlan('employee')">พนักงาน ↕</th>
+                  <th onclick="sortDevPlan('position')">ตำแหน่ง ↕</th>
+                  <th onclick="sortDevPlan('gapIdentified')">ช่องว่างที่พบ ↕</th>
+                  <th onclick="sortDevPlan('trainingRecommended')">หลักสูตรแนะนำ ↕</th>
+                  <th onclick="sortDevPlan('goal')">เป้าหมาย ↕</th>
+                  <th onclick="sortDevPlan('timeline')">ระยะเวลา ↕</th>
+                  <th onclick="sortDevPlan('approver')">ผู้อนุมัติ ↕</th>
+                  <th onclick="sortDevPlan('status')">สถานะ ↕</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="devPlanTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between mt-4 gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-gray-500">แสดง</span>
+              <select class="form-select w-auto text-sm" id="devPlanPageSize" onchange="changeDevPlanPageSize()">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+              </select>
+              <span class="text-sm text-gray-500" id="devPlanPageInfo">-</span>
+            </div>
+            <div class="flex items-center gap-1" id="devPlanPageButtons"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add/Edit Training Modal -->
+  <div class="modal-overlay" id="trainingModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="trainingModalTitle">📋 เพิ่มบันทึกการอบรม</h3>
+        <button class="text-2xl text-gray-400 hover:text-gray-700" onclick="closeTrainingModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="trainingForm" onsubmit="saveTraining(event)">
+          <input type="hidden" id="trainingFormId">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label">เลือกพนักงาน *</label>
+              <select class="form-select" id="fTrainEmployee" required onchange="autoFillTrainEmployee()">
+                <option value="">เลือกพนักงาน</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">BU</label>
+              <input type="text" class="form-input" id="fTrainBU" readonly>
+            </div>
+            <div class="md:col-span-2">
+              <label class="form-label">ชื่อหลักสูตร *</label>
+              <input type="text" class="form-input" id="fTrainName" required placeholder="เช่น Leadership Development Program">
+            </div>
+            <div>
+              <label class="form-label">ประเภท *</label>
+              <select class="form-select" id="fTrainType" required>
+                <option value="">เลือกประเภท</option>
+                <option value="Internal">Internal — อบรมภายใน</option>
+                <option value="External">External — อบรมภายนอก</option>
+                <option value="Online">Online — ออนไลน์</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">สถานะ</label>
+              <select class="form-select" id="fTrainStatus">
+                <option value="Planned">Planned</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+                <option value="Evaluated">Evaluated</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">วันที่เริ่ม *</label>
+              <input type="date" class="form-input" id="fTrainStartDate" required>
+            </div>
+            <div>
+              <label class="form-label">วันที่จบ *</label>
+              <input type="date" class="form-input" id="fTrainEndDate" required>
+            </div>
+            <div>
+              <label class="form-label">ค่าใช้จ่าย (บาท)</label>
+              <input type="number" class="form-input" id="fTrainCost" placeholder="0" min="0">
+            </div>
+            <div>
+              <label class="form-label">ผู้ให้บริการ</label>
+              <input type="text" class="form-input" id="fTrainProvider" placeholder="ชื่อหน่วยงาน/สถาบัน">
+            </div>
+            <div class="md:col-span-2">
+              <label class="form-label">หมายเหตุ</label>
+              <textarea class="form-input" id="fTrainNotes" placeholder="รายละเอียดเพิ่มเติม..."></textarea>
+            </div>
+          </div>
+          <div class="flex justify-end gap-3 mt-6">
+            <button type="button" class="btn btn-outline" onclick="closeTrainingModal()">ยกเลิก</button>
+            <button type="submit" class="btn btn-primary">💾 บันทึก</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Development Plan Modal -->
+  <div class="modal-overlay" id="devPlanModal">
+    <div class="modal" style="max-width: 900px;">
+      <div class="modal-header">
+        <h3 id="devPlanModalTitle">📝 สร้างแผนพัฒนาบุคลากร</h3>
+        <button class="text-2xl text-gray-400 hover:text-gray-700" onclick="closeDevPlanModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="devPlanForm" onsubmit="saveDevPlan(event)">
+          <input type="hidden" id="devPlanFormId">
+          
+          <!-- Employee Info from P3 -->
+          <fieldset class="mb-6 p-4 bg-blue-50 rounded-lg">
+            <legend class="font-semibold text-gray-700 mb-3">👤 ข้อมูลพนักงาน (ดึงจาก P3)</legend>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="form-label">เลือกพนักงาน *</label>
+                <select class="form-select" id="fDPEmployee" required onchange="autoFillDPEmployee()">
+                  <option value="">เลือกพนักงาน</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">ตำแหน่ง</label>
+                <input type="text" class="form-input" id="fDPPosition" readonly>
+              </div>
+              <div>
+                <label class="form-label">BU / Department</label>
+                <input type="text" class="form-input" id="fDPBU" readonly>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Gap & Training -->
+          <fieldset class="mb-6 p-4 bg-amber-50 rounded-lg">
+            <legend class="font-semibold text-gray-700 mb-3">🔍 วิเคราะห์ช่องว่าง (จาก P4)</legend>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="form-label">ช่องว่างที่พบ (Gap Identified) *</label>
+                <textarea class="form-input" id="fDPGap" required placeholder="เช่น ขาดทักษะการบริหารทีม, CC3 ต่ำกว่าเกณฑ์"></textarea>
+              </div>
+              <div>
+                <label class="form-label">หลักสูตรแนะนำ *</label>
+                <input type="text" class="form-input" id="fDPTrainingRec" required placeholder="เช่น Team Management Workshop">
+              </div>
+              <div>
+                <label class="form-label">คะแนน P4 (ปัจจุบัน)</label>
+                <input type="number" class="form-input" id="fDPCurrentScore" step="0.1" min="0" max="5" placeholder="3.0">
+              </div>
+              <div>
+                <label class="form-label">คะแนนเป้าหมาย</label>
+                <input type="number" class="form-input" id="fDPTargetScore" step="0.1" min="0" max="5" placeholder="4.0">
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Goal & Timeline -->
+          <fieldset class="mb-6 p-4 bg-green-50 rounded-lg">
+            <legend class="font-semibold text-gray-700 mb-3">🎯 เป้าหมายและระยะเวลา</legend>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="md:col-span-2">
+                <label class="form-label">เป้าหมายการพัฒนา *</label>
+                <textarea class="form-input" id="fDPGoal" required placeholder="ระบุเป้าหมาย SMART Goal..."></textarea>
+              </div>
+              <div>
+                <label class="form-label">วันที่เริ่ม</label>
+                <input type="date" class="form-input" id="fDPStartDate">
+              </div>
+              <div>
+                <label class="form-label">วันที่สิ้นสุด</label>
+                <input type="date" class="form-input" id="fDPEndDate">
+              </div>
+              <div>
+                <label class="form-label">Timeline (เดือน)</label>
+                <input type="text" class="form-input" id="fDPTimeline" placeholder="เช่น 3 เดือน, Q3/2025">
+              </div>
+              <div>
+                <label class="form-label">สถานะ</label>
+                <select class="form-select" id="fDPStatus">
+                  <option value="Draft">Draft</option>
+                  <option value="Submitted">Submitted</option>
+                  <option value="Approved">Approved</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                </select>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Approver -->
+          <fieldset class="mb-6 p-4 bg-purple-50 rounded-lg">
+            <legend class="font-semibold text-gray-700 mb-3">✍️ การอนุมัติ</legend>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="form-label">ผู้อนุมัติ (Manager) *</label>
+                <select class="form-select" id="fDPApprover" required>
+                  <option value="">เลือกผู้อนุมัติ</option>
+                  <option value="สมชาย ใจดี">สมชาย ใจดี — HR Director</option>
+                  <option value="วิภา แสงทอง">วิภา แสงทอง — BU Manager (Digital)</option>
+                  <option value="ประยุทธ์ มั่นคง">ประยุทธ์ มั่นคง — BU Manager (Operation)</option>
+                  <option value="อรุณี สว่างจิต">อรุณี สว่างจิต — BU Manager (Finance)</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">วันที่อนุมัติ</label>
+                <input type="date" class="form-input" id="fDPApproveDate">
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="flex justify-end gap-3">
+            <button type="button" class="btn btn-outline" onclick="closeDevPlanModal()">ยกเลิก</button>
+            <button type="submit" class="btn btn-primary">💾 บันทึกแผนพัฒนา</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 id="confirmTitle">⚠️ ยืนยัน</h3>
+        <button class="text-2xl text-gray-400 hover:text-gray-700" onclick="closeConfirm()">&times;</button>
+      </div>
+      <div class="modal-body text-center">
+        <p class="text-gray-600 mb-6" id="confirmMessage"></p>
+        <div class="flex justify-center gap-3">
+          <button class="btn btn-outline" onclick="closeConfirm()">ยกเลิก</button>
+          <button class="btn btn-danger" onclick="executeConfirm()">ยืนยัน</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast hidden" id="toast">
+    <span id="toastMsg"></span>
+  </div>
+
+  <script>
+    // ============================================================
+    // ข้อมูลจำลอง (Mock Data) — ใช้ชื่อไทย, BU ไทย, เงินบาท
+    // ============================================================
+
+    // รายชื่อพนักงาน
+    const employees = [
+      { id: 'EMP001', name: 'สมศักดิ์ รักงาน', position: 'Senior Developer', bu: 'Digital', department: 'Software Engineering' },
+      { id: 'EMP002', name: 'วิภา สว่างจิต', position: 'Marketing Manager', bu: 'Marketing', department: 'Brand Management' },
+      { id: 'EMP003', name: 'ประเสริฐ ดีรัมย์', position: 'Operations Lead', bu: 'Operation', department: 'Logistics' },
+      { id: 'EMP004', name: 'อรุณี ทองดี', position: 'HR Specialist', bu: 'HR', department: 'Talent Acquisition' },
+      { id: 'EMP005', name: 'ธนพล ชัยวัฒน์', position: 'Financial Analyst', bu: 'Finance', department: 'Accounting' },
+      { id: 'EMP006', name: 'นภัสวรรณ พิมพ์ทอง', position: 'UX Designer', bu: 'Digital', department: 'Product Design' },
+      { id: 'EMP007', name: 'กิตติ ประเสริฐสุข', position: 'Sales Executive', bu: 'Sales', department: 'B2B Sales' },
+      { id: 'EMP008', name: 'สุภาพร เจริญผล', position: 'QA Engineer', bu: 'Digital', department: 'Quality Assurance' },
+      { id: 'EMP009', name: 'พิชิต มั่นคง', position: 'Supply Chain Manager', bu: 'Operation', department: 'Procurement' },
+      { id: 'EMP010', name: 'มัลลิกา สุขใส', position: 'Customer Service Lead', bu: 'Service', department: 'Support' },
+      { id: 'EMP011', name: 'อนุชา พัฒนา', position: 'Data Analyst', bu: 'Digital', department: 'Data & Analytics' },
+      { id: 'EMP012', name: 'พรทิพย์ แสนสุข', position: 'Legal Advisor', bu: 'Legal', department: 'Compliance' },
+      { id: 'EMP013', name: 'ธนากร รุ่งเรือง', position: 'Project Manager', bu: 'Digital', department: 'PMO' },
+      { id: 'EMP014', name: 'กาญจนา ภูริเดช', position: 'Training Coordinator', bu: 'HR', department: 'L&D' },
+      { id: 'EMP015', name: 'วรรณา กลิ่นสุคนธ์', position: 'Admin Officer', bu: 'Admin', department: 'General Affairs' }
+    ];
+
+    // ข้อมูลการอบรม
+    let mockTrainingRecords = [
+      { id: 'TR001', employee: 'สมศักดิ์ รักงาน', employeeId: 'EMP001', trainingName: 'Advanced JavaScript & React', type: 'External', startDate: '2025-03-01', endDate: '2025-03-15', status: 'Completed', cost: 25000, bu: 'Digital', provider: 'TechUp Academy', notes: '' },
+      { id: 'TR002', employee: 'วิภา สว่างจิต', employeeId: 'EMP002', trainingName: 'Digital Marketing Strategy', type: 'Online', startDate: '2025-04-01', endDate: '2025-04-30', status: 'In Progress', cost: 8500, bu: 'Marketing', provider: 'Coursera', notes: 'Google Certificate' },
+      { id: 'TR003', employee: 'ประเสริฐ ดีรัมย์', employeeId: 'EMP003', trainingName: 'Lean Six Sigma Green Belt', type: 'External', startDate: '2025-05-10', endDate: '2025-05-20', status: 'Planned', cost: 45000, bu: 'Operation', provider: 'TISI', notes: 'เตรียมสอบ Certificate' },
+      { id: 'TR004', employee: 'อรุณี ทองดี', employeeId: 'EMP004', trainingName: 'Strategic HR Management', type: 'Internal', startDate: '2025-02-15', endDate: '2025-02-17', status: 'Evaluated', cost: 12000, bu: 'HR', provider: 'HR Society', notes: '' },
+      { id: 'TR005', employee: 'ธนพล ชัยวัฒน์', employeeId: 'EMP005', trainingName: 'Financial Modeling & Valuation', type: 'External', startDate: '2025-06-01', endDate: '2025-06-05', status: 'Planned', cost: 35000, bu: 'Finance', provider: 'CFA Institute', notes: '' },
+      { id: 'TR006', employee: 'นภัสวรรณ พิมพ์ทอง', employeeId: 'EMP006', trainingName: 'UX Research Methods', type: 'Online', startDate: '2025-03-15', endDate: '2025-04-15', status: 'Completed', cost: 6500, bu: 'Digital', provider: 'Interaction Design Foundation', notes: '' },
+      { id: 'TR007', employee: 'กิตติ ประเสริฐสุข', employeeId: 'EMP007', trainingName: 'Solution Selling Techniques', type: 'Internal', startDate: '2025-04-20', endDate: '2025-04-22', status: 'In Progress', cost: 15000, bu: 'Sales', provider: 'Internal Training', notes: '' },
+      { id: 'TR008', employee: 'สุภาพร เจริญผล', employeeId: 'EMP008', trainingName: 'ISTQB Foundation Level', type: 'External', startDate: '2025-07-01', endDate: '2025-07-10', status: 'Planned', cost: 18000, bu: 'Digital', provider: 'Thai Software Testing', notes: '' },
+      { id: 'TR009', employee: 'พิชิต มั่นคง', employeeId: 'EMP009', trainingName: 'Supply Chain Optimization', type: 'Online', startDate: '2025-05-01', endDate: '2025-06-30', status: 'In Progress', cost: 12000, bu: 'Operation', provider: 'MITx Online', notes: '' },
+      { id: 'TR010', employee: 'มัลลิกา สุขใส', employeeId: 'EMP010', trainingName: 'Customer Experience Management', type: 'Internal', startDate: '2025-03-10', endDate: '2025-03-12', status: 'Completed', cost: 9000, bu: 'Service', provider: 'CX Academy Thailand', notes: '' },
+      { id: 'TR011', employee: 'อนุชา พัฒนา', employeeId: 'EMP011', trainingName: 'Machine Learning Fundamentals', type: 'Online', startDate: '2025-04-01', endDate: '2025-05-31', status: 'In Progress', cost: 15000, bu: 'Digital', provider: 'Coursera - Stanford', notes: '' },
+      { id: 'TR012', employee: 'ธนากร รุ่งเรือง', employeeId: 'EMP013', trainingName: 'PMP Certification Prep', type: 'External', startDate: '2025-06-15', endDate: '2025-06-25', status: 'Planned', cost: 32000, bu: 'Digital', provider: 'PMI Thailand', notes: '' },
+      { id: 'TR013', employee: 'กาญจนา ภูริเดช', employeeId: 'EMP014', trainingName: 'Train the Trainer', type: 'Internal', startDate: '2025-03-20', endDate: '2025-03-22', status: 'Evaluated', cost: 8000, bu: 'HR', provider: 'HR Society', notes: '' },
+      { id: 'TR014', employee: 'พรทิพย์ แสนสุข', employeeId: 'EMP012', trainingName: 'PDPA Compliance Update', type: 'Online', startDate: '2025-05-15', endDate: '2025-05-16', status: 'Completed', cost: 4500, bu: 'Legal', provider: 'PDPA Academy', notes: '' },
+      { id: 'TR015', employee: 'วรรณา กลิ่นสุคนธ์', employeeId: 'EMP015', trainingName: 'Office Management Excellence', type: 'Internal', startDate: '2025-04-10', endDate: '2025-04-11', status: 'Completed', cost: 5000, bu: 'Admin', provider: 'Internal Training', notes: '' }
+    ];
+
+    // ข้อมูล Skill Gap (คะแนน CC1-CC10 สำหรับแต่ละคน)
+    let mockSkillGaps = [
+      { employeeId: 'EMP001', employee: 'สมศักดิ์ รักงาน', bu: 'Digital', cc: [4, 5, 3, 4, 3, 2, 4, 3, 3, 4] },
+      { employeeId: 'EMP002', employee: 'วิภา สว่างจิต', bu: 'Marketing', cc: [3, 4, 5, 3, 2, 3, 4, 2, 3, 4] },
+      { employeeId: 'EMP003', employee: 'ประเสริฐ ดีรัมย์', bu: 'Operation', cc: [3, 3, 2, 4, 4, 3, 2, 4, 3, 3] },
+      { employeeId: 'EMP004', employee: 'อรุณี ทองดี', bu: 'HR', cc: [4, 3, 4, 3, 3, 4, 3, 3, 5, 3] },
+      { employeeId: 'EMP005', employee: 'ธนพล ชัยวัฒน์', bu: 'Finance', cc: [5, 4, 3, 2, 3, 4, 5, 3, 2, 3] },
+      { employeeId: 'EMP006', employee: 'นภัสวรรณ พิมพ์ทอง', bu: 'Digital', cc: [3, 4, 4, 5, 4, 2, 3, 4, 2, 3] },
+      { employeeId: 'EMP007', employee: 'กิตติ ประเสริฐสุข', bu: 'Sales', cc: [4, 3, 3, 2, 5, 3, 4, 3, 2, 4] },
+      { employeeId: 'EMP008', employee: 'สุภาพร เจริญผล', bu: 'Digital', cc: [3, 3, 3, 4, 3, 5, 3, 4, 3, 2] },
+      { employeeId: 'EMP009', employee: 'พิชิต มั่นคง', bu: 'Operation', cc: [4, 3, 2, 3, 4, 3, 4, 5, 3, 3] },
+      { employeeId: 'EMP010', employee: 'มัลลิกา สุขใส', bu: 'Service', cc: [3, 4, 3, 2, 4, 3, 3, 3, 4, 5] },
+      { employeeId: 'EMP011', employee: 'อนุชา พัฒนา', bu: 'Digital', cc: [4, 4, 3, 3, 3, 4, 5, 3, 2, 3] },
+      { employeeId: 'EMP012', employee: 'พรทิพย์ แสนสุข', bu: 'Legal', cc: [5, 3, 4, 2, 3, 3, 4, 3, 5, 3] },
+      { employeeId: 'EMP013', employee: 'ธนากร รุ่งเรือง', bu: 'Digital', cc: [4, 3, 4, 3, 4, 3, 3, 4, 3, 2] },
+      { employeeId: 'EMP014', employee: 'กาญจนา ภูริเดช', bu: 'HR', cc: [3, 3, 3, 3, 3, 3, 3, 3, 4, 4] },
+      { employeeId: 'EMP015', employee: 'วรรณา กลิ่นสุคนธ์', bu: 'Admin', cc: [3, 3, 3, 2, 3, 2, 3, 3, 3, 3] }
+    ];
+
+    // Development Plans
+    let mockDevPlans = [
+      { id: 'DP001', employeeId: 'EMP001', employee: 'สมศักดิ์ รักงาน', position: 'Senior Developer', bu: 'Digital', gapIdentified: 'ขาดทักษะด้าน Cloud Architecture (CC6 ต่ำ)', trainingRecommended: 'AWS Solutions Architect Certification', goal: 'ออกแบบ Cloud Infrastructure ได้ independently', timeline: 'Q3/2025', startDate: '2025-07-01', endDate: '2025-09-30', approver: 'วิภา แสงทอง', status: 'Approved', currentScore: 2.8, targetScore: 4.0 },
+      { id: 'DP002', employeeId: 'EMP002', employee: 'วิภา สว่างจิต', position: 'Marketing Manager', bu: 'Marketing', gapIdentified: 'ทักษะ Data Analytics ยังไม่เพียงพอ (CC5 ต่ำ)', trainingRecommended: 'Marketing Analytics with Google Analytics', goal: 'สามารถวิเคราะห์ Campaign ROI ด้วย Data-driven approach', timeline: '3 เดือน', startDate: '2025-05-01', endDate: '2025-07-31', approver: 'สมชาย ใจดี', status: 'In Progress', currentScore: 2.0, targetScore: 4.0 },
+      { id: 'DP003', employeeId: 'EMP005', employee: 'ธนพล ชัยวัฒน์', position: 'Financial Analyst', bu: 'Finance', gapIdentified: 'ทักษะ Leadership และ Negotiation ต้องการการพัฒนา (CC4, CC9 ต่ำ)', trainingRecommended: 'Leadership Essentials + Negotiation Skills', goal: 'เป็น Team Lead ของ Finance Analytics ได้', timeline: 'Q3-Q4/2025', startDate: '2025-07-01', endDate: '2025-12-31', approver: 'อรุณี สว่างจิต', status: 'Submitted', currentScore: 2.0, targetScore: 3.5 },
+      { id: 'DP004', employeeId: 'EMP003', employee: 'ประเสริฐ ดีรัมย์', position: 'Operations Lead', bu: 'Operation', gapIdentified: 'Communication Skills และ Innovation ต่ำ (CC1, CC3)', trainingRecommended: 'Effective Communication + Design Thinking', goal: 'นำเสนอแนวคิดปรับปรุง Process ต่อผู้บริหารได้', timeline: 'Q2-Q3/2025', startDate: '2025-05-01', endDate: '2025-08-31', approver: 'ประยุทธ์ มั่นคง', status: 'In Progress', currentScore: 2.5, targetScore: 4.0 },
+      { id: 'DP005', employeeId: 'EMP006', employee: 'นภัสวรรณ พิมพ์ทอง', position: 'UX Designer', bu: 'Digital', gapIdentified: 'Business Acumen และ Technical Skills ยังขาด (CC6, CC9)', trainingRecommended: 'Business Fundamentals for Designers', goal: 'เข้าใจ Business Impact ของ Design Decision', timeline: '2 เดือน', startDate: '2025-06-01', endDate: '2025-07-31', approver: 'วิภา แสงทอง', status: 'Draft', currentScore: 2.0, targetScore: 3.5 },
+      { id: 'DP006', employeeId: 'EMP011', employee: 'อนุชา พัฒนา', position: 'Data Analyst', bu: 'Digital', gapIdentified: 'Soft Skills ยังขาด — Communication และ Leadership (CC8, CC9)', trainingRecommended: 'Data Storytelling + Presentation Skills', goal: 'นำเสนอ Insights ต่อ Stakeholder ได้อย่างมีประสิทธิภาพ', timeline: 'Q3/2025', startDate: '2025-07-01', endDate: '2025-09-30', approver: 'วิภา แสงทอง', status: 'Draft', currentScore: 2.0, targetScore: 3.5 },
+      { id: 'DP007', employeeId: 'EMP015', employee: 'วรรณา กลิ่นสุคนธ์', position: 'Admin Officer', bu: 'Admin', gapIdentified: 'หลาย CC อยู่ระดับ 2-3 ต้องการ全面提升', trainingRecommended: 'Office Management + Digital Tools Training', goal: 'เพิ่มประสิทธิภาพการบริหารสำนักงานด้วย Digital Tools', timeline: '6 เดือน', startDate: '2025-05-01', endDate: '2025-10-31', approver: 'สมชาย ใจดี', status: 'Approved', currentScore: 2.3, targetScore: 3.5 }
+    ];
+
+    // ข้อมูล Training Recommendations (สำหรับแนะนำตาม CC ที่ขาด)
+    const ccRecommendations = {
+      'CC1': { name: 'Communication Skills Workshop', desc: 'พัฒนาทักษะการสื่อสาร การนำเสนอ' },
+      'CC2': { name: 'Teamwork & Collaboration', desc: 'การทำงานเป็นทีม ความร่วมมือ' },
+      'CC3': { name: 'Problem Solving & Innovation', desc: 'การแก้ปัญหา ความคิดสร้างสรรค์' },
+      'CC4': { name: 'Leadership Essentials', desc: 'ทักษะผู้นำ การตัดสินใจ' },
+      'CC5': { name: 'Business Analytics', desc: 'การวิเคราะห์ข้อมูลทางธุรกิจ' },
+      'CC6': { name: 'Technical Proficiency', desc: 'ทักษะทางเทคนิคเฉพาะทาง' },
+      'CC7': { name: 'Strategic Thinking', desc: 'การคิดเชิงกลยุทธ์' },
+      'CC8': { name: 'Adaptability & Resilience', desc: 'การปรับตัว ความยืดหยุ่น' },
+      'CC9': { name: 'Negotiation & Influence', desc: 'ทักษะการเจรจาต่อรอง' },
+      'CC10': { name: 'Customer Focus', desc: 'การมุ่งเน้นลูกค้า' }
+    };
+
+    // ============================================================
+    // STATE
+    // ============================================================
+    let filteredTraining = [...mockTrainingRecords];
+    let trainingCurrentPage = 1;
+    let trainingPageSize = 10;
+    let trainingSortField = 'id';
+    let trainingSortOrder = 'asc';
+
+    let filteredDevPlans = [...mockDevPlans];
+    let devPlanCurrentPage = 1;
+    let devPlanPageSize = 10;
+    let devPlanSortField = 'id';
+    let devPlanSortOrder = 'asc';
+
+    let confirmCallback = null;
+    let radarChart = null;
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      initApp();
+    });
+
+    async function initApp() {
+      showTrainingLoading(true);
+      
+      // ลองโหลดจาก API (ถ้ามี)
+      try {
+        if (typeof PP7API !== 'undefined' && PP7API_CONFIG.BASE_URL) {
+          const [trainRes, skillRes, dpRes] = await Promise.all([
+            PP7API.getTrainingRecords(),
+            PP7API.getSkillGaps(),
+            PP7API.getDevelopmentPlans()
+          ]);
+          if (trainRes?.data?.length) mockTrainingRecords = trainRes.data;
+          if (skillRes?.data?.length) mockSkillGaps = skillRes.data;
+          if (dpRes?.data?.length) mockDevPlans = dpRes.data;
+        }
+      } catch (err) {
+        console.log('ใช้ mock data (API ยังไม่พร้อม)');
+      }
+
+      populateFilters();
+      updateStats();
+      filterTraining();
+      filterDevPlans();
+      updateSkillGapMatrix();
+      initRadarChart();
+      showTrainingLoading(false);
+    }
+
+    // ============================================================
+    // TABS
+    // ============================================================
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tab).classList.add('active');
+      
+      if (tab === 'skillgap') {
+        setTimeout(() => updateRadarChart(), 100);
+      }
+    }
+
+    // ============================================================
+    // STATISTICS
+    // ============================================================
+    function updateStats() {
+      document.getElementById('statTotalPlans').textContent = mockDevPlans.length;
+      
+      const activeTraining = mockTrainingRecords.filter(t => t.status === 'In Progress').length;
+      document.getElementById('statActiveTraining').textContent = activeTraining;
+
+      // คำนวณ Skill Gap เฉลี่ย
+      let totalGap = 0;
+      let count = 0;
+      mockSkillGaps.forEach(sg => {
+        const avg = sg.cc.reduce((a, b) => a + b, 0) / sg.cc.length;
+        const gap = 5 - avg; // Gap = 5 - score
+        totalGap += gap;
+        count++;
+      });
+      const avgGap = count > 0 ? (totalGap / count).toFixed(1) : '0';
+      document.getElementById('statSkillGap').textContent = avgGap;
+
+      // Completion Rate
+      const completed = mockTrainingRecords.filter(t => t.status === 'Completed' || t.status === 'Evaluated').length;
+      const rate = mockTrainingRecords.length > 0 ? Math.round((completed / mockTrainingRecords.length) * 100) : 0;
+      document.getElementById('statCompletionRate').textContent = rate + '%';
+    }
+
+    // ============================================================
+    // FILTERS
+    // ============================================================
+    function populateFilters() {
+      const bus = [...new Set(mockTrainingRecords.map(t => t.bu))];
+      document.getElementById('filterTrainingBU').innerHTML = '<option value="">ทุก BU</option>' + bus.map(b => `<option value="${b}">${b}</option>`).join('');
+      
+      const skillBUs = [...new Set(mockSkillGaps.map(s => s.bu))];
+      document.getElementById('skillGapBU').innerHTML = '<option value="">ทุก BU</option>' + skillBUs.map(b => `<option value="${b}">${b}</option>`).join('');
+    }
+
+    function filterTraining() {
+      const search = document.getElementById('searchTraining').value.toLowerCase().trim();
+      const type = document.getElementById('filterTrainingType').value;
+      const status = document.getElementById('filterTrainingStatus').value;
+      const bu = document.getElementById('filterTrainingBU').value;
+
+      filteredTraining = mockTrainingRecords.filter(t => {
+        if (search && !t.employee.toLowerCase().includes(search) && !t.trainingName.toLowerCase().includes(search)) return false;
+        if (type && t.type !== type) return false;
+        if (status && t.status !== status) return false;
+        if (bu && t.bu !== bu) return false;
+        return true;
+      });
+      trainingCurrentPage = 1;
+      sortTrainingData();
+      renderTrainingTable();
+    }
+
+    function filterDevPlans() {
+      const search = document.getElementById('searchDevPlan').value.toLowerCase().trim();
+      const status = document.getElementById('filterDevPlanStatus').value;
+
+      filteredDevPlans = mockDevPlans.filter(dp => {
+        if (search && !dp.employee.toLowerCase().includes(search) && !dp.trainingRecommended.toLowerCase().includes(search)) return false;
+        if (status && dp.status !== status) return false;
+        return true;
+      });
+      devPlanCurrentPage = 1;
+      sortDevPlanData();
+      renderDevPlanTable();
+    }
+
+    // ============================================================
+    // SORTING
+    // ============================================================
+    function sortTraining(field) {
+      if (trainingSortField === field) trainingSortOrder = trainingSortOrder === 'asc' ? 'desc' : 'asc';
+      else { trainingSortField = field; trainingSortOrder = 'asc'; }
+      sortTrainingData();
+      renderTrainingTable();
+    }
+
+    function sortTrainingData() {
+      filteredTraining.sort((a, b) => {
+        let vA = a[trainingSortField], vB = b[trainingSortField];
+        if (typeof vA === 'string') vA = vA.toLowerCase();
+        if (typeof vB === 'string') vB = vB.toLowerCase();
+        if (vA == null) vA = '';
+        if (vB == null) vB = '';
+        if (vA < vB) return trainingSortOrder === 'asc' ? -1 : 1;
+        if (vA > vB) return trainingSortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    function sortDevPlan(field) {
+      if (devPlanSortField === field) devPlanSortOrder = devPlanSortOrder === 'asc' ? 'desc' : 'asc';
+      else { devPlanSortField = field; devPlanSortOrder = 'asc'; }
+      sortDevPlanData();
+      renderDevPlanTable();
+    }
+
+    function sortDevPlanData() {
+      filteredDevPlans.sort((a, b) => {
+        let vA = a[devPlanSortField], vB = b[devPlanSortField];
+        if (typeof vA === 'string') vA = vA.toLowerCase();
+        if (typeof vB === 'string') vB = vB.toLowerCase();
+        if (vA == null) vA = '';
+        if (vB == null) vB = '';
+        if (vA < vB) return devPlanSortOrder === 'asc' ? -1 : 1;
+        if (vA > vB) return devPlanSortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    // ============================================================
+    // TRAINING TABLE RENDER
+    // ============================================================
+    function renderTrainingTable() {
+      const start = (trainingCurrentPage - 1) * trainingPageSize;
+      const end = start + trainingPageSize;
+      const pageData = filteredTraining.slice(start, end);
+
+      const tbody = document.getElementById('trainingTableBody');
+      if (!pageData.length) {
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-gray-400">ไม่พบข้อมูล</td></tr>`;
+      } else {
+        tbody.innerHTML = pageData.map(t => `
+          <tr>
+            <td><span class="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">${t.id}</span></td>
+            <td class="font-medium">${t.employee}</td>
+            <td>${t.trainingName}</td>
+            <td>${getTypeBadge(t.type)}</td>
+            <td class="text-sm">${formatDate(t.startDate)}</td>
+            <td class="text-sm">${formatDate(t.endDate)}</td>
+            <td>${getTrainingStatusBadge(t.status)}</td>
+            <td class="text-right font-medium">${formatCurrency(t.cost)}</td>
+            <td><span class="badge badge-blue">${t.bu}</span></td>
+            <td>
+              <div class="flex gap-1">
+                <button class="btn btn-outline text-xs py-1 px-2" onclick="editTraining('${t.id}')" title="แก้ไข">✏️</button>
+                <button class="btn btn-outline text-xs py-1 px-2" onclick="advanceTrainingStatus('${t.id}')" title="เปลี่ยนสถานะ">⏭</button>
+                <button class="btn btn-outline text-xs py-1 px-2" onclick="confirmDeleteTraining('${t.id}')" title="ลบ">🗑</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      }
+      renderTrainingPagination();
+    }
+
+    function getTypeBadge(type) {
+      const map = { 'Internal': '<span class="badge badge-blue">Internal</span>', 'External': '<span class="badge badge-purple">External</span>', 'Online': '<span class="badge badge-cyan">Online</span>' };
+      return map[type] || type;
+    }
+
+    function getTrainingStatusBadge(status) {
+      const map = { 'Planned': '<span class="badge badge-gray">Planned</span>', 'In Progress': '<span class="badge badge-amber">In Progress</span>', 'Completed': '<span class="badge badge-green">Completed ✓</span>', 'Evaluated': '<span class="badge badge-purple">Evaluated ✓✓</span>' };
+      return map[status] || status;
+    }
+
+    // ============================================================
+    // TRAINING PAGINATION
+    // ============================================================
+    function renderTrainingPagination() {
+      const totalPages = Math.max(1, Math.ceil(filteredTraining.length / trainingPageSize));
+      const start = (trainingCurrentPage - 1) * trainingPageSize + 1;
+      const end = Math.min(trainingCurrentPage * trainingPageSize, filteredTraining.length);
+      document.getElementById('trainingPageInfo').textContent = `${start}-${end} จาก ${filteredTraining.length} รายการ`;
+
+      const container = document.getElementById('trainingPageButtons');
+      let html = `<button class="pagination-btn" onclick="goTrainingPage(${trainingCurrentPage - 1})" ${trainingCurrentPage <= 1 ? 'disabled' : ''}>‹</button>`;
+      for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="pagination-btn ${i === trainingCurrentPage ? 'active' : ''}" onclick="goTrainingPage(${i})">${i}</button>`;
+      }
+      html += `<button class="pagination-btn" onclick="goTrainingPage(${trainingCurrentPage + 1})" ${trainingCurrentPage >= totalPages ? 'disabled' : ''}>›</button>`;
+      container.innerHTML = html;
+    }
+
+    function goTrainingPage(page) {
+      const total = Math.ceil(filteredTraining.length / trainingPageSize);
+      if (page < 1 || page > total) return;
+      trainingCurrentPage = page;
+      renderTrainingTable();
+    }
+
+    function changeTrainingPageSize() {
+      trainingPageSize = parseInt(document.getElementById('trainingPageSize').value);
+      trainingCurrentPage = 1;
+      renderTrainingTable();
+    }
+
+    // ============================================================
+    // DEVELOPMENT PLAN TABLE RENDER
+    // ============================================================
+    function renderDevPlanTable() {
+      const start = (devPlanCurrentPage - 1) * devPlanPageSize;
+      const end = start + devPlanPageSize;
+      const pageData = filteredDevPlans.slice(start, end);
+
+      const tbody = document.getElementById('devPlanTableBody');
+      if (!pageData.length) {
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-gray-400">ไม่พบข้อมูล</td></tr>`;
+      } else {
+        tbody.innerHTML = pageData.map(dp => `
+          <tr>
+            <td><span class="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">${dp.id}</span></td>
+            <td class="font-medium">${dp.employee}</td>
+            <td class="text-sm">${dp.position}</td>
+            <td class="text-sm max-w-[200px] truncate" title="${dp.gapIdentified}">${dp.gapIdentified}</td>
+            <td class="text-sm">${dp.trainingRecommended}</td>
+            <td class="text-sm max-w-[180px] truncate" title="${dp.goal}">${dp.goal}</td>
+            <td class="text-sm">${dp.timeline}</td>
+            <td class="text-sm">${dp.approver}</td>
+            <td>${getDevPlanStatusBadge(dp.status)}</td>
+            <td>
+              <div class="flex gap-1">
+                <button class="btn btn-outline text-xs py-1 px-2" onclick="editDevPlan('${dp.id}')" title="แก้ไข">✏️</button>
+                <button class="btn btn-outline text-xs py-1 px-2" onclick="confirmDeleteDevPlan('${dp.id}')" title="ลบ">🗑</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      }
+      renderDevPlanPagination();
+    }
+
+    function getDevPlanStatusBadge(status) {
+      const map = { 'Draft': '<span class="badge badge-gray">Draft</span>', 'Submitted': '<span class="badge badge-amber">Submitted</span>', 'Approved': '<span class="badge badge-blue">Approved</span>', 'In Progress': '<span class="badge badge-cyan">In Progress</span>', 'Completed': '<span class="badge badge-green">Completed ✓</span>' };
+      return map[status] || status;
+    }
+
+    function renderDevPlanPagination() {
+      const totalPages = Math.max(1, Math.ceil(filteredDevPlans.length / devPlanPageSize));
+      const start = (devPlanCurrentPage - 1) * devPlanPageSize + 1;
+      const end = Math.min(devPlanCurrentPage * devPlanPageSize, filteredDevPlans.length);
+      document.getElementById('devPlanPageInfo').textContent = `${start}-${end} จาก ${filteredDevPlans.length} รายการ`;
+
+      const container = document.getElementById('devPlanPageButtons');
+      let html = `<button class="pagination-btn" onclick="goDevPlanPage(${devPlanCurrentPage - 1})" ${devPlanCurrentPage <= 1 ? 'disabled' : ''}>‹</button>`;
+      for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="pagination-btn ${i === devPlanCurrentPage ? 'active' : ''}" onclick="goDevPlanPage(${i})">${i}</button>`;
+      }
+      html += `<button class="pagination-btn" onclick="goDevPlanPage(${devPlanCurrentPage + 1})" ${devPlanCurrentPage >= totalPages ? 'disabled' : ''}>›</button>`;
+      container.innerHTML = html;
+    }
+
+    function goDevPlanPage(page) {
+      const total = Math.ceil(filteredDevPlans.length / devPlanPageSize);
+      if (page < 1 || page > total) return;
+      devPlanCurrentPage = page;
+      renderDevPlanTable();
+    }
+
+    function changeDevPlanPageSize() {
+      devPlanPageSize = parseInt(document.getElementById('devPlanPageSize').value);
+      devPlanCurrentPage = 1;
+      renderDevPlanTable();
+    }
+
+    // ============================================================
+    // SKILL GAP MATRIX
+    // ============================================================
+    function updateSkillGapMatrix() {
+      const buFilter = document.getElementById('skillGapBU').value;
+      let data = mockSkillGaps;
+      if (buFilter) data = data.filter(s => s.bu === buFilter);
+
+      const tbody = document.getElementById('skillGapTableBody');
+      tbody.innerHTML = data.map(sg => {
+        const avg = sg.cc.reduce((a, b) => a + b, 0) / sg.cc.length;
+        const gap = (5 - avg).toFixed(1);
+        
+        // หา CC ที่ต่ำที่สุดเพื่อแนะนำ
+        const lowCCs = [];
+        sg.cc.forEach((score, idx) => {
+          if (score <= 2) lowCCs.push(`CC${idx + 1}`);
+        });
+        
+        const recommendText = lowCCs.length > 0 
+          ? lowCCs.map(cc => ccRecommendations[cc]?.name.split(' ')[0] || 'Training').join(', ')
+          : '✓ ดีทุกด้าน';
+
+        return `
+          <tr>
+            <td class="font-medium text-sm">${sg.employee}</td>
+            <td><span class="badge badge-blue text-xs">${sg.bu}</span></td>
+            ${sg.cc.map(score => `<td><div class="skill-cell ${getSkillClass(score)}">${score}</div></td>`).join('')}
+            <td><span class="font-bold" style="color:${getGapColor(parseFloat(gap))}">${gap}</span></td>
+            <td class="text-xs text-gray-600 max-w-[150px]">${recommendText}</td>
+          </tr>
+        `;
+      }).join('');
+
+      updateTrainingRecommendations(data);
+    }
+
+    function getSkillClass(score) {
+      if (score <= 1) return 'skill-low';
+      if (score === 2) return 'skill-mid-low';
+      if (score === 3) return 'skill-mid';
+      if (score === 4) return 'skill-mid-high';
+      return 'skill-high';
+    }
+
+    function getGapColor(gap) {
+      if (gap > 2.5) return '#ef4444';
+      if (gap > 1.5) return '#f59e0b';
+      return '#10b981';
+    }
+
+    // ============================================================
+    // TRAINING RECOMMENDATIONS
+    // ============================================================
+    function updateTrainingRecommendations(data) {
+      // หา CC ที่มีคะแนนต่ำสุด across all employees
+      const ccTotals = new Array(10).fill(0);
+      data.forEach(sg => sg.cc.forEach((s, i) => ccTotals[i] += s));
+      
+      const ccAvgs = ccTotals.map((t, i) => ({ cc: `CC${i+1}`, avg: data.length > 0 ? t / data.length : 5 }));
+      ccAvgs.sort((a, b) => a.avg - b.avg);
+
+      const container = document.getElementById('trainingRecommendations');
+      const topGaps = ccAvgs.slice(0, 5);
+      
+      container.innerHTML = topGaps.map(item => {
+        const rec = ccRecommendations[item.cc];
+        return `
+          <div class="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-100">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ${getSkillClass(Math.round(item.avg))}">${item.cc.replace('CC', '')}</div>
+            <div class="flex-1">
+              <div class="font-medium text-sm text-gray-800">${rec?.name || item.cc}</div>
+              <div class="text-xs text-gray-500">${rec?.desc || ''}</div>
+              <div class="text-xs text-red-500 mt-1">คะแนนเฉลี่ย: ${item.avg.toFixed(1)}/5 — ต้องการการพัฒนา</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ============================================================
+    // RADAR CHART
+    // ============================================================
+    function initRadarChart() {
+      const ctx = document.getElementById('radarChart').getContext('2d');
+      
+      // คำนวณค่าเฉลี่ย Before (ค่าปัจจุบัน) และ After (เป้าหมาย)
+      const beforeAvg = new Array(10).fill(0);
+      const afterTarget = new Array(10).fill(4); // เป้าหมายเฉลี่ย 4
+
+      mockSkillGaps.forEach(sg => {
+        sg.cc.forEach((s, i) => beforeAvg[i] += s);
+      });
+      const beforeData = beforeAvg.map(v => mockSkillGaps.length > 0 ? Math.round((v / mockSkillGaps.length) * 10) / 10 : 0);
+
+      radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['CC1', 'CC2', 'CC3', 'CC4', 'CC5', 'CC6', 'CC7', 'CC8', 'CC9', 'CC10'],
+          datasets: [
+            {
+              label: 'Before Training (เฉลี่ย)',
+              data: beforeData,
+              borderColor: '#ef4444',
+              backgroundColor: 'rgba(239,68,68,0.1)',
+              borderWidth: 2,
+              pointRadius: 3
+            },
+            {
+              label: 'After Training (เป้าหมาย)',
+              data: afterTarget,
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16,185,129,0.1)',
+              borderWidth: 2,
+              borderDash: [5, 5],
+              pointRadius: 3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { font: { family: 'Prompt', size: 12 } } }
+          },
+          scales: {
+            r: {
+              min: 0,
+              max: 5,
+              ticks: { stepSize: 1, font: { size: 10 } },
+              pointLabels: { font: { family: 'Prompt', size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    function updateRadarChart() {
+      if (!radarChart) return;
+      const beforeAvg = new Array(10).fill(0);
+      mockSkillGaps.forEach(sg => sg.cc.forEach((s, i) => beforeAvg[i] += s));
+      const beforeData = beforeAvg.map(v => mockSkillGaps.length > 0 ? Math.round((v / mockSkillGaps.length) * 10) / 10 : 0);
+      radarChart.data.datasets[0].data = beforeData;
+      radarChart.update();
+    }
+
+    // ============================================================
+    // MODAL — Training
+    // ============================================================
+    function openAddTrainingModal() {
+      document.getElementById('trainingModalTitle').textContent = '📋 เพิ่มบันทึกการอบรม';
+      document.getElementById('trainingFormId').value = '';
+      document.getElementById('fTrainEmployee').value = '';
+      document.getElementById('fTrainBU').value = '';
+      document.getElementById('fTrainName').value = '';
+      document.getElementById('fTrainType').value = '';
+      document.getElementById('fTrainStatus').value = 'Planned';
+      document.getElementById('fTrainStartDate').value = '';
+      document.getElementById('fTrainEndDate').value = '';
+      document.getElementById('fTrainCost').value = '';
+      document.getElementById('fTrainProvider').value = '';
+      document.getElementById('fTrainNotes').value = '';
+      
+      // Populate employee select
+      const select = document.getElementById('fTrainEmployee');
+      select.innerHTML = '<option value="">เลือกพนักงาน</option>' + employees.map(e => `<option value="${e.id}">${e.id} — ${e.name}</option>`).join('');
+      
+      document.getElementById('trainingModal').classList.add('open');
+    }
+
+    function editTraining(id) {
+      const t = mockTrainingRecords.find(r => r.id === id);
+      if (!t) return;
+
+      document.getElementById('trainingModalTitle').textContent = '✏️ แก้ไขบันทึกการอบรม';
+      document.getElementById('trainingFormId').value = t.id;
+      
+      const select = document.getElementById('fTrainEmployee');
+      select.innerHTML = '<option value="">เลือกพนักงาน</option>' + employees.map(e => `<option value="${e.id}">${e.id} — ${e.name}</option>`).join('');
+      select.value = t.employeeId;
+      document.getElementById('fTrainBU').value = t.bu;
+      document.getElementById('fTrainName').value = t.trainingName;
+      document.getElementById('fTrainType').value = t.type;
+      document.getElementById('fTrainStatus').value = t.status;
+      document.getElementById('fTrainStartDate').value = t.startDate;
+      document.getElementById('fTrainEndDate').value = t.endDate;
+      document.getElementById('fTrainCost').value = t.cost;
+      document.getElementById('fTrainProvider').value = t.provider || '';
+      document.getElementById('fTrainNotes').value = t.notes || '';
+      
+      document.getElementById('trainingModal').classList.add('open');
+    }
+
+    function closeTrainingModal() {
+      document.getElementById('trainingModal').classList.remove('open');
+    }
+
+    function autoFillTrainEmployee() {
+      const id = document.getElementById('fTrainEmployee').value;
+      const emp = employees.find(e => e.id === id);
+      document.getElementById('fTrainBU').value = emp ? emp.bu : '';
+    }
+
+    async function saveTraining(e) {
+      e.preventDefault();
+      const id = document.getElementById('trainingFormId').value;
+      const empId = document.getElementById('fTrainEmployee').value;
+      const emp = employees.find(x => x.id === empId);
+
+      const data = {
+        employeeId: empId,
+        employee: emp ? emp.name : '',
+        trainingName: document.getElementById('fTrainName').value,
+        type: document.getElementById('fTrainType').value,
+        status: document.getElementById('fTrainStatus').value,
+        startDate: document.getElementById('fTrainStartDate').value,
+        endDate: document.getElementById('fTrainEndDate').value,
+        cost: parseInt(document.getElementById('fTrainCost').value) || 0,
+        bu: emp ? emp.bu : document.getElementById('fTrainBU').value,
+        provider: document.getElementById('fTrainProvider').value,
+        notes: document.getElementById('fTrainNotes').value
+      };
+
+      try {
+        if (typeof PP7API !== 'undefined' && PP7API_CONFIG.BASE_URL) {
+          if (id) await PP7API.updateRecord('training_records', id, data);
+          else await PP7API.createRecord('training_records', data);
+        }
+      } catch (err) { console.log('API fallback'); }
+
+      if (id) {
+        const idx = mockTrainingRecords.findIndex(r => r.id === id);
+        if (idx >= 0) mockTrainingRecords[idx] = { ...mockTrainingRecords[idx], ...data, id };
+      } else {
+        data.id = 'TR' + String(mockTrainingRecords.length + 1).padStart(3, '0');
+        mockTrainingRecords.push(data);
+      }
+
+      closeTrainingModal();
+      filteredTraining = [...mockTrainingRecords];
+      populateFilters();
+      updateStats();
+      filterTraining();
+      showToast(id ? '✅ แก้ไขบันทึกแล้ว' : '✅ เพิ่มบันทึกแล้ว');
+    }
+
+    function advanceTrainingStatus(id) {
+      const t = mockTrainingRecords.find(r => r.id === id);
+      if (!t) return;
+
+      const workflow = ['Planned', 'In Progress', 'Completed', 'Evaluated'];
+      const idx = workflow.indexOf(t.status);
+      if (idx >= workflow.length - 1) {
+        showToast('⚠️ การอบรมนี้เสร็จสิ้นแล้ว');
+        return;
+      }
+
+      const next = workflow[idx + 1];
+      document.getElementById('confirmTitle').textContent = '⏭ เปลี่ยนสถานะ';
+      document.getElementById('confirmMessage').textContent = `เปลี่ยนจาก "${t.status}" → "${next}" สำหรับ "${t.trainingName}"?`;
+      confirmCallback = () => {
+        t.status = next;
+        filteredTraining = [...mockTrainingRecords];
+        updateStats();
+        filterTraining();
+        showToast(`✅ เปลี่ยนสถานะเป็น "${next}" แล้ว`);
+      };
+      document.getElementById('confirmModal').classList.add('open');
+    }
+
+    function confirmDeleteTraining(id) {
+      const t = mockTrainingRecords.find(r => r.id === id);
+      if (!t) return;
+      document.getElementById('confirmTitle').textContent = '🗑 ลบการอบรม';
+      document.getElementById('confirmMessage').textContent = `ลบ "${t.trainingName}" ของ ${t.employee}? การดำเนินการนี้ไม่สามารถย้อนกลับได้`;
+      confirmCallback = () => {
+        try {
+          if (typeof PP7API !== 'undefined' && PP7API_CONFIG.BASE_URL) {
+            PP7API.deleteRecord('training_records', id);
+          }
+        } catch (e) {}
+        mockTrainingRecords = mockTrainingRecords.filter(r => r.id !== id);
+        filteredTraining = [...mockTrainingRecords];
+        updateStats();
+        populateFilters();
+        filterTraining();
+        showToast('🗑 ลบแล้ว');
+      };
+      document.getElementById('confirmModal').classList.add('open');
+    }
+
+    // ============================================================
+    // MODAL — Development Plan
+    // ============================================================
+    function openDevPlanModal() {
+      document.getElementById('devPlanModalTitle').textContent = '📝 สร้างแผนพัฒนาบุคลากร';
+      document.getElementById('devPlanFormId').value = '';
+      document.getElementById('fDPEmployee').value = '';
+      document.getElementById('fDPPosition').value = '';
+      document.getElementById('fDPBU').value = '';
+      document.getElementById('fDPGap').value = '';
+      document.getElementById('fDPTrainingRec').value = '';
+      document.getElementById('fDPCurrentScore').value = '';
+      document.getElementById('fDPTargetScore').value = '';
+      document.getElementById('fDPGoal').value = '';
+      document.getElementById('fDPStartDate').value = '';
+      document.getElementById('fDPEndDate').value = '';
+      document.getElementById('fDPTimeline').value = '';
+      document.getElementById('fDPStatus').value = 'Draft';
+      document.getElementById('fDPApprover').value = '';
+      document.getElementById('fDPApproveDate').value = '';
+
+      const select = document.getElementById('fDPEmployee');
+      select.innerHTML = '<option value="">เลือกพนักงาน</option>' + employees.map(e => `<option value="${e.id}">${e.id} — ${e.name} (${e.position})</option>`).join('');
+      
+      document.getElementById('devPlanModal').classList.add('open');
+    }
+
+    function editDevPlan(id) {
+      const dp = mockDevPlans.find(d => d.id === id);
+      if (!dp) return;
+
+      document.getElementById('devPlanModalTitle').textContent = '✏️ แก้ไขแผนพัฒนา';
+      document.getElementById('devPlanFormId').value = dp.id;
+      
+      const select = document.getElementById('fDPEmployee');
+      select.innerHTML = '<option value="">เลือกพนักงาน</option>' + employees.map(e => `<option value="${e.id}">${e.id} — ${e.name} (${e.position})</option>`).join('');
+      select.value = dp.employeeId;
+      document.getElementById('fDPPosition').value = dp.position;
+      document.getElementById('fDPBU').value = dp.bu;
+      document.getElementById('fDPGap').value = dp.gapIdentified;
+      document.getElementById('fDPTrainingRec').value = dp.trainingRecommended;
+      document.getElementById('fDPCurrentScore').value = dp.currentScore || '';
+      document.getElementById('fDPTargetScore').value = dp.targetScore || '';
+      document.getElementById('fDPGoal').value = dp.goal;
+      document.getElementById('fDPStartDate').value = dp.startDate || '';
+      document.getElementById('fDPEndDate').value = dp.endDate || '';
+      document.getElementById('fDPTimeline').value = dp.timeline;
+      document.getElementById('fDPStatus').value = dp.status;
+      document.getElementById('fDPApprover').value = dp.approver;
+      document.getElementById('fDPApproveDate').value = '';
+
+      document.getElementById('devPlanModal').classList.add('open');
+    }
+
+    function closeDevPlanModal() {
+      document.getElementById('devPlanModal').classList.remove('open');
+    }
+
+    function autoFillDPEmployee() {
+      const id = document.getElementById('fDPEmployee').value;
+      const emp = employees.find(e => e.id === id);
+      if (emp) {
+        document.getElementById('fDPPosition').value = emp.position;
+        document.getElementById('fDPBU').value = emp.bu + ' / ' + emp.department;
+      } else {
+        document.getElementById('fDPPosition').value = '';
+        document.getElementById('fDPBU').value = '';
+      }
+    }
+
+    async function saveDevPlan(e) {
+      e.preventDefault();
+      const id = document.getElementById('devPlanFormId').value;
+      const empId = document.getElementById('fDPEmployee').value;
+      const emp = employees.find(x => x.id === empId);
+
+      const data = {
+        employeeId: empId,
+        employee: emp ? emp.name : '',
+        position: emp ? emp.position : document.getElementById('fDPPosition').value,
+        bu: emp ? emp.bu : '',
+        gapIdentified: document.getElementById('fDPGap').value,
+        trainingRecommended: document.getElementById('fDPTrainingRec').value,
+        currentScore: parseFloat(document.getElementById('fDPCurrentScore').value) || null,
+        targetScore: parseFloat(document.getElementById('fDPTargetScore').value) || null,
+        goal: document.getElementById('fDPGoal').value,
+        startDate: document.getElementById('fDPStartDate').value,
+        endDate: document.getElementById('fDPEndDate').value,
+        timeline: document.getElementById('fDPTimeline').value,
+        status: document.getElementById('fDPStatus').value,
+        approver: document.getElementById('fDPApprover').value
+      };
+
+      try {
+        if (typeof PP7API !== 'undefined' && PP7API_CONFIG.BASE_URL) {
+          if (id) await PP7API.updateRecord('development_plans', id, data);
+          else await PP7API.createRecord('development_plans', data);
+        }
+      } catch (err) { console.log('API fallback'); }
+
+      if (id) {
+        const idx = mockDevPlans.findIndex(d => d.id === id);
+        if (idx >= 0) mockDevPlans[idx] = { ...mockDevPlans[idx], ...data, id };
+      } else {
+        data.id = 'DP' + String(mockDevPlans.length + 1).padStart(3, '0');
+        mockDevPlans.push(data);
+      }
+
+      closeDevPlanModal();
+      filteredDevPlans = [...mockDevPlans];
+      updateStats();
+      filterDevPlans();
+      showToast(id ? '✅ แก้ไขแผนพัฒนาแล้ว' : '✅ สร้างแผนพัฒนาแล้ว');
+    }
+
+    function confirmDeleteDevPlan(id) {
+      const dp = mockDevPlans.find(d => d.id === id);
+      if (!dp) return;
+      document.getElementById('confirmTitle').textContent = '🗑 ลบแผนพัฒนา';
+      document.getElementById('confirmMessage').textContent = `ลบแผนพัฒนาของ ${dp.employee}? การดำเนินการนี้ไม่สามารถย้อนกลับได้`;
+      confirmCallback = () => {
+        try {
+          if (typeof PP7API !== 'undefined' && PP7API_CONFIG.BASE_URL) {
+            PP7API.deleteRecord('development_plans', id);
+          }
+        } catch (e) {}
+        mockDevPlans = mockDevPlans.filter(d => d.id !== id);
+        filteredDevPlans = [...mockDevPlans];
+        updateStats();
+        filterDevPlans();
+        showToast('🗑 ลบแผนพัฒนาแล้ว');
+      };
+      document.getElementById('confirmModal').classList.add('open');
+    }
+
+    // ============================================================
+    // IMPORT FROM P4 (Auto-detect low scores)
+    // ============================================================
+    function importFromP4() {
+      document.getElementById('confirmTitle').textContent = '⚡ Import จาก P4';
+      document.getElementById('confirmMessage').textContent = 'ค้นหาพนักงานที่มีคะแนน P4 ต่ำกว่า 3.0 และสร้างแผนพัฒนาอัตโนมัติ?';
+      confirmCallback = () => {
+        // จำลอง: หาพนักงานที่มี CC score ต่ำ
+        let imported = 0;
+        mockSkillGaps.forEach(sg => {
+          const avg = sg.cc.reduce((a, b) => a + b, 0) / sg.cc.length;
+          if (avg < 3.0) {
+            // ตรวจสอบว่ามี plan แล้วหรือยัง
+            const existing = mockDevPlans.find(dp => dp.employeeId === sg.employeeId);
+            if (!existing) {
+              // หา CC ที่ต่ำที่สุด
+              let minCC = 0, minScore = 6;
+              sg.cc.forEach((s, i) => { if (s < minScore) { minScore = s; minCC = i; } });
+              const ccKey = `CC${minCC + 1}`;
+              const rec = ccRecommendations[ccKey];
+
+              mockDevPlans.push({
+                id: 'DP' + String(mockDevPlans.length + 1).padStart(3, '0'),
+                employeeId: sg.employeeId,
+                employee: sg.employee,
+                position: employees.find(e => e.id === sg.employeeId)?.position || '',
+                bu: sg.bu,
+                gapIdentified: `${ccKey} ต่ำ (${minScore}/5) — ${rec?.desc || 'ต้องการการพัฒนา'}`,
+                trainingRecommended: rec?.name || 'Training Program',
+                goal: `พัฒนา ${ccKey} จาก ${minScore} เป็น 4.0 ภายใน 6 เดือน`,
+                timeline: '6 เดือน',
+                startDate: '2025-07-01',
+                endDate: '2025-12-31',
+                approver: 'สมชาย ใจดี',
+                status: 'Draft',
+                currentScore: Math.round(avg * 10) / 10,
+                targetScore: 4.0
+              });
+              imported++;
+            }
+          }
+        });
+
+        if (imported > 0) {
+          filteredDevPlans = [...mockDevPlans];
+          updateStats();
+          filterDevPlans();
+          showToast(`⚡ Import ${imported} แผนพัฒนาจาก P4 แล้ว`);
+        } else {
+          showToast('ℹ️ พนักงานทุกคนมีแผนพัฒนาแล้ว');
+        }
+      };
+      document.getElementById('confirmModal').classList.add('open');
+    }
+
+    // ============================================================
+    // EXPORT TO EXCEL
+    // ============================================================
+    function exportToExcel() {
+      // สร้าง CSV จาก Training Records
+      let csv = '\uFEFF'; // BOM for Excel UTF-8
+      csv += 'ID,พนักงาน,หลักสูตร,ประเภท,วันที่เริ่ม,วันที่จบ,สถานะ,ค่าใช้จ่าย (บาท),BU,ผู้ให้บริการ\n';
+      
+      mockTrainingRecords.forEach(t => {
+        csv += `${t.id},"${t.employee}","${t.trainingName}",${t.type},${t.startDate},${t.endDate},${t.status},${t.cost},${t.bu},"${t.provider || ''}"\n`;
+      });
+
+      // Download
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `PP5_Training_Records_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+      
+      showToast('📥 Export Excel (CSV) สำเร็จ');
+    }
+
+    // ============================================================
+    // CONFIRM DIALOG
+    // ============================================================
+    function closeConfirm() {
+      document.getElementById('confirmModal').classList.remove('open');
+      confirmCallback = null;
+    }
+
+    function executeConfirm() {
+      if (confirmCallback) confirmCallback();
+      closeConfirm();
+    }
+
+    // ============================================================
+    // UTILITIES
+    // ============================================================
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('mobile-open');
+    }
+
+    function showTrainingLoading(show) {
+      document.getElementById('loadingTraining').style.display = show ? 'flex' : 'none';
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' });
+    }
+
+    function formatCurrency(amount) {
+      if (!amount && amount !== 0) return '-';
+      return '฿' + amount.toLocaleString('th-TH');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+  </script>
+</body>
+</html>

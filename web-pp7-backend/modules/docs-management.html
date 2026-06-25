@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบเอกสาร PM/WI/SD/FM | PP7</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../api-adapter.js"></script>
+  <style>
+    * { font-family: 'Prompt', sans-serif; }
+    body { background: #f1f5f9; color: #1e293b; margin: 0; }
+    .sidebar { width: 260px; background: #0f172a; color: #e2e8f0; min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 40; transition: transform 0.3s; overflow-y: auto; }
+    .sidebar .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.25rem; color: #94a3b8; text-decoration: none; font-size: 0.875rem; border-radius: 0.5rem; margin: 0.15rem 0.75rem; transition: all 0.15s; }
+    .sidebar .nav-link:hover { background: #1e293b; color: #e2e8f0; }
+    .sidebar .nav-link.active { background: #0ea5e9; color: #fff; font-weight: 500; }
+    .sidebar .nav-section { padding: 0.5rem 1.25rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-top: 0.75rem; }
+    .main-content { margin-left: 260px; transition: margin-left 0.3s; }
+    .card { background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(15,23,42,.07); padding: 1.5rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 0.7rem 1rem; font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #e2e8f0; background: #f8fafc; cursor: pointer; white-space: nowrap; }
+    th:hover { background: #e2e8f0; }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.875rem; }
+    tr:hover td { background: #f8fafc; }
+    .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-purple { background: #f3e8ff; color: #6b21a8; }
+    .badge-gray { background: #f1f5f9; color: #475569; }
+    .badge-cyan { background: #ecfeff; color: #155e75; }
+    .btn { padding: 0.45rem 1rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; display: inline-flex; align-items: center; gap: 0.4rem; }
+    .btn-primary { background: #0ea5e9; color: #fff; }
+    .btn-primary:hover { background: #0284c7; }
+    .btn-outline { background: #fff; border: 1px solid #e2e8f0; color: #64748b; }
+    .btn-outline:hover { background: #f8fafc; }
+    .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.75rem; }
+    .form-input, .form-select, .form-textarea { padding: 0.55rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; background: #fff; width: 100%; font-family: 'Prompt', sans-serif; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,.1); }
+    .chart-box-sm { position: relative; width: 100%; height: 220px; }
+    .cat-tabs { display: flex; gap: 0; border-bottom: 2px solid #e2e8f0; }
+    .cat-tab { padding: 0.8rem 1.5rem; font-size: 0.9rem; font-weight: 600; color: #64748b; background: none; border: none; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all 0.15s; position: relative; }
+    .cat-tab:hover { color: #0ea5e9; background: #f8fafc; }
+    .cat-tab.active { color: #0ea5e9; border-bottom-color: #0ea5e9; }
+    .cat-tab .count-badge { position: absolute; top: 6px; right: 6px; background: #e2e8f0; color: #475569; font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 9999px; font-weight: 600; }
+    .cat-tab.active .count-badge { background: #0ea5e9; color: #fff; }
+    .doc-pm { border-left: 4px solid #0ea5e9; }
+    .doc-wi { border-left: 4px solid #10b981; }
+    .doc-sd { border-left: 4px solid #8b5cf6; }
+    .doc-fm { border-left: 4px solid #f59e0b; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-box { background: #fff; border-radius: 1rem; max-width: 750px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
+    .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.5rem; }
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .pagination-btn { padding: 0.35rem 0.7rem; border: 1px solid #d1d5db; border-radius: 0.375rem; font-size: 0.8rem; background: #fff; cursor: pointer; }
+    .pagination-btn:hover { background: #f8fafc; }
+    .pagination-btn.active { background: #0ea5e9; color: #fff; border-color: #0ea5e9; }
+    @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.mobile-open { transform: translateX(0); } .main-content { margin-left: 0; } }
+    @media print { .sidebar, .no-print { display: none !important; } .main-content { margin-left: 0 !important; } }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="p-4 border-b border-gray-700">
+      <h1 class="text-lg font-bold text-white">🦾 PP7 System</h1>
+      <p class="text-xs text-gray-400 mt-1">ระบบเอกสาร PM/WI/SD/FM</p>
+    </div>
+    <nav class="py-2">
+      <div class="nav-section">กระบวนการ PP7</div>
+      <a href="p1-headcount.html" class="nav-link">📋 P1 แสวงหา</a>
+      <a href="p2-assessment.html" class="nav-link">🔍 P2 หยั่งประเมิน</a>
+      <a href="p3-matching.html" class="nav-link">🎯 P3 จับคู่คนกับงาน</a>
+      <a href="p4-evaluation.html" class="nav-link">📊 P4 ประเมินผล</a>
+      <div class="nav-section">คุณภาพชีวิต</div>
+      <a href="p7-wellbeing.html" class="nav-link">💚 P7 Wellbeing 5H</a>
+      <a href="docs-management.html" class="nav-link active">📄 เอกสาร PM/WI/SD/FM</a>
+      <div class="nav-section">อื่นๆ</div>
+      <a href="../index.html" class="nav-link">🏠 หน้าหลัก</a>
+    </nav>
+  </aside>
+
+  <main class="main-content" id="mainContent">
+    <header class="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-30 shadow-sm no-print">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button class="md:hidden text-gray-600" onclick="document.getElementById('sidebar').classList.toggle('mobile-open')">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">📄 ระบบเอกสาร PM/WI/SD/FM</h2>
+            <p class="text-sm text-gray-500">จัดการเอกสาร 4 ประเภท: Process Manual, Work Instruction, Standard, Form</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 no-print">
+          <button class="btn btn-primary" onclick="openDocModal()">➕ เพิ่มเอกสาร</button>
+          <button class="btn btn-outline" onclick="window.print()">🖨️ Print</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="p-6 space-y-6 fade-in">
+      <!-- Statistics -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="card doc-pm">
+          <div class="flex items-center justify-between">
+            <div><div class="text-sm text-gray-500">📘 Process Manual (PM)</div><div class="text-3xl font-bold mt-1" id="statPM">5</div><div class="text-xs text-blue-600 mt-1">คู่มือกระบวนการ</div></div>
+            <div class="text-4xl opacity-20">📘</div>
+          </div>
+        </div>
+        <div class="card doc-wi">
+          <div class="flex items-center justify-between">
+            <div><div class="text-sm text-gray-500">📗 Work Instruction (WI)</div><div class="text-3xl font-bold mt-1" id="statWI">8</div><div class="text-xs text-green-600 mt-1">คู่มือปฏิบัติงาน</div></div>
+            <div class="text-4xl opacity-20">📗</div>
+          </div>
+        </div>
+        <div class="card doc-sd">
+          <div class="flex items-center justify-between">
+            <div><div class="text-sm text-gray-500">📙 Standard (SD)</div><div class="text-3xl font-bold mt-1" id="statSD">6</div><div class="text-xs text-purple-600 mt-1">มาตรฐานการปฏิบัติงาน</div></div>
+            <div class="text-4xl opacity-20">📙</div>
+          </div>
+        </div>
+        <div class="card doc-fm">
+          <div class="flex items-center justify-between">
+            <div><div class="text-sm text-gray-500">📒 Form (FM)</div><div class="text-3xl font-bold mt-1" id="statFM">10</div><div class="text-xs text-amber-600 mt-1">แบบฟอร์ม</div></div>
+            <div class="text-4xl opacity-20">📒</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="card">
+          <h3 class="font-semibold text-gray-700 mb-3">📊 Documents per Process (P)</h3>
+          <div class="chart-box-sm"><canvas id="chartDocsPerP"></canvas></div>
+        </div>
+        <div class="card">
+          <h3 class="font-semibold text-gray-700 mb-3">📈 Status Distribution</h3>
+          <div class="chart-box-sm"><canvas id="chartStatusDist"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Category Tabs + Table -->
+      <div class="card">
+        <div class="cat-tabs no-print" id="catTabs">
+          <button class="cat-tab active" data-cat="PM" onclick="switchCategory('PM')">📘 PM <span class="count-badge" id="countPM">5</span></button>
+          <button class="cat-tab" data-cat="WI" onclick="switchCategory('WI')">📗 WI <span class="count-badge" id="countWI">8</span></button>
+          <button class="cat-tab" data-cat="SD" onclick="switchCategory('SD')">📙 SD <span class="count-badge" id="countSD">6</span></button>
+          <button class="cat-tab" data-cat="FM" onclick="switchCategory('FM')">📒 FM <span class="count-badge" id="countFM">10</span></button>
+        </div>
+
+        <div class="flex flex-wrap gap-3 mt-4 mb-4 items-center">
+          <input type="text" class="form-input" style="width:280px;" placeholder="🔍 ค้นหาเอกสาร..." id="searchInput" oninput="filterDocuments()">
+          <select class="form-select" style="width:150px;" id="filterProcess" onchange="filterDocuments()">
+            <option value="">ทุก Process</option>
+            <option>P1</option><option>P2</option><option>P3</option><option>P4</option><option>P5</option><option>P6</option><option>P7</option>
+          </select>
+          <select class="form-select" style="width:150px;" id="filterStatus" onchange="filterDocuments()">
+            <option value="">ทุกสถานะ</option><option>Draft</option><option>In Review</option><option>Approved</option><option>Archived</option>
+          </select>
+          <select class="form-select" style="width:150px;" id="filterOwner" onchange="filterDocuments()"><option value="">ทุกเจ้าของ</option></select>
+          <select class="form-select" style="width:140px;" id="sortBy" onchange="filterDocuments()">
+            <option value="title">เรียงตามชื่อ</option><option value="date">เรียงตามวันที่</option><option value="version">เรียงตาม Version</option>
+          </select>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table>
+            <thead><tr>
+              <th>Doc ID</th><th>ชื่อเอกสาร</th><th>หมวด</th><th>Process</th><th>Version</th><th>ผู้รับผิดชอบ</th><th>อัปเดต</th><th>สถานะ</th><th class="no-print">จัดการ</th>
+            </tr></thead>
+            <tbody id="docTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="flex justify-between items-center mt-4 no-print">
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-500">แสดง</span>
+            <select class="form-select" style="width:80px;" id="pageSize" onchange="changePageSize()"><option value="10" selected>10</option><option value="25">25</option><option value="50">50</option></select>
+            <span class="text-sm text-gray-500">รายการ</span>
+          </div>
+          <div class="flex gap-1" id="pagination"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" id="docModal" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="text-lg font-bold text-gray-800" id="docModalTitle">➕ เพิ่มเอกสารใหม่</h3>
+        <button class="text-gray-400 hover:text-gray-600 text-xl" onclick="closeDocModal()">✕</button>
+      </div>
+      <div class="modal-body space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="block text-sm font-semibold text-gray-700 mb-1">Document ID</label><input type="text" class="form-input" id="docIdInput" placeholder="PM-P1-001"></div>
+          <div><label class="block text-sm font-semibold text-gray-700 mb-1">ชื่อเอกสาร *</label><input type="text" class="form-input" id="docTitleInput" placeholder="ชื่อเอกสาร"></div>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <div><label class="block text-sm font-semibold text-gray-700 mb-1">หมวดหมู่ *</label>
+            <select class="form-select" id="docCatInput"><option value="PM">PM — Process Manual</option><option value="WI">WI — Work Instruction</option><option value="SD">SD — Standard</option><option value="FM">FM — Form</option></select>
+          </div>
+          <div><label class="block text-sm font-semibold text-gray-700 mb-1">Linked Process</label>
+            <select class="form-select" id="docProcessInput"><option>P1</option><option>P2</option><option>P3</option><option>P4</option><option>P5</option><option>P6</option><option>P7</option></select>
+          </div>
+          <div><label class="block text-sm font-semibold text-gray-700 mb-1">Version</label><input type="text" class="form-input" id="docVersionInput" value="1.0"></div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="block text-sm font-semibold text-gray-700 mb-1">ผู้รับผิดชอบ *</label><input type="text" class="form-input" id="docOwnerInput" placeholder="ชื่อผู้รับผิดชอบ"></div>
+          <div><label class="block text-sm font-semibold text-gray-700 mb-1">สถานะ</label>
+            <select class="form-select" id="docStatusSelect"><option>Draft</option><option>In Review</option><option>Approved</option><option>Archived</option></select>
+          </div>
+        </div>
+        <div><label class="block text-sm font-semibold text-gray-700 mb-1">ไฟล์เอกสาร (PDF/DOCX)</label><input type="file" class="form-input" id="docFileInput" accept=".pdf,.docx,.doc"></div>
+        <div><label class="block text-sm font-semibold text-gray-700 mb-1">รายละเอียด</label><textarea class="form-textarea" rows="4" id="docDescInput" placeholder="รายละเอียดเอกสาร..."></textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeDocModal()">ยกเลิก</button>
+        <button class="btn btn-primary" onclick="saveDocument()">💾 บันทึก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Detail Modal -->
+  <div class="modal-overlay" id="viewModal" style="display:none;">
+    <div class="modal-box" style="max-width:800px;">
+      <div class="modal-header">
+        <h3 class="text-lg font-bold text-gray-800" id="viewDocTitle">📄 รายละเอียดเอกสาร</h3>
+        <button class="text-gray-400 hover:text-gray-600 text-xl" onclick="closeViewModal()">✕</button>
+      </div>
+      <div class="modal-body" id="viewDocBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeViewModal()">ปิด</button>
+        <button class="btn btn-primary" onclick="alert('ดาวน์โหลดไฟล์ (mock)')">⬇️ ดาวน์โหลด</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ================================================================
+    // Mock Data — 29 documents total (PM:5, WI:8, SD:6, FM:10)
+    // ================================================================
+    let currentCategory = 'PM';
+    let currentPage = 1;
+    let editingDocId = null;
+
+    const documents = [
+      // PM — Process Manual (5 ตัวอย่าง, 1 per each P)
+      { id:'PM-P1-001', title:'กระบวนการสรรหาและคัดเลือกบุคลากร', cat:'PM', process:'P1', version:'2.1', owner:'สมศักดิ์ HR', date:'2025-06-10', status:'Approved', file:'PM-P1-001_v2.1.pdf', desc:'คู่มือกระบวนการสรรหาบุคคลตั้งแต่การรับใบสมัคร คัดกรอง สัมภาษณ์ จนถึงเสนอจ้าง' },
+      { id:'PM-P2-001', title:'กระบวนการประเมินศักยภาพพนักงาน', cat:'PM', process:'P2', version:'1.3', owner:'วิภา OD', date:'2025-05-22', status:'Approved', file:'PM-P2-001_v1.3.pdf', desc:'คู่มือกระบวนการประเมินศักยภาพ (Assessment) ครอบคลุมวิธีการและเครื่องมือ' },
+      { id:'PM-P3-001', title:'กระบวนการจับคู่คนกับตำแหน่งงาน', cat:'PM', process:'P3', version:'1.0', owner:'ประยุทธ HR', date:'2025-04-15', status:'Approved', file:'PM-P3-001_v1.0.pdf', desc:'คู่มือการจับคู่ (Matching) พนักงานกับตำแหน่งงานตาม Competency' },
+      { id:'PM-P4-001', title:'กระบวนการประเมินผลการปฏิบัติงาน', cat:'PM', process:'P4', version:'3.0', owner:'อรุณี HR Manager', date:'2025-06-01', status:'In Review', file:'PM-P4-001_v3.0.pdf', desc:'คู่มือ KPI/OKR setting, ประเมินกลางปี, และประเมินสิ้นปี' },
+      { id:'PM-P7-001', title:'กระบวนการจัดการคุณภาพชีวิตพนักงาน', cat:'PM', process:'P7', version:'1.0', owner:'นภัสกร Wellness', date:'2025-06-20', status:'Draft', file:'PM-P7-001_v1.0.pdf', desc:'คู่มือ 5H Wellbeing Management — Health, Wealth, Well-being, Heart, Happiness' },
+
+      // WI — Work Instruction (8 ตัวอย่าง)
+      { id:'WI-P1-001', title:'วิธีใช้งานระบบรับสมัครออนไลน์', cat:'WI', process:'P1', version:'1.2', owner:'IT Support', date:'2025-06-05', status:'Approved', file:'WI-P1-001_v1.2.pdf', desc:'Step-by-step การใช้งานระบบรับสมัครออนไลน์ ตั้งแต่ login จนถึง publish jobs' },
+      { id:'WI-P1-002', title:'วิธีตรวจสอบ Resume และ Screening', cat:'WI', process:'P1', version:'1.0', owner:'สมศักดิ์ HR', date:'2025-05-10', status:'Approved', file:'WI-P1-002_v1.0.pdf', desc:'Step-by-step ตรวจสอบใบสมัคร, กรองคุณสมบัติ, และจัดลำดับผู้สมัคร' },
+      { id:'WI-P2-001', title:'วิธีใช้แบบทดสอบ Competency Assessment', cat:'WI', process:'P2', version:'2.0', owner:'วิภา OD', date:'2025-05-30', status:'Approved', file:'WI-P2-001_v2.0.pdf', desc:'วิธีตั้งค่าแบบทดสอบ, แจกจ่าย, และดูผลลัพธ์' },
+      { id:'WI-P2-002', title:'วิธีดำเนินการสัมภาษณ์ (Structured Interview)', cat:'WI', process:'P2', version:'1.1', owner:'ประยุทธ HR', date:'2025-04-20', status:'Approved', file:'WI-P2-002_v1.1.pdf', desc:'Step-by-step สำหรับผู้สัมภาษณ์ - คำถามมาตรฐาน, การให้คะแนน' },
+      { id:'WI-P3-001', title:'วิธีใช้ Matching Matrix Tool', cat:'WI', process:'P3', version:'1.0', owner:'IT Support', date:'2025-04-10', status:'In Review', file:'WI-P3-001_v1.0.pdf', desc:'วิธีใช้ Matrix จับคู่ Competency กับ Job Requirements' },
+      { id:'WI-P4-001', title:'วิธีตั้ง KPI และ OKR ในระบบ', cat:'WI', process:'P4', version:'2.0', owner:'อรุณี HR Manager', date:'2025-06-15', status:'Approved', file:'WI-P4-001_v2.0.pdf', desc:'Step-by-step ตั้งเป้าหมาย KPI/OKR, เชื่อมโยงกับองค์กร' },
+      { id:'WI-P4-002', title:'วิธีประเมิน 360 องศา', cat:'WI', process:'P4', version:'1.0', owner:'วิภา OD', date:'2025-05-01', status:'Approved', file:'WI-P4-002_v1.0.pdf', desc:'วิธีตั้งค่า, แจกจ่าย, และรวบรวมผลประเมิน 360°' },
+      { id:'WI-P7-001', title:'วิธีทำแบบสำรวจ 5H Wellbeing', cat:'WI', process:'P7', version:'1.0', owner:'นภัสกร Wellness', date:'2025-06-22', status:'Draft', file:'WI-P7-001_v1.0.pdf', desc:'Step-by-step การทำ 5H Survey - Likert scale, anonymous mode' },
+
+      // SD — Standard (6 ตัวอย่าง)
+      { id:'SD-P1-001', title:'มาตรฐานการสรรหาบุคลากร (Recruitment Standard)', cat:'SD', process:'P1', version:'2.0', owner:'HR Director', date:'2025-05-15', status:'Approved', file:'SD-P1-001_v2.0.pdf', desc:'เกณฑ์มาตรฐานการสรรหา — Time-to-fill, Quality-of-hire, Diversity ratio' },
+      { id:'SD-P2-001', title:'มาตรฐานการประเมินศักยภาพ', cat:'SD', process:'P2', version:'1.0', owner:'OD Manager', date:'2025-03-20', status:'Approved', file:'SD-P2-001_v1.0.pdf', desc:'เกณฑ์มาตรฐานเครื่องมือประเมิน — Validity, Reliability, Fairness' },
+      { id:'SD-P3-001', title:'มาตรฐานการจับคู่คนกับงาน', cat:'SD', process:'P3', version:'1.1', owner:'HR Director', date:'2025-04-25', status:'Approved', file:'SD-P3-001_v1.1.pdf', desc:'เกณฑ์ Match score ขั้นต่ำ, Diversity requirements' },
+      { id:'SD-P4-001', title:'มาตรฐานการประเมินผลการปฏิบัติงาน', cat:'SD', process:'P4', version:'3.0', owner:'CEO Office', date:'2025-06-01', status:'In Review', file:'SD-P4-001_v3.0.pdf', desc:'เกณฑ์ Rating Scale, Calibration, Feedback Requirements' },
+      { id:'SD-GEN-001', title:'มาตรฐาน ISO 30414 — HR Reporting', cat:'SD', process:'P7', version:'1.0', owner:'Quality Team', date:'2025-02-10', status:'Approved', file:'SD-GEN-001_v1.0.pdf', desc:'มาตรฐานสากลสำหรับการรายงานข้อมูล HR ตาม ISO 30414' },
+      { id:'SD-GEN-002', title:'มาตรฐานข้อมูลส่วนบุคคล (PDPA Compliance)', cat:'SD', process:'P7', version:'1.2', owner:'Legal Team', date:'2025-06-18', status:'Approved', file:'SD-GEN-002_v1.2.pdf', desc:'เกณฑ์การเก็บ/ใช้/เปิดเผยข้อมูลบุคลากรตามกฎหมาย PDPA' },
+
+      // FM — Form (10 ตัวอย่าง)
+      { id:'FM-P1-001', title:'แบบฟอร์มใบสมัครงาน', cat:'FM', process:'P1', version:'2.0', owner:'HR Team', date:'2025-06-01', status:'Approved', file:'FM-P1-001_v2.0.docx', desc:'ใบสมัครงานมาตรฐาน — ข้อมูลส่วนตัว, การศึกษา, ประสบการณ์' },
+      { id:'FM-P1-002', title:'แบบฟอร์มประเมินผู้สมัคร (Scorecard)', cat:'FM', process:'P1', version:'1.0', owner:'HR Team', date:'2025-05-20', status:'Approved', file:'FM-P1-002_v1.0.docx', desc:'Scorecard สำหรับผู้สัมภาษณ์ให้คะแนนผู้สมัคร' },
+      { id:'FM-P2-001', title:'แบบฟอร์ม Competency Assessment', cat:'FM', process:'P2', version:'1.1', owner:'OD Team', date:'2025-04-15', status:'Approved', file:'FM-P2-001_v1.1.docx', desc:'แบบประเมิน Competency 20 รายการ' },
+      { id:'FM-P2-002', title:'แบบฟอร์มบันทึกผลสัมภาษณ์', cat:'FM', process:'P2', version:'1.0', owner:'HR Team', date:'2025-04-01', status:'Approved', file:'FM-P2-002_v1.0.docx', desc:'บันทึกผลสัมภาษณ์ — Strengths, Weaknesses, Recommendation' },
+      { id:'FM-P3-001', title:'แบบฟอร์มจับคู่ตำแหน่ง (Matching Form)', cat:'FM', process:'P3', version:'1.0', owner:'HR Team', date:'2025-03-25', status:'Approved', file:'FM-P3-001_v1.0.docx', desc:'ฟอร์มบันทึกการจับคู่พนักงานกับตำแหน่งงาน' },
+      { id:'FM-P4-001', title:'แบบฟอร์มตั้ง KPI/OKR', cat:'FM', process:'P4', version:'2.0', owner:'HR Manager', date:'2025-06-10', status:'Approved', file:'FM-P4-001_v2.0.docx', desc:'ฟอร์มตั้งค่าเป้าหมาย KPI/OKR รายบุคคล' },
+      { id:'FM-P4-002', title:'แบบฟอร์มประเมินผลประจำปี', cat:'FM', process:'P4', version:'2.0', owner:'HR Manager', date:'2025-06-12', status:'In Review', file:'FM-P4-002_v2.0.docx', desc:'ฟอร์มประเมินผลสิ้นปี — Self, Manager, Peer' },
+      { id:'FM-P4-003', title:'แบบฟอร์มประเมิน 360 องศา', cat:'FM', process:'P4', version:'1.0', owner:'OD Team', date:'2025-05-05', status:'Approved', file:'FM-P4-003_v1.0.docx', desc:'ฟอร์มประเมิน 360° — หัวหน้า, เพื่อน, ลูกน้อง, ตนเอง' },
+      { id:'FM-P7-001', title:'แบบสำรวจ 5H Wellbeing', cat:'FM', process:'P7', version:'1.0', owner:'Wellness Team', date:'2025-06-22', status:'Draft', file:'FM-P7-001_v1.0.docx', desc:'แบบสำรวจคุณภาพชีวิต 5H — Likert Scale 1-5 ทุกมิติ' },
+      { id:'FM-GEN-001', title:'แบบฟอร์มขอลา/ล่วงเวลา', cat:'FM', process:'P7', version:'1.5', owner:'HR Admin', date:'2025-05-28', status:'Approved', file:'FM-GEN-001_v1.5.docx', desc:'ฟอร์มขอลาป่วย, ลาพักผ่อน, ลากิจ, และล่วงเวลา' },
+    ];
+
+    // ================================================================
+    // Populate Owner filter dynamically
+    // ================================================================
+    function populateOwnerFilter() {
+      const owners = [...new Set(documents.map(d => d.owner))].sort();
+      const sel = document.getElementById('filterOwner');
+      sel.innerHTML = '<option value="">ทุกเจ้าของ</option>' + owners.map(o => `<option>${o}</option>`).join('');
+    }
+
+    // ================================================================
+    // Category switching
+    // ================================================================
+    function switchCategory(cat) {
+      currentCategory = cat;
+      currentPage = 1;
+      document.querySelectorAll('.cat-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === cat));
+      filterDocuments();
+    }
+
+    // ================================================================
+    // Filter & Sort
+    // ================================================================
+    function filterDocuments() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const process = document.getElementById('filterProcess').value;
+      const status = document.getElementById('filterStatus').value;
+      const owner = document.getElementById('filterOwner').value;
+      const sortBy = document.getElementById('sortBy').value;
+
+      let filtered = documents.filter(d => d.cat === currentCategory);
+      if (search) filtered = filtered.filter(d =>
+        d.id.toLowerCase().includes(search) || d.title.toLowerCase().includes(search) || d.desc.toLowerCase().includes(search)
+      );
+      if (process) filtered = filtered.filter(d => d.process === process);
+      if (status) filtered = filtered.filter(d => d.status === status);
+      if (owner) filtered = filtered.filter(d => d.owner === owner);
+
+      // Sort
+      filtered.sort((a, b) => {
+        if (sortBy === 'title') return a.title.localeCompare(b.title, 'th');
+        if (sortBy === 'date') return b.date.localeCompare(a.date);
+        if (sortBy === 'version') return b.version.localeCompare(a.version);
+        return 0;
+      });
+
+      renderDocTable(filtered);
+    }
+
+    // ================================================================
+    // Render Table with Pagination
+    // ================================================================
+    function renderDocTable(data) {
+      const size = parseInt(document.getElementById('pageSize').value);
+      const totalPages = Math.max(1, Math.ceil(data.length / size));
+      if (currentPage > totalPages) currentPage = totalPages;
+      const start = (currentPage - 1) * size;
+      const pageData = data.slice(start, start + size);
+
+      const tbody = document.getElementById('docTableBody');
+      const catIcon = { PM: '📘', WI: '📗', SD: '📙', FM: '📒' };
+      const catBadge = { PM: 'badge-blue', WI: 'badge-green', SD: 'badge-purple', FM: 'badge-amber' };
+      const statusBadge = { 'Draft': 'badge-gray', 'In Review': 'badge-amber', 'Approved': 'badge-green', 'Archived': 'badge-red' };
+
+      tbody.innerHTML = pageData.map(d => `
+        <tr>
+          <td class="font-mono text-xs font-semibold">${d.id}</td>
+          <td class="font-semibold">${d.title}</td>
+          <td><span class="badge ${catBadge[d.cat]}">${catIcon[d.cat]} ${d.cat}</span></td>
+          <td><span class="badge badge-cyan">${d.process}</span></td>
+          <td>${d.version}</td>
+          <td>${d.owner}</td>
+          <td class="text-xs">${d.date}</td>
+          <td><span class="badge ${statusBadge[d.status]}">${d.status}</span></td>
+          <td class="no-print">
+            <div class="flex gap-1">
+              <button class="btn btn-sm btn-outline" onclick="viewDocument('${d.id}')">👁️</button>
+              <button class="btn btn-sm btn-outline" onclick="editDocument('${d.id}')">✏️</button>
+              <button class="btn btn-sm btn-outline" onclick="archiveDocument('${d.id}')">📦</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      // Render pagination
+      const pag = document.getElementById('pagination');
+      let pagHtml = '';
+      pagHtml += `<button class="pagination-btn" onclick="goPage(${Math.max(1,currentPage-1)})" ${currentPage===1?'disabled':''}>&lt;</button>`;
+      for (let i = 1; i <= totalPages; i++) {
+        pagHtml += `<button class="pagination-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+      }
+      pagHtml += `<button class="pagination-btn" onclick="goPage(${Math.min(totalPages,currentPage+1)})" ${currentPage===totalPages?'disabled':''}>&gt;</button>`;
+      pag.innerHTML = pagHtml;
+    }
+
+    function goPage(p) { currentPage = p; filterDocuments(); }
+    function changePageSize() { currentPage = 1; filterDocuments(); }
+
+    // ================================================================
+    // View Document Detail
+    // ================================================================
+    function viewDocument(id) {
+      const d = documents.find(doc => doc.id === id);
+      if (!d) return;
+      const catLabel = { PM: '📘 Process Manual', WI: '📗 Work Instruction', SD: '📙 Standard', FM: '📒 Form' };
+      const statusBadge = { 'Draft': 'badge-gray', 'In Review': 'badge-amber', 'Approved': 'badge-green', 'Archived': 'badge-red' };
+
+      document.getElementById('viewDocTitle').textContent = '📄 ' + d.id + ' — ' + d.title;
+      document.getElementById('viewDocBody').innerHTML = `
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div class="p-3 bg-gray-50 rounded-lg"><div class="text-xs text-gray-500">Document ID</div><div class="font-bold">${d.id}</div></div>
+          <div class="p-3 bg-gray-50 rounded-lg"><div class="text-xs text-gray-500">หมวดหมู่</div><div class="font-bold">${catLabel[d.cat]}</div></div>
+          <div class="p-3 bg-gray-50 rounded-lg"><div class="text-xs text-gray-500">Linked Process</div><div class="font-bold">${d.process}</div></div>
+          <div class="p-3 bg-gray-50 rounded-lg"><div class="text-xs text-gray-500">Version</div><div class="font-bold">${d.version}</div></div>
+          <div class="p-3 bg-gray-50 rounded-lg"><div class="text-xs text-gray-500">ผู้รับผิดชอบ</div><div class="font-bold">${d.owner}</div></div>
+          <div class="p-3 bg-gray-50 rounded-lg"><div class="text-xs text-gray-500">อัปเดตล่าสุด</div><div class="font-bold">${d.date}</div></div>
+          <div class="p-3 bg-gray-50 rounded-lg"><div class="text-xs text-gray-500">สถานะ</div><div><span class="badge ${statusBadge[d.status]}">${d.status}</span></div></div>
+          <div class="p-3 bg-gray-50 rounded-lg"><div class="text-xs text-gray-500">ไฟล์</div><div class="font-bold text-sm">📎 ${d.file}</div></div>
+        </div>
+        <div class="mb-4">
+          <h4 class="font-semibold text-gray-700 mb-1">รายละเอียด</h4>
+          <p class="text-sm text-gray-600 p-3 bg-blue-50 rounded-lg">${d.desc}</p>
+        </div>
+        <div class="mb-4">
+          <h4 class="font-semibold text-gray-700 mb-2">📋 Revision History</h4>
+          <div class="space-y-2">
+            <div class="flex items-center gap-3 p-2 bg-green-50 rounded text-sm"><span class="badge badge-green">v${d.version}</span><span>${d.date}</span><span class="text-gray-500">— ${d.owner}</span></div>
+            <div class="flex items-center gap-3 p-2 bg-gray-50 rounded text-sm"><span class="badge badge-gray">v1.0</span><span>2024-${Math.floor(Math.random()*12+1).toString().padStart(2,'0')}-15</span><span class="text-gray-500">— สร้างครั้งแรก</span></div>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-semibold text-gray-700 mb-2">✅ Approver Workflow</h4>
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1 px-3 py-2 bg-green-100 rounded-lg text-sm font-semibold text-green-800">✓ ${d.owner}</div>
+            <span class="text-gray-400">→</span>
+            <div class="flex items-center gap-1 px-3 py-2 ${d.status==='Approved'?'bg-green-100 text-green-800':'bg-amber-100 text-amber-800'} rounded-lg text-sm font-semibold">${d.status==='Approved'?'✓ Approved':'⏳ Pending'}</div>
+            <span class="text-gray-400">→</span>
+            <div class="flex items-center gap-1 px-3 py-2 bg-blue-100 rounded-lg text-sm font-semibold text-blue-800">HR Director</div>
+          </div>
+        </div>
+      `;
+      document.getElementById('viewModal').style.display = 'flex';
+    }
+    function closeViewModal() { document.getElementById('viewModal').style.display = 'none'; }
+
+    // ================================================================
+    // Edit Document
+    // ================================================================
+    function editDocument(id) {
+      const d = documents.find(doc => doc.id === id);
+      if (!d) return;
+      editingDocId = id;
+      document.getElementById('docModalTitle').textContent = '✏️ แก้ไขเอกสาร: ' + d.id;
+      document.getElementById('docIdInput').value = d.id;
+      document.getElementById('docTitleInput').value = d.title;
+      document.getElementById('docCatInput').value = d.cat;
+      document.getElementById('docProcessInput').value = d.process;
+      document.getElementById('docVersionInput').value = d.version;
+      document.getElementById('docOwnerInput').value = d.owner;
+      document.getElementById('docStatusSelect').value = d.status;
+      document.getElementById('docDescInput').value = d.desc;
+      document.getElementById('docModal').style.display = 'flex';
+    }
+
+    // ================================================================
+    // Archive Document
+    // ================================================================
+    function archiveDocument(id) {
+      if (!confirm('ต้องการ Archive เอกสาร ' + id + ' หรือไม่?')) return;
+      const d = documents.find(doc => doc.id === id);
+      if (d) { d.status = 'Archived'; d.date = new Date().toISOString().slice(0,10); filterDocuments(); updateStats(); }
+    }
+
+    // ================================================================
+    // Modal: Add/Edit Document
+    // ================================================================
+    function openDocModal() {
+      editingDocId = null;
+      document.getElementById('docModalTitle').textContent = '➕ เพิ่มเอกสารใหม่';
+      document.getElementById('docIdInput').value = '';
+      document.getElementById('docTitleInput').value = '';
+      document.getElementById('docCatInput').value = currentCategory;
+      document.getElementById('docProcessInput').value = 'P1';
+      document.getElementById('docVersionInput').value = '1.0';
+      document.getElementById('docOwnerInput').value = '';
+      document.getElementById('docStatusSelect').value = 'Draft';
+      document.getElementById('docDescInput').value = '';
+      document.getElementById('docModal').style.display = 'flex';
+    }
+    function closeDocModal() { document.getElementById('docModal').style.display = 'none'; }
+
+    function saveDocument() {
+      const title = document.getElementById('docTitleInput').value.trim();
+      const owner = document.getElementById('docOwnerInput').value.trim();
+      if (!title || !owner) { alert('กรุณากรอกชื่อเอกสารและผู้รับผิดชอบ'); return; }
+
+      const docData = {
+        id: document.getElementById('docIdInput').value || (currentCategory + '-NEW-' + Date.now()),
+        title: title,
+        cat: document.getElementById('docCatInput').value,
+        process: document.getElementById('docProcessInput').value,
+        version: document.getElementById('docVersionInput').value || '1.0',
+        owner: owner,
+        date: new Date().toISOString().slice(0,10),
+        status: document.getElementById('docStatusSelect').value,
+        file: document.getElementById('docTitleInput').value.replace(/\s/g,'_') + '.pdf',
+        desc: document.getElementById('docDescInput').value,
+      };
+
+      if (editingDocId) {
+        const idx = documents.findIndex(d => d.id === editingDocId);
+        if (idx >= 0) documents[idx] = { ...documents[idx], ...docData };
+      } else {
+        documents.push(docData);
+      }
+
+      closeDocModal();
+      updateStats();
+      filterDocuments();
+    }
+
+    // ================================================================
+    // Update statistics
+    // ================================================================
+    function updateStats() {
+      const counts = { PM: 0, WI: 0, SD: 0, FM: 0 };
+      documents.forEach(d => counts[d.cat]++);
+      document.getElementById('statPM').textContent = counts.PM;
+      document.getElementById('statWI').textContent = counts.WI;
+      document.getElementById('statSD').textContent = counts.SD;
+      document.getElementById('statFM').textContent = counts.FM;
+      document.getElementById('countPM').textContent = counts.PM;
+      document.getElementById('countWI').textContent = counts.WI;
+      document.getElementById('countSD').textContent = counts.SD;
+      document.getElementById('countFM').textContent = counts.FM;
+    }
+
+    // ================================================================
+    // Charts
+    // ================================================================
+    function initCharts() {
+      // Documents per Process (stacked bar by category)
+      const processes = ['P1','P2','P3','P4','P5','P6','P7'];
+      const catColors = { PM: '#0ea5e9', WI: '#10b981', SD: '#8b5cf6', FM: '#f59e0b' };
+      const datasets = ['PM','WI','SD','FM'].map(cat => ({
+        label: cat,
+        data: processes.map(p => documents.filter(d => d.cat === cat && d.process === p).length),
+        backgroundColor: catColors[cat]
+      }));
+
+      new Chart(document.getElementById('chartDocsPerP'), {
+        type: 'bar',
+        data: { labels: processes, datasets },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { font: { family: 'Prompt' } } } },
+          scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+      });
+
+      // Status Distribution (doughnut)
+      const statuses = ['Draft', 'In Review', 'Approved', 'Archived'];
+      const statusColors = ['#94a3b8', '#f59e0b', '#10b981', '#ef4444'];
+      new Chart(document.getElementById('chartStatusDist'), {
+        type: 'doughnut',
+        data: {
+          labels: statuses,
+          datasets: [{ data: statuses.map(s => documents.filter(d => d.status === s).length), backgroundColor: statusColors }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { font: { family: 'Prompt', size: 11 } } } }
+        }
+      });
+    }
+
+    // ================================================================
+    // Initialize
+    // ================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      populateOwnerFilter();
+      updateStats();
+      filterDocuments();
+      initCharts();
+    });
+  </script>
+</body>
+</html>

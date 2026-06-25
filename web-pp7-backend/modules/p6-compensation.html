@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P6 — Compensation Management | PP7</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../api-adapter.js"></script>
+  <style>
+    * { font-family: 'Prompt', sans-serif; }
+    body { background: #f1f5f9; color: #1e293b; margin: 0; }
+
+    /* Sidebar */
+    .sidebar { width: 260px; background: #0f172a; color: #e2e8f0; min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 40; transition: transform 0.3s; }
+    .sidebar-hidden { transform: translateX(-100%); }
+    .sidebar .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.25rem; color: #94a3b8; text-decoration: none; font-size: 0.875rem; border-radius: 0.5rem; margin: 0.15rem 0.75rem; transition: all 0.15s; }
+    .sidebar .nav-link:hover { background: #1e293b; color: #e2e8f0; }
+    .sidebar .nav-link.active { background: #2563eb; color: #fff; font-weight: 500; }
+    .sidebar .nav-section { padding: 0.5rem 1.25rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-top: 0.75rem; }
+    .main-content { margin-left: 260px; transition: margin-left 0.3s; }
+
+    /* Cards */
+    .card { background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(15,23,42,.07); padding: 1.5rem; }
+    .stat-card { position: relative; overflow: hidden; }
+    .stat-card::before { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; border-radius: 0 0 0 80px; opacity: 0.1; }
+    .stat-card.blue::before { background: #3b82f6; }
+    .stat-card.green::before { background: #10b981; }
+    .stat-card.amber::before { background: #f59e0b; }
+    .stat-card.purple::before { background: #8b5cf6; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 0.7rem 1rem; font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #e2e8f0; background: #f8fafc; cursor: pointer; user-select: none; white-space: nowrap; }
+    th:hover { background: #e2e8f0; }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.875rem; }
+    tr:hover td { background: #f8fafc; }
+
+    /* Badge */
+    .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-gray { background: #f1f5f9; color: #475569; }
+    .badge-purple { background: #f3e8ff; color: #7c3aed; }
+    .badge-cyan { background: #cffafe; color: #155e75; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.4); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 1rem; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(15,23,42,.2); }
+    .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
+    .modal-body { padding: 1.5rem; }
+
+    /* Form */
+    .form-label { display: block; font-size: 0.8rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem; }
+    .form-input { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; transition: border 0.15s; }
+    .form-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.12); }
+    .form-input[readonly] { background: #f1f5f9; color: #64748b; }
+    .form-select { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; background: #fff; }
+    textarea.form-input { min-height: 80px; resize: vertical; }
+
+    /* Buttons */
+    .btn { padding: 0.45rem 1rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-outline { background: #fff; border: 1px solid #e2e8f0; color: #64748b; }
+    .btn-outline:hover { background: #f8fafc; }
+    .btn-success { background: #10b981; color: #fff; }
+    .btn-success:hover { background: #059669; }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-warning { background: #f59e0b; color: #fff; }
+    .btn-warning:hover { background: #d97706; }
+
+    /* Search */
+    .search-box { position: relative; }
+    .search-box input { width: 100%; padding: 0.65rem 1rem 0.65rem 2.5rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 0.875rem; outline: none; }
+    .search-box input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.12); }
+    .search-box svg { position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+
+    /* Pagination */
+    .pagination-btn { padding: 0.35rem 0.7rem; border: 1px solid #e2e8f0; border-radius: 0.375rem; font-size: 0.8rem; cursor: pointer; background: #fff; color: #64748b; }
+    .pagination-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Loading */
+    .loading-spinner { border: 3px solid #e2e8f0; border-top-color: #3b82f6; border-radius: 50%; width: 32px; height: 32px; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Tab navigation */
+    .tab-nav { display: flex; gap: 0.25rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .tab-btn { padding: 0.6rem 1.2rem; font-size: 0.875rem; font-weight: 500; color: #64748b; border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+    .tab-btn:hover { color: #2563eb; }
+    .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: #1e293b; color: #fff; padding: 0.75rem 1.5rem; border-radius: 0.75rem; font-size: 0.875rem; z-index: 200; box-shadow: 0 8px 30px rgba(0,0,0,.15); transition: opacity 0.3s; }
+    .toast.hidden { opacity: 0; pointer-events: none; }
+
+    /* Chart container */
+    .chart-container { position: relative; height: 300px; }
+    .chart-container-sm { position: relative; height: 250px; }
+
+    /* Salary display */
+    .salary-highlight { font-variant-numeric: tabular-nums; }
+
+    /* RBAC role badge */
+    .role-indicator { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 500; background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="p-4 border-b border-gray-700">
+      <h1 class="text-lg font-bold text-white">🦾 PP7 System</h1>
+      <p class="text-xs text-gray-400 mt-1">Compensation (P6)</p>
+    </div>
+    <nav class="py-2">
+      <div class="nav-section">กระบวนการ PP7</div>
+      <a href="p1-candidates.html" class="nav-link">📋 P1 แสวงหา</a>
+      <a href="p2-assessment.html" class="nav-link">🔍 P2 หยั่งประเมิน</a>
+      <a href="p3-matching.html" class="nav-link">🎯 P3 จับคู่คนกับงาน</a>
+      <a href="p4-evaluation.html" class="nav-link">📊 P4 ประเมินผล</a>
+      <a href="p5-development.html" class="nav-link">🎓 P5 พัฒนา</a>
+      <a href="p6-compensation.html" class="nav-link active">💰 P6 ค่าตอบแทน</a>
+      <div class="nav-section">อื่นๆ</div>
+      <a href="../index.html" class="nav-link">🏠 หน้าหลัก</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content" id="mainContent">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-30 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button class="md:hidden text-gray-600" onclick="toggleSidebar()">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">💰 P6 — ค่าตอบแทนและสวัสดิการ</h2>
+            <p class="text-sm text-gray-500">Compensation Management Module</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="role-indicator" id="roleIndicator">🔒 Admin</span>
+          <button class="btn btn-outline" onclick="exportToExcel()">
+            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            Export
+          </button>
+          <button class="btn btn-primary" onclick="openSalaryAdjustModal()">
+            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            ปรับเงินเดือน
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="p-6 space-y-6 fade-in">
+      <!-- Stats Dashboard -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="card stat-card blue">
+          <div class="text-sm text-gray-500">ค่าจ้างรวมทั้งหมด</div>
+          <div class="text-3xl font-bold text-gray-800 mt-1 salary-highlight" id="statTotalPayroll">-</div>
+          <div class="text-xs text-blue-600 mt-1">Total Monthly Payroll</div>
+        </div>
+        <div class="card stat-card green">
+          <div class="text-sm text-gray-500">เงินเดือนเฉลี่ย / BU</div>
+          <div class="text-3xl font-bold text-gray-800 mt-1 salary-highlight" id="statAvgSalary">-</div>
+          <div class="text-xs text-green-600 mt-1">Average Salary per BU</div>
+        </div>
+        <div class="card stat-card amber">
+          <div class="text-sm text-gray-500">แรงจูงใจที่จ่ายแล้ว</div>
+          <div class="text-3xl font-bold text-gray-800 mt-1 salary-highlight" id="statIncentivePaid">-</div>
+          <div class="text-xs text-amber-600 mt-1">Incentives Paid (YTD)</div>
+        </div>
+        <div class="card stat-card purple">
+          <div class="text-sm text-gray-500">ค่าใช้จ่ายสวัสดิการ</div>
+          <div class="text-3xl font-bold text-gray-800 mt-1 salary-highlight" id="statBenefitsCost">-</div>
+          <div class="text-xs text-purple-600 mt-1">Benefits Cost (Monthly)</div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="card">
+        <div class="tab-nav">
+          <button class="tab-btn active" onclick="switchTab('salary')">💵 ค่าตอบแทน</button>
+          <button class="tab-btn" onclick="switchTab('incentive')">🏆 แรงจูงใจ</button>
+          <button class="tab-btn" onclick="switchTab('benefits')">🛡️ สวัสดิการ</button>
+          <button class="tab-btn" onclick="switchTab('trends')">📈 แนวโน้ม</button>
+        </div>
+
+        <!-- TAB: Salary Records -->
+        <div class="tab-content active" id="tab-salary">
+          <div class="flex flex-wrap items-center gap-3 mb-4">
+            <div class="search-box flex-1 min-w-[200px]">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input type="text" placeholder="ค้นหา ID/ชื่อพนักงาน..." id="searchSalary" oninput="filterSalary()">
+            </div>
+            <select class="form-select w-auto" id="filterSalaryBU" onchange="filterSalary()">
+              <option value="">ทุก BU</option>
+            </select>
+            <select class="form-select w-auto" id="filterSalaryDept" onchange="filterSalary()">
+              <option value="">ทุก Department</option>
+            </select>
+            <select class="form-select w-auto" id="filterSalaryStatus" onchange="filterSalary()">
+              <option value="">ทุกสถานะ</option>
+              <option value="Active">Active</option>
+              <option value="On Hold">On Hold</option>
+              <option value="Adjusted">Adjusted</option>
+            </select>
+            <select class="form-select w-auto" id="filterSalaryRange" onchange="filterSalary()">
+              <option value="">ทุกระดับเงินเดือน</option>
+              <option value="0-25000">ไม่เกิน 25,000</option>
+              <option value="25000-50000">25,001 - 50,000</option>
+              <option value="50000-80000">50,001 - 80,000</option>
+              <option value="80000-999999">มากกว่า 80,000</option>
+            </select>
+            <button class="btn btn-success" onclick="openAddSalaryModal()">
+              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              เพิ่มข้อมูล
+            </button>
+          </div>
+
+          <div class="flex items-center justify-center py-12" id="loadingSalary" style="display:none;">
+            <div class="loading-spinner"></div>
+            <span class="ml-3 text-gray-500">กำลังโหลด...</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table id="salaryTable">
+              <thead>
+                <tr>
+                  <th onclick="sortSalary('employeeId')">Emp ID ↕</th>
+                  <th onclick="sortSalary('employee')">ชื่อ ↕</th>
+                  <th onclick="sortSalary('position')">ตำแหน่ง ↕</th>
+                  <th onclick="sortSalary('bu')">BU ↕</th>
+                  <th onclick="sortSalary('department')">Department ↕</th>
+                  <th onclick="sortSalary('baseSalary')">เงินเดือน ↕</th>
+                  <th onclick="sortSalary('allowances')">ค่าตอบแทนอื่น ↕</th>
+                  <th onclick="sortSalary('total')">รวมทั้งหมด ↕</th>
+                  <th onclick="sortSalary('effectiveDate')">วันที่มีผล ↕</th>
+                  <th onclick="sortSalary('status')">สถานะ ↕</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="salaryTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between mt-4 gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-gray-500">แสดง</span>
+              <select class="form-select w-auto text-sm" id="salaryPageSize" onchange="changeSalaryPageSize()">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+              </select>
+              <span class="text-sm text-gray-500" id="salaryPageInfo">-</span>
+            </div>
+            <div class="flex items-center gap-1" id="salaryPageButtons"></div>
+          </div>
+        </div>
+
+        <!-- TAB: Incentive Management -->
+        <div class="tab-content" id="tab-incentive">
+          <div class="flex flex-wrap items-center gap-3 mb-4">
+            <div class="search-box flex-1 min-w-[200px]">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input type="text" placeholder="ค้นหาพนักงาน..." id="searchIncentive" oninput="filterIncentives()">
+            </div>
+            <select class="form-select w-auto" id="filterIncentiveType" onchange="filterIncentives()">
+              <option value="">ทุกประเภท</option>
+              <option value="Performance">Performance</option>
+              <option value="Project">Project</option>
+              <option value="Annual">Annual</option>
+            </select>
+            <select class="form-select w-auto" id="filterIncentiveStatus" onchange="filterIncentives()">
+              <option value="">ทุกสถานะ</option>
+              <option value="Calculated">Calculated</option>
+              <option value="Approved">Approved</option>
+              <option value="Paid">Paid</option>
+            </select>
+            <button class="btn btn-warning" onclick="autoCalculateIncentives()">
+              ⚡ คำนวณจาก P4
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table id="incentiveTable">
+              <thead>
+                <tr>
+                  <th onclick="sortIncentive('id')">ID ↕</th>
+                  <th onclick="sortIncentive('employee')">พนักงาน ↕</th>
+                  <th onclick="sortIncentive('bu')">BU ↕</th>
+                  <th onclick="sortIncentive('type')">ประเภท ↕</th>
+                  <th onclick="sortIncentive('amount')">จำนวนเงิน ↕</th>
+                  <th onclick="sortIncentive('period')">งวด ↕</th>
+                  <th onclick="sortIncentive('evalScore')">คะแนน P4 ↕</th>
+                  <th onclick="sortIncentive('status')">สถานะ ↕</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="incentiveTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between mt-4 gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-gray-500">แสดง</span>
+              <select class="form-select w-auto text-sm" id="incentivePageSize" onchange="changeIncentivePageSize()">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+              </select>
+              <span class="text-sm text-gray-500" id="incentivePageInfo">-</span>
+            </div>
+            <div class="flex items-center gap-1" id="incentivePageButtons"></div>
+          </div>
+        </div>
+
+        <!-- TAB: Benefits Tracker -->
+        <div class="tab-content" id="tab-benefits">
+          <div class="flex flex-wrap items-center gap-3 mb-4">
+            <div class="search-box flex-1 min-w-[200px]">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input type="text" placeholder="ค้นหาพนักงาน..." id="searchBenefits" oninput="filterBenefits()">
+            </div>
+            <select class="form-select w-auto" id="filterBenefitsBU" onchange="filterBenefits()">
+              <option value="">ทุก BU</option>
+            </select>
+            <button class="btn btn-success" onclick="openAddBenefitsModal()">
+              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              เพิ่มสวัสดิการ
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table id="benefitsTable">
+              <thead>
+                <tr>
+                  <th onclick="sortBenefits('employeeId')">Emp ID ↕</th>
+                  <th onclick="sortBenefits('employee')">ชื่อ ↕</th>
+                  <th onclick="sortBenefits('bu')">BU ↕</th>
+                  <th onclick="sortBenefits('insurance')">ประกัน ↕</th>
+                  <th onclick="sortBenefits('providentFund')">กองทุนสำรองเลี้ยงชีพ ↕</th>
+                  <th onclick="sortBenefits('leaveBalance')">วันลาคงเหลือ ↕</th>
+                  <th onclick="sortBenefits('others')">อื่นๆ ↕</th>
+                  <th onclick="sortBenefits('totalCost')">ค่าใช้จ่ายรวม ↕</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="benefitsTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between mt-4 gap-3">
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-gray-500">แสดง</span>
+              <select class="form-select w-auto text-sm" id="benefitsPageSize" onchange="changeBenefitsPageSize()">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+              </select>
+              <span class="text-sm text-gray-500" id="benefitsPageInfo">-</span>
+            </div>
+            <div class="flex items-center gap-1" id="benefitsPageButtons"></div>
+          </div>
+
+          <!-- Benefits Cost Pie Chart -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <div class="card bg-gray-50">
+              <h4 class="font-semibold text-gray-700 mb-3">🥧 สัดส่วนค่าใช้จ่ายสวัสดิการ</h4>
+              <div class="chart-container-sm">
+                <canvas id="benefitsPieChart"></canvas>
+              </div>
+            </div>
+            <div class="card bg-gray-50">
+              <h4 class="font-semibold text-gray-700 mb-3">📊 สรุปสวัสดิการตาม BU</h4>
+              <div class="chart-container-sm">
+                <canvas id="benefitsBUChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: Salary Trends -->
+        <div class="tab-content" id="tab-trends">
+          <h3 class="text-lg font-semibold text-gray-700 mb-4">📈 แนวโน้มเงินเดือน (Quarterly)</h3>
+          <div class="card bg-gray-50 mb-6">
+            <div class="chart-container">
+              <canvas id="salaryTrendChart"></canvas>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="card bg-gray-50">
+              <h4 class="font-semibold text-gray-700 mb-3">💰 เงินเดือนเฉลี่ยตาม BU</h4>
+              <div class="chart-container-sm">
+                <canvas id="avgSalaryBUChart"></canvas>
+              </div>
+            </div>
+            <div class="card bg-gray-50">
+              <h4 class="font-semibold text-gray-700 mb-3">📊 การกระจายเงินเดือน</h4>
+              <div class="chart-container-sm">
+                <canvas id="salaryDistChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Salary Adjustment Modal -->
+  <div class="modal-overlay" id="adjustModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="adjustModalTitle">💰 ปรับเงินเดือน</h3>
+        <button class="text-2xl text-gray-400 hover:text-gray-700" onclick="closeAdjustModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="adjustForm" onsubmit="saveSalaryAdjustment(event)">
+          <input type="hidden" id="adjustFormId">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label">เลือกพนักงาน *</label>
+              <select class="form-select" id="fAdjEmployee" required onchange="autoFillAdjEmployee()">
+                <option value="">เลือกพนักงาน</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">ตำแหน่งปัจจุบัน</label>
+              <input type="text" class="form-input" id="fAdjPosition" readonly>
+            </div>
+            <div>
+              <label class="form-label">เงินเดือนปัจจุบัน (บาท) *</label>
+              <input type="number" class="form-input" id="fAdjCurrentSalary" readonly>
+            </div>
+            <div>
+              <label class="form-label">ประเภทการปรับ *</label>
+              <select class="form-select" id="fAdjType" required onchange="calculateNewSalary()">
+                <option value="">เลือกประเภท</option>
+                <option value="Raise">ปรับขึ้นเงินเดือน (Raise)</option>
+                <option value="Promotion">เลื่อนตำแหน่ง (Promotion)</option>
+                <option value="Market Adjustment">ปรับตามตลาด (Market Adjustment)</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">เปอร์เซ็นต์ปรับขึ้น (%)</label>
+              <input type="number" class="form-input" id="fAdjPercentage" min="0" max="100" step="0.5" placeholder="เช่น 5" oninput="calculateNewSalary()">
+            </div>
+            <div>
+              <label class="form-label">เงินเดือนใหม่ (บาท) *</label>
+              <input type="number" class="form-input" id="fAdjNewSalary" required min="0" placeholder="กรอกหรือคำนวณอัตโนมัติ">
+            </div>
+            <div class="md:col-span-2">
+              <label class="form-label">เหตุผลการปรับ *</label>
+              <textarea class="form-input" id="fAdjReason" required placeholder="เช่นผลงานดีเยี่ยม, เลื่อนตำแหน่งจาก Senior → Lead, ปรับตาม Market Rate..."></textarea>
+            </div>
+            <div>
+              <label class="form-label">ผู้อนุมัติ (HR Manager) *</label>
+              <select class="form-select" id="fAdjApprover" required>
+                <option value="">เลือกผู้อนุมัติ</option>
+                <option value="สมชาย ดีเลิศ">สมชาย ดีเลิศ — HR Director</option>
+                <option value="วิภา แสงทอง">วิภา แสงทอง — HR Manager</option>
+                <option value="ประยุทธ์ มั่นคง">ประยุทธ์ มั่นคง — Finance Director</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">วันที่มีผล *</label>
+              <input type="date" class="form-input" id="fAdjEffectiveDate" required>
+            </div>
+          </div>
+          <div class="flex justify-end gap-3 mt-6">
+            <button type="button" class="btn btn-outline" onclick="closeAdjustModal()">ยกเลิก</button>
+            <button type="submit" class="btn btn-primary">💾 บันทึกการปรับ</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Salary Modal -->
+  <div class="modal-overlay" id="salaryModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="salaryModalTitle">💵 เพิ่มข้อมูลค่าตอบแทน</h3>
+        <button class="text-2xl text-gray-400 hover:text-gray-700" onclick="closeSalaryModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="salaryForm" onsubmit="saveSalary(event)">
+          <input type="hidden" id="salaryFormId">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label">พนักงาน *</label>
+              <select class="form-select" id="fSalaryEmployee" required onchange="autoFillSalaryEmployee()">
+                <option value="">เลือกพนักงาน</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">ตำแหน่ง</label>
+              <input type="text" class="form-input" id="fSalaryPosition" readonly>
+            </div>
+            <div>
+              <label class="form-label">BU</label>
+              <input type="text" class="form-input" id="fSalaryBU" readonly>
+            </div>
+            <div>
+              <label class="form-label">Department</label>
+              <input type="text" class="form-input" id="fSalaryDept" readonly>
+            </div>
+            <div>
+              <label class="form-label">เงินเดือนฐาน (บาท) *</label>
+              <input type="number" class="form-input" id="fSalaryBase" required min="0" placeholder="30000">
+            </div>
+            <div>
+              <label class="form-label">ค่าตอบแทนอื่น (บาท)</label>
+              <input type="number" class="form-input" id="fSalaryAllowances" min="0" placeholder="5000" value="0">
+            </div>
+            <div>
+              <label class="form-label">วันที่มีผล *</label>
+              <input type="date" class="form-input" id="fSalaryEffectiveDate" required>
+            </div>
+            <div>
+              <label class="form-label">สถานะ</label>
+              <select class="form-select" id="fSalaryStatus">
+                <option value="Active">Active</option>
+                <option value="On Hold">On Hold</option>
+                <option value="Adjusted">Adjusted</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex justify-end gap-3 mt-6">
+            <button type="button" class="btn btn-outline" onclick="closeSalaryModal()">ยกเลิก</button>
+            <button type="submit" class="btn btn-primary">💾 บันทึก</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Benefits Modal -->
+  <div class="modal-overlay" id="benefitsModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="benefitsModalTitle">🛡️ เพิ่มข้อมูลสวัสดิการ</h3>
+        <button class="text-2xl text-gray-400 hover:text-gray-700" onclick="closeBenefitsModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="benefitsForm" onsubmit="saveBenefit(event)">
+          <input type="hidden" id="benefitsFormId">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label">พนักงาน *</label>
+              <select class="form-select" id="fBenEmployee" required onchange="autoFillBenEmployee()">
+                <option value="">เลือกพนักงาน</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">BU</label>
+              <input type="text" class="form-input" id="fBenBU" readonly>
+            </div>
+            <div>
+              <label class="form-label">ประกันสุขภาพ (บาท/ปี)</label>
+              <input type="number" class="form-input" id="fBenInsurance" min="0" value="0" placeholder="15000">
+            </div>
+            <div>
+              <label class="form-label">กองทุนสำรองเลี้ยงชีพ (บาท/เดือน)</label>
+              <input type="number" class="form-input" id="fBenProvident" min="0" value="0" placeholder="3000">
+            </div>
+            <div>
+              <label class="form-label">วันลาคงเหลือ (วัน)</label>
+              <input type="number" class="form-input" id="fBenLeave" min="0" max="30" value="10" placeholder="10">
+            </div>
+            <div>
+              <label class="form-label">อื่นๆ (บาท/เดือน)</label>
+              <input type="number" class="form-input" id="fBenOthers" min="0" value="0" placeholder="2000">
+            </div>
+          </div>
+          <div class="flex justify-end gap-3 mt-6">
+            <button type="button" class="btn btn-outline" onclick="closeBenefitsModal()">ยกเลิก</button>
+            <button type="submit" class="btn btn-primary">💾 บันทึก</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 id="confirmTitle">⚠️ ยืนยัน</h3>
+        <button class="text-2xl text-gray-400 hover:text-gray-700" onclick="closeConfirm()">&times;</button>
+      </div>
+      <div class="modal-body text-center">
+        <p class="text-gray-600 mb-6" id="confirmMessage"></p>
+        <div class="flex justify-center gap-3">
+          <button class="btn btn-outline" onclick="closeConfirm()">ยกเลิก</button>
+          <button class="btn btn-danger" onclick="executeConfirm()">ยืนยัน</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast hidden" id="toast"><span id="toastMsg"></span></div>
+
+  <script>
+    // ============================================================
+    // ข้อมูลจำลอง (Mock Data) — ชื่อไทย, BU ไทย, เงินบาท
+    // ============================================================
+
+    const employees = [
+      { id: 'EMP001', name: 'สมศักดิ์ รักงาน', position: 'Senior Developer', bu: 'Digital', department: 'Software Engineering' },
+      { id: 'EMP002', name: 'วิภา สว่างจิต', position: 'Marketing Manager', bu: 'Marketing', department: 'Brand Management' },
+      { id: 'EMP003', name: 'ประเสริฐ ดีรัมย์', position: 'Operations Lead', bu: 'Operation', department: 'Logistics' },
+      { id: 'EMP004', name: 'อรุณี ทองดี', position: 'HR Specialist', bu: 'HR', department: 'Talent Acquisition' },
+      { id: 'EMP005', name: 'ธนพล ชัยวัฒน์', position: 'Financial Analyst', bu: 'Finance', department: 'Accounting' },
+      { id: 'EMP006', name: 'นภัสวรรณ พิมพ์ทอง', position: 'UX Designer', bu: 'Digital', department: 'Product Design' },
+      { id: 'EMP007', name: 'กิตติ ประเสริฐสุข', position: 'Sales Executive', bu: 'Sales', department: 'B2B Sales' },
+      { id: 'EMP008', name: 'สุภาพร เจริญผล', position: 'QA Engineer', bu: 'Digital', department: 'Quality Assurance' },
+      { id: 'EMP009', name: 'พิชิต มั่นคง', position: 'Supply Chain Manager', bu: 'Operation', department: 'Procurement' },
+      { id: 'EMP010', name: 'มัลลิกา สุขใส', position: 'Customer Service Lead', bu: 'Service', department: 'Support' },
+      { id: 'EMP011', name: 'อนุชา พัฒนา', position: 'Data Analyst', bu: 'Digital', department: 'Data & Analytics' },
+      { id: 'EMP012', name: 'พรทิพย์ แสนสุข', position: 'Legal Advisor', bu: 'Legal', department: 'Compliance' },
+      { id: 'EMP013', name: 'ธนากร รุ่งเรือง', position: 'Project Manager', bu: 'Digital', department: 'PMO' },
+      { id: 'EMP014', name: 'กาญจนา ภูริเดช', position: 'Training Coordinator', bu: 'HR', department: 'L&D' },
+      { id: 'EMP015', name: 'วรรณา กลิ่นสุคนธ์', position: 'Admin Officer', bu: 'Admin', department: 'General Affairs' }
+    ];
+
+    // ข้อมูลค่าตอบแทน
+    let mockSalaryRecords = [
+      { id: 'SAL001', employeeId: 'EMP001', employee: 'สมศักดิ์ รักงาน', position: 'Senior Developer', bu: 'Digital', department: 'Software Engineering', baseSalary: 75000, allowances: 10000, total: 85000, effectiveDate: '2025-01-01', status: 'Active' },
+      { id: 'SAL002', employeeId: 'EMP002', employee: 'วิภา สว่างจิต', position: 'Marketing Manager', bu: 'Marketing', department: 'Brand Management', baseSalary: 65000, allowances: 8000, total: 73000, effectiveDate: '2025-01-01', status: 'Active' },
+      { id: 'SAL003', employeeId: 'EMP003', employee: 'ประเสริฐ ดีรัมย์', position: 'Operations Lead', bu: 'Operation', department: 'Logistics', baseSalary: 60000, allowances: 7000, total: 67000, effectiveDate: '2025-01-01', status: 'Active' },
+      { id: 'SAL004', employeeId: 'EMP004', employee: 'อรุณี ทองดี', position: 'HR Specialist', bu: 'HR', department: 'Talent Acquisition', baseSalary: 45000, allowances: 5000, total: 50000, effectiveDate: '2025-01-01', status: 'Active' },
+      { id: 'SAL005', employeeId: 'EMP005', employee: 'ธนพล ชัยวัฒน์', position: 'Financial Analyst', bu: 'Finance', department: 'Accounting', baseSalary: 55000, allowances: 6000, total: 61000, effectiveDate: '2025-01-01', status: 'Active' },
+      { id: 'SAL006', employeeId: 'EMP006', employee: 'นภัสวรรณ พิมพ์ทอง', position: 'UX Designer', bu: 'Digital', department: 'Product Design', baseSalary: 58000, allowances: 5000, total: 63000, effectiveDate: '2025-03-01', status: 'Adjusted' },
+      { id: 'SAL007', employeeId: 'EMP007', employee: 'กิตติ ประเสริฐสุข', position: 'Sales Executive', bu: 'Sales', department: 'B2B Sales', baseSalary: 40000, allowances: 15000, total: 55000, effectiveDate: '2025-01-01', status: 'Active' },
+      { id: 'SAL008', employeeId: 'EMP008', employee: 'สุภาพร เจริญผล', position: 'QA Engineer', bu: 'Digital', department: 'Quality Assurance', baseSalary: 50000, allowances: 5000, total: 55000, effectiveDate: '2025-01-01', status: 'Active' },
+      { id: 'SAL009', employeeId: 'EMP009', employee: 'พิชิต มั่นคง', position: 'Supply Chain Manager', bu: 'Operation', department: 'Procurement', baseSalary: 70000, allowances: 8000, total: 78000, effectiveDate: '2025-01-01', status: 'Active' },
+      { id: 'SAL010', employeeId: 'EMP010', employee: 'มัลลิกา สุขใส', position: 'Customer Service Lead', bu: 'Service', department: 'Support', baseSalary: 42000, allowances: 5000, total: 47000, effectiveDate: '2025-01-01', status: 'Active' },
+      { id: 'SAL011', employeeId: 'EMP011', employee: 'อนุชา พัฒนา', position: 'Data Analyst', bu: 'Digital', department: 'Data & Analytics', baseSalary: 55000, allowances: 6000, total: 61000, effectiveDate: '2025-01-01', status: 'Active' },
+      { id: 'SAL012', employeeId: 'EMP012', employee: 'พรทิพย์ แสนสุข', position: 'Legal Advisor', bu: 'Legal', department: 'Compliance', baseSalary: 65000, allowances: 7000, total: 72000, effectiveDate: '2025-01-01', status: 'Active' },
+      { id: 'SAL013', employeeId: 'EMP013', employee: 'ธนากร รุ่งเรือง', position: 'Project Manager', bu: 'Digital', department: 'PMO', baseSalary: 72000, allowances: 10000, total: 82000, effectiveDate: '2025-01-01', status: 'Active' },
+      { id: 'SAL014', employeeId: 'EMP014', employee: 'กาญจนา ภูริเดช', position: 'Training Coordinator', bu: 'HR', department: 'L&D', baseSalary: 38000, allowances: 4000, total: 42000, effectiveDate: '2025-01-01', status: 'Active' },
+      { id: 'SAL015', employeeId: 'EMP015', employee: 'วรรณา กลิ่นสุคนธ์', position: 'Admin Officer', bu: 'Admin', department: 'General Affairs', baseSalary: 30000, allowances: 3000, total: 33000, effectiveDate: '2025-01-01', status: 'Active' }
+    ];
+
+    // ข้อมูล incentive
+    let mockIncentives = [
+      { id: 'INC001', employeeId: 'EMP001', employee: 'สมศักดิ์ รักงาน', bu: 'Digital', type: 'Performance', amount: 37500, period: 'Q1/2025', evalScore: 4.5, status: 'Paid' },
+      { id: 'INC002', employeeId: 'EMP002', employee: 'วิภา สว่างจิต', bu: 'Marketing', type: 'Performance', amount: 26000, period: 'Q1/2025', evalScore: 4.0, status: 'Paid' },
+      { id: 'INC003', employeeId: 'EMP003', employee: 'ประเสริฐ ดีรัมย์', bu: 'Operation', type: 'Project', amount: 20000, period: 'Q1/2025', evalScore: 3.5, status: 'Paid' },
+      { id: 'INC004', employeeId: 'EMP004', employee: 'อรุณี ทองดี', bu: 'HR', type: 'Performance', amount: 13500, period: 'Q1/2025', evalScore: 3.0, status: 'Approved' },
+      { id: 'INC005', employeeId: 'EMP005', employee: 'ธนพล ชัยวัฒน์', bu: 'Finance', type: 'Performance', amount: 16500, period: 'Q1/2025', evalScore: 3.0, status: 'Calculated' },
+      { id: 'INC006', employeeId: 'EMP009', employee: 'พิชิต มั่นคง', bu: 'Operation', type: 'Project', amount: 35000, period: 'Q1/2025', evalScore: 4.2, status: 'Paid' },
+      { id: 'INC007', employeeId: 'EMP013', employee: 'ธนากร รุ่งเรือง', bu: 'Digital', type: 'Project', amount: 40000, period: 'Q1/2025', evalScore: 4.0, status: 'Paid' },
+      { id: 'INC008', employeeId: 'EMP007', employee: 'กิตติ ประเสริฐสุข', bu: 'Sales', type: 'Performance', amount: 18000, period: 'Q1/2025', evalScore: 3.8, status: 'Approved' },
+      { id: 'INC009', employeeId: 'EMP011', employee: 'อนุชา พัฒนา', bu: 'Digital', type: 'Performance', amount: 16500, period: 'Q1/2025', evalScore: 3.0, status: 'Calculated' },
+      { id: 'INC010', employeeId: 'EMP001', employee: 'สมศักดิ์ รักงาน', bu: 'Digital', type: 'Annual', amount: 75000, period: 'Annual 2024', evalScore: 4.5, status: 'Paid' },
+      { id: 'INC011', employeeId: 'EMP006', employee: 'นภัสวรรณ พิมพ์ทอง', bu: 'Digital', type: 'Performance', amount: 17400, period: 'Q1/2025', evalScore: 3.0, status: 'Calculated' },
+      { id: 'INC012', employeeId: 'EMP012', employee: 'พรทิพย์ แสนสุข', bu: 'Legal', type: 'Performance', amount: 26000, period: 'Q1/2025', evalScore: 4.0, status: 'Approved' }
+    ];
+
+    // ข้อมูลสวัสดิการ
+    let mockBenefits = [
+      { id: 'BEN001', employeeId: 'EMP001', employee: 'สมศักดิ์ รักงาน', bu: 'Digital', insurance: 25000, providentFund: 7500, leaveBalance: 12, others: 3000, totalCost: 35500 },
+      { id: 'BEN002', employeeId: 'EMP002', employee: 'วิภา สว่างจิต', bu: 'Marketing', insurance: 22000, providentFund: 6500, leaveBalance: 8, others: 2500, totalCost: 31000 },
+      { id: 'BEN003', employeeId: 'EMP003', employee: 'ประเสริฐ ดีรัมย์', bu: 'Operation', insurance: 20000, providentFund: 6000, leaveBalance: 10, others: 2000, totalCost: 28000 },
+      { id: 'BEN004', employeeId: 'EMP004', employee: 'อรุณี ทองดี', bu: 'HR', insurance: 18000, providentFund: 4500, leaveBalance: 15, others: 1500, totalCost: 24000 },
+      { id: 'BEN005', employeeId: 'EMP005', employee: 'ธนพล ชัยวัฒน์', bu: 'Finance', insurance: 20000, providentFund: 5500, leaveBalance: 10, others: 2000, totalCost: 27500 },
+      { id: 'BEN006', employeeId: 'EMP006', employee: 'นภัสวรรณ พิมพ์ทอง', bu: 'Digital', insurance: 22000, providentFund: 5800, leaveBalance: 14, others: 3000, totalCost: 30800 },
+      { id: 'BEN007', employeeId: 'EMP007', employee: 'กิตติ ประเสริฐสุข', bu: 'Sales', insurance: 15000, providentFund: 4000, leaveBalance: 7, others: 5000, totalCost: 24000 },
+      { id: 'BEN008', employeeId: 'EMP008', employee: 'สุภาพร เจริญผล', bu: 'Digital', insurance: 20000, providentFund: 5000, leaveBalance: 11, others: 2000, totalCost: 27000 },
+      { id: 'BEN009', employeeId: 'EMP009', employee: 'พิชิต มั่นคง', bu: 'Operation', insurance: 25000, providentFund: 7000, leaveBalance: 9, others: 3000, totalCost: 35000 },
+      { id: 'BEN010', employeeId: 'EMP010', employee: 'มัลลิกา สุขใส', bu: 'Service', insurance: 15000, providentFund: 4200, leaveBalance: 13, others: 1500, totalCost: 20700 },
+      { id: 'BEN011', employeeId: 'EMP011', employee: 'อนุชา พัฒนา', bu: 'Digital', insurance: 20000, providentFund: 5500, leaveBalance: 10, others: 2500, totalCost: 28000 },
+      { id: 'BEN012', employeeId: 'EMP012', employee: 'พรทิพย์ แสนสุข', bu: 'Legal', insurance: 25000, providentFund: 6500, leaveBalance: 12, others: 2000, totalCost: 33500 },
+      { id: 'BEN013', employeeId: 'EMP013', employee: 'ธนากร รุ่งเรือง', bu: 'Digital', insurance: 25000, providentFund: 7200, leaveBalance: 11, others: 3000, totalCost: 35200 },
+      { id: 'BEN014', employeeId: 'EMP014', employee: 'กาญจนา ภูริเดช', bu: 'HR', insurance: 15000, providentFund: 3800, leaveBalance: 16, others: 1000, totalCost: 19800 },
+      { id: 'BEN015', employeeId: 'EMP015', employee: 'วรรณา กลิ่นสุคนธ์', bu: 'Admin', insurance: 12000, providentFund: 3000, leaveBalance: 10, others: 1000, totalCost: 16000 }
+    ];
+
+    // ข้อมูล Salary Trends (quarterly)
+    const salaryTrends = {
+      labels: ['Q1/2024', 'Q2/2024', 'Q3/2024', 'Q4/2024', 'Q1/2025'],
+      datasets: {
+        'Digital': [52000, 53500, 55000, 57000, 72750],
+        'Marketing': [58000, 59000, 60000, 62000, 65000],
+        'Operation': [55000, 56000, 57500, 59000, 65000],
+        'Finance': [48000, 49000, 50000, 52000, 55000],
+        'HR': [38000, 39000, 40000, 41000, 41500]
+      }
+    };
+
+    // ============================================================
+    // STATE
+    // ============================================================
+    let filteredSalary = [...mockSalaryRecords];
+    let salaryCurrentPage = 1;
+    let salaryPageSize = 10;
+    let salarySortField = 'employeeId';
+    let salarySortOrder = 'asc';
+
+    let filteredIncentives = [...mockIncentives];
+    let incentiveCurrentPage = 1;
+    let incentivePageSize = 10;
+    let incentiveSortField = 'id';
+    let incentiveSortOrder = 'asc';
+
+    let filteredBenefits = [...mockBenefits];
+    let benefitsCurrentPage = 1;
+    let benefitsPageSize = 10;
+    let benefitsSortField = 'employeeId';
+    let benefitsSortOrder = 'asc';
+
+    let confirmCallback = null;
+    let benefitsPieChart = null;
+    let benefitsBUChart = null;
+    let salaryTrendChart = null;
+    let avgSalaryBUChart = null;
+    let salaryDistChart = null;
+
+    // ============================================================
+    // INIT
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      initApp();
+    });
+
+    async function initApp() {
+      showSalaryLoading(true);
+
+      // ลองโหลดจาก API
+      try {
+        if (typeof PP7API !== 'undefined' && PP7API_CONFIG.BASE_URL) {
+          const [salRes, incRes, benRes] = await Promise.all([
+            PP7API.getSalaryRecords(),
+            PP7API.getIncentives(),
+            PP7API.getBenefits()
+          ]);
+          if (salRes?.data?.length) mockSalaryRecords = salRes.data;
+          if (incRes?.data?.length) mockIncentives = incRes.data;
+          if (benRes?.data?.length) mockBenefits = benRes.data;
+        }
+      } catch (err) {
+        console.log('ใช้ mock data (API ยังไม่พร้อม)');
+      }
+
+      populateFilters();
+      updateStats();
+      filterSalary();
+      filterIncentives();
+      filterBenefits();
+      initCharts();
+      showSalaryLoading(false);
+    }
+
+    // ============================================================
+    // TABS
+    // ============================================================
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tab).classList.add('active');
+
+      if (tab === 'trends') {
+        setTimeout(() => {
+          if (salaryTrendChart) salaryTrendChart.resize();
+          if (avgSalaryBUChart) avgSalaryBUChart.resize();
+          if (salaryDistChart) salaryDistChart.resize();
+        }, 100);
+      }
+      if (tab === 'benefits') {
+        setTimeout(() => {
+          if (benefitsPieChart) benefitsPieChart.resize();
+          if (benefitsBUChart) benefitsBUChart.resize();
+        }, 100);
+      }
+    }
+
+    // ============================================================
+    // STATISTICS
+    // ============================================================
+    function updateStats() {
+      // Total Payroll
+      const totalPayroll = mockSalaryRecords.reduce((s, r) => s + r.total, 0);
+      document.getElementById('statTotalPayroll').textContent = '฿' + totalPayroll.toLocaleString('th-TH');
+
+      // Average Salary by BU
+      const buMap = {};
+      mockSalaryRecords.forEach(r => {
+        if (!buMap[r.bu]) buMap[r.bu] = [];
+        buMap[r.bu].push(r.baseSalary);
+      });
+      const buAvgs = Object.values(buMap).map(arr => arr.reduce((a, b) => a + b, 0) / arr.length);
+      const avgAll = buAvgs.reduce((a, b) => a + b, 0) / (buAvgs.length || 1);
+      document.getElementById('statAvgSalary').textContent = '฿' + Math.round(avgAll).toLocaleString('th-TH');
+
+      // Incentive Paid YTD
+      const incentivePaid = mockIncentives.filter(i => i.status === 'Paid').reduce((s, i) => s + i.amount, 0);
+      document.getElementById('statIncentivePaid').textContent = '฿' + incentivePaid.toLocaleString('th-TH');
+
+      // Benefits Cost
+      const benefitsCost = mockBenefits.reduce((s, b) => s + b.totalCost, 0);
+      document.getElementById('statBenefitsCost').textContent = '฿' + benefitsCost.toLocaleString('th-TH');
+    }
+
+    // ============================================================
+    // FILTERS
+    // ============================================================
+    function populateFilters() {
+      const bus = [...new Set(mockSalaryRecords.map(s => s.bu))];
+      document.getElementById('filterSalaryBU').innerHTML = '<option value="">ทุก BU</option>' + bus.map(b => `<option value="${b}">${b}</option>`).join('');
+      document.getElementById('filterBenefitsBU').innerHTML = '<option value="">ทุก BU</option>' + bus.map(b => `<option value="${b}">${b}</option>`).join('');
+      
+      const depts = [...new Set(mockSalaryRecords.map(s => s.department))];
+      document.getElementById('filterSalaryDept').innerHTML = '<option value="">ทุก Department</option>' + depts.map(d => `<option value="${d}">${d}</option>`).join('');
+    }
+
+    function filterSalary() {
+      const search = document.getElementById('searchSalary').value.toLowerCase().trim();
+      const bu = document.getElementById('filterSalaryBU').value;
+      const dept = document.getElementById('filterSalaryDept').value;
+      const status = document.getElementById('filterSalaryStatus').value;
+      const range = document.getElementById('filterSalaryRange').value;
+
+      filteredSalary = mockSalaryRecords.filter(r => {
+        if (search && !r.employeeId.toLowerCase().includes(search) && !r.employee.toLowerCase().includes(search)) return false;
+        if (bu && r.bu !== bu) return false;
+        if (dept && r.department !== dept) return false;
+        if (status && r.status !== status) return false;
+        if (range) {
+          const [min, max] = range.split('-').map(Number);
+          if (r.baseSalary < min || r.baseSalary > max) return false;
+        }
+        return true;
+      });
+      salaryCurrentPage = 1;
+      sortSalaryData();
+      renderSalaryTable();
+    }
+
+    function filterIncentives() {
+      const search = document.getElementById('searchIncentive').value.toLowerCase().trim();
+      const type = document.getElementById('filterIncentiveType').value;
+      const status = document.getElementById('filterIncentiveStatus').value;
+
+      filteredIncentives = mockIncentives.filter(i => {
+        if (search && !i.employee.toLowerCase().includes(search)) return false;
+        if (type && i.type !== type) return false;
+        if (status && i.status !== status) return false;
+        return true;
+      });
+      incentiveCurrentPage = 1;
+      sortIncentiveData();
+      renderIncentiveTable();
+    }
+
+    function filterBenefits() {
+      const search = document.getElementById('searchBenefits').value.toLowerCase().trim();
+      const bu = document.getElementById('filterBenefitsBU').value;
+
+      filteredBenefits = mockBenefits.filter(b => {
+        if (search && !b.employeeId.toLowerCase().includes(search) && !b.employee.toLowerCase().includes(search)) return false;
+        if (bu && b.bu !== bu) return false;
+        return true;
+      });
+      benefitsCurrentPage = 1;
+      sortBenefitsData();
+      renderBenefitsTable();
+    }
+
+    // ============================================================
+    // SORTING
+    // ============================================================
+    function sortSalary(field) {
+      if (salarySortField === field) salarySortOrder = salarySortOrder === 'asc' ? 'desc' : 'asc';
+      else { salarySortField = field; salarySortOrder = 'asc'; }
+      sortSalaryData();
+      renderSalaryTable();
+    }
+    function sortSalaryData() {
+      filteredSalary.sort((a, b) => {
+        let vA = a[salarySortField], vB = b[salarySortField];
+        if (typeof vA === 'string') vA = vA.toLowerCase();
+        if (typeof vB === 'string') vB = vB.toLowerCase();
+        if (vA == null) vA = 0; if (vB == null) vB = 0;
+        if (vA < vB) return salarySortOrder === 'asc' ? -1 : 1;
+        if (vA > vB) return salarySortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    function sortIncentive(field) {
+      if (incentiveSortField === field) incentiveSortOrder = incentiveSortOrder === 'asc' ? 'desc' : 'asc';
+      else { incentiveSortField = field; incentiveSortOrder = 'asc'; }
+      sortIncentiveData();
+      renderIncentiveTable();
+    }
+    function sortIncentiveData() {
+      filteredIncentives.sort((a, b) => {
+        let vA = a[incentiveSortField], vB = b[incentiveSortField];
+        if (typeof vA === 'string') vA = vA.toLowerCase();
+        if (typeof vB === 'string') vB = vB.toLowerCase();
+        if (vA == null) vA = 0; if (vB == null) vB = 0;
+        if (vA < vB) return incentiveSortOrder === 'asc' ? -1 : 1;
+        if (vA > vB) return incentiveSortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    function sortBenefits(field) {
+      if (benefitsSortField === field) benefitsSortOrder = benefitsSortOrder === 'asc' ? 'desc' : 'asc';
+      else { benefitsSortField = field; benefitsSortOrder = 'asc'; }
+      sortBenefitsData();
+      renderBenefitsTable();
+    }
+    function sortBenefitsData() {
+      filteredBenefits.sort((a, b) => {
+        let vA = a[benefitsSortField], vB = b[benefitsSortField];
+        if (typeof vA === 'string') vA = vA.toLowerCase();
+        if (typeof vB === 'string') vB = vB.toLowerCase();
+        if (vA == null) vA = 0; if (vB == null) vB = 0;
+        if (vA < vB) return benefitsSortOrder === 'asc' ? -1 : 1;
+        if (vA > vB) return benefitsSortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    // ============================================================
+    // RENDER — Salary Table
+    // ============================================================
+    function renderSalaryTable() {
+      const start = (salaryCurrentPage - 1) * salaryPageSize;
+      const end = start + salaryPageSize;
+      const pageData = filteredSalary.slice(start, end);
+      const tbody = document.getElementById('salaryTableBody');
+
+      if (!pageData.length) {
+        tbody.innerHTML = `<tr><td colspan="11" class="text-center py-8 text-gray-400">ไม่พบข้อมูล</td></tr>`;
+      } else {
+        tbody.innerHTML = pageData.map(r => `
+          <tr>
+            <td><span class="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">${r.employeeId}</span></td>
+            <td class="font-medium">${r.employee}</td>
+            <td class="text-sm">${r.position}</td>
+            <td><span class="badge badge-blue">${r.bu}</span></td>
+            <td class="text-sm">${r.department}</td>
+            <td class="text-right font-medium salary-highlight">฿${r.baseSalary.toLocaleString('th-TH')}</td>
+            <td class="text-right text-sm salary-highlight">฿${r.allowances.toLocaleString('th-TH')}</td>
+            <td class="text-right font-bold salary-highlight text-green-700">฿${r.total.toLocaleString('th-TH')}</td>
+            <td class="text-sm">${formatDate(r.effectiveDate)}</td>
+            <td>${getSalaryStatusBadge(r.status)}</td>
+            <td>
+              <div class="flex gap-1">
+                <button class="btn btn-outline text-xs py-1 px-2" onclick="editSalary('${r.id}')" title="แก้ไข">✏️</button>
+                <button class="btn btn-outline text-xs py-1 px-2" onclick="confirmDeleteSalary('${r.id}')" title="ลบ">🗑</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      }
+      renderSalaryPagination();
+    }
+
+    function getSalaryStatusBadge(status) {
+      const map = { 'Active': '<span class="badge badge-green">Active</span>', 'On Hold': '<span class="badge badge-amber">On Hold</span>', 'Adjusted': '<span class="badge badge-blue">Adjusted</span>' };
+      return map[status] || status;
+    }
+
+    function renderSalaryPagination() {
+      const totalPages = Math.max(1, Math.ceil(filteredSalary.length / salaryPageSize));
+      const start = (salaryCurrentPage - 1) * salaryPageSize + 1;
+      const end = Math.min(salaryCurrentPage * salaryPageSize, filteredSalary.length);
+      document.getElementById('salaryPageInfo').textContent = `${start}-${end} จาก ${filteredSalary.length} รายการ`;
+      const container = document.getElementById('salaryPageButtons');
+      let html = `<button class="pagination-btn" onclick="goSalaryPage(${salaryCurrentPage - 1})" ${salaryCurrentPage <= 1 ? 'disabled' : ''}>‹</button>`;
+      for (let i = 1; i <= totalPages; i++) html += `<button class="pagination-btn ${i === salaryCurrentPage ? 'active' : ''}" onclick="goSalaryPage(${i})">${i}</button>`;
+      html += `<button class="pagination-btn" onclick="goSalaryPage(${salaryCurrentPage + 1})" ${salaryCurrentPage >= totalPages ? 'disabled' : ''}>›</button>`;
+      container.innerHTML = html;
+    }
+    function goSalaryPage(page) { const t = Math.ceil(filteredSalary.length / salaryPageSize); if (page < 1 || page > t) return; salaryCurrentPage = page; renderSalaryTable(); }
+    function changeSalaryPageSize() { salaryPageSize = parseInt(document.getElementById('salaryPageSize').value); salaryCurrentPage = 1; renderSalaryTable(); }
+
+    // ============================================================
+    // RENDER — Incentive Table
+    // ============================================================
+    function renderIncentiveTable() {
+      const start = (incentiveCurrentPage - 1) * incentivePageSize;
+      const end = start + incentivePageSize;
+      const pageData = filteredIncentives.slice(start, end);
+      const tbody = document.getElementById('incentiveTableBody');
+
+      if (!pageData.length) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-gray-400">ไม่พบข้อมูล</td></tr>`;
+      } else {
+        tbody.innerHTML = pageData.map(i => `
+          <tr>
+            <td><span class="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">${i.id}</span></td>
+            <td class="font-medium">${i.employee}</td>
+            <td><span class="badge badge-blue text-xs">${i.bu}</span></td>
+            <td>${getIncentiveTypeBadge(i.type)}</td>
+            <td class="text-right font-medium salary-highlight">฿${i.amount.toLocaleString('th-TH')}</td>
+            <td class="text-sm">${i.period}</td>
+            <td class="text-center font-bold" style="color:${getScoreColor(i.evalScore)}">${i.evalScore.toFixed(1)}</td>
+            <td>${getIncentiveStatusBadge(i.status)}</td>
+            <td>
+              <div class="flex gap-1">
+                <button class="btn btn-outline text-xs py-1 px-2" onclick="advanceIncentiveStatus('${i.id}')" title="เปลี่ยนสถานะ">⏭</button>
+                <button class="btn btn-outline text-xs py-1 px-2" onclick="confirmDeleteIncentive('${i.id}')" title="ลบ">🗑</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      }
+      renderIncentivePagination();
+    }
+
+    function getIncentiveTypeBadge(type) {
+      const map = { 'Performance': '<span class="badge badge-purple">Performance</span>', 'Project': '<span class="badge badge-cyan">Project</span>', 'Annual': '<span class="badge badge-amber">Annual</span>' };
+      return map[type] || type;
+    }
+
+    function getIncentiveStatusBadge(status) {
+      const map = { 'Calculated': '<span class="badge badge-gray">Calculated</span>', 'Approved': '<span class="badge badge-blue">Approved</span>', 'Paid': '<span class="badge badge-green">Paid ✓</span>' };
+      return map[status] || status;
+    }
+
+    function getScoreColor(score) {
+      if (score >= 4) return '#10b981';
+      if (score >= 3) return '#f59e0b';
+      return '#ef4444';
+    }
+
+    function renderIncentivePagination() {
+      const totalPages = Math.max(1, Math.ceil(filteredIncentives.length / incentivePageSize));
+      const start = (incentiveCurrentPage - 1) * incentivePageSize + 1;
+      const end = Math.min(incentiveCurrentPage * incentivePageSize, filteredIncentives.length);
+      document.getElementById('incentivePageInfo').textContent = `${start}-${end} จาก ${filteredIncentives.length} รายการ`;
+      const container = document.getElementById('incentivePageButtons');
+      let html = `<button class="pagination-btn" onclick="goIncentivePage(${incentiveCurrentPage - 1})" ${incentiveCurrentPage <= 1 ? 'disabled' : ''}>‹</button>`;
+      for (let i = 1; i <= totalPages; i++) html += `<button class="pagination-btn ${i === incentiveCurrentPage ? 'active' : ''}" onclick="goIncentivePage(${i})">${i}</button>`;
+      html += `<button class="pagination-btn" onclick="goIncentivePage(${incentiveCurrentPage + 1})" ${incentiveCurrentPage >= totalPages ? 'disabled' : ''}>›</button>`;
+      container.innerHTML = html;
+    }
+    function goIncentivePage(page) { const t = Math.ceil(filteredIncentives.length / incentivePageSize); if (page < 1 || page > t) return; incentiveCurrentPage = page; renderIncentiveTable(); }
+    function changeIncentivePageSize() { incentivePageSize = parseInt(document.getElementById('incentivePageSize').value); incentiveCurrentPage = 1; renderIncentiveTable(); }
+
+    // ============================================================
+    // RENDER — Benefits Table
+    // ============================================================
+    function renderBenefitsTable() {
+      const start = (benefitsCurrentPage - 1) * benefitsPageSize;
+      const end = start + benefitsPageSize;
+      const pageData = filteredBenefits.slice(start, end);
+      const tbody = document.getElementById('benefitsTableBody');
+
+      if (!pageData.length) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-gray-400">ไม่พบข้อมูล</td></tr>`;
+      } else {
+        tbody.innerHTML = pageData.map(b => `
+          <tr>
+            <td><span class="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">${b.employeeId}</span></td>
+            <td class="font-medium">${b.employee}</td>
+            <td><span class="badge badge-blue">${b.bu}</span></td>
+            <td class="salary-highlight">฿${b.insurance.toLocaleString('th-TH')}</td>
+            <td class="salary-highlight">฿${b.providentFund.toLocaleString('th-TH')}/ด.</td>
+            <td class="text-center">${b.leaveBalance} วัน</td>
+            <td class="salary-highlight">฿${b.others.toLocaleString('th-TH')}</td>
+            <td class="text-right font-bold salary-highlight text-purple-700">฿${b.totalCost.toLocaleString('th-TH')}</td>
+            <td>
+              <div class="flex gap-1">
+                <button class="btn btn-outline text-xs py-1 px-2" onclick="editBenefit('${b.id}')" title="แก้ไข">✏️</button>
+                <button class="btn btn-outline text-xs py-1 px-2" onclick="confirmDeleteBenefit('${b.id}')" title="ลบ">🗑</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      }
+      renderBenefitsPagination();
+    }
+
+    function renderBenefitsPagination() {
+      const totalPages = Math.max(1, Math.ceil(filteredBenefits.length / benefitsPageSize));
+      const start = (benefitsCurrentPage - 1) * benefitsPageSize + 1;
+      const end = Math.min(benefitsCurrentPage * benefitsPageSize, filteredBenefits.length);
+      document.getElementById('benefitsPageInfo').textContent = `${start}-${end} จาก ${filteredBenefits.length} รายการ`;
+      const container = document.getElementById('benefitsPageButtons');
+      let html = `<button class="pagination-btn" onclick="goBenefitsPage(${benefitsCurrentPage - 1})" ${benefitsCurrentPage <= 1 ? 'disabled' : ''}>‹</button>`;
+      for (let i = 1; i <= totalPages; i++) html += `<button class="pagination-btn ${i === benefitsCurrentPage ? 'active' : ''}" onclick="goBenefitsPage(${i})">${i}</button>`;
+      html += `<button class="pagination-btn" onclick="goBenefitsPage(${benefitsCurrentPage + 1})" ${benefitsCurrentPage >= totalPages ? 'disabled' : ''}>›</button>`;
+      container.innerHTML = html;
+    }
+    function goBenefitsPage(page) { const t = Math.ceil(filteredBenefits.length / benefitsPageSize); if (page < 1 || page > t) return; benefitsCurrentPage = page; renderBenefitsTable(); }
+    function changeBenefitsPageSize() { benefitsPageSize = parseInt(document.getElementById('benefitsPageSize').value); benefitsCurrentPage = 1; renderBenefitsTable(); }
+
+    // ============================================================
+    // CHARTS
+    // ============================================================
+    function initCharts() {
+      initBenefitsPieChart();
+      initBenefitsBUChart();
+      initSalaryTrendChart();
+      initAvgSalaryBUChart();
+      initSalaryDistChart();
+    }
+
+    function initBenefitsPieChart() {
+      const ctx = document.getElementById('benefitsPieChart').getContext('2d');
+      const totalInsurance = mockBenefits.reduce((s, b) => s + b.insurance, 0);
+      const totalProvident = mockBenefits.reduce((s, b) => s + b.providentFund * 12, 0);
+      const totalOthers = mockBenefits.reduce((s, b) => s + b.others * 12, 0);
+
+      benefitsPieChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['ประกันสุขภาพ', 'กองทุนสำรองเลี้ยงชีพ (รายปี)', 'อื่นๆ (รายปี)'],
+          datasets: [{ data: [totalInsurance, totalProvident, totalOthers], backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'], borderWidth: 2, borderColor: '#fff' }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { family: 'Prompt', size: 11 } } } } }
+      });
+    }
+
+    function initBenefitsBUChart() {
+      const ctx = document.getElementById('benefitsBUChart').getContext('2d');
+      const buCosts = {};
+      mockBenefits.forEach(b => {
+        if (!buCosts[b.bu]) buCosts[b.bu] = 0;
+        buCosts[b.bu] += b.totalCost;
+      });
+
+      benefitsBUChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(buCosts),
+          datasets: [{ label: 'ค่าใช้จ่ายสวัสดิการ (บาท/เดือน)', data: Object.values(buCosts), backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4'], borderRadius: 8 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: v => '฿' + v.toLocaleString() } } } }
+      });
+    }
+
+    function initSalaryTrendChart() {
+      const ctx = document.getElementById('salaryTrendChart').getContext('2d');
+      const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'];
+      const buNames = Object.keys(salaryTrends.datasets);
+
+      salaryTrendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: salaryTrends.labels,
+          datasets: buNames.map((bu, i) => ({
+            label: bu,
+            data: salaryTrends.datasets[bu],
+            borderColor: colors[i % colors.length],
+            backgroundColor: colors[i % colors.length] + '20',
+            fill: false,
+            tension: 0.3,
+            pointRadius: 4,
+            borderWidth: 2
+          }))
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { font: { family: 'Prompt', size: 11 } } } },
+          scales: { y: { ticks: { callback: v => '฿' + (v / 1000) + 'K' } } }
+        }
+      });
+    }
+
+    function initAvgSalaryBUChart() {
+      const ctx = document.getElementById('avgSalaryBUChart').getContext('2d');
+      const buMap = {};
+      mockSalaryRecords.forEach(r => {
+        if (!buMap[r.bu]) buMap[r.bu] = [];
+        buMap[r.bu].push(r.baseSalary);
+      });
+      const labels = Object.keys(buMap);
+      const avgs = labels.map(bu => Math.round(buMap[bu].reduce((a, b) => a + b, 0) / buMap[bu].length));
+
+      avgSalaryBUChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{ label: 'เงินเดือนเฉลี่ย (บาท)', data: avgs, backgroundColor: '#2563eb', borderRadius: 8 }]
+        },
+        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { callback: v => '฿' + (v / 1000) + 'K' } } } }
+      });
+    }
+
+    function initSalaryDistChart() {
+      const ctx = document.getElementById('salaryDistChart').getContext('2d');
+      const bins = ['0-30K', '30-50K', '50-70K', '70K+'];
+      const counts = [0, 0, 0, 0];
+      mockSalaryRecords.forEach(r => {
+        if (r.baseSalary <= 30000) counts[0]++;
+        else if (r.baseSalary <= 50000) counts[1]++;
+        else if (r.baseSalary <= 70000) counts[2]++;
+        else counts[3]++;
+      });
+
+      salaryDistChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: bins,
+          datasets: [{ label: 'จำนวนพนักงาน', data: counts, backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'], borderRadius: 8 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+      });
+    }
+
+    // ============================================================
+    // MODAL — Salary Adjustment
+    // ============================================================
+    function openSalaryAdjustModal() {
+      document.getElementById('adjustModalTitle').textContent = '💰 ปรับเงินเดือน';
+      document.getElementById('adjustFormId').value = '';
+      document.getElementById('fAdjEmployee').value = '';
+      document.getElementById('fAdjPosition').value = '';
+      document.getElementById('fAdjCurrentSalary').value = '';
+      document.getElementById('fAdjType').value = '';
+      document.getElementById('fAdjPercentage').value = '';
+      document.getElementById('fAdjNewSalary').value = '';
+      document.getElementById('fAdjReason').value = '';
+      document.getElementById('fAdjApprover').value = '';
+      document.getElementById('fAdjEffectiveDate').value = '';
+
+      const select = document.getElementById('fAdjEmployee');
+      select.innerHTML = '<option value="">เลือกพนักงาน</option>' + employees.map(e => `<option value="${e.id}">${e.id} — ${e.name}</option>`).join('');
+      document.getElementById('adjustModal').classList.add('open');
+    }
+
+    function closeAdjustModal() {
+      document.getElementById('adjustModal').classList.remove('open');
+    }
+
+    function autoFillAdjEmployee() {
+      const id = document.getElementById('fAdjEmployee').value;
+      const emp = employees.find(e => e.id === id);
+      const sal = mockSalaryRecords.find(r => r.employeeId === id);
+      document.getElementById('fAdjPosition').value = emp ? emp.position : '';
+      document.getElementById('fAdjCurrentSalary').value = sal ? sal.baseSalary : '';
+    }
+
+    function calculateNewSalary() {
+      const current = parseFloat(document.getElementById('fAdjCurrentSalary').value) || 0;
+      const pct = parseFloat(document.getElementById('fAdjPercentage').value) || 0;
+      if (current > 0 && pct > 0) {
+        document.getElementById('fAdjNewSalary').value = Math.round(current * (1 + pct / 100));
+      }
+    }
+
+    async function saveSalaryAdjustment(e) {
+      e.preventDefault();
+      const empId = document.getElementById('fAdjEmployee').value;
+      const emp = employees.find(x => x.id === empId);
+      const salRec = mockSalaryRecords.find(r => r.employeeId === empId);
+      const empName = emp ? emp.name : '';
+      const newSalary = parseInt(document.getElementById('fAdjNewSalary').value);
+      const currentSalary = parseInt(document.getElementById('fAdjCurrentSalary').value);
+
+      // อัพเดท salary record
+      if (salRec) {
+        const oldTotal = salRec.total;
+        const diff = newSalary - currentSalary;
+        salRec.baseSalary = newSalary;
+        salRec.total = newSalary + salRec.allowances;
+        salRec.effectiveDate = document.getElementById('fAdjEffectiveDate').value;
+        salRec.status = 'Adjusted';
+      }
+
+      // บันทึก API
+      try {
+        if (typeof PP7API !== 'undefined' && PP7API_CONFIG.BASE_URL) {
+          await PP7API.createRecord('salary_adjustments', {
+            employeeId: empId,
+            employee: empName,
+            adjustmentType: document.getElementById('fAdjType').value,
+            currentSalary: currentSalary,
+            newSalary: newSalary,
+            reason: document.getElementById('fAdjReason').value,
+            approver: document.getElementById('fAdjApprover').value,
+            effectiveDate: document.getElementById('fAdjEffectiveDate').value
+          });
+        }
+      } catch (err) { console.log('API fallback'); }
+
+      closeAdjustModal();
+      filteredSalary = [...mockSalaryRecords];
+      updateStats();
+      filterSalary();
+      showToast('✅ บันทึกการปรับเงินเดือนแล้ว');
+    }
+
+    // ============================================================
+    // MODAL — Add/Edit Salary
+    // ============================================================
+    function openAddSalaryModal() {
+      document.getElementById('salaryModalTitle').textContent = '💵 เพิ่มข้อมูลค่าตอบแทน';
+      document.getElementById('salaryFormId').value = '';
+      document.getElementById('fSalaryEmployee').value = '';
+      document.getElementById('fSalaryPosition').value = '';
+      document.getElementById('fSalaryBU').value = '';
+      document.getElementById('fSalaryDept').value = '';
+      document.getElementById('fSalaryBase').value = '';
+      document.getElementById('fSalaryAllowances').value = '0';
+      document.getElementById('fSalaryEffectiveDate').value = '';
+      document.getElementById('fSalaryStatus').value = 'Active';
+
+      const select = document.getElementById('fSalaryEmployee');
+      select.innerHTML = '<option value="">เลือกพนักงาน</option>' + employees.map(e => `<option value="${e.id}">${e.id} — ${e.name}</option>`).join('');
+      document.getElementById('salaryModal').classList.add('open');
+    }
+
+    function editSalary(id) {
+      const r = mockSalaryRecords.find(x => x.id === id);
+      if (!r) return;
+      document.getElementById('salaryModalTitle').textContent = '✏️ แก้ไขข้อมูลค่าตอบแทน';
+      document.getElementById('salaryFormId').value = r.id;
+      const select = document.getElementById('fSalaryEmployee');
+      select.innerHTML = '<option value="">เลือกพนักงาน</option>' + employees.map(e => `<option value="${e.id}">${e.id} — ${e.name}</option>`).join('');
+      select.value = r.employeeId;
+      document.getElementById('fSalaryPosition').value = r.position;
+      document.getElementById('fSalaryBU').value = r.bu;
+      document.getElementById('fSalaryDept').value = r.department;
+      document.getElementById('fSalaryBase').value = r.baseSalary;
+      document.getElementById('fSalaryAllowances').value = r.allowances;
+      document.getElementById('fSalaryEffectiveDate').value = r.effectiveDate;
+      document.getElementById('fSalaryStatus').value = r.status;
+      document.getElementById('salaryModal').classList.add('open');
+    }
+
+    function closeSalaryModal() {
+      document.getElementById('salaryModal').classList.remove('open');
+    }
+
+    function autoFillSalaryEmployee() {
+      const id = document.getElementById('fSalaryEmployee').value;
+      const emp = employees.find(e => e.id === id);
+      if (emp) {
+        document.getElementById('fSalaryPosition').value = emp.position;
+        document.getElementById('fSalaryBU').value = emp.bu;
+        document.getElementById('fSalaryDept').value = emp.department;
+      }
+    }
+
+    async function saveSalary(e) {
+      e.preventDefault();
+      const id = document.getElementById('salaryFormId').value;
+      const empId = document.getElementById('fSalaryEmployee').value;
+      const emp = employees.find(x => x.id === empId);
+      const base = parseInt(document.getElementById('fSalaryBase').value) || 0;
+      const allow = parseInt(document.getElementById('fSalaryAllowances').value) || 0;
+
+      const data = {
+        employeeId: empId,
+        employee: emp ? emp.name : '',
+        position: emp ? emp.position : '',
+        bu: emp ? emp.bu : '',
+        department: emp ? emp.department : '',
+        baseSalary: base,
+        allowances: allow,
+        total: base + allow,
+        effectiveDate: document.getElementById('fSalaryEffectiveDate').value,
+        status: document.getElementById('fSalaryStatus').value
+      };
+
+      try {
+        if (typeof PP7API !== 'undefined' && PP7API_CONFIG.BASE_URL) {
+          if (id) await PP7API.updateRecord('salary_records', id, data);
+          else await PP7API.createRecord('salary_records', data);
+        }
+      } catch (err) { console.log('API fallback'); }
+
+      if (id) {
+        const idx = mockSalaryRecords.findIndex(r => r.id === id);
+        if (idx >= 0) mockSalaryRecords[idx] = { ...mockSalaryRecords[idx], ...data, id };
+      } else {
+        data.id = 'SAL' + String(mockSalaryRecords.length + 1).padStart(3, '0');
+        mockSalaryRecords.push(data);
+      }
+
+      closeSalaryModal();
+      filteredSalary = [...mockSalaryRecords];
+      populateFilters();
+      updateStats();
+      filterSalary();
+      showToast(id ? '✅ แก้ไขแล้ว' : '✅ เพิ่มข้อมูลแล้ว');
+    }
+
+    function confirmDeleteSalary(id) {
+      const r = mockSalaryRecords.find(x => x.id === id);
+      if (!r) return;
+      document.getElementById('confirmTitle').textContent = '🗑 ลบข้อมูลค่าตอบแทน';
+      document.getElementById('confirmMessage').textContent = `ลบข้อมูลเงินเดือนของ ${r.employee}? ไม่สามารถย้อนกลับได้`;
+      confirmCallback = () => {
+        try { if (typeof PP7API !== 'undefined' && PP7API_CONFIG.BASE_URL) PP7API.deleteRecord('salary_records', id); } catch (e) {}
+        mockSalaryRecords = mockSalaryRecords.filter(x => x.id !== id);
+        filteredSalary = [...mockSalaryRecords];
+        updateStats(); filterSalary();
+        showToast('🗑 ลบแล้ว');
+      };
+      document.getElementById('confirmModal').classList.add('open');
+    }
+
+    // ============================================================
+    // INCENTIVE ACTIONS
+    // ============================================================
+    function advanceIncentiveStatus(id) {
+      const inc = mockIncentives.find(i => i.id === id);
+      if (!inc) return;
+      const workflow = ['Calculated', 'Approved', 'Paid'];
+      const idx = workflow.indexOf(inc.status);
+      if (idx >= workflow.length - 1) { showToast('⚠️ รายการนี้จ่ายแล้ว'); return; }
+      const next = workflow[idx + 1];
+      document.getElementById('confirmTitle').textContent = '⏭ เปลี่ยนสถานะ Incentive';
+      document.getElementById('confirmMessage').textContent = `เปลี่ยนเป็น "${next}" สำหรับ ${inc.employee} (฿${inc.amount.toLocaleString('th-TH')})?`;
+      confirmCallback = () => {
+        inc.status = next;
+        filteredIncentives = [...mockIncentives];
+        updateStats(); filterIncentives();
+        showToast(`✅ เปลี่ยนเป็น "${next}" แล้ว`);
+      };
+      document.getElementById('confirmModal').classList.add('open');
+    }
+
+    function autoCalculateIncentives() {
+      document.getElementById('confirmTitle').textContent = '⚡ คำนวณ Incentive จาก P4';
+      document.getElementById('confirmMessage').textContent = 'คำนวณ Incentive อัตโนมัติจากคะแนน P4 สำหรับพนักงานที่ยังไม่มี? (Performance = ค่าเงินเดือน × 0.5 × คะแนน/5)';
+      confirmCallback = () => {
+        let added = 0;
+        mockSalaryRecords.forEach(sal => {
+          const existing = mockIncentives.find(i => i.employeeId === sal.employeeId && i.period === 'Q2/2025');
+          if (!existing) {
+            // จำลองคะแนน P4
+            const evalScore = 2.5 + Math.random() * 2;
+            const rounded = Math.round(evalScore * 10) / 10;
+            const amount = Math.round(sal.baseSalary * 0.5 * (rounded / 5) / 100) * 100;
+            mockIncentives.push({
+              id: 'INC' + String(mockIncentives.length + 1).padStart(3, '0'),
+              employeeId: sal.employeeId,
+              employee: sal.employee,
+              bu: sal.bu,
+              type: 'Performance',
+              amount: amount,
+              period: 'Q2/2025',
+              evalScore: rounded,
+              status: 'Calculated'
+            });
+            added++;
+          }
+        });
+        if (added > 0) {
+          filteredIncentives = [...mockIncentives];
+          updateStats(); filterIncentives();
+          showToast(`⚡ คำนวณ ${added} รายการแล้ว`);
+        } else {
+          showToast('ℹ️ พนักงานทุกคนมี Incentive แล้ว');
+        }
+      };
+      document.getElementById('confirmModal').classList.add('open');
+    }
+
+    function confirmDeleteIncentive(id) {
+      const inc = mockIncentives.find(i => i.id === id);
+      if (!inc) return;
+      document.getElementById('confirmTitle').textContent = '🗑 ลบ Incentive';
+      document.getElementById('confirmMessage').textContent = `ลบ incentive ของ ${inc.employee} (฿${inc.amount.toLocaleString('th-TH')})?`;
+      confirmCallback = () => {
+        try { if (typeof PP7API !== 'undefined' && PP7API_CONFIG.BASE_URL) PP7API.deleteRecord('incentives', id); } catch (e) {}
+        mockIncentives = mockIncentives.filter(i => i.id !== id);
+        filteredIncentives = [...mockIncentives];
+        updateStats(); filterIncentives();
+        showToast('🗑 ลบแล้ว');
+      };
+      document.getElementById('confirmModal').classList.add('open');
+    }
+
+    // ============================================================
+    // MODAL — Benefits
+    // ============================================================
+    function openAddBenefitsModal() {
+      document.getElementById('benefitsModalTitle').textContent = '🛡️ เพิ่มข้อมูลสวัสดิการ';
+      document.getElementById('benefitsFormId').value = '';
+      document.getElementById('fBenEmployee').value = '';
+      document.getElementById('fBenBU').value = '';
+      document.getElementById('fBenInsurance').value = '0';
+      document.getElementById('fBenProvident').value = '0';
+      document.getElementById('fBenLeave').value = '10';
+      document.getElementById('fBenOthers').value = '0';
+
+      const select = document.getElementById('fBenEmployee');
+      select.innerHTML = '<option value="">เลือกพนักงาน</option>' + employees.map(e => `<option value="${e.id}">${e.id} — ${e.name}</option>`).join('');
+      document.getElementById('benefitsModal').classList.add('open');
+    }
+
+    function editBenefit(id) {
+      const b = mockBenefits.find(x => x.id === id);
+      if (!b) return;
+      document.getElementById('benefitsModalTitle').textContent = '✏️ แก้ไขสวัสดิการ';
+      document.getElementById('benefitsFormId').value = b.id;
+      const select = document.getElementById('fBenEmployee');
+      select.innerHTML = '<option value="">เลือกพนักงาน</option>' + employees.map(e => `<option value="${e.id}">${e.id} — ${e.name}</option>`).join('');
+      select.value = b.employeeId;
+      document.getElementById('fBenBU').value = b.bu;
+      document.getElementById('fBenInsurance').value = b.insurance;
+      document.getElementById('fBenProvident').value = b.providentFund;
+      document.getElementById('fBenLeave').value = b.leaveBalance;
+      document.getElementById('fBenOthers').value = b.others;
+      document.getElementById('benefitsModal').classList.add('open');
+    }
+
+    function closeBenefitsModal() {
+      document.getElementById('benefitsModal').classList.remove('open');
+    }
+
+    function autoFillBenEmployee() {
+      const id = document.getElementById('fBenEmployee').value;
+      const emp = employees.find(e => e.id === id);
+      document.getElementById('fBenBU').value = emp ? emp.bu : '';
+    }
+
+    async function saveBenefit(e) {
+      e.preventDefault();
+      const id = document.getElementById('benefitsFormId').value;
+      const empId = document.getElementById('fBenEmployee').value;
+      const emp = employees.find(x => x.id === empId);
+      const insurance = parseInt(document.getElementById('fBenInsurance').value) || 0;
+      const provident = parseInt(document.getElementById('fBenProvident').value) || 0;
+      const leave = parseInt(document.getElementById('fBenLeave').value) || 0;
+      const others = parseInt(document.getElementById('fBenOthers').value) || 0;
+      const totalCost = insurance + (provident * 12) + (leave * 500) + (others * 12);
+
+      const data = {
+        employeeId: empId, employee: emp ? emp.name : '', bu: emp ? emp.bu : '',
+        insurance, providentFund: provident, leaveBalance: leave, others, totalCost
+      };
+
+      try {
+        if (typeof PP7API !== 'undefined' && PP7API_CONFIG.BASE_URL) {
+          if (id) await PP7API.updateRecord('benefits', id, data);
+          else await PP7API.createRecord('benefits', data);
+        }
+      } catch (err) { console.log('API fallback'); }
+
+      if (id) {
+        const idx = mockBenefits.findIndex(b => b.id === id);
+        if (idx >= 0) mockBenefits[idx] = { ...mockBenefits[idx], ...data, id };
+      } else {
+        data.id = 'BEN' + String(mockBenefits.length + 1).padStart(3, '0');
+        mockBenefits.push(data);
+      }
+
+      closeBenefitsModal();
+      filteredBenefits = [...mockBenefits];
+      updateStats(); filterBenefits();
+      showToast(id ? '✅ แก้ไขสวัสดิการแล้ว' : '✅ เพิ่มสวัสดิการแล้ว');
+    }
+
+    function confirmDeleteBenefit(id) {
+      const b = mockBenefits.find(x => x.id === id);
+      if (!b) return;
+      document.getElementById('confirmTitle').textContent = '🗑 ลบสวัสดิการ';
+      document.getElementById('confirmMessage').textContent = `ลบสวัสดิการของ ${b.employee}?`;
+      confirmCallback = () => {
+        try { if (typeof PP7API !== 'undefined' && PP7API_CONFIG.BASE_URL) PP7API.deleteRecord('benefits', id); } catch (e) {}
+        mockBenefits = mockBenefits.filter(x => x.id !== id);
+        filteredBenefits = [...mockBenefits];
+        updateStats(); filterBenefits();
+        showToast('🗑 ลบแล้ว');
+      };
+      document.getElementById('confirmModal').classList.add('open');
+    }
+
+    // ============================================================
+    // EXPORT TO EXCEL
+    // ============================================================
+    function exportToExcel() {
+      let csv = '\uFEFF';
+      // Salary Sheet
+      csv += '=== ค่าตอบแทน ===\n';
+      csv += 'Emp ID,ชื่อ,ตำแหน่ง,BU,Department,เงินเดือน,ค่าตอบแทนอื่น,รวม,วันที่มีผล,สถานะ\n';
+      mockSalaryRecords.forEach(r => {
+        csv += `${r.employeeId},"${r.employee}","${r.position}",${r.bu},${r.department},${r.baseSalary},${r.allowances},${r.total},${r.effectiveDate},${r.status}\n`;
+      });
+      csv += '\n=== Incentive ===\n';
+      csv += 'ID,พนักงาน,BU,ประเภท,จำนวนเงิน,งวด,คะแนนP4,สถานะ\n';
+      mockIncentives.forEach(i => {
+        csv += `${i.id},"${i.employee}",${i.bu},${i.type},${i.amount},${i.period},${i.evalScore},${i.status}\n`;
+      });
+      csv += '\n=== สวัสดิการ ===\n';
+      csv += 'Emp ID,ชื่อ,BU,ประกัน,กองทุน,วันลา,อื่นๆ,รวม\n';
+      mockBenefits.forEach(b => {
+        csv += `${b.employeeId},"${b.employee}",${b.bu},${b.insurance},${b.providentFund},${b.leaveBalance},${b.others},${b.totalCost}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `PP6_Compensation_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+      showToast('📥 Export สำเร็จ');
+    }
+
+    // ============================================================
+    // CONFIRM DIALOG
+    // ============================================================
+    function closeConfirm() { document.getElementById('confirmModal').classList.remove('open'); confirmCallback = null; }
+    function executeConfirm() { if (confirmCallback) confirmCallback(); closeConfirm(); }
+
+    // ============================================================
+    // UTILITIES
+    // ============================================================
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('mobile-open'); }
+    function showSalaryLoading(show) { document.getElementById('loadingSalary').style.display = show ? 'flex' : 'none'; }
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      return new Date(dateStr).toLocaleDateString('th-TH', { day: '2-digit', month: 'short', year: '2-digit' });
+    }
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+  </script>
+</body>
+</html>
