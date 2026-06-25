@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web PP7 Presentation — ระบบบริหารบุคลากร PP7</title>
+<!-- ฟอนต์ Prompt จาก Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ============================================
+   CSS RESET & BASE
+   ============================================ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --transition-slide: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  --font: 'Prompt', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   SCREEN MANAGEMENT
+   ============================================ */
+.screen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+  z-index: 1;
+}
+
+.screen.active {
+  opacity: 1;
+  visibility: visible;
+  z-index: 10;
+}
+
+/* ============================================
+   START SCREEN
+   ============================================ */
+#start-screen {
+  background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 40%, #5b21b6 80%, #7c3aed 100%);
+  color: #f1f5f9;
+  text-align: center;
+}
+
+.start-logo {
+  width: 120px;
+  height: 120px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255,255,255,0.2);
+  animation: logoPulse 3s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.2); }
+  50% { transform: scale(1.05); box-shadow: 0 0 40px 10px rgba(255,255,255,0.1); }
+}
+
+.start-logo span {
+  font-size: 3rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.start-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.start-subtitle {
+  font-size: 1.1rem;
+  font-weight: 300;
+  opacity: 0.7;
+  margin-bottom: 3rem;
+}
+
+.btn-start {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.2rem 3rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  font-family: var(--font);
+  color: #1e3a5f;
+  background: white;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.btn-start:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+
+.btn-start:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-weight: 400;
+  font-family: var(--font);
+  color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1.5rem;
+}
+
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.15);
+  color: white;
+}
+
+.start-note {
+  margin-top: 2rem;
+  font-size: 0.85rem;
+  opacity: 0.5;
+  font-weight: 300;
+}
+
+/* ============================================
+   PRESENTATION SCREEN
+   ============================================ */
+#presentation-screen {
+  background: #0f172a;
+}
+
+/* --- Progress Bar --- */
+.progress-bar-container {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  z-index: 100;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #60a5fa, #a78bfa);
+  transition: width 0.4s ease;
+  width: 0%;
+  border-radius: 0 2px 2px 0;
+}
+
+/* --- Header --- */
+.slide-header {
+  position: absolute;
+  top: 4px; left: 0;
+  width: 100%;
+  padding: 1.2rem 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+}
+
+.slide-header-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* --- Main Slide Area --- */
+.slides-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.slide {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 4rem 6rem;
+  opacity: 0;
+  transform: translateX(60px);
+  transition: opacity var(--transition-slide), transform var(--transition-slide);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.slide.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.slide.exit-left {
+  opacity: 0;
+  transform: translateX(-60px);
+}
+
+.slide.exit-right {
+  opacity: 0;
+  transform: translateX(60px);
+}
+
+/* --- Footer --- */
+.slide-footer {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%;
+  padding: 1rem 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+}
+
+.slide-counter {
+  font-size: 0.8rem;
+  font-weight: 400;
+  opacity: 0.5;
+}
+
+.controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.ctrl-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: rgba(255,255,255,0.1);
+  color: inherit;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+  font-family: var(--font);
+  backdrop-filter: blur(4px);
+}
+
+.ctrl-btn:hover {
+  background: rgba(255,255,255,0.2);
+  transform: scale(1.05);
+}
+
+/* ============================================
+   SLIDE BACKGROUNDS
+   ============================================ */
+.slide[data-slide="1"]  { background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 40%, #5b21b6 80%, #7c3aed 100%); color: #f1f5f9; }
+.slide[data-slide="2"]  { background: linear-gradient(135deg, #f8fafc, #dbeafe); color: #1e293b; }
+.slide[data-slide="3"]  { background: linear-gradient(135deg, #ecfdf5, #ccfbf1); color: #1e293b; }
+.slide[data-slide="4"]  { background: linear-gradient(135deg, #faf5ff, #fdf2f8); color: #1e293b; }
+.slide[data-slide="5"]  { background: linear-gradient(135deg, #fffbeb, #fff7ed); color: #1e293b; }
+.slide[data-slide="6"]  { background: linear-gradient(135deg, #ecfeff, #dbeafe); color: #1e293b; }
+.slide[data-slide="7"]  { background: linear-gradient(135deg, #eef2ff, #dbeafe); color: #1e293b; }
+.slide[data-slide="8"]  { background: linear-gradient(135deg, #fff1f2, #fdf2f8); color: #1e293b; }
+.slide[data-slide="9"]  { background: linear-gradient(135deg, #334155, #0f172a); color: #f1f5f9; }
+.slide[data-slide="10"] { background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 40%, #5b21b6 80%, #7c3aed 100%); color: #f1f5f9; }
+
+/* ============================================
+   SLIDE CONTENT STYLES
+   ============================================ */
+.slide-content {
+  max-width: 1100px;
+  width: 100%;
+  text-align: center;
+}
+
+.slide-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.slide-subtitle {
+  font-size: 1rem;
+  font-weight: 300;
+  opacity: 0.6;
+  margin-bottom: 2.5rem;
+}
+
+/* --- Stagger Animations --- */
+.stagger > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+}
+
+.slide.active .stagger > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
+.slide.active .stagger > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.3s; }
+.slide.active .stagger > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.5s; }
+.slide.active .stagger > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.7s; }
+.slide.active .stagger > *:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.9s; }
+.slide.active .stagger > *:nth-child(6) { opacity: 1; transform: translateY(0); transition-delay: 1.1s; }
+.slide.active .stagger > *:nth-child(7) { opacity: 1; transform: translateY(0); transition-delay: 1.3s; }
+.slide.active .stagger > *:nth-child(8) { opacity: 1; transform: translateY(0); transition-delay: 1.5s; }
+
+/* --- Slide 1: Title --- */
+.title-logo {
+  width: 100px;
+  height: 100px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255,255,255,0.2);
+}
+
+.title-logo span {
+  font-size: 2.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.slide.active .title-logo {
+  animation: scaleIn 0.6s var(--ease-out-expo) 0.2s both;
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.5); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.slide.active .slide-title,
+.slide.active .slide-subtitle {
+  animation: fadeUp 0.6s var(--ease-out-expo) both;
+}
+
+.slide.active .slide-title { animation-delay: 0.4s; }
+.slide.active .slide-subtitle { animation-delay: 0.6s; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.title-badge {
+  display: inline-block;
+  padding: 0.4rem 1.2rem;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+
+/* --- Slide 2: วิสัยทัศน์ (Vision) --- */
+.vision-cards {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.vision-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem 2rem;
+  width: 280px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.04);
+  transition: transform 0.3s ease;
+}
+
+.vision-card:hover {
+  transform: translateY(-4px);
+}
+
+.vision-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.vision-card h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: #1e293b;
+}
+
+.vision-card p {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 300;
+}
+
+.vision-stat {
+  font-size: 1.8rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.3rem;
+}
+
+/* --- Slide 3: โครงสร้าง PP7 --- */
+.process-chain {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.process-circle {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  border: 3px solid transparent;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.4s var(--ease-out-expo);
+}
+
+.slide.active .process-circle {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.slide.active .process-circle:nth-child(1) { transition-delay: 0.1s; border-color: #3b82f6; }
+.slide.active .process-circle:nth-child(3) { transition-delay: 0.25s; border-color: #10b981; }
+.slide.active .process-circle:nth-child(5) { transition-delay: 0.4s; border-color: #f59e0b; }
+.slide.active .process-circle:nth-child(7) { transition-delay: 0.55s; border-color: #ef4444; }
+.slide.active .process-circle:nth-child(9) { transition-delay: 0.7s; border-color: #8b5cf6; }
+.slide.active .process-circle:nth-child(11) { transition-delay: 0.85s; border-color: #ec4899; }
+.slide.active .process-circle:nth-child(13) { transition-delay: 1.0s; border-color: #06b6d4; }
+
+.process-circle .p-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.process-circle .p-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.process-arrow {
+  font-size: 1.2rem;
+  color: #94a3b8;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.slide.active .process-arrow {
+  opacity: 1;
+  transition-delay: inherit;
+}
+
+/* --- Slide 4: Radar Chart --- */
+.radar-container {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.radar-svg {
+  width: 320px;
+  height: 320px;
+}
+
+.radar-polygon {
+  fill: rgba(99, 102, 241, 0.15);
+  stroke: #6366f1;
+  stroke-width: 2;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  transition: stroke-dashoffset 1.5s ease;
+}
+
+.slide.active .radar-polygon {
+  stroke-dashoffset: 0;
+}
+
+.radar-point {
+  fill: #6366f1;
+  opacity: 0;
+  transition: opacity 0.3s ease 1.2s;
+}
+
+.slide.active .radar-point {
+  opacity: 1;
+}
+
+.radar-label-text {
+  font-size: 10px;
+  font-weight: 500;
+  fill: #475569;
+}
+
+.cc-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.cc-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.cc-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cc-legend-item strong {
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+
+.cc-legend-item span {
+  font-size: 1.2rem;
+}
+
+/* --- Slide 5: Data Flow --- */
+.flow-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.flow-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.flow-node {
+  padding: 0.7rem 1.2rem;
+  border-radius: 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: white;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  white-space: nowrap;
+}
+
+.flow-node .flow-id {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  color: white;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.flow-arrow {
+  font-size: 1.2rem;
+  color: #94a3b8;
+  animation: arrowPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes arrowPulse {
+  0%, 100% { opacity: 0.4; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(3px); }
+}
+
+.flow-arrow-down {
+  font-size: 1.2rem;
+  color: #94a3b8;
+  animation: arrowPulseDown 1.5s ease-in-out infinite;
+}
+
+@keyframes arrowPulseDown {
+  0%, 100% { opacity: 0.4; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(3px); }
+}
+
+/* --- Slide 6: Progress --- */
+.phase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.phase-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: white;
+  border-radius: 16px;
+  padding: 1.2rem 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  text-align: left;
+}
+
+.phase-status {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.phase-info {
+  flex: 1;
+}
+
+.phase-info h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.3rem;
+}
+
+.phase-info p {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  width: 0%;
+  transition: width 1.5s ease 0.3s;
+}
+
+.slide.active .progress-fill.complete {
+  width: 100%;
+}
+
+.progress-fill.p1-fill { background: linear-gradient(90deg, #10b981, #34d399); }
+.progress-fill.p2-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.progress-fill.p3-fill { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.progress-fill.p4-fill { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+.phase-percent {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e293b;
+  flex-shrink: 0;
+  min-width: 45px;
+  text-align: right;
+}
+
+/* --- Slide 7: Module Cards --- */
+.module-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.module-card {
+  background: white;
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+  text-align: left;
+  opacity: 0;
+  transform: perspective(600px) rotateY(-15deg);
+  transition: all 0.5s var(--ease-out-expo);
+}
+
+.slide.active .module-card {
+  opacity: 1;
+  transform: perspective(600px) rotateY(0deg);
+}
+
+.slide.active .module-card:nth-child(1) { transition-delay: 0.2s; }
+.slide.active .module-card:nth-child(2) { transition-delay: 0.4s; }
+.slide.active .module-card:nth-child(3) { transition-delay: 0.6s; }
+.slide.active .module-card:nth-child(4) { transition-delay: 0.8s; }
+
+.module-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.module-badge {
+  padding: 0.3rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+}
+
+.module-card:nth-child(1) .module-badge { background: #3b82f6; }
+.module-card:nth-child(2) .module-badge { background: #10b981; }
+.module-card:nth-child(3) .module-card:nth-child(3) .module-badge { background: #f59e0b; }
+.module-card:nth-child(4) .module-badge { background: #8b5cf6; }
+
+.module-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.module-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.module-list li {
+  font-size: 0.8rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.module-list li::before {
+  content: '✦';
+  color: #cbd5e1;
+  font-size: 0.6rem;
+}
+
+.module-count {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+/* --- Slide 8: Roadmap Timeline --- */
+.timeline {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.timeline-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+.timeline-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  margin-bottom: 0.8rem;
+  opacity: 0;
+  transform: scale(0.3);
+  transition: all 0.5s var(--ease-out-expo);
+  z-index: 2;
+  background: white;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+}
+
+.slide.active .timeline-dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.slide.active .timeline-item:nth-child(1) .timeline-dot { transition-delay: 0.2s; }
+.slide.active .timeline-item:nth-child(2) .timeline-dot { transition-delay: 0.5s; }
+.slide.active .timeline-item:nth-child(3) .timeline-dot { transition-delay: 0.8s; }
+.slide.active .timeline-item:nth-child(4) .timeline-dot { transition-delay: 1.1s; }
+.slide.active .timeline-item:nth-child(5) .timeline-dot { transition-delay: 1.4s; }
+
+.timeline-line {
+  position: absolute;
+  top: 20px;
+  left: 10%;
+  width: 80%;
+  height: 3px;
+  background: #e2e8f0;
+  z-index: 1;
+}
+
+.timeline-connector {
+  height: 3px;
+  background: linear-gradient(90deg, #10b981, #3b82f6, #8b5cf6, #ec4899);
+  width: 0%;
+  transition: width 2s ease 0.3s;
+  position: absolute;
+  top: 20px;
+  left: 10%;
+  z-index: 1;
+}
+
+.slide.active .timeline-connector {
+  width: 80%;
+}
+
+.timeline-month {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 0.3rem;
+}
+
+.timeline-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #1e293b;
+  max-width: 120px;
+}
+
+/* --- Slide 9: RBAC Grid --- */
+.rbac-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.rbac-card {
+  padding: 1.2rem;
+  border-radius: 16px;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.4s ease;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.slide.active .rbac-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.slide.active .rbac-card:nth-child(1) { transition-delay: 0.2s; }
+.slide.active .rbac-card:nth-child(2) { transition-delay: 0.35s; }
+.slide.active .rbac-card:nth-child(3) { transition-delay: 0.5s; }
+.slide.active .rbac-card:nth-child(4) { transition-delay: 0.65s; }
+.slide.active .rbac-card:nth-child(5) { transition-delay: 0.8s; }
+.slide.active .rbac-card:nth-child(6) { transition-delay: 0.95s; }
+
+.rbac-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.rbac-role {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.rbac-permission {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  font-weight: 300;
+}
+
+/* --- Slide 10: Thank You --- */
+.thankyou-logo {
+  width: 100px;
+  height: 100px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255,255,255,0.2);
+}
+
+.thankyou-logo span {
+  font-size: 2.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sparkle-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.8);
+  animation: sparkleAnim 2s ease-in-out infinite;
+}
+
+@keyframes sparkleAnim {
+  0%, 100% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+/* --- Subtitles --- */
+.subtitle-overlay {
+  position: absolute;
+  bottom: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 80%;
+  padding: 0.6rem 1.5rem;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 400;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 200;
+  pointer-events: none;
+}
+
+.subtitle-overlay.visible {
+  opacity: 1;
+}
+
+/* ============================================
+   END SCREEN
+   ============================================ */
+#end-screen {
+  background: linear-gradient(135deg, #1e3a5f 0%, #1d4ed8 40%, #5b21b6 80%, #7c3aed 100%);
+  color: #f1f5f9;
+  text-align: center;
+}
+
+.end-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+.end-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn-end {
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: var(--font);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-replay {
+  background: white;
+  color: #1e3a5f;
+}
+
+.btn-exit {
+  background: rgba(255,255,255,0.15);
+  color: #f1f5f9;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.btn-end:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .slide {
+    padding: 4rem 2rem 5rem;
+  }
+  .slide-title { font-size: 1.6rem; }
+  .vision-cards { flex-direction: column; align-items: center; }
+  .vision-card { width: 90%; }
+  .process-chain { gap: 0.3rem; }
+  .process-circle { width: 80px; height: 80px; }
+  .radar-container { flex-direction: column; }
+  .radar-svg { width: 240px; height: 240px; }
+  .module-grid { grid-template-columns: 1fr; }
+  .timeline { flex-direction: column; align-items: center; gap: 1rem; }
+  .timeline-line, .timeline-connector { display: none; }
+  .rbac-grid { grid-template-columns: 1fr 1fr; }
+  .flow-row { flex-direction: column; }
+}
+
+/* --- Utility: สีต่างๆ --- */
+.bg-blue { background-color: #3b82f6; }
+.bg-green { background-color: #10b981; }
+.bg-amber { background-color: #f59e0b; }
+.bg-red { background-color: #ef4444; }
+.bg-purple { background-color: #8b5cf6; }
+.bg-pink { background-color: #ec4899; }
+.bg-cyan { background-color: #06b6d4; }
+.bg-indigo { background-color: #6366f1; }
+</style>
+</head>
+<body>
+
+<!-- ============================================
+     หน้าเริ่มต้น (Start Screen)
+     ============================================ -->
+<div id="start-screen" class="screen active">
+  <div class="start-logo"><span>PP7</span></div>
+  <h1 class="start-title">Web PP7 Presentation</h1>
+  <p class="start-subtitle">ระบบบริหารบุคลากร PP7 — Pakorn Group</p>
+  <button class="btn-start" id="btn-start" onclick="startPresentation()">
+    ▶️ เริ่มนำเสนอ
+  </button>
+  <br>
+  <button class="btn-secondary" id="btn-toggle-voice" onclick="toggleMute()">
+    <span id="voice-icon">🔊</span> เปิด/ปิดเสียง
+  </button>
+  <p class="start-note">คลิกเพื่อเริ่ม (ต้องใช้เสียงพากย์ภาษาไทย)</p>
+</div>
+
+<!-- ============================================
+     หน้า Presentation
+     ============================================ -->
+<div id="presentation-screen" class="screen">
+
+  <!-- Progress Bar ด้านบน -->
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="progress-bar"></div>
+  </div>
+
+  <!-- Header -->
+  <div class="slide-header" id="slide-header">
+    <span class="slide-header-label" id="header-label"></span>
+  </div>
+
+  <!-- ========== Slide Content ========== -->
+  <div class="slides-container" id="slides-container">
+
+    <!-- Slide 1: Title -->
+    <div class="slide" data-slide="1">
+      <div class="slide-content stagger">
+        <div class="title-logo"><span>PP7</span></div>
+        <h1 class="slide-title" style="font-size:2.8rem;">ระบบบริหารบุคลากร PP7</h1>
+        <p class="slide-subtitle" style="font-size:1.15rem; margin-bottom:1rem;">นวัตกรรมใหม่แห่งการบริหารคนครบวงจร<br>สำหรับกลุ่มบริษัท ปกรณ์</p>
+        <div class="title-badge">Pakorn Group | 2569</div>
+      </div>
+    </div>
+
+    <!-- Slide 2: วิสัยทัศน์ -->
+    <div class="slide" data-slide="2">
+      <div class="slide-content stagger">
+        <h2 class="slide-title">วิสัยทัศน์สู่ Digital HR</h2>
+        <p class="slide-subtitle">เป้าหมายหลักของการเปลี่ยนแปลง</p>
+        <div class="vision-cards">
+          <div class="vision-card">
+            <div class="vision-icon">📊</div>
+            <div class="vision-stat">Data-Driven</div>
+            <h3>HR ขับเคลื่อนด้วยข้อมูล</h3>
+            <p>ตัดสินใจบนพื้นฐานข้อมูล ไม่ใช่ความรู้สึก</p>
+          </div>
+          <div class="vision-card">
+            <div class="vision-icon">⚡</div>
+            <div class="vision-stat">≥ 60%</div>
+            <h3>ลดงาน Manual</h3>
+            <p>ลดงานเอกสารและกระบวนการทำซ้ำ</p>
+          </div>
+          <div class="vision-card">
+            <div class="vision-icon">🤖</div>
+            <div class="vision-stat">90%</div>
+            <h3>AI Wellbeing Tracker</h3>
+            <p>ครอบคลุมสมาชิกทุกคนในองค์กร</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: โครงสร้าง PP7 -->
+    <div class="slide" data-slide="3">
+      <div class="slide-content stagger">
+        <h2 class="slide-title">7 กระบวนการ PP7</h2>
+        <p class="slide-subtitle">วงจรการบริหารคนแบบครบวงจร</p>
+        <div class="process-chain">
+          <div class="process-circle">
+            <span class="p-icon">🔍</span>
+            <span class="p-label">P1 แสวงหา</span>
+          </div>
+          <span class="process-arrow">→</span>
+          <div class="process-circle">
+            <span class="p-icon">📝</span>
+            <span class="p-label">P2 หยั่งฯ</span>
+          </div>
+          <span class="process-arrow">→</span>
+          <div class="process-circle">
+            <span class="p-icon">🎯</span>
+            <span class="p-label">P3 จับคู่</span>
+          </div>
+          <span class="process-arrow">→</span>
+          <div class="process-circle">
+            <span class="p-icon">📈</span>
+            <span class="p-label">P4 ประเมิน</span>
+          </div>
+          <span class="process-arrow">→</span>
+          <div class="process-circle">
+            <span class="p-icon">🚀</span>
+            <span class="p-label">P5 พัฒนา</span>
+          </div>
+          <span class="process-arrow">→</span>
+          <div class="process-circle">
+            <span class="p-icon">💰</span>
+            <span class="p-label">P6 ค่าตอบแทน</span>
+          </div>
+          <span class="process-arrow">→</span>
+          <div class="process-circle">
+            <span class="p-icon">💚</span>
+            <span class="p-label">P7 คุณภาพชีวิต</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Core Competency (Radar Chart) -->
+    <div class="slide" data-slide="4">
+      <div class="slide-content stagger">
+        <h2 class="slide-title">Core Competency 5 ด้าน</h2>
+        <p class="slide-subtitle">สิ่งที่สมาชิกทุกคนต้องมี</p>
+        <div class="radar-container">
+          <!-- SVG Radar Chart -->
+          <svg class="radar-svg" viewBox="0 0 320 320">
+            <defs>
+              <linearGradient id="radarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#6366f1;stop-opacity:0.3"/>
+                <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:0.1"/>
+              </linearGradient>
+            </defs>
+            <!-- Grid lines (5 levels) -->
+            <g opacity="0.15" stroke="#6366f1" fill="none">
+              <polygon points="160,72 248,120 216,212 104,212 72,120"/>
+              <polygon points="160,88 236,126 210,200 110,200 84,126"/>
+              <polygon points="160,104 224,132 204,188 116,188 96,132"/>
+              <polygon points="160,120 212,138 198,176 122,176 108,138"/>
+              <polygon points="160,136 200,144 192,164 128,164 120,144"/>
+            </g>
+            <!-- Axes -->
+            <g opacity="0.2" stroke="#6366f1">
+              <line x1="160" y1="160" x2="160" y2="72"/>
+              <line x1="160" y1="160" x2="248" y2="120"/>
+              <line x1="160" y1="160" x2="216" y2="212"/>
+              <line x1="160" y1="160" x2="104" y2="212"/>
+              <line x1="160" y1="160" x2="72" y2="120"/>
+            </g>
+            <!-- Data polygon -->
+            <polygon class="radar-polygon"
+              points="160,78 240,125 196,202 112,192 80,128"
+              fill="url(#radarGrad)"/>
+            <!-- Data points -->
+            <circle class="radar-point" cx="160" cy="78" r="5"/>
+            <circle class="radar-point" cx="240" cy="125" r="5"/>
+            <circle class="radar-point" cx="196" cy="202" r="5"/>
+            <circle class="radar-point" cx="112" cy="192" r="5"/>
+            <circle class="radar-point" cx="80" cy="128" r="5"/>
+            <!-- Labels -->
+            <text class="radar-label-text" x="160" y="60" text-anchor="middle">👑 ผู้นำผู้รับใช้</text>
+            <text class="radar-label-text" x="260" y="118" text-anchor="start">💡 นวัตกรรม</text>
+            <text class="radar-label-text" x="224" y="228" text-anchor="start">🤝 ไว้วางใจ</text>
+            <text class="radar-label-text" x="88" y="228" text-anchor="end">👥 ทีม</text>
+            <text class="radar-label-text" x="60" y="118" text-anchor="end">🛡️ มือโปร</text>
+          </svg>
+          <!-- Legend -->
+          <div class="cc-legend">
+            <div class="cc-legend-item">
+              <span>👑</span>
+              <strong>ผู้นำผู้รับใช้</strong>
+            </div>
+            <div class="cc-legend-item">
+              <span>💡</span>
+              <strong>นวัตกรรมปรับตัว</strong>
+            </div>
+            <div class="cc-legend-item">
+              <span>🤝</span>
+              <strong>คุณค่าบนความไว้วางใจ</strong>
+            </div>
+            <div class="cc-legend-item">
+              <span>👥</span>
+              <strong>ทีมฉันทมติ</strong>
+            </div>
+            <div class="cc-legend-item">
+              <span>🛡️</span>
+              <strong>มืออาชีพมีวินัย</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 5: Data Flow -->
+    <div class="slide" data-slide="5">
+      <div class="slide-content stagger">
+        <h2 class="slide-title">เส้นทางข้อมูล PP7</h2>
+        <p class="slide-subtitle">ข้อมูลไหลลื่นจากต้นทางจนถึงปลายทาง</p>
+        <div class="flow-diagram">
+          <!-- Row 1: P1 → P2 → P3 → P4 -->
+          <div class="flow-row">
+            <div class="flow-node">
+              <span class="flow-id bg-blue">P1</span>
+              แสวงหา
+            </div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-node">
+              <span class="flow-id bg-green">P2</span>
+              หยั่งประเมิน
+            </div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-node">
+              <span class="flow-id bg-amber">P3</span>
+              จับคู่คนกับงาน
+            </div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-node">
+              <span class="flow-id bg-red">P4</span>
+              ประเมินผล + 360°
+            </div>
+          </div>
+          <!-- Arrow Down -->
+          <div style="display:flex; justify-content:center;"><span class="flow-arrow-down">⬇️</span></div>
+          <!-- Row 2: P5 → P6 → P7 -->
+          <div class="flow-row">
+            <div class="flow-node">
+              <span class="flow-id bg-purple">P5</span>
+              พัฒนา
+            </div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-node">
+              <span class="flow-id bg-pink">P6</span>
+              ค่าตอบแทน
+            </div>
+            <span class="flow-arrow">→</span>
+            <div class="flow-node">
+              <span class="flow-id bg-cyan">P7</span>
+              คุณภาพชีวิต
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 6: สถานะปัจจุบัน -->
+    <div class="slide" data-slide="6">
+      <div class="slide-content stagger">
+        <h2 class="slide-title">ความคืบหน้า โครงการ</h2>
+        <p class="slide-subtitle">อัปเดตสถานะล่าสุด</p>
+        <div class="phase-list">
+          <div class="phase-item">
+            <div class="phase-status">✅</div>
+            <div class="phase-info">
+              <h4>Phase 1: Backend</h4>
+              <p>27 ตารางข้อมูล • ระบบฐานข้อมูลครบถ้วน</p>
+              <div class="progress-track">
+                <div class="progress-fill p1-fill complete"></div>
+              </div>
+            </div>
+            <div class="phase-percent">100%</div>
+          </div>
+          <div class="phase-item">
+            <div class="phase-status">✅</div>
+            <div class="phase-info">
+              <h4>Phase 2: P1-P4 Modules</h4>
+              <p>8 frontend modules • ระบบ Pipeline + Radar Chart</p>
+              <div class="progress-track">
+                <div class="progress-fill p2-fill complete"></div>
+              </div>
+            </div>
+            <div class="phase-percent">100%</div>
+          </div>
+          <div class="phase-item">
+            <div class="phase-status">✅</div>
+            <div class="phase-info">
+              <h4>Phase 3: Main Layout</h4>
+              <p>Login • Role-Based Access Control • Navigation</p>
+              <div class="progress-track">
+                <div class="progress-fill p3-fill complete"></div>
+              </div>
+            </div>
+            <div class="phase-percent">100%</div>
+          </div>
+          <div class="phase-item">
+            <div class="phase-status">🔄</div>
+            <div class="phase-info">
+              <h4>Phase 4: P5-P7</h4>
+              <p>กำลังพัฒนา...</p>
+              <div class="progress-track">
+                <div class="progress-fill p4-fill"></div>
+              </div>
+            </div>
+            <div class="phase-percent">0%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 7: P1-P4 Modules -->
+    <div class="slide" data-slide="7">
+      <div class="slide-content stagger">
+        <h2 class="slide-title">Module ที่พร้อมใช้</h2>
+        <p class="slide-subtitle">8 Frontend Modules รองรับ 4 กระบวนการหลัก</p>
+        <div class="module-grid">
+          <div class="module-card">
+            <div class="module-header">
+              <span class="module-badge">P1</span>
+              <span class="module-title">แสวงหา</span>
+            </div>
+            <ul class="module-list">
+              <li>Headcount Request</li>
+              <li>Pipeline Management</li>
+            </ul>
+            <div class="module-count">2 modules</div>
+          </div>
+          <div class="module-card">
+            <div class="module-header">
+              <span class="module-badge">P2</span>
+              <span class="module-title">หยั่งประเมิน</span>
+            </div>
+            <ul class="module-list">
+              <li>Interview Management</li>
+              <li>Core Competency Assessment</li>
+            </ul>
+            <div class="module-count">2 modules</div>
+          </div>
+          <div class="module-card">
+            <div class="module-header">
+              <span class="module-badge">P3</span>
+              <span class="module-title">จับคู่คนกับงาน</span>
+            </div>
+            <ul class="module-list">
+              <li>Position Matching</li>
+            </ul>
+            <div class="module-count">1 module</div>
+          </div>
+          <div class="module-card">
+            <div class="module-header">
+              <span class="module-badge">P4</span>
+              <span class="module-title">ประเมินผล</span>
+            </div>
+            <ul class="module-list">
+              <li>KPI Evaluation</li>
+              <li>360° Feedback</li>
+              <li>Dashboard & Analytics</li>
+            </ul>
+            <div class="module-count">3 modules</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 8: Roadmap -->
+    <div class="slide" data-slide="8">
+      <div class="slide-content stagger">
+        <h2 class="slide-title">เส้นทางสู่การเปิดตัว</h2>
+        <p class="slide-subtitle">ไทม์ไลน์จากวันนี้จนถึง Go Live</p>
+        <div class="timeline">
+          <div class="timeline-line"></div>
+          <div class="timeline-connector"></div>
+          <div class="timeline-item">
+            <div class="timeline-dot">✅</div>
+            <div class="timeline-month">มิ.ย. 69</div>
+            <div class="timeline-label">Foundation</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot">🔄</div>
+            <div class="timeline-month">ก.ค. 69</div>
+            <div class="timeline-label">Modules P1-P7</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot">⏳</div>
+            <div class="timeline-month">ส.ค. 69</div>
+            <div class="timeline-label">Integration</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot">🧪</div>
+            <div class="timeline-month">ก.ย. 69</div>
+            <div class="timeline-label">Testing</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot">🚀</div>
+            <div class="timeline-month">ต.ค. 69</div>
+            <div class="timeline-label">Launch!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 9: RBAC -->
+    <div class="slide" data-slide="9">
+      <div class="slide-content stagger">
+        <h2 class="slide-title">ระบบความปลอดภัย Role-Based Access</h2>
+        <p class="slide-subtitle">ควบคุมการเข้าถึง 6 บทบาท</p>
+        <div class="rbac-grid">
+          <div class="rbac-card">
+            <div class="rbac-icon">🦸</div>
+            <div class="rbac-role">Admin</div>
+            <div class="rbac-permission">เข้าถึงทุกห้อง</div>
+          </div>
+          <div class="rbac-card">
+            <div class="rbac-icon">👔</div>
+            <div class="rbac-role">HR</div>
+            <div class="rbac-permission">P1–P7 ทั้งหมด</div>
+          </div>
+          <div class="rbac-card">
+            <div class="rbac-icon">📋</div>
+            <div class="rbac-role">BU Manager</div>
+            <div class="rbac-permission">P1–P4</div>
+          </div>
+          <div class="rbac-card">
+            <div class="rbac-icon">👤</div>
+            <div class="rbac-role">Employee</div>
+            <div class="rbac-permission">ข้อมูลส่วนตัว</div>
+          </div>
+          <div class="rbac-card">
+            <div class="rbac-icon">🔍</div>
+            <div class="rbac-role">Auditor</div>
+            <div class="rbac-permission">อ่านเท่านั้น</div>
+          </div>
+          <div class="rbac-card">
+            <div class="rbac-icon">👁️</div>
+            <div class="rbac-role">Guest</div>
+            <div class="rbac-permission">Dashboard</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 10: Thank You -->
+    <div class="slide" data-slide="10">
+      <!-- Sparkle effects -->
+      <div class="sparkle-container" id="sparkle-container"></div>
+      <div class="slide-content stagger">
+        <h1 class="slide-title" style="font-size:3rem; margin-bottom:1.5rem;">ขอบคุณครับ</h1>
+        <div class="thankyou-logo"><span>PP7</span></div>
+        <p style="font-size:1.2rem; font-weight:500; margin-bottom:0.5rem;">KiloClaw &nbsp;|&nbsp; PM & Developer</p>
+        <p class="slide-subtitle">พร้อมให้ทีมเข้าใช้งานจริง ต.ค. 2569</p>
+      </div>
+    </div>
+
+  </div><!-- /slides-container -->
+
+  <!-- Subtitles -->
+  <div class="subtitle-overlay" id="subtitle-overlay"></div>
+
+  <!-- Footer -->
+  <div class="slide-footer" id="slide-footer">
+    <span class="slide-counter" id="slide-counter">1 / 10</span>
+    <div class="controls">
+      <button class="ctrl-btn" onclick="prevSlide()" title="ก่อนหน้า">◀️</button>
+      <button class="ctrl-btn" id="btn-pause" onclick="togglePause()" title="เล่น/หยุด">⏸️</button>
+      <button class="ctrl-btn" onclick="nextSlide()" title="ถัดไป">▶️</button>
+      <button class="ctrl-btn" id="btn-mute-ppt" onclick="toggleMute()" title="เปิด/ปิดเสียง">🔊</button>
+    </div>
+  </div>
+
+</div><!-- /presentation-screen -->
+
+<!-- ============================================
+     หน้าจบ (End Screen)
+     ============================================ -->
+<div id="end-screen" class="screen">
+  <div class="thankyou-logo" style="width:100px;height:100px;background:rgba(255,255,255,0.15);border-radius:28px;display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;border:2px solid rgba(255,255,255,0.2);">
+    <span style="font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,#60a5fa,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">PP7</span>
+  </div>
+  <h1 class="end-title">จบการนำเสนอ</h1>
+  <p style="font-weight:300;opacity:0.6;margin-bottom:2.5rem;">ระบบบริหารบุคลากร PP7 — Pakorn Group</p>
+  <div class="end-buttons">
+    <button class="btn-end btn-replay" onclick="replayPresentation()">🔄 ดูอีกครั้ง</button>
+    <button class="btn-end btn-exit" onclick="exitPresentation()">⏹️ ออก</button>
+  </div>
+</div>
+
+
+<!-- ============================================
+     JavaScript — ระบบควบคุมทั้งหมด
+     ============================================ -->
+<script>
+/* ============================================
+   ตัวแปรหลัก
+   ============================================ */
+const TOTAL_SLIDES = 10;
+const SLIDE_DURATION = 12000; // 12 วินาทีต่อ slide (เผื่อเวลาเสียง)
+
+let currentSlide = 0;       // 0 = ยังไม่เริ่ม, 1-10 = slide ปัจจุบัน
+let isPlaying = false;
+let isMuted = false;
+let slideTimer = null;
+let speechSupported = true;
+
+// เสียงพากย์ของแต่ละ slide
+const narrationTexts = {
+  1: 'ระบบบริหารบุคลากร PP7 นวัตกรรมใหม่แห่งการบริหารคนครบวงจร สำหรับกลุ่มบริษัท ปกรณ์',
+  2: 'ด้วยวิสัยทัศน์สู่การเป็น Digital HR Organization ขับเคลื่อนด้วยข้อมูล ลดงาน manual ลงกว่าหกสิบเปอร์เซ็นต์ และสร้าง AI Wellbeing Tracker ครอบคลุมสมาชิกกว่าเก้าสิบเปอร์เซ็นต์',
+  3: 'ระบบ PP7 ประกอบด้วยเจ็ดกระบวนการหลัก ตั้งแต่กระบวนการแสวงหา หยั่งประเมิน จับคู่คนกับงาน ประเมินผล พัฒนา ค่าตอบแทน และคุณภาพชีวิต',
+  4: 'ทุกกระบวนการขับเคลื่อนด้วย Core Competency ห้าด้าน ได้แก่ ผู้นำผู้รับใช้ นวัตกรรมปรับตัว คุณค่าบนความไว้วางใจ ทีมฉันทมติ และมืออาชีพมีวินัย',
+  5: 'ข้อมูลไหลลื่นตั้งแต่การแสวงหาผู้สมัคร ผ่านการหยั่งประเมิน Core Competency จับคู่กับตำแหน่งงาน ประเมินผลทั้งเชิง KPI และสามร้อยหกสิบองศา ก่อนนำไปสู่การพัฒนา ค่าตอบแทน และการดูแลคุณภาพชีวิต',
+  6: 'ปัจจุบันเราเสร็จสิ้นแล้วในสามเฟสแรก ได้แก่ Backend ที่มีตารางข้อมูลยี่สิบเจ็ดตาราง Modules P1 ถึง P4 และ Main Layout พร้อมระบบ Login และ Role Based Access Control',
+  7: 'แปดโมดูล Frontend รองรับงานหลักสี่กระบวนการ พร้อมระบบ Pipeline ที่แสดงภาพการไหลของผู้สมัคร และการบันทึก Core Competency แบบ Radar Chart',
+  8: 'ไทม์ไลน์ชัดเจน เฟานเดชันเสร็จแล้วในเดือนมิถุนายน ตามด้วยการสร้างโมดูล P1 ถึง P7 ในเดือนกรกฎาคม การ integrate ระบบในเดือนสิงหาคม ทดสอบในระบบจริงเดือนกันยายน และเปิดตัวในเดือนตุลาคม สองพันห้าร้อยหกสิบเก้า',
+  9: 'ระบบความปลอดภัยด้วย Role Based Access Control หกบทบาท ควบคุมการเข้าถึงข้อมูลแต่ละระดับอย่างแม่นยำ',
+  10: 'ขอบคุณครับ ระบบ PP7 พร้อมเปลี่ยนการบริหารคนให้เป็น Digital HR เต็มรูปแบบ ภายในเดือนตุลาคม สองพันห้าร้อยหกสิบเก้า'
+};
+
+// ชื่อ slide สำหรับ header
+const slideLabels = {
+  1: 'Title',
+  2: 'วิสัยทัศน์',
+  3: 'โครงสร้าง PP7',
+  4: 'Core Competency',
+  5: 'Data Flow',
+  6: 'สถานะปัจจุบัน',
+  7: 'Modules',
+  8: 'Roadmap',
+  9: 'RBAC',
+  10: 'Thank You'
+};
+
+/* ============================================
+   ตรวจสอบ Speech Synthesis
+   ============================================ */
+function checkSpeechSupport() {
+  if (!('speechSynthesis' in window)) {
+    speechSupported = false;
+    console.warn('Browser ไม่รองรับ Speech Synthesis');
+  }
+}
+checkSpeechSupport();
+
+/* ============================================
+   เริ่มนำเสนอ
+   ============================================ */
+function startPresentation() {
+  // สลับหน้า
+  document.getElementById('start-screen').classList.remove('active');
+  document.getElementById('presentation-screen').classList.add('active');
+
+  // เริ่ม slide 1
+  currentSlide = 0;
+  isPlaying = true;
+  goToSlide(1);
+}
+
+/* ============================================
+   ไปยัง slide ที่ต้องการ
+   ============================================ */
+function goToSlide(n, direction) {
+  if (n < 1 || n > TOTAL_SLIDES) return;
+
+  const prevSlide = currentSlide;
+  currentSlide = n;
+  const dir = direction || (n > prevSlide ? 'left' : 'right');
+
+  // ซ่อน slide ทั้งหมด
+  document.querySelectorAll('.slide').forEach(s => {
+    s.classList.remove('active', 'exit-left', 'exit-right');
+  });
+
+  // Transition effect
+  if (prevSlide > 0 && prevSlide !== n) {
+    const prevEl = document.querySelector(`.slide[data-slide="${prevSlide}"]`);
+    if (prevEl) {
+      prevEl.classList.add(dir === 'left' ? 'exit-left' : 'exit-right');
+    }
+  }
+
+  // แสดง slide ใหม่
+  const el = document.querySelector(`.slide[data-slide="${n}"]`);
+  if (el) {
+    // Delay เล็กน้อยให้ transition เริ่ม
+    setTimeout(() => {
+      el.classList.add('active');
+    }, 50);
+  }
+
+  // อัปเดต UI
+  updateUI();
+
+  // พูดพากย์
+  if (!isMuted) {
+    speakNarration(n);
+  }
+
+  // แสดง subtitle เสมอถ้าไม่รองรับ speech
+  if (!speechSupported && !isMuted) {
+    showSubtitle(n);
+  }
+
+  // สร้าง sparkle ถ้า slide 10
+  if (n === 10) {
+    createSparkles();
+  }
+
+  // ตั้ง timer สำหรับ auto-advance
+  resetAutoAdvance();
+}
+
+/* ============================================
+   อัปเดต UI (progress bar, counter, header)
+   ============================================ */
+function updateUI() {
+  // Progress bar
+  const progress = (currentSlide / TOTAL_SLIDES) * 100;
+  document.getElementById('progress-bar').style.width = progress + '%';
+
+  // Counter
+  document.getElementById('slide-counter').textContent = currentSlide + ' / ' + TOTAL_SLIDES;
+
+  // Header
+  document.getElementById('header-label').textContent = slideLabels[currentSlide] || '';
+
+  // Update header text color based on slide background
+  const darkSlides = [1, 9, 10];
+  const header = document.getElementById('slide-header');
+  const footer = document.getElementById('slide-footer');
+  if (darkSlides.includes(currentSlide)) {
+    header.style.color = '#f1f5f9';
+    footer.style.color = '#f1f5f9';
+  } else {
+    header.style.color = '#1e293b';
+    footer.style.color = '#1e293b';
+  }
+}
+
+/* ============================================
+   Auto-advance timer
+   ============================================ */
+function resetAutoAdvance() {
+  if (slideTimer) clearTimeout(slideTimer);
+  if (isPlaying) {
+    slideTimer = setTimeout(() => {
+      if (currentSlide < TOTAL_SLIDES) {
+        goToSlide(currentSlide + 1);
+      } else {
+        // จบแล้ว
+        showEndScreen();
+      }
+    }, SLIDE_DURATION);
+  }
+}
+
+/* ============================================
+   เล่น/หยุด
+   ============================================ */
+function togglePause() {
+  isPlaying = !isPlaying;
+  document.getElementById('btn-pause').textContent = isPlaying ? '⏸️' : '▶️';
+
+  if (isPlaying) {
+    resetAutoAdvance();
+  } else {
+    if (slideTimer) clearTimeout(slideTimer);
+    // หยุดเสียง
+    if (speechSupported) {
+      window.speechSynthesis.cancel();
+    }
+  }
+}
+
+/* ============================================
+   Slide navigation
+   ============================================ */
+function nextSlide() {
+  if (currentSlide < TOTAL_SLIDES) {
+    if (!isPlaying) {
+      isPlaying = true;
+      document.getElementById('btn-pause').textContent = '⏸️';
+    }
+    goToSlide(currentSlide + 1, 'left');
+  } else {
+    showEndScreen();
+  }
+}
+
+function prevSlide() {
+  if (currentSlide > 1) {
+    if (!isPlaying) {
+      isPlaying = true;
+      document.getElementById('btn-pause').textContent = '⏸️';
+    }
+    goToSlide(currentSlide - 1, 'right');
+  }
+}
+
+/* ============================================
+   เปิด/ปิดเสียง
+   ============================================ */
+function toggleMute() {
+  isMuted = !isMuted;
+  const icon = isMuted ? '🔇' : '🔊';
+  document.getElementById('voice-icon').textContent = icon;
+  document.getElementById('btn-mute-ppt').textContent = icon;
+
+  if (isMuted && speechSupported) {
+    window.speechSynthesis.cancel();
+    hideSubtitle();
+  }
+
+  // ถ้า unmute ให้พูดใน slide ปัจจุบัน
+  if (!isMuted && currentSlide > 0) {
+    speakNarration(currentSlide);
+  }
+}
+
+/* ============================================
+   เสียงพากย์ (Web Speech API)
+   ============================================ */
+function speakNarration(slideNum) {
+  if (!speechSupported || isMuted) return;
+
+  const text = narrationTexts[slideNum];
+  if (!text) return;
+
+  // ยกเลิกเสียงก่อนหน้า
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'th-TH';
+  utterance.rate = 0.9;
+  utterance.pitch = 1.0;
+  utterance.volume = 1.0;
+
+  // เลือกเสียงภาษาไทยถ้ามี
+  const voices = window.speechSynthesis.getVoices();
+  const thaiVoice = voices.find(v => v.lang.startsWith('th'));
+  if (thaiVoice) {
+    utterance.voice = thaiVoice;
+  }
+
+  // แสดง subtitle ขณะที่พูด
+  utterance.onstart = () => {
+    showSubtitleText(text);
+  };
+
+  utterance.onend = () => {
+    // ค่อยจาง subtitle
+    setTimeout(() => {
+      hideSubtitle();
+    }, 1000);
+  };
+
+  utterance.onerror = (e) => {
+    console.warn('Speech error:', e);
+    hideSubtitle();
+  };
+
+  // Delay เล็กน้อยเพื่อให้ slide แสดงก่อน
+  setTimeout(() => {
+    window.speechSynthesis.speak(utterance);
+  }, 400);
+}
+
+/* ============================================
+   Subtitles (fallback)
+   ============================================ */
+function showSubtitle(slideNum) {
+  const text = narrationTexts[slideNum];
+  if (text) {
+    showSubtitleText(text);
+  }
+}
+
+function showSubtitleText(text) {
+  const overlay = document.getElementById('subtitle-overlay');
+  overlay.textContent = text;
+  overlay.classList.add('visible');
+}
+
+function hideSubtitle() {
+  document.getElementById('subtitle-overlay').classList.remove('visible');
+}
+
+/* ============================================
+   หน้าจบ (End Screen)
+   ============================================ */
+function showEndScreen() {
+  if (slideTimer) clearTimeout(slideTimer);
+  isPlaying = false;
+  if (speechSupported) {
+    window.speechSynthesis.cancel();
+  }
+
+  document.getElementById('presentation-screen').classList.remove('active');
+  document.getElementById('end-screen').classList.add('active');
+}
+
+/* ============================================
+   ดูอีกครั้ง / ออก
+   ============================================ */
+function replayPresentation() {
+  document.getElementById('end-screen').classList.remove('active');
+  document.getElementById('presentation-screen').classList.add('active');
+  currentSlide = 0;
+  isPlaying = true;
+  document.getElementById('btn-pause').textContent = '⏸️';
+  goToSlide(1);
+}
+
+function exitPresentation() {
+  if (slideTimer) clearTimeout(slideTimer);
+  if (speechSupported) {
+    window.speechSynthesis.cancel();
+  }
+  document.getElementById('end-screen').classList.remove('active');
+  document.getElementById('presentation-screen').classList.remove('active');
+  document.getElementById('start-screen').classList.add('active');
+  currentSlide = 0;
+  isPlaying = false;
+}
+
+/* ============================================
+   Sparkle Effect (Slide 10)
+   ============================================ */
+function createSparkles() {
+  const container = document.getElementById('sparkle-container');
+  container.innerHTML = '';
+
+  for (let i = 0; i < 30; i++) {
+    const sparkle = document.createElement('div');
+    sparkle.className = 'sparkle';
+    sparkle.style.left = Math.random() * 100 + '%';
+    sparkle.style.top = Math.random() * 100 + '%';
+    sparkle.style.animationDelay = (Math.random() * 2) + 's';
+    sparkle.style.animationDuration = (1.5 + Math.random() * 1.5) + 's';
+    sparkle.style.width = (2 + Math.random() * 4) + 'px';
+    sparkle.style.height = sparkle.style.width;
+    sparkle.style.background = `rgba(${
+      Math.random() > 0.5 ? '255,255,255' : '167,139,250'
+    },${0.3 + Math.random() * 0.7})`;
+    container.appendChild(sparkle);
+  }
+}
+
+/* ============================================
+   Keyboard Controls
+   ============================================ */
+document.addEventListener('keydown', (e) => {
+  // ถ้ากำลังดู presentation
+  if (document.getElementById('presentation-screen').classList.contains('active')) {
+    switch (e.code) {
+      case 'Space':
+        e.preventDefault();
+        togglePause();
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        nextSlide();
+        break;
+      case 'ArrowLeft':
+        e.preventDefault();
+        prevSlide();
+        break;
+      case 'Escape':
+        e.preventDefault();
+        // กลับไปหน้าเริ่มต้น
+        if (slideTimer) clearTimeout(slideTimer);
+        if (speechSupported) window.speechSynthesis.cancel();
+        isPlaying = false;
+        document.getElementById('presentation-screen').classList.remove('active');
+        document.getElementById('start-screen').classList.add('active');
+        currentSlide = 0;
+        break;
+      case 'KeyM':
+        e.preventDefault();
+        toggleMute();
+        break;
+    }
+  }
+
+  // ถ้าอยู่หน้าเริ่มต้น กด Space/Enter เพื่อเริ่ม
+  if (document.getElementById('start-screen').classList.contains('active')) {
+    if (e.code === 'Space' || e.code === 'Enter') {
+      e.preventDefault();
+      startPresentation();
+    }
+  }
+
+  // ถ้าอยู่หน้าจบ
+  if (document.getElementById('end-screen').classList.contains('active')) {
+    if (e.code === 'Space' || e.code === 'Enter') {
+      e.preventDefault();
+      replayPresentation();
+    }
+    if (e.code === 'Escape') {
+      e.preventDefault();
+      exitPresentation();
+    }
+  }
+});
+
+/* ============================================
+   Load Voices (Chrome ต้อง wait for event)
+   ============================================ */
+if (speechSupported) {
+  // Chrome ยังโหลด voices บางทีต้องรอ
+  if (window.speechSynthesis.getVoices().length === 0) {
+    window.speechSynthesis.addEventListener('voiceschanged', () => {
+      console.log('Voices loaded:', window.speechSynthesis.getVoices().length);
+    });
+  }
+}
+
+/* ============================================
+   Touch/Swipe Support (สำหรับมือถือ)
+   ============================================ */
+let touchStartX = 0;
+let touchEndX = 0;
+
+document.addEventListener('touchstart', (e) => {
+  touchStartX = e.changedTouches[0].screenX;
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+  touchEndX = e.changedTouches[0].screenX;
+  handleSwipe();
+}, { passive: true });
+
+function handleSwipe() {
+  if (!document.getElementById('presentation-screen').classList.contains('active')) return;
+
+  const diff = touchStartX - touchEndX;
+  const threshold = 50;
+
+  if (diff > threshold) {
+    // Swipe left → next
+    nextSlide();
+  } else if (diff < -threshold) {
+    // Swipe right → prev
+    prevSlide();
+  }
+}
+
+/* ============================================
+   Initialize — Console hint
+   ============================================ */
+console.log('🎬 Web PP7 Presentation loaded');
+console.log('💡 ทดสอบเสียง: new SpeechSynthesisUtterance("ทดสอบ").lang="th-TH"; speechSynthesis.speak(utt)');
+console.log('⌨️  Keyboard: Space=play/pause, ←→=nav, Esc=exit, M=mute');
+</script>
+
+</body>
+</html>
