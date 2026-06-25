@@ -3,7 +3,11 @@
 <head>
  <meta charset="UTF-8" />
  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+ <meta http-equiv="Pragma" content="no-cache" />
+ <meta http-equiv="Expires" content="0" />
  <title id="pageTitle">ระบบบริหารบุคลากร PP7 — Pakorn Dashboard</title>
+ <script>console.log("Web PP7 v20260625-2 — Cache cleared");</script>
  <script src="https://cdn.tailwindcss.com"></script>
  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -2681,6 +2685,18 @@ function exportMembersToCSV() {
 function initMembersTab() {
   loadMembers();
 }
+
+window.addEventListener('DOMContentLoaded', function() {
+  // Force reload if syntax errors exist
+  try {
+    if (document.querySelector('#loginOverlay').style.display !== 'none') {
+      document.querySelector('#loginOverlay').style.display = 'flex';
+    }
+  } catch(e) {
+    console.log('Auto-reload due to cache:', e);
+    window.location.reload(true);
+  }
+});
 
 (function(){
   // Login system - require authentication
