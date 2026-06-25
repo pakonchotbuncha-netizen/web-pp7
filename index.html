@@ -229,6 +229,7 @@ const NEW_PROCESS_DATA = {
 <nav class="sticky-nav bg-white border-b border-slate-200">
  <div class="max-w-7xl mx-auto flex flex-wrap gap-0 overflow-x-auto">
  <button class="tab-btn active" data-tab="executive" onclick="showTab('executive')">📌 สรุปผู้บริหาร</button>
+ <button class="tab-btn" data-tab="members" onclick="showTab('members')">👥 ฐานข้อมูลสมาชิก</button>
  <button class="tab-btn" data-tab="headcount-request" onclick="showTab('headcount-request')">📋 ขออัตรากำลัง</button>
  <button class="tab-btn" data-tab="recruit" onclick="showTab('recruit')">🔎 แสวงหา</button>
  <button class="tab-btn" data-tab="assess" onclick="showTab('assess')">🧭 ประเมินศักยภาพ</button>
@@ -265,7 +266,158 @@ const NEW_PROCESS_DATA = {
  </div>
 </section>
 
-<!-- ========== Headcount Request ========== -->
+<!-- ========== Members Database ========== -->
+<section id="tab-members" class="tab-pane fade-in hidden space-y-6">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">👥 ฐานข้อมูลสมาชิก</h2>
+    <button onclick="addMember()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
+      ➕ เพิ่มสมาชิกใหม่
+    </button>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-lg shadow">
+      <div class="text-3xl font-bold">1,247</div>
+      <div class="text-sm opacity-90">สมาชิกทั้งหมด</div>
+    </div>
+    <div class="bg-gradient-to-br from-green-500 to-green-600 text-white p-4 rounded-lg shadow">
+      <div class="text-3xl font-bold">1,189</div>
+      <div class="text-sm opacity-90">ประจำ</div>
+    </div>
+    <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-white p-4 rounded-lg shadow">
+      <div class="text-3xl font-bold">58</div>
+      <div class="text-sm opacity-90">ทดลองงาน</div>
+    </div>
+    <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 rounded-lg shadow">
+      <div class="text-3xl font-bold">12</div>
+      <div class="text-sm opacity-90">ใหม่ในเดือนนี้</div>
+    </div>
+  </div>
+
+  <!-- Search & Filter -->
+  <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div>
+        <label class="text-sm font-medium text-gray-700">ค้นหา</label>
+        <input type="text" placeholder="ชื่อ, รหัส, email..." 
+               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+               onkeyup="filterMembers(this.value)">
+      </div>
+      <div>
+        <label class="text-sm font-medium text-gray-700">แผนก</label>
+        <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option value="">ทุกแผนก</option>
+          <option value="Tech">Tech</option>
+          <option value="Sales">Sales</option>
+          <option value="Operations">Operations</option>
+          <option value="Finance">Finance</option>
+          <option value="HR">HR</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-sm font-medium text-gray-700">สถานะ</label>
+        <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option value="">ทั้งหมด</option>
+          <option value="regular">ประจำ</option>
+          <option value="probation">ทดลองงาน</option>
+          <option value="resigned">ลาออก</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-sm font-medium text-gray-700">ประเทศ</label>
+        <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option value="">ทั้งหมด</option>
+          <option value="TH">ไทย</option>
+          <option value="LA">ลาว</option>
+          <option value="KH">กัมพูชา</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="bg-white border border-gray-200 rounded-lg shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัส</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ-นามสกุล</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">แผนก</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ตำแหน่ง</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200" id="membersTable">
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">EMP001</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">สมชาย ใจดี</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">somchai@pkg.com</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Tech</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Software Engineer</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+              ประจำ
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <button class="text-blue-600 hover:text-blue-900 mr-3">แก้ไข</button>
+            <button class="text-red-600 hover:text-red-900">ลบ</button>
+          </td>
+        </tr>
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">EMP002</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">สมหญิง รักเรียน</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">somying@pkg.com</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Sales</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Sales Executive</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+              ประจำ
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <button class="text-blue-600 hover:text-blue-900 mr-3">แก้ไข</button>
+            <button class="text-red-600 hover:text-red-900">ลบ</button>
+          </td>
+        </tr>
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">EMP003</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">วิชัย สุขสมบูรณ์</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">wichai@pkg.com</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Operations</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Supervisor</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800">
+              ทดลองงาน
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <button class="text-blue-600 hover:text-blue-900 mr-3">แก้ไข</button>
+            <button class="text-red-600 hover:text-red-900">ลบ</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="flex justify-between items-center mt-6">
+    <div class="text-sm text-gray-700">
+      แสดง <span class="font-medium">1</span> - <span class="font-medium">3</span> จาก <span class="font-medium">1,247</span> รายการ
+    </div>
+    <div class="flex gap-2">
+      <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50" disabled>
+        ก่อนหน้า
+      </button>
+      <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+        ถัดไป
+      </button>
+    </div>
+  </div>
+</section>
 <section id="tab-headcount-request" class="tab-pane fade-in hidden space-y-6">
   <div class="card">
     <h2 class="text-xl font-bold text-pp7-800 mb-4">📋 ขออัตรากำลังคน</h2>
@@ -2011,12 +2163,12 @@ const USERS = {
 
 // Role permissions for tab access
 const ROLE_TABS = {
-  admin: ['executive','headcount-request','recruit','assess','match','performance','develop','new-process','wi001','wi002','welfare','quality','labor-law','pkg-rules','research'],
-  pao:   ['executive','headcount-request','recruit','assess','match','performance','new-process','wi001','wi002'],
-  pad:   ['executive','develop','performance','match'],
-  wcd:   ['executive','welfare','quality','wi001','wi002'],
-  viewer:['executive','recruit','assess','match'],
-  tester:['executive','headcount-request','recruit','assess','match','performance','develop','new-process','wi001','wi002','welfare','quality']
+  admin: ['executive','members','headcount-request','recruit','assess','match','performance','develop','new-process','wi001','wi002','welfare','quality','labor-law','pkg-rules','research'],
+  pao:   ['executive','members','headcount-request','recruit','assess','match','performance','new-process','wi001','wi002'],
+  pad:   ['executive','members','develop','performance','match'],
+  wcd:   ['executive','members','welfare','quality','wi001','wi002'],
+  viewer:['executive','members','recruit','assess','match'],
+  tester:['executive','members','headcount-request','recruit','assess','match','performance','develop','new-process','wi001','wi002','welfare','quality']
 };
 
 function handleLogin(e){
@@ -2092,6 +2244,7 @@ function showTab(tabId){
   
   if(tabId === 'develop') initDevTab();
   if(tabId === 'new-process') renderNewProcessTab();
+  if(tabId === 'members') initMembersTab();
   if(tabId === 'match') {
     console.log('✅ P3 Tab loaded successfully');
     // โหลดสถิติ P3 (ถ้ามี)
@@ -2366,6 +2519,163 @@ function handleDevFormSubmit(event) {
   addDevRecord({ id: newId, name: name, dept: dept, course: course, hours: parseInt(hours), score: '—', status: 'กำลังเรียน', completed: '—' });
   document.getElementById('dev-form').reset();
   alert('✅ บันทึกข้อมูลสำเร็จ!');
+}
+
+// ===== Members Database CRUD Functions =====
+let membersData = [];
+let currentPage = 1;
+const itemsPerPage = 10;
+
+// Load members from localStorage or mock data
+function loadMembers() {
+  const saved = localStorage.getItem('members_data');
+  if (saved) {
+    membersData = JSON.parse(saved);
+  } else {
+    // Mock data for demo
+    membersData = [
+      { id: 'EMP001', code: 'EMP001', title: 'นาย', firstName: 'สมชาย', lastName: 'ใจดี', email: 'somchai@pkg.com', phone: '0812345678', dept: 'Tech', position: 'Software Engineer', startDate: '2024-01-15', status: 'regular', country: 'TH', bu: '', createdAt: '2024-01-15T00:00:00Z' },
+      { id: 'EMP002', code: 'EMP002', title: 'นางสาว', firstName: 'สมหญิง', lastName: 'รักเรียน', email: 'somying@pkg.com', phone: '0823456789', dept: 'Sales', position: 'Sales Executive', startDate: '2023-06-01', status: 'regular', country: 'TH', bu: '', createdAt: '2023-06-01T00:00:00Z' },
+      { id: 'EMP003', code: 'EMP003', title: 'นาย', firstName: 'วิชัย', lastName: 'สุขสมบูรณ์', email: 'wichai@pkg.com', phone: '0834567890', dept: 'Operations', position: 'Supervisor', startDate: '2026-05-01', status: 'probation', country: 'TH', bu: '', createdAt: '2026-05-01T00:00:00Z' },
+      { id: 'EMP004', code: 'EMP004', title: 'นาง', firstName: 'พรทิพย์', lastName: 'ศรีสุข', email: 'porntip@pkg.com', phone: '0845678901', dept: 'HR', position: 'HR Manager', startDate: '2022-03-10', status: 'regular', country: 'TH', bu: '', createdAt: '2022-03-10T00:00:00Z' },
+      { id: 'EMP005', code: 'EMP005', title: 'นาย', firstName: 'ธนพล', lastName: 'แก้วประเสริฐ', email: 'thanapol@pkg.com', phone: '0856789012', dept: 'Finance', position: 'Accountant', startDate: '2024-08-20', status: 'regular', country: 'TH', bu: '', createdAt: '2024-08-20T00:00:00Z' },
+    ];
+    localStorage.setItem('members_data', JSON.stringify(membersData));
+  }
+  updateMembersTable();
+  updateMembersStats();
+}
+
+// Update members table display
+function updateMembersTable() {
+  const tbody = document.getElementById('membersTable');
+  if (!tbody) return;
+  
+  const start = (currentPage - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  const pageData = membersData.slice(start, end);
+  
+  tbody.innerHTML = '';
+  pageData.forEach(m => {
+    const statusClass = m.status === 'regular' ? 'bg-green-100 text-green-800' : 
+                       m.status === 'probation' ? 'bg-amber-100 text-amber-800' :
+                       m.status === 'contract' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800';
+    const statusText = m.status === 'regular' ? 'ประจำ' :
+                      m.status === 'probation' ? 'ทดลองงาน' :
+                      m.status === 'contract' ? 'สัญญาจ้าง' : 'ลาออก';
+    
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-gray-50';
+    tr.innerHTML = `
+      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${m.code || m.id}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${m.title} ${m.firstName} ${m.lastName}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${m.email}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${m.dept}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${m.position}</td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${statusText}</span>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+        <button onclick="editMember('${m.id}')" class="text-blue-600 hover:text-blue-900 mr-3">แก้ไข</button>
+        <button onclick="deleteMember('${m.id}')" class="text-red-600 hover:text-red-900">ลบ</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  
+  // Update pagination info
+  const paginationEl = document.querySelector('#tab-members .flex.justify-between.items-center.mt-6 .text-sm.text-gray-700');
+  if (paginationEl) {
+    paginationEl.innerHTML = `แสดง <span class="font-medium">${start + 1}</span> - <span class="font-medium">${Math.min(end, membersData.length)}</span> จาก <span class="font-medium">${membersData.length}</span> รายการ`;
+  }
+}
+
+// Update stats cards
+function updateMembersStats() {
+  const total = membersData.length;
+  const regular = membersData.filter(m => m.status === 'regular').length;
+  const probation = membersData.filter(m => m.status === 'probation').length;
+  const thisMonth = membersData.filter(m => {
+    const start = new Date(m.startDate);
+    const now = new Date();
+    return start.getMonth() === now.getMonth() && start.getFullYear() === now.getFullYear();
+  }).length;
+  
+  const stats = document.querySelectorAll('#tab-members .text-3xl.font-bold');
+  if (stats.length >= 4) {
+    stats[0].textContent = total.toLocaleString();
+    stats[1].textContent = regular.toLocaleString();
+    stats[2].textContent = probation.toLocaleString();
+    stats[3].textContent = thisMonth.toLocaleString();
+  }
+}
+
+// Show add member modal
+function addMember() {
+  alert('🚧 ฟีเจอร์นี้กำลังพัฒนา — ระบบจะรองรับการเพิ่มสมาชิกเร็วๆ นี้');
+}
+
+// Edit member
+function editMember(id) {
+  alert('🚧 ฟีเจอร์นี้กำลังพัฒนา — ระบบจะรองรับการแก้ไขข้อมูลเร็วๆ นี้');
+}
+
+// Delete member
+function deleteMember(id) {
+  if (confirm('ต้องการลบสมาชิกนี้หรือไม่?')) {
+    membersData = membersData.filter(m => m.id !== id);
+    localStorage.setItem('members_data', JSON.stringify(membersData));
+    updateMembersTable();
+    updateMembersStats();
+    alert('✅ ลบสมาชิกสำเร็จ');
+  }
+}
+
+// Filter members
+function filterMembers(query) {
+  const saved = localStorage.getItem('members_data');
+  if (saved) {
+    membersData = JSON.parse(saved);
+  }
+  
+  if (!query) {
+    loadMembers();
+    return;
+  }
+  
+  const q = query.toLowerCase();
+  membersData = JSON.parse(saved).filter(m => 
+    (m.firstName + ' ' + m.lastName).toLowerCase().includes(q) ||
+    m.email.toLowerCase().includes(q) ||
+    (m.code || m.id).toLowerCase().includes(q)
+  );
+  
+  currentPage = 1;
+  updateMembersTable();
+}
+
+// Export to CSV
+function exportMembersToCSV() {
+  const headers = ['รหัส', 'คำนำหน้า', 'ชื่อ', 'นามสกุล', 'Email', 'เบอร์โทร', 'แผนก', 'ตำแหน่ง', 'วันที่เริ่มงาน', 'สถานะ', 'ประเทศ'];
+  const rows = membersData.map(m => [
+    m.code || m.id, m.title, m.firstName, m.lastName, m.email, m.phone, m.dept, m.position, m.startDate, m.status, m.country
+  ]);
+  
+  let csv = headers.join(',') + '\n';
+  rows.forEach(row => {
+    csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+  });
+  
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `members_export_${new Date().toISOString().split('T')[0]}.csv`;
+  link.click();
+}
+
+// Initialize members tab when shown
+function initMembersTab() {
+  loadMembers();
 }
 
 (function(){
