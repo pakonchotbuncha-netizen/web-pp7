@@ -633,28 +633,200 @@ const NEW_PROCESS_DATA = {
   </div>
 </section>
 <section id="tab-headcount-request" class="tab-pane fade-in hidden space-y-6">
-  <div class="card">
-    <h2 class="text-xl font-bold text-pp7-800 mb-4">📋 ขออัตรากำลังคน</h2>
-    <p class="text-gray-600 mb-4">ระบบบริหารจัดการคำขออัตรากำลังคน (LDC-PAO-WI-001)</p>
-    <div class="grid md:grid-cols-3 gap-4">
-      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-        <div class="text-3xl mb-2">📝</div>
-        <div class="font-semibold text-blue-800">1. ยื่นคำขอ</div>
-        <div class="text-sm text-gray-600 mt-1">BU กรอกแบบฟอร์มขออัตรากำลัง</div>
-      </div>
-      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
-        <div class="text-3xl mb-2">🤖</div>
-        <div class="font-semibold text-amber-800">2. AI ตรวจสอบ</div>
-        <div class="text-sm text-gray-600 mt-1">ตรวจสอบความครบถ้วนอัตโนมัติ</div>
-      </div>
-      <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-        <div class="text-3xl mb-2">✅</div>
-        <div class="font-semibold text-green-800">3. อนุมัติ</div>
-        <div class="text-sm text-gray-600 mt-1">ส่งต่อผู้บริหารอนุมัติ</div>
+  <div class="flex flex-wrap items-center gap-4 pb-4 border-b border-slate-200">
+    <h2 class="text-xl font-bold text-pp7-800 flex-1">📋 ขออัตรากำลังคน</h2>
+    <button onclick="openHeadcountModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition">
+      ➕ ยื่นคำขอใหม่
+    </button>
+  </div>
+
+  <!-- Process Flow -->
+  <div class="card bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+    <h3 class="font-bold text-pp7-800 mb-3 text-lg flex items-center gap-2">
+      <span class="bg-pp7-600 text-white px-2 py-1 rounded text-xs">LDC-PAO-WI-001</span>
+      📌 กระบวนการขออัตรากำลังคน
+    </h3>
+    <div class="grid md:grid-cols-5 gap-3 text-sm">
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-blue-400"><div class="text-2xl mb-1">📝</div><div class="font-semibold text-pp7-700">1. ยื่นคำขอ</div><div class="text-slate-600 mt-1 text-xs">BU กรอกแบบฟอร์มขออัตรากำลัง</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-amber-400"><div class="text-2xl mb-1">🤖</div><div class="font-semibold text-pp7-700">2. AI ตรวจสอบ</div><div class="text-slate-600 mt-1 text-xs">ตรวจสอบความครบถ้วนอัตโนมัติ</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-purple-400"><div class="text-2xl mb-1">👔</div><div class="font-semibold text-pp7-700">3. อนุมัติ</div><div class="text-slate-600 mt-1 text-xs">ส่งต่อผู้บริหารอนุมัติ</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-emerald-400"><div class="text-2xl mb-1">📢</div><div class="font-semibold text-pp7-700">4. เปิดรับสมัคร</div><div class="text-slate-600 mt-1 text-xs">ประกาศรับผู้สมัครทุกช่องทาง</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-pink-400">
+        <div class="text-2xl mb-1">📤</div>
+        <div class="font-semibold text-pp7-700">5. ส่งต่อ P1</div>
+        <div class="text-slate-600 mt-1 text-xs">ข้อมูลไปยังระบบแสวงหา</div>
+        <button onclick="showTab('recruit')" class="mt-2 inline-block px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs rounded font-medium transition">
+          🚀 ไป P1
+        </button>
       </div>
     </div>
-    <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
-      🚧 <strong>ระบบกำลังพัฒนา — ดูรายละเอียดที่ Tab "กระบวนการใหม่ (S4)"</strong>
+  </div>
+
+  <!-- Stats Dashboard -->
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+    <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-lg shadow">
+      <div class="text-3xl font-bold" id="hc-total">0</div>
+      <div class="text-sm opacity-90">ยื่นทั้งหมด</div>
+    </div>
+    <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-white p-4 rounded-lg shadow">
+      <div class="text-3xl font-bold" id="hc-pending">0</div>
+      <div class="text-sm opacity-90">รออนุมัติ</div>
+    </div>
+    <div class="bg-gradient-to-br from-green-500 to-green-600 text-white p-4 rounded-lg shadow">
+      <div class="text-3xl font-bold" id="hc-approved">0</div>
+      <div class="text-sm opacity-90">อนุมัติแล้ว</div>
+    </div>
+    <div class="bg-gradient-to-br from-red-500 to-red-600 text-white p-4 rounded-lg shadow">
+      <div class="text-3xl font-bold" id="hc-rejected">0</div>
+      <div class="text-sm opacity-90">ไม่อนุมัติ</div>
+    </div>
+    <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 rounded-lg shadow">
+      <div class="text-3xl font-bold" id="hc-recruiting">0</div>
+      <div class="text-sm opacity-90">กำลังสรรหา</div>
+    </div>
+  </div>
+
+  <!-- คำขอทั้งหมด -->
+  <div class="card">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-bold text-slate-800">📋 รายการคำขออัตรากำลัง</h3>
+      <div class="flex gap-2">
+        <select id="hc-filter-status" onchange="filterHeadcount()" class="px-3 py-2 border border-slate-300 rounded-lg text-sm">
+          <option value="">ทุกสถานะ</option>
+          <option value="pending">รออนุมัติ</option>
+          <option value="approved">อนุมัติแล้ว</option>
+          <option value="rejected">ไม่อนุมัติ</option>
+          <option value="recruiting">กำลังสรรหา</option>
+        </select>
+        <select id="hc-filter-priority" onchange="filterHeadcount()" class="px-3 py-2 border border-slate-300 rounded-lg text-sm">
+          <option value="">ทุกระดับ</option>
+          <option value="urgent">เร่งด่วน</option>
+          <option value="high">สูง</option>
+          <option value="medium">ปานกลาง</option>
+          <option value="low">ต่ำ</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="mb-4">
+      <input type="text" id="hc-search" placeholder="🔍 ค้นหา BU, ตำแหน่ง..." 
+             class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm"
+             oninput="filterHeadcount()">
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-100 border-b-2 border-slate-300">
+          <tr>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">ID</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">วันที่</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">BU</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">ตำแหน่ง</th>
+            <th class="px-4 py-3 text-center font-semibold text-slate-700">จำนวน</th>
+            <th class="px-4 py-3 text-center font-semibold text-slate-700">ระดับความสำคัญ</th>
+            <th class="px-4 py-3 text-center font-semibold text-slate-700">สถานะ</th>
+            <th class="px-4 py-3 text-center font-semibold text-slate-700">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="headcount-table" class="divide-y divide-slate-100">
+          <!-- ข้อมูลจะถูกเติมด้วย JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between mt-4 pt-4 border-t border-slate-200">
+      <div class="text-sm text-slate-600">
+        แสดง <span id="hc-showing-start">0</span>-<span id="hc-showing-end">0</span> จาก <span id="hc-showing-total">0</span> รายการ
+      </div>
+      <div class="flex gap-2">
+        <button onclick="hcPrevPage()" id="hc-prev-btn" class="px-3 py-1 border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50" disabled>← ก่อนหน้า</button>
+        <button onclick="hcNextPage()" id="hc-next-btn" class="px-3 py-1 border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50" disabled>ถัดไป →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ยื่นคำขอ -->
+  <div id="headcount-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+        <h3 class="text-xl font-bold text-slate-800">📋 ยื่นคำขออัตรากำลังคน</h3>
+        <button onclick="closeHeadcountModal()" class="text-slate-500 hover:text-slate-700 text-2xl">&times;</button>
+      </div>
+      <form id="headcount-form" onsubmit="saveHeadcount(event)" class="p-6 space-y-4">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">วันที่ *</label>
+            <input type="date" id="hc-date" required class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">BU / แผนก *</label>
+            <select id="hc-bu" required class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+              <option value="">เลือก BU</option>
+              <option value="PMSG">PMSG</option>
+              <option value="AAMG">AAMG</option>
+              <option value="CPDG">CPDG</option>
+              <option value="RPLCG">RPLCG</option>
+              <option value="RAFCOG">RAFCOG</option>
+              <option value="PGHG">PGHG</option>
+              <option value="21RTG">21RTG</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">ตำแหน่ง *</label>
+            <input type="text" id="hc-position" required class="w-full px-3 py-2 border border-slate-300 rounded-lg" placeholder="เช่น Sales Executive">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">จำนวนที่ต้องการ *</label>
+            <input type="number" id="hc-count" required min="1" max="50" value="1" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">ระดับความสำคัญ *</label>
+            <select id="hc-priority" required class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+              <option value="">เลือกระดับ</option>
+              <option value="urgent">🔴 เร่งด่วน (ภายใน 7 วัน)</option>
+              <option value="high">🟠 สูง (ภายใน 14 วัน)</option>
+              <option value="medium">🟡 ปานกลาง (ภายใน 30 วัน)</option>
+              <option value="low">🟢 ต่ำ (ภายใน 60 วัน)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">กำหนดเสร็จที่ต้องการ</label>
+            <input type="date" id="hc-deadline" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">เหตุผล / รายละเอียด *</label>
+          <textarea id="hc-reason" required rows="3" class="w-full px-3 py-2 border border-slate-300 rounded-lg" placeholder="ระบุเหตุผลที่จำเป็น ต้องรับเพิ่ม..."></textarea>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">ผู้ยื่นคำขอ *</label>
+            <input type="text" id="hc-requester" required class="w-full px-3 py-2 border border-slate-300 rounded-lg" placeholder="ชื่อ-นามสกุล">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">ผู้รับชอบ</label>
+            <input type="text" id="hc-owner" class="w-full px-3 py-2 border border-slate-300 rounded-lg" placeholder="ชื่อผู้รับผิดชอบ">
+          </div>
+        </div>
+
+        <input type="hidden" id="hc-edit-id">
+
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+          <button type="button" onclick="closeHeadcountModal()" class="px-6 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50">ยกเลิก</button>
+          <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">💾 ยื่นคำขอ</button>
+        </div>
+      </form>
     </div>
   </div>
 </section>
@@ -2644,6 +2816,7 @@ function showTab(tabId){
   if(tabId === 'new-process') renderNewProcessTab();
   if(tabId === 'members') initMembersTab();
   if(tabId === 'assess') loadInterviewHistory();
+  if(tabId === 'headcount-request') loadHeadcount();
   if(tabId === 'match') {
     // โหลดสถิติ P3 (ถ้ามี)
     loadP3Stats();
@@ -2928,11 +3101,300 @@ function handleDevFormSubmit(event) {
 }
 
 // ===== Members Database CRUD Functions =====
-// ===== Interview History (P2 Log) =====
+// ===== Headcount Request Module =====
+let headcountData = [];
+let filteredHeadcount = [];
+let hcCurrentPage = 1;
+const hcItemsPerPage = 10;
+
+// Mock Headcount Data
+const MOCK_HEADCOUNT = [
+  { id: 'HC-001', date: '2026-06-15', bu: 'AAMG', position: 'Sales Executive', count: 3, priority: 'urgent', deadline: '2026-07-15', reason: 'ขยายทีมขายภาคตะวันออก', requester: 'ปกรณ์ จันทบูรณ์', owner: 'HR-สมชาย', status: 'approved', createdAt: '2026-06-15T10:00:00Z' },
+  { id: 'HC-002', date: '2026-06-18', bu: 'CPDG', position: 'Operations Supervisor', count: 1, priority: 'high', deadline: '2026-07-20', reason: 'ทดแทนพนักงานลาออก', requester: 'วิชัย ทองดี', owner: 'HR-สมหญิง', status: 'approved', createdAt: '2026-06-18T14:30:00Z' },
+  { id: 'HC-003', date: '2026-06-20', bu: 'PMSG', position: 'Marketing Specialist', count: 2, priority: 'medium', deadline: '2026-08-01', reason: 'ขยายทีมการตลาด', requester: 'สมหญิง รักเรียน', owner: 'HR-วิชัย', status: 'recruiting', createdAt: '2026-06-20T09:15:00Z' },
+  { id: 'HC-004', date: '2026-06-22', bu: 'RAFCOG', position: 'Accountant', count: 1, priority: 'low', deadline: '2026-09-01', reason: 'รองรับงานปลายปี', requester: 'พรทิพย์ ศรีสุข', owner: 'HR-พรทิพย์', status: 'pending', createdAt: '2026-06-22T11:45:00Z' },
+  { id: 'HC-005', date: '2026-06-23', bu: 'PGHG', position: 'Software Engineer', count: 5, priority: 'urgent', deadline: '2026-07-10', reason: 'โปรเจ็คใหม่เร่งด่วน', requester: 'กิตติ ทองดี', owner: 'HR-สมชาย', status: 'pending', createdAt: '2026-06-23T13:20:00Z' },
+  { id: 'HC-006', date: '2026-06-24', bu: '21RTG', position: 'HR Coordinator', count: 1, priority: 'medium', deadline: '2026-08-15', reason: 'ทดแทนพนักงานเกษียณ', requester: 'ธนพล แก้วประเสริฐ', owner: 'HR-ธนพล', status: 'rejected', createdAt: '2026-06-24T16:00:00Z' },
+];
+
+// Load Headcount data
+function loadHeadcount() {
+  const saved = localStorage.getItem('headcount_data');
+  if (saved) {
+    headcountData = JSON.parse(saved);
+  } else {
+    headcountData = MOCK_HEADCOUNT;
+    localStorage.setItem('headcount_data', JSON.stringify(headcountData));
+  }
+  filteredHeadcount = [...headcountData];
+  updateHeadcountTable();
+  updateHeadcountStats();
+}
+
+// Update headcount table display
+function updateHeadcountTable() {
+  const tbody = document.getElementById('headcount-table');
+  if (!tbody) return;
+
+  const start = (hcCurrentPage - 1) * hcItemsPerPage;
+  const end = start + hcItemsPerPage;
+  const pageData = filteredHeadcount.slice(start, end);
+
+  tbody.innerHTML = '';
+  pageData.forEach(data => {
+    const priorityBadge = data.priority === 'urgent' ? '🔴 เร่งด่วน' :
+                          data.priority === 'high' ? '🟠 สูง' :
+                          data.priority === 'medium' ? '🟡 ปานกลาง' : '🟢 ต่ำ';
+    
+    const statusClass = data.status === 'approved' ? 'bg-green-100 text-green-800' :
+                       data.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                       data.status === 'recruiting' ? 'bg-purple-100 text-purple-800' : 'bg-amber-100 text-amber-800';
+    
+    const statusText = data.status === 'approved' ? '✅ อนุมัติ' :
+                      data.status === 'rejected' ? '❌ ไม่อนุมัติ' :
+                      data.status === 'recruiting' ? '🔍 กำลังสรรหา' : '⏳ รออนุมัติ';
+
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-slate-50';
+    tr.innerHTML = `
+      <td class="px-4 py-3 font-mono text-xs text-slate-500">${data.id}</td>
+      <td class="px-4 py-3 text-slate-700">${formatDate(data.date)}</td>
+      <td class="px-4 py-3 font-medium text-slate-900">${data.bu}</td>
+      <td class="px-4 py-3 text-slate-700">${data.position}</td>
+      <td class="px-4 py-3 text-center font-bold text-blue-600">${data.count}</td>
+      <td class="px-4 py-3 text-center text-xs">${priorityBadge}</td>
+      <td class="px-4 py-3 text-center">
+        <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${statusText}</span>
+      </td>
+      <td class="px-4 py-3 text-center">
+        <button onclick="editHeadcount('${data.id}')" class="text-blue-600 hover:text-blue-800 text-xs mr-2" title="แก้ไข">✏️</button>
+        <button onclick="changeHeadcountStatus('${data.id}')" class="text-green-600 hover:text-green-800 text-xs mr-2" title="เปลี่ยนสถานะ">🔄</button>
+        <button onclick="sendToRecruit('${data.id}')" class="text-emerald-600 hover:text-emerald-800 text-xs mr-2" title="ส่งต่อ P1">🚀</button>
+        <button onclick="deleteHeadcount('${data.id}')" class="text-red-600 hover:text-red-800 text-xs" title="ลบ">🗑️</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Update pagination
+  const showingStart = filteredHeadcount.length > 0 ? start + 1 : 0;
+  const showingEnd = Math.min(end, filteredHeadcount.length);
+  document.getElementById('hc-showing-start').textContent = showingStart;
+  document.getElementById('hc-showing-end').textContent = showingEnd;
+  document.getElementById('hc-showing-total').textContent = filteredHeadcount.length;
+
+  document.getElementById('hc-prev-btn').disabled = hcCurrentPage === 1;
+  document.getElementById('hc-next-btn').disabled = end >= filteredHeadcount.length;
+}
+
+// Update headcount stats
+function updateHeadcountStats() {
+  document.getElementById('hc-total').textContent = headcountData.length;
+  document.getElementById('hc-pending').textContent = headcountData.filter(d => d.status === 'pending').length;
+  document.getElementById('hc-approved').textContent = headcountData.filter(d => d.status === 'approved').length;
+  document.getElementById('hc-rejected').textContent = headcountData.filter(d => d.status === 'rejected').length;
+  document.getElementById('hc-recruiting').textContent = headcountData.filter(d => d.status === 'recruiting').length;
+}
+
+// Filter headcount
+function filterHeadcount() {
+  const search = document.getElementById('hc-search').value.toLowerCase();
+  const status = document.getElementById('hc-filter-status').value;
+  const priority = document.getElementById('hc-filter-priority').value;
+
+  filteredHeadcount = headcountData.filter(data => {
+    if (search && !data.bu.toLowerCase().includes(search) && !data.position.toLowerCase().includes(search)) return false;
+    if (status && data.status !== status) return false;
+    if (priority && data.priority !== priority) return false;
+    return true;
+  });
+
+  hcCurrentPage = 1;
+  updateHeadcountTable();
+}
+
+// Open modal
+function openHeadcountModal(editId = null) {
+  document.getElementById('headcount-modal').classList.remove('hidden');
+  document.getElementById('headcount-form').reset();
+  document.getElementById('hc-date').valueAsDate = new Date();
+  
+  if (editId) {
+    const data = headcountData.find(d => d.id === editId);
+    if (data) {
+      document.getElementById('hc-edit-id').value = editId;
+      document.getElementById('hc-date').value = data.date;
+      document.getElementById('hc-bu').value = data.bu;
+      document.getElementById('hc-position').value = data.position;
+      document.getElementById('hc-count').value = data.count;
+      document.getElementById('hc-priority').value = data.priority;
+      document.getElementById('hc-deadline').value = data.deadline || '';
+      document.getElementById('hc-reason').value = data.reason;
+      document.getElementById('hc-requester').value = data.requester;
+      document.getElementById('hc-owner').value = data.owner || '';
+    }
+  }
+}
+
+// Close modal
+function closeHeadcountModal() {
+  document.getElementById('headcount-modal').classList.add('hidden');
+}
+
+// Save headcount request
+function saveHeadcount(event) {
+  event.preventDefault();
+  const editId = document.getElementById('hc-edit-id').value;
+  
+  const newData = {
+    id: editId || 'HC-' + String(headcountData.length + 1).padStart(3, '0'),
+    date: document.getElementById('hc-date').value,
+    bu: document.getElementById('hc-bu').value,
+    position: document.getElementById('hc-position').value,
+    count: parseInt(document.getElementById('hc-count').value),
+    priority: document.getElementById('hc-priority').value,
+    deadline: document.getElementById('hc-deadline').value,
+    reason: document.getElementById('hc-reason').value,
+    requester: document.getElementById('hc-requester').value,
+    owner: document.getElementById('hc-owner').value,
+    status: 'pending',
+    createdAt: new Date().toISOString()
+  };
+
+  if (editId) {
+    const idx = headcountData.findIndex(d => d.id === editId);
+    if (idx >= 0) {
+      newData.status = headcountData[idx].status;
+      headcountData[idx] = newData;
+    }
+  } else {
+    headcountData.unshift(newData);
+  }
+
+  localStorage.setItem('headcount_data', JSON.stringify(headcountData));
+  filteredHeadcount = [...headcountData];
+  hcCurrentPage = 1;
+  updateHeadcountTable();
+  updateHeadcountStats();
+  closeHeadcountModal();
+  alert(editId ? '✅ แก้ไขคำขอสำเร็จ' : '✅ ยื่นคำขอสำเร็จ');
+}
+
+// Edit headcount
+function editHeadcount(id) {
+  openHeadcountModal(id);
+}
+
+// Delete headcount
+function deleteHeadcount(id) {
+  if (!confirm('ต้องการลบคำขอนี้หรือไม่?')) return;
+  headcountData = headcountData.filter(d => d.id !== id);
+  localStorage.setItem('headcount_data', JSON.stringify(headcountData));
+  filteredHeadcount = [...headcountData];
+  updateHeadcountTable();
+  updateHeadcountStats();
+  alert('✅ ลบคำขอสำเร็จ');
+}
+
+// Change status
+function changeHeadcountStatus(id) {
+  const data = headcountData.find(d => d.id === id);
+  if (!data) return;
+
+  const currentStatus = data.status;
+  const nextStatuses = {
+    'pending': ['approved', 'rejected'],
+    'approved': ['recruiting', 'rejected'],
+    'recruiting': ['approved'],
+    'rejected': ['pending']
+  };
+
+  const choices = nextStatuses[currentStatus] || [];
+  if (choices.length === 0) {
+    alert('ไม่สามารถเปลี่ยนสถานะได้');
+    return;
+  }
+
+  const choice = prompt(`เปลี่ยนสถานะจาก "${currentStatus}" เป็น:\n\n1. ${choices.join('\n2. ')}\n\nใส่ตัวเลข (1-${choices.length}):`);
+  
+  if (!choice) return;
+  
+  const idx = parseInt(choice) - 1;
+  if (idx < 0 || idx >= choices.length) {
+    alert('เลือกไม่ถูกต้อง');
+    return;
+  }
+
+  data.status = choices[idx];
+  localStorage.setItem('headcount_data', JSON.stringify(headcountData));
+  filteredHeadcount = [...headcountData];
+  updateHeadcountTable();
+  updateHeadcountStats();
+  alert(`✅ เปลี่ยนสถานะเป็น "${choices[idx]}" สำเร็จ`);
+}
+
+// Send to P1 (Recruit) - ส่งคำขอที่อนุมัติแล้วไปยังระบบแสวงหา
+function sendToRecruit(id) {
+  const data = headcountData.find(d => d.id === id);
+  if (!data) return;
+
+  if (data.status !== 'approved' && data.status !== 'recruiting') {
+    alert('ต้องอนุมัติหรือกำลังสรรหาก่อนจึงจะส่งต่อ P1 ได้');
+    return;
+  }
+
+  if (!confirm(`ส่งคำขอ "${data.position}" (${data.count} อัตรา) ไปยังระบบ P1 หรือไม่?`)) return;
+
+  // บันทึกเป็น recruitment case ใน P1
+  const recruitData = {
+    id: 'R-' + Date.now(),
+    headcountId: data.id,
+    position: data.position,
+    bu: data.bu,
+    count: data.count,
+    startDate: new Date().toISOString().split('T')[0],
+    deadline: data.deadline,
+    status: 'open',
+    applicants: 0,
+    createdAt: new Date().toISOString()
+  };
+
+  // บันทึกลง localStorage
+  const recruits = JSON.parse(localStorage.getItem('recruit_data') || '[]');
+  recruits.push(recruitData);
+  localStorage.setItem('recruit_data', JSON.stringify(recruits));
+
+  // เปลี่ยนสถานะคำขอเป็น recruiting
+  data.status = 'recruiting';
+  localStorage.setItem('headcount_data', JSON.stringify(headcountData));
+  filteredHeadcount = [...headcountData];
+  updateHeadcountTable();
+  updateHeadcountStats();
+
+  alert(`✅ ส่งคำขอ ${data.position} ไปยังระบบ P1 แล้ว\n\nID: ${recruitData.id}\nตำแหน่ง: ${data.position}\nจำนวน: ${data.count} อัตรา`);
+}
+
+// Pagination
+function hcPrevPage() {
+  if (hcCurrentPage > 1) {
+    hcCurrentPage--;
+    updateHeadcountTable();
+  }
+}
+
+function hcNextPage() {
+  const totalPages = Math.ceil(filteredHeadcount.length / hcItemsPerPage);
+  if (hcCurrentPage < totalPages) {
+    hcCurrentPage++;
+    updateHeadcountTable();
+  }
+}
+
+// ===== Interview History Module =====
 let interviewHistory = [];
+let filteredInterviews = [];
 let interviewCurrentPage = 1;
 const interviewItemsPerPage = 10;
-let filteredInterviews = [];
 
 // Mock interview history data
 const MOCK_INTERVIEW_HISTORY = [
