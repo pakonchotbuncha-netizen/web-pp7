@@ -655,7 +655,173 @@ const NEW_PROCESS_DATA = {
       <div class="flex items-center gap-2"><span class="text-green-600">📤</span><span class="text-slate-700">Notification (Line/Telegram)</span></div>
     </div>
   </div>
+
+  <!-- ประวัติการสัมภาษณ์ -->
+  <div class="card mt-8 bg-gradient-to-r from-indigo-50 to-blue-50 border-indigo-200">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-pp7-800 text-lg flex items-center gap-2">📜 ประวัติการสัมภาษณ์ (P2 Log)</h3>
+      <button onclick="showAddInterviewModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition">
+        ➕ เพิ่มประวัติ
+      </button>
+    </div>
+    <p class="text-sm text-slate-600 mb-4">เก็บประวัติการสัมภาษณ์ทั้งหมด — ใครผ่าน ใครไม่ผ่าน พร้อมคะแนน CC และผู้สัมภาษณ์</p>
+
+    <!-- สถิติการสัมภาษณ์ -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white rounded-lg border border-indigo-200 p-4 text-center">
+        <div class="text-3xl font-bold text-indigo-600" id="p2-total-interviews">0</div>
+        <div class="text-sm text-slate-600 mt-1">สัมภาษณ์ทั้งหมด</div>
+      </div>
+      <div class="bg-white rounded-lg border border-green-200 p-4 text-center">
+        <div class="text-3xl font-bold text-green-600" id="p2-passed">0</div>
+        <div class="text-sm text-slate-600 mt-1">ผ่าน ✅</div>
+      </div>
+      <div class="bg-white rounded-lg border border-red-200 p-4 text-center">
+        <div class="text-3xl font-bold text-red-600" id="p2-failed">0</div>
+        <div class="text-sm text-slate-600 mt-1">ไม่ผ่าน ❌</div>
+      </div>
+      <div class="bg-white rounded-lg border border-amber-200 p-4 text-center">
+        <div class="text-3xl font-bold text-amber-600" id="p2-pending">0</div>
+        <div class="text-sm text-slate-600 mt-1">รอผล ⏳</div>
+      </div>
+    </div>
+
+    <!-- ตัวกรอง -->
+    <div class="bg-white rounded-lg border border-slate-200 p-4 mb-4">
+      <div class="grid md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ค้นหา</label>
+          <input type="text" id="p2-search" placeholder="ชื่อผู้สมัคร..." 
+                 class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                 oninput="filterInterviewHistory()">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ประเภท</label>
+          <select id="p2-type-filter" class="w-full px-3 py-2 border border-slate-300 rounded-lg" onchange="filterInterviewHistory()">
+            <option value="">ทั้งหมด</option>
+            <option value="new">สมาชิกใหม่</option>
+            <option value="transfer">โอนย้าย/เลื่อน</option>
+            <option value="intern">ฝึกงาน</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ผลประเมิน</label>
+          <select id="p2-status-filter" class="w-full px-3 py-2 border border-slate-300 rounded-lg" onchange="filterInterviewHistory()">
+            <option value="">ทั้งหมด</option>
+                <option value="passed">ผ่าน ✅</option>
+                <option value="failed">ไม่ผ่าน ❌</option>
+            <option value="pending">รอผล ⏳</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ช่วงวันที่</label>
+          <input type="date" id="p2-date-filter" class="w-full px-3 py-2 border border-slate-300 rounded-lg" onchange="filterInterviewHistory()">
+        </div>
+      </div>
+    </div>
+
+    <!-- ตารางประวัติ -->
+    <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-100 border-b-2 border-slate-300">
+          <tr>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">วันที่</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-700">ชื่อผู้สมัคร</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-700">ประเภท</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">ตำแหน่ง</th>
+                <th class="px-4 py-3 text-center font-semibold text-slate-700">คะแนน CC</th>
+                <th class="px-4 py-3 text-center font-semibold text-slate-700">ผลประเมิน</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-700">ผู้สัมภาษณ์</th>
+            <th class="px-4 py-3 text-center font-semibold text-slate-700">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="interview-history-table" class="divide-y divide-slate-100">
+          <!-- ข้อมูลจะถูกเติมด้วย JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between mt-4">
+      <div class="text-sm text-slate-600">
+        แสดง <span id="p2-showing-start">0</span>-<span id="p2-showing-end">0</span> จาก <span id="p2-showing-total">0</span> รายการ
+      </div>
+      <div class="flex gap-2">
+        <button onclick="interviewPrevPage()" id="p2-prev-btn" class="px-3 py-1 border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50" disabled>← ก่อนหน้า</button>
+        <button onclick="interviewNextPage()" id="p2-next-btn" class="px-3 py-1 border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50" disabled>ถัดไป →</button>
+      </div>
+    </div>
+  </div>
 </section>
+
+<!-- Modal เพิ่มประวัติการสัมภาษณ์ -->
+<div id="interview-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <h3 class="text-xl font-bold text-slate-800">📜 เพิ่มประวัติการสัมภาษณ์</h3>
+      <button onclick="closeInterviewModal()" class="text-slate-500 hover:text-slate-700 text-2xl">&times;</button>
+    </div>
+    <form id="interview-form" onsubmit="saveInterviewData(event)" class="p-6 space-y-4">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">วันที่สัมภาษณ์ *</label>
+          <input type="date" id="interview-date" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ประเภท *</label>
+          <select id="interview-type" required class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+            <option value="">เลือกประเภท</option>
+            <option value="new">สมาชิกใหม่</option>
+                <option value="transfer">โอนย้าย/เลื่อน</option>
+            <option value="intern">ฝึกงาน</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อ-นามสกุล *</label>
+          <input type="text" id="interview-name" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ตำแหน่ง *</label>
+          <input type="text" id="interview-position" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">คะแนน CC (0-50) *</label>
+          <input type="number" id="interview-score" min="0" max="50" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ผลประเมิน *</label>
+          <select id="interview-result" required class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+            <option value="">เลือกผล</option>
+            <option value="passed">ผ่าน ✅</option>
+            <option value="failed">ไม่ผ่าน ❌</option>
+            <option value="pending">รอผล ⏳</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">ผู้สัมภาษณ์ *</label>
+        <input type="text" id="interviewer" required placeholder="ชื่อผู้สัมภาษณ์" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">หมายเหตุ</label>
+        <textarea id="interview-notes" rows="3" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="ข้อสังเกตเพิ่มเติม..."></textarea>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+        <button type="button" onclick="closeInterviewModal()" class="px-6 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50">ยกเลิก</button>
+        <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">💾 บันทึก</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- ============================================ -->
 <!-- P3 จับคู่คนกับงาน (Member Management) -->
@@ -2257,6 +2423,7 @@ function showTab(tabId){
   if(tabId === 'develop') initDevTab();
   if(tabId === 'new-process') renderNewProcessTab();
   if(tabId === 'members') initMembersTab();
+  if(tabId === 'assess') loadInterviewHistory();
   if(tabId === 'match') {
     console.log('✅ P3 Tab loaded successfully');
     // โหลดสถิติ P3 (ถ้ามี)
@@ -2534,6 +2701,223 @@ function handleDevFormSubmit(event) {
 }
 
 // ===== Members Database CRUD Functions =====
+// ===== Interview History (P2 Log) =====
+let interviewHistory = [];
+let interviewCurrentPage = 1;
+const interviewItemsPerPage = 10;
+let filteredInterviews = [];
+
+// Mock interview history data
+const MOCK_INTERVIEW_HISTORY = [
+  { id: 'INT001', date: '2026-06-20', name: 'สุรศักดิ์ มั่นคงดี', type: 'new', position: 'Software Engineer', score: 42, result: 'passed', interviewer: 'ปกรณ์, สมชาย', notes: 'ทัศนคติดีมาก CC ครบทั้ง 5 ด้าน', createdAt: '2026-06-20T10:30:00Z' },
+  { id: 'INT002', date: '2026-06-18', name: 'วารุณี ดีงาม', type: 'transfer', position: 'Team Leader', score: 38, result: 'passed', interviewer: 'ปกรณ์, วิชัย', notes: 'มีภาวะผู้นำเหมาะสม', createdAt: '2026-06-18T14:00:00Z' },
+  { id: 'INT003', date: '2026-06-17', name: 'ธนากร ประเสริฐ', type: 'new', position: 'Sales Executive', score: 28, result: 'failed', interviewer: 'ปกรณ์, สมหญิง', notes: 'ขาด CC3 (ความไว้วางใจ) และ CC4 (การทำงานทีม)', createdAt: '2026-06-17T09:15:00Z' },
+  { id: 'INT004', date: '2026-06-15', name: 'พิมพ์ชนก วงศ์สวัสดิ์', type: 'intern', position: 'HR Intern', score: 45, result: 'passed', interviewer: 'พรทิพย์, ปกรณ์', notes: 'นักศึกษาฝึกงานดีเด่น', createdAt: '2026-06-15T11:00:00Z' },
+  { id: 'INT005', date: '2026-06-22', name: 'อนันต์ ศรีสุข', type: 'new', position: 'Accountant', score: 0, result: 'pending', interviewer: 'ธนพล', notes: 'รอผลทดสอบทักษะเพิ่มเติม', createdAt: '2026-06-22T16:30:00Z' },
+  { id: 'INT006', date: '2026-06-10', name: 'กนกพร จันทร์สว่าง', type: 'transfer', position: 'Operations Manager', score: 35, result: 'passed', interviewer: 'วิชัย, ปกรณ์', notes: 'มีศักยภาพเหมาะสม', createdAt: '2026-06-10T13:45:00Z' },
+  { id: 'INT007', date: '2026-06-08', name: 'พิเชษฐ์ ใจดี', type: 'new', position: 'Marketing Executive', score: 25, result: 'failed', interviewer: 'สมหญิง, ปกรณ์', notes: 'ขาดทัศนคติเชิงบวก (CC2)', createdAt: '2026-06-08T10:00:00Z' },
+];
+
+// Load interview history from localStorage or mock data
+function loadInterviewHistory() {
+  const saved = localStorage.getItem('interview_history');
+  if (saved) {
+    interviewHistory = JSON.parse(saved);
+  } else {
+    interviewHistory = MOCK_INTERVIEW_HISTORY;
+    localStorage.setItem('interview_history', JSON.stringify(interviewHistory));
+  }
+  filteredInterviews = [...interviewHistory];
+  updateInterviewTable();
+  updateInterviewStats();
+}
+
+// Update interview table display
+function updateInterviewTable() {
+  const tbody = document.getElementById('interview-history-table');
+  if (!tbody) return;
+
+  const start = (interviewCurrentPage - 1) * interviewItemsPerPage;
+  const end = start + interviewItemsPerPage;
+  const pageData = filteredInterviews.slice(start, end);
+
+  tbody.innerHTML = '';
+  pageData.forEach(data => {
+    const typeLabel = data.type === 'new' ? '<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">สมาชิกใหม่</span>' :
+                     data.type === 'transfer' ? '<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">โอนย้าย/เลื่อน</span>' :
+                     data.type === 'intern' ? '<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs">ฝึกงาน</span>' : '';
+
+    const statusClass = data.result === 'passed' ? 'bg-green-100 text-green-800' :
+                       data.result === 'failed' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800';
+    const statusText = data.result === 'passed' ? 'ผ่าน ✅' :
+                      data.result === 'failed' ? 'ไม่ผ่าน ❌' : 'รอผล ⏳';
+
+    const scorePercent = (data.score / 50 * 100).toFixed(0);
+    const scoreColor = data.score >= 32.5 ? 'text-green-600' : 'text-red-600';
+
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-slate-50';
+    tr.innerHTML = `
+      <td class="px-4 py-3 text-slate-700">${formatDate(data.date)}</td>
+      <td class="px-4 py-3 font-medium text-slate-900">${data.name}</td>
+      <td class="px-4 py-3">${typeLabel}</td>
+      <td class="px-4 py-3 text-slate-700">${data.position}</td>
+      <td class="px-4 py-3 text-center">
+        <span class="font-bold ${scoreColor}">${data.score}</span><span class="text-slate-400">/50</span>
+        <div class="text-xs text-slate-500">(${scorePercent}%)</div>
+      </td>
+      <td class="px-4 py-3 text-center">
+        <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${statusText}</span>
+      </td>
+      <td class="px-4 py-3 text-slate-700">${data.interviewer}</td>
+      <td class="px-4 py-3 text-center">
+        <button onclick="viewInterviewDetail('${data.id}')" class="text-indigo-600 hover:text-indigo-800 text-xs mr-2">ดูรายละเอียด</button>
+        <button onclick="deleteInterviewData('${data.id}')" class="text-red-600 hover:text-red-800 text-xs">ลบ</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Update pagination info
+  const showingStart = filteredInterviews.length > 0 ? start + 1 : 0;
+  const showingEnd = Math.min(end, filteredInterviews.length);
+  document.getElementById('p2-showing-start').textContent = showingStart;
+  document.getElementById('p2-showing-end').textContent = showingEnd;
+  document.getElementById('p2-showing-total').textContent = filteredInterviews.length;
+
+  // Update pagination buttons
+  document.getElementById('p2-prev-btn').disabled = interviewCurrentPage === 1;
+  document.getElementById('p2-next-btn').disabled = end >= filteredInterviews.length;
+}
+
+// Update interview stats
+function updateInterviewStats() {
+  const total = interviewHistory.length;
+  const passed = interviewHistory.filter(d => d.result === 'passed').length;
+  const failed = interviewHistory.filter(d => d.result === 'failed').length;
+  const pending = interviewHistory.filter(d => d.result === 'pending').length;
+
+  document.getElementById('p2-total-interviews').textContent = total;
+  document.getElementById('p2-passed').textContent = passed;
+  document.getElementById('p2-failed').textContent = failed;
+  document.getElementById('p2-pending').textContent = pending;
+}
+
+// Filter interview history
+function filterInterviewHistory() {
+  const search = document.getElementById('p2-search').value.toLowerCase();
+  const type = document.getElementById('p2-type-filter').value;
+  const status = document.getElementById('p2-status-filter').value;
+  const date = document.getElementById('p2-date-filter').value;
+
+  filteredInterviews = interviewHistory.filter(data => {
+    if (search && !data.name.toLowerCase().includes(search)) return false;
+    if (type && data.type !== type) return false;
+    if (status && data.result !== status) return false;
+    if (date && data.date !== date) return false;
+    return true;
+  });
+
+  interviewCurrentPage = 1;
+  updateInterviewTable();
+}
+
+// Show add interview modal
+function showAddInterviewModal() {
+  document.getElementById('interview-modal').classList.remove('hidden');
+  document.getElementById('interview-form').reset();
+  // Set default date to today
+  document.getElementById('interview-date').valueAsDate = new Date();
+}
+
+// Close interview modal
+function closeInterviewModal() {
+  document.getElementById('interview-modal').classList.add('hidden');
+}
+
+// Save interview data
+function saveInterviewData(event) {
+  event.preventDefault();
+  const newId = 'INT' + String(interviewHistory.length + 1).padStart(3, '0');
+  const newData = {
+    id: newId,
+    date: document.getElementById('interview-date').value,
+    name: document.getElementById('interview-name').value,
+    type: document.getElementById('interview-type').value,
+    position: document.getElementById('interview-position').value,
+    score: parseInt(document.getElementById('interview-score').value),
+    result: document.getElementById('interview-result').value,
+    interviewer: document.getElementById('interviewer').value,
+    notes: document.getElementById('interview-notes').value,
+    createdAt: new Date().toISOString()
+  };
+
+  interviewHistory.unshift(newData);
+  localStorage.setItem('interview_history', JSON.stringify(interviewHistory));
+  filteredInterviews = [...interviewHistory];
+  interviewCurrentPage = 1;
+  updateInterviewTable();
+  updateInterviewStats();
+  closeInterviewModal();
+  alert('✅ บันทึกประวัติการสัมภาษณ์สำเร็จ');
+}
+
+// Delete interview data
+function deleteInterviewData(id) {
+  if (!confirm('ต้องการลบประวัติการสัมภาษณ์นี้หรือไม่?')) return;
+  interviewHistory = interviewHistory.filter(d => d.id !== id);
+  localStorage.setItem('interview_history', JSON.stringify(interviewHistory));
+  filteredInterviews = [...interviewHistory];
+  updateInterviewTable();
+  updateInterviewStats();
+  alert('✅ ลบประวัติสำเร็จ');
+}
+
+// View interview detail
+function viewInterviewDetail(id) {
+  const data = interviewHistory.find(d => d.id === id);
+  if (!data) return;
+
+  const typeLabel = data.type === 'new' ? 'สมาชิกใหม่' : data.type === 'transfer' ? 'โอนย้าย/เลื่อน' : 'ฝึกงาน';
+  const resultLabel = data.result === 'passed' ? 'ผ่าน ✅' : data.result === 'failed' ? 'ไม่ผ่าน ❌' : 'รอผล ⏳';
+  const passLine = data.score >= 32.5 ? '✅ ผ่านเกณฑ์ (≥ 32.5)' : '❌ ไม่ผ่านเกณฑ์ (≥ 32.5)';
+
+  alert(`📋 รายละเอียดการสัมภาษณ์
+
+วันที่: ${formatDate(data.date)}
+ชื่อ: ${data.name}
+ประเภท: ${typeLabel}
+ตำแหน่ง: ${data.position}
+คะแนน CC: ${data.score}/50 (${(data.score/50*100).toFixed(0)}%)
+${passLine}
+ผลประเมิน: ${resultLabel}
+ผู้สัมภาษณ์: ${data.interviewer}
+หมายเหตุ: ${data.notes || '-'}`);
+}
+
+// Pagination
+function interviewPrevPage() {
+  if (interviewCurrentPage > 1) {
+    interviewCurrentPage--;
+    updateInterviewTable();
+  }
+}
+
+function interviewNextPage() {
+  const totalPages = Math.ceil(filteredInterviews.length / interviewItemsPerPage);
+  if (interviewCurrentPage < totalPages) {
+    interviewCurrentPage++;
+    updateInterviewTable();
+  }
+}
+
+// Helper function for date formatting
+function formatDate(dateStr) {
+  if (!dateStr) return '-';
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
 let membersData = [];
 let currentPage = 1;
 const itemsPerPage = 10;
