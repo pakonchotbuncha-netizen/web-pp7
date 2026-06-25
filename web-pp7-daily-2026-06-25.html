@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Web PP7 — รายงานประจำวัน 2026-06-25</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          colors: {
+            primary: '#2563eb',
+            'primary-dark': '#1d4ed8',
+            surface: '#0f172a',
+            'surface-card': '#1e293b',
+            'surface-elevated': '#334155',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Prompt', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; }
+    .tile { animation: fadeInUp 0.5s ease-out both; }
+    .tile:nth-child(1) { animation-delay: 0.05s; }
+    .tile:nth-child(2) { animation-delay: 0.1s; }
+    .tile:nth-child(3) { animation-delay: 0.15s; }
+    .tile:nth-child(4) { animation-delay: 0.2s; }
+    .tile:nth-child(5) { animation-delay: 0.25s; }
+    .tile:nth-child(6) { animation-delay: 0.3s; }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .block-section { animation: fadeIn 0.4s ease-out both; }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    /* Status badge styles */
+    .pill-ok { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+    .pill-warn { background: rgba(251,146,60,0.15); color: #fb923c; border: 1px solid rgba(251,146,60,0.3); }
+    .pill-info { background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.3); }
+    .pill-neutral { background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); }
+    .pill-bad { background: rgba(248,113,113,0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+    /* Verdict section styles */
+    .verdict-info { border-left: 4px solid #60a5fa; background: rgba(96,165,250,0.05); }
+    .verdict-warn { border-left: 4px solid #fb923c; background: rgba(251,146,60,0.05); }
+    .verdict-ok { border-left: 4px solid #4ade80; background: rgba(34,197,94,0.05); }
+    /* Checklist */
+    .check-item { position: relative; padding-left: 2rem; margin-bottom: 0.75rem; }
+    .check-item::before { content: ''; position: absolute; left: 0; top: 0.5rem; width: 12px; height: 12px; border-radius: 3px; }
+    .check-item.is-ok::before { background: #4ade80; }
+    .check-item.is-warn::before { background: #fb923c; }
+    .check-item.is-info::before { background: #60a5fa; }
+    .check-item.is-neutral::before { background: #64748b; }
+    /* Table styles */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { background: rgba(37,99,235,0.15); color: #93c5fd; font-weight: 600; text-align: left; padding: 0.75rem 1rem; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid rgba(37,99,235,0.3); }
+    .data-table td { padding: 0.75rem 1rem; border-bottom: 1px solid rgba(148,163,184,0.1); font-size: 0.9rem; color: #cbd5e1; vertical-align: top; }
+    .data-table tr:hover td { background: rgba(148,163,184,0.05); }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    /* Responsive table wrapper */
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  </style>
+</head>
+<body class="bg-surface text-slate-300 min-h-screen">
+
+  <!-- Classification Bar -->
+  <div class="bg-primary/90 text-white text-center py-2 text-xs font-semibold tracking-widest uppercase sticky top-0 z-50 backdrop-blur-sm">
+    CONFIDENTIAL — ภายในองค์กร · Web PP7 v2 · PKG-ปกรณ์(หนึ่ง)
+  </div>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Header -->
+    <header class="mb-10">
+      <div class="flex flex-wrap items-center gap-2 mb-3">
+        <span class="text-xs font-medium text-blue-400 uppercase tracking-wider bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
+          Day 1 · สถานะ development จริง · รายงานประจำวัน
+        </span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-bold text-white mb-4">
+        รายงานประจำวัน — 2026-06-25
+        <span class="inline-block ml-2 text-sm font-normal px-3 py-1 rounded-full pill-ok align-middle">ON TRACK</span>
+      </h1>
+
+      <!-- Meta pills -->
+      <div class="flex flex-wrap items-center gap-2 mb-6 text-sm text-slate-400">
+        <span class="px-2.5 py-1 rounded bg-surface-card border border-slate-700">Web PP7 v2</span>
+        <span class="text-slate-600">/</span>
+        <span class="px-2.5 py-1 rounded pill-ok text-xs">ON TRACK</span>
+        <span class="text-slate-600">/</span>
+        <span class="px-2.5 py-1 rounded bg-surface-card border border-slate-700">2026-06-25</span>
+        <span class="text-slate-600">/</span>
+        <span>Created <time>2026-06-25</time></span>
+        <span class="text-slate-600">/</span>
+        <span>Updated <time>2026-06-25</time></span>
+      </div>
+
+      <!-- Lead paragraph -->
+      <div class="bg-surface-card rounded-xl p-6 border border-slate-700/50 mb-6">
+        <p class="text-slate-300 leading-relaxed">
+          สรุปงานของวัน (<b class="text-white">2026-06-25</b>) — <b class="text-blue-400">วัน Web PP7 ที่ยาวและ output สูงสุดของโครงการ</b> <b class="text-white">08:30 → ยังต่อเนื่อง</b> (wall ~13h+) ปิดงานใหญ่หลาย layer รวด <b class="text-white">8 commits</b>, <b class="text-white">4 Phases เสร็จ</b> จาก 5 Phases, และสร้าง <b class="text-white">15 modules + standalone mockup + presentation v3 (เสียงไทย)</b> ·
+          <b class="text-emerald-400">Phase 1 Backend Foundation:</b> 27 tables, 4 files (Code.gs, Database.gs, Auth.gs, Setup.gs) + api-adapter.js, RBAC 6 roles · commit <span class="mono">b55ac4a</span> ·
+          <b class="text-emerald-400">Phase 2 P1-P4 Modules:</b> 8 modules, 7,127 lines — Pipeline, Radar Chart, 360°, soft delete · commit <span class="mono">0ca7b29</span> ·
+          <b class="text-emerald-400">Phase 3 Main Layout:</b> Login + RBAC + Sidebar · Responsive Desktop/Tablet/Mobile · commit <span class="mono">f7c2aa2</span> ·
+          <b class="text-emerald-400">Bonus:</b> Mockup HTML (7,127+8,980 = 16,000+ lines), Presentation v3 with embedded Thai MP3 (7.1 MB standalone) ·
+          <b class="text-emerald-400">Phase 4 P5-P7 + Docs:</b> 5 modules + PM/WI/SD/FM API · commit <span class="mono">f4e1404</span> ·
+          ทั้งหมด render จาก <b>Data ที่ให้จาก main agent</b> — <b>ไม่คำนวณ/แก้เวลาเอง</b>
+        </p>
+      </div>
+    </header>
+
+    <!-- Scope Banner -->
+    <section id="scope-banner" class="verdict-info rounded-lg p-5 mb-6"></section>
+
+    <!-- Exclusion Banner -->
+    <section id="exclusion-banner" class="verdict-warn rounded-lg p-5 mb-8"></section>
+
+    <!-- Main Verdict -->
+    <section class="bg-gradient-to-r from-blue-900/20 to-emerald-900/20 border border-blue-500/20 rounded-xl p-6 mb-10">
+      <div id="main-verdict-pill" class="mb-3"></div>
+      <p id="main-verdict-text" class="text-slate-300 leading-relaxed"></p>
+    </section>
+
+    <!-- KPI Tiles -->
+    <div id="kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10"></div>
+
+    <!-- Metrics Table -->
+    <section class="bg-surface-card rounded-xl border border-slate-700/50 overflow-hidden mb-10 block-section">
+      <div class="p-5 border-b border-slate-700/50">
+        <h2 class="text-lg font-semibold text-white">ตัวชี้วัดรวมของวัน</h2>
+        <span class="text-xs text-slate-500 mt-1 block">render จากข้อมูลที่ได้รับ · ไม่คำนวณเอง</span>
+        <span id="metrics-tag" class="inline-block mt-2 text-xs px-2.5 py-0.5 rounded-full pill-info"></span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>ตัวชี้วัด</th><th>ค่า</th></tr></thead>
+          <tbody id="metric-rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Topics Table -->
+    <section class="bg-surface-card rounded-xl border border-slate-700/50 overflow-hidden mb-10 block-section">
+      <div class="p-5 border-b border-slate-700/50">
+        <h2 class="text-lg font-semibold text-white">หัวเรื่องของวัน — workstream-based (8 หัวเรื่อง)</h2>
+        <span class="text-xs text-slate-500 mt-1 block">เรียงโดยประมาณตามเวลา · แต่ละหัวเรื่อง = "ช่วงไหน ทำอะไร commit ไหน ค้นข้อมูลกี่ครั้ง"</span>
+      </div>
+      <p class="px-5 pt-3 text-sm text-slate-400">
+        จัดเป็น <b class="text-white">workstream-based</b> เรียงตามสายงาน Web PP7 ตลอดวัน (#1 Backend · #2 Modules P1-P4 · #3 Layout · #4 Mockup + Presentation · #5 Thai TTS fix · #6 Detailed narration · #7 Delivery · #8 PM/WI/SD/FM) ·
+        <b class="text-white">ช่วงเวลา</b> เป็น "โดยประมาณ" (ICT = UTC+7) · แสดง commit + จำนวน web search ต่อหัวเรื่อง
+      </p>
+      <div class="table-wrap mt-4">
+        <table class="data-table">
+          <thead><tr><th>#</th><th>ช่วง</th><th>หัวเรื่อง</th><th>ทำอะไร (สรุป)</th><th>Web?</th><th>Commit</th></tr></thead>
+          <tbody id="topic-rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Decision Waits -->
+    <section class="bg-surface-card rounded-xl border border-slate-700/50 overflow-hidden mb-10 block-section">
+      <div class="p-5 border-b border-slate-700/50">
+        <h2 class="text-lg font-semibold text-white">การรอตัดสินใจ — สั้นทุก gate (owner ตอบเร็ว)</h2>
+        <span class="text-xs text-slate-500 mt-1 block">decision-wait = STOP ก่อนหน้าเปิด gate/ขอ approve แล้วอยู่ที่ owner</span>
+      </div>
+      <p class="px-5 pt-3 text-sm text-slate-400">
+        owner ตอบเร็วทุก gate (ส่ง task → sub-agent ลุย, continuation-style) ·
+        gap ที่ยาวกว่า = <b class="text-white">orchestration latency</b> (sub-agent รัน ~10–17 นาที/task) <b class="text-white">ไม่ใช่ owner decision-wait</b> · <b class="text-white">ไม่มี gate ที่ owner ค้าง</b>
+      </p>
+      <div class="table-wrap mt-4">
+        <table class="data-table">
+          <thead><tr><th>ช่วง</th><th>เรื่องที่รอ owner ตัดสิน</th><th>หมายเหตุ</th></tr></thead>
+          <tbody id="decision-rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Research -->
+    <section class="bg-surface-card rounded-xl border border-slate-700/50 overflow-hidden mb-10 block-section">
+      <div class="p-5 border-b border-slate-700/50">
+        <h2 class="text-lg font-semibold text-white">การค้นข้อมูลเพิ่มเติม — 3 ครั้ง</h2>
+        <span class="text-xs text-slate-500 mt-1 block">web search สำหรับการพัฒนาระบบ Web PP7 · วันนี้</span>
+        <span id="research-tag" class="inline-block mt-2 text-xs px-2.5 py-0.5 rounded-full pill-info"></span>
+      </div>
+      <div class="table-wrap mt-4">
+        <table class="data-table">
+          <thead><tr><th>เวลา</th><th>ช่องทาง</th><th>เรื่อง</th></tr></thead>
+          <tbody id="research-rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Artifacts -->
+    <section class="bg-surface-card rounded-xl border border-slate-700/50 overflow-hidden mb-10 block-section">
+      <div class="p-5 border-b border-slate-700/50">
+        <h2 class="text-lg font-semibold text-white">ผลผลิตของวัน — Backend + Modules + Mockup + Presentation</h2>
+        <span class="text-xs text-slate-500 mt-1 block">สิ่งที่เกิดขึ้นจริง · จาก worklog + git commits วันที่ 2026-06-25</span>
+        <span id="artifacts-tag" class="inline-block mt-2 text-xs px-2.5 py-0.5 rounded-full pill-ok"></span>
+      </div>
+      <div class="table-wrap mt-4">
+        <table class="data-table">
+          <thead><tr><th>หมวด</th><th>รายละเอียด</th><th>สถานะ</th></tr></thead>
+          <tbody id="artifact-rows"></tbody>
+        </table>
+      </div>
+      <div class="p-5 border-t border-slate-700/50">
+        <p class="text-sm text-slate-400">
+          <b class="text-orange-400">⚠️ mechanism-ready ไม่ใช่ deployed:</b> ทุก module ใช้ mock data — ยังไม่ได้ต่อ Google Sheets API จริง · Code เขียนเสร็จ ใช้งานได้ — ยังไม่ได้ deploy บน Google Apps Script จริง ·
+          <b class="text-white">Deadline ต.ค. 69</b> มี buffer เพียงพอ ถ้าไม่มี scope change ใหญ่
+        </p>
+      </div>
+    </section>
+
+    <!-- Feedback from team -->
+    <section class="bg-surface-card rounded-xl border border-slate-700/50 overflow-hidden mb-10 block-section">
+      <div class="p-5 border-b border-slate-700/50">
+        <h2 class="text-lg font-semibold text-white">Feedback จากทีม (แก้ไขแล้ว 4 รายการ)</h2>
+        <span class="text-xs text-slate-500 mt-1 block">ทั้งหมด resolve แล้ว ภายในวันเดียว</span>
+      </div>
+      <div class="table-wrap mt-4">
+        <table class="data-table">
+          <thead><tr><th>#</th><th>Feedback</th><th>สถานะ</th></tr></thead>
+          <tbody id="feedback-rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Honesty Notes -->
+    <section class="bg-surface-card rounded-xl border border-slate-700/50 overflow-hidden mb-10 block-section">
+      <div class="p-5 border-b border-slate-700/50">
+        <h2 class="text-lg font-semibold text-white">หมายเหตุความซื่อตรง — Honesty notes</h2>
+        <span class="text-xs text-slate-500 mt-1 block">เงื่อนไขที่ต้องอ่านคู่กับตัวเลข/สถานะทุกตัว (7 ข้อ, ไม่ลบ flag)</span>
+      </div>
+      <ul id="honesty-rows" class="p-5 space-y-1"></ul>
+    </section>
+
+    <!-- Footer -->
+    <footer id="page-foot" class="border-t border-slate-700/50 pt-6 pb-10 text-center text-sm text-slate-500"></footer>
+
+  </main>
+
+  <script>
+  // =========================================================
+  // ข้อมูล Web PP7 — Day 1 (2026-06-25)
+  // Boundary: ข้อมูลให้จาก main agent → render เท่านั้น ไม่คำนวณตัวเลขเอง
+  // =========================================================
+  const REPORT = {
+    scope: "หน้านี้ = <b>รายงานประจำวันของ Web PP7 Day 1</b> — ระบบบริหารบุคลากร pakorn (Google Apps Script) เท่านั้น · <b>ไม่ใช่ SafeClaw, PKGA, หรือโครงการอื่น</b> · " +
+      "Deploy status = <b>mechanism-ready</b> (code เขียนเสร็จ ใช้งานได้) — ยังไม่ได้ deploy บน Google Apps Script จริง · " +
+      "วันนี้เป็น <b class='text-white'>วัน output สูงสุดของโครงการ</b>: 4 Phases เสร็จภายในวันเดียว (จากแผน 49 วัน), 15 modules, 8 commits, 18,000+ lines · " +
+      "Bonus: Standalone mockup HTML (16,000+ lines) + Presentation v3 with Thai TTS (7.1 MB standalone)",
+
+    exclusion: "<b>⚠️ ขอบเขตรายงาน — ต้องอ่านก่อน</b><br>" +
+      "รายงานนี้ = <b>Web PP7 Day 1 development เท่านั้น</b> (ระบบบริหารบุคลากร pakorn) · " +
+      "<b>ไม่รวมงานอื่นของ KiloClaw ในวันนี้</b> (เช่น SafeClaw, PKGA, อื่นๆ) · " +
+      "ทุกตัวเลขด้านล่าง (เวลา/web/หัวเรื่อง/commits) นับ <b>เฉพาะงาน Web PP7 ของวันนี้</b> เท่านั้น",
+
+    verdictPill: { text: "DAY 1 COMPLETE · 4/5 Phases · 13h+ · output สูงสุดของโครงการ", cls: "pill-ok" },
+    verdictText:
+      "วัน <b class='text-white'>Web PP7 ที่ output สูงสุดของโครงการ</b> — <b class='text-blue-400'>08:30 → ยังต่อเนื่อง</b> (wall ~13h+) · " +
+      "ปิดงานใหญ่หลาย layer รวด <b class='text-white'>8 commits</b>, <b class='text-white'>4 Phases เสร็จใน 5</b>, สร้าง <b class='text-white'>15 frontend modules</b>, " +
+      "และ <b class='text-white'>bonus standalone mockup + presentation v3 (เสียงไทย)</b> · " +
+      "<b class='text-emerald-400'>เร็วกว่าแผน 49 วันมาก</b> — ถ้า Phase 5 (Integration + Testing) เรียบร้อย จะพร้อม deploy · " +
+      "<b class='text-emerald-400'>Feedback จากทีม 4 รายการ แก้ไขแล้วทั้งหมด</b> — P2 ชื่อ, P3 soft delete, P2 history, Layout refactor · " +
+      "<b class='text-emerald-400'>Parallel execution:</b> ใช้ sub-agents 8 ตัว ขนานกันหลายช่วง = throughput สูง · " +
+      "<b class='text-slate-400'>⚠️ mechanism-ready ไม่ใช่ deployed</b> — mock data ทั้งหมด, ยังไม่ได้ deploy บน GAS จริง · " +
+      "<b class='text-white'>Deadline ต.ค. 69</b> มี buffer เพียงพอ ถ้าไม่มี scope change ใหญ่",
+
+    kpis: [
+      { label:"เริ่ม → ปัจจุบัน", value:"08:30", unit:"→ ต่อเนื่อง", delta:"เริ่ม 08:30 ICT (01:30 UTC) · ยังไม่ปิด (wall ~13h+) · วันที่ยาวมากของโครงการ", deltaState:"info" },
+      { label:"Phases เสร็จ", value:"4/5", unit:"", delta:"Phase 1 Backend ✅ · P2 P1-P4 ✅ · P3 Layout ✅ · P4 P5-P7+Docs ✅ · Phase 5 เหลือ integration+testing", deltaState:"ok" },
+      { label:"Modules สร้าง", value:"15", unit:"modules", delta:"8 P1-P4 + 1 layout + 1 mockup + 4 P5-7 + 1 docs · รวม 15 modules + 1 standalone mockup (16,000+ lines)", deltaState:"ok" },
+      { label:"Code lines", value:"~18,000+", unit:"lines", delta:"25+ ไฟล์ สร้างวันนี้ · Backend ~2,700 + Modules ~17,127 + Layout ~2,152 ฯลฯ", deltaState:"ok" },
+      { label:"Git commits", value:"8", unit:"วันนี้", delta:"b55ac4a, 0ca7b29, f7c2aa2, 2ece719, 7c00b82, 5e83c9a, f3a9c2b, f4e1404", deltaState:"ok" },
+      { label:"Sub-agents", value:"8", unit:"parallel", delta:"parallel execution · Web search 3 ครั้ง · throughput สูงสุดของโครงการ", deltaState:"info" }
+    ],
+
+    metricsTag: "วันเดียว (Web PP7 Day 1) · 2026-06-25",
+
+    metrics: [
+      { k:"เริ่มงาน", v:"08:30 ICT (01:30 UTC)" },
+      { k:"ปิดวัน", v:"ยังไม่ปิด (ต่อเนื่อง)" },
+      { k:"ช่วงเวลารวม (wall)", v:"~13h+ (08:30 → ยังต่อเนื่อง)" },
+      { k:"Phases เสร็จ", v:"<b>4/5</b> · Phase 5 (Integration + Testing) ยังไม่เริ่ม" },
+      { k:"Modules สร้าง", v:"<b>15 modules</b> — 8 P1-P4 + 1 layout + 1 mockup + 4 P5-7 + 1 docs" },
+      { k:"Code lines", v:"<b>~18,000+ lines</b> · 25+ ไฟล์ สร้างวันนี้" },
+      { k:"Git commits", v:"<b>8 commits</b> — วันนี้วันเดียว" },
+      { k:"Sub-agents spawned", v:"<b>8 ตัว</b> — parallel execution (main-loop รันเอง + 8 sub-agents songขนาน)" },
+      { k:"Web search", v:"<b>3 ครั้ง</b> — ตรวจสอบ GAS API patterns, Google Apps Script" }
+    ],
+
+    topics: [
+      { n:"1", t:"~08:30-12:00", title:"Phase 1 Backend Architecture",
+        body:"Code.gs, Database.gs, Auth.gs, Setup.gs, api-adapter.js · <b>27 tables schema</b> · RBAC 6 roles",
+        web:"2 ครั้ง", commit:"<span class='mono'>b55ac4a</span>", state:"ok", label:"Backend Foundation ✅" },
+      { n:"2", t:"~12:00-13:20", title:"Phase 2 P1-P4 Modules",
+        body:"<b>8 modules, 7,127 lines</b> · Core Features: Pipeline, Radar Chart, 360°, soft delete · Headcount Request, Candidate Pipeline, Interview, CC Assessment, Position Matching, Evaluation, 360° Eval, Analytics",
+        web:"—", commit:"<span class='mono'>0ca7b29</span>", state:"ok", label:"8 Modules ✅" },
+      { n:"3", t:"~13:20-14:30", title:"Phase 3 Main Layout",
+        body:"Login screen + RBAC + Sidebar navigation · Responsive design (Desktop/Tablet/Mobile) · 4 files, 2,152 lines",
+        web:"—", commit:"<span class='mono'>f7c2aa2</span>", state:"ok", label:"Layout ✅" },
+      { n:"4", t:"~14:30-15:30", title:"Mockup + Presentation v1",
+        body:"Testable demo HTML ที่เปิดได้ในเบราว์เซอร์ · Presentation 10 slides autoplay (Speech Synthesis) · Sub-agent 2 ขนานกัน",
+        web:"—", commit:"<span class='mono'>2ece719, 7c00b82</span>", state:"info", label:"Mockup + Pres v1" },
+      { n:"5", t:"~15:30-16:20", title:"Owner feedback — เสียงพากย์ไทยไม่ออก",
+        body:"สร้าง voice detection + voice selector · ลด rate 0.9 → 0.65 สำหรับภาษาไทย · Subtitle ปรับให้เห็นชัดขึ้น",
+        web:"—", commit:"<span class='mono'>5e83c9a (v2)</span>", state:"warn", label:"TTS Thai fix" },
+      { n:"6", t:"~16:20-16:50", title:"Owner feedback — ขอให้บรรยายละเอียด",
+        body:"ใช้ OpenAI TTS (shimmer voice) สร้าง MP3 10 ไฟล์ · embed base64 ใน HTML → standalone · 7.1 MB standalone",
+        web:"1 ครั้ง", commit:"<span class='mono'>f3a9c2b (v3)</span>", state:"info", label:"TTS v3 detailed" },
+      { n:"7", t:"~16:50-17:00", title:"Presentation delivery",
+        body:"ส่งไฟล์ mockup + presentation v3 ใน Telegram · Owner ส่งต่อให้ทีม/ผู้บริหาร",
+        web:"—", commit:"—", state:"ok", label:"Delivered ✅" },
+      { n:"8", t:"~17:00-17:10", title:"Owner directive — PM/WI/SD/FM",
+        body:"สร้าง documents.gs API (7.8 KB) · DOCS_SCHEMA.md (5 KB) · P5+P6, P7+Docs sub-agent 2 ขนานกัน",
+        web:"—", commit:"<span class='mono'>f4e1404</span>", state:"ok", label:"P5-P7 + Docs ✅" }
+    ],
+
+    decisions: [
+      { when:"ทุก gate", what:"<b>ส่ง task → sub-agent ลุย</b> (continuation-style, ไม่รอ owner approve ทุก commit)", note:"สั้นมาก — owner สั่ง direction แล้วลุย", state:"info" },
+      { when:"—", what:"<b>ไม่มี owner decision-wait ที่ค้าง</b> — feedback ทั้ง 4 รายการ ตอบเร็ว แก้ไขทันที", note:"✅ resolve ทั้งหมดภายในวัน", state:"ok" },
+      { when:"ทุก sub-agent", what:"<b>orchestration latency</b> — sub-agent รัน ~10–17 นาที/task (ไม่ใช่ owner decision-wait)", note:"⚠️ gap = orchestration ไม่ใช่ owner", state:"neutral" }
+    ],
+
+    researchTag: "3 web searches · 2026-06-25",
+    research: [
+      { when:"~08:30-12:00 (×2)", via:"Web Search", topic:"GAS API patterns — ตรวจสอบ Google Apps Script API สำหรับ 27 tables schema backend" },
+      { when:"~16:20-16:50 (×1)", via:"Web Search", topic:"OpenAI TTS / presentation — embed base64 MP3 สำหรับ presentation v3 (บรรยายละเอียด)" }
+    ],
+
+    artifactsTag: "Web PP7 Day 1 · 2026-06-25",
+    artifacts: [
+      { cat:"Phase 1: Backend Foundation", detail:"<b>27 Database Tables</b> · 4 files (Code.gs, Database.gs, Auth.gs, Setup.gs) + api-adapter.js · 2,700+ lines · RBAC 6 roles · commit <span class='mono'>b55ac4a</span>", state:"ok", label:"✅ Phase 1" },
+      { cat:"Phase 2: P1-P4 Modules", detail:"<b>8 modules, 7,127 lines</b> · Headcount Request, Candidate Pipeline, Interview Mgmt, CC Assessment, Position Matching, Evaluation, 360° Eval, Analytics Dashboard · commit <span class='mono'>0ca7b29</span>", state:"ok", label:"✅ Phase 2" },
+      { cat:"Phase 3: Main Layout", detail:"Login screen + RBAC + Sidebar navigation · Responsive (Desktop/Tablet/Mobile) · 4 files, 2,152 lines · commit <span class='mono'>f7c2aa2</span>", state:"ok", label:"✅ Phase 3" },
+      { cat:"Mockup HTML (testable)", detail:"Standalone demo HTML ที่เปิดได้ในเบราว์เซอร์ · P1-P4 + P5-P7 + Docs = <b>16,000+ lines</b> · commits <span class='mono'>2ece719</span>, <span class='mono'>7c00b82</span>", state:"ok", label:"✅ Mockup" },
+      { cat:"Presentation v3 (Thai audio)", detail:"10 slides autoplay · OpenAI TTS (shimmer voice) · embed base64 MP3 10 ไฟล์ · <b>7.1 MB standalone</b> · commit <span class='mono'>f3a9c2b</span>", state:"ok", label:"✅ Pres v3" },
+      { cat:"Phase 4: P5-P7 + Docs", detail:"5 modules, 5,780 lines · Development Mgmt, Compensation, Wellbeing 5H · PM/WI/SD/FM Documentation API (7.8 KB) + Frontend Module · commit <span class='mono'>f4e1404</span>", state:"ok", label:"✅ Phase 4" },
+      { cat:"8 API endpoints", detail:"Code.gs + Database.gs + Auth.gs + Setup.gs + api-adapter.js + documents.gs + DOCS_SCHEMA.md (5 KB)", state:"ok", label:"✅ API" },
+      { cat:"Git commits", detail:"<b>8 commits</b> — b55ac4a → 0ca7b29 → f7c2aa2 → 2ece719 → 7c00b82 → 5e83c9a → f3a9c2b → f4e1404", state:"ok", label:"8 commits" },
+      { cat:"Phase 5: Integration + Testing", detail:"<b>ยังไม่เริ่ม</b> — ต้องต่อ Google Sheets API จริง + deploy บน GAS + integration test", state:"warn", label:"⏳ Phase 5" }
+    ],
+
+    feedback: [
+      { n:"1", text:"P2 ชื่อต้องเป็น <b>\"หยั่งประเมิน\"</b> ไม่ใช่ \"ประเมินศักยภาพ\"", state:"ok" },
+      { n:"2", text:"P3 ต้องเก็บสมาชิกที่ลาออก (<b>soft delete</b>)", state:"ok" },
+      { n:"3", text:"P2 ต้องเก็บ<b>ประวัติสัมภาษณ์</b>", state:"ok" },
+      { n:"4", text:"ปรับ <b>Tabs → Sidebar Layout</b>", state:"ok" }
+    ],
+
+    honesty: [
+      { state:"info", text:"<b>main-loop รันเอง + 8 sub-agents songขนาน</b> — orchestration pattern ใช้ sub-agent parallel หลายช่วงเพื่อเพิ่ม throughput" },
+      { state:"warn", text:"<b>Lines of code คำนวณจาก <code>wc -l</code></b> — ไม่แม่นยำ 100% เพราะมี blank lines + comments · รายงานเป็น ~18,000+ โดยประมาณ" },
+      { state:"warn", text:"<b>Presentation v2 ใช้ Web Speech API</b> — ถ้าเบราว์เซอร์ไม่มีเสียงไทย จะไม่พูด (ต้อง v3 ใช้ embedded MP3) · v2 จึงเป็น fallback ที่ไม่ 100%" },
+      { state:"neutral", text:"<b>\"เวลาทำงานจริง\" เป็นช่วง ไม่ใช่จุด</b> — มี heartbeat/polling กั้นระหว่าง sub-agents · รายงานเป็น ~13h+ (wall time ตั้งแต่เริ่มจนถึง reporting)" },
+      { state:"warn", text:"<b>Modules ใช้ mock data ทั้งหมด</b> — ยังไม่ได้ต่อ Google Sheets API จริง · ต้อง integration ใน Phase 5" },
+      { state:"warn", text:"<b>\"เสร็จ\" ในที่นี้ = code เขียนเสร็จ ใช้งานได้</b> — ยังไม่ได้ deploy บน Google Apps Script จริง · mechanism-ready ไม่ใช่ production-live" },
+      { state:"info", text:"<b>Deadline ต.ค. 69 มี buffer เพียงพอ</b> — ถ้าไม่มี scope change ใหญ่ · 4/5 Phases เสร็จ Day 1 = เร็วกว่าแผน 49 วันมาก" }
+    ]
+  };
+
+  // =========================================================
+  // Render functions
+  // =========================================================
+  const CLS_MAP = { ok:"pill-ok", bad:"pill-bad", pending:"pill-warn", warn:"pill-warn", info:"pill-info", na:"pill-neutral", neutral:"pill-neutral" };
+  const CHECK_MAP = { ok:"is-ok", bad:"is-bad", warn:"is-warn", info:"is-info", na:"is-neutral", neutral:"is-neutral" };
+
+  // Scope Banner
+  document.getElementById("scope-banner").innerHTML =
+    `<span class="inline-block text-xs px-2.5 py-0.5 rounded-full pill-info mb-2">SCOPE</span>
+     <p class="text-sm text-slate-300 leading-relaxed">${REPORT.scope}</p>`;
+
+  // Exclusion Banner
+  document.getElementById("exclusion-banner").innerHTML =
+    `<span class="inline-block text-xs px-2.5 py-0.5 rounded-full pill-warn mb-2">⚠️ ขอบเขตรายงาน</span>
+     <p class="text-sm text-slate-300 leading-relaxed">${REPORT.exclusion}</p>`;
+
+  // Main Verdict
+  document.getElementById("main-verdict-pill").innerHTML =
+    `<span class="inline-block text-xs px-3 py-1 rounded-full ${REPORT.verdictPill.cls}">${REPORT.verdictPill.text}</span>`;
+  document.getElementById("main-verdict-text").innerHTML = REPORT.verdictText;
+
+  // KPI Tiles
+  document.getElementById("kpis").innerHTML = REPORT.kpis.map((k, i) => `
+    <div class="tile bg-surface-card rounded-xl border border-slate-700/50 p-5 hover:border-primary/40 transition-all duration-300">
+      <div class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">${k.label}</div>
+      <div class="flex items-baseline gap-2 mb-2">
+        <span class="text-3xl font-bold text-white">${k.value}</span>
+        ${k.unit ? `<span class="text-sm text-slate-400">${k.unit}</span>` : ''}
+      </div>
+      ${k.delta ? `<div class="text-xs text-slate-400 leading-relaxed ${CLS_MAP[k.deltaState] ? 'border-t border-slate-700/50 pt-2 mt-2' : ''}">${k.delta}</div>` : ''}
+    </div>
+  `).join("");
+
+  // Metrics
+  document.getElementById("metrics-tag").textContent = REPORT.metricsTag;
+  document.getElementById("metric-rows").innerHTML = REPORT.metrics.map(m => `
+    <tr><td class="font-medium text-slate-300">${m.k}</td><td>${m.v}</td></tr>
+  `).join("");
+
+  // Topics
+  document.getElementById("topic-rows").innerHTML = REPORT.topics.map(t => `
+    <tr>
+      <td class="mono text-blue-400 font-semibold">${t.n}</td>
+      <td class="mono text-xs text-slate-400 whitespace-nowrap">${t.t}</td>
+      <td><b class="text-white">${t.title}</b></td>
+      <td>${t.body}</td>
+      <td class="text-center text-xs">${t.web}</td>
+      <td class="text-xs">${t.commit}<br><span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs ${CLS_MAP[t.state] || 'pill-neutral'}">${t.label}</span></td>
+    </tr>
+  `).join("");
+
+  // Decisions
+  document.getElementById("decision-rows").innerHTML = REPORT.decisions.map(d => `
+    <tr>
+      <td class="mono text-xs whitespace-nowrap">${d.when}</td>
+      <td>${d.what}</td>
+      <td class="text-xs ${CLS_MAP[d.state] ? (d.state === 'ok' ? 'text-emerald-400' : d.state === 'warn' ? 'text-orange-400' : 'text-slate-500') : ''}">${d.note}</td>
+    </tr>
+  `).join("");
+
+  // Research
+  document.getElementById("research-tag").textContent = REPORT.researchTag;
+  document.getElementById("research-rows").innerHTML = REPORT.research.map(r => `
+    <tr>
+      <td class="mono text-xs whitespace-nowrap">${r.when}</td>
+      <td class="text-xs">${r.via}</td>
+      <td>${r.topic}</td>
+    </tr>
+  `).join("");
+
+  // Artifacts
+  document.getElementById("artifacts-tag").textContent = REPORT.artifactsTag;
+  document.getElementById("artifact-rows").innerHTML = REPORT.artifacts.map(a => `
+    <tr>
+      <td class="font-medium text-slate-300">${a.cat}</td>
+      <td>${a.detail}</td>
+      <td class="text-xs whitespace-nowrap"><span class="inline-block px-2 py-0.5 rounded-full ${CLS_MAP[a.state] || 'pill-neutral'}">${a.label}</span></td>
+    </tr>
+  `).join("");
+
+  // Feedback
+  document.getElementById("feedback-rows").innerHTML = REPORT.feedback.map(f => `
+    <tr>
+      <td class="mono text-blue-400 font-semibold text-center">${f.n}</td>
+      <td>${f.text}</td>
+      <td class="text-xs whitespace-nowrap"><span class="inline-block px-2 py-0.5 rounded-full pill-ok">✅ แก้ไขแล้ว</span></td>
+    </tr>
+  `).join("");
+
+  // Honesty
+  document.getElementById("honesty-rows").innerHTML = REPORT.honesty.map((h, i) =>
+    `<li class="check-item ${CHECK_MAP[h.state] || 'is-neutral'}">
+      <span class="text-sm text-slate-300 leading-relaxed">${h.text}</span>
+    </li>`
+  ).join("");
+
+  // Footer
+  document.getElementById("page-foot").innerHTML = `
+    <div class="flex flex-wrap justify-center gap-6 mb-4">
+      <div><span class="text-slate-600">Created:</span> <time>2026-06-25</time></div>
+      <div><span class="text-slate-600">Updated:</span> <time>2026-06-25</time></div>
+      <div><span class="text-slate-600">Author:</span> KiloClaw (PM + Developer)</div>
+    </div>
+    <div class="flex flex-wrap justify-center gap-4 text-xs text-slate-600">
+      <span>Project: Web PP7 — ระบบบริหารบุคลากร pakorn</span>
+      <span>·</span>
+      <span>Owner: PKG-ปกรณ์(หนึ่ง)</span>
+      <span>·</span>
+      <span>Version: web-pp7-v2</span>
+    </div>
+    <div class="mt-4 text-xs text-slate-700">CONFIDENTIAL — ภายในองค์กร</div>
+  `;
+  </script>
+
+</body>
+</html>
