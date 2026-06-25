@@ -164,34 +164,8 @@ const NEW_PROCESS_DATA = {
  .header-btn{padding:.35rem .75rem;border-radius:.5rem;font-size:.75rem;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;transition:background .15s;font-family:'Prompt',sans-serif}
  #userInfo{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:#bfdbfe}
  #userInfo .avatar{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:.75rem}
- /* ===== SIDEBAR LAYOUT ===== */
- .app-container{display:flex;min-height:100vh}
- .sidebar{width:260px;background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);color:#e2e8f0;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:30;transition:transform .3s ease;box-shadow:4px 0 20px rgba(0,0,0,.1)}
- .sidebar-header{padding:1.5rem 1rem;border-bottom:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.2)}
- .sidebar-header h2{font-size:1.1rem;font-weight:700;color:#fff;margin:0}
- .sidebar-header p{font-size:.7rem;color:#94a3b8;margin-top:.25rem}
- .sidebar-nav{padding:1rem 0}
- .sidebar-group{margin-bottom:1.5rem}
- .sidebar-group-title{padding:.5rem 1.25rem;font-size:.65rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.08em}
- .sidebar-item{display:flex;align-items:center;gap:.75rem;padding:.75rem 1.25rem;color:#cbd5e1;cursor:pointer;transition:all .15s;border-left:3px solid transparent;font-size:.85rem}
- .sidebar-item:hover{background:rgba(59,130,246,.1);color:#60a5fa}
- .sidebar-item.active{background:rgba(59,130,246,.15);color:#60a5fa;border-left-color:#3b82f6;font-weight:500}
- .sidebar-item-icon{font-size:1.1rem;width:1.5rem;text-align:center}
- .sidebar-item-label{flex:1}
- .main-content{flex:1;margin-left:260px;min-height:100vh;background:#f1f5f9;transition:margin-left .3s ease}
- .main-header{background:linear-gradient(90deg,#1d4ed8,#2563eb);color:#fff;padding:1rem 1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.1)}
- .main-header-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
- .hamburger-btn{display:none;background:none;border:none;color:#fff;font-size:1.5rem;cursor:pointer;padding:.5rem}
- 
- /* ===== RESPONSIVE ===== */
- @media(max-width:1024px){
-  .sidebar{transform:translateX(-100%)}
-  .sidebar.open{transform:translateX(0)}
-  .main-content{margin-left:0}
-  .hamburger-btn{display:block}
-  .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:25;display:none}
-  .sidebar-overlay.active{display:block}
- }
+ /* 🔴 PROOF MARKER v4976eda+P3: ถ้าเห็นแถบแดง = เปิดไฟล์ถูกต้อง */
+ .version-proof-banner{position:fixed;top:0;left:0;right:0;z-index:999999;background:linear-gradient(135deg,#dc2626,#ef4444);color:white;padding:16px;text-align:center;font-size:18px;font-weight:900;box-shadow:0 4px 20px rgba(220,38,38,0.5);letter-spacing:1px}
  </style>
  <script>
  tailwind.config={theme:{extend:{colors:{pp7:{50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',500:'#3b82f6',600:'#2563ec',700:'#1d4ed8',800:'#1e40af',900:'#172554'}}}}}
@@ -199,7 +173,8 @@ const NEW_PROCESS_DATA = {
 </head>
 <body>
 
-<!-- Sidebar Layout v20260625-3 -->
+<!-- 🔴 PROOF MARKER: เห็นแถบแดง = เปิด Version 4976eda+P3 ถูกต้อง -->
+<div class="version-proof-banner no-print">✅ Web PP7 Version 4976eda+P3 — มี Tab จับคู่!</div>
 
 <!-- ===== LOGIN OVERLAY (Disabled for Public Preview) ===== -->
 <div id="loginOverlay">
@@ -235,134 +210,56 @@ const NEW_PROCESS_DATA = {
  <button class="close-alert" onclick="document.getElementById('alertBanner').classList.add('hidden')">✕</button>
 </div>
 
-<div id="app-wrapper" class="app-container">
-  <!-- ===== SIDEBAR ===== -->
-  <aside id="sidebar" class="sidebar">
-    <div class="sidebar-header">
-      <h2>📊 PP7 System</h2>
-      <p>ระบบบริหารบุคลากร</p>
-    </div>
-    <nav class="sidebar-nav">
-      <!-- กลุ่ม: Dashboard -->
-      <div class="sidebar-group">
-        <div class="sidebar-group-title">📊 ภาพรวม</div>
-        <div class="sidebar-item active" data-tab="executive" onclick="showTab('executive')">
-          <span class="sidebar-item-icon">📌</span>
-          <span class="sidebar-item-label">สรุปผู้บริหาร</span>
-        </div>
-        <div class="sidebar-item" data-tab="members" onclick="showTab('members')">
-          <span class="sidebar-item-icon">👥</span>
-          <span class="sidebar-item-label">ฐานข้อมูลสมาชิก</span>
-        </div>
-      </div>
+<header class="bg-gradient-to-r from-pp7-700 to-pp7-900 text-white py-4 px-4 shadow-lg">
+ <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+ <div>
+ <h1 class="text-xl md:text-3xl font-bold tracking-tight">📊 ระบบบริหารบุคลากร PP7</h1>
+ <p class="text-pp7-200 mt-0.5 text-sm">Pakorn HRMS Dashboard — ข้อมูลภาพรวมแบบเรียลไทม์</p>
+ </div>
+ <div class="flex items-center gap-4">
+ <div id="userInfo" style="display:none">
+ <span class="avatar">👤</span>
+ <span id="userName"></span>
+ </div>
+ <button id="logoutBtn" class="header-btn" onclick="handleLogout()" style="display:none">🚪 ออกจากระบบ</button>
+ <div class="text-right">
+ <div id="clock" class="text-base font-semibold tabular-nums"></div>
+ <div class="text-pp7-200 text-xs">อัปเดตล่าสุด: <span id="lastUpdate">วันนี้ 08:30 ICT</span></div>
+ </div>
+ </div>
+ </div>
+</header>
 
-      <!-- กลุ่ม: P1-P4 People Process -->
-      <div class="sidebar-group">
-        <div class="sidebar-group-title">🔄 People Process</div>
-        <div class="sidebar-item" data-tab="headcount-request" onclick="showTab('headcount-request')">
-          <span class="sidebar-item-icon">📋</span>
-          <span class="sidebar-item-label">ขออัตรากำลัง</span>
-        </div>
-        <div class="sidebar-item" data-tab="recruit" onclick="showTab('recruit')">
-          <span class="sidebar-item-icon">🔎</span>
-          <span class="sidebar-item-label">P1 แสวงหา</span>
-        </div>
-        <div class="sidebar-item" data-tab="assess" onclick="showTab('assess')">
-          <span class="sidebar-item-icon">🧭</span>
-          <span class="sidebar-item-label">P2 หยั่งประเมิน</span>
-        </div>
-        <div class="sidebar-item" data-tab="match" onclick="showTab('match')">
-          <span class="sidebar-item-icon">🤝</span>
-          <span class="sidebar-item-label">P3 จับคู่</span>
-        </div>
-        <div class="sidebar-item" data-tab="performance" onclick="showTab('performance')">
-          <span class="sidebar-item-icon">📊</span>
-          <span class="sidebar-item-label">P4 ประเมินผล</span>
-        </div>
-      </div>
+<nav class="sticky-nav bg-white border-b border-slate-200">
+ <div class="max-w-7xl mx-auto flex flex-wrap gap-0 overflow-x-auto">
+ <button class="tab-btn active" data-tab="executive" onclick="showTab('executive')">📌 สรุปผู้บริหาร</button>
+ <button class="tab-btn" data-tab="members" onclick="showTab('members')">👥 ฐานข้อมูลสมาชิก</button>
+ <button class="tab-btn" data-tab="headcount-request" onclick="showTab('headcount-request')">📋 ขออัตรากำลัง</button>
+ <button class="tab-btn" data-tab="recruit" onclick="showTab('recruit')">🔎 แสวงหา</button>
+ <button class="tab-btn" data-tab="assess" onclick="showTab('assess')">🧭 หยั่งประเมิน</button>
+ <button class="tab-btn" data-tab="match" onclick="showTab('match')">🤝 จับคู่</button>
+ <button class="tab-btn" data-tab="performance" onclick="showTab('performance')">📊 ประเมินผล</button>
+ <button class="tab-btn" data-tab="develop" onclick="showTab('develop')">🎓 พัฒนา</button>
+ <button class="tab-btn" data-tab="welfare" onclick="showTab('welfare')">💰 ค่าตอบแทน</button>
+ <button class="tab-btn" data-tab="wi001" onclick="showTab('wi001')">📝 เบี้ยเลี้ยงฝึกงาน (WI-001)</button>
+ <button class="tab-btn" data-tab="wi002" onclick="showTab('wi002')">💼 สมทบอายุงาน (WI-002)</button>
+ <button class="tab-btn" data-tab="quality" onclick="showTab('quality')">🌿 คุณภาพชีวิต</button>
+ <button class="tab-btn" data-tab="labor-law" onclick="showTab('labor-law')">⚖️ กฎหมาย</button>
+ <button class="tab-btn" data-tab="pkg-rules" onclick="showTab('pkg-rules')">📜 ระเบียบ</button>
+ <button class="tab-btn" data-tab="research" onclick="showTab('research')">🔬 วิจัย</button>
+ <button class="tab-btn" data-tab="new-process" onclick="showTab('new-process')">🔄 กระบวนการใหม่ (S4)</button>
+ </div>
+</nav>
 
-      <!-- กลุ่ม: P5-P7 Development -->
-      <div class="sidebar-group">
-        <div class="sidebar-group-title">💼 พัฒนา & ดูแล</div>
-        <div class="sidebar-item" data-tab="develop" onclick="showTab('develop')">
-          <span class="sidebar-item-icon">🎓</span>
-          <span class="sidebar-item-label">P5 พัฒนา</span>
-        </div>
-        <div class="sidebar-item" data-tab="welfare" onclick="showTab('welfare')">
-          <span class="sidebar-item-icon">💰</span>
-          <span class="sidebar-item-label">P6 ค่าตอบแทน</span>
-        </div>
-        <div class="sidebar-item" data-tab="quality" onclick="showTab('quality')">
-          <span class="sidebar-item-icon">🌿</span>
-          <span class="sidebar-item-label">P7 คุณภาพชีวิต</span>
-        </div>
-      </div>
+<div class="max-w-7xl mx-auto px-3 md:px-4 mt-3">
+ <div class="toolbar bg-white rounded-lg p-2 shadow-sm border border-slate-100">
+ <button class="btn btn-outline" onclick="exportPDF()">📄 ส่งออก PDF</button>
+ <button class="btn btn-outline" onclick="exportExcel()" style="background:#10b981;color:#fff;border:none">📊 ส่งออก Excel</button>
+ <span class="text-xs text-slate-400 ml-2">* ใช้งานได้ใน Tab ปัจจุบัน</span>
+ </div>
+</div>
 
-      <!-- กลุ่ม: รายละเอียด WI -->
-      <div class="sidebar-group">
-        <div class="sidebar-group-title">📝 รายละเอียด WI</div>
-        <div class="sidebar-item" data-tab="wi001" onclick="showTab('wi001')">
-          <span class="sidebar-item-icon">📝</span>
-          <span class="sidebar-item-label">เบี้ยเลี้ยงฝึกงาน</span>
-        </div>
-        <div class="sidebar-item" data-tab="wi002" onclick="showTab('wi002')">
-          <span class="sidebar-item-icon">💼</span>
-          <span class="sidebar-item-label">สมทบอายุงาน</span>
-        </div>
-      </div>
-
-      <!-- กลุ่ม: อ้างอิง -->
-      <div class="sidebar-group">
-        <div class="sidebar-group-title">⚖️ กฎ & อ้างอิง</div>
-        <div class="sidebar-item" data-tab="labor-law" onclick="showTab('labor-law')">
-          <span class="sidebar-item-icon">⚖️</span>
-          <span class="sidebar-item-label">กฎหมายแรงงาน</span>
-        </div>
-        <div class="sidebar-item" data-tab="pkg-rules" onclick="showTab('pkg-rules')">
-          <span class="sidebar-item-icon">📜</span>
-          <span class="sidebar-item-label">ระเบียบ PKG</span>
-        </div>
-        <div class="sidebar-item" data-tab="research" onclick="showTab('research')">
-          <span class="sidebar-item-icon">🔬</span>
-          <span class="sidebar-item-label">วิจัย PP7</span>
-        </div>
-        <div class="sidebar-item" data-tab="new-process" onclick="showTab('new-process')">
-          <span class="sidebar-item-icon">🔄</span>
-          <span class="sidebar-item-label">กระบวนการใหม่</span>
-        </div>
-      </div>
-    </nav>
-  </aside>
-
-  <!-- Overlay สำหรับ mobile -->
-  <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-  <!-- ===== MAIN CONTENT ===== -->
-  <div class="main-content">
-    <div class="main-header">
-      <div class="main-header-inner">
-        <div class="flex items-center gap-3">
-          <button id="hamburgerBtn" class="hamburger-btn" onclick="toggleSidebar()">☰</button>
-          <div>
-            <h1 class="text-lg font-bold">📊 ระบบบริหารบุคลากร PP7</h1>
-            <p class="text-xs text-blue-200">Pakorn HRMS Dashboard</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-4">
-          <div id="userInfo" style="display:none">
-            <span class="avatar">👤</span>
-            <span id="userName" class="text-sm"></span>
-          </div>
-          <button id="logoutBtn" class="header-btn" onclick="handleLogout()" style="display:none">🚪 ออก</button>
-          <div class="text-right">
-            <div id="clock" class="text-base font-semibold tabular-nums"></div>
-            <div class="text-blue-200 text-xs">อัปเดต: <span id="lastUpdate">วันนี้</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <main id="main-content" class="p-4">
+<div id="app-wrapper"><main id="main-content" class="max-w-7xl mx-auto px-3 md:px-4 py-6">
 
 <section id="tab-executive" class="tab-pane fade-in space-y-6">
  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -2424,7 +2321,7 @@ const NEW_PROCESS_DATA = {
   </div>
 </section>
 
-</main></div></div>
+</main></div>
 
 <script>
 const USERS = {
@@ -2483,7 +2380,7 @@ function handleLogout(){
 
 function applyRoleTabs(role){
   const allowedTabs = ROLE_TABS[role] || ROLE_TABS['viewer'];
-  document.querySelectorAll('.sidebar-item').forEach(btn => {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
     const tabId = btn.getAttribute('data-tab');
     if(tabId && !allowedTabs.includes(tabId)){
       btn.style.display = 'none';
@@ -2505,7 +2402,7 @@ function applyLogin(session){
 
 function showTab(tabId){
   const targetSection = document.getElementById('tab-' + tabId);
-  const targetButton = document.querySelector(`.sidebar-item[data-tab="${tabId}"]`);
+  const targetButton = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
   
   // Null check เพื่อป้องกัน error
   if (!targetSection) {
@@ -2513,34 +2410,25 @@ function showTab(tabId){
     alert(`❌ ไม่พบเนื้อหาสำหรับ Tabนี้\n\nกรุณา Refresh หน้าเว็บ:\n• Windows: Ctrl+F5\n• Mac: Cmd+Shift+R\n\nหรือเปิดไฟล์ใหม่จาก GitHub Pages`);
     return;
   }
+  if (!targetButton) {
+    console.warn(`⚠️ Tab button 'data-tab="${tabId}"' ไม่มี`);
+    return;
+  }
   
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
-  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   targetSection.classList.remove('hidden');
-  if (targetButton) targetButton.classList.add('active');
-  
-  // ปิด sidebar บน mobile หลังเลือกเมนู
-  if (window.innerWidth <= 1024) {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('sidebarOverlay').classList.remove('active');
-  }
+  targetButton.classList.add('active');
   
   if(tabId === 'develop') initDevTab();
   if(tabId === 'new-process') renderNewProcessTab();
   if(tabId === 'members') initMembersTab();
   if(tabId === 'assess') loadInterviewHistory();
   if(tabId === 'match') {
+    console.log('✅ P3 Tab loaded successfully');
     // โหลดสถิติ P3 (ถ้ามี)
     loadP3Stats();
   }
-}
-
-// Toggle Sidebar สำหรับ Mobile
-function toggleSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  sidebar.classList.toggle('open');
-  overlay.classList.toggle('active');
 }
 
 // ฟังก์ชันโหลดสถิติ P3
