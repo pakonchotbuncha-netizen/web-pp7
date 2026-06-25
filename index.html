@@ -178,7 +178,7 @@ const NEW_PROCESS_DATA = {
  <div class="login-logo">🔐</div>
  <h2>Pakorn HRMS</h2>
  <p class="subtitle">ระบบบริหารบุคลากร PP7</p>
- <form id="loginForm" onsubmit="return handleLogin(event)">
+ <form id="loginForm" onsubmit="handleLogin(event)">
  <div style="margin-bottom:.75rem">
  <input type="text" id="loginUser" class="login-input" placeholder="ชื่อผู้ใช้งาน" autocomplete="username" />
  </div>
@@ -2176,17 +2176,21 @@ function handleLogin(e){
   const user = document.getElementById('loginUser').value.trim();
   const pass = document.getElementById('loginPass').value;
   const errEl = document.getElementById('loginError');
-  if(!user||!pass){ errEl.textContent='กรุณากรอกชื่อผู้ใช้งานและรหัสผ่าน'; return false; }
+  
+  if(!user||!pass){
+    errEl.textContent='กรุณากรอกชื่อผู้ใช้งานและรหัสผ่าน';
+    return;
+  }
+  
   if(USERS[user] && USERS[user].password === pass){
     const session = { user: user, role: USERS[user].role, name: USERS[user].name, at: Date.now() };
     localStorage.setItem('pakorn_session', JSON.stringify(session));
     applyLogin(session);
     errEl.textContent = '';
-    return false;
+  } else {
+    errEl.textContent = 'ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง';
+    document.getElementById('loginPass').value = '';
   }
-  errEl.textContent = 'ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง';
-  document.getElementById('loginPass').value = '';
-  return false;
 }
 
 function handleLogout(){
