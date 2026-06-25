@@ -173,7 +173,7 @@ const NEW_PROCESS_DATA = {
 <div class="version-proof-banner no-print">✅ Web PP7 Version 4976eda+P3 — มี Tab จับคู่!</div>
 
 <!-- ===== LOGIN OVERLAY (Disabled for Public Preview) ===== -->
-<div id="loginOverlay" class="hidden" style="display:none !important;">
+<div id="loginOverlay">
  <div class="login-card">
  <div class="login-logo">🔐</div>
  <h2>Pakorn HRMS</h2>
@@ -188,6 +188,14 @@ const NEW_PROCESS_DATA = {
  <div class="login-error" id="loginError"></div>
  <button type="submit" class="login-btn">เข้าสู่ระบบ</button>
  </form>
+ <div style="margin-top:1.25rem;padding:1rem;background:#f1f5f9;border-radius:.75rem;text-align:left;font-size:.75rem;color:#64748b">
+ <p style="font-weight:600;margin-bottom:.5rem;color:#334155">📋 บัญชีทดสอบ:</p>
+ <p>• <strong>admin</strong> / Prachakij01@ <span style="color:#2563eb">ผู้ดูแลระบบ</span></p>
+ <p>• <strong>pao</strong> / pao2026 <span style="color:#64748b">ทีมสรรหา</span></p>
+ <p>• <strong>pad</strong> / pad2026 <span style="color:#64748b">ทีมพัฒนา</span></p>
+ <p>• <strong>wcd</strong> / wcd2026 <span style="color:#64748b">ทีมค่าตอบแทน</span></p>
+ <p>• <strong>test</strong> / test2026 <span style="color:#f59e0b">ผู้ทดสอบ (ทุก Tab)</span></p>
+ </div>
  <p class="login-footer" style="margin-top:1.25rem;font-size:.75rem;color:#94a3b8">© 2026 Pakorn HRMS</p>
  </div>
 </div>
@@ -1992,8 +2000,23 @@ const NEW_PROCESS_DATA = {
 <script>
 const USERS = {
   admin:  { password: 'Prachakij01@', role: 'admin', name: 'ผู้ดูแลระบบ' },
-  pakorn: { password: 'pakorn2026', role: 'viewer', name: 'ปกรณ์(หนึ่ง)' },
-  nan:    { password: 'nan2026', role: 'viewer', name: 'รัฐพร(แนน)' }
+  pakorn: { password: 'pakorn2026', role: 'admin', name: 'ปกรณ์(หนึ่ง)' },
+  nan:    { password: 'nan2026', role: 'viewer', name: 'รัฐพร(แนน)' },
+  // ทีมผู้ปฏิบัติงาน - ทดสอบระบบ
+  pao:    { password: 'pao2026', role: 'pao', name: 'ทีม PAO (สรรหา)' },
+  pad:    { password: 'pad2026', role: 'pad', name: 'ทีม PAD (พัฒนา)' },
+  wcd:    { password: 'wcd2026', role: 'wcd', name: 'ทีม WCD (ค่าตอบแทน)' },
+  test:   { password: 'test2026', role: 'tester', name: 'ผู้ทดสอบระบบ' }
+};
+
+// Role permissions for tab access
+const ROLE_TABS = {
+  admin: ['executive','headcount-request','recruit','assess','match','performance','develop','new-process','wi001','wi002','welfare','quality','labor-law','pkg-rules','research'],
+  pao:   ['executive','headcount-request','recruit','assess','match','performance','new-process','wi001','wi002'],
+  pad:   ['executive','develop','performance','match'],
+  wcd:   ['executive','welfare','quality','wi001','wi002'],
+  viewer:['executive','recruit','assess','match'],
+  tester:['executive','headcount-request','recruit','assess','match','performance','develop','new-process','wi001','wi002','welfare','quality']
 };
 
 function handleLogin(e){
@@ -2016,7 +2039,7 @@ function handleLogin(e){
 
 function handleLogout(){
   localStorage.removeItem('pakorn_session');
-  document.getElementById('loginOverlay').classList.remove('hidden');
+  document.getElementById('loginOverlay').style.display = 'flex';
   document.getElementById('app-wrapper').classList.add('content-blur');
   document.getElementById('logoutBtn').style.display = 'none';
   document.getElementById('userInfo').style.display = 'none';
@@ -2025,12 +2048,26 @@ function handleLogout(){
   document.getElementById('loginError').textContent = '';
 }
 
+function applyRoleTabs(role){
+  const allowedTabs = ROLE_TABS[role] || ROLE_TABS['viewer'];
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    const tabId = btn.getAttribute('data-tab');
+    if(tabId && !allowedTabs.includes(tabId)){
+      btn.style.display = 'none';
+    } else {
+      btn.style.display = '';
+    }
+  });
+}
+
 function applyLogin(session){
-  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('loginOverlay').style.display = 'none';
   document.getElementById('app-wrapper').classList.remove('content-blur');
   document.getElementById('userName').textContent = session.name;
   document.getElementById('userInfo').style.display = 'flex';
   document.getElementById('logoutBtn').style.display = 'inline-block';
+  // Apply role-based tab visibility
+  applyRoleTabs(session.role);
 }
 
 function showTab(tabId){
@@ -2332,16 +2369,23 @@ function handleDevFormSubmit(event) {
 }
 
 (function(){
-  // Disabled login requirement for easy public preview and testing
+  // Login system - require authentication
   try {
     const saved = JSON.parse(localStorage.getItem('pakorn_session'));
     if(saved && saved.user && USERS[saved.user]){
       applyLogin(saved);
+    } else {
+      // Show login overlay and blur content
+      document.getElementById('loginOverlay').style.display = 'flex';
+      document.getElementById('app-wrapper').classList.add('content-blur');
     }
   } catch(e){
-    // Ignore error, allow access
+    // Show login if no saved session
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('app-wrapper').classList.add('content-blur');
   }
   showTab('executive');
+})();
 })();
 // Trigger rebuild: Single File Version (No external dev_data.js)
 </script>
