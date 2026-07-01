@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 P2 Dashboard — สรุปการประเมินทั้งหมด | Web PP7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Sarabun', sans-serif; }
+        body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); min-height: 100vh; }
+    </style>
+</head>
+<body class="text-white">
+    <header class="bg-slate-800/50 backdrop-blur py-6 border-b border-white/10">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold">📊 P2 Dashboard</h1>
+            <p class="text-gray-400 mt-1">สรุปการประเมินทั้งหมด — ระบบหยั่งประเมิน</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-6 text-center">
+                <div class="text-4xl font-bold text-blue-400" id="statTotal">0</div>
+                <div class="text-gray-400 text-sm mt-1">ประเมินทั้งหมด</div>
+            </div>
+            <div class="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-6 text-center">
+                <div class="text-4xl font-bold text-green-400" id="statPass">0</div>
+                <div class="text-gray-400 text-sm mt-1">ผ่านเกณฑ์</div>
+            </div>
+            <div class="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-6 text-center">
+                <div class="text-4xl font-bold text-red-400" id="statFail">0</div>
+                <div class="text-gray-400 text-sm mt-1">ไม่ผ่าน</div>
+            </div>
+            <div class="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-6 text-center">
+                <div class="text-4xl font-bold text-yellow-400" id="statAvgScore">0</div>
+                <div class="text-gray-400 text-sm mt-1">คะแนนเฉลี่ย</div>
+            </div>
+        </div>
+
+        <!-- Form Type Distribution -->
+        <div class="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4">📊 การกระจายตามประเภทแบบฟอร์ม</h2>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-blue-300 font-semibold">📋 แบบที่ 1</div>
+                            <div class="text-gray-400 text-sm">สมาชิกใหม่</div>
+                        </div>
+                        <div class="text-3xl font-bold text-blue-400" id="form1Count">0</div>
+                    </div>
+                </div>
+                <div class="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-purple-300 font-semibold">🔄 แบบที่ 2</div>
+                            <div class="text-gray-400 text-sm">โอนย้าย/เลื่อน</div>
+                        </div>
+                        <div class="text-3xl font-bold text-purple-400" id="form2Count">0</div>
+                    </div>
+                </div>
+                <div class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-amber-300 font-semibold">🎓 แบบที่ 3</div>
+                            <div class="text-gray-400 text-sm">นักศึกษาฝึก</div>
+                        </div>
+                        <div class="text-3xl font-bold text-amber-400" id="form3Count">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Evaluations Table -->
+        <div class="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-6 mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold">📜 ประวัติการประเมินล่าสุด</h2>
+                <button onclick="refreshData()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 rounded-lg text-sm font-medium transition">
+                    🔄 รีเฟรช
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-white/10 text-gray-400">
+                            <th class="px-4 py-3 text-left">วันที่</th>
+                            <th class="px-4 py-3 text-left">ชื่อ</th>
+                            <th class="px-4 py-3 text-left">แบบฟอร์ม</th>
+                            <th class="px-4 py-3 text-center">คะแนน</th>
+                            <th class="px-4 py-3 text-center">ผล TCC</th>
+                            <th class="px-4 py-3 text-center">สัมภาษณ์</th>
+                            <th class="px-4 py-3 text-left">Next Step</th>
+                        </tr>
+                    </thead>
+                    <tbody id="evalTableBody">
+                        <tr>
+                            <td colspan="7" class="px-4 py-8 text-center text-gray-500">
+                                ยังไม่มีข้อมูลการประเมิน
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="bg-white/5 backdrop-blur border border-white/10 rounded-xl p-6">
+            <h2 class="text-xl font-bold mb-4">🔔 การแจ้งเตือนอัตโนมัติ</h2>
+            <div id="notificationsList" class="space-y-3">
+                <p class="text-gray-500 text-center py-4">ยังไม่มีการแจ้งเตือน</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    function refreshData() {
+        // Collect all evaluation data
+        const form1Data = JSON.parse(localStorage.getItem('p2_interview_form1') || 'null');
+        const form2Data = JSON.parse(localStorage.getItem('p2_interview_form2') || 'null');
+        const form3Data = JSON.parse(localStorage.getItem('p2_interview_form3') || 'null');
+        const notifications = JSON.parse(localStorage.getItem('p2_notifications') || '[]');
+        
+        const allEvaluations = [];
+        let totalScore = 0;
+        let passCount = 0;
+        let failCount = 0;
+        let scoreCount = 0;
+        let form1Count = 0, form2Count = 0, form3Count = 0;
+
+        if (form1Data) {
+            form1Count++;
+            const score = form1Data.sections?.B_tcc_total || 0;
+            totalScore += score;
+            scoreCount++;
+            if (score >= 32.5) passCount++; else failCount++;
+            allEvaluations.push({
+                date: form1Data.timestamp,
+                name: form1Data.sections?.A_personal?.applicant_name || '—',
+                form: 'แบบที่ 1',
+                formClass: 'blue',
+                score: score,
+                tccResult: form1Data.sections?.B_tcc_result || '—',
+                interviewResult: form1Data.sections?.D_result?.interview_result || '—'
+            });
+        }
+
+        if (form2Data) {
+            form2Count++;
+            const score = form2Data.sections?.B_tcc?.total || 0;
+            totalScore += score;
+            scoreCount++;
+            if (score >= 32.5) passCount++; else failCount++;
+            allEvaluations.push({
+                date: form2Data.timestamp,
+                name: form2Data.sections?.A_member?.name || '—',
+                form: 'แบบที่ 2',
+                formClass: 'purple',
+                score: score,
+                tccResult: form2Data.sections?.B_tcc?.result || '—',
+                interviewResult: form2Data.sections?.F_result?.decision || '—'
+            });
+        }
+
+        if (form3Data) {
+            form3Count++;
+            const score = form3Data.sections?.B_scores?.total || 0;
+            totalScore += score;
+            scoreCount++;
+            if (score >= 32.5) passCount++; else failCount++;
+            allEvaluations.push({
+                date: form3Data.timestamp,
+                name: form3Data.sections?.A_applicant?.name || '—',
+                form: 'แบบที่ 3',
+                formClass: 'amber',
+                score: score,
+                tccResult: form3Data.sections?.B_scores?.result || '—',
+                interviewResult: form3Data.sections?.C_result?.decision || '—'
+            });
+        }
+
+        // Update stats
+        document.getElementById('statTotal').textContent = allEvaluations.length;
+        document.getElementById('statPass').textContent = passCount;
+        document.getElementById('statFail').textContent = failCount;
+        document.getElementById('statAvgScore').textContent = scoreCount > 0 ? (totalScore / scoreCount).toFixed(1) : '0';
+        document.getElementById('form1Count').textContent = form1Count;
+        document.getElementById('form2Count').textContent = form2Count;
+        document.getElementById('form3Count').textContent = form3Count;
+
+        // Update table
+        const tbody = document.getElementById('evalTableBody');
+        if (allEvaluations.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">ยังไม่มีข้อมูลการประเมิน</td></tr>';
+        } else {
+            tbody.innerHTML = allEvaluations.map(e => `
+                <tr class="border-b border-white/5 hover:bg-white/5">
+                    <td class="px-4 py-3 text-gray-400 text-xs">${new Date(e.date).toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' })}</td>
+                    <td class="px-4 py-3 text-white font-medium">${e.name}</td>
+                    <td class="px-4 py-3"><span class="px-2 py-1 bg-${e.formClass}-500/20 text-${e.formClass}-300 rounded text-xs">${e.form}</span></td>
+                    <td class="px-4 py-3 text-center font-mono text-lg">${e.score}/50</td>
+                    <td class="px-4 py-3 text-center"><span class="px-2 py-1 rounded text-xs ${e.tccResult === 'ผ่าน' ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}">${e.tccResult}</span></td>
+                    <td class="px-4 py-3 text-center"><span class="px-2 py-1 rounded text-xs ${e.interviewResult === 'pass' ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}">${e.interviewResult === 'pass' ? '✅ ผ่าน' : '❌ ไม่ผ่าน'}</span></td>
+                    <td class="px-4 py-3 text-gray-400 text-xs">ส่งต่อ P3</td>
+                </tr>
+            `).join('');
+        }
+
+        // Update notifications
+        const notifDiv = document.getElementById('notificationsList');
+        if (notifications.length === 0) {
+            notifDiv.innerHTML = '<p class="text-gray-500 text-center py-4">ยังไม่มีการแจ้งเตือน</p>';
+        } else {
+            notifDiv.innerHTML = notifications.slice(0, 10).map(n => `
+                <div class="bg-white/5 rounded-lg p-4 border border-white/10">
+                    <div class="flex items-start gap-3">
+                        <div class="text-2xl">${n.type.includes('INTERN') ? '🎓' : n.type.includes('TRANSFER') ? '🔄' : '📋'}</div>
+                        <div class="flex-1">
+                            <div class="font-semibold text-white">${n.applicant}</div>
+                            <div class="text-sm text-gray-400">${n.type} • ${new Date(n.timestamp).toLocaleString('th-TH')}</div>
+                            <div class="text-sm text-cyan-300 mt-1">${n.nextStep || ''}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-mono font-bold">${n.tccScore || 0}/50</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        showToast('🔄 รีเฟรชข้อมูลสำเร็จ', 'info');
+    }
+
+    function showToast(msg, type) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 right-4 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    document.addEventListener('DOMContentLoaded', refreshData);
+    </script>
+</body>
+</html>

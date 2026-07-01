@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔄 โอนย้ายสมาชิก — WI-003 | Web PP7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="member-data.js"></script>
+    <style>
+        * { font-family: 'Sarabun', sans-serif; }
+        body { background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%); min-height: 100vh; }
+        .form-section { transition: all 0.3s; }
+        .form-section:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+        .progress-bar { transition: width 0.5s; }
+        @media print {
+            body { background: white; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="text-gray-800" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-700 to-blue-600 text-white py-6 shadow-lg no-print">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold">🔄 โอนย้ายสมาชิก</h1>
+                    <p class="text-blue-100 mt-1">P3 จับคู่คนกับงาน | Web PP7 — LDC-PAO-WI-003</p>
+                </div>
+                <a href="index.html" class="px-4 py-2 bg-blue-800 hover:bg-blue-900 rounded-lg transition">← กลับ</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Progress Bar -->
+    <div class="bg-white shadow-sm sticky top-0 z-50 no-print">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-600">ความสมบูรณ์</span>
+                <span id="progressText" class="text-sm font-bold text-blue-600">0%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div id="progressBar" class="progress-bar bg-blue-600 h-2 rounded-full" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <main class="container mx-auto px-4 py-6 max-w-4xl">
+        <form id="transferForm" class="space-y-6">
+
+            <!-- เลือกสมาชิก -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-blue-800 border-b-2 border-blue-100 pb-3 mb-4">
+                    <span class="bg-blue-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">1</span>
+                    เลือกสมาชิก
+                </h2>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">เลือกสมาชิก <span class="text-red-500">*</span></label>
+                        <select name="member_id" required onchange="loadMemberInfo(this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- เลือกสมาชิก --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- ข้อมูลปัจจุบัน -->
+                <div id="currentInfo" class="hidden mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h3 class="font-semibold text-blue-800 mb-3">📋 ข้อมูลปัจจุบัน</h3>
+                    <div class="grid md:grid-cols-2 gap-3 text-sm">
+                        <div><span class="text-gray-600">ชื่อ:</span> <span id="info-name" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">รหัส:</span> <span id="info-id" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">บริษัท:</span> <span id="info-company" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">สาขา:</span> <span id="info-branch" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">ฝ่าย:</span> <span id="info-dept" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">ทีม:</span> <span id="info-team" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">ตำแหน่ง:</span> <span id="info-position" class="font-medium">-</span></div>
+                        <div><span class="text-gray-600">สถานะ:</span> <span id="info-status" class="font-medium">-</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ข้อมูลการโอนย้าย -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-blue-800 border-b-2 border-blue-100 pb-3 mb-4">
+                    <span class="bg-blue-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">2</span>
+                    ข้อมูลการโอนย้าย
+                </h2>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">บริษัทใหม่ <span class="text-red-500">*</span></label>
+                        <input type="text" name="new_company" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">สาขาใหม่ <span class="text-red-500">*</span></label>
+                        <input type="text" name="new_branch" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ฝ่ายใหม่ <span class="text-red-500">*</span></label>
+                        <input type="text" name="new_department" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ทีมใหม่ <span class="text-red-500">*</span></label>
+                        <input type="text" name="new_team" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ตำแหน่งใหม่ <span class="text-red-500">*</span></label>
+                        <input type="text" name="new_position" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">วันที่มีผล <span class="text-red-500">*</span></label>
+                        <input type="date" name="effective_date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </section>
+
+            <!-- เหตุผล -->
+            <section class="form-section bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-blue-800 border-b-2 border-blue-100 pb-3 mb-4">
+                    <span class="bg-blue-600 text-white w-8 h-8 rounded-full inline-flex items-center justify-center text-sm mr-2">3</span>
+                    เหตุผลและเอกสาร
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">เหตุผลในการโอนย้าย <span class="text-red-500">*</span></label>
+                        <textarea name="reason" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ผู้สั่งการ</label>
+                        <input type="text" name="commanded_by" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">เลขที่คำสั่ง (ถ้ามี)</label>
+                        <input type="text" name="order_number" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Action Buttons -->
+            <section class="no-print space-y-4">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex flex-wrap gap-3 justify-center">
+                        <button type="button" onclick="saveTransfer()" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium shadow-lg hover:bg-blue-700 transition">
+                            💾 บันทึกการโอนย้าย
+                        </button>
+                        <button type="button" onclick="exportCSV()" class="px-6 py-3 bg-green-600 text-white rounded-lg font-medium shadow-lg hover:bg-green-700 transition">
+                            📄 Export CSV
+                        </button>
+                        <button type="reset" onclick="resetForm()" class="px-6 py-3 bg-gray-500 text-white rounded-lg font-medium shadow-lg hover:bg-gray-600 transition">
+                            🔄 รีเซ็ต
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ผลลัพธ์ -->
+            <section id="resultSection" class="hidden bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold text-gray-800 border-b-2 border-gray-100 pb-3 mb-4">📦 สรุปผลการโอนย้าย</h2>
+                <div id="resultSummary" class="mb-4"></div>
+                <details class="mt-4">
+                    <summary class="cursor-pointer text-sm text-gray-500 hover:text-gray-700">🔍 ดูข้อมูลละเอียด (JSON)</summary>
+                    <pre id="resultJSON" class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm max-h-96 mt-2"></pre>
+                </details>
+            </section>
+
+        </form>
+    </main>
+
+    <script>
+        let selectedMember = null;
+
+        // เพิ่มรายชื่อสมาชิกใน dropdown
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMembers();
+            populateMemberSelect();
+        });
+
+        function populateMemberSelect() {
+            const select = document.querySelector('select[name="member_id"]');
+            MEMBERS.forEach(m => {
+                if (m.status.current === 'active') {
+                    const option = document.createElement('option');
+                    option.value = m.member_id;
+                    option.textContent = `${m.member_id} - ${m.personal.name} (${m.organization.company})`;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function loadMemberInfo(memberId) {
+            if (!memberId) {
+                document.getElementById('currentInfo').classList.add('hidden');
+                selectedMember = null;
+                return;
+            }
+
+            selectedMember = findMember(memberId);
+            if (!selectedMember) return;
+
+            document.getElementById('info-name').textContent = selectedMember.personal.name || '-';
+            document.getElementById('info-id').textContent = selectedMember.member_id || '-';
+            document.getElementById('info-company').textContent = selectedMember.organization.company || '-';
+            document.getElementById('info-branch').textContent = selectedMember.organization.branch_code || '-';
+            document.getElementById('info-dept').textContent = selectedMember.organization.department || '-';
+            document.getElementById('info-team').textContent = selectedMember.organization.team || '-';
+            document.getElementById('info-position').textContent = selectedMember.organization.position || '-';
+            document.getElementById('info-status').textContent = getStatusText(selectedMember.employment.status);
+
+            document.getElementById('currentInfo').classList.remove('hidden');
+            updateProgress();
+        }
+
+        function getStatusText(status) {
+            const texts = { 'probation': 'ทดลองงาน', 'permanent': 'ประจำ', 'contract': 'สัญญา' };
+            return texts[status] || status;
+        }
+
+        function updateProgress() {
+            const form = document.getElementById('transferForm');
+            const required = form.querySelectorAll('[required]');
+            let filled = 0;
+            required.forEach(f => {
+                if (f.value && f.value.trim() !== '') filled++;
+            });
+            const pct = Math.round((filled / required.length) * 100);
+            document.getElementById('progressBar').style.width = pct + '%';
+            document.getElementById('progressText').textContent = pct + '%';
+        }
+
+        function saveTransfer() {
+            if (!selectedMember) {
+                alert('⚠️ กรุณาเลือกสมาชิกก่อน');
+                return;
+            }
+
+            const form = document.getElementById('transferForm');
+            const fd = new FormData(form);
+
+            const transferData = {
+                new_company: fd.get('new_company'),
+                new_branch: fd.get('new_branch'),
+                new_department: fd.get('new_department'),
+                new_team: fd.get('new_team'),
+                new_position: fd.get('new_position'),
+                effective_date: fd.get('effective_date'),
+                reason: fd.get('reason'),
+                commanded_by: fd.get('commanded_by'),
+                order_number: fd.get('order_number')
+            };
+
+            // ตรวจสอบ
+            if (!transferData.new_company || !transferData.effective_date || !transferData.reason) {
+                alert('⚠️ กรุณากรอกข้อมูลที่จำเป็นให้ครบ');
+                return;
+            }
+
+            // ดำเนินการโอนย้าย
+            const updated = transferMember(selectedMember.member_id, transferData);
+            
+            if (updated) {
+                // แสดงผล
+                document.getElementById('resultSection').classList.remove('hidden');
+                document.getElementById('resultSummary').innerHTML = `
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="text-4xl">✅</div>
+                            <div>
+                                <div class="text-xl font-bold text-green-800">โอนย้ายสำเร็จ!</div>
+                                <div class="text-sm text-gray-600">บันทึกเรียบร้อยเมื่อ ${new Date().toLocaleString('th-TH')}</div>
+                            </div>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-3 text-sm">
+                            <div><span class="text-gray-600">สมาชิก:</span> <strong>${updated.personal.name}</strong></div>
+                            <div><span class="text-gray-600">รหัส:</span> <strong>${updated.member_id}</strong></div>
+                            <div><span class="text-gray-600">บริษัทใหม่:</span> <strong>${updated.organization.company}</strong></div>
+                            <div><span class="text-gray-600">สาขาใหม่:</span> <strong>${updated.organization.branch_code}</strong></div>
+                            <div><span class="text-gray-600">ฝ่ายใหม่:</span> <strong>${updated.organization.department}</strong></div>
+                            <div><span class="text-gray-600">ตำแหน่งใหม่:</span> <strong>${updated.organization.position}</strong></div>
+                            <div><span class="text-gray-600">วันที่มีผล:</span> <strong>${transferData.effective_date}</strong></div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('resultJSON').textContent = JSON.stringify(updated, null, 2);
+                
+                alert('✅ บันทึกการโอนย้ายสำเร็จ!');
+            } else {
+                alert('❌ ไม่สามารถบันทึกการโอนย้ายได้');
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('progressText').textContent = '0%';
+            document.getElementById('currentInfo').classList.add('hidden');
+            document.getElementById('resultSection').classList.add('hidden');
+            selectedMember = null;
+        }
+
+        function exportCSV() {
+            if (!selectedMember) {
+                alert('⚠️ กรุณาเลือกสมาชิกก่อน');
+                return;
+            }
+            const csv = `รหัส,ชื่อ,บริษัท,สาขา,ฝ่าย,ทีม,ตำแหน่ง,วันโอนย้าย,เหตุผล\n${selectedMember.member_id},${selectedMember.personal.name},${selectedMember.organization.company},${selectedMember.organization.branch_code},${selectedMember.organization.department},${selectedMember.organization.team},${selectedMember.organization.position},${document.querySelector('[name="effective_date"]').value},"${document.querySelector('[name="reason"]').value}"`;
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `P3_Transfer_${selectedMember.member_id}.csv`;
+            a.click();
+        }
+
+        document.getElementById('transferForm').addEventListener('input', updateProgress);
+        document.getElementById('transferForm').addEventListener('change', updateProgress);
+    </script>
+</body>
+</html>

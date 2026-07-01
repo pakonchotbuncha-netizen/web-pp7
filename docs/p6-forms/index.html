@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>P6 ค่าตอบแทนและแรงจูงใจ | Web PP7</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="../p3-forms/member-data.js"></script>
+  <script src="payroll.js"></script>
+  <script src="validation.js"></script>
+  <script src="bulk-import.js"></script>
+  <script src="notification.js"></script>
+  <script src="notification-ui.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Prompt', sans-serif; }
+    body { 
+      background: linear-gradient(135deg, #065f46 0%, #047857 50%, #064e3b 100%);
+      min-height: 100vh;
+    }
+    .glass-card {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body class="text-gray-800">
+  
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-emerald-700 to-green-600 text-white py-6 shadow-lg">
+    <div class="container mx-auto px-4 max-w-7xl">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold">💰 P6 ค่าตอบแทนและแรงจูงใจ</h1>
+          <p class="text-emerald-100 mt-1">ระบบจ่ายเงินเดือนและสวัสดิการ — Web PP7</p>
+        </div>
+        <a href="../../index.html" onclick="parent.showTab && parent.showTab('welfare')" class="px-4 py-2 bg-emerald-800 hover:bg-emerald-900 rounded-lg">← กลับ</a>
+        <button onclick="showNotificationHistory()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg" title="ดูประวัติการแจ้งเตือน">
+          🔔 <span id="notifCount" class="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full ml-1">0</span>
+        </button>
+        <button onclick="showNotificationSettings()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg" title="ตั้งค่าการแจ้งเตือน">
+          ⚙️
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 max-w-7xl py-6 space-y-6">
+
+    <!-- Process Flow -->
+    <div class="glass-card p-6">
+      <h2 class="text-xl font-bold text-emerald-800 mb-4 flex items-center gap-2">
+        <span class="bg-emerald-600 text-white px-2 py-1 rounded text-xs font-mono">LDC-WCD-WI-004</span>
+        📋 กระบวนการจ่ายเงินเดือน (รอบรายเดือน)
+      </h2>
+      <div class="grid md:grid-cols-4 gap-3 text-sm">
+        <div class="text-center p-3 rounded-lg bg-blue-50 border-t-4 border-blue-500">
+          <div class="text-3xl mb-1">📅</div>
+          <div class="font-bold text-blue-800">วันที่ 1-5</div>
+          <div class="text-xs text-gray-600 mt-1">PAO อัปเดตสถานะบริษัท + สถานะสมาชิก</div>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-purple-50 border-t-4 border-purple-500">
+          <div class="text-3xl mb-1">💼</div>
+          <div class="font-bold text-purple-800">วันที่ 1-10</div>
+          <div class="text-xs text-gray-600 mt-1">BU คีย์ INC (Incentive) เปิดสิทธิ์</div>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-amber-50 border-t-4 border-amber-500">
+          <div class="text-3xl mb-1">💳</div>
+          <div class="font-bold text-amber-800">วันที่ 10</div>
+          <div class="text-xs text-gray-600 mt-1">ดึงข้อมูล CU (สหกรณ์) รวมยอดอัตโนมัติ</div>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-emerald-50 border-t-4 border-emerald-500">
+          <div class="text-3xl mb-1">✅</div>
+          <div class="font-bold text-emerald-800">วันที่ 11</div>
+          <div class="text-xs text-gray-600 mt-1">ปิดสิทธิ์ INC + กระทบยอด + โอนเงิน</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="glass-card p-6 text-center hover:shadow-xl transition cursor-pointer" onclick="showPayrollForm()">
+        <div class="text-5xl mb-3">💵</div>
+        <h3 class="text-lg font-bold text-emerald-800">คำนวณเงินเดือน</h3>
+        <p class="text-sm text-gray-600 mt-1">ดึงข้อมูลจาก P3 อัตโนมัติ</p>
+        <div class="mt-3 text-xs text-emerald-600">ดึงค่าตอบแทน + คำนวณสุทธิ</div>
+      </div>
+      <div class="glass-card p-6 text-center hover:shadow-xl transition cursor-pointer bg-gradient-to-br from-blue-50 to-blue-100" onclick="showRetirementForm()">
+        <div class="text-5xl mb-3">👴</div>
+        <h3 class="text-lg font-bold text-blue-800">ระบบเกษียณ (WI-006)</h3>
+        <p class="text-sm text-gray-600 mt-1">คำนวณเงินชดเชยตามอายุงาน</p>
+        <div class="mt-3 text-xs text-blue-600">เกณฑ์ตามกฎหมายแรงงาน</div>
+      </div>
+      <div class="glass-card p-6 text-center hover:shadow-xl transition cursor-pointer bg-gradient-to-br from-purple-50 to-purple-100" onclick="showIncentiveForm()">
+        <div class="text-5xl mb-3">🎯</div>
+        <h3 class="text-lg font-bold text-purple-800">บันทึก INC</h3>
+        <p class="text-sm text-gray-600 mt-1">BU บันทึก Incentive รายเดือน</p>
+        <div class="mt-3 text-xs text-purple-600">BU → P6 → MSP App (Points)</div>
+      </div>
+    </div>
+
+    <!-- Incentive Point System -->
+    <div id="incentiveSystem" class="glass-card p-6">
+      <h2 class="text-xl font-bold text-purple-800 mb-4 flex items-center gap-2">
+        <span class="bg-purple-600 text-white px-2 py-1 rounded text-xs font-mono">MSP-INC</span>
+        🎯 ระบบ Incentive Point + MSP Cashout
+      </h2>
+
+      <!-- Flow Diagram -->
+      <div class="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4 mb-6">
+        <h3 class="font-bold text-purple-900 mb-3 text-sm">🔄 Flow การทำงาน (กระบวนการเดิม → ใหม่)</h3>
+        <div class="grid md:grid-cols-5 gap-3 text-sm">
+          <div class="bg-white p-3 rounded-lg border-t-4 border-purple-400 text-center">
+            <div class="text-2xl mb-1">📝</div>
+            <div class="font-semibold text-purple-800">1. BU จัดทำข้อมูล</div>
+            <div class="text-xs text-gray-600 mt-1">เลือกสมาชิก + ประเภท INC + จำนวนเงิน</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border-t-4 border-blue-400 text-center">
+            <div class="text-2xl mb-1">💰</div>
+            <div class="font-semibold text-blue-800">2. P6 ตรวจสอบ</div>
+            <div class="text-xs text-gray-600 mt-1">ระบบตรวจสอบ + เพิ่ม INC อัตโนมัติ</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border-t-4 border-emerald-400 text-center">
+            <div class="text-2xl mb-1">🔢</div>
+            <div class="font-semibold text-emerald-800">3. แปลงเป็น Points</div>
+            <div class="text-xs text-gray-600 mt-1">1 บาท = 10 Points (อัตโนมัติ)</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border-t-4 border-amber-400 text-center">
+            <div class="text-2xl mb-1">📤</div>
+            <div class="font-semibold text-amber-800">4. โอนไป MSP</div>
+            <div class="text-xs text-gray-600 mt-1">ส่ง Points เข้า App MSP รายเดือน</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border-t-4 border-green-400 text-center">
+            <div class="text-2xl mb-1">💸</div>
+            <div class="font-semibold text-green-800">5. สมาชิก Cashout</div>
+            <div class="text-xs text-gray-600 mt-1">สมาชิกใช้ Points ตามต้องการ (ถอน/แลก/ใช้)</div>
+          </div>
+        </div>
+        <div class="mt-3 p-2 bg-yellow-50 border-l-4 border-yellow-400 text-xs text-yellow-900">
+          <strong>📌 ข้อดี:</strong> ลดงาน HR, สมาชิกมีอิสระในการใช้ Points, ไม่มี deadline, ไม่ต้องรอ end of month
+        </div>
+      </div>
+
+      <!-- INC Form -->
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Input Form -->
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">เลือกสมาชิก (จาก P3)</label>
+            <select id="incMember" onchange="incUpdatePreview()" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+              <option value="">-- เลือกสมาชิก --</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">ประเภท Incentive</label>
+            <select id="incType" onchange="incUpdatePreview()" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+              <option value="">-- เลือกประเภท --</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">เดือน</label>
+            <input type="month" id="incMonth" value="2026-06" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">จำนวนเงินสด (บาท) <span class="text-red-500">*</span></label>
+            <input type="number" id="incAmount" min="0" step="0.01" placeholder="0.00" oninput="incUpdatePreview()" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">BU Code (ผู้บันทึก)</label>
+            <input type="text" id="incBU" placeholder="เช่น BU-SALES-01" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+            <textarea id="incRemark" rows="2" placeholder="เช่น ยอดขาย Q2, KPI Achievement..." class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"></textarea>
+          </div>
+
+          <div class="flex gap-2 pt-2">
+            <button onclick="saveIncPoints()" class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-semibold shadow-md">
+              💾 บันทึก INC Point
+            </button>
+            <button onclick="loadIncSummary()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+              📋 ดูสรุป
+            </button>
+          </div>
+        </div>
+
+        <!-- Preview Card -->
+        <div class="bg-gradient-to-br from-purple-100 to-pink-100 border-2 border-purple-300 rounded-lg p-5">
+          <h3 class="font-bold text-purple-900 mb-4 text-lg flex items-center gap-2">
+            <span class="text-2xl">💎</span>
+            Preview: Cash → Points
+          </h3>
+          
+          <div class="space-y-3">
+            <div class="bg-white p-3 rounded-lg">
+              <div class="text-xs text-gray-600">สมาชิก</div>
+              <div id="prevMember" class="font-semibold text-purple-800">-</div>
+            </div>
+
+            <div class="bg-white p-3 rounded-lg">
+              <div class="text-xs text-gray-600">ประเภท</div>
+              <div id="prevType" class="font-semibold text-purple-800">-</div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-white p-3 rounded-lg text-center">
+                <div class="text-xs text-gray-600">จำนวนเงิน</div>
+                <div id="prevCash" class="text-2xl font-bold text-purple-700">฿0</div>
+              </div>
+              <div class="bg-gradient-to-br from-purple-500 to-pink-500 p-3 rounded-lg text-center text-white">
+                <div class="text-xs opacity-90">Points ที่ได้</div>
+                <div id="prevPoints" class="text-2xl font-bold">0 P</div>
+              </div>
+            </div>
+
+            <div class="bg-yellow-50 border border-yellow-300 p-2 rounded text-xs text-yellow-900">
+              <strong>💡 อัตราแลกเปลี่ยน:</strong> 1 บาท = 10 Points<br>
+              <strong>💠 สมาชิกสามารถ:</strong> Cashout / แลกของ / โอนให้คนอื่น
+            </div>
+
+            <div class="bg-white p-3 rounded-lg text-center">
+              <div class="text-xs text-gray-600 mb-1">Status</div>
+              <div class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
+                ⏳ Pending Transfer ไป MSP
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monthly Summary -->
+      <div id="incSummary" class="mt-6 hidden">
+        <h3 class="font-bold text-purple-800 mb-3 text-lg">📊 สรุป INC เดือน <span id="sumMonth"></span></h3>
+        
+        <div class="grid md:grid-cols-4 gap-3 mb-4">
+          <div class="bg-purple-50 border border-purple-200 rounded-lg p-3 text-center">
+            <div class="text-xs text-gray-600">จำนวนรายการ</div>
+            <div id="sumTotal" class="text-2xl font-bold text-purple-700">0</div>
+          </div>
+          <div class="bg-pink-50 border border-pink-200 rounded-lg p-3 text-center">
+            <div class="text-xs text-gray-600">ยอดเงินสด</div>
+            <div id="sumCash" class="text-2xl font-bold text-pink-700">฿0</div>
+          </div>
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+            <div class="text-xs text-gray-600">Points ทั้งหมด</div>
+            <div id="sumPoints" class="text-2xl font-bold text-blue-700">0 P</div>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-center">
+            <div class="text-xs text-gray-600">สถานะ</div>
+            <div id="sumStatus" class="text-sm font-semibold text-emerald-700 mt-1">-</div>
+          </div>
+        </div>
+
+        <!-- Breakdown by Type -->
+        <div class="bg-white border rounded-lg overflow-hidden mb-4">
+          <table class="w-full text-sm">
+            <thead class="bg-purple-100">
+              <tr>
+                <th class="text-left p-2 font-semibold text-purple-900">ประเภท</th>
+                <th class="text-center p-2 font-semibold text-purple-900">จำนวน</th>
+                <th class="text-right p-2 font-semibold text-purple-900">บาท</th>
+                <th class="text-right p-2 font-semibold text-purple-900">Points</th>
+              </tr>
+            </thead>
+            <tbody id="sumTypeBody">
+              <tr><td colspan="4" class="text-center p-3 text-gray-500">ยังไม่มีข้อมูล</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Transfer Button -->
+        <div class="flex gap-3 mb-4">
+          <button onclick="transferMSP()" class="flex-1 px-5 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 font-semibold shadow-md">
+            📤 โอน Points ไป MSP App
+          </button>
+          <button onclick="exportMSPCSV()" class="px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            📄 Export CSV
+          </button>
+        </div>
+
+        <!-- Records List -->
+        <div class="bg-white border rounded-lg overflow-hidden">
+          <div class="bg-gray-50 p-3 font-semibold text-gray-700 border-b">📋 รายการ INC เดือนนี้</div>
+          <div id="sumRecords" class="max-h-96 overflow-y-auto">
+            <div class="text-center p-4 text-gray-500 text-sm">ยังไม่มีข้อมูล</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Card -->
+      <div class="mt-4 bg-blue-50 border-l-4 border-blue-400 p-3 rounded text-sm">
+        <div class="font-bold text-blue-900 mb-1">💡 ระบบ INC ใน Web PP7</div>
+        <ul class="list-disc list-inside text-xs text-gray-700 space-y-1">
+          <li><strong>BU:</strong> บันทึกข้อมูล INC รายคน + ประเภท หรือกรอกผ่าน Google Sheets</li>
+          <li><strong>P6:</strong> ตรวจสอบ + แปลง Cash → Points อัตโนมัติ</li>
+          <li><strong>HR/PAO:</strong> โอน Points เข้า App MSP</li>
+          <li><strong>สมาชิก:</strong> ใช้ Points ตามต้องการ (cashout / แลก / โอน) ผ่าน App MSP</li>
+        </ul>
+      </div>
+
+      <!-- ============ BULK IMPORT SECTION ============ -->
+      <div class="mt-6 border-t-4 border-purple-300 pt-6">
+        <h2 class="text-xl font-bold text-purple-800 mb-4 flex items-center gap-2">
+          <span class="bg-purple-600 text-white px-2 py-1 rounded text-xs font-mono">BULK IMPORT</span>
+          📥 นำเข้าข้อมูล INC จาก Google Sheets / CSV
+        </h2>
+        
+        <div class="bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-lg p-4 mb-4">
+          <h3 class="font-bold text-teal-900 mb-3 flex items-center gap-2">
+            <span class="text-2xl">📝</span>
+            Flow การทำงาน (Google Sheets → Web PP7)
+          </h3>
+          <div class="grid md:grid-cols-4 gap-3 text-sm">
+            <div class="bg-white p-3 rounded-lg border-t-4 border-teal-400 text-center">
+              <div class="text-3xl mb-1">📋</div>
+              <div class="font-semibold text-teal-800">1. ดาวน์โหลด Template</div>
+              <div class="text-xs text-gray-600 mt-1">หรือเปิด Google Sheets Template</div>
+            </div>
+            <div class="bg-white p-3 rounded-lg border-t-4 border-blue-400 text-center">
+              <div class="text-3xl mb-1">✍️</div>
+              <div class="font-semibold text-blue-800">2. กรอกข้อมูลพร้อมกัน</div>
+              <div class="text-xs text-gray-600 mt-1">BU หลายๆ คนกรอกได้พร้อมกัน</div>
+            </div>
+            <div class="bg-white p-3 rounded-lg border-t-4 border-amber-400 text-center">
+              <div class="text-3xl mb-1">💾</div>
+              <div class="font-semibold text-amber-800">3. Export CSV</div>
+              <div class="text-xs text-gray-600 mt-1">File → Download → CSV</div>
+            </div>
+            <div class="bg-white p-3 rounded-lg border-t-4 border-emerald-400 text-center">
+              <div class="text-3xl mb-1">📤</div>
+              <div class="font-semibold text-emerald-800">4. Bulk Import</div>
+              <div class="text-xs text-gray-600 mt-1">Upload + Validate + Submit</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 1: Download Template -->
+        <div class="bg-white border border-purple-200 rounded-lg p-4 mb-4">
+          <div class="flex items-center justify-between flex-wrap gap-3 mb-3">
+            <div>
+              <h4 class="font-bold text-purple-800">📋 ขั้นตอนที่ 1: ดาวน์โหลด Template</h4>
+              <p class="text-xs text-gray-600 mt-1">ดาวน์โหลดไฟล์ CSV หรือเปิด Google Sheets Template</p>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="downloadINCTemplate()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm font-semibold">
+                ⬇️ ดาวน์โหลด CSV Template
+              </button>
+              <a href="https://docs.google.com/spreadsheets/d/1yP_l-WmsnlkMDCkZB7ulhe6oS_AAex8iE3LYdPdg-uc/edit?usp=sharing" target="_blank" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-semibold inline-flex items-center gap-1">
+                📊 เปิด Google Sheets
+              </a>
+            </div>
+          </div>
+          <div class="bg-purple-50 border-l-4 border-purple-400 p-2 text-xs text-purple-900">
+            <strong>📌 Columns ที่ต้องกรอก:</strong> member_id, name, inc_type, amount, month, bu_code, remark<br>
+            <strong>💡 inc_type:</strong> sales, kpi, project, attendance, referral, innovation, customer_service, other
+          </div>
+        </div>
+
+        <!-- Step 2: Upload CSV -->
+        <div class="bg-white border border-blue-200 rounded-lg p-4 mb-4">
+          <h4 class="font-bold text-blue-800 mb-3">📤 ขั้นตอนที่ 2: อัปโหลดไฟล์ CSV</h4>
+          <div id="dropZone" class="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center bg-blue-50 mb-3 hover:bg-blue-100 transition-all duration-200">
+            <input type="file" id="incCSVFile" accept=".csv,.txt,.tsv" onchange="handleCSVUpload(event)" class="hidden">
+            <label for="incCSVFile" class="cursor-pointer block">
+              <div class="text-4xl mb-2">📂</div>
+              <div class="text-sm text-blue-800 font-semibold">คลิกเลือกไฟล์ หรือลากไฟล์มาวางที่นี่</div>
+              <div class="text-xs text-blue-600 mt-1">รองรับ .csv, .txt, .tsv (UTF-8, TIS-620)</div>
+            </label>
+          </div>
+          <div id="fileInfo" class="hidden bg-gray-50 border rounded p-2 text-xs mb-3">
+            <span class="font-semibold">📄 ไฟล์:</span> <span id="fileName">-</span> | 
+            <span class="font-semibold">📏 ขนาด:</span> <span id="fileSize">-</span> |
+            <span id="fileStatus" class="ml-2"></span>
+          </div>
+          <div class="grid md:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">เดือน (override — ว่าง = ใช้ในไฟล์)</label>
+              <input type="month" id="bulkMonth" class="w-full px-2 py-1.5 border rounded text-sm">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">BU Code (override — ว่าง = ใช้ในไฟล์)</label>
+              <input type="text" id="bulkBU" placeholder="BULK-IMP" class="w-full px-2 py-1.5 border rounded text-sm">
+            </div>
+          </div>
+        </div>
+
+        <!-- Column Mapping (แสดงถ้าตรวจพบปัญหา) -->
+        <div id="columnMappingPanel" class="hidden bg-white border border-amber-200 rounded-lg p-4 mb-4">
+          <h4 class="font-bold text-amber-800 mb-2 flex items-center gap-2">
+            <span class="text-xl">🔧</span>
+            ขั้นตอนที่ 2.5: ปรับ Column Mapping
+          </h4>
+          <p class="text-xs text-gray-600 mb-3">ระบบตรวจพบ columns ที่จับคู่ไม่ตรง — กรุณาเลือก column ที่ถูกต้อง</p>
+          <div id="missingColumnsAlert" class="hidden bg-red-50 border-l-4 border-red-500 p-3 mb-3 rounded">
+            <div class="font-bold text-red-800 text-sm">🚨 ข้อผิดพลาดร้ายแรง — ไม่สามารถ Import ได้!</div>
+            <div id="missingColumnsList" class="text-xs text-red-700 mt-1"></div>
+          </div>
+          <div id="unmappedColumnsAlert" class="hidden bg-amber-50 border-l-4 border-amber-400 p-3 mb-3 rounded">
+            <div class="font-bold text-amber-800 text-sm">⚠️ Column ที่ระบบจับคู่ไม่ตรง:</div>
+            <div id="unmappedColumnsList" class="mt-2 space-y-2"></div>
+          </div>
+          <div id="confidenceReport" class="bg-blue-50 border border-blue-200 p-3 mb-3 rounded">
+            <div class="font-bold text-blue-800 text-sm mb-1">💡 การจับคู่ที่ระบบตรวจพบ:</div>
+            <div id="confidenceList" class="text-xs text-blue-700 space-y-0.5 max-h-32 overflow-y-auto"></div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="applyColumnMapping()" class="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 text-sm font-semibold">🔄 นำ Column Mapping ไปใช้</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Validation Report -->
+        <div id="validationReport" class="hidden bg-white border border-indigo-200 rounded-lg p-4 mb-4">
+          <h4 class="font-bold text-indigo-800 mb-3 flex items-center justify-between">
+            <span class="flex items-center gap-2">
+              <span class="text-xl">👁️</span>
+              ขั้นตอนที่ 3: รายงานผลการตรวจสอบ
+            </span>
+            <span id="reportVersion" class="text-xs text-gray-500 font-normal">Validation v2.0</span>
+          </h4>
+          
+          <!-- Overall Stats -->
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">
+            <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-3 text-center">
+              <div class="text-xs text-gray-600 font-medium">📊 ทั้งหมด</div>
+              <div id="statTotal" class="text-2xl font-bold text-blue-700">0</div>
+            </div>
+            <div class="bg-green-50 border-2 border-green-300 rounded-lg p-3 text-center">
+              <div class="text-xs text-gray-600 font-medium">✅ ผ่าน</div>
+              <div id="statValid" class="text-2xl font-bold text-green-700">0</div>
+            </div>
+            <div class="bg-red-50 border-2 border-red-300 rounded-lg p-3 text-center">
+              <div class="text-xs text-gray-600 font-medium">❌ ผิดพลาด</div>
+              <div id="statInvalid" class="text-2xl font-bold text-red-700">0</div>
+            </div>
+            <div class="bg-amber-50 border-2 border-amber-300 rounded-lg p-3 text-center">
+              <div class="text-xs text-gray-600 font-medium">⚠️ คำเตือน</div>
+              <div id="statWarnings" class="text-2xl font-bold text-amber-700">0</div>
+            </div>
+            <div class="bg-purple-50 border-2 border-purple-300 rounded-lg p-3 text-center">
+              <div class="text-xs text-gray-600 font-medium">💎 Points รวม</div>
+              <div id="statPoints" class="text-2xl font-bold text-purple-700">0</div>
+            </div>
+          </div>
+
+          <!-- Validation Report (detailed errors) -->
+          <div id="validationDetail" class="space-y-3 mb-4">
+            <!-- Column Detection -->
+            <div id="detailColumnDetection" class="hidden">
+              <div class="bg-gray-50 border border-gray-200 rounded p-3">
+                <div class="font-semibold text-gray-700 text-sm mb-2">🔗 Column Mapping ที่ตรวจพบ:</div>
+                <div id="detectedColumns" class="flex flex-wrap gap-1 text-xs"></div>
+              </div>
+            </div>
+
+            <!-- Error Groups (by error type) -->
+            <div id="errorGroups" class="space-y-3"></div>
+
+            <!-- Warnings -->
+            <div id="warningsSection" class="hidden">
+              <div class="bg-amber-50 border border-amber-200 rounded p-3">
+                <div class="font-semibold text-amber-800 text-sm mb-2">⚠️ รายการที่มีคำเตือน (Import ได้ แต่ควรตรวจสอบ):</div>
+                <div id="warningsList" class="space-y-1 text-xs max-h-48 overflow-y-auto"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap gap-2 border-t pt-3">
+            <button onclick="importValidRows()" id="btnImportValid" class="flex-1 px-4 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-semibold shadow-md text-sm">
+              ✅ นำเข้าเฉพาะที่ผ่าน (<span id="importCount">0</span> รายการ)
+            </button>
+            <button onclick="showReportText()" class="px-3 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 border text-sm">
+              📋 ดูรายงานฉบับเต็ม
+            </button>
+            <button onclick="downloadErrorCSV()" class="px-3 py-2.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 border border-red-300 text-sm">
+              ⬇️ ดาวน์โหลดรายการผิดพลาด
+            </button>
+            <button onclick="hideValidationReport()" class="px-3 py-2.5 bg-gray-500 text-white rounded-lg hover:bg-gray-600 text-sm">
+              ✖️ ปิด
+            </button>
+          </div>
+        </div>
+
+        <!-- Full Report Modal -->
+        <div id="fullReportModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="bg-indigo-600 text-white px-4 py-3 font-bold flex items-center justify-between">
+              <span>📋 รายงานผลการตรวจสอบข้อมูลฉบับเต็ม</span>
+              <button onclick="document.getElementById('fullReportModal').classList.add('hidden')" class="text-white hover:text-gray-200 text-xl">✕</button>
+            </div>
+            <pre id="fullReportText" class="p-4 overflow-auto text-xs font-mono bg-gray-50 flex-1"></pre>
+            <div class="p-3 bg-gray-100 border-t flex justify-end">
+              <button onclick="copyReportText()" class="px-3 py-1.5 bg-white border rounded text-sm hover:bg-gray-50">📋 Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Help for Google Sheets Template -->
+        <div class="bg-teal-50 border border-teal-200 rounded-lg p-3 text-xs text-teal-900">
+          <strong class="text-sm">💡 เทคนิคการใช้ Google Sheets + Bulk Import:</strong>
+          <ul class="list-disc list-inside mt-1 space-y-0.5">
+            <li>BU หลายๆ คนสามารถกรอกข้อมูลใน Google Sheets พร้อมกันได้ (Share link)</li>
+            <li>PAO/HR ตรวจสอบ แล้วสั่ง Export CSV มา Import ที่ระบบ Web PP7</li>
+            <li>ข้อมูลจะถูก Validate อัตโนมัติ (member_id, amount, month format, inc_type)</li>
+            <li>ข้อมูลที่ผิดพลาดจะถูกแยกออกไป — สามารถแก้ไขแล้ว Import ใหม่ได้</li>
+          </ul>
+        </div>
+      </div>
+      <!-- ============ END BULK IMPORT SECTION ============ -->
+
+    </div>
+
+    <!-- Payroll Calculator Form -->
+    <div id="payrollForm" class="glass-card p-6 hidden">
+      <h2 class="text-xl font-bold text-emerald-800 mb-4">💵 คำนวณเงินเดือน</h2>
+      
+      <div class="grid md:grid-cols-2 gap-6">
+        <!-- Input -->
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">เลือกสมาชิก (จาก P3)</label>
+            <select id="memberSelect" onchange="loadMemberData()" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500">
+              <option value="">-- เลือกสมาชิก --</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">เดือนที่จ่าย</label>
+            <input type="month" id="payMonth" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500">
+          </div>
+          
+          <!-- Member Info -->
+          <div id="memberInfo" class="p-3 bg-gray-50 rounded-lg text-sm hidden">
+            <div class="font-semibold text-gray-700 mb-2">📋 ข้อมูล P3</div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div>บริษัท: <span id="info-comp" class="font-medium">-</span></div>
+              <div>ฝ่าย: <span id="info-dept" class="font-medium">-</span></div>
+              <div>ตำแหน่ง: <span id="info-pos" class="font-medium">-</span></div>
+              <div>สถานะ: <span id="info-status" class="font-medium">-</span></div>
+            </div>
+          </div>
+
+          <!-- Allowances -->
+          <div class="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+            <div class="font-semibold text-yellow-800 mb-2">💰 รายการเพิ่ม (จาก P3)</div>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between"><span>เงินเดือนพื้นฐาน:</span><span id="calc-base" class="font-bold">0</span></div>
+              <div class="flex justify-between"><span>ค่าครองชีพ (Local):</span><span id="calc-local" class="font-bold">0</span></div>
+              <div class="flex justify-between"><span>โบนัสพิเศษ:</span><span id="calc-special" class="font-bold">0</span></div>
+              <div class="flex justify-between"><span>ค่าน้ำมัน:</span><span id="calc-fuel" class="font-bold">0</span></div>
+              <div class="flex justify-between"><span>ค่าโทรศัพท์:</span><span id="calc-phone" class="font-bold">0</span></div>
+              <div class="flex justify-between"><span>ค่าวิชาชีพ:</span><span id="calc-prof" class="font-bold">0</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Output -->
+        <div class="p-4 bg-gradient-to-br from-emerald-50 to-green-100 rounded-lg border-2 border-emerald-300">
+          <h3 class="font-bold text-emerald-900 mb-3">📊 สรุปผลการคำนวณ</h3>
+          
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between bg-white p-2 rounded"><span>💵 รายได้ brut:</span><span id="out-gross" class="font-bold text-lg text-green-700">฿0</span></div>
+            
+            <div class="pt-2 border-t border-emerald-300">
+              <div class="font-semibold text-red-700 mb-1">💸 รายการหัก</div>
+              <div class="flex justify-between"><span>ประกันสังคม (5%):</span><span id="out-ssf" class="text-red-600">-฿0</span></div>
+              <div class="flex justify-between"><span>กองทุนสำรองเลี้ยงชีพ (3%):</span><span id="out-pvd" class="text-red-600">-฿0</span></div>
+              <div class="flex justify-between"><span>ภาษี ณ ที่จ่าย (3%):</span><span id="out-tax" class="text-red-600">-฿0</span></div>
+              <div class="flex justify-between"><span>หักอื่น ๆ:</span><span id="out-other" class="text-red-600">-฿0</span></div>
+            </div>
+
+            <div class="pt-3 border-t-2 border-emerald-500">
+              <div class="bg-emerald-800 text-white p-3 rounded-lg">
+                <div class="flex justify-between items-center">
+                  <span class="font-bold">💰 เงินสุทธิต้องจ่าย</span>
+                  <span id="out-net" class="text-2xl font-bold">฿0</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-2 text-xs text-gray-600">
+              <div class="flex justify-between"><span>นายจ้าง จ่ายประกันสังคม:</span><span id="out-ssf-e">฿0</span></div>
+              <div class="flex justify-between"><span>นายจ้าง จ่าย PVD:</span><span id="out-pvd-e">฿0</span></div>
+              <div class="flex justify-between font-bold"><span>ต้นทุนรวมต่อนายจ้าง:</span><span id="out-total-cost">฿0</span></div>
+            </div>
+          </div>
+
+          <div class="mt-4 flex flex-wrap gap-2">
+            <button onclick="recordPayroll()" class="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-semibold">💾 บันทึกการจ่าย</button>
+            <button onclick="exportCSV()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">📄 CSV</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Retirement Form -->
+    <div id="retirementForm" class="glass-card p-6 hidden">
+      <h2 class="text-xl font-bold text-blue-800 mb-4">👴 ระบบเกษียณ (LDC-WCD-WI-006)</h2>
+      
+      <div class="p-4 bg-blue-50 border-l-4 border-blue-500 mb-4 text-sm">
+        <strong>⚙️ เกณฑ์เงินชดเชยตามกฎหมายแรงงาน:</strong>
+        <ul class="list-disc list-inside mt-2 space-y-1">
+          <li>ทำงาน 1-3 ปี: 30 วัน</li>
+          <li>3-5 ปี: 90 วัน</li>
+          <li>5-7 ปี: 120 วัน</li>
+          <li>7-10 ปี: 180 วัน</li>
+          <li>10-15 ปี: 240 วัน</li>
+          <li>15-20 ปี: 300 วัน</li>
+          <li>20 ปีขึ้นไป: 400 วัน</li>
+        </ul>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">เลือกสมาชิก</label>
+          <select id="retireMember" onchange="calcRetirement()" class="w-full px-3 py-2 border rounded-lg">
+            <option value="">-- เลือกสมาชิก --</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="retireResult" class="mt-4 p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-300 hidden">
+        <h3 class="font-bold text-blue-900 mb-3">📊 สรุปเงินชดเชย</h3>
+        <div class="grid md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <div class="flex justify-between mb-1"><span>ชื่อสมาชิก:</span><span id="ret-name" class="font-bold">-</span></div>
+            <div class="flex justify-between mb-1"><span>อายุ:</span><span id="ret-age">-</span> ปี</div>
+            <div class="flex justify-between mb-1"><span>อายุงาน:</span><span id="ret-years">-</span> ปี</div>
+            <div class="flex justify-between mb-1"><span>เงินเดือนสุดท้าย:</span><span id="ret-salary">-</span></div>
+            <div class="flex justify-between mb-1"><span>เกณฑ์ชดเชย:</span><span id="ret-mult" class="font-bold text-blue-700">-</span></div>
+          </div>
+          <div class="bg-white p-3 rounded-lg">
+            <div class="text-center">
+              <div class="text-sm text-gray-600">💰 เงินชดเชยเกษียณ</div>
+              <div id="ret-severance" class="text-3xl font-bold text-blue-700 mt-2">฿0</div>
+              <div id="ret-eligible" class="mt-2 text-xs px-3 py-1 rounded-full inline-block"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Near Retirement Members -->
+      <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <h3 class="font-bold text-yellow-800 mb-3">⏰ สมาชิดใกล้เกษียณ (อายุ ≥ 53)</h3>
+        <div id="nearRetireList" class="space-y-2 text-sm">
+          <p class="text-gray-500 text-center py-4">ยังไม่มีข้อมูล — ข้อมูลจะดึงจาก P3 อัตโนมัติ</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Flow Diagram -->
+    <div class="glass-card p-6">
+      <h2 class="text-xl font-bold text-emerald-800 mb-4">🔗 Data Flow P6 ↔ ระบบอื่น</h2>
+      <div class="grid md:grid-cols-4 gap-3 text-sm">
+        <div class="p-3 bg-purple-50 rounded-lg border-l-4 border-purple-500">
+          <div class="font-bold text-purple-800">📥 จาก P3</div>
+          <div class="text-xs text-gray-600 mt-1">ข้อมูลสมาชิก, ตำแหน่ง, ค่าตอบแทนพื้นฐาน, ค่าเบี้ยเลี้ยงต่าง ๆ</div>
+        </div>
+        <div class="p-3 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+          <div class="font-bold text-blue-800">📥 จาก BU</div>
+          <div class="text-xs text-gray-600 mt-1">บันทึก INC (Incentive) เดือนนั้น</div>
+        </div>
+        <div class="p-3 bg-amber-50 rounded-lg border-l-4 border-amber-500">
+          <div class="font-bold text-amber-800">💳 จาก CU</div>
+          <div class="text-xs text-gray-600 mt-1">ยอดเงินกู้สหกรณ์ค้างชำระ (ดึงอัตโนมัติ วัน 10)</div>
+        </div>
+        <div class="p-3 bg-emerald-50 rounded-lg border-l-4 border-emerald-500">
+          <div class="font-bold text-emerald-800">📤 ออก BCT</div>
+          <div class="text-xs text-gray-600 mt-1">Export ไป BCT Payroll สำหรับโอนเงิน</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    let currentResult = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAllMembers();
+      document.getElementById('payMonth').value = new Date().toISOString().slice(0, 7);
+      document.getElementById('incMonth').value = new Date().toISOString().slice(0, 7);
+      populateIncTypes();
+    });
+
+    function loadAllMembers() {
+      const members = PayrollSystem.getP3Members();
+      const options = members
+        .filter(m => m.status?.current === 'active')
+        .map(m => `<option value="${m.member_id}">${m.member_id} - ${m.personal?.name || '-'} (${m.organization?.company || '-'})</option>`)
+        .join('');
+      
+      ['memberSelect', 'retireMember', 'incMember'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (sel) {
+          const first = sel.querySelector('option').outerHTML;
+          sel.innerHTML = first + options;
+        }
+      });
+    }
+
+    function showPayrollForm() {
+      ['payrollForm', 'retirementForm'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById('payrollForm').classList.remove('hidden');
+    }
+
+    function showRetirementForm() {
+      ['payrollForm', 'retirementForm'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById('retirementForm').classList.remove('hidden');
+      loadNearRetirement();
+    }
+
+    function showIncentiveForm() {
+      // Scroll to incentive system
+      const el = document.getElementById('incentiveSystem');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function loadMemberData() {
+      const id = document.getElementById('memberSelect').value;
+      if (!id) {
+        document.getElementById('memberInfo').classList.add('hidden');
+        return;
+      }
+      const members = PayrollSystem.getP3Members();
+      const m = members.find(x => x.member_id === id);
+      if (!m) return;
+
+      // แสดงข้อมูล P3
+      document.getElementById('info-comp').textContent = m.organization?.company || '-';
+      document.getElementById('info-dept').textContent = m.organization?.department || '-';
+      document.getElementById('info-pos').textContent = m.organization?.position || '-';
+      document.getElementById('info-status').textContent = m.employment?.status || '-';
+      document.getElementById('memberInfo').classList.remove('hidden');
+
+      const comp = m.compensation || {};
+      document.getElementById('calc-base').textContent = (comp.salary_confirmed || comp.salary_probation || 0).toLocaleString();
+      document.getElementById('calc-local').textContent = (comp.local_allowance || 0).toLocaleString();
+      document.getElementById('calc-special').textContent = (comp.special_bonus || 0).toLocaleString();
+      document.getElementById('calc-fuel').textContent = (comp.fuel_allowance || 0).toLocaleString();
+      document.getElementById('calc-phone').textContent = (comp.phone_allowance || 0).toLocaleString();
+      document.getElementById('calc-prof').textContent = (comp.professional_allowance || 0).toLocaleString();
+
+      // คำนวณ
+      currentResult = PayrollSystem.calculateNetPay(m);
+      updateOutput();
+    }
+
+    function updateOutput() {
+      if (!currentResult) return;
+      const r = currentResult;
+      document.getElementById('out-gross').textContent = '฿' + r.gross.toLocaleString(undefined, {maximumFractionDigits: 2});
+      document.getElementById('out-ssf').textContent = '-฿' + r.ssf.employee.toLocaleString(undefined, {maximumFractionDigits: 2});
+      document.getElementById('out-pvd').textContent = '-฿' + r.pvd.employee.toLocaleString(undefined, {maximumFractionDigits: 2});
+      document.getElementById('out-tax').textContent = '-฿' + r.tax.toLocaleString(undefined, {maximumFractionDigits: 2});
+      document.getElementById('out-other').textContent = '-฿' + r.other_deductions.toLocaleString(undefined, {maximumFractionDigits: 2});
+      document.getElementById('out-net').textContent = '฿' + r.net.toLocaleString(undefined, {maximumFractionDigits: 2});
+      document.getElementById('out-ssf-e').textContent = '฿' + r.ssf.employer.toLocaleString();
+      document.getElementById('out-pvd-e').textContent = '฿' + r.pvd.employer.toLocaleString();
+      const totalCost = r.net + r.ssf.employer + r.pvd.employer;
+      document.getElementById('out-total-cost').textContent = '฿' + totalCost.toLocaleString(undefined, {maximumFractionDigits: 2});
+    }
+
+    function calcRetirement() {
+      const id = document.getElementById('retireMember').value;
+      if (!id) return;
+      const members = PayrollSystem.getP3Members();
+      const m = members.find(x => x.member_id === id);
+      if (!m) return;
+
+      const result = PayrollSystem.calculateRetirement(m);
+      document.getElementById('retireResult').classList.remove('hidden');
+      document.getElementById('ret-name').textContent = result.name;
+      document.getElementById('ret-age').textContent = result.age;
+      document.getElementById('ret-years').textContent = result.yearsWorked;
+      document.getElementById('ret-salary').textContent = '฿' + result.lastSalary.toLocaleString();
+      document.getElementById('ret-mult').textContent = result.multiplier + ' วัน';
+      document.getElementById('ret-severance').textContent = '฿' + result.severance.toLocaleString(undefined, {maximumFractionDigits: 2});
+      
+      const el = document.getElementById('ret-eligible');
+      if (result.retirementEligible) {
+        el.textContent = '✅ เกษียณได้ (อายุ ≥ 55)';
+        el.className = 'mt-2 text-xs px-3 py-1 rounded-full inline-block bg-green-100 text-green-800';
+      } else {
+        el.textContent = '⏳ ยังไม่ครบเกษียณ';
+        el.className = 'mt-2 text-xs px-3 py-1 rounded-full inline-block bg-yellow-100 text-yellow-800';
+      }
+    }
+
+    function loadNearRetirement() {
+      const list = PayrollSystem.getNearRetirementMembers();
+      const container = document.getElementById('nearRetireList');
+      if (list.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-4">ยังไม่มีข้อมูล (เพิ่มสมาชิกอายุ ≥ 53 ใน P3)</p>';
+        return;
+      }
+      container.innerHTML = list.map(r => `
+        <div class="flex justify-between items-center p-2 bg-white rounded border ${r.retirementEligible ? 'border-green-300' : 'border-yellow-300'}">
+          <div>
+            <div class="font-semibold">${r.name}</div>
+            <div class="text-xs text-gray-600">อายุ ${r.age} | ทำงาน ${r.yearsWorked} ปี</div>
+          </div>
+          <div class="text-right">
+            <div class="font-bold text-blue-700">฿${r.severance.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+            <div class="text-xs ${r.retirementEligible ? 'text-green-600' : 'text-yellow-600'}">${r.retirementEligible ? '✅ เกษียณ' : '⏳ รอ'}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function recordPayroll() {
+      if (!currentResult) {
+        alert('⚠️ กรุณาเลือกสมาชิกก่อน');
+        return;
+      }
+      const month = document.getElementById('payMonth').value;
+      if (!month) {
+        alert('⚠️ กรุณาเลือกเดือน');
+        return;
+      }
+      if (!confirm('ยืนยันการบันทึกการจ่ายเงินเดือน?')) return;
+      
+      const summary = PayrollSystem.calculateAllPayroll(month);
+      alert(`✅ บันทึกสำเร็จ!\n\n📅 เดือน: ${month}\n💼 สมาชิกทั้งหมด: ${summary.total_members}\n💰 โอนไปสมาชิก: ฿${summary.total_net.toLocaleString(undefined, {maximumFractionDigits: 2})}\n💵 ต้นทุนนายจ้างรวม: ฿${(summary.total_net + summary.total_ssf_employer + summary.total_pvd_employer).toLocaleString(undefined, {maximumFractionDigits: 2})}`);
+    }
+
+    // =========== INC Points System (MSP App) ===========
+    function populateIncTypes() {
+      const types = PayrollSystem.incConfig.types;
+      const sel = document.getElementById('incType');
+      if (!sel) return;
+      sel.innerHTML = '<option value="">-- เลือกประเภท INC --</option>' + 
+        types.map(t => `<option value="${t.id}">${t.name} - ${t.description}</option>`).join('');
+    }
+
+    function incUpdatePreview() {
+      const memberId = document.getElementById('incMember').value;
+      const typeId = document.getElementById('incType').value;
+      const amount = parseFloat(document.getElementById('incAmount').value) || 0;
+      
+      // Member name
+      const members = PayrollSystem.getP3Members();
+      const member = members.find(m => m.member_id === memberId);
+      const memberName = member ? `${member.personal?.name || '-'} (${memberId})` : '-';
+      document.getElementById('prevMember').textContent = memberName;
+      
+      // Type name
+      const type = PayrollSystem.incConfig.types.find(t => t.id === typeId);
+      document.getElementById('prevType').textContent = type ? `${type.name}` : '-';
+      
+      // Cash & Points
+      const cash = amount;
+      const points = Math.round(cash * PayrollSystem.incConfig.cash_to_points_rate);
+      document.getElementById('prevCash').textContent = '฿' + cash.toLocaleString();
+      document.getElementById('prevPoints').textContent = points.toLocaleString() + ' P';
+    }
+
+    function saveIncPoints() {
+      const memberId = document.getElementById('incMember').value;
+      const typeId = document.getElementById('incType').value;
+      const month = document.getElementById('incMonth').value;
+      const amount = parseFloat(document.getElementById('incAmount').value);
+      const buCode = document.getElementById('incBU').value;
+      const remark = document.getElementById('incRemark').value;
+      
+      if (!memberId) { alert('⚠️ กรุณาเลือกสมาชิก'); return; }
+      if (!typeId) { alert('⚠️ กรุณาเลือกประเภท INC'); return; }
+      if (!month) { alert('⚠️ กรุณาเลือกเดือน'); return; }
+      if (!amount || amount <= 0) { alert('⚠️ กรุณากรอกจำนวนเงิน'); return; }
+      
+      const record = PayrollSystem.saveIncentivePoints(
+        memberId, month, amount, typeId, remark, buCode
+      );
+      
+      alert(`✅ บันทึก INC Point สำเร็จ!
+
+👤 ${document.getElementById('prevMember').textContent}
+💰 ฿${amount.toLocaleString()} = ${record.points.toLocaleString()} Points
+📅 เดือน: ${month}
+🔑 TxID: ${record.transaction_id}
+📤 สถานะ: รอโอนไป MSP App
+
+สมาชิกสามารถ cashout ผ่าน App MSP ได้ทันทีหลังโอน`);
+      
+      // Clear form
+      document.getElementById('incAmount').value = '';
+      document.getElementById('incRemark').value = '';
+      document.getElementById('incBU').value = '';
+      
+      // Reload summary
+      loadIncSummary();
+    }
+
+    function loadIncSummary() {
+      const month = document.getElementById('incMonth').value;
+      if (!month) { alert('⚠️ กรุณาเลือกเดือน'); return; }
+      
+      const summary = PayrollSystem.getMonthlyIncentiveSummary(month);
+      document.getElementById('incSummary').classList.remove('hidden');
+      document.getElementById('sumMonth').textContent = month;
+      document.getElementById('sumTotal').textContent = summary.total_records.toLocaleString();
+      document.getElementById('sumCash').textContent = '฿' + summary.total_cash.toLocaleString();
+      document.getElementById('sumPoints').textContent = summary.total_points.toLocaleString() + ' P';
+      
+      const pending = summary.records.filter(r => r.status === 'pending_transfer').length;
+      const transferred = summary.records.filter(r => r.status === 'transferred').length;
+      document.getElementById('sumStatus').innerHTML = 
+        `<span class="text-blue-600">⏳ ${pending} รอโอน</span> | <span class="text-green-600">✅ ${transferred} โอนแล้ว</span>`;
+      
+      // Breakdown by type
+      const typeBody = document.getElementById('sumTypeBody');
+      const types = PayrollSystem.incConfig.types;
+      const rows = types
+        .map(t => {
+          const data = summary.by_type[t.id];
+          if (data.count === 0) return '';
+          return `<tr class="border-t hover:bg-gray-50">
+            <td class="p-2"><span class="inline-block px-2 py-0.5 bg-purple-100 text-purple-800 rounded text-xs">${t.name}</span></td>
+            <td class="p-2 text-center">${data.count}</td>
+            <td class="p-2 text-right">฿${data.cash.toLocaleString()}</td>
+            <td class="p-2 text-right font-semibold text-purple-700">${data.points.toLocaleString()} P</td>
+          </tr>`;
+        })
+        .join('');
+      typeBody.innerHTML = rows || '<tr><td colspan="4" class="text-center p-3 text-gray-500">ยังไม่มีข้อมูล</td></tr>';
+      
+      // Records list
+      const container = document.getElementById('sumRecords');
+      if (summary.records.length === 0) {
+        container.innerHTML = '<div class="text-center p-4 text-gray-500 text-sm">ยังไม่มีข้อมูล</div>';
+        return;
+      }
+      container.innerHTML = summary.records.map(r => `
+        <div class="flex justify-between items-center p-3 border-b hover:bg-gray-50">
+          <div class="flex-1">
+            <div class="font-semibold text-gray-800">${r.member_name} <span class="text-xs text-gray-500">(${r.member_id})</span></div>
+            <div class="text-xs text-gray-600 mt-1">
+              <span class="inline-block px-2 py-0.5 bg-purple-100 text-purple-700 rounded">${r.inc_type}</span>
+              ${r.remark || ''}
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="font-bold text-purple-700">${r.points.toLocaleString()} P</div>
+            <div class="text-xs text-gray-600">฿${r.cash_amount.toLocaleString()}</div>
+            <div class="text-xs mt-1 ${r.status === 'transferred' ? 'text-green-600' : 'text-amber-600'}">
+              ${r.status === 'transferred' ? '✅ โอนแล้ว' : '⏳ รอโอน'}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function transferMSP() {
+      const month = document.getElementById('incMonth').value;
+      if (!month) { alert('⚠️ กรุณาเลือกเดือน'); return; }
+      
+      const summary = PayrollSystem.getMonthlyIncentiveSummary(month);
+      const pending = summary.records.filter(r => r.status === 'pending_transfer').length;
+      
+      if (pending === 0) {
+        alert('🎉 ไม่มีรายการรอโอน'); return;
+      }
+      
+      if (!confirm(`📤 ยืนยันการโอน Points ไป MSP App?
+
+📅 เดือน: ${month}
+📋 จำนวน: ${pending} รายการ
+💎 Points: ${summary.total_points.toLocaleString()} P
+💰 มูลค่า: ฿${summary.total_cash.toLocaleString()}
+
+⚙️ ระบบจะส่ง Points เข้า App MSP ของสมาชิกแต่ละคน
+สมาชิกสามารถ cashout ผ่าน App MSP ได้ทันทีหลังโอนสำเร็จ`)) return;
+      
+      const result = PayrollSystem.transferToMSP(month);
+      alert(`✅ โอน Points ไป MSP App สำเร็จ!
+
+📤 โอนแล้ว: ${result.transferred} รายการ
+📅 เดือน: ${result.month}
+🔔 สมาชิกจะได้รับแจ้งเตือนผ่าน App MSP
+💡 สมาชิกสามารถ cashout ผ่าน MSP ได้ทันที`);
+      
+      loadIncSummary();
+    }
+
+    function exportMSPCSV() {
+      const month = document.getElementById('incMonth').value;
+      const summary = PayrollSystem.getMonthlyIncentiveSummary(month);
+      
+      if (summary.total_records === 0) {
+        alert('⚠️ ไม่มีข้อมูล'); return;
+      }
+      
+      const header = 'TxID,รหัสสมาชิก,ชื่อ,ประเภท,สถานะ,บาท,Points,หมายเหตุ,วันที่บันทึก';
+      const rows = summary.records.map(r => 
+        `${r.transaction_id},${r.member_id},"${r.member_name}",${r.inc_type},${r.status},${r.cash_amount},${r.points},"${r.remark}",${r.created_at}`
+      ).join('\n');
+      
+      const csv = '\uFEFF' + header + '\n' + rows;
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `P6_MSP_INC_${month}.csv`;
+      a.click();
+    }
+
+    function exportCSV() {
+      if (!currentResult) {
+        alert('⚠️ กรุณาเลือกสมาชิกก่อน');
+        return;
+      }
+      const r = currentResult;
+      const month = document.getElementById('payMonth').value || 'export';
+      const csv = `รหัสสมาชิก,ชื่อ,บริษัท,ฝ่าย,เงินเดือนพื้นฐาน,เบี้ยเลี้ยงรวม,รายได้ brut,ประกันสังคม (จน),กองทุนสำรองเลี้ยงชีพ (จน),ภาษี 3%,หักอื่น,เงินสุทธิ,SSF นายจ้าง,PVD นายจ้าง\n${r.member_id},${r.name},${r.company},${r.department},${r.base},${r.allowances},${r.gross},${r.ssf.employee},${r.pvd.employee},${r.tax},${r.other_deductions},${r.net},${r.ssf.employer},${r.pvd.employer}`;
+      
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `P6_Payroll_${r.member_id}_${month}.csv`;
+      a.click();
+    }
+
+    // ============ Bulk Import v2.0 with Validation System ============
+    let _validationResult = null;
+    let _csvText = null;
+    let _fileInfo = null;
+
+    function downloadINCTemplate() {
+      if (typeof BulkImport === 'undefined') {
+        alert('⚠️ ระบบ Bulk Import ยังไม่ได้โหลด');
+        return;
+      }
+      const csv = BulkImport.generateINCTemplateCSV();
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `P6_INC_Template.csv`;
+      a.click();
+    }
+
+    function handleCSVUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      // Check file extension
+      const validExts = ['.csv', '.txt', '.tsv'];
+      const ext = '.' + file.name.split('.').pop().toLowerCase();
+      if (!validExts.includes(ext)) {
+        alert(`⚠️ ไฟล์ไม่รองรับ "${file.name}"\n\n✅ รองรับ: .csv, .txt, .tsv`);
+        return;
+      }
+
+      // Show file info
+      document.getElementById('fileInfo').classList.remove('hidden');
+      document.getElementById('fileName').textContent = file.name;
+      document.getElementById('fileSize').textContent = formatFileSize(file.size);
+      document.getElementById('fileStatus').innerHTML = '<span class="text-blue-600">⏳ กำลังอ่านไฟล์...</span>';
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        _csvText = e.target.result;
+        _fileInfo = { name: file.name, size: file.size };
+        
+        if (typeof ValidationSystem === 'undefined') {
+          alert('⚠️ ระบบ Validation ยังไม่ได้โหลด');
+          document.getElementById('fileStatus').innerHTML = '<span class="text-red-600">❌ ระบบไม่พร้อม</span>';
+          return;
+        }
+
+        // Validate using ValidationSystem
+        const validation = ValidationSystem.validateImport(_csvText, 'inc');
+        _validationResult = validation;
+
+        if (!validation.success) {
+          document.getElementById('fileStatus').innerHTML = `<span class="text-red-600">❌ ${validation.error}</span>`;
+          alert('❌ ' + validation.error);
+          return;
+        }
+
+        // Update file status
+        document.getElementById('fileStatus').innerHTML = `<span class="text-green-600">✅ อ่านสำเร็จ (${validation.totalRows} แถว)</span>`;
+
+        // Show validation report
+        showValidationReport();
+      };
+      
+      reader.onerror = function() {
+        document.getElementById('fileStatus').innerHTML = '<span class="text-red-600">❌ อ่านไฟล์ไม่สำเร็จ</span>';
+        alert('❌ ไม่สามารถอ่านไฟล์ได้');
+      };
+      
+      reader.readAsText(file, 'UTF-8');
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function showValidationReport() {
+      const v = _validationResult;
+      if (!v) return;
+
+      // Show panel
+      document.getElementById('validationReport').classList.remove('hidden');
+
+      // Update stats
+      document.getElementById('statTotal').textContent = v.totalRows.toLocaleString();
+      document.getElementById('statValid').textContent = v.validCount.toLocaleString();
+      document.getElementById('statInvalid').textContent = v.invalidCount.toLocaleString();
+      document.getElementById('statWarnings').textContent = v.warnings.length.toLocaleString();
+      
+      const totalPoints = v.validRows.reduce((sum, row) => sum + Math.round((row.amount || 0) * 10), 0);
+      document.getElementById('statPoints').textContent = totalPoints.toLocaleString();
+
+      // Update import button
+      document.getElementById('importCount').textContent = v.validCount;
+      const btnImport = document.getElementById('btnImportValid');
+      if (v.validCount === 0 || v.fatalErrors.length > 0) {
+        btnImport.disabled = true;
+        btnImport.classList.add('opacity-50', 'cursor-not-allowed');
+        btnImport.textContent = v.fatalErrors.length > 0 ? '❌ ไม่สามารถ Import ได้' : '❌ ไม่มีข้อมูลให้ import';
+      } else {
+        btnImport.disabled = false;
+        btnImport.classList.remove('opacity-50', 'cursor-not-allowed');
+        btnImport.innerHTML = `✅ นำเข้าเฉพาะที่ผ่าน (<span id="importCount">${v.validCount}</span> รายการ)`;
+      }
+
+      // Show column detection
+      const cd = v.columnDetection;
+      if (cd.missing.length > 0) {
+        const panel = document.getElementById('columnMappingPanel');
+        panel.classList.remove('hidden');
+        const alert = document.getElementById('missingColumnsAlert');
+        alert.classList.remove('hidden');
+        document.getElementById('missingColumnsList').innerHTML = cd.missing.map(m => {
+          return `<div class="mt-1">🔸 <strong>${m.label}</strong> — ตัวอย่าง: ${m.example || '(ไม่มีตัวอย่าง)'}</div>`;
+        }).join('');
+      }
+      
+      if (cd.unmapped.length > 0) {
+        const panel = document.getElementById('columnMappingPanel');
+        panel.classList.remove('hidden');
+        document.getElementById('unmappedColumnsAlert').classList.remove('hidden');
+        document.getElementById('unmappedColumnsList').innerHTML = cd.unmapped.map(u => {
+          const suggestion = cd.suggestions.find(s => s.unmappedHeader === u.headerName);
+          const sugText = suggestion ? `<span class="text-gray-600 ml-2">→ แนะนำเป็น "${suggestion.suggestedLabel}"</span>` : '';
+          return `<div class="text-xs">• "${u.headerName}"<input type="text" class="ml-2 px-2 py-0.5 border rounded text-xs" placeholder="เลือก column..." data-unmapped="${u.headerIndex}">${sugText}</div>`;
+        }).join('');
+      }
+
+      // Show confidence report
+      if (cd.mapping && Object.keys(cd.mapping).length > 0) {
+        document.getElementById('confidenceList').innerHTML = Object.entries(cd.mapping).map(([colName, info]) => {
+          const confidenceBadge = info.confidence === 'exact' 
+            ? '<span class="bg-green-100 text-green-700 px-1 rounded text-xs">✓ ตรงกัน</span>'
+            : '<span class="bg-amber-100 text-amber-700 px-1 rounded text-xs">~ เดาเอา</span>';
+          return `<div class="flex items-center gap-2">• "<strong>${info.headerName}</strong>" → "<strong>${colName}</strong>" ${confidenceBadge}</div>`;
+        }).join('');
+      }
+
+      // Show column detection summary
+      document.getElementById('detailColumnDetection').classList.remove('hidden');
+      document.getElementById('detectedColumns').innerHTML = Object.entries(cd.mapping).map(([colName, info]) => {
+        const bgClass = info.confidence === 'exact' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800';
+        return `<span class="${bgClass} px-2 py-0.5 rounded text-xs">✓ ${info.headerName} → ${colName}</span>`;
+      }).join('');
+
+      // Generate error groups
+      generateErrorGroups(v.invalidRows);
+
+      // Show warnings
+      if (v.warnings.length > 0) {
+        document.getElementById('warningsSection').classList.remove('hidden');
+        document.getElementById('warningsList').innerHTML = v.warnings.slice(0, 20).map(w => {
+          return `<div class="bg-white border-l-2 border-amber-400 p-2">🔸 แถวที่ ${w.rowNum}: ${w.warnings.map(ww => ww.messages.join(', ')).join(' | ')}</div>`;
+        }).join('');
+        if (v.warnings.length > 20) {
+          document.getElementById('warningsList').innerHTML += `<div class="text-center text-gray-500 text-xs mt-2">... และอีก ${v.warnings.length - 20} คำเตือน</div>`;
+        }
+      }
+
+      // Scroll to report
+      document.getElementById('validationReport').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function generateErrorGroups(invalidRows) {
+      const errorGroups = {};
+      
+      invalidRows.forEach(row => {
+        row.errors.forEach(err => {
+          const key = `${err.column}|${err.field}`;
+          if (!errorGroups[key]) {
+            errorGroups[key] = { column: err.column, field: err.field, errors: [] };
+          }
+          err.messages.forEach(msg => {
+            errorGroups[key].errors.push({ rowNum: row.rowNum, message: msg, cellValue: err.cellValue });
+          });
+        });
+      });
+
+      const container = document.getElementById('errorGroups');
+      if (Object.keys(errorGroups).length === 0) {
+        container.innerHTML = '<div class="text-center p-4 text-green-600 text-sm">✨ ไม่พบข้อผิดพลาด!</div>';
+        return;
+      }
+
+      container.innerHTML = Object.values(errorGroups).map(group => {
+        const errorType = group.errors[0]?.message || '';
+        const errorIcon = errorType.includes('❌') ? '❌' : '⚠️';
+        
+        return `
+          <div class="bg-red-50 border-l-4 border-red-500 rounded p-3">
+            <div class="font-bold text-red-800 text-sm mb-2">
+              ${errorIcon} Column "${group.column}" (${group.errors.length} รายการ)
+            </div>
+            <div class="space-y-1 max-h-48 overflow-y-auto">
+              ${group.errors.slice(0, 10).map(e => `
+                <div class="flex items-start gap-2 text-xs">
+                  <span class="text-red-600 font-mono bg-red-100 px-1.5 py-0.5 rounded">แถว ${e.rowNum}</span>
+                  <span class="text-red-700 flex-1">${e.message}</span>
+                  <span class="text-gray-500 text-xs">"${e.cellValue}"</span>
+                </div>
+              `).join('')}
+              ${group.errors.length > 10 ? `<div class="text-center text-gray-500 text-xs mt-2">... และอีก ${group.errors.length - 10} รายการ</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function applyColumnMapping() {
+      // TODO: Interactive column mapping UI
+      alert('🔧 ยังไม่เปิดใช้งาน — ระบบยังใช้ auto-detection\n\n💡 แนะนำ: แก้ไฟล์ CSV ให้ตรง schema แล้วอัปโหลดใหม่');
+    }
+
+    function importValidRows() {
+      const v = _validationResult;
+      if (!v || !v.canImport) {
+        alert('❌ ไม่มีข้อมูลให้ import');
+        return;
+      }
+
+      const overrideMonth = document.getElementById('bulkMonth').value;
+      const overrideBU = document.getElementById('bulkBU').value || 'BULK-IMP';
+
+      const totalCash = v.validRows.reduce((sum, r) => sum + r.amount, 0);
+      const totalPoints = Math.round(totalCash * 10);
+
+      const confirmMsg = `✅ ยืนยันการนำเข้าข้อมูล INC?
+
+📋 จำนวน: ${v.validRows} รายการ
+💰 รวม: ฿${totalCash.toLocaleString()}
+💎 Points: ${totalPoints.toLocaleString()} P
+👤 BU: ${overrideBU}
+📅 เดือน: ${overrideMonth || 'ตามข้อมูลในไฟล์'}
+
+⚠️ จะ import เฉพาะ ${v.validCount} รายการที่ผ่านการตรวจสอบ`;
+
+      if (!confirm(confirmMsg)) return;
+
+      // Apply overrides
+      const finalRows = v.validRows.map(row => {
+        return {
+          ...row,
+          month: overrideMonth || row.month,
+          bu_code: overrideBU || row.bu_code
+        };
+      });
+
+      // Import using BulkImport
+      let imported = 0;
+      let totalImportedCash = 0;
+      let totalImportedPoints = 0;
+
+      finalRows.forEach(row => {
+        const result = PayrollSystem.saveIncentivePoints(
+          row.member_id,
+          row.month,
+          row.amount,
+          row.inc_type,
+          row.remark,
+          row.bu_code
+        );
+        imported++;
+        totalImportedCash += row.amount;
+        totalImportedPoints += result.points;
+      });
+
+      let msg = `✅ นำเข้าสำเร็จ!
+
+📥 สำเร็จ: ${imported} รายการ
+💰 รวมเงินสด: ฿${totalImportedCash.toLocaleString()}
+💎 รวม Points: ${totalImportedPoints.toLocaleString()} P`;
+      
+      if (v.invalidCount > 0) {
+        msg += `\n\n⚠️ ข้าม ${v.invalidCount} รายการที่มีข้อผิดพลาด\n💡 ดูรายงานฉบับเต็มเพื่อดูรายละเอียด`;
+      }
+
+      alert(msg);
+
+      // Send notification
+      if (typeof Notifications !== 'undefined') {
+        Notifications.notifyImportSuccess(_fileInfo.name, imported, totalImportedPoints);
+        if (v.invalidCount > 0) {
+          Notifications.notifyImportError(_fileInfo.name, v.invalidRows.slice(0, 10));
+        }
+      }
+
+      // Hide report & reload summary
+      hideValidationReport();
+      document.getElementById('incMonth').value = overrideMonth || new Date().toISOString().slice(0, 7);
+      loadIncSummary();
+    }
+
+    function showReportText() {
+      if (!_validationResult) return;
+      const report = ValidationSystem.generateValidationReport(_validationResult);
+      document.getElementById('fullReportText').textContent = report;
+      document.getElementById('fullReportModal').classList.remove('hidden');
+    }
+
+    function copyReportText() {
+      const text = document.getElementById('fullReportText').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('✅ คัดลอกรายงานแล้ว');
+      }).catch(() => {
+        alert('❌ ไม่สามารถคัดลอกได้');
+      });
+    }
+
+    function downloadErrorCSV() {
+      const v = _validationResult;
+      if (!v || v.invalidCount === 0) {
+        alert('⚠️ ไม่มีรายการผิดพลาด');
+        return;
+      }
+
+      const headers = ['Row Number', 'Column', 'Field', 'Error Message', 'Original Value'];
+      const rows = [];
+      
+      v.invalidRows.forEach(row => {
+        row.errors.forEach(err => {
+          err.messages.forEach(msg => {
+            rows.push([row.rowNum, err.column, err.field, msg, err.cellValue || '']);
+          });
+        });
+      });
+
+      const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `P6_Import_Errors_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+    }
+
+    function hideValidationReport() {
+      document.getElementById('validationReport').classList.add('hidden');
+      document.getElementById('columnMappingPanel').classList.add('hidden');
+      document.getElementById('fileInfo').classList.add('hidden');
+      _validationResult = null;
+      _csvText = null;
+      _fileInfo = null;
+      document.getElementById('incCSVFile').value = '';
+    }
+
+    // ============ Drag & Drop Support ============
+    document.addEventListener('DOMContentLoaded', function() {
+      const dropZone = document.getElementById('dropZone');
+      if (!dropZone) return;
+
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+      });
+
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+          dropZone.classList.add('border-blue-500', 'bg-blue-100');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+          dropZone.classList.remove('border-blue-500', 'bg-blue-100');
+        }, false);
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length > 0) {
+          document.getElementById('incCSVFile').files = files;
+          handleCSVUpload({ target: { files: files } });
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
