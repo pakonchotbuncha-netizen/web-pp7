@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบสัมภาษณ์สมาชิกใหม่ — Web PP7</title>
+    <style>
+        :root {
+            --primary: #1a5f7a;
+            --primary-light: #57c5b6;
+            --accent: #e63946;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #2d3436;
+            --border: #dfe6e9;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --info: #0984e3;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .header p { opacity: 0.9; font-size: 1rem; }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .section {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-light);
+        }
+        .section-title .icon { font-size: 1.5rem; }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #636e72;
+            margin-bottom: 0.3rem;
+        }
+        label .required { color: var(--accent); }
+        input, select, textarea {
+            padding: 0.75rem;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(87, 197, 182, 0.2);
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        
+        /* TCC Table */
+        .tcc-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+        .tcc-table th, .tcc-table td {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .tcc-table th {
+            background: var(--primary);
+            color: white;
+            font-weight: 500;
+        }
+        .tcc-table td:first-child {
+            text-align: left;
+            width: 50px;
+        }
+        .tcc-table td:nth-child(2) {
+            text-align: left;
+        }
+        .tcc-table input[type="number"] {
+            width: 70px;
+            text-align: center;
+        }
+        .tcc-table tr:nth-child(even) { background: #f8f9fa; }
+        .score-summary {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .score-value { font-size: 2rem; font-weight: 700; }
+        
+        /* EVP */
+        .evp-list { list-style: none; }
+        .evp-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-light);
+        }
+        .evp-rank {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover { background: #154a60; }
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+        
+        /* Status badge */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .badge-pass { background: #d4edda; color: #155724; }
+        .badge-fail { background: #f8d7da; color: #721c24; }
+        
+        /* Mentor cards */
+        .mentor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .mentor-card {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--info);
+        }
+        .mentor-card.org { border-left-color: var(--success); }
+        .mentor-card h4 { font-size: 0.9rem; color: var(--info); margin-bottom: 0.5rem; }
+        .mentor-card.org h4 { color: var(--success); }
+        
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .btn-group { flex-direction: column; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📋 แบบสัมภาษณ์สมาชิกใหม่</h1>
+        <p>LDC-PAO-WI-002 | P2 หยั่งประเมิน | Web PP7</p>
+    </div>
+
+    <div class="container">
+        <!-- ข้อมูลกรรมการและตำแหน่ง -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">📅</span> ข้อมูลการสัมภาษณ์</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>วันที่สัมภาษณ์ <span class="required">*</span></label>
+                    <input type="date" required>
+                </div>
+                <div class="form-group">
+                    <label>เวลาที่สัมภาษณ์ <span class="required">*</span></label>
+                    <input type="time" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>สัมภาษณ์ในตำแหน่ง <span class="required">*</span></label>
+                    <select required>
+                        <option value="">— เลือกตำแหน่ง —</option>
+                        <option>สมาชิกบริการลูกค้าสินเชื่อ</option>
+                        <option>สมาชิกทีมบัญชีการเงิน</option>
+                        <option>สมาชิก Online Marketing</option>
+                        <option>สมาชิกบริการลูกค้าสินเชื่อ (สาขา)</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label>รายชื่อคณะกรรมการสัมภาษณ์</label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        <input type="text" placeholder="คกก. 1" style="flex:1; min-width: 150px;">
+                        <input type="text" placeholder="คกก. 2" style="flex:1; min-width: 150px;">
+                        <input type="text" placeholder="คกก. 3" style="flex:1; min-width: 150px;">
+                        <input type="text" placeholder="คกก. 4" style="flex:1; min-width: 150px;">
+                        <input type="text" placeholder="คกก. 5" style="flex:1; min-width: 150px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ข้อมูลผู้สมัคร -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">👤</span> ข้อมูลผู้สมัคร</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>ชื่อ-นามสกุล <span class="required">*</span></label>
+                    <input type="text" placeholder="ชื่อ-นามสกุล" required>
+                </div>
+                <div class="form-group">
+                    <label>ชื่อเล่น</label>
+                    <input type="text" placeholder="ชื่อเล่น">
+                </div>
+                <div class="form-group">
+                    <label>อายุ</label>
+                    <input type="number" placeholder="อายุ" min="15" max="65">
+                </div>
+                <div class="form-group">
+                    <label>เบอร์โทรศัพท์ <span class="required">*</span></label>
+                    <input type="tel" placeholder="0XX-XXX-XXXX" required>
+                </div>
+                <div class="form-group">
+                    <label>รหัสบัตรประชาชน <span class="required">*</span></label>
+                    <input type="text" placeholder="X-XXXX-XXXXX-XX-X" maxlength="17" required>
+                </div>
+                <div class="form-group">
+                    <label>จำนวนพี่น้อง</label>
+                    <input type="number" placeholder="จำนวนคน">
+                </div>
+                <div class="form-group">
+                    <label>เป็นคนที่</label>
+                    <input type="number" placeholder="ลำดับที่" min="1">
+                </div>
+                <div class="form-group">
+                    <label>สถานภาพ</label>
+                    <select>
+                        <option value="">— เลือก —</option>
+                        <option>โสด</option>
+                        <option>สมรส</option>
+                        <option>หม้าย</option>
+                        <option>หย่า</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>วุฒิการศึกษา <span class="required">*</span></label>
+                    <select required>
+                        <option value="">— เลือกวุฒิ —</option>
+                        <option>ต่ำกว่า ม.6</option>
+                        <option>ม.6 / ปวช.</option>
+                        <option>ปวส.</option>
+                        <option>ปริญญาตรี</option>
+                        <option>ปริญญาโท</option>
+                        <option>ปริญญาเอก</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>สถานศึกษา</label>
+                    <input type="text" placeholder="ชื่อสถาบัน">
+                </div>
+                <div class="form-group">
+                    <label>สาขาที่เรียน</label>
+                    <input type="text" placeholder="สาขา">
+                </div>
+                <div class="form-group">
+                    <label>อาชีพพ่อ</label>
+                    <input type="text" placeholder="อาชีพพ่อ">
+                </div>
+                <div class="form-group">
+                    <label>อาชีพแม่</label>
+                    <input type="text" placeholder="อาชีพแม่">
+                </div>
+                <div class="form-group full-width">
+                    <label>ที่อยู่ปัจจุบัน</label>
+                    <textarea placeholder="ที่อยู่ตามปัจจุบัน"></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label>ประสบการณ์ทำงาน</label>
+                    <textarea placeholder="ประสบการณ์ทำงานที่ผ่านมา"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>พิกัดบ้าน (Google Map)</label>
+                    <input type="url" placeholder="https://maps.google.com/...">
+                </div>
+                <div class="form-group">
+                    <label>รูปผู้สมัคร</label>
+                    <input type="file" accept="image/*">
+                </div>
+            </div>
+        </div>
+
+        <!-- ทดสอบทัศนคติ (TCC) -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">🎯</span> TCC — ทดสอบทัศนคติ (คะแนนเต็ม 50, ผ่าน ≥ 65%)</h2>
+            <p style="color: #636e72; font-size: 0.9rem; margin-bottom: 1rem;">
+                เกณฑ์: หากผ่าน ให้ใส่คะแนน 3.5 ขึ้นไป / หากไม่ผ่าน ให้ใส่ต่ำกว่า 2.5
+            </p>
+            <table class="tcc-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>ความสามารถ</th>
+                        <th>คะแนนเต็ม</th>
+                        <th>คกก.1</th>
+                        <th>คกก.2</th>
+                        <th>คกก.3</th>
+                        <th>คกก.4</th>
+                        <th>คกก.5</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>เก่งทัศนคติเชิงบวก</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>เก่งความสามารถในการปรับตัว</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>เก่งความยืดหยุ่น</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>เก่งการทำงานเป็นทีม</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>เก่งใจรักการเรียนรู้</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>เก่งความรับผิดชอบ</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>เก่งความคิดริเริ่ม</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>เก่งความกระตือรือร้น</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>เก่งความซื่อสัตย์</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>เก่งการประยุกต์ใช้เทคโนโลยี</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="score-summary">
+                <div>
+                    <div>คะแนนรวม</div>
+                    <div style="font-size: 0.85rem; opacity: 0.9;">ผ่าน ≥ 65% (32.5 คะแนน)</div>
+                </div>
+                <div class="score-value" id="totalScore">0 / 50</div>
+            </div>
+        </div>
+
+        <!-- 7 EVP -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">💎</span> 7 EVP — PKG Employee Valued Proposition</h2>
+            <p style="color: #636e72; font-size: 0.9rem; margin-bottom: 1rem;">
+                จัดลำดับความสำคัญ (1 = สำคัญที่สุด, 7 = สำคัญน้อยที่สุด)
+            </p>
+            <ol class="evp-list">
+                <li class="evp-item">
+                    <span class="evp-rank">1</span>
+                    <div>
+                        <strong>TRUST</strong><br>
+                        <span style="color: #636e72;">ความเชื่อมั่นในตนเอง และ ความเชื่อมั่นและไว้วางใจซึ่งกันและกัน</span>
+                    </div>
+                </li>
+                <li class="evp-item">
+                    <span class="evp-rank">2</span>
+                    <div>
+                        <strong>RESPECT</strong><br>
+                        <span style="color: #636e72;">ความเคารพและให้เกียรติซึ่งกันและกัน</span>
+                    </div>
+                </li>
+                <li class="evp-item">
+                    <span class="evp-rank">3</span>
+                    <div>
+                        <strong>PRIDE</strong><br>
+                        <span style="color: #636e72;">ความภาคภูมิใจในตนเอง เพื่อนร่วมงาน ทีม และองค์กร</span>
+                    </div>
+                </li>
+                <li class="evp-item">
+                    <span class="evp-rank">4</span>
+                    <div>
+                        <strong>FREEDOM</strong><br>
+                        <span style="color: #636e72;">ความเป็นอิสระที่จะคิดสร้างสรรค์สิ่งใหม่ ๆ และลงมือทำ</span>
+                    </div>
+                </li>
+                <li class="evp-item">
+                    <span class="evp-rank">5</span>
+                    <div>
+                        <strong>FUN</strong><br>
+                        <span style="color: #636e72;">บรรยากาศ และสภาพแวดล้อมในการทำงานที่สนุกสนาน สร้างสรรค์ และมีอารมณ์ขัน</span>
+                    </div>
+                </li>
+                <li class="evp-item">
+                    <span class="evp-rank">6</span>
+                    <div>
+                        <strong>LEARNING & GROWTH</strong><br>
+                        <span style="color: #636e72;">การสนับสนุนอย่างเต็มที่ให้เรียนรู้ และ เติบโตอย่างต่อเนื่องตลอดเวลา</span>
+                    </div>
+                </li>
+                <li class="evp-item">
+                    <span class="evp-rank">7</span>
+                    <div>
+                        <strong>SUSTAINABLE & SATISFACTORY PAY</strong><br>
+                        <span style="color: #636e72;">ผลตอบแทนที่น่าพึงพอใจ และมีความยั่งยืน</span>
+                    </div>
+                </li>
+            </ol>
+        </div>
+
+        <!-- ผลการสัมภาษณ์ -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">📝</span> ผลการสัมภาษณ์</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>ผลการสัมภาษณ์ <span class="required">*</span></label>
+                    <select id="interviewResult">
+                        <option value="">— เลือก —</option>
+                        <option value="pass">ผ่าน</option>
+                        <option value="fail">ไม่ผ่าน</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>สถานะการจ้าง</label>
+                    <select>
+                        <option value="">— เลือก —</option>
+                        <option>จ้างประจำ</option>
+                        <option>สัญญาจ้าง 30 วัน</option>
+                        <option>จ้างชั่วคราว</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label>เหตุผลที่ไม่ผ่าน</label>
+                    <textarea placeholder="ระบุเหตุผล (กรณีไม่ผ่าน)"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ข้อมูลตำแหน่งงาน -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">🏢</span> ข้อมูลตำแหน่งงาน</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>บริษัท <span class="required">*</span></label>
+                    <select>
+                        <option value="">— เลือกบริษัท —</option>
+                        <option>RAFCO</option>
+                        <option>PMS</option>
+                        <option>AAM</option>
+                        <option>AGS</option>
+                        <option>RPLC</option>
+                        <option>AICP</option>
+                        <option>PMG</option>
+                        <option>UDD</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>บริษัทบริหาร</label>
+                    <select>
+                        <option value="">— เลือก —</option>
+                        <option>AAMgr</option>
+                        <option>RFCOgr</option>
+                        <option>PMSgr</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>สาขา</label>
+                    <input type="text" placeholder="ตัวย่อสาขา">
+                </div>
+                <div class="form-group">
+                    <label>ฝ่าย / ทีม</label>
+                    <input type="text" placeholder="ฝ่าย/ทีม">
+                </div>
+                <div class="form-group">
+                    <label>ตำแหน่ง <span class="required">*</span></label>
+                    <input type="text" placeholder="ตำแหน่ง" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- ค่าตอบแทน -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">💰</span> ค่าตอบแทน</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>เงินเดือนทดลองงาน</label>
+                    <input type="number" placeholder="บาท" min="0">
+                </div>
+                <div class="form-group">
+                    <label>เงินเดือนบรรจุ</label>
+                    <input type="number" placeholder="บาท" min="0">
+                </div>
+                <div class="form-group">
+                    <label>เบี้ยท้องถิ่น</label>
+                    <input type="number" placeholder="บาท" min="0">
+                </div>
+                <div class="form-group">
+                    <label>เงินพิเศษ</label>
+                    <input type="number" placeholder="บาท" min="0">
+                </div>
+                <div class="form-group">
+                    <label>ค่าน้ำมันรถ</label>
+                    <input type="number" placeholder="บาท" min="0">
+                </div>
+                <div class="form-group">
+                    <label>ค่าโทรศัพท์</label>
+                    <input type="number" placeholder="บาท" min="0">
+                </div>
+                <div class="form-group">
+                    <label>ค่าวิชาชีพ</label>
+                    <input type="number" placeholder="บาท" min="0">
+                </div>
+            </div>
+        </div>
+
+        <!-- พี่เลี้ยง -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">👥</span> พี่เลี้ยง</h2>
+            <div class="mentor-grid">
+                <div class="mentor-card">
+                    <h4>🔗 สายงาน คนที่ 1</h4>
+                    <div class="form-group" style="margin-bottom: 0.5rem;">
+                        <label>รหัสพี่เลี้ยง</label>
+                        <input type="text" placeholder="รหัส">
+                    </div>
+                    <div class="form-group">
+                        <label>ชื่อ</label>
+                        <input type="text" placeholder="ชื่อ-นามสกุล">
+                    </div>
+                </div>
+                <div class="mentor-card">
+                    <h4>🔗 สายงาน คนที่ 2</h4>
+                    <div class="form-group" style="margin-bottom: 0.5rem;">
+                        <label>รหัสพี่เลี้ยง</label>
+                        <input type="text" placeholder="รหัส">
+                    </div>
+                    <div class="form-group">
+                        <label>ชื่อ</label>
+                        <input type="text" placeholder="ชื่อ-นามสกุล">
+                    </div>
+                </div>
+                <div class="mentor-card org">
+                    <h4>🎓 ทุนองค์กร คนที่ 1</h4>
+                    <div class="form-group" style="margin-bottom: 0.5rem;">
+                        <label>รหัสพี่เลี้ยง</label>
+                        <input type="text" placeholder="รหัส">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0.5rem;">
+                        <label>ชื่อ</label>
+                        <input type="text" placeholder="ชื่อ-นามสกุล">
+                    </div>
+                    <div class="form-group">
+                        <label>เหตุผลการเลือก</label>
+                        <textarea placeholder="เหตุผล..." style="min-height: 60px;"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ปุ่มบันทึก -->
+        <div class="btn-group">
+            <button class="btn btn-secondary">บันทึกร่าง</button>
+            <button class="btn btn-primary">✓ ส่งผลการสัมภาษณ์</button>
+        </div>
+    </div>
+
+    <script>
+        // Auto-calculate total score
+        document.querySelectorAll('.score-input').forEach(input => {
+            input.addEventListener('input', calculateTotal);
+        });
+
+        function calculateTotal() {
+            let total = 0;
+            document.querySelectorAll('.score-input').forEach(input => {
+                const val = parseFloat(input.value) || 0;
+                if (val > 5) input.value = 5;
+                if (val < 0) input.value = 0;
+                total += Math.min(parseFloat(input.value) || 0, 5);
+            });
+            document.getElementById('totalScore').textContent = total.toFixed(1) + ' / 50';
+            
+            // Color indicator
+            const el = document.getElementById('totalScore');
+            if (total >= 32.5) {
+                el.style.color = '#00b894';
+            } else if (total > 0) {
+                el.style.color = '#d63031';
+            } else {
+                el.style.color = 'white';
+            }
+        }
+    </script>
+</body>
+</html>

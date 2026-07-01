@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2 หยั่งประเมิน — แบบสัมภาษณ์ทั้ง 3 แบบ | Web PP7</title>
+    <style>
+        :root {
+            --primary: #1a5f7a;
+            --secondary: #6c5ce7;
+            --accent: #f39c12;
+            --bg: #f5f6fa;
+            --card: #ffffff;
+            --text: #2d3436;
+            --success: #00b894;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+        }
+        .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .header p { opacity: 0.9; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+        
+        /* Flow Diagram */
+        .flow-section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .flow-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        .flow-box {
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 500;
+            text-align: center;
+            min-width: 120px;
+        }
+        .flow-box.p1 { background: #dfe6e9; color: #2d3436; }
+        .flow-box.decision { background: #ffeaa7; color: #2d3436; border: 2px solid #fdcb6e; }
+        .flow-box.form1 { background: #74b9ff; color: white; }
+        .flow-box.form2 { background: #a29bfe; color: white; }
+        .flow-box.form3 { background: #fdcb6e; color: #2d3436; }
+        .flow-box.p3 { background: var(--success); color: white; }
+        .flow-arrow { font-size: 1.5rem; color: #636e72; }
+        .flow-branch {
+            display: flex;
+            gap: 1rem;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* Form Cards */
+        .forms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .form-card {
+            background: var(--card);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .form-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .form-card-header {
+            padding: 1.5rem;
+            color: white;
+            text-align: center;
+        }
+        .form-card-header h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+        .form-card-header .badge { 
+            display: inline-block; 
+            padding: 0.25rem 0.75rem; 
+            background: rgba(255,255,255,0.2); 
+            border-radius: 20px; 
+            font-size: 0.85rem; 
+        }
+        .form-card-header.blue { background: linear-gradient(135deg, #0984e3 0%, #74b9ff 100%); }
+        .form-card-header.purple { background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%); }
+        .form-card-header.orange { background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%); }
+        
+        .form-card-body {
+            padding: 1.5rem;
+        }
+        .form-card-body ul {
+            list-style: none;
+        }
+        .form-card-body li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .form-card-body li:last-child { border-bottom: none; }
+        .form-card-body li .icon { font-size: 1.2rem; }
+        
+        .form-card-footer {
+            padding: 1rem 1.5rem;
+            background: #f8f9fa;
+            text-align: center;
+        }
+        .btn-preview {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: transform 0.1s;
+        }
+        .btn-preview:hover { transform: scale(1.02); }
+        .btn-preview.blue { background: #0984e3; }
+        .btn-preview.purple { background: #6c5ce7; }
+        .btn-preview.orange { background: #e67e22; }
+        
+        /* Comparison Table */
+        .compare-section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .compare-table th, .compare-table td {
+            padding: 0.75rem;
+            border: 1px solid #eee;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        .compare-table th {
+            background: var(--primary);
+            color: white;
+        }
+        .compare-table tr:nth-child(even) { background: #f8f9fa; }
+        .compare-table .highlight { background: #d4edda; }
+        
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .stat-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .stat-card .label {
+            color: #636e72;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .flow-diagram { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 P2 หยั่งประเมิน — ระบบแบบสัมภาษณ์</h1>
+        <p>Web PP7 | โครงสร้างและเส้นทางใช้งานแบบฟอร์ม</p>
+    </div>
+
+    <div class="container">
+        <!-- Flow Diagram -->
+        <div class="flow-section">
+            <h2 class="flow-title">📐 เส้นทางการใช้แบบฟอร์ม (Form Routing)</h2>
+            <div class="flow-diagram">
+                <div class="flow-box p1">
+                    <div>📥</div>
+                    <div><strong>P1 แสวงหา</strong></div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box decision">
+                    <div>🤔</div>
+                    <div><strong>ประเภทผู้สมัคร?</strong></div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-branch">
+                    <div class="flow-box form1">
+                        <div>📋</div>
+                        <div><strong>แบบที่ 1</strong></div>
+                        <div style="font-size: 0.8rem;">สมาชิกใหม่</div>
+                    </div>
+                    <div class="flow-box form2">
+                        <div>🔄</div>
+                        <div><strong>แบบที่ 2</strong></div>
+                        <div style="font-size: 0.8rem;">โอนย้าย/เลื่อน</div>
+                    </div>
+                    <div class="flow-box form3">
+                        <div>🎓</div>
+                        <div><strong>แบบที่ 3</strong></div>
+                        <div style="font-size: 0.8rem;">นักศึกษาฝึก</div>
+                    </div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box p3">
+                    <div>🤝</div>
+                    <div><strong>P3 จับคู่</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="number">3</div>
+                <div class="label">แบบฟอร์มสัมภาษณ์</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">50</div>
+                <div class="label">คะแนนเต็ม</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">65%</div>
+                <div class="label">เกณฑ์ผ่าน</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">10</div>
+                <div class="label">ข้อประเมิน/แบบ</div>
+            </div>
+        </div>
+
+        <!-- Form Cards -->
+        <h2 style="text-align: center; margin: 2rem 0 1rem; color: var(--primary);">📋 แบบฟอร์มทั้ง 3 แบบ</h2>
+        <div class="forms-grid">
+            <!-- Form 1: สมาชิกใหม่ -->
+            <div class="form-card">
+                <div class="form-card-header blue">
+                    <h3>📋 สัมภาษณ์สมาชิกใหม่</h3>
+                    <span class="badge">LDC-PAO-WI-002</span>
+                </div>
+                <div class="form-card-body">
+                    <ul>
+                        <li><span class="icon">👤</span> ผู้สมัครภายนอกองค์กร</li>
+                        <li><span class="icon">🎯</span> TCC 10 ข้อ (ทัศนคติพื้นฐาน)</li>
+                        <li><span class="icon">💎</span> 7 EVP</li>
+                        <li><span class="icon">💰</span> ค่าตอบแทน + พี่เลี้ยง</li>
+                        <li><span class="icon">🏢</span> ข้อมูลตำแหน่ง/บริษัท</li>
+                        <li><span class="icon">👥</span> ผู้อนุมัติ/ผู้ประเมิน</li>
+                    </ul>
+                </div>
+                <div class="form-card-footer">
+                    <a href="interview-new-member.html" class="btn-preview blue" target="_blank">🔍 ดูแบบฟอร์ม</a>
+                </div>
+            </div>
+            
+            <!-- Form 2: โอนย้าย -->
+            <div class="form-card">
+                <div class="form-card-header purple">
+                    <h3>🔄 โอนย้าย/เลื่อนตำแหน่ง</h3>
+                    <span class="badge">LDC-PAO-WI-004</span>
+                </div>
+                <div class="form-card-body">
+                    <ul>
+                        <li><span class="icon">👤</span> สมาชิกภายใน</li>
+                        <li><span class="icon">🎯</span> TCC 10 ข้อ (ภาวะผู้นำ)</li>
+                        <li><span class="icon">❓</span> 5 คำถามบังคับ</li>
+                        <li><span class="icon">📊</span> ขั้นตอนสัมภาษณ์ 1.30 ชม.</li>
+                        <li><span class="icon">🎯</span> เป้าหมายปฏิบัติงาน</li>
+                        <li><span class="icon">💎</span> 6 EVP</li>
+                    </ul>
+                </div>
+                <div class="form-card-footer">
+                    <a href="interview-transfer-promotion.html" class="btn-preview purple" target="_blank">🔍 ดูแบบฟอร์ม</a>
+                </div>
+            </div>
+            
+            <!-- Form 3: ฝึกงาน -->
+            <div class="form-card">
+                <div class="form-card-header orange">
+                    <h3>🎓 นักศึกษาฝึกงาน</h3>
+                    <span class="badge">LDC-PAO-WI-Intern</span>
+                </div>
+                <div class="form-card-body">
+                    <ul>
+                        <li><span class="icon">👤</span> นักศึกษาฝึกงาน</li>
+                        <li><span class="icon">⭐</span> 10 หัวข้อประเมิน</li>
+                        <li><span class="icon">🏢</span> หน่วยงานที่ต้องการ</li>
+                        <li><span class="icon">👥</span> พี่เลี้ยง 2 คน</li>
+                        <li><span class="icon">📝</span> จุดแข็ง/จุดอ่อน</li>
+                        <li><span class="icon">📅</span> ระยะเวลาฝึก</li>
+                    </ul>
+                </div>
+                <div class="form-card-footer">
+                    <a href="interview-intern.html" class="btn-preview orange" target="_blank">🔍 ดูแบบฟอร์ม</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="compare-section">
+            <h2 style="text-align: center; color: var(--primary); margin-bottom: 1rem;">📊 เปรียบเทียบแบบฟอร์มทั้ง 3 แบบ</h2>
+            <table class="compare-table">
+                <thead>
+                    <tr>
+                        <th>หัวข้อ</th>
+                        <th>แบบที่ 1: สมาชิกใหม่</th>
+                        <th>แบบที่ 2: โอนย้าย/เลื่อน</th>
+                        <th>แบบที่ 3: ฝึกงาน</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>กลุ่มเป้าหมาย</strong></td>
+                        <td>ผู้สมัครภายนอก</td>
+                        <td>สมาชิกภายใน</td>
+                        <td>นักศึกษาฝึก</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TCC ประเมิน</strong></td>
+                        <td class="highlight">ทัศนคติพื้นฐาน<br>(เชิงบวก, ปรับตัว, ยืดหยุ่น, ซื่อสัตย์)</td>
+                        <td class="highlight">ภาวะผู้นำ<br>(ผู้รับใช้, วัฒนธรรม, ความรู้สึกตัว)</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>จำนวนข้อประเมิน</strong></td>
+                        <td>10 ข้อ × 5 คะแนน</td>
+                        <td>10 ข้อ × 5 คะแนน</td>
+                        <td>10 ข้อ × 5 คะแนน</td>
+                    </tr>
+                    <tr>
+                        <td><strong>เกณฑ์ผ่าน</strong></td>
+                        <td>≥ 65% (32.5/50)</td>
+                        <td>≥ 65% (32.5/50)</td>
+                        <td>≥ 65% (32.5/50)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>EVP</strong></td>
+                        <td>7 หัวข้อ</td>
+                        <td>6 หัวข้อ</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>คำถามบังคับ</strong></td>
+                        <td>-</td>
+                        <td>5 ข้อ</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ขั้นตอนสัมภาษณ์</strong></td>
+                        <td>-</td>
+                        <td>1.30 ชม. + ref.call</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>คกก. สูงสุด</strong></td>
+                        <td>5 คน</td>
+                        <td>3 คน</td>
+                        <td>3 คน</td>
+                    </tr>
+                    <tr>
+                        <td><strong>พี่เลี้ยง</strong></td>
+                        <td>สายงาน 2 + ทุนองค์กร 1</td>
+                        <td>สายงาน 2 + ทุนองค์กร 1</td>
+                        <td>2 คน</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ค่าตอบแทน</strong></td>
+                        <td class="highlight">✓ (7 รายการ)</td>
+                        <td class="highlight">✓ (6 รายการ)</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>เป้าหมายปฏิบัติงาน</strong></td>
+                        <td>-</td>
+                        <td>✓ (5 เรื่อง)</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Integration Points -->
+        <div class="flow-section" style="margin-top: 2rem;">
+            <h2 class="flow-title">🔗 จุดเชื่อมต่อระบบ</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; border-left: 4px solid var(--success);">
+                    <strong>📥 ก่อน P2</strong><br>
+                    <small>P1 → ผู้สมัครผ่านการคัดกรอง → P2</small>
+                </div>
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; border-left: 4px solid #74b9ff;">
+                    <strong>📤 หลัง P2 (ผ่าน)</strong><br>
+                    <small>P2 → สรุปผล → P3 จับคู่คนกับงาน</small>
+                </div>
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; border-left: 4px solid var(--accent);">
+                    <strong>📤 หลัง P2 (ไม่ผ่าน)</strong><br>
+                    <small>P2 → ปิดใบสมัคร + แจ้งผู้สมัคร</small>
+                </div>
+                <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; border-left: 4px solid #a29bfe;">
+                    <strong>🔔 แจ้งเตือน</strong><br>
+                    <small>Line / Telegram / Email</small>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem; color: #636e72; font-size: 0.9rem;">
+            <p>เอกสาร: docs/P2-แบบสัมภาษณ์-3แบบ.md | อัปเดต: 2026-06-22</p>
+            <p>Web PP7 ©PKG | P2 หยั่งประเมิน — สัมภาษณ์ / ทดสอบทักษะ / CMC / ทัศนคติ</p>
+        </div>
+    </div>
+</body>
+</html>

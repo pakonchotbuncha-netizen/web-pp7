@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PM/WI Flowcharts + KPIs — แก้ไขได้</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });</script>
+<style>
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
+h1 { text-align: center; color: #1a73e8; }
+.diagram { background: white; border-radius: 12px; padding: 24px; margin: 20px auto; max-width: 1100px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); page-break-inside: avoid; }
+h2 { color: #333; border-left: 4px solid #1a73e8; padding-left: 12px; }
+.editable { outline: none; cursor: text; }
+.editable:hover { background: #fffde7; }
+.editable:focus { background: #fff9c4; box-shadow: 0 0 4px #f9a825; border-radius: 3px; }
+.kpi-box { background: #f0f7ff; border: 2px solid #1a73e8; border-radius: 8px; padding: 16px; margin-top: 16px; }
+.kpi-box h3 { margin: 0 0 12px 0; color: #1a73e8; font-size: 15px; }
+.kpi-list { list-style: none; padding: 0; margin: 0; }
+.kpi-list li { padding: 8px 0; border-bottom: 1px solid #e0e0e0; font-size: 13px; }
+.kpi-list li:last-child { border-bottom: none; }
+.kpi-name { font-weight: bold; color: #333; }
+.kpi-formula { color: #666; font-style: italic; }
+.kpi-target { color: #2e7d32; font-weight: bold; }
+.kpi-freq { color: #f57c00; font-size: 12px; }
+.mermaid { display: flex; justify-content: center; }
+.edit-hint { text-align: center; background: #fff3e0; padding: 8px; border-radius: 6px; margin: 10px auto; max-width: 1100px; color: #e65100; font-size: 14px; }
+.save-btn { position: fixed; top: 10px; right: 10px; background: #1a73e8; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; z-index: 1000; }
+.save-btn:hover { background: #1565c0; }
+</style>
+</head>
+<body>
+
+<button class="save-btn" onclick="saveHTML()">💾 บันทึกไฟล์</button>
+
+<h1>📋 PM/WI Flowcharts + ตัววัดผล (KPIs) — จป. ทั้ง 6 ระดับ</h1>
+<p style="text-align:center; color:#666;">PKP Group — ระบบบริหารความปลอดภัย (PP7)</p>
+
+<div class="edit-hint">✏️ คลิกที่ข้อความใดก็ได้เพื่อแก้ไข — ดับเบิลคลิกแก้ข้อความใน flowchart — กด 💾 เพื่อบันทึกไฟล์</div>
+
+<!-- ========== 1. คปอ. ========== -->
+<div class="diagram">
+<h2 contenteditable="true" class="editable">1. คปอ. — คณะกรรมการความปลอดภัย</h2>
+<pre class="mermaid">
+flowchart TD
+    A["ตรวจสอบจำนวนลูกจ้าง"] --> B{"ลูกจ้าง >= 50 คน?"}
+    B -->|ใช่| C["แต่งตั้งตัวแทนนายจ้าง"]
+    B -->|ไม่| Z["ไม่จำเป็นต้องมี คปอ."]
+    C --> D["เลือกตั้งตัวแทนลูกจ้าง"]
+    D --> E["ออกคำสั่งแต่งตั้ง คปอ."]
+    E --> F["อบรม คปอ."]
+    F --> G["แจ้งกรมสวัสดิการ"]
+    G --> H["เริ่มดำเนินการ"]
+    H --> I["ประชุม คปอ. รายเดือน"]
+    H --> J["ตรวจพื้นที่ รายเดือน"]
+    H --> K["สอบสวนอุบัติเหตุ ทันที"]
+    I --> I1["เตรียมวาระ - แจ้งประชุม"]
+    I1 --> I2["ดำเนินการ - บันทึกมติ"]
+    I2 --> I3["แจ้งมติ - ติดตามผล"]
+    J --> J1["กำหนดแผน - ตรวจ"]
+    J1 --> J2["รายงาน - เสนอแนะ"]
+    J2 --> J3["ติดตามแก้ไข"]
+    K --> K1["รับแจ้ง - เก็บหลักฐาน"]
+    K1 --> K2["สอบสวน - 5 Why"]
+    K2 --> K3["เสนอแนะ - ติดตาม"]
+    classDef box fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px
+    classDef diamond fill:#fff8e1,stroke:#f9a825,stroke-width:2px
+    classDef green fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    classDef red fill:#fce4ec,stroke:#c62828,stroke-width:2px
+    class A,C,D,E,F,G,I,I1,I2,I3,J,J1,J2,J3 box
+    class B diamond
+    class H green
+    class K,K1,K2,K3 red
+</pre>
+
+<div class="kpi-box">
+<h3 contenteditable="true" class="editable">📊 ตัววัดผล (KPIs) — คปอ.</h3>
+<ul class="kpi-list">
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-01: อัตราการบาดเจ็บรุนแรง (LTI Rate)</span><br>
+<span class="kpi-formula">สูตร: (จำนวนการบาดเจ็บรุนแรง ÷ ชั่วโมงทำงานทั้งหมด) × 200,000</span><br>
+<span class="kpi-target">เป้าหมาย: ≤ 1.0</span> <span class="kpi-freq">| วัด: รายเดือน</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-02: จำนวนอุบัติเหตุที่ลดลง (Year-over-Year)</span><br>
+<span class="kpi-formula">สูตร: (อุบัติเหตุปีก่อน - อุบัติเหตุปีปัจจุบัน) ÷ อุบัติเหตุปีก่อน × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ลดลง ≥ 20%</span> <span class="kpi-freq">| วัด: รายปี</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-03: อัตราการประชุม คปอ. ตามแผน</span><br>
+<span class="kpi-formula">สูตร: (จำนวนประชุมจริง ÷ จำนวนประชุมตามแผน) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 90%</span> <span class="kpi-freq">| วัด: รายเดือน</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-04: อัตราการติดตามมติ คปอ. ที่เสร็จสมบูรณ์</span><br>
+<span class="kpi-formula">สูตร: (มติที่ดำเนินการเสร็จ ÷ มติทั้งหมด) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 80%</span> <span class="kpi-freq">| วัด: รายเดือน</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-05: อัตราการตรวจพื้นที่ตามแผน</span><br>
+<span class="kpi-formula">สูตร: (ครั้งที่ตรวจจริง ÷ ครั้งที่วางแผน) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 95%</span> <span class="kpi-freq">| วัด: รายเดือน</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-06: ระยะเวลาเฉลี่ยในการสอบสวนอุบัติเหตุ</span><br>
+<span class="kpi-formula">สูตร: ผลรวมระยะเวลาสอบสวน ÷ จำนวนอุบัติเหตุ</span><br>
+<span class="kpi-target">เป้าหมาย: ≤ 7 วัน</span> <span class="kpi-freq">| วัด: รายครั้ง</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-07: จำนวนข้อเสนอแนะด้านความปลอดภัยที่ดำเนินการ</span><br>
+<span class="kpi-formula">สูตร: จำนวนข้อเสนอแนะที่ดำเนินการเสร็จ ÷ ข้อเสนอแนะทั้งหมด × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 75%</span> <span class="kpi-freq">| วัด: รายไตรมาส</span></li>
+</ul>
+</div>
+</div>
+
+<!-- ========== 2. จป.เทคนิค ========== -->
+<div class="diagram">
+<h2 contenteditable="true" class="editable">2. จป.เทคนิค — ตรวจวัดสภาพแวดล้อม</h2>
+<pre class="mermaid">
+flowchart TD
+    A["วางแผนตรวจวัดประจำปี"] --> B{"เลือกประเภท"}
+    B --> C["แสงสว่าง\nLux Meter"]
+    B --> D["เสียง\nSLM/Dosimeter"]
+    B --> E["ความร้อน\nWBGT Meter"]
+    B --> F["สารเคมี/ฝุ่น\nเก็บตัวอย่าง ส่ง Lab"]
+    B --> G["เครื่องจักร\nGuard/E-Stop/Interlock"]
+    C --> C1["วัดทุกจุด - วิเคราะห์"]
+    D --> D1["วัด TWA 8 ชม. - วิเคราะห์"]
+    E --> E1["วัด WBGT - คำนวณ"]
+    F --> F1["ส่ง Lab - วิเคราะห์ผล"]
+    G --> G1["ตรวจ Guard - ทดสอบ"]
+    C1 --> H["รายงาน + เสนอแนะ"]
+    D1 --> H
+    E1 --> H
+    F1 --> H
+    G1 --> H
+    H --> I["รวบรวมผลทั้งหมด"]
+    I --> J["เสนอผู้บริหาร"]
+    J --> K["ติดตามแก้ไข"]
+    K --> L["สอบเทียบเครื่องมือ รายปี"]
+    classDef box fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px
+    classDef diamond fill:#fff8e1,stroke:#f9a825,stroke-width:2px
+    class A,C,C1,D,D1,E,E1,F,F1,G,G1,H,I,J,K,L box
+    class B diamond
+</pre>
+
+<div class="kpi-box">
+<h3 contenteditable="true" class="editable">📊 ตัววัดผล (KPIs) — จป.เทคนิค</h3>
+<ul class="kpi-list">
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-01: อัตราการตรวจวัดสภาพแวดล้อมตามแผน</span><br>
+<span class="kpi-formula">สูตร: (ครั้งที่ตรวจวัดจริง ÷ ครั้งที่วางแผน) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 95%</span> <span class="kpi-freq">| วัด: รายเดือน</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-02: จำนวนจุดที่ค่าเกินมาตรฐาน</span><br>
+<span class="kpi-formula">สูตร: จำนวนจุดที่เกินมาตรฐาน ÷ จุดที่ตรวจทั้งหมด × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ลดลง ≥ 15% ต่อปี</span> <span class="kpi-freq">| วัด: รายไตรมาส</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-03: อัตราการสอบเทียบเครื่องมือตรงเวลา</span><br>
+<span class="kpi-formula">สูตร: (เครื่องมือที่สอบเทียบตรงเวลา ÷ เครื่องมือทั้งหมด) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: 100%</span> <span class="kpi-freq">| วัด: รายปี</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-04: ระยะเวลาออกรายงานหลังตรวจวัด</span><br>
+<span class="kpi-formula">สูตร: ผลรวมวันออกรายงาน ÷ จำนวนครั้งตรวจวัด</span><br>
+<span class="kpi-target">เป้าหมาย: ≤ 7 วัน</span> <span class="kpi-freq">| วัด: รายครั้ง</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-05: อัตราการติดตามแก้ไขจุดที่เกินมาตรฐาน</span><br>
+<span class="kpi-formula">สูตร: (จุดที่แก้ไขเสร็จ ÷ จุดที่เกินมาตรฐาน) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 90% ภายใน 30 วัน</span> <span class="kpi-freq">| วัด: รายเดือน</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-06: จำนวนข้อเสนอแนะเชิงเทคนิคที่นำไปปฏิบัติ</span><br>
+<span class="kpi-formula">สูตร: (ข้อเสนอแนะที่ดำเนินการ ÷ ข้อเสนอแนะทั้งหมด) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 80%</span> <span class="kpi-freq">| วัด: รายไตรมาส</span></li>
+</ul>
+</div>
+</div>
+
+<!-- ========== 3. จป.หัวหน้างาน ========== -->
+<div class="diagram">
+<h2 contenteditable="true" class="editable">3. จป.หัวหน้างาน — ดูแลความปลอดภัยระดับหน่วยงาน</h2>
+<pre class="mermaid">
+flowchart TD
+    A["เริ่มวันทำงาน"] --> B{"กิจกรรมประจำวัน"}
+    B --> C["Toolbox Talk ทุกวัน"]
+    B --> D["ตรวจ PPE ทุกวัน"]
+    B --> E["ตรวจพื้นที่ ทุกวัน"]
+    C --> C1["เตรียมหัวข้อ - เปิด"]
+    C1 --> C2["เนื้อหา - ตัวอย่าง"]
+    C2 --> C3["ถามตอบ - สรุปบันทึก"]
+    D --> D1["ตรวจก่อนเริ่มงาน"]
+    D1 --> D2{"สวม PPE ครบ?"}
+    D2 -->|ใช่| D3["บันทึกผล"]
+    D2 -->|ไม่| D4["ตักเตือน - รายงาน"]
+    D4 --> D3
+    E --> E1["ตรวจจุดเสี่ยง - บันทึก"]
+    C3 --> F{"มีงานใหม่?"}
+    D3 --> F
+    E1 --> F
+    F -->|ใช่| G["ทำ JSA"]
+    G --> G1["เลือกงาน - แบ่งขั้นตอน"]
+    G1 --> G2["ระบุอันตราย - กำหนดมาตรการ"]
+    G2 --> G3["ทบทวน - อนุมัติ"]
+    F -->|ไม่| H{"เกิดอุบัติเหตุ?"}
+    H -->|ใช่| I["สอบสวน 5 Why"]
+    I --> I1["รับแจ้ง - เก็บหลักฐาน"]
+    I1 --> I2["สัมภาษณ์ - วิเคราะห์"]
+    I2 --> I3["เสนอแนะ - ติดตาม"]
+    H -->|ไม่| J{"ทุก 6 เดือน?"}
+    J -->|ใช่| K["ทำ HIRARC"]
+    J -->|ไม่| L["จบวัน"]
+    K --> K1["ระบุอันตราย - ประเมิน S x L"]
+    K1 --> K2["กำหนดระดับ - มาตรการ"]
+    K2 --> K3["รายงาน จป.วิชาชีพ"]
+    I3 --> J
+    G3 --> J
+    K3 --> L
+    L --> A
+    classDef box fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px
+    classDef diamond fill:#fff8e1,stroke:#f9a825,stroke-width:2px
+    classDef red fill:#fce4ec,stroke:#c62828,stroke-width:2px
+    class A,C,C1,C2,C3,D,D1,D3,D4,E,E1,G,G1,G2,G3,K,K1,K2,K3 box
+    class B,D2,F,H,J diamond
+    class I,I1,I2,I3 red
+</pre>
+
+<div class="kpi-box">
+<h3 contenteditable="true" class="editable">📊 ตัววัดผล (KPIs) — จป.หัวหน้างาน</h3>
+<ul class="kpi-list">
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-01: อัตราการจัด Toolbox Talk ตามแผน</span><br>
+<span class="kpi-formula">สูตร: (ครั้งที่จัดจริง ÷ ครั้งที่วางแผน) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 95%</span> <span class="kpi-freq">| วัด: รายสัปดาห์</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-02: อัตราการสวม PPE ครบถ้วน</span><br>
+<span class="kpi-formula">สูตร: (ลูกจ้างที่สวม PPE ครบ ÷ ลูกจ้างทั้งหมดที่ตรวจ) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 98%</span> <span class="kpi-freq">| วัด: รายวัน</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-03: จำนวน Near Miss ที่รายงาน</span><br>
+<span class="kpi-formula">สูตร: จำนวน Near Miss ที่รายงาน ÷ จำนวนลูกจ้างในหน่วยงาน</span><br>
+<span class="kpi-target">เป้าหมาย: เพิ่มขึ้น ≥ 20% (แสดงถึงวัฒนธรรมรายงาน)</span> <span class="kpi-freq">| วัด: รายเดือน</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-04: อัตราการเสร็จ JSA ก่อนเริ่มงานใหม่</span><br>
+<span class="kpi-formula">สูตร: (งานที่มี JSA ครบ ÷ งานใหม่ทั้งหมด) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: 100%</span> <span class="kpi-freq">| วัด: รายครั้ง</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-05: จำนวนอุบัติเหตุในหน่วยงาน</span><br>
+<span class="kpi-formula">สูตร: จำนวนอุบัติเหตุรายเดือน</span><br>
+<span class="kpi-target">เป้าหมาย: 0 ครั้ง</span> <span class="kpi-freq">| วัด: รายเดือน</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-06: อัตราการตรวจพื้นที่ตามแผน</span><br>
+<span class="kpi-formula">สูตร: (ครั้งที่ตรวจจริง ÷ ครั้งที่วางแผน) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 95%</span> <span class="kpi-freq">| วัด: รายวัน</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-07: อัตราการเสร็จ HIRARC ตามกำหนด</span><br>
+<span class="kpi-formula">สูตร: (HIRARC ที่เสร็จตรงเวลา ÷ HIRARC ทั้งหมด) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 90%</span> <span class="kpi-freq">| วัด: ราย 6 เดือน</span></li>
+</ul>
+</div>
+</div>
+
+<!-- ========== 4. จป.วิชาชีพ ========== -->
+<div class="diagram">
+<h2 contenteditable="true" class="editable">4. จป.วิชาชีพ — บริหารระบบความปลอดภัยระดับองค์กร</h2>
+<pre class="mermaid">
+flowchart TD
+    A["ทบทวนบริบทองค์กร"] --> B["จัดทำนโยบายความปลอดภัย"]
+    B --> C["ผู้บริหารอนุมัติ"]
+    C --> D["สื่อสารนโยบาย"]
+    D --> E{"กิจกรรมประจำ"}
+    E --> F["Internal Audit 6 เดือน"]
+    E --> G["จัดอบรม รายปี"]
+    E --> H["แผนฉุกเฉิน รายปี"]
+    E --> I["ผู้รับเหมา ต่อเนื่อง"]
+    F --> F1["วางแผน - เตรียม Checklist"]
+    F1 --> F2["ตรวจ - รายงาน"]
+    F2 --> F3["Follow-up 30 วัน"]
+    G --> G1["วิเคราะห์ - จัดทำแผน"]
+    G1 --> G2["จัดอบรม - ประเมิน"]
+    G2 --> G3["รายงานสรุป"]
+    H --> H1["ประเมิน - จัดทำ"]
+    H1 --> H2["ซ้อมแผน - ทบทวน"]
+    I --> I1["คัดกรอง - ปฐนิเทศ"]
+    I1 --> I2["ตรวจติดตาม - ประเมิน"]
+    F3 --> J["รายงานผู้บริหาร"]
+    G3 --> J
+    H2 --> J
+    I2 --> J
+    J --> K["Management Review"]
+    K --> L["ปรับปรุงระบบ"]
+    L --> A
+    classDef box fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px
+    classDef diamond fill:#fff8e1,stroke:#f9a825,stroke-width:2px
+    class A,B,C,D,F,F1,F2,F3,G,G1,G2,G3,H,H1,H2,I,I1,I2,J,K,L box
+    class E diamond
+</pre>
+
+<div class="kpi-box">
+<h3 contenteditable="true" class="editable">📊 ตัววัดผล (KPIs) — จป.วิชาชีพ</h3>
+<ul class="kpi-list">
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-01: อัตราการเสร็จ Internal Audit ตามแผน</span><br>
+<span class="kpi-formula">สูตร: (Audit ที่เสร็จ ÷ Audit ตามแผน) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: 100%</span> <span class="kpi-freq">| วัด: ราย 6 เดือน</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-02: อัตราการปิด NC (Non-Conformity) ภายในกำหนด</span><br>
+<span class="kpi-formula">สูตร: (NC ที่ปิดภายในกำหนด ÷ NC ทั้งหมด) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 90%</span> <span class="kpi-freq">| วัด: รายเดือน</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-03: อัตราการอบรมความปลอดภัยตามแผน</span><br>
+<span class="kpi-formula">สูตร: (ลูกจ้างที่อบรม ÷ ลูกจ้างทั้งหมด) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 95%</span> <span class="kpi-freq">| วัด: รายปี</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-04: จำนวนครั้งซ้อมแผนฉุกเฉิน</span><br>
+<span class="kpi-formula">สูตร: จำนวนครั้งซ้อมจริง</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 2 ครั้ง/ปี</span> <span class="kpi-freq">| วัด: รายปี</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-05: อัตราผู้รับเหมาที่ผ่านเกณฑ์ความปลอดภัย</span><br>
+<span class="kpi-formula">สูตร: (ผู้รับเหมาที่ผ่าน ÷ ผู้รับเหมาทั้งหมด) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 90%</span> <span class="kpi-freq">| วัด: รายไตรมาส</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-06: คะแนนเฉลี่ยการประเมินผลอบรม</span><br>
+<span class="kpi-formula">สูตร: ผลรวมคะแนนประเมิน ÷ จำนวนผู้เข้าอบรม</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 80%</span> <span class="kpi-freq">| วัด: รายครั้ง</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-07: อัตราการทบทวนนโยบายความปลอดภัย</span><br>
+<span class="kpi-formula">สูตร: นโยบายที่ทบทวน ÷ นโยบายทั้งหมด × 100</span><br>
+<span class="kpi-target">เป้าหมาย: 100% ต่อปี</span> <span class="kpi-freq">| วัด: รายปี</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-08: จำนวนการไม่สอดคล้องซ้ำ (Repeat NC)</span><br>
+<span class="kpi-formula">สูตร: จำนวน NC ที่เกิดซ้ำในเรื่องเดิม</span><br>
+<span class="kpi-target">เป้าหมาย: 0 ครั้ง</span> <span class="kpi-freq">| วัด: รายไตรมาส</span></li>
+</ul>
+</div>
+</div>
+
+<!-- ========== 5. จป.ขั้นสูง ========== -->
+<div class="diagram">
+<h2 contenteditable="true" class="editable">5. จป.ขั้นสูง — กำหนดกลยุทธ์และเปลี่ยนวัฒนธรรม</h2>
+<pre class="mermaid">
+flowchart TD
+    A["ทบทวนวิสัยทัศน์องค์กร"] --> B{"กิจกรรมหลัก"}
+    B --> C["ประเมินวัฒนธรรม\nสำรวจ - Bradley Curve"]
+    B --> D["ตั้ง OKR\nObjective - Key Results"]
+    B --> E["นวัตกรรม\nPilot - ROI - ขยายผล"]
+    B --> F["Evidence-based\nค้นคว้า - ประยุกต์"]
+    C --> C1["รายงานผู้บริหาร"]
+    D --> D1["ติดตามรายสัปดาห์"]
+    E --> E1["ขยายผลองค์กร"]
+    F --> F1["เผยแพร่มาตรฐาน"]
+    C1 --> G["รายงานประจำปี"]
+    D1 --> G
+    E1 --> G
+    F1 --> G
+    G --> H["ปรับปรุงกลยุทธ์"]
+    H --> A
+    classDef box fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px
+    classDef diamond fill:#fff8e1,stroke:#f9a825,stroke-width:2px
+    class A,C,C1,D,D1,E,E1,F,F1,G,H box
+    class B diamond
+</pre>
+
+<div class="kpi-box">
+<h3 contenteditable="true" class="editable">📊 ตัววัดผล (KPIs) — จป.ขั้นสูง</h3>
+<ul class="kpi-list">
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-01: คะแนนวัฒนธรรมความปลอดภัย (Safety Culture Score)</span><br>
+<span class="kpi-formula">สูตร: คะแนนเฉลี่ยจากการสำรวจ Bradley Curve</span><br>
+<span class="kpi-target">เป้าหมาย: เลื่อนระดับ ≥ 1 ขั้น/ปี</span> <span class="kpi-freq">| วัด: รายปี</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-02: อัตราการบรรลุ OKR ด้านความปลอดภัย</span><br>
+<span class="kpi-formula">สูตร: (Key Results ที่บรรลุ ÷ Key Results ทั้งหมด) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 70%</span> <span class="kpi-freq">| วัด: รายไตรมาส</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-03: จำนวนนวัตกรรมความปลอดภัยที่นำไปใช้จริง</span><br>
+<span class="kpi-formula">สูตร: จำนวน Pilot ที่ขยายผลสำเร็จ</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 2 โครงการ/ปี</span> <span class="kpi-freq">| วัด: รายปี</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-04: ROI จากโครงการความปลอดภัย</span><br>
+<span class="kpi-formula">สูตร: (ผลประโยชน์ - ต้นทุน) ÷ ต้นทุน × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 150%</span> <span class="kpi-freq">| วัด: รายปี</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-05: จำนวนมาตรฐาน/แนวทางใหม่ที่เผยแพร่</span><br>
+<span class="kpi-formula">สูตร: จำนวนมาตรฐานที่นำไปใช้</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 3 เรื่อง/ปี</span> <span class="kpi-freq">| วัด: รายปี</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-06: อัตราการมีส่วนร่วมของพนักงานในโครงการความปลอดภัย</span><br>
+<span class="kpi-formula">สูตร: (พนักงานที่เข้าร่วม ÷ พนักงานทั้งหมด) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 80%</span> <span class="kpi-freq">| วัด: รายปี</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-07: จำนวนบทความ/งานวิจัยที่อ้างอิง</span><br>
+<span class="kpi-formula">สูตร: จำนวนหลักฐานเชิงประจักษ์ที่นำมาประยุกต์</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 5 เรื่อง/ปี</span> <span class="kpi-freq">| วัด: รายปี</span></li>
+</ul>
+</div>
+</div>
+
+<!-- ========== 6. จป.ผู้บริหาร ========== -->
+<div class="diagram">
+<h2 contenteditable="true" class="editable">6. จป.ผู้บริหาร — นำองค์กรสู่ความเป็นเลิศ</h2>
+<pre class="mermaid">
+flowchart TD
+    A["ทบทวนสถานะองค์กร"] --> B["ประกาศ Zero Accident"]
+    B --> C["สื่อสารทุกคน ทุกช่องทาง"]
+    C --> D["จัดสรรงบประมาณ 5%"]
+    D --> E["เป็นแบบอย่าง"]
+    E --> F{"กิจกรรมผู้นำ"}
+    F --> G["Safety Walk\nเลือกพื้นที่ - เดินตรวจ"]
+    F --> H["สื่อสาร\nSafety Moment - Annual Report"]
+    F --> I["ตัดสินใจความเสี่ยง\nประเมิน - อนุมัติ"]
+    F --> J["ESG\nประเมิน - ตั้งเป้า - รายงาน"]
+    G --> G1["ถาม - ชมเชย - แนะนำ"]
+    G1 --> G2["ติดตาม 30 วัน"]
+    H --> H1["Town Hall - Social Media"]
+    I --> I1["จัดสรรงบ - ติดตาม"]
+    J --> J1["ดำเนินการ - รายงาน ESG"]
+    G2 --> K["Management Review รายปี"]
+    H1 --> K
+    I1 --> K
+    J1 --> K
+    K --> L["ทบทวนนโยบาย - อัปเดต"]
+    L --> A
+    classDef box fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px
+    classDef diamond fill:#fff8e1,stroke:#f9a825,stroke-width:2px
+    class A,B,C,D,E,G,G1,G2,H,H1,I,I1,J,J1,K,L box
+    class F diamond
+</pre>
+
+<div class="kpi-box">
+<h3 contenteditable="true" class="editable">📊 ตัววัดผล (KPIs) — จป.ผู้บริหาร</h3>
+<ul class="kpi-list">
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-01: อัตราการเกิดอุบัติเหตุรุนแรง (Fatalities)</span><br>
+<span class="kpi-formula">สูตร: จำนวนผู้เสียชีวิตจากการทำงาน</span><br>
+<span class="kpi-target">เป้าหมาย: 0 ครั้ง (Zero Fatality)</span> <span class="kpi-freq">| วัด: รายปี</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-02: จำนวน Safety Walk ที่ผู้บริหารทำ</span><br>
+<span class="kpi-formula">สูตร: จำนวนครั้งที่ผู้บริหารลงพื้นที่ตรวจความปลอดภัย</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 4 ครั้ง/ปี</span> <span class="kpi-freq">| วัด: รายไตรมาส</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-03: งบประมาณความปลอดภัยที่จัดสรรจริง</span><br>
+<span class="kpi-formula">สูตร: งบประมาณความปลอดภัย ÷ งบประมาณทั้งหมด × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 5%</span> <span class="kpi-freq">| วัด: รายปี</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-04: คะแนนความผูกพันพนักงานด้านความปลอดภัย</span><br>
+<span class="kpi-formula">สูตร: คะแนนเฉลี่ยจากแบบสำรวจความผูกพัน</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 85%</span> <span class="kpi-freq">| วัด: รายปี</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-05: อัตราการเผยแพร่ Safety Moment</span><br>
+<span class="kpi-formula">สูตร: (ครั้งที่สื่อสาร ÷ ครั้งที่วางแผน) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 90%</span> <span class="kpi-freq">| วัด: รายเดือน</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-06: คะแนน ESG ด้านความปลอดภัย</span><br>
+<span class="kpi-formula">สูตร: คะแนนจากการประเมิน ESG (Social - Safety)</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ ระดับ A</span> <span class="kpi-freq">| วัด: รายปี</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-07: อัตราการติดตามข้อเสนอแนะจาก Safety Walk</span><br>
+<span class="kpi-formula">สูตร: (ข้อเสนอแนะที่ดำเนินการเสร็จ ÷ ข้อเสนอแนะทั้งหมด) × 100</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 80% ภายใน 30 วัน</span> <span class="kpi-freq">| วัด: รายเดือน</span></li>
+<li contenteditable="true" class="editable"><span class="kpi-name">KPI-08: จำนวนครั้งที่ผู้บริหารสื่อสารความปลอดภัย</span><br>
+<span class="kpi-formula">สูตร: Town Hall + Annual Report + Social Media</span><br>
+<span class="kpi-target">เป้าหมาย: ≥ 12 ครั้ง/ปี</span> <span class="kpi-freq">| วัด: รายปี</span></li>
+</ul>
+</div>
+</div>
+
+<script>
+function saveHTML() {
+    // Clone the document and remove the save button from the clone
+    const clone = document.documentElement.cloneNode(true);
+    const btn = clone.querySelector('.save-btn');
+    if (btn) btn.remove();
+    
+    const html = '<!DOCTYPE html>\n' + clone.outerHTML;
+    const blob = new Blob([html], {type: 'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'flowcharts-with-kpi-editable.html';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    alert('✅ บันทึกไฟล์แล้ว — ไฟล์ที่แก้จะถูกดาวน์โหลด');
+}
+</script>
+
+</body>
+</html>

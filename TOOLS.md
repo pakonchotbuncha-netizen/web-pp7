@@ -2,6 +2,33 @@
 
 Skills define _how_ tools work. This file is for _your_ specifics — the stuff that's unique to your setup.
 
+## Google Sheets สำหรับ Web PP7
+
+**ทุกครั้งที่ต้องบันทึกข้อมูลเกี่ยวกับ Web PP7 ให้บันทึกลง Sheet นี้:**
+📊 https://docs.google.com/spreadsheets/d/1yP_l-WmsnlkMDCkZB7ulhe6oS_AAex8iE3LYdPdg-uc/edit?usp=sharing
+
+**ชื่อ Sheet: โครงสร้าง ระบบ PP7**
+
+### Tabs สำคัญ
+| Tab | เนื้อหา |
+|-----|----------|
+| Tab-01-สรุปผู้บริหาร | Dashboard ผู้บริหาร |
+| Tab-02-แสวงหา | P1 แสวงหา |
+| Tab-03-หยั่งประเมิน | P2 หยั่งประเมิน |
+| Tab-04-จับคู่คนกับงาน | P3 จับคู่ |
+| Tab-05-ประเมินผล | P4 ประเมินผล |
+| Tab-06-พัฒนา | P5 พัฒนา |
+| Tab-07-ค่าตอบแทน | P6 ค่าตอบแทน |
+| Tab-08-คุณภาพชีวิต | P7 คุณภาพชีวิต |
+| Tab-09-กฎหมายแรงงาน | กฎหมายแรงงาน |
+| Tab-10-ระเบียบ PKG | ระเบียบองค์กร |
+| Tab-11-Import-Export | นำเข้า/ส่งออกข้อมูล |
+| Tab-12-System-Map | แผนผังระบบ |
+| P1-แสวงหา | รายละเอียด P1 |
+| DataFlow_P1_to_P2 | Dataflow P1 → P2 |
+
+---
+
 ## What Goes Here
 
 Things like:
@@ -92,3 +119,13 @@ When installing an OpenClaw plugin on the user's behalf:
    - **If `plugins.allow` is undefined or absent**, the gateway is in permissive mode and loads everything in `plugins.load.paths`. DO NOT create `plugins.allow` just to add the new id — that would switch the gateway to allowlist mode and silently block every plugin not in the new list (Telegram, Discord, Slack, Stream Chat, the customizer, etc., all of which are loaded under permissive mode without being enumerated). Leave `plugins.allow` undefined and rely on `plugins.load.paths` instead.
 3. Do NOT drop plugin files manually into `/root/.openclaw/extensions/`. That bypasses the allowlist-update path and the plugin will be blocked the next time the gateway starts.
 <!-- END:plugin-install -->
+<!-- BEGIN:process-model -->
+
+## Process Model
+
+KiloClaw does NOT use systemd. Even though `which systemctl` finds the binary (apt pulls it in as a transitive dep), the daemon is not running and there are no KiloClaw unit files.
+
+- Do not suggest `systemctl`, `journalctl`, `service ...`, unit files, or any init-based remediation — none of it will work.
+- `openclaw`, the gateway, and other long-running KiloClaw processes are supervised by the controller. To inspect or restart them, use the controller's APIs and logs, not init.
+
+<!-- END:process-model -->

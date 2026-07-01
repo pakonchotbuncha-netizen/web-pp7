@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบสัมภาษณ์สมาชิกโอนย้าย/เลื่อนตำแหน่ง — Web PP7</title>
+    <style>
+        :root {
+            --primary: #2d3436;
+            --primary-light: #00b894;
+            --accent: #e17055;
+            --bg: #f5f6fa;
+            --card: #ffffff;
+            --text: #2d3436;
+            --border: #dfe6e9;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --info: #0984e3;
+            --purple: #6c5ce7;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .header .subtitle { opacity: 0.9; font-size: 1rem; }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .section {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--purple);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-light);
+        }
+        .section-title .icon { font-size: 1.5rem; }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group.full-width { grid-column: 1 / -1; }
+        label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #636e72;
+            margin-bottom: 0.3rem;
+        }
+        label .required { color: var(--accent); }
+        input, select, textarea {
+            padding: 0.75rem;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.2);
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        
+        /* Member Info Card */
+        .member-info-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e9 100%);
+            border: 1px solid var(--primary-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .member-info-card h3 {
+            color: var(--success);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .member-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }
+        .member-field {
+            display: flex;
+            flex-direction: column;
+        }
+        .member-field label {
+            font-size: 0.8rem;
+            color: #636e72;
+            margin-bottom: 0.2rem;
+        }
+        .member-field span {
+            font-weight: 500;
+            color: var(--text);
+        }
+        
+        /* TCC Table */
+        .tcc-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+        .tcc-table th, .tcc-table td {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .tcc-table th {
+            background: var(--purple);
+            color: white;
+            font-weight: 500;
+        }
+        .tcc-table td:first-child { text-align: left; width: 40px; }
+        .tcc-table td:nth-child(2) { text-align: left; }
+        .tcc-table input[type="number"] {
+            width: 70px;
+            text-align: center;
+        }
+        .tcc-table tr:nth-child(even) { background: #f8f9fa; }
+        .score-summary {
+            background: linear-gradient(135deg, var(--purple) 0%, #a29bfe 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .score-value { font-size: 2rem; font-weight: 700; }
+        
+        /* Questions */
+        .question-card {
+            background: #f8f9fa;
+            border-left: 4px solid var(--purple);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0 8px 8px 0;
+        }
+        .question-card h4 {
+            color: var(--purple);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        .question-card textarea {
+            width: 100%;
+            min-height: 80px;
+        }
+        
+        /* Interview Steps */
+        .step-list {
+            list-style: none;
+            counter-reset: step;
+        }
+        .step-list li {
+            counter-increment: step;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-light);
+            position: relative;
+        }
+        .step-list li::before {
+            content: counter(step);
+            position: absolute;
+            left: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            background: var(--primary-light);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .step-list li strong {
+            display: block;
+            margin-bottom: 0.3rem;
+            color: var(--primary);
+        }
+        
+        /* EVP */
+        .evp-list { list-style: none; }
+        .evp-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-light);
+        }
+        .evp-rank {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--purple);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        /* Mentor */
+        .mentor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .mentor-card {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--info);
+        }
+        .mentor-card.org { border-left-color: var(--success); }
+        .mentor-card h4 { font-size: 0.9rem; color: var(--info); margin-bottom: 0.5rem; }
+        .mentor-card.org h4 { color: var(--success); }
+        
+        /* Goals Table */
+        .goals-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+        .goals-table th, .goals-table td {
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+        .goals-table th {
+            background: var(--primary-light);
+            color: white;
+        }
+        .goals-table input {
+            width: 100%;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: var(--purple); color: white; }
+        .btn-primary:hover { background: #5a4fcf; }
+        .btn-secondary { background: var(--border); color: var(--text); }
+        
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .btn-group { flex-direction: column; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔄 แบบสัมภาษณ์สมาชิกโอนย้าย/เลื่อนตำแหน่ง</h1>
+        <p class="subtitle">LDC-PAO-WI-004 | P2 หยั่งประเมิน | Web PP7</p>
+    </div>
+
+    <div class="container">
+        <!-- ค้นหาข้อมูลสมาชิก -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">🔍</span> ค้นหาข้อมูลสมาชิก</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>รหัสสมาชิก <span class="required">*</span></label>
+                    <input type="text" placeholder="กรอกรหัสสมาชิก" id="memberCode">
+                </div>
+                <div class="form-group" style="justify-content: flex-end;">
+                    <button class="btn btn-primary" style="height: fit-content;">ค้นหา</button>
+                </div>
+            </div>
+            
+            <!-- ตัวอย่างข้อมูลสมาชิก (ซ่อนไว้จนกว่าจะค้นหา) -->
+            <div class="member-info-card" style="margin-top: 1rem;">
+                <h3>📋 ข้อมูลจากสมุดพก</h3>
+                <div class="member-details">
+                    <div class="member-field">
+                        <label>ชื่อ-นามสกุล</label>
+                        <span>นายสมชาย ดีใจ</span>
+                    </div>
+                    <div class="member-field">
+                        <label>สถานะการจ้าง</label>
+                        <span>พนักงานประจำ</span>
+                    </div>
+                    <div class="member-field">
+                        <label>บริษัท</label>
+                        <span>PMS</span>
+                    </div>
+                    <div class="member-field">
+                        <label>สาขา</label>
+                        <span>สาขาสอยดาว</span>
+                    </div>
+                    <div class="member-field">
+                        <label>ตำแหน่งปัจจุบัน</label>
+                        <span>สมาชิกบริการลูกค้าสินเชื่อ</span>
+                    </div>
+                    <div class="member-field">
+                        <label>วันที่เริ่มงาน</label>
+                        <span>01/03/2024</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ข้อมูลการสัมภาษณ์ -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">📅</span> ข้อมูลการสัมภาษณ์</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>วันที่สัมภาษณ์ <span class="required">*</span></label>
+                    <input type="date" required>
+                </div>
+                <div class="form-group">
+                    <label>เวลาที่สัมภาษณ์ <span class="required">*</span></label>
+                    <input type="time" required>
+                </div>
+                <div class="form-group full-width">
+                    <label>สมัครตำแหน่ง <span class="required">*</span></label>
+                    <select required>
+                        <option value="">— เลือกตำแหน่งใหม่ —</option>
+                        <option>ผู้รับใช้ทีมบริการลูกค้าสินเชื่อ</option>
+                        <option>สมาชิกบริการลูกค้าสินเชื่อ (สาขาใหม่)</option>
+                        <option>สมาชิกทีมบัญชีการเงิน</option>
+                        <option>สมาชิกทีม Center</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label>สาเหตุการโอนย้าย/เลื่อนตำแหน่ง</label>
+                    <textarea placeholder="ระบุสาเหตุ"></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label>คณะกรรมการสัมภาษณ์</label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        <input type="text" placeholder="คกก. 1" style="flex:1; min-width: 150px;">
+                        <input type="text" placeholder="คกก. 2" style="flex:1; min-width: 150px;">
+                        <input type="text" placeholder="คกก. 3" style="flex:1; min-width: 150px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TCC สำหรับโอนย้าย -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">🎯</span> TCC — ทดสอบภาวะผู้นำและวัฒนธรรมองค์กร (เต็ม 50, ผ่าน ≥ 65%)</h2>
+            <p style="color: #636e72; font-size: 0.9rem; margin-bottom: 1rem;">
+                เน้นภาวะผู้นำองค์กร: ผู้รับใช้, วัฒนธรรม, ความรู้สึกตัว, บรรยากาศ, ทีม
+            </p>
+            <table class="tcc-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>ความสามารถ</th>
+                        <th>คะแนนเต็ม</th>
+                        <th>คกก.1</th>
+                        <th>คกก.2</th>
+                        <th>คกก.3</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>เก่งพัฒนาภาวะผู้รับใช้</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>เก่งสร้างวัฒนธรรมองค์กร</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>เก่งเรื่องการรู้สึกตัว</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>เก่งสร้างบรรยากาศ</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>เก่งการทำงานเป็นทีม</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>เก่งสร้างความสัมพันธ์</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>เก่งเรื่องการรับใช้ทุกเรื่องราว</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>เก่งเรื่องการเรียนรู้</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>เก่งสร้างความสอดรับกลมกลืน</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>เก่งการประยุกต์ใช้เทคโนโลยี</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" step="0.5" class="score-input"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="score-summary">
+                <div>
+                    <div>คะแนนรวม</div>
+                    <div style="font-size: 0.85rem; opacity: 0.9;">ผ่าน ≥ 65% (32.5 คะแนน)</div>
+                </div>
+                <div class="score-value" id="totalScore">0 / 50</div>
+            </div>
+        </div>
+
+        <!-- คำถามบังคับ -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">❓</span> คำถามบังคับ (ต้องตอบทุกข้อ)</h2>
+            <div class="question-card">
+                <h4>ข้อ 1 — ตำแหน่งงานนี้มีไปทำไม?</h4>
+                <textarea placeholder="อธิบายความสำคัญของตำแหน่งนี้..."></textarea>
+            </div>
+            <div class="question-card">
+                <h4>ข้อ 2 — รากเหง้าปัญหาของหน่วยงานนี้คืออะไร?</h4>
+                <textarea placeholder="วิเคราะห์ปัญหา..."></textarea>
+            </div>
+            <div class="question-card">
+                <h4>ข้อ 3 — มองภาพอนาคตของตำแหน่งงานนี้อย่างไร?</h4>
+                <textarea placeholder="วิสัยทัศน์ในอนาคต..."></textarea>
+            </div>
+            <div class="question-card">
+                <h4>ข้อ 4 — จะทำอะไรในตำแหน่งงานนี้ วิสัยทัศน์คืออะไร?</h4>
+                <textarea placeholder="แผนการทำงาน..."></textarea>
+            </div>
+            <div class="question-card">
+                <h4>ข้อ 5 — อะไรคือผลงานที่ภูมิใจที่สุดในการทำงานที่ PKG?</h4>
+                <textarea placeholder="ผลงานที่ภูมิใจ..."></textarea>
+            </div>
+        </div>
+
+        <!-- ขั้นตอนการสัมภาษณ์ -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">📋</span> ขั้นตอนการสัมภาษณ์ (1.30 ชม.)</h2>
+            <p style="font-size: 0.85rem; color: #636e72; margin-bottom: 1rem;">บันทึกผลการสนทนาแต่ละหัวข้อ</p>
+            <ol class="step-list">
+                <li>
+                    <strong>ประวัติส่วนตัว จุดอ่อน จุดแข็ง เป้าหมายชีวิต</strong>
+                    <textarea placeholder="บันทึกผลการสัมภาษณ์..."></textarea>
+                </li>
+                <li>
+                    <strong>บทบาทปัจจุบัน ประสบการณ์ วิเคราะห์ทีมงานรายบุคคล</strong>
+                    <textarea placeholder="บันทึกผลการสัมภาษณ์..."></textarea>
+                </li>
+                <li>
+                    <strong>รายงานลูกหนี้การค้า / คุณภาพหนี้ 95% / 4 ไม่ 5 ดึง</strong>
+                    <textarea placeholder="บันทึกผลการสัมภาษณ์..."></textarea>
+                </li>
+                <li>
+                    <strong>สิ่งที่อยากให้บริษัทปรับปรุง 3 ข้อ</strong>
+                    <textarea placeholder="บันทึกผลการสัมภาษณ์..."></textarea>
+                </li>
+                <li>
+                    <strong>ข้อเสนอแนะอื่น ๆ</strong>
+                    <textarea placeholder="บันทึกผลการสัมภาษณ์..."></textarea>
+                </li>
+            </ol>
+        </div>
+
+        <!-- จุดแข็ง/อ่อน/เป้าหมาย -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">📊</span> สรุปจุดแข็ง จุดอ่อน เป้าหมาย</h2>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>จุดแข็ง</label>
+                    <textarea placeholder="สรุปจุดแข็งของผู้สมัคร..."></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label>จุดอ่อน</label>
+                    <textarea placeholder="สรุปจุดอ่อนของผู้สมัคร..."></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label>เป้าหมายความสำเร็จในชีวิต</label>
+                    <textarea placeholder="เป้าหมายชีวิต..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7 EVP -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">💎</span> 7 EVP — PKG Employee Valued Proposition</h2>
+            <p style="color: #636e72; font-size: 0.9rem; margin-bottom: 1rem;">
+                จัดลำดับความสำคัญ (1 = สำคัญที่สุด, 7 = สำคัญน้อยที่สุด)
+            </p>
+            <ol class="evp-list">
+                <li class="evp-item"><span class="evp-rank">1</span><div><strong>TRUST</strong> — ความเชื่อมั่นในตนเองและไว้วางใจซึ่งกันและกัน</div></li>
+                <li class="evp-item"><span class="evp-rank">2</span><div><strong>RESPECT</strong> — ความเคารพและให้เกียรติซึ่งกันและกัน</div></li>
+                <li class="evp-item"><span class="evp-rank">3</span><div><strong>PRIDE</strong> — ความภาคภูมิใจในตนเอง ทีม และองค์กร</div></li>
+                <li class="evp-item"><span class="evp-rank">4</span><div><strong>FUN</strong> — บรรยากาศสนุก สร้างสรรค์ มีอารมณ์ขัน</div></li>
+                <li class="evp-item"><span class="evp-rank">5</span><div><strong>LEARNING & GROWTH</strong> — สนับสนุนการเรียนรู้เติบโต</div></li>
+                <li class="evp-item"><span class="evp-rank">6</span><div><strong>SUSTAINABLE & SATISFACTORY PAY</strong> — ผลตอบแทนน่าพึงพอใจ ยั่งยืน</div></li>
+            </ol>
+        </div>
+
+        <!-- เป้าหมายการปฏิบัติงาน -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">🎯</span> เป้าหมายการปฏิบัติงานจริง (ก่อนบรรจุ)</h2>
+            <table class="goals-table">
+                <thead>
+                    <tr>
+                        <th>เรื่องที่จะวัด</th>
+                        <th>ตัวเลขวัดผล</th>
+                        <th>ความถี่</th>
+                        <th>วันเริ่มต้น</th>
+                        <th>วันสิ้นสุด</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" placeholder="เรื่องที่ 1"></td>
+                        <td><input type="text" placeholder="ตัวเลข"></td>
+                        <td>
+                            <select>
+                                <option>วัน</option>
+                                <option>สัปดาห์</option>
+                                <option>เดือน</option>
+                            </select>
+                        </td>
+                        <td><input type="date"></td>
+                        <td><input type="date"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" placeholder="เรื่องที่ 2"></td>
+                        <td><input type="text" placeholder="ตัวเลข"></td>
+                        <td>
+                            <select>
+                                <option>วัน</option>
+                                <option>สัปดาห์</option>
+                                <option>เดือน</option>
+                            </select>
+                        </td>
+                        <td><input type="date"></td>
+                        <td><input type="date"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" placeholder="เรื่องที่ 3"></td>
+                        <td><input type="text" placeholder="ตัวเลข"></td>
+                        <td>
+                            <select>
+                                <option>วัน</option>
+                                <option>สัปดาห์</option>
+                                <option>เดือน</option>
+                            </select>
+                        </td>
+                        <td><input type="date"></td>
+                        <td><input type="date"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" placeholder="เรื่องที่ 4"></td>
+                        <td><input type="text" placeholder="ตัวเลข"></td>
+                        <td>
+                            <select>
+                                <option>วัน</option>
+                                <option>สัปดาห์</option>
+                                <option>เดือน</option>
+                            </select>
+                        </td>
+                        <td><input type="date"></td>
+                        <td><input type="date"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" placeholder="เรื่องที่ 5"></td>
+                        <td><input type="text" placeholder="ตัวเลข"></td>
+                        <td>
+                            <select>
+                                <option>วัน</option>
+                                <option>สัปดาห์</option>
+                                <option>เดือน</option>
+                            </select>
+                        </td>
+                        <td><input type="date"></td>
+                        <td><input type="date"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ผลการสัมภาษณ์ -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">📝</span> ผลการสัมภาษณ์</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>ผลการสัมภาษณ์ <span class="required">*</span></label>
+                    <select>
+                        <option value="">— เลือก —</option>
+                        <option value="pass">ผ่าน</option>
+                        <option value="fail">ไม่ผ่าน</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ประเภทการจ้าง</label>
+                    <select>
+                        <option>โอนย้าย</option>
+                        <option>เลื่อนตำแหน่ง</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label>เหตุผลที่ไม่ผ่าน</label>
+                    <textarea placeholder="ระบุเหตุผล (กรณีไม่ผ่าน)"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ข้อมูลตำแหน่งใหม่ -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">🏢</span> ข้อมูลตำแหน่งใหม่</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>บริษัท</label>
+                    <select>
+                        <option>PMS</option>
+                        <option>RAFCO</option>
+                        <option>AAM</option>
+                        <option>AGS</option>
+                        <option>PMG</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>สาขาเดิม</label>
+                    <input type="text" value="สาขาสอยดาว" readonly style="background: #f8f9fa;">
+                </div>
+                <div class="form-group">
+                    <label>สาขาใหม่</label>
+                    <input type="text" placeholder="สาขาใหม่">
+                </div>
+                <div class="form-group">
+                    <label>ฝ่าย/ทีม</label>
+                    <input type="text" placeholder="ฝ่าย/ทีม">
+                </div>
+                <div class="form-group">
+                    <label>ตำแหน่งใหม่ <span class="required">*</span></label>
+                    <input type="text" placeholder="ตำแหน่งใหม่">
+                </div>
+                <div class="form-group">
+                    <label>วันที่มีผลโอนย้าย</label>
+                    <input type="date">
+                </div>
+            </div>
+        </div>
+
+        <!-- ค่าตอบแทนใหม่ -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">💰</span> ค่าตอบแทนใหม่</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>เงินเดือนทดลองงาน</label>
+                    <input type="number" placeholder="บาท">
+                </div>
+                <div class="form-group">
+                    <label>เงินเดือนบรรจุ</label>
+                    <input type="number" placeholder="บาท">
+                </div>
+                <div class="form-group">
+                    <label>เบี้ยท้องถิ่น</label>
+                    <input type="number" placeholder="บาท">
+                </div>
+                <div class="form-group">
+                    <label>เงินพิเศษ</label>
+                    <input type="number" placeholder="บาท">
+                </div>
+                <div class="form-group">
+                    <label>ค่าน้ำมันรถ</label>
+                    <input type="number" placeholder="บาท">
+                </div>
+                <div class="form-group">
+                    <label>ค่าโทรศัพท์</label>
+                    <input type="number" placeholder="บาท">
+                </div>
+            </div>
+        </div>
+
+        <!-- พี่เลี้ยง -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">👥</span> พี่เลี้ยง</h2>
+            <div class="mentor-grid">
+                <div class="mentor-card">
+                    <h4>🔗 สายงาน คนที่ 1</h4>
+                    <div class="form-group" style="margin-bottom: 0.5rem;"><label>รหัส</label><input type="text"></div>
+                    <div class="form-group"><label>ชื่อ</label><input type="text"></div>
+                </div>
+                <div class="mentor-card">
+                    <h4>🔗 สายงาน คนที่ 2</h4>
+                    <div class="form-group" style="margin-bottom: 0.5rem;"><label>รหัส</label><input type="text"></div>
+                    <div class="form-group"><label>ชื่อ</label><input type="text"></div>
+                </div>
+                <div class="mentor-card org">
+                    <h4>🎓 ทุนองค์กร คนที่ 1</h4>
+                    <div class="form-group" style="margin-bottom: 0.5rem;"><label>รหัส</label><input type="text"></div>
+                    <div class="form-group" style="margin-bottom: 0.5rem;"><label>ชื่อ</label><input type="text"></div>
+                    <div class="form-group"><label>เหตุผล</label><textarea style="min-height: 50px;"></textarea></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- บันทึกเพิ่มเติม -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">📝</span> บันทึกเพิ่มเติมจากกรรมการ</h2>
+            <textarea placeholder="บันทึกเพิ่มเติมจากคณะกรรมการสัมภาษณ์..." style="min-height: 120px;"></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-secondary">บันทึกร่าง</button>
+            <button class="btn btn-primary">✓ ส่งผลการสัมภาษณ์</button>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.score-input').forEach(input => {
+            input.addEventListener('input', calculateTotal);
+        });
+
+        function calculateTotal() {
+            let total = 0;
+            document.querySelectorAll('.score-input').forEach(input => {
+                const val = parseFloat(input.value) || 0;
+                total += Math.min(Math.max(val, 0), 5);
+            });
+            document.getElementById('totalScore').textContent = total.toFixed(1) + ' / 50';
+            const el = document.getElementById('totalScore');
+            el.style.color = total >= 32.5 ? '#00b894' : (total > 0 ? '#d63031' : 'white');
+        }
+    </script>
+</body>
+</html>

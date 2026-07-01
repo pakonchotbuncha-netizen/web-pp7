@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web PP7 — ระบบบริหารบุคลากร</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background: #f0f4f8; }
+        .layer-card { transition: all 0.3s ease; }
+        .layer-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.15); }
+        .arrow-down { position: relative; }
+        .arrow-down::after {
+            content: '▼'; position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%);
+            font-size: 24px; color: #64748b; animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(8px); }
+        }
+        .process-flow { display: flex; gap: 8px; overflow-x: auto; padding: 16px 0; }
+        .process-step {
+            min-width: 140px; padding: 16px; border-radius: 12px; text-align: center;
+            position: relative; flex-shrink: 0;
+        }
+        .process-step::after {
+            content: '→'; position: absolute; right: -16px; top: 50%; transform: translateY(-50%);
+            font-size: 20px; color: #64748b; font-weight: bold;
+        }
+        .process-step:last-child::after { display: none; }
+        .ai-badge {
+            display: inline-block; background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;
+        }
+        .tab-btn { transition: all 0.2s; }
+        .tab-btn.active { background: white; color: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tree-node { border-left: 3px solid; padding-left: 16px; margin: 8px 0; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        /* Data table styles */
+        .data-table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .data-table th { background: #1a1a2e; color: white; padding: 10px 8px; font-size: 0.75rem; text-align: left; position: sticky; top: 0; }
+        .data-table td { padding: 8px; font-size: 0.8rem; border-bottom: 1px solid #eee; }
+        .data-table tr:hover { background: #f8f9ff; }
+        .data-card { background: white; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .data-card h4 { font-size: 0.9rem; color: #1967d2; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 2px solid #e8f0fe; }
+        .data-card p { font-size: 0.8rem; line-height: 1.5; white-space: pre-wrap; color: #333; }
+
+        /* Loading */
+        .loading { text-align: center; padding: 40px; color: #999; }
+        .spinner {
+            width: 30px; height: 30px; border: 3px solid #e0e0e0;
+            border-top-color: #1967d2; border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* OKR bar */
+        .okr-bar {
+            background: white; border-radius: 12px; padding: 16px;
+            margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #0f3460;
+        }
+
+        /* Process selector */
+        .process-selector { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .process-selector button {
+            padding: 8px 16px; border-radius: 999px; border: 2px solid #e0e0e0;
+            background: white; cursor: pointer; font-size: 0.8rem; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .process-selector button:hover { border-color: #1967d2; }
+        .process-selector button.active { background: #1967d2; color: white; border-color: #1967d2; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Header -->
+<header class="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 text-white py-8 px-4 shadow-lg">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center gap-4 mb-2">
+            <span class="text-4xl">🦾</span>
+            <div>
+                <h1 class="text-3xl font-bold">Web PP7 — ระบบบริหารบุคลากร</h1>
+                <p class="text-blue-200 text-lg">ระบบบริหารบุคลากรแบบ AI-Enhanced</p>
+            </div>
+        </div>
+        <p class="text-blue-300 text-sm">ขับเคลื่อนด้วย Core Competency (CC) | PKG Group</p>
+    </div>
+</header>
+
+<!-- Navigation Tabs -->
+<nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 flex gap-2 overflow-x-auto py-3" id="nav-tabs">
+        <button class="tab-btn active px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap" onclick="showTab('dashboard')">📊 Dashboard</button>
+        <button class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-gray-100 text-gray-600" onclick="showTab('data')">📋 ข้อมูล</button>
+        <button class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-gray-100 text-gray-600" onclick="showTab('architecture')">🏗️ Architecture</button>
+        <button class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-gray-100 text-gray-600" onclick="showTab('processes')">🔄 กระบวนการ</button>
+        <button class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-gray-100 text-gray-600" onclick="showTab('sitemap')">🗂️ Site Map</button>
+        <button class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-gray-100 text-gray-600" onclick="showTab('database')">🗄️ Database</button>
+        <button class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-gray-100 text-gray-600" onclick="showTab('features')">⚡ ฟีเจอร์</button>
+        <button class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-gray-100 text-gray-600" onclick="showTab('roadmap')">🚀 แผนพัฒนา</button>
+    </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 py-8">
+
+<!-- ===================== TAB: Dashboard ===================== -->
+<section id="dashboard" class="tab-content active">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">📊 Dashboard — ภาพรวมระบบ</h2>
+
+    <!-- OKR Bar -->
+    <div class="okr-bar">
+        <h4 class="font-bold text-lg text-gray-800 mb-2">🎯 เป้าหมาย OKR</h4>
+        <p class="text-gray-600">ขับเคลื่อน Web PP7 ให้ครบ 6 ขั้นตอนภายใน ก.ย. 2569</p>
+        <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+            <div class="bg-blue-50 p-3 rounded-lg">
+                <div class="font-bold text-blue-700">Step 1-3</div>
+                <div class="text-gray-500">ทบทวน PM/WI → ออกแบบระบบ → เชื่อมโยง</div>
+                <div class="text-gray-400 text-xs">เสร็จ มิ.ย. 2569</div>
+            </div>
+            <div class="bg-purple-50 p-3 rounded-lg">
+                <div class="font-bold text-purple-700">Step 4</div>
+                <div class="text-gray-500">Data flow ทุกระบบ</div>
+                <div class="text-gray-400 text-xs">เสร็จ ก.ค. 2569</div>
+            </div>
+            <div class="bg-amber-50 p-3 rounded-lg">
+                <div class="font-bold text-amber-700">Step 5</div>
+                <div class="text-gray-500">รวบรวมระบบ → ออก Task</div>
+                <div class="text-gray-400 text-xs">เสร็จ ก.ค. 2569</div>
+            </div>
+            <div class="bg-green-50 p-3 rounded-lg">
+                <div class="font-bold text-green-700">Step 6</div>
+                <div class="text-gray-500">สร้าง Web PP7</div>
+                <div class="text-gray-400 text-xs">เสร็จ ก.ย. 2569</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Process Flow -->
+    <div class="bg-white rounded-2xl shadow-md p-4 mb-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-3">🔄 Flow กระบวนการ PP7</h3>
+        <div class="process-flow">
+            <div class="process-step bg-blue-100 text-blue-800">
+                <div class="text-2xl mb-1">🔄</div>
+                <div class="font-bold">P1</div>
+                <div class="text-xs">แสวงหา</div>
+            </div>
+            <div class="process-step bg-purple-100 text-purple-800">
+                <div class="text-2xl mb-1">🧭</div>
+                <div class="font-bold">P2</div>
+                <div class="text-xs">ประเมินก่อนรบ</div>
+            </div>
+            <div class="process-step bg-green-100 text-green-800">
+                <div class="text-2xl mb-1">🤝</div>
+                <div class="font-bold">P3</div>
+                <div class="text-xs">จับคู่</div>
+            </div>
+            <div class="process-step bg-amber-100 text-amber-800">
+                <div class="text-2xl mb-1">📊</div>
+                <div class="font-bold">P4</div>
+                <div class="text-xs">ประเมินผล</div>
+            </div>
+            <div class="process-step bg-pink-100 text-pink-800">
+                <div class="text-2xl mb-1">🎓</div>
+                <div class="font-bold">P5</div>
+                <div class="text-xs">พัฒนา</div>
+            </div>
+            <div class="process-step bg-red-100 text-red-800">
+                <div class="text-2xl mb-1">💰</div>
+                <div class="font-bold">P6</div>
+                <div class="text-xs">ค่าตอบแทน</div>
+            </div>
+            <div class="process-step bg-teal-100 text-teal-800">
+                <div class="text-2xl mb-1">🌟</div>
+                <div class="font-bold">P7</div>
+                <div class="text-xs">คุณภาพชีวิต</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Summary Table -->
+    <div class="bg-white rounded-2xl shadow-md p-4 mb-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-3">📋 สรุปข้อมูลแต่ละกระบวนการ (จาก Google Sheet)</h3>
+        <div id="dashboard-table">
+            <div class="loading">
+                <div class="spinner"></div>
+                กำลังโหลดข้อมูล...
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== TAB: ข้อมูล (P1-P7) ===================== -->
+<section id="data" class="tab-content">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">📋 ข้อมูลแต่ละกระบวนการ</h2>
+
+    <!-- Process Selector -->
+    <div class="process-selector" id="process-selector">
+        <button class="active" onclick="showProcess('P1-แสวงหา')">🔄 P1 แสวงหา</button>
+        <button onclick="showProcess('P2-หยั่งประเมิน')">🧭 P2 หยั่งประเมิน</button>
+        <button onclick="showProcess('P3-จับคู่')">🤝 P3 จับคู่</button>
+        <button onclick="showProcess('P4-ประเมินผล')">📊 P4 ประเมินผล</button>
+        <button onclick="showProcess('P5-พัฒนา')">🎓 P5 พัฒนา</button>
+        <button onclick="showProcess('P6-ค่าตอบแทน')">💰 P6 ค่าตอบแทน</button>
+        <button onclick="showProcess('P7-คุณภาพชีวิต')">🌟 P7 คุณภาพชีวิต</button>
+    </div>
+
+    <!-- Data display area -->
+    <div id="data-content">
+        <div class="loading">
+            <div class="spinner"></div>
+            เลือกกระบวนการเพื่อดูข้อมูล...
+        </div>
+    </div>
+</section>
+
+<!-- ===================== TAB: Architecture ===================== -->
+<section id="architecture" class="tab-content">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">🏗️ สถาปัตยกรรม 4 Layer</h2>
+    <div class="space-y-12">
+        <!-- Layer 4 -->
+        <div class="layer-card bg-white rounded-2xl shadow-md overflow-hidden border-l-4 border-blue-500">
+            <div class="bg-blue-500 text-white px-6 py-3">
+                <h3 class="text-xl font-bold">Layer 4: UI Layer (Frontend)</h3>
+                <p class="text-blue-200 text-sm">ส่วนที่ผู้ใช้มองเห็นและโต้ตอบ</p>
+            </div>
+            <div class="p-6 grid md:grid-cols-3 gap-4">
+                <div class="bg-blue-50 p-4 rounded-xl">
+                    <div class="text-2xl mb-2">🌐</div>
+                    <h4 class="font-bold text-blue-800">SPA Application</h4>
+                    <p class="text-sm text-gray-600">HTML + TailwindCSS + Vanilla JS</p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-xl">
+                    <div class="text-2xl mb-2">🤖</div>
+                    <h4 class="font-bold text-blue-800">AI-Assisted Forms</h4>
+                    <p class="text-sm text-gray-600">Auto-fill, Recommendation, Validation</p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-xl">
+                    <div class="text-2xl mb-2">📊</div>
+                    <h4 class="font-bold text-blue-800">Real-time Dashboard</h4>
+                    <p class="text-sm text-gray-600">Responsive: Desktop / Tablet / Mobile</p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center text-3xl text-gray-400 arrow-down">⬇</div>
+        <!-- Layer 3 -->
+        <div class="layer-card bg-white rounded-2xl shadow-md overflow-hidden border-l-4 border-amber-500">
+            <div class="bg-amber-500 text-white px-6 py-3">
+                <h3 class="text-xl font-bold">Layer 3: Workflow Layer</h3>
+                <p class="text-amber-200 text-sm">จัดการกระบวนการและงานอัตโนมัติ</p>
+            </div>
+            <div class="p-6 grid md:grid-cols-4 gap-4">
+                <div class="bg-amber-50 p-4 rounded-xl">
+                    <div class="text-2xl mb-2">⚙️</div>
+                    <h4 class="font-bold text-amber-800">Workflow Engine</h4>
+                    <p class="text-sm text-gray-600">อนุมัติ, ติดตาม, แจ้งเตือน</p>
+                </div>
+                <div class="bg-amber-50 p-4 rounded-xl">
+                    <div class="text-2xl mb-2">🔔</div>
+                    <h4 class="font-bold text-amber-800">Notification Engine</h4>
+                    <p class="text-sm text-gray-600">TG Bot + LINE Notify + Email</p>
+                </div>
+                <div class="bg-amber-50 p-4 rounded-xl">
+                    <div class="text-2xl mb-2">🧠</div>
+                    <h4 class="font-bold text-amber-800">AI Coordinator</h4>
+                    <p class="text-sm text-gray-600">เรียก AI Engine ที่เหมาะสม</p>
+                </div>
+                <div class="bg-amber-50 p-4 rounded-xl">
+                    <div class="text-2xl mb-2">📋</div>
+                    <h4 class="font-bold text-amber-800">Task Queue</h4>
+                    <p class="text-sm text-gray-600">จัดการ task อัตโนมัติ</p>
+                </div>
+            </div>
+        </div>
+        <div class="text-center text-3xl text-gray-400 arrow-down">⬇</div>
+        <!-- Layer 2 -->
+        <div class="layer-card bg-white rounded-2xl shadow-md overflow-hidden border-l-4 border-purple-500">
+            <div class="bg-purple-500 text-white px-6 py-3">
+                <h3 class="text-xl font-bold">Layer 2: AI Layer</h3>
+                <p class="text-purple-200 text-sm">AI Engine ทั้ง 7 ตัว</p>
+            </div>
+            <div class="p-6">
+                <div class="grid md:grid-cols-4 gap-3">
+                    <div class="bg-purple-50 p-3 rounded-lg text-center"><span class="ai-badge">P1</span><p class="text-sm font-semibold mt-2">Resume Screening</p></div>
+                    <div class="bg-purple-50 p-3 rounded-lg text-center"><span class="ai-badge">P2</span><p class="text-sm font-semibold mt-2">Adaptive Assessment</p></div>
+                    <div class="bg-purple-50 p-3 rounded-lg text-center"><span class="ai-badge">P3</span><p class="text-sm font-semibold mt-2">Matching Engine</p></div>
+                    <div class="bg-purple-50 p-3 rounded-lg text-center"><span class="ai-badge">P4</span><p class="text-sm font-semibold mt-2">Auto-evaluation</p></div>
+                    <div class="bg-purple-50 p-3 rounded-lg text-center"><span class="ai-badge">P5</span><p class="text-sm font-semibold mt-2">Skill Gap Analysis</p></div>
+                    <div class="bg-purple-50 p-3 rounded-lg text-center"><span class="ai-badge">P6</span><p class="text-sm font-semibold mt-2">Compensation Analyzer</p></div>
+                    <div class="bg-purple-50 p-3 rounded-lg text-center"><span class="ai-badge">P7</span><p class="text-sm font-semibold mt-2">QoL Analyzer</p></div>
+                    <div class="bg-purple-50 p-3 rounded-lg text-center"><span class="ai-badge" style="background:linear-gradient(135deg,#6366f1,#ec4899)">ALL</span><p class="text-sm font-semibold mt-2">Model Management</p></div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center text-3xl text-gray-400 arrow-down">⬇</div>
+        <!-- Layer 1 -->
+        <div class="layer-card bg-white rounded-2xl shadow-md overflow-hidden border-l-4 border-green-500">
+            <div class="bg-green-500 text-white px-6 py-3">
+                <h3 class="text-xl font-bold">Layer 1: Data Layer (Backend + Database)</h3>
+                <p class="text-green-200 text-sm">ข้อมูลและ API</p>
+            </div>
+            <div class="p-6 grid md:grid-cols-2 gap-4">
+                <div class="bg-green-50 p-4 rounded-xl">
+                    <div class="text-2xl mb-2">📝</div>
+                    <h4 class="font-bold text-green-800">Google Apps Script</h4>
+                    <p class="text-sm text-gray-600">Backend — Code.gs</p>
+                    <p class="text-sm text-gray-600">Deploy เป็น Web App</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-xl">
+                    <div class="text-2xl mb-2">🗄️</div>
+                    <h4 class="font-bold text-green-800">Google Sheet</h4>
+                    <p class="text-sm text-gray-600">Database — 7 Tabs (P1-P7)</p>
+                    <p class="text-sm text-gray-600">เชื่อมต่อผ่าน openById()</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== TAB: Processes ===================== -->
+<section id="processes" class="tab-content">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">🔄 กระบวนการ P1-P7</h2>
+    <p class="text-gray-600 mb-6">แต่ละกระบวนการ: กระบวนการเดิม → AI เข้ามาช่วย → กระบวนการใหม่ (ลด ~50%)</p>
+    <div class="space-y-8">
+        <!-- P1 -->
+        <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+            <div class="bg-blue-500 text-white px-6 py-4"><h3 class="text-xl font-bold">🔄 P1 — แสวงหา (Recruit)</h3></div>
+            <div class="p-6">
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-gray-700 mb-2">กระบวนการเดิม (7 ขั้นตอน)</h4>
+                        <ol class="text-sm text-gray-600 space-y-1 list-decimal list-inside">
+                            <li>BU ตรวจอัตราว่าง</li><li>กรอกฟอร์มขออัตรา</li><li>หัวหน้า BU อนุมัติ</li>
+                            <li>BMC ตรวจสอบ</li><li>BMC นำเข้าที่ประชุม</li><li>แจ้งผล</li><li>เริ่มสรรหา</li>
+                        </ol>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h4 class="font-bold text-blue-700 mb-2">🤖 กระบวนการใหม่ (3 ขั้นตอน)</h4>
+                        <ol class="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+                            <li>BU กดขอ + <span class="ai-badge">AI วิเคราะห์</span> + ยืนยัน</li>
+                            <li>อนุมัติอัตโนมัติ (workflow)</li><li>เริ่มสรรหา (เชื่อม P2)</li>
+                        </ol>
+                        <div class="mt-3 bg-blue-100 p-2 rounded text-xs"><strong>AI ช่วย:</strong> ตรวจสอบอัตราว่าง, ร่างคำขอ, วิเคราะห์ความจำเป็น, แจ้งเตือนอัตโนมัติ</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- P2 -->
+        <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+            <div class="bg-purple-500 text-white px-6 py-4"><h3 class="text-xl font-bold">🧭 P2 — หยั่งประเมิน (Assess)</h3></div>
+            <div class="p-6">
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-gray-700 mb-2">กระบวนการเดิม (7 ขั้นตอน)</h4>
+                        <ol class="text-sm text-gray-600 space-y-1 list-decimal list-inside">
+                            <li>กำหนดผู้ประเมิน</li><li>แจกแบบประเมิน</li><li>ผู้ประเมินทำ</li>
+                            <li>รวบรวมผล</li><li>คำนวณคะแนน</li><li>สรุปผล</li><li>แจ้งผล</li>
+                        </ol>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                        <h4 class="font-bold text-purple-700 mb-2">🤖 กระบวนการใหม่ (3 ขั้นตอน)</h4>
+                        <ol class="text-sm text-purple-800 space-y-1 list-decimal list-inside">
+                            <li><span class="ai-badge">AI เตรียมการ</span> (แนะนำผู้ประเมิน + สร้างแบบประเมิน)</li>
+                            <li>ผู้ประเมินทำแบบประเมิน</li><li><span class="ai-badge">AI วิเคราะห์ + สรุป + แนะนำ</span></li>
+                        </ol>
+                        <div class="mt-3 bg-purple-100 p-2 rounded text-xs"><strong>AI ช่วย:</strong> แนะนำผู้ประเมิน, แบบประเมินเฉพาะบุคคล, วิเคราะห์ผล, แนะนำแผนพัฒนา</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- P3 -->
+        <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+            <div class="bg-green-500 text-white px-6 py-4"><h3 class="text-xl font-bold">🤝 P3 — จับคู่คนกับงาน (Match)</h3></div>
+            <div class="p-6">
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-gray-700 mb-2">กระบวนการเดิม (7 ขั้นตอน)</h4>
+                        <ol class="text-sm text-gray-600 space-y-1 list-decimal list-inside">
+                            <li>รวบรวมข้อมูลพนักงาน</li><li>วิเคราะห์ทักษะ</li><li>วิเคราะห์ความต้องการงาน</li>
+                            <li>จับคู่ด้วยมือ</li><li>ตรวจสอบความเหมาะสม</li><li>นำเสนอ</li><li>ติดตามผล</li>
+                        </ol>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h4 class="font-bold text-green-700 mb-2">🤖 กระบวนการใหม่ (3 ขั้นตอน)</h4>
+                        <ol class="text-sm text-green-800 space-y-1 list-decimal list-inside">
+                            <li><span class="ai-badge">AI วิเคราะห์ + จับคู่</span></li><li>หัวหน้าตรวจสอบ + ยืนยัน</li>
+                            <li>ดำเนินการ + <span class="ai-badge">AI ติดตามผล</span></li>
+                        </ol>
+                        <div class="mt-3 bg-green-100 p-2 rounded text-xs"><strong>AI ช่วย:</strong> วิเคราะห์ทักษะอัตโนมัติ, จับคู่ algorithm, ให้คะแนนความเหมาะสม, แนะนำทางเลือก</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- P4 -->
+        <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+            <div class="bg-amber-500 text-white px-6 py-4"><h3 class="text-xl font-bold">📊 P4 — ประเมินผล (Performance)</h3></div>
+            <div class="p-6">
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-gray-700 mb-2">กระบวนการเดิม (7 ขั้นตอน)</h4>
+                        <ol class="text-sm text-gray-600 space-y-1 list-decimal list-inside">
+                            <li>กำหนดรอบประเมิน</li><li>แจกแบบประเมิน</li><li>ประเมินตนเอง</li>
+                            <li>หัวหน้าประเมิน</li><li>รวบรวมผล</li><li>คำนวณ + เกรด</li><li>ป้อนกลับ</li>
+                        </ol>
+                    </div>
+                    <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                        <h4 class="font-bold text-amber-700 mb-2">🤖 กระบวนการใหม่ (4 ขั้นตอน)</h4>
+                        <ol class="text-sm text-amber-800 space-y-1 list-decimal list-inside">
+                            <li><span class="ai-badge">AI เตรียมการ</span></li><li>ประเมิน (ตนเอง + หัวหน้า)</li>
+                            <li><span class="ai-badge">AI วิเคราะห์ + สรุป</span></li><li>ป้อนกลับ + สร้างแผนพัฒนา</li>
+                        </ol>
+                        <div class="mt-3 bg-amber-100 p-2 rounded text-xs"><strong>AI ช่วย:</strong> สร้างแบบประเมินอัตโนมัติ, วิเคราะห์แนวโน้ม, ตรวจจับอคติ, สรุปผล, แนะนำแผนพัฒนา</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- P5 -->
+        <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+            <div class="bg-pink-500 text-white px-6 py-4"><h3 class="text-xl font-bold">🎓 P5 — พัฒนา (Develop)</h3></div>
+            <div class="p-6">
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-gray-700 mb-2">กระบวนการเดิม (7 ขั้นตอน)</h4>
+                        <ol class="text-sm text-gray-600 space-y-1 list-decimal list-inside">
+                            <li>สำรวจความต้องการ</li><li>กำหนดหลักสูตร</li><li>เปิดรับสมัคร</li>
+                            <li>จัดอบรม</li><li>ประเมินผล</li><li>สรุปผล</li><li>รายงาน</li>
+                        </ol>
+                    </div>
+                    <div class="bg-pink-50 p-4 rounded-lg border border-pink-200">
+                        <h4 class="font-bold text-pink-700 mb-2">🤖 กระบวนการใหม่ (4 ขั้นตอน)</h4>
+                        <ol class="text-sm text-pink-800 space-y-1 list-decimal list-inside">
+                            <li><span class="ai-badge">AI วิเคราะห์ + แนะนำ</span></li><li>สมัคร + จัดอบรม</li>
+                            <li><span class="ai-badge">AI ประเมินผล</span></li><li><span class="ai-badge">AI สรุป + ติดตาม + รายงาน</span></li>
+                        </ol>
+                        <div class="mt-3 bg-pink-100 p-2 rounded text-xs"><strong>AI ช่วย:</strong> วิเคราะห์ skill gap, แนะนำหลักสูตร, จัดกลุ่มอัตโนมัติ, ประเมินผล, ติดตามการนำไปใช้</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- P6 -->
+        <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+            <div class="bg-red-500 text-white px-6 py-4"><h3 class="text-xl font-bold">💰 P6 — ค่าตอบแทน (Compensate)</h3></div>
+            <div class="p-6">
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-gray-700 mb-2">กระบวนการเดิม (7 ขั้นตอน)</h4>
+                        <ol class="text-sm text-gray-600 space-y-1 list-decimal list-inside">
+                            <li>รวบรวมข้อมูลเงินเดือน</li><li>วิเคราะห์โครงสร้าง</li><li>เปรียบเทียบตลาด</li>
+                            <li>เสนอปรับ</li><li>อนุมัติ</li><li>ปรับปรุงระบบ</li><li>แจ้งผล</li>
+                        </ol>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                        <h4 class="font-bold text-red-700 mb-2">🤖 กระบวนการใหม่ (4 ขั้นตอน)</h4>
+                        <ol class="text-sm text-red-800 space-y-1 list-decimal list-inside">
+                            <li><span class="ai-badge">AI วิเคราะห์ + เปรียบเทียบ</span></li><li><span class="ai-badge">AI เสนอ + จำลองผลกระทบ</span></li>
+                            <li>อนุมัติ</li><li><span class="ai-badge">AI ปรับปรุง + แจ้งผล</span></li>
+                        </ol>
+                        <div class="mt-3 bg-red-100 p-2 rounded text-xs"><strong>AI ช่วย:</strong> วิเคราะห์โครงสร้าง, เปรียบเทียบตลาด, แนะนำการปรับ, จำลองผลกระทบทางการเงิน</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- P7 -->
+        <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+            <div class="bg-teal-500 text-white px-6 py-4"><h3 class="text-xl font-bold">🌟 P7 — คุณภาพชีวิต (Quality of Life)</h3></div>
+            <div class="p-6">
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-gray-700 mb-2">กระบวนการเดิม (7 ขั้นตอน)</h4>
+                        <ol class="text-sm text-gray-600 space-y-1 list-decimal list-inside">
+                            <li>สำรวจความต้องการ</li><li>วิเคราะห์ผล</li><li>กำหนดสวัสดิการ</li>
+                            <li>ดำเนินการ</li><li>ติดตามผล</li><li>ประเมินความพึงพอใจ</li><li>ปรับปรุง</li>
+                        </ol>
+                    </div>
+                    <div class="bg-teal-50 p-4 rounded-lg border border-teal-200">
+                        <h4 class="font-bold text-teal-700 mb-2">🤖 กระบวนการใหม่ (4 ขั้นตอน)</h4>
+                        <ol class="text-sm text-teal-800 space-y-1 list-decimal list-inside">
+                            <li><span class="ai-badge">AI วิเคราะห์ + แนะนำ</span></li><li>ดำเนินการ</li>
+                            <li><span class="ai-badge">AI ติดตาม + ประเมิน</span></li><li><span class="ai-badge">AI คาดการณ์ + ปรับปรุง</span></li>
+                        </ol>
+                        <div class="mt-3 bg-teal-100 p-2 rounded text-xs"><strong>AI ช่วย:</strong> วิเคราะห์ความต้องการ, แนะนำสวัสดิการ, ติดตามผลอัตโนมัติ, คาดการณ์แนวโน้ม</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== TAB: Site Map ===================== -->
+<section id="sitemap" class="tab-content">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">🗂️ Site Map</h2>
+    <div class="bg-white rounded-2xl shadow-md p-6">
+        <div class="tree-node border-blue-500">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-xl">🏠</span>
+                <h3 class="text-lg font-bold text-blue-700">/ (หน้าหลัก — Dashboard)</h3>
+            </div>
+            <p class="text-sm text-gray-600 mb-2">สรุปภาพรวมทุก P, Task ที่ต้องทำวันนี้, AI Insights</p>
+            <div class="tree-node border-purple-500 ml-4 mt-2">
+                <div class="flex items-center gap-2"><span class="text-xl">🔄</span><h4 class="font-bold text-purple-700">/p1 — แสวงหา</h4></div>
+                <div class="ml-6 mt-2 space-y-1 text-sm text-gray-600">
+                    <p>📌 /p1/request — หน้าขออัตรากำลัง (AI วิเคราะห์อัตโนมัติ)</p>
+                    <p>📌 /p1/apply — หน้ารับสมัคร (Public, AI ช่วยกรอก)</p>
+                    <p>📌 /p1/screen — หน้าคัดกรองใบสมัคร (AI คัดกรอง + จัดอันดับ)</p>
+                </div>
+            </div>
+            <div class="tree-node border-green-500 ml-4 mt-2">
+                <div class="flex items-center gap-2"><span class="text-xl">🧭</span><h4 class="font-bold text-green-700">/p2 — หยั่งประเมิน</h4></div>
+                <div class="ml-6 mt-2 space-y-1 text-sm text-gray-600">
+                    <p>📌 /p2/evaluate/&lt;id&gt; — หน้าทำแบบประเมิน (AI ปรับเฉพาะบุคคล)</p>
+                </div>
+            </div>
+            <div class="tree-node border-amber-500 ml-4 mt-2">
+                <div class="flex items-center gap-2"><span class="text-xl">🤝</span><h4 class="font-bold text-amber-700">/p3 — จับคู่คนกับงาน</h4></div>
+                <div class="ml-6 mt-2 space-y-1 text-sm text-gray-600">
+                    <p>📌 /p3/match — หน้าจับคู่ (AI Matching Engine)</p>
+                </div>
+            </div>
+            <div class="tree-node border-red-500 ml-4 mt-2">
+                <div class="flex items-center gap-2"><span class="text-xl">📊</span><h4 class="font-bold text-red-700">/p4 — ประเมินผล</h4></div>
+                <div class="ml-6 mt-2 space-y-1 text-sm text-gray-600">
+                    <p>📌 /p4/evaluate/&lt;id&gt; — หน้าประเมินผล</p>
+                </div>
+            </div>
+            <div class="tree-node border-pink-500 ml-4 mt-2">
+                <div class="flex items-center gap-2"><span class="text-xl">🎓</span><h4 class="font-bold text-pink-700">/p5 — พัฒนา</h4></div>
+                <div class="ml-6 mt-2 space-y-1 text-sm text-gray-600">
+                    <p>📌 /p5/plan — หน้าสร้างแผนพัฒนา (AI แนะนำหลักสูตร)</p>
+                </div>
+            </div>
+            <div class="tree-node border-orange-500 ml-4 mt-2">
+                <div class="flex items-center gap-2"><span class="text-xl">💰</span><h4 class="font-bold text-orange-700">/p6 — ค่าตอบแทน</h4></div>
+                <div class="ml-6 mt-2 space-y-1 text-sm text-gray-600">
+                    <p>📌 /p6/simulator — Salary Simulator (AI วิเคราะห์โครงสร้าง)</p>
+                </div>
+            </div>
+            <div class="tree-node border-teal-500 ml-4 mt-2">
+                <div class="flex items-center gap-2"><span class="text-xl">🌟</span><h4 class="font-bold text-teal-700">/p7 — คุณภาพชีวิต</h4></div>
+                <div class="ml-6 mt-2 space-y-1 text-sm text-gray-600">
+                    <p>📌 /p7/survey — หน้าสำรวจคุณภาพชีวิต</p>
+                </div>
+            </div>
+            <div class="tree-node border-gray-500 ml-4 mt-2">
+                <div class="flex items-center gap-2"><span class="text-xl">⚙️</span><h4 class="font-bold text-gray-700">/settings — ตั้งค่า</h4></div>
+                <div class="ml-6 mt-2 space-y-1 text-sm text-gray-600">
+                    <p>📌 ผู้ใช้, บทบาท, BU, AI Models, Notification</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== TAB: Database ===================== -->
+<section id="database" class="tab-content">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">🗄️ Database Schema</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-blue-500">
+            <h4 class="font-bold text-blue-700">👤 users</h4>
+            <p class="text-xs text-gray-500 mt-1">ผู้ใช้ / Authentication</p>
+            <p class="text-xs text-gray-600 mt-2">id, emp_id, name, email, role, bu</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-blue-500">
+            <h4 class="font-bold text-blue-700">📋 headcount_requests</h4>
+            <p class="text-xs text-gray-500 mt-1">P1 — ขออัตรากำลัง</p>
+            <p class="text-xs text-gray-600 mt-2">id, req_no, bu, position, quantity, status</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-blue-500">
+            <h4 class="font-bold text-blue-700">👥 applicants</h4>
+            <p class="text-xs text-gray-500 mt-1">P1 — ผู้สมัคร</p>
+            <p class="text-xs text-gray-600 mt-2">id, name, position, status, score</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-purple-500">
+            <h4 class="font-bold text-purple-700">🧭 assessments</h4>
+            <p class="text-xs text-gray-500 mt-1">P2 — ประเมินศักยภาพ</p>
+            <p class="text-xs text-gray-600 mt-2">id, assessment_no, applicant_id, cc_score, grade</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-green-500">
+            <h4 class="font-bold text-green-700">🤝 matches</h4>
+            <p class="text-xs text-gray-500 mt-1">P3 — จับคู่คนกับงาน</p>
+            <p class="text-xs text-gray-600 mt-2">id, emp_id, matched_position, match_score, status</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-amber-500">
+            <h4 class="font-bold text-amber-700">📊 evaluations</h4>
+            <p class="text-xs text-gray-500 mt-1">P4 — ประเมินผล</p>
+            <p class="text-xs text-gray-600 mt-2">id, emp_id, eval_type, overall_score, cc_scores</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-pink-500">
+            <h4 class="font-bold text-pink-700">🎓 developments</h4>
+            <p class="text-xs text-gray-500 mt-1">P5 — พัฒนา</p>
+            <p class="text-xs text-gray-600 mt-2">id, emp_id, skill_gap, development_plan, progress</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-red-500">
+            <h4 class="font-bold text-red-700">💰 compensations</h4>
+            <p class="text-xs text-gray-500 mt-1">P6 — ค่าตอบแทน</p>
+            <p class="text-xs text-gray-600 mt-2">id, emp_id, base_salary, allowance, bonus</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-teal-500">
+            <h4 class="font-bold text-teal-700">🌟 quality_of_life</h4>
+            <p class="text-xs text-gray-500 mt-1">P7 — คุณภาพชีวิต</p>
+            <p class="text-xs text-gray-600 mt-2">id, emp_id, health, wealth, wellbeing, time, fun</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-indigo-500">
+            <h4 class="font-bold text-indigo-700">🤖 ai_results</h4>
+            <p class="text-xs text-gray-500 mt-1">บันทึกผล AI</p>
+            <p class="text-xs text-gray-600 mt-2">id, process, entity_id, ai_type, result, confidence</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-indigo-500">
+            <h4 class="font-bold text-indigo-700">📋 tasks</h4>
+            <p class="text-xs text-gray-500 mt-1">Task อัตโนมัติ</p>
+            <p class="text-xs text-gray-600 mt-2">id, task_type, process, entity_id, status, due_at</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-4 border-l-4 border-gray-500">
+            <h4 class="font-bold text-gray-700">📝 อื่นๆ</h4>
+            <p class="text-xs text-gray-500 mt-1">transfers, resignations, notifications, audit_logs</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== TAB: Features ===================== -->
+<section id="features" class="tab-content">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">⚡ ฟีเจอร์หลัก</h2>
+    <div class="feature-grid">
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="text-3xl mb-3">🤖</div>
+            <h4 class="font-bold text-lg text-gray-800">AI-Assisted Forms</h4>
+            <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                <li>• <strong>Auto-fill:</strong> AI ดึงข้อมูลจาก database มาเติม</li>
+                <li>• <strong>Recommendation:</strong> AI แนะนำตัวเลือก</li>
+                <li>• <strong>Validation:</strong> AI ตรวจสอบความถูกต้อง</li>
+                <li>• <strong>Prediction:</strong> AI คาดการณ์ผลลัพธ์</li>
+            </ul>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="text-3xl mb-3">📊</div>
+            <h4 class="font-bold text-lg text-gray-800">Real-time Dashboard</h4>
+            <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                <li>• <strong>Notification:</strong> TG + LINE + Email</li>
+                <li>• <strong>Task Queue:</strong> แสดง task ที่ต้องทำ</li>
+                <li>• <strong>AI Insights:</strong> คำแนะนำจาก AI</li>
+            </ul>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="text-3xl mb-3">⚙️</div>
+            <h4 class="font-bold text-lg text-gray-800">Workflow Engine</h4>
+            <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                <li>• <strong>Auto-routing:</strong> ส่งอนุมัติอัตโนมัติ</li>
+                <li>• <strong>Status tracking:</strong> ติดตามสถานะ</li>
+                <li>• <strong>Escalation:</strong> แจ้งเตือนเมื่อเกินกำหนด</li>
+            </ul>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="text-3xl mb-3">🧠</div>
+            <h4 class="font-bold text-lg text-gray-800">AI Integration</h4>
+            <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                <li>• <strong>Central AI Coordinator:</strong> เรียก AI Engine</li>
+                <li>• <strong>Model Management:</strong> จัดการ AI models</li>
+                <li>• <strong>Feedback Loop:</strong> เรียนรู้จากผลจริง</li>
+            </ul>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="text-3xl mb-3">🔔</div>
+            <h4 class="font-bold text-lg text-gray-800">Notification System</h4>
+            <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                <li>• <strong>Telegram Bot:</strong> แจ้งเตือนกลุ่ม PADClaw</li>
+                <li>• <strong>LINE Notify:</strong> แจ้งเตือนทีม Operation</li>
+                <li>• <strong>Email:</strong> แจ้งเตือนทางการ</li>
+            </ul>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="text-3xl mb-3">🔐</div>
+            <h4 class="font-bold text-lg text-gray-800">Security</h4>
+            <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                <li>• <strong>Role-based Access:</strong> 5 บทบาท</li>
+                <li>• <strong>Audit Logs:</strong> บันทึกทุกการกระทำ</li>
+                <li>• <strong>Google OAuth:</strong> ล็อกอินผ่าน Google</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== TAB: Roadmap ===================== -->
+<section id="roadmap" class="tab-content">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">🚀 แผนพัฒนา</h2>
+    <div class="bg-white rounded-2xl shadow-md p-6 mb-6">
+        <h3 class="text-lg font-bold text-gray-700 mb-4">ลำดับการพัฒนา (ตามความซับซ้อน)</h3>
+        <div class="space-y-3">
+            <div class="flex items-center gap-4">
+                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold">1</span>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold">P5 — Skill Gap + Course Matching</span>
+                        <span class="text-sm text-green-600">🟢 ต่ำ</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-1"><div class="bg-green-500 h-2 rounded-full" style="width:14%"></div></div>
+                </div>
+                <span class="text-sm text-gray-500">2 สัปดาห์</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-bold">2</span>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold">P1 — Resume Screening + Auto-posting</span>
+                        <span class="text-sm text-yellow-600">🟡 กลาง</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-1"><div class="bg-yellow-500 h-2 rounded-full" style="width:14%"></div></div>
+                </div>
+                <span class="text-sm text-gray-500">3 สัปดาห์</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-bold">3</span>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold">P4 — Auto-evaluation + Trend Analysis</span>
+                        <span class="text-sm text-yellow-600">🟡 กลาง</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-1"><div class="bg-yellow-500 h-2 rounded-full" style="width:14%"></div></div>
+                </div>
+                <span class="text-sm text-gray-500">3 สัปดาห์</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-bold">4</span>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold">P2 — Adaptive Assessment</span>
+                        <span class="text-sm text-red-600">🔴 สูง</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-1"><div class="bg-red-500 h-2 rounded-full" style="width:14%"></div></div>
+                </div>
+                <span class="text-sm text-gray-500">4 สัปดาห์</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-bold">5</span>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold">P3 — Matching Engine</span>
+                        <span class="text-sm text-red-600">🔴 สูง</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-1"><div class="bg-red-500 h-2 rounded-full" style="width:14%"></div></div>
+                </div>
+                <span class="text-sm text-gray-500">4 สัปดาห์</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-bold">6</span>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold">P7 — QoL Analyzer + Prediction</span>
+                        <span class="text-sm text-yellow-600">🟡 กลาง</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-1"><div class="bg-yellow-500 h-2 rounded-full" style="width:14%"></div></div>
+                </div>
+                <span class="text-sm text-gray-500">3 สัปดาห์</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-bold">7</span>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                        <span class="font-semibold">P6 — Compensation Simulator</span>
+                        <span class="text-sm text-red-600">🔴 สูง</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mt-1"><div class="bg-red-500 h-2 rounded-full" style="width:14%"></div></div>
+                </div>
+                <span class="text-sm text-gray-500">4 สัปดาห์</span>
+            </div>
+        </div>
+        <div class="mt-6 bg-blue-50 p-4 rounded-xl">
+            <p class="text-blue-800 font-semibold">⏱️ รวม: ~23 สัปดาห์ (ประมาณ 6 เดือน)</p>
+            <p class="text-blue-600 text-sm mt-1">เริ่มจาก P5 ที่ง่ายสุด → จบที่ P6 ที่ซับซ้อนสุด</p>
+        </div>
+    </div>
+    <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl shadow-md p-6 border-t-4 border-blue-500">
+            <h4 class="font-bold text-blue-700 text-lg mb-2">Phase 1: พื้นฐาน</h4>
+            <p class="text-sm text-gray-500 mb-3">เดือน 1-2</p>
+            <ul class="text-sm text-gray-600 space-y-1">
+                <li>☐ อัปเดต Frontend</li><li>☐ อัปเดต Backend API</li><li>☐ เพิ่มตารางใหม่</li>
+                <li>☐ Workflow Engine</li><li>☐ Dashboard ทุก P</li>
+            </ul>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6 border-t-4 border-purple-500">
+            <h4 class="font-bold text-purple-700 text-lg mb-2">Phase 2: AI Layer</h4>
+            <p class="text-sm text-gray-500 mb-3">เดือน 3-5</p>
+            <ul class="text-sm text-gray-600 space-y-1">
+                <li>☐ P5 AI Engine</li><li>☐ P1 AI Engine</li><li>☐ P4 AI Engine</li>
+                <li>☐ P2 AI Engine</li><li>☐ P3 AI Engine</li><li>☐ P7 AI Engine</li>
+                <li>☐ P6 AI Engine</li><li>☐ Central AI Coordinator</li>
+            </ul>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6 border-t-4 border-green-500">
+            <h4 class="font-bold text-green-700 text-lg mb-2">Phase 3: ทดสอบ</h4>
+            <p class="text-sm text-gray-500 mb-3">เดือน 6</p>
+            <ul class="text-sm text-gray-600 space-y-1">
+                <li>☐ เชื่อมต่อทุก AI Engine</li><li>☐ ทดสอบ E2E</li>
+                <li>☐ User Acceptance Testing</li><li>☐ Deploy Production</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-800 text-gray-400 text-center py-6 mt-12">
+    <p>🦾 Web PP7 — ระบบบริหารบุคลากรแบบ AI-Enhanced</p>
+    <p class="text-sm mt-1">© 2026 Prachakij Group — PADClaw Team</p>
+</footer>
+
+<script>
+// ===================== TAB SWITCHING =====================
+function showTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(function(tab) { tab.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+        btn.classList.remove('active');
+        btn.classList.add('bg-gray-100', 'text-gray-600');
+    });
+    document.getElementById(tabId).classList.add('active');
+    var btns = document.querySelectorAll('.tab-btn');
+    for (var i = 0; i < btns.length; i++) {
+        var onclick = btns[i].getAttribute('onclick');
+        if (onclick && onclick.indexOf(tabId) >= 0) {
+            btns[i].classList.add('active');
+            btns[i].classList.remove('bg-gray-100', 'text-gray-600');
+        }
+    }
+
+    // Auto-load dashboard data on first visit
+    if (tabId === 'dashboard' && !window._dashboardLoaded) {
+        loadDashboard();
+    }
+}
+
+// ===================== DASHBOARD =====================
+function loadDashboard() {
+    window._dashboardLoaded = true;
+    google.script.run
+        .withSuccessHandler(renderDashboard)
+        .withFailureHandler(function(err) {
+            document.getElementById('dashboard-table').innerHTML =
+                '<div class="data-card" style="border:1px solid #e53935">' +
+                '<h4 style="color:#e53935">❌ เกิดข้อผิดพลาด</h4>' +
+                '<p>' + escapeHtml(err) + '</p></div>';
+        })
+        .getSummaryData();
+}
+
+function renderDashboard(data) {
+    if (!data || data.length === 0) {
+        document.getElementById('dashboard-table').innerHTML =
+            '<div class="loading">ไม่มีข้อมูล — ยังไม่ได้เชื่อม Google Sheet</div>';
+        return;
+    }
+
+    var headers = Object.keys(data[0]);
+    var html = '<table class="data-table"><thead><tr>';
+    for (var i = 0; i < headers.length; i++) {
+        html += '<th>' + escapeHtml(headers[i]) + '</th>';
+    }
+    html += '</tr></thead><tbody>';
+
+    for (var j = 0; j < data.length; j++) {
+        html += '<tr>';
+        for (var k = 0; k < headers.length; k++) {
+            var val = data[j][headers[k]] != null ? String(data[j][headers[k]]) : '';
+            html += '<td>' + escapeHtml(val) + '</td>';
+        }
+        html += '</tr>';
+    }
+    html += '</tbody></table>';
+    document.getElementById('dashboard-table').innerHTML = html;
+}
+
+// ===================== DATA TAB (P1-P7) =====================
+function showProcess(tabName) {
+    // Update buttons
+    var buttons = document.querySelectorAll('#process-selector button');
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove('active');
+        if (buttons[i].getAttribute('onclick').indexOf(tabName) >= 0) {
+            buttons[i].classList.add('active');
+        }
+    }
+
+    var container = document.getElementById('data-content');
+    container.innerHTML = '<div class="loading"><div class="spinner"></div>กำลังโหลด ' + tabName + '...</div>';
+
+    var parts = tabName.split('-');
+    var titleHtml = '<div class="data-card">' +
+        '<h4><span class="ai-badge">' + escapeHtml(parts[0]) + '</span> ' + escapeHtml(parts.slice(1).join('-')) + '</h4>' +
+        '</div>';
+
+    google.script.run
+        .withSuccessHandler(function(data) {
+            if (!data || data.length === 0) {
+                container.innerHTML = titleHtml +
+                    '<div class="data-card"><p>ยังไม่มีข้อมูลในหน้านี้ — ยังไม่ได้ใส่ข้อมูลใน Sheet</p></div>';
+                return;
+            }
+
+            var headers = Object.keys(data[0]);
+            // Render as table
+            var html = titleHtml;
+            html += '<div class="overflow-x-auto"><table class="data-table"><thead><tr>';
+            for (var i = 0; i < headers.length; i++) {
+                html += '<th>' + escapeHtml(headers[i]) + '</th>';
+            }
+            html += '</tr></thead><tbody>';
+
+            for (var j = 0; j < data.length; j++) {
+                html += '<tr>';
+                for (var k = 0; k < headers.length; k++) {
+                    var val = data[j][headers[k]] != null ? String(data[j][headers[k]]) : '';
+                    html += '<td>' + escapeHtml(val).replace(/\n/g, '<br>') + '</td>';
+                }
+                html += '</tr>';
+            }
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        })
+        .withFailureHandler(function(err) {
+            container.innerHTML = titleHtml +
+                '<div class="data-card"><h4 style="color:#e53935">❌ โหลดไม่ได้</h4><p>' + escapeHtml(err) + '</p></div>';
+        })
+        .getProcessDetail(tabName);
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+</script>
+
+</body>
+</html>

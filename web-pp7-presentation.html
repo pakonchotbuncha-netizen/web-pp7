@@ -156,6 +156,70 @@ html, body {
   color: white;
 }
 
+/* --- Voice Test Button --- */
+.btn-voice-test {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: var(--font);
+  color: white;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  box-shadow: 0 4px 15px rgba(16,185,129,0.3);
+}
+
+.btn-voice-test:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16,185,129,0.4);
+}
+
+.btn-voice-test.test-fail {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 4px 15px rgba(239,68,68,0.3);
+}
+
+/* --- Voice Selector --- */
+.voice-selector-wrap {
+  margin-top: 1rem;
+  display: none;
+}
+
+.voice-selector-wrap.show {
+  display: block;
+}
+
+.voice-selector-wrap label {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.voice-selector-wrap select {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  font-family: var(--font);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.1);
+  color: white;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  min-width: 220px;
+}
+
+.voice-selector-wrap select option {
+  background: #1e293b;
+  color: white;
+}
+
 .start-note {
   margin-top: 2rem;
   font-size: 0.85rem;
@@ -994,29 +1058,60 @@ html, body {
   50% { opacity: 1; transform: scale(1); }
 }
 
-/* --- Subtitles --- */
+/* --- Subtitles (ปรับปรุง: ใหญ่ขึ้น, เข้มขึ้น, ตัวหนา, มี stroke) --- */
 .subtitle-overlay {
   position: absolute;
   bottom: 5rem;
   left: 50%;
   transform: translateX(-50%);
   max-width: 80%;
-  padding: 0.6rem 1.5rem;
-  background: rgba(0,0,0,0.7);
+  padding: 0.8rem 1.8rem;
+  background: rgba(0,0,0,0.85);
   color: white;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 400;
+  border-radius: 14px;
+  font-size: 1.1rem;
+  font-weight: 600;
   text-align: center;
   backdrop-filter: blur(10px);
   opacity: 0;
   transition: opacity 0.3s ease;
   z-index: 200;
   pointer-events: none;
+  text-shadow:
+    -1px -1px 0 rgba(255,255,255,0.25),
+     1px -1px 0 rgba(255,255,255,0.25),
+    -1px  1px 0 rgba(255,255,255,0.25),
+     1px  1px 0 rgba(255,255,255,0.25);
+  line-height: 1.5;
 }
 
 .subtitle-overlay.visible {
   opacity: 1;
+}
+
+/* --- Thai Voice Warning Bar --- */
+.voice-warning {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(90deg, #f59e0b, #ef4444);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  z-index: 9999;
+  display: none;
+  animation: slideDown 0.4s ease;
+}
+
+.voice-warning.show {
+  display: block;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
 }
 
 /* ============================================
@@ -1104,6 +1199,11 @@ html, body {
 </head>
 <body>
 
+<!-- Thai Voice Warning Bar -->
+<div class="voice-warning" id="voice-warning">
+  ⚠️ เบราว์เซอร์ไม่มีเสียงภาษาไทย แนะนำใช้ Chrome/Mac ที่มีภาษาไทย — ยังแสดง subtitle เสมอ
+</div>
+
 <!-- ============================================
      หน้าเริ่มต้น (Start Screen)
      ============================================ -->
@@ -1118,7 +1218,15 @@ html, body {
   <button class="btn-secondary" id="btn-toggle-voice" onclick="toggleMute()">
     <span id="voice-icon">🔊</span> เปิด/ปิดเสียง
   </button>
-  <p class="start-note">คลิกเพื่อเริ่ม (ต้องใช้เสียงพากย์ภาษาไทย)</p>
+  <br>
+  <button class="btn-voice-test" id="btn-voice-test" onclick="testThaiVoice()">
+    🔊 ตรวจสอบเสียง
+  </button>
+  <div class="voice-selector-wrap" id="voice-selector-wrap">
+    <label for="voice-selector">🎙️ เลือกเสียงภาษาไทย:</label>
+    <select id="voice-selector" onchange="onVoiceSelect(this.value)"></select>
+  </div>
+  <p class="start-note" id="start-note">คลิกเพื่อเริ่ม (ต้องใช้เสียงพากย์ภาษาไทย)</p>
 </div>
 
 <!-- ============================================
@@ -1592,6 +1700,9 @@ let isPlaying = false;
 let isMuted = false;
 let slideTimer = null;
 let speechSupported = true;
+let thaiVoice = null;       // เสียงไทยที่เลือก
+let thaiVoices = [];        // เสียงไทยทั้งหมดที่มี
+let hasThaiVoice = false;   // มีเสียงไทยหรือไม่
 
 // เสียงพากย์ของแต่ละ slide
 const narrationTexts = {
@@ -1622,20 +1733,128 @@ const slideLabels = {
 };
 
 /* ============================================
-   ตรวจสอบ Speech Synthesis
+   ตรวจสอบ Speech Synthesis & Thai Voice
    ============================================ */
 function checkSpeechSupport() {
   if (!('speechSynthesis' in window)) {
     speechSupported = false;
     console.warn('Browser ไม่รองรับ Speech Synthesis');
+    return;
+  }
+  detectThaiVoices();
+}
+
+function detectThaiVoices() {
+  const allVoices = window.speechSynthesis.getVoices();
+  thaiVoices = allVoices.filter(v => v.lang.startsWith('th'));
+  hasThaiVoice = thaiVoices.length > 0;
+
+  if (hasThaiVoice) {
+    thaiVoice = thaiVoices[0]; // ใช้เสียงแรกเป็น default
+    console.log('✅ พบเสียงไทย:', thaiVoices.map(v => v.name + ' (' + v.lang + ')'));
+
+    // ถ้ามีหลายเสียงไทย → แสดง Voice Selector
+    if (thaiVoices.length > 1) {
+      populateVoiceSelector();
+    }
+  } else {
+    console.warn('❌ ไม่พบเสียงภาษาไทย');
+    showVoiceWarning();
   }
 }
-checkSpeechSupport();
+
+function showVoiceWarning() {
+  const warn = document.getElementById('voice-warning');
+  if (warn) warn.classList.add('show');
+}
+
+function hideVoiceWarning() {
+  const warn = document.getElementById('voice-warning');
+  if (warn) warn.classList.remove('show');
+}
+
+function populateVoiceSelector() {
+  const wrap = document.getElementById('voice-selector-wrap');
+  const select = document.getElementById('voice-selector');
+  if (!wrap || !select) return;
+
+  select.innerHTML = '';
+  thaiVoices.forEach((v, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = '🎙️ ' + v.name + ' (' + v.lang + ')';
+    select.appendChild(opt);
+  });
+  wrap.classList.add('show');
+}
+
+function onVoiceSelect(index) {
+  thaiVoice = thaiVoices[parseInt(index)] || thaiVoices[0];
+  console.log('🎙️ เลือกเสียง:', thaiVoice.name);
+}
+
+/* ============================================
+   ทดสอบเสียงภาษาไทย (ปุ่มบนหน้าเริ่ม)
+   ============================================ */
+function testThaiVoice() {
+  const btn = document.getElementById('btn-voice-test');
+  const note = document.getElementById('start-note');
+
+  if (!speechSupported) {
+    btn.classList.add('test-fail');
+    btn.textContent = '❌ Browser ไม่รองรับ Speech';
+    if (note) note.textContent = '⚠️ Browser ไม่รองรับ Web Speech API';
+    return;
+  }
+
+  // Re-detect voices (อาจยังไม่ได้ load)
+  detectThaiVoices();
+
+  if (!hasThaiVoice) {
+    btn.classList.add('test-fail');
+    btn.textContent = '❌ ไม่พบเสียงภาษาไทย';
+    if (note) note.textContent = '⚠️ ไม่พบเสียงไทยในเบราว์เซอร์นี้ — ลองใช้ Chrome หรือ Mac';
+    showVoiceWarning();
+    return;
+  }
+
+  // มีเสียงไทย → พูดทดสอบ
+  const utt = new SpeechSynthesisUtterance('ทดสอบเสียงภาษาไทย');
+  utt.lang = 'th-TH';
+  utt.rate = 0.65;
+  utt.pitch = 1.0;
+  utt.volume = 1.0;
+  if (thaiVoice) utt.voice = thaiVoice;
+
+  utt.onstart = () => {
+    btn.textContent = '🔊 กำลังทดสอบ...';
+  };
+  utt.onend = () => {
+    btn.textContent = '✅ มีเสียงภาษาไทย!';
+    btn.classList.remove('test-fail');
+    if (note) note.textContent = '✅ พร้อมใช้งาน — มีเสียงภาษาไทย';
+    hideVoiceWarning();
+  };
+  utt.onerror = () => {
+    btn.classList.add('test-fail');
+    btn.textContent = '❌ พูดไม่ออก — ไม่มีเสียงไทย';
+    if (note) note.textContent = '⚠️ พบเสียงแต่พูดไม่ได้ — ลองเปลี่ยนเสียงด้านบน';
+    showVoiceWarning();
+  };
+
+  window.speechSynthesis.cancel();
+  setTimeout(() => {
+    window.speechSynthesis.speak(utt);
+  }, 200);
+}
 
 /* ============================================
    เริ่มนำเสนอ
    ============================================ */
 function startPresentation() {
+  // ซ่อน warning bar ถ้ามี
+  hideVoiceWarning();
+
   // สลับหน้า
   document.getElementById('start-screen').classList.remove('active');
   document.getElementById('presentation-screen').classList.add('active');
@@ -1663,14 +1882,14 @@ function goToSlide(n, direction) {
 
   // Transition effect
   if (prevSlide > 0 && prevSlide !== n) {
-    const prevEl = document.querySelector(`.slide[data-slide="${prevSlide}"]`);
+    const prevEl = document.querySelector('.slide[data-slide="' + prevSlide + '"]');
     if (prevEl) {
       prevEl.classList.add(dir === 'left' ? 'exit-left' : 'exit-right');
     }
   }
 
   // แสดง slide ใหม่
-  const el = document.querySelector(`.slide[data-slide="${n}"]`);
+  const el = document.querySelector('.slide[data-slide="' + n + '"]');
   if (el) {
     // Delay เล็กน้อยให้ transition เริ่ม
     setTimeout(() => {
@@ -1681,14 +1900,14 @@ function goToSlide(n, direction) {
   // อัปเดต UI
   updateUI();
 
-  // พูดพากย์
+  // พูดพากย์ + แสดง subtitle เสมอ
   if (!isMuted) {
-    speakNarration(n);
-  }
-
-  // แสดง subtitle เสมอถ้าไม่รองรับ speech
-  if (!speechSupported && !isMuted) {
-    showSubtitle(n);
+    if (speechSupported) {
+      speakNarration(n);
+    } else {
+      // ไม่มี speech → แสดง subtitle อย่างเดียว
+      showSubtitle(n);
+    }
   }
 
   // สร้าง sparkle ถ้า slide 10
@@ -1803,12 +2022,16 @@ function toggleMute() {
 
   // ถ้า unmute ให้พูดใน slide ปัจจุบัน
   if (!isMuted && currentSlide > 0) {
-    speakNarration(currentSlide);
+    if (speechSupported) {
+      speakNarration(currentSlide);
+    } else {
+      showSubtitle(currentSlide);
+    }
   }
 }
 
 /* ============================================
-   เสียงพากย์ (Web Speech API)
+   เสียงพากย์ (Web Speech API) — rate ต่ำลง, delay เพิ่มขึ้น
    ============================================ */
 function speakNarration(slideNum) {
   if (!speechSupported || isMuted) return;
@@ -1819,44 +2042,40 @@ function speakNarration(slideNum) {
   // ยกเลิกเสียงก่อนหน้า
   window.speechSynthesis.cancel();
 
+  // แสดง subtitle เสมอ (ไม่ว่าจะพูดได้หรือไม่)
+  showSubtitleText(text);
+
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'th-TH';
-  utterance.rate = 0.9;
+  utterance.rate = 0.65;  // ช้าลง — เหมาะกับภาษาไทย
   utterance.pitch = 1.0;
   utterance.volume = 1.0;
 
-  // เลือกเสียงภาษาไทยถ้ามี
-  const voices = window.speechSynthesis.getVoices();
-  const thaiVoice = voices.find(v => v.lang.startsWith('th'));
+  // เลือกเสียงภาษาไทยที่ผู้ใช้เลือก (หรือค่า default)
   if (thaiVoice) {
     utterance.voice = thaiVoice;
   }
 
-  // แสดง subtitle ขณะที่พูด
-  utterance.onstart = () => {
-    showSubtitleText(text);
-  };
-
   utterance.onend = () => {
-    // ค่อยจาง subtitle
+    // ค่อยจาง subtitle หลังพูดจบ
     setTimeout(() => {
       hideSubtitle();
-    }, 1000);
+    }, 1500);
   };
 
   utterance.onerror = (e) => {
     console.warn('Speech error:', e);
-    hideSubtitle();
+    // ยังคงแสดง subtitle ไว้แม้เกิด error
   };
 
-  // Delay เล็กน้อยเพื่อให้ slide แสดงก่อน
+  // Delay 500ms เพื่อให้ slide แสดงก่อน แล้วค่อยพูด
   setTimeout(() => {
     window.speechSynthesis.speak(utterance);
-  }, 400);
+  }, 500);
 }
 
 /* ============================================
-   Subtitles (fallback)
+   Subtitles (ชัดเจนขึ้น: ใหญ่, เข้ม, หนา, มี stroke)
    ============================================ */
 function showSubtitle(slideNum) {
   const text = narrationTexts[slideNum];
@@ -1929,9 +2148,9 @@ function createSparkles() {
     sparkle.style.animationDuration = (1.5 + Math.random() * 1.5) + 's';
     sparkle.style.width = (2 + Math.random() * 4) + 'px';
     sparkle.style.height = sparkle.style.width;
-    sparkle.style.background = `rgba(${
-      Math.random() > 0.5 ? '255,255,255' : '167,139,250'
-    },${0.3 + Math.random() * 0.7})`;
+    sparkle.style.background = 'rgba(' +
+      (Math.random() > 0.5 ? '255,255,255' : '167,139,250') +
+      ',' + (0.3 + Math.random() * 0.7) + ')';
     container.appendChild(sparkle);
   }
 }
@@ -1996,11 +2215,15 @@ document.addEventListener('keydown', (e) => {
 /* ============================================
    Load Voices (Chrome ต้อง wait for event)
    ============================================ */
+checkSpeechSupport();
+
 if (speechSupported) {
   // Chrome ยังโหลด voices บางทีต้องรอ
   if (window.speechSynthesis.getVoices().length === 0) {
     window.speechSynthesis.addEventListener('voiceschanged', () => {
       console.log('Voices loaded:', window.speechSynthesis.getVoices().length);
+      // Re-detect Thai voices หลัง voices เปลี่ยน
+      detectThaiVoices();
     });
   }
 }
@@ -2039,8 +2262,9 @@ function handleSwipe() {
    Initialize — Console hint
    ============================================ */
 console.log('🎬 Web PP7 Presentation loaded');
-console.log('💡 ทดสอบเสียง: new SpeechSynthesisUtterance("ทดสอบ").lang="th-TH"; speechSynthesis.speak(utt)');
+console.log('💡 ทดสอบเสียง: window.speechSynthesis.getVoices().filter(v=>v.lang.startsWith("th"))');
 console.log('⌨️  Keyboard: Space=play/pause, ←→=nav, Esc=exit, M=mute');
+console.log('🎙️ เสียงไทยที่มี:', thaiVoices.length > 0 ? thaiVoices.map(v => v.name) : 'ไม่มี — ใช้ Chrome/Mac');
 </script>
 
 </body>

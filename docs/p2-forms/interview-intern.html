@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบสัมภาษณ์นักศึกษาฝึกงาน — Web PP7</title>
+    <style>
+        :root {
+            --primary: #f39c12;
+            --primary-dark: #e67e22;
+            --bg: #fef9e7;
+            --card: #ffffff;
+            --text: #2c3e50;
+            --border: #f0e6d2;
+            --success: #27ae60;
+            --warning: #f1c40f;
+            --info: #3498db;
+            --accent: #e74c3c;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .header .subtitle { opacity: 0.9; font-size: 1rem; }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .section {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        .section-title .icon { font-size: 1.5rem; }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group.full-width { grid-column: 1 / -1; }
+        label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #7f8c8d;
+            margin-bottom: 0.3rem;
+        }
+        label .required { color: var(--accent); }
+        input, select, textarea {
+            padding: 0.75rem;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(243, 156, 18, 0.2);
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        
+        /* Score Table */
+        .score-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+        .score-table th, .score-table td {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .score-table th {
+            background: var(--primary);
+            color: white;
+            font-weight: 500;
+        }
+        .score-table td:first-child { width: 40px; }
+        .score-table td:nth-child(2) { text-align: left; }
+        .score-table input[type="number"] {
+            width: 70px;
+            text-align: center;
+        }
+        .score-table tr:nth-child(even) { background: #fef9e7; }
+        
+        .score-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .score-legend span {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            background: white;
+        }
+        
+        .score-summary {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .score-value { font-size: 2rem; font-weight: 700; }
+        
+        /* Trainer */
+        .trainer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .trainer-card {
+            background: #fef9e7;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--info);
+        }
+        .trainer-card h4 {
+            font-size: 0.9rem;
+            color: var(--info);
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Committee */
+        .committee-grid {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .committee-card {
+            flex: 1;
+            min-width: 150px;
+            background: #fef9e7;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px dashed var(--primary);
+        }
+        .committee-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: var(--primary-dark); color: white; }
+        .btn-primary:hover { background: #d35400; }
+        .btn-secondary { background: var(--border); color: var(--text); }
+        
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .btn-group { flex-direction: column; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎓 แบบสัมภาษณ์นักศึกษาฝึกงาน</h1>
+        <p class="subtitle">LDC-PAO-WI-Intern | P2 หยั่งประเมิน | Web PP7</p>
+    </div>
+
+    <div class="container">
+        <!-- ข้อมูลการสัมภาษณ์ -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">📅</span> ข้อมูลการสัมภาษณ์</h2>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>คณะกรรมการสัมภาษณ์</label>
+                    <div class="committee-grid">
+                        <div class="committee-card">
+                            <div class="number">1</div>
+                            <input type="text" placeholder="ชื่อกรรมการ">
+                        </div>
+                        <div class="committee-card">
+                            <div class="number">2</div>
+                            <input type="text" placeholder="ชื่อกรรมการ">
+                        </div>
+                        <div class="committee-card">
+                            <div class="number">3</div>
+                            <input type="text" placeholder="ชื่อกรรมการ">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ข้อมูลนักศึกษา -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">👨‍🎓</span> ข้อมูลนักศึกษา</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>หมายเลขบัตรประชาชน <span class="required">*</span></label>
+                    <input type="text" placeholder="X-XXXX-XXXXX-XX-X" maxlength="17" required>
+                </div>
+                <div class="form-group">
+                    <label>ชื่อ-นามสกุล <span class="required">*</span></label>
+                    <input type="text" placeholder="ชื่อ-นามสกุล" required>
+                </div>
+                <div class="form-group">
+                    <label>ชื่อเล่น</label>
+                    <input type="text" placeholder="ชื่อเล่น">
+                </div>
+                <div class="form-group">
+                    <label>อายุ</label>
+                    <input type="number" placeholder="อายุ" min="16" max="30">
+                </div>
+                <div class="form-group">
+                    <label>วุฒิการศึกษา <span class="required">*</span></label>
+                    <select required>
+                        <option value="">— เลือก —</option>
+                        <option>ปวช.</option>
+                        <option>ปวส.</option>
+                        <option>ปริญญาตรี</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>สาขาที่ศึกษา</label>
+                    <input type="text" placeholder="สาขา">
+                </div>
+                <div class="form-group">
+                    <label>สถานศึกษา</label>
+                    <input type="text" placeholder="ชื่อสถาบัน">
+                </div>
+                <div class="form-group">
+                    <label>เกรด (GPAX)</label>
+                    <input type="number" placeholder="0.00" min="0" max="4" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>วันที่เริ่มต้นฝึกงาน</label>
+                    <input type="date">
+                </div>
+                <div class="form-group">
+                    <label>วันที่สิ้นสุดฝึกงาน</label>
+                    <input type="date">
+                </div>
+            </div>
+        </div>
+
+        <!-- หน่วยงานที่ต้องการฝึก -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">🏢</span> หน่วยงานที่ต้องการฝึก</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>บริษัท</label>
+                    <select>
+                        <option value="">— เลือกบริษัท —</option>
+                        <option>PMS</option>
+                        <option>RAFCO</option>
+                        <option>AAM</option>
+                        <option>AGS</option>
+                        <option>PMG</option>
+                        <option>RPLC</option>
+                        <option>AICP</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>บทบาท/ฝ่าย</label>
+                    <input type="text" placeholder="บทบาทที่ต้องการฝึก">
+                </div>
+            </div>
+        </div>
+
+        <!-- เกณฑ์การให้คะแนน -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">⭐</span> เกณฑ์การให้คะแนน (เต็ม 50, ผ่าน ≥ 65%)</h2>
+            
+            <div class="score-legend">
+                <span><strong>1</strong> = น้อยมาก</span>
+                <span><strong>2</strong> = น้อย</span>
+                <span><strong>3</strong> = ปานกลาง</span>
+                <span><strong>4</strong> = ดี</span>
+                <span><strong>5</strong> = ดีมาก</span>
+            </div>
+            
+            <table class="score-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>หัวข้อประเมิน</th>
+                        <th>คะแนนเต็ม</th>
+                        <th>คกก.1</th>
+                        <th>คกก.2</th>
+                        <th>คกก.3</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>บุคลิกลักษณะ การวางตัว กิริยา มารยาท การแต่งกาย</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>การเตรียมตัว เตรียมพร้อมมุ่งมั่นในการฝึกงาน</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>ความรู้ความสามารถและความเหมาะสมของสาขาวิชาที่ศึกษา เหมาะกับหน่วยงานที่ฝึก</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>ทัศนคติทั่วไปกับการทำงานในอนาคต</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>การตอบคำถามที่ตรงประเด็น</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>ประวัติส่วนตัว</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>สุขภาพ</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>อารมณ์ (สุขุม ใจเย็น)</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>การรักษาระเบียบวินัย และกฎข้อบังคับ</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>ทัศนคติทั่วไปเกี่ยวกับงานบริการ</td>
+                        <td>5</td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                        <td><input type="number" min="0" max="5" class="score-input"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="score-summary">
+                <div>
+                    <div>คะแนนรวม</div>
+                    <div style="font-size: 0.85rem; opacity: 0.9;">ผ่าน ≥ 65% (32.5 คะแนน)</div>
+                </div>
+                <div class="score-value" id="totalScore">0 / 50</div>
+            </div>
+        </div>
+
+        <!-- ผลการสัมภาษณ์ -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">📝</span> ผลการสัมภาษณ์</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>ผลการสัมภาษณ์ <span class="required">*</span></label>
+                    <select id="resultSelect">
+                        <option value="">— เลือก —</option>
+                        <option value="pass">ผ่าน</option>
+                        <option value="fail">ไม่ผ่าน</option>
+                    </select>
+                </div>
+                <div class="form-group full-width">
+                    <label>เหตุผลที่ไม่ผ่านการสัมภาษณ์</label>
+                    <textarea placeholder="ระบุเหตุผล (กรณีไม่ผ่าน)"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- พี่เลี้ยง -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">👥</span> พี่เลี้ยง (Mentor)</h2>
+            <div class="trainer-grid">
+                <div class="trainer-card">
+                    <h4>🎯 พี่เลี้ยงคนที่ 1</h4>
+                    <div class="form-group">
+                        <label>ชื่อ-นามสกุล / รหัส</label>
+                        <input type="text" placeholder="ระบุพี่เลี้ยง">
+                    </div>
+                </div>
+                <div class="trainer-card">
+                    <h4>🎯 พี่เลี้ยงคนที่ 2</h4>
+                    <div class="form-group">
+                        <label>ชื่อ-นามสกุล / รหัส</label>
+                        <input type="text" placeholder="ระบุพี่เลี้ยง">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ข้อมูลเพิ่มเติม -->
+        <div class="section">
+            <h2 class="section-title"><span class="icon">📋</span> ข้อมูลเพิ่มเติม</h2>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>จุดแข็งของนักศึกษา</label>
+                    <textarea placeholder="สรุปจุดแข็ง..."></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label>จุดอ่อนของนักศึกษา</label>
+                    <textarea placeholder="สรุปจุดอ่อน..."></textarea>
+                </div>
+                <div class="form-group full-width">
+                    <label>บันทึกเพิ่มเติมจากกรรมการ</label>
+                    <textarea placeholder="บันทึกเพิ่มเติม..." style="min-height: 100px;"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-secondary">บันทึกร่าง</button>
+            <button class="btn btn-primary">✓ ส่งผลการสัมภาษณ์</button>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.score-input').forEach(input => {
+            input.addEventListener('input', calculateTotal);
+        });
+
+        function calculateTotal() {
+            let total = 0;
+            document.querySelectorAll('.score-input').forEach(input => {
+                let val = parseInt(input.value) || 0;
+                if (val > 5) { input.value = 5; val = 5; }
+                if (val < 0) { input.value = 0; val = 0; }
+                total += val;
+            });
+            document.getElementById('totalScore').textContent = total + ' / 50';
+            const el = document.getElementById('totalScore');
+            el.style.color = total >= 32.5 ? '#27ae60' : (total > 0 ? '#e74c3c' : 'white');
+        }
+    </script>
+</body>
+</html>

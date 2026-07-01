@@ -1,0 +1,239 @@
+digraph PP7_Process_Flow {
+    // ===== Global Settings =====
+    rankdir=TB;
+    bgcolor="#F5F5F5";
+    fontname="Noto Sans Thai,Tahoma,Arial";
+    node [fontname="Noto Sans Thai,Tahoma,Arial", fontsize=10, shape=box, style="rounded,filled"];
+    edge [fontname="Noto Sans Thai,Tahoma,Arial", fontsize=8];
+
+    // ===== Legend =====
+    subgraph cluster_legend {
+        label="คำอธิบาย";
+        style=filled;
+        color="#E8E8E8";
+        fontcolor="#333";
+        legend_PM [label="PM = Process Manual (กระบวนการหลัก)", shape=plaintext, fontcolor="#1565C0"];
+        legend_WI [label="WI = Work Instruction (คำแนะนำการทำงาน)", shape=plaintext, fontcolor="#2E7D32"];
+        legend_SD [label="SD = Standard/Script (มาตรฐาน)", shape=plaintext, fontcolor="#E65100"];
+        legend_FM [label="FM = Form (แบบฟอร์ม)", shape=plaintext, fontcolor="#6A1B9A"];
+        legend_PM; legend_WI; legend_SD; legend_FM;
+    }
+
+    // ===== PAO Node Colors by Type =====
+    // PM nodes - blue
+    PAO_PM001 [label="PM-001\nแสวงหาผู้สมัคร", fillcolor="#1565C0", fontcolor=white];
+    PAO_PM002 [label="PM-002\nนำเข้าต่างด้าว", fillcolor="#1565C0", fontcolor=white];
+    PAO_PM003 [label="PM-003\nประเมินทดลองงาน", fillcolor="#1565C0", fontcolor=white];
+
+    // WI nodes - green
+    PAO_WI001 [label="WI-001\nขออัตรากำลัง", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI002 [label="WI-002\nคัดเลือกภายนอก", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI003 [label="WI-003\nสรุปผลคัดเลือก", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI004 [label="WI-004\nโอนย้าย/เลื่อนตำแหน่ง", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI006 [label="WI-006\nขอโควต้าต่างด้าว", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI007 [label="WI-007\nรับต่างด้าว ตม.", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI008 [label="WI-008\nขอใบอนุญาตต่างด้าว", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI009 [label="WI-009\nโครงสร้างองค์กร", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI011 [label="WI-011\nนำสมาชิกเข้าระบบ", fillcolor="#FF6F00", fontcolor=white];
+    PAO_WI012 [label="WI-012\nประเมินเครดิต", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI013 [label="WI-013\nลงเวลา", fillcolor="#FF6F00", fontcolor=white];
+    PAO_WI014 [label="WI-014\nเก็บแบบประเมิน", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI015 [label="WI-015\nแบบบรรจุ", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI016 [label="WI-016\nประเมินทดลองงาน/โอนย้าย", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI017 [label="WI-017\nคีย์เงินเดือน", fillcolor="#FF6F00", fontcolor=white];
+    PAO_WI018 [label="WI-018\nกำกับ LIA", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI019 [label="WI-019\nทบทวนสิทธิ", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI020 [label="WI-020\nยกเลิกสิทธิลาออก", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI021 [label="WI-021\nขออุปกรณ์เคลื่อนที่", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI022 [label="WI-022\nใบขออนุญาต", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI023 [label="WI-023\nหนังสือตักเตือน", fillcolor="#2E7D32", fontcolor=white];
+    PAO_WI032 [label="WI-032\nแบบประเมินผลรายปี", fillcolor="#2E7D32", fontcolor=white];
+
+    // SD nodes - orange
+    PAO_SD001 [label="SD-001\nScript แจ้งก่อนเริ่มงาน", fillcolor="#E65100", fontcolor=white];
+
+    // FM nodes - purple
+    PAO_FM001 [label="FM-001\nใบลาออก", fillcolor="#6A1B9A", fontcolor=white];
+    PAO_FM002 [label="FM-002\nทะเบียนเอกสาร", fillcolor="#6A1B9A", fontcolor=white];
+    PAO_FM003 [label="FM-003\nแบบสอบถาม ISMS", fillcolor="#6A1B9A", fontcolor=white];
+
+    // ===== PAD Node Colors =====
+    PAD_PM001 [label="PM-001\nพี่เลี้ยงน้องเลี้ยง", fillcolor="#1565C0", fontcolor=white];
+    PAD_PM002 [label="PM-002\nศูนย์พัฒนาฝีมือ", fillcolor="#1565C0", fontcolor=white];
+    PAD_PM004 [label="PM-004\nระบบ 3 ผ่าน", fillcolor="#1565C0", fontcolor=white];
+    PAD_PM005 [label="PM-005\nวัดทุนองค์กร", fillcolor="#1565C0", fontcolor=white];
+
+    PAD_WI001 [label="WI-001\nเปิดอบรมภายใน", fillcolor="#2E7D32", fontcolor=white];
+    PAD_WI002 [label="WI-002\nTraining", fillcolor="#2E7D32", fontcolor=white];
+    PAD_WI003 [label="WI-003\nกำกับพัฒนาบุคลากร", fillcolor="#2E7D32", fontcolor=white];
+    PAD_WI004 [label="WI-004\nสร้าง/จ่าย MSP", fillcolor="#2E7D32", fontcolor=white];
+    PAD_WI005 [label="WI-005\nซื้อ MSP", fillcolor="#2E7D32", fontcolor=white];
+    PAD_WI006 [label="WI-006\nเก็บค่าดำเนินการ MSP", fillcolor="#2E7D32", fontcolor=white];
+    PAD_WI007 [label="WI-007\nดึง BUPOINT กลับ", fillcolor="#2E7D32", fontcolor=white];
+
+    PAD_SD001 [label="SD-001\nBCM", fillcolor="#E65100", fontcolor=white];
+    PAD_SD002 [label="SD-002\nBCP", fillcolor="#E65100", fontcolor=white];
+    PAD_SD003 [label="SD-003\nมาตรฐานฝึกอบรม", fillcolor="#E65100", fontcolor=white];
+    PAD_SD004 [label="SD-004\nISMS", fillcolor="#E65100", fontcolor=white];
+
+    PAD_FM001 [label="FM-001\nCommunication Plan", fillcolor="#6A1B9A", fontcolor=white];
+
+    // ===== WCD Node Colors =====
+    WCD_WI001 [label="WI-001\nเบี้ยเลี้ยงฝึกงาน", fillcolor="#C62828", fontcolor=white];
+    WCD_WI002 [label="WI-002\nเงินสมทบลาออก", fillcolor="#C62828", fontcolor=white];
+    WCD_WI003 [label="WI-003\nเบิกสวัสดิการ", fillcolor="#C62828", fontcolor=white];
+    WCD_WI004 [label="WI-004\nจ่ายเงินเดือน", fillcolor="#C62828", fontcolor=white];
+    WCD_WI005 [label="WI-005\nโบนัสประจำปี", fillcolor="#C62828", fontcolor=white];
+    WCD_WI006 [label="WI-006\nระบบเกษียณ", fillcolor="#C62828", fontcolor=white];
+    WCD_WI010 [label="WI-010\nนำส่งเงินสมทบ", fillcolor="#C62828", fontcolor=white];
+
+    // ===== External Entities =====
+    ext_BU [label="BU\n(ขออัตรากำลัง)", shape=ellipse, fillcolor="#FFE082", fontcolor="#333"];
+    ext_BCT [label="BCT\n(ระบบจ่ายเงิน)", shape=ellipse, fillcolor="#FFE082", fontcolor="#333"];
+    ext_CU [label="CU\n(ออมหุ้น/เงินกู้)", shape=ellipse, fillcolor="#FFE082", fontcolor="#333"];
+    ext_HOCC [label="HOCC\n(PFS/ภาษี)", shape=ellipse, fillcolor="#FFE082", fontcolor="#333"];
+    ext_IT [label="IT\n(ระบบ/สิทธิ)", shape=ellipse, fillcolor="#FFE082", fontcolor="#333"];
+    ext_Money [label="การเงิน/ธนาคาร", shape=ellipse, fillcolor="#FFE082", fontcolor="#333"];
+    ext_Gov [label="หน่วยงานรัฐ\n(ตม./ประกันสังคม/ภงด.)", shape=ellipse, fillcolor="#FFE082", fontcolor="#333"];
+    ext_BMC [label="BMC\n(ดูแลสมาชิก)", shape=ellipse, fillcolor="#FFE082", fontcolor="#333"];
+    ext_Member [label="สมาชิก", shape=ellipse, fillcolor="#FFE082", fontcolor="#333"];
+
+    // ===== CLUSTERS =====
+    subgraph cluster_PAO {
+        label="📌 PAO — สรรหาและประเมินผล";
+        style=filled;
+        color="#E3F2FD";
+        PAO_PM001; PAO_PM002; PAO_PM003;
+        PAO_WI001; PAO_WI002; PAO_WI003; PAO_WI004; PAO_WI006;
+        PAO_WI007; PAO_WI008; PAO_WI009; PAO_WI011; PAO_WI012;
+        PAO_WI013; PAO_WI014; PAO_WI015; PAO_WI016; PAO_WI017;
+        PAO_WI018; PAO_WI019; PAO_WI020; PAO_WI021; PAO_WI022;
+        PAO_WI023; PAO_WI032;
+        PAO_SD001;
+        PAO_FM001; PAO_FM002; PAO_FM003;
+    }
+
+    subgraph cluster_PAD {
+        label="📌 PAD — บริหารหลักสูตร";
+        style=filled;
+        color="#E8F5E9";
+        PAD_PM001; PAD_PM002; PAD_PM004; PAD_PM005;
+        PAD_WI001; PAD_WI002; PAD_WI003; PAD_WI004; PAD_WI005;
+        PAD_WI006; PAD_WI007;
+        PAD_SD001; PAD_SD002; PAD_SD003; PAD_SD004;
+        PAD_FM001;
+    }
+
+    subgraph cluster_WCD {
+        label="📌 WCD — สวัสดิการและค่าตอบแทน";
+        style=filled;
+        color="#FFEBEE";
+        WCD_WI001; WCD_WI002; WCD_WI003; WCD_WI004;
+        WCD_WI005; WCD_WI006; WCD_WI010;
+    }
+
+    // ============================================================
+    // ===== DATA FLOW EDGES =====
+    // ============================================================
+
+    // === GROUP 1: Recruitment → Assessment → Onboarding ===
+    ext_BU -> PAO_WI001 [label="ขอเพิ่มอัตรากำลัง\n(ฟอร์ม BCT PPP7)", color="#1565C0"];
+    PAO_WI001 -> PAO_PM001 [label="ใบขออัตรากำลัง\nที่ตรวจสอบแล้ว", color="#2E7D32"];
+    PAO_WI001 -> PAO_WI002 [label="ข้อมูลตำแหน่ง\n+ คุณสมบัติ", color="#2E7D32"];
+    PAO_PM001 -> PAO_WI002 [label="ประกาศรับสมัคร\n10 ช่องทาง", color="#1565C0"];
+    PAO_PM001 -> PAO_WI003 [label="ใบสมัครทั้งหมด", color="#1565C0"];
+    PAO_WI002 -> PAO_WI003 [label="ผลสัมภาษณ์\nผู้ผ่านการคัดกรอง", color="#2E7D32"];
+    PAO_WI003 -> PAO_SD001 [label="รายชื่อผู้ผ่านคัดเลือก\n+ ตำแหน่ง/วันเริ่มงาน", color="#2E7D32"];
+    PAO_SD001 -> PAO_WI011 [label="ผู้สมัครยืนยัน\nเริ่มงาน", color="#E65100"];
+
+    // Foreign Worker Track (parallel)
+    PAO_WI006 -> PAO_WI007 [label="โควต้าที่ได้รับ", color="#2E7D32"];
+    PAO_WI007 -> PAO_WI008 [label="คนงานที่รับแล้ว\n+ เอกสาร", color="#2E7D32"];
+    PAO_WI008 -> PAO_WI011 [label="ต่างด้าวที่ขึ้นทะเบียน\nครบถ้วน", color="#2E7D32"];
+    PAO_PM002 -> PAO_WI006 [label="ความต้องการต่างด้าว", color="#1565C0"];
+
+    // Onboarding
+    PAO_WI011 -> PAO_WI013 [label="สมาชิกใหม่\nต้องลงเวลา", color="#FF6F00"];
+    PAO_WI011 -> PAO_WI012 [label="ข้อมูลสมาชิก\nเพื่อประเมินเครดิต", color="#FF6F00"];
+    PAO_WI011 -> PAD_PM001 [label="สมาชิกใหม่\nต้องได้พี่เลี้ยง", color="#FF6F00"];
+
+    // Probation Assessment
+    PAO_WI011 -> PAO_PM003 [label="สมาชิกทดลองงาน\nต้องประเมิน", color="#FF6F00"];
+    PAO_PM003 -> PAO_WI016 [label="ผลประเมินพฤติกรรม/\nทักษะ/ทุนองค์กร", color="#1565C0"];
+    PAO_WI016 -> PAO_WI015 [label="ประเมินผ่าน\n→ บรรจุ", color="#2E7D32"];
+    PAO_WI015 -> PAO_WI017 [label="ข้อมูลสมาชิกบรรจุ\nเงินเดือนเริ่มต้น", color="#2E7D32"];
+
+    // Transfer/Promotion
+    PAO_WI004 -> PAO_PM003 [label="สมาชิกโอนย้าย/\nเลื่อนตำแหน่ง", color="#2E7D32"];
+    PAO_WI004 -> PAO_WI016 [label="ประเมินผลการโอนย้าย", color="#2E7D32"];
+
+    // === GROUP 2: Assessment → Development ===
+    PAO_WI012 -> PAD_PM004 [label="ผลประเมินเครดิต\n→ วางแผน 3 ผ่าน", color="#2E7D32"];
+    PAO_WI012 -> PAD_PM005 [label="ข้อมูลทุนองค์กร/\nทุนมนุษย์", color="#2E7D32"];
+    PAO_WI012 -> PAO_WI014 [label="แบบประเมินผล\nรายบุคคล", color="#2E7D32"];
+    PAO_WI032 -> PAO_WI012 [label="แบบประเมินผลรายปี\n(360 องศา)", color="#2E7D32"];
+
+    PAD_PM004 -> PAD_WI002 [label="หลักสูตรฝึกอบรม\nจากแผน 3 ผ่าน", color="#1565C0"];
+    PAD_PM005 -> PAD_WI003 [label="ผลวัดทุนองค์กร\n→ พัฒนาต่อ", color="#1565C0"];
+    PAD_WI001 -> PAD_WI003 [label="ผลการอบรมภายใน", color="#2E7D32"];
+    PAD_WI002 -> PAD_WI003 [label="ผลการ Training", color="#2E7D32"];
+    PAD_WI003 -> PAD_WI004 [label="แผนพัฒนาบุคลากร\n→ สร้าง MSP", color="#2E7D32"];
+    PAD_WI004 -> PAD_WI005 [label="MSP ที่สร้างแล้ว\n→ ซื้อ", color="#2E7D32"];
+    PAD_WI005 -> PAD_WI006 [label="ธุรกรรม MSP\n→ เก็บค่าดำเนินการ", color="#2E7D32"];
+    PAD_WI004 -> PAD_WI007 [label="BUPOINT ผิดพลาด\n→ ดึงกลับ", color="#2E7D32"];
+    PAD_WI007 -> ext_Member [label="BUPOINT คืนสมาชิก", color="#2E7D32"];
+
+    // === GROUP 3: Welfare & Compensation ===
+    PAO_WI017 -> WCD_WI004 [label="ข้อมูลเงินเดือน\nสมาชิกทุกคน", color="#FF6F00"];
+    PAO_WI013 -> WCD_WI004 [label="ข้อมูลลงเวลา\n(ลา/หักเงิน)", color="#FF6F00"];
+    PAO_WI013 -> WCD_WI001 [label="ลงเวลาฝึกงาน/\nรายวัน", color="#FF6F00"];
+    PAO_WI013 -> WCD_WI003 [label="ตรวจสอบสิทธิ์\nเบิกสวัสดิการ", color="#FF6F00"];
+
+    WCD_WI004 -> WCD_WI010 [label="ข้อมูลเงินเดือน\n→ นำส่งเงินสมทบ", color="#C62828"];
+    WCD_WI004 -> WCD_WI005 [label="ข้อมูลเงินเดือนประจำปี\n→ คำนวณโบนัส", color="#C62828"];
+    WCD_WI005 -> ext_Money [label="BV + VC\n→ โบนัสเข้าบัญชี", color="#C62828"];
+    WCD_WI004 -> ext_Money [label="เงินเดือน\n(H2H Kbank)", color="#C62828"];
+    WCD_WI001 -> ext_Money [label="เบี้ยเลี้ยง\nสิ้นเดือน", color="#C62828"];
+
+    ext_HOCC -> WCD_WI005 [label="ข้อมูล PFS\nสมาชิก", color="#1565C0"];
+    ext_CU -> WCD_WI004 [label="ข้อมูลออมหุ้น/\nหักเงินกู้", color="#1565C0"];
+    ext_CU -> WCD_WI005 [label="ข้อมูล CU\nประจำปี", color="#1565C0"];
+
+    WCD_WI010 -> ext_Gov [label="ภงด.1 / ประกันสังคม /\nกยศ.", color="#C62828"];
+
+    // Retirement & Resignation
+    ext_BMC -> WCD_WI006 [label="สมาชิกอายุ 60 ปี\n(เกษียณ)", color="#1565C0"];
+    WCD_WI006 -> WCD_WI002 [label="สมาชิกเกษียณ\n→ เงินสมทบลาออก", color="#C62828"];
+    PAO_FM001 -> WCD_WI002 [label="ใบลาออก\n→ คำนวณเงินสมทบ", color="#6A1B9A"];
+    PAO_FM001 -> PAO_WI020 [label="ใบลาออก\n→ ยกเลิกสิทธิ", color="#6A1B9A"];
+    WCD_WI002 -> ext_Money [label="เงินสมทบอายุงาน\nเข้าบัญชีสมาชิก", color="#C62828"];
+    WCD_WI006 -> ext_Money [label="เงินชดเชยเกษียณ\n+ หุ้น CU GTC", color="#C62828"];
+
+    // === GROUP 4: Structure / Rights / Discipline ===
+    ext_BMC -> PAO_WI009 [label="ขอเพิ่มโครงสร้าง\nองค์กร", color="#1565C0"];
+    PAO_WI009 -> PAO_WI018 [label="โครงสร้างใหม่\n→ กำหนด LIA", color="#2E7D32"];
+    PAO_WI018 -> PAO_WI019 [label="LIA กำหนดแล้ว\n→ ทบทวนสิทธิ", color="#2E7D32"];
+    PAO_WI019 -> ext_IT [label="ปรับปรุงสิทธิ\nผู้ใช้งานระบบ", color="#2E7D32"];
+    PAO_WI020 -> ext_IT [label="ยกเลิกสิทธิ\nสมาชิกพ้นสภาพ", color="#2E7D32"];
+
+    PAO_WI021 -> PAO_WI012 [label="ประวัติขออุปกรณ์\nเคลื่อนที่", color="#2E7D32"];
+    PAO_WI022 -> PAO_WI012 [label="ประวัติใบอนุญาต\nสมาชิก", color="#2E7D32"];
+    PAO_WI023 -> PAO_WI012 [label="หนังสือตักเตือน\n→ บันทึกประวัติ", color="#2E7D32"];
+
+    // === Cross-department flows ===
+    PAO_WI013 -> PAD_FM001 [label="ข้อมูลเข้าอบรม\n(Communication Plan)", color="#FF6F00"];
+    PAD_SD003 -> PAD_WI001 [label="มาตรฐานฝึกอบรม\n→ เปิดอบรม", color="#E65100"];
+    PAD_SD001 -> ext_BMC [label="BCM\nแจ้งเตือน BMC", color="#E65100"];
+    PAD_SD002 -> ext_BMC [label="BCP\nแผนต่อเนื่องธุรกิจ", color="#E65100"];
+
+    // === Feedback Loops ===
+    PAD_WI003 -> PAO_WI012 [label="ผลพัฒนาบุคลากร\n→ ปรับปรุงประเมิน", color="#2E7D32", style=dashed];
+    WCD_WI004 -> PAO_WI017 [label="ข้อมูลเงินเดือนจริง\n→ ปรับฐาน", color="#C62828", style=dashed];
+    PAO_WI012 -> PAO_WI004 [label="ผลประเมินเครดิต\n→ พิจารณาโอนย้าย", color="#2E7D32", style=dashed];
+    PAO_WI014 -> PAD_PM005 [label="แบบประเมินผล\n→ วัดทุนมนุษย์", color="#2E7D32", style=dashed];
+
+    // === External System Connections ===
+    WCD_WI003 -> ext_BCT [label="VC ตั้งเบิก\n→ เบิกเงิน", color="#C62828"];
+    WCD_WI003 -> ext_Member [label="แจ้งเตือน Line/TG\n+ MSP/Cashout", color="#C62828"];
+    ext_CU -> WCD_WI006 [label="ข้อมูลหุ้น CU/GTC\nสมาชิกเกษียณ", color="#1565C0"];
+}
