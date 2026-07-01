@@ -2,11 +2,11 @@
 
 _Learn about the person you're helping. Update this as you go._
 
-- **Name:**
-- **What to call them:**
-- **Pronouns:** _(optional)_
-- **Timezone:**
-- **Notes:**
+- **Name:** ปกรณ์ (PKG-ปกรณ์(หนึ่ง))
+- **What to call them:** พี่ปกรณ์
+- **Pronouns:** เขา/เขา
+- **Timezone:** ICT (+7)
+- **Notes:** เจ้าของโครงการ Web PP7, Executive Sponsor
 
 ## Context
 
