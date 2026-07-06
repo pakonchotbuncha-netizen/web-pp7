@@ -1,316 +1,360 @@
-# 📦 ระบบ Migration Web PP7
+# ระบบย้ายข้อมูล Web PP7 (Data Migration System)
 
-**คู่มือการนำเข้าข้อมูลเข้าระบบ Web PP7 (PKGemployee)**
+ระบบสำหรับย้ายข้อมูลระหว่าง Google Sheets ใน Web PP7 พร้อม validation, duplicate detection, และ rollback
 
----
+## 📁 ไฟล์ในระบบ
 
-## 📗 ภาพรวม
+| ไฟล์ | คำอธิบาย |
+|------|-----------|
+| `Migration.gs` | ฟังก์ชันหลักสำหรับ migration |
+| `Migration_Template.gs` | สร้าง template sheets สำหรับ P1-P7 |
+| `test_migration.gs` | Test cases สำหรับระบบ |
 
-ระบบ Migration สำหรับ Web PP7 ประกอบด้วย:
+## 🚀 วิธีใช้งาน
 
-| ไฟล์ | รายละเอียด |
-|------|------------|
-| `Migration.gs` | สคริปต์หลักสำหรับ Import ข้อมูล พร้อม Validate, Log และ Rollback |
-| `Migration_Template.gs` | Template Sheet สำหรับแต่ละ Process (P1-P7) พร้อม Data Validation |
-| `test_migration.gs` | ชุดทดสอบระบบ Validate, Duplicate Detection และ Rollback |
+### 1. เตรียม Google Sheets
 
-### ฟีเจอร์หลัก
-
-- ✅ **Data Validation** - ตรวจ required fields, format, allowed values ก่อน Import
-- 🔁 **Duplicate Detection** - ข้ามข้อมูลที่มีรหัสพนักงานซ้ำ
-- 📋 **Transaction Logging** - บันทึกการ import ทุกแถว (Success/Failed/Skipped)
-- ⏪ **Rollback** - ยกเลิกการ import ที่มีปัญหาได้ด้วย Transaction ID
-- 🏷️ **Dry Run** - ทดสอบการ validate โดยไม่เขียนจริง
-- 📝 **Template Generator** - สร้าง Sheet P1-P7 พร้อม Dropdown validation อัตโนมัติ
-
----
-
-## 🚀 เริ่มต้นใช้งาน
-
-### ขั้นตอนที่ 1: ติดตั้งสคริปต์
-
-1. เปิด Google Apps Script Editor ของ Destination Sheet
-2. สร้างไฟล์ใหม่:
-   - `Migration.gs` (คัดลอกเนื้อหาจากไฟล์ Migration.gs)
-   - `Migration_Template.gs`
-   - `test_migration.gs`
-3. Save Project
-
-### ขั้นตอนที่ 2: สร้าง Template Sheets (ถ้ายังไม่มี)
-
-1. เปิด Google Sheet ที่ต้องการใช้ import
-2. เมนู **PP7 Migration** → **📝 สร้าง Template ทั้งหมด** (จาก Template.gs)
-3. ระบบจะสร้าง 8 Sheet:
-   - `Instructions` - คู่มือการใช้งาน
-   - `PKGemployee-Template` - Template ตามโครงสร้างจริง
-   - `P1-CandidateData` ถึง `P7-QualityOfLifeData`
-
-### ขั้นตอนที่ 3: กรอกข้อมูล
-
-1. เปิด Sheet ที่ต้องการ (เช่น `P1-CandidateData`)
-2. กรอกข้อมูลตั้งแต่ **แถวที่ 4** เป็นต้นไป (แถว 1-3 เป็น Header/Description)
-3. ใช้ Data Validation (Dropdown) ที่มีอยู่แล้วใน Column ต่างๆ
-
----
-
-## ✅ Checklist เตรียมข้อมูลก่อน Import
-
-### ข้อมูลที่ต้องเตรียม
-
-- [ ] Google Sheet ต้นทาง **เปิดสาธารณะ** หรือ **Shared** ให้ Editor สามารถ Access ได้
-- [ ] ฟิลด์บังคับ (Required) ครบถ้วนทุกแถว:
-  - `id` (7 หลัก), `firstname`, `lastname`, `full_name`, `email`, `employee_status`, `start_date`
-- [ ] รูปแบบข้อมูลที่ถูกต้อง:
-  - วันที่: `DD/MM/YYYY` (เช่น `21/07/2021`)
-  - อีเมล: `name@domain.com`
-  - เลขบัตรประชาชน: 13 หลัก
-  - มือถือ: 9-10 หลัก หรือรูปแบบ `XXX-XXX-XXXX`
-- [ ] สถานะพนักงานต้องเป็นค่าที่ยอมรับ:
-  - `สมาชิกประจำ`, `สมาชิกทดลองงาน`, `สมาชิกประจำ(เกษียณ)`, `สัญญาจ้าง`, `สัญญาจ้าง(เกษียณ)`, `ลาออก`
-- [ ] คำนำหน้า (ถ้ามี): `นาย`, `นาง`, `นางสาว`, `ด.ช.`, `ด.ญ.`
-
-### แนะนำก่อน Import
-
-- [ ] 🧪 ทดสอบ Dry Run ก่อนเสมอ
-- [ ] 🔍 ตรวจสอบ Validation Errors และแก้ไข
-- [ ] 💾 **Backup** ข้อมูลโดย Copy Sheet ก่อน import จริง
-
----
-
-## 📥 ขั้นตอนการ Import ทีละ Process
-
-### วิธีหา Spreadsheet ID
-
-จาก URL: `https://docs.google.com/spreadsheets/d/XXXXX/edit`
-ID คือส่วน **XXXXX** (ระหว่าง `/d/` และ `/edit`)
-
-### import ผ่าน Dialog (Google Sheets UI)
-
-1. เปิด Destination Sheet (PKGemployee)
-2. เมนู **PP7 Migration** → เลือก:
-   - **🔄 Import ข้อมูล (Dry Run)** → ทดสอบ validate เท่านั้น
-   - **✅ Import ข้อมูล (จริง)** → Import ข้อมูลจริง
-
-3. กรอก **Source Sheet ID** แล้วกด OK
-4. ดูผลการ import ใน Dialog และ Sheet `Migration_Log`
-
-### import ผ่าน Code (Google Apps Script)
-
+#### สร้าง Destination Sheet
 ```javascript
-// ตัวอย่าง: Import ข้อมูล P1 ทั้งหมด
-var result = batchMigrate(
-  'SOURCE_SPREADSHEET_ID',  // ID ของ Sheet ต้นทาง
-  'DESTINATION_SPREADSHEET_ID',  // ID ของ Sheet PKGemployee
-  'P1',  // Process ID (P1-P7)
-  {
-    sourceSheetName: 'P1-CandidateData',
-    skipDuplicates: true,
-    dryRun: false  // true สำหรับ Dry Run
+// 1. เปิด Apps Script
+// 2. รันฟังก์ชัน createAllTemplates(sheetId)
+
+function setupDestination() {
+  const destSheetId = 'YOUR_DESTINATION_SHEET_ID';
+  const results = createAllTemplates(destSheetId);
+  console.log(results);
+}
+```
+
+ระบบจะสร้าง sheets:
+- P1-แสวงหา
+- P2-หยั่งประเมิน
+- P3-จับคู่คนกับงาน
+- P4-ประเมินผล
+- P5-พัฒนา
+- P6-ค่าตอบแทน
+- P7-คุณภาพชีวิต
+
+### 2. Checklist เตรียมข้อมูล
+
+#### ✅ ก่อน Import
+
+**ตรวจสอบโครงสร้างข้อมูล:**
+- [ ] Headers ตรงกับ template (ชื่อ column ตรงกัน)
+- [ ] Data types ถูกต้อง (text, number, date, boolean)
+- [ ] ไม่มี empty rows คั่น
+- [ ] ไม่มี merged cells
+- [ ] ไม่มี special characters แปลกๆ ใน headers
+
+**ตรวจสอบ Required Fields:**
+
+**P1 - แสวงหา:**
+- [ ] `id` - UUID ผู้สมัคร
+- [ ] `full_name` - ชื่อ-นามสกุล
+- [ ] `position` - ตำแหน่งงาน
+- [ ] `department` - แผนก
+- [ ] `email` - อีเมล (ต้องถูก format)
+- [ ] `status` - ต้องเป็น: New, Screening, Passed_to_P2, Rejected
+- [ ] `pdpa_consent` - ต้องเป็น TRUE หรือ FALSE
+
+**P2 - หยั่งประเมิน:**
+- [ ] `candidate_id` - เชื่อมกับ P1
+- [ ] `evaluation_date` - รูปแบบ YYYY-MM-DD
+- [ ] `evaluator` - ชื่อผู้ประเมิน
+- [ ] `score` - 0-5
+- [ ] `result` - ผ่าน, ไม่ผ่าน, รออนุมัติ
+
+**P3 - จับคู่คนกับงาน:**
+- [ ] `candidate_id` - เชื่อมกับ P1
+- [ ] `position_id` - เชื่อมกับ positions
+- [ ] `match_score` - 0-100
+- [ ] `match_date` - รูปแบบ YYYY-MM-DD
+
+**P4 - ประเมินผล:**
+- [ ] `employee_id` - รหัสพนักงาน
+- [ ] `evaluation_period` - รูปแบบ Q1/2026, Q2/2026, ฯลฯ
+- [ ] `evaluator` - ชื่อผู้ประเมิน
+- [ ] `kpi_score` - 0-5
+- [ ] `evidence_links` - **บังคับ** (JSON array) ถ้าคะแนน < 3
+
+**P5 - พัฒนา:**
+- [ ] `employee_id` - รหัสพนักงาน
+- [ ] `plan_start`, `plan_end` - รูปแบบ YYYY-MM-DD
+- [ ] `goals` - JSON array
+- [ ] `status` - วางแผน, กำลังดำเนินการ, เสร็จสิ้น, ยกเลิก
+
+**P6 - ค่าตอบแทน:**
+- [ ] `employee_id` - รหัสพนักงาน
+- [ ] `base_salary`, `allowances` - ตัวเลข ≥ 0
+- [ ] `payment_date` - รูปแบบ YYYY-MM-DD
+
+**P7 - คุณภาพชีวิต:**
+- [ ] `employee_id` - รหัสพนักงาน
+- [ ] `survey_date` - รูปแบบ YYYY-MM-DD
+- [ ] `engagement_score` - 0-5
+- [ ] `satisfaction_areas` - JSON array
+
+### 3. ขั้นตอน Import ทีละ Process
+
+#### Import P1 - แสวงหา
+```javascript
+function importP1() {
+  const sourceSheetId = 'SOURCE_SHEET_ID';
+  const destSheetId = 'DEST_SHEET_ID';
+  
+  const result = migrateData(sourceSheetId, destSheetId, 'P1', {
+    checkDuplicates: true
+  });
+  
+  console.log('Import P1:', result);
+  console.log('สำเร็จ:', result.summary.success);
+  console.log('ผิดพลาด:', result.summary.failed);
+  console.log('ข้าม:', result.summary.skipped);
+  
+  if (result.failedRows.length > 0) {
+    console.log('รายการที่ผิดพลาด:', result.failedRows);
   }
-);
-
-Logger.log('ผลลัพธ์:', JSON.stringify(result));
+}
 ```
 
-### import แบบ Custom
+#### Import P2-P7 (ทำทีละ Process)
+```javascript
+function importAllProcesses() {
+  const sourceSheetId = 'SOURCE_SHEET_ID';
+  const destSheetId = 'DEST_SHEET_ID';
+  
+  const processes = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7'];
+  const results = [];
+  
+  processes.forEach(p => {
+    console.log(`\n===== Importing ${p} =====`);
+    
+    const result = migrateData(sourceSheetId, destSheetId, p, {
+      checkDuplicates: true
+    });
+    
+    results.push({
+      process: p,
+      transactionId: result.transactionId,
+      success: result.summary.success,
+      failed: result.summary.failed,
+      skipped: result.summary.skipped
+    });
+    
+    // รอ 2 วินาทีระหว่างแต่ละ process
+    Utilities.sleep(2000);
+  });
+  
+  console.log('\n===== SUMMARY =====');
+  results.forEach(r => {
+    console.log(`${r.process}: สำเร็จ ${r.success}, ผิดพลาด ${r.failed}, ข้าม ${r.skipped}`);
+  });
+  
+  return results;
+}
+```
+
+### 4. ตรวจสอบผลการ Import
 
 ```javascript
-// Import ด้วย options พิเศษ
-var result = migrateData(
-  'SOURCE_ID',
-  'DEST_ID',
-  {
-    sourceSheetName: 'Sheet1',
-    dryRun: true,           // ทดสอบก่อน
-    skipDuplicates: true,    // ข้ามข้อมูลที่ซ้ำ
-    includeHeader: true      // แถวแรกเป็น Header
-  }
-);
+function verifyImport() {
+  const destSheetId = 'DEST_SHEET_ID';
+  const ss = SpreadsheetApp.openById(destSheetId);
+  
+  const sheets = ['P1-แสวงหา', 'P2-หยั่งประเมิน', 'P3-จับคู่คนกับงาน', 
+                  'P4-ประเมินผล', 'P5-พัฒนา', 'P6-ค่าตอบแทน', 'P7-คุณภาพชีวิต'];
+  
+  sheets.forEach(name => {
+    const sheet = ss.getSheetByName(name);
+    if (sheet) {
+      const lastRow = sheet.getLastRow();
+      const dataRows = lastRow - 1; // ลบ header
+      console.log(`${name}: ${dataRows} รายการ`);
+    } else {
+      console.log(`${name}: ไม่พบ sheet`);
+    }
+  });
+}
 ```
 
-### ลำดับที่แนะนำในการ Import
-
-| ลำดับ | Process | รายละเอียด |
-|--------|---------|------------|
-| 1 | **P1** | ผู้สมัครงาน → ผู้สมัครที่ผ่านเข้า P2 |
-| 2 | **P2** | การประเมินเบื้องต้น → ผู้สมัครที่ผ่าน |
-| 3 | **P3** | การจับคู่คนกับงาน → พนักงานใหม่ |
-| 4 | **P4** | การประเมินผล (360°) |
-| 5 | **P5** | แผนพัฒนาบุคลากร |
-| 6 | **P6** | ข้อมูลค่าตอบแทน |
-| 7 | **P7** | คุณภาพชีวิตพนักงาน |
-
----
-
-## ⏪ Rollback (ยกเลิก Import)
-
-### ผ่าน Dialog
-
-1. เรียกดู **Transaction ID** ที่ต้องการยกเลิก (จาก Dialog ผลการ Import หรือ Sheet `Migration_Log`)
-2. เมนู **PP7 Migration** → **🔄 Rollback Transaction ล่าสุด**
-3. กรอก Transaction ID แล้วกด OK
-
-### ผ่าน Code
+### 5. Rollback ถ้าผิดพลาด
 
 ```javascript
-var result = rollbackMigration('TXN_1720000000000_ABC123', 'DEST_ID');
-Logger.log('Rollback:', result);
-// { success: true, rolledBackCount: 15, transactionId: '...' }
+function rollbackFailedImport() {
+  const txId = 'TX-1234567890-1234'; // จากผลการ migration
+  const destSheetId = 'DEST_SHEET_ID';
+  
+  // ระบุ range ที่ต้องการลบ (ถ้ารู้)
+  const startRow = 2;  // เริ่มจาก row 2 (หลัง header)
+  const endRow = 51;   // ถึง row 51
+  
+  rollbackMigration(txId, destSheetId, startRow, endRow);
+  
+  console.log(`Rollback transaction ${txId} เสร็จสิ้น`);
+}
 ```
 
----
+## 🔧 Validation Rules
 
-## 🔧 Troubleshooting (ปัญหาที่พบบ่อย)
+### ข้อมูลที่ถูกตรวจสอบ
 
-### ❌ ไม่พบ Sheet ในไฟล์ปลายทาง
+| ประเภท | กฎ | ตัวอย่าง |
+|--------|-----|----------|
+| **Required Fields** | ต้องมีค่า ไม่ว่าง | `id`, `email`, `status` |
+| **String** | รูปแบบถูกต้อง | `id` ต้องเป็น alphanumeric |
+| **Email** | ถูก format | `name@domain.com` |
+| **Number** | อยู่ในช่วง | `score` 0-5, `match_score` 0-100 |
+| **Date** | รูปแบบวันที่ | `YYYY-MM-DD` |
+| **Boolean** | TRUE/FALSE | `pdpa_consent` |
+| **Enum** | ค่าที่กำหนด | `status`: New, Screening, Passed_to_P2, Rejected |
+| **JSON Array** | JSON ที่ถูกต้อง | `evidence_links` |
 
-**ปัญหา:** `ไม่พบ Sheet ชื่อ "PKGemployee" ในไฟล์ปลายทาง`
+### Duplicate Detection
 
-**แก้ไข:** 
-- ตรวจสอบว่า Destination Sheet มี tab ชื่อ `PKGemployee`
-- ตรวจว่าสะกดถูกตัวพิมพ์เล็ก/ใหญ่มั้ย
+- **P1**: ตรวจสอบ `id` (candidate id)
+- **P2**: ตรวจสอบ `candidate_id`
+- **P3**: ตรวจสอบ `candidate_id` + `position_id`
+- **P4-P7**: ตรวจสอบ `employee_id`
 
-### ❌ Access Denied
+ถ้าพบ duplicate → ข้าม row นั้น (ไม่นำเข้าซ้ำ)
 
-**ปัญหา:** `Exception: You do not have permission to access the requested document`
+## 🛠 Troubleshooting
 
-**แก้ไข:**
-- ตรวจสอบว่า Google Account ที่ Run Script มี Edit Access ทั้ง Source และ Destination
-- Share ไฟล์เป็น "Anyone with the link can Edit" (สำหรับการทดสอบ)
+### ❌ "ไม่พบ sheet สำหรับ P1 ในต้นทาง"
 
-### ❌ Validation Errors หลายแถว
-
-**ปัญหา:** `❌ ล้มเหลว: 50` จำนวนมาก
-
-**แก้ไข:**
-1. ดู Log ใน Sheet `Migration_Log` เพื่อตรวจ error แต่ละแถว
-2. ตรวจสอบ error ที่พบบ่อย:
-   - `id: เป็นฟิลด์บังคับ` → กรอก รหัสพนักงาน (7 หลัก)
-   - `email: รูปแบบอีเมลไม่ถูกต้อง` → ตรวจรูปแบบ email
-   - `start_date: วันที่ไม่ถูกต้อง` → ใช้รูปแบบ `DD/MM/YYYY`
-   - `employee_status: สถานะพนักงานไม่ถูกต้อง` → ใช้ค่าใน Dropdown
-3. แก้ไขใน Source Sheet แล้ว Run ใหม่
-
-### ❌ ข้อมูลซ้ำกัน
-
-**ปัญหา:** `รหัสพนักงาน XXXXXXX มีอยู่แล้วในระบบ`
+**สาเหตุ:** ไม่มี sheet ที่ตรงกับชื่อ `P1-แสวงหา` ในต้นทาง
 
 **แก้ไข:**
-- ข้อมูลซ้ำจะถูกข้ามอัตโนมัติ (status = SKIPPED ใน Log)
-- หากต้องการ overwrite → ตั้ง `skipDuplicates: false` ใน options
+```javascript
+// ตรวจสอบว่ามี sheet อะไรบ้าง
+const ss = SpreadsheetApp.openById(sourceSheetId);
+const sheets = ss.getSheets();
+sheets.forEach(s => console.log(s.getName()));
+```
 
-### ❌ Import แล้วข้อมูลผิด ต้องยกเลิก
+### ❌ "Row X: ไม่ผ่าน validation - ขาดฟิลด์บังคับ: email"
 
-**แก้ไข:**
-1. เก็บ `Transaction ID` จากการ import ครั้งนั้น
-2. ใช้ Rollback ตามวิธีด้านบน
-3. แก้ไข Source Sheet แล้ว import ใหม่
-
-### ❌ ทดสอบ Dry Run ผ่าน แต่ Import จริง Error
-
-**สาเหตุ:** อาจเป็นปัญหา Permission หรือ Sheet ถูก Share ไม่ถูกต้อง
+**สาเหตุ:** ข้อมูล row นั้นขาด required field
 
 **แก้ไข:**
-- ตรวจสอบ permission อีกครั้ง
-- ลองเปิด Source Sheet ก่อนเพื่อ "warm up" access
-- ดู Logs ใน Apps Script > Executions
+1. ตรวจสอบไฟล์ต้นทาง
+2. เติมข้อมูลที่ขาด
+3. รัน migration ใหม่ (จะข้าม rows ที่ import แล้ว)
 
----
+### ❌ "Row X: ข้ามเพราะเป็น duplicate"
 
-## 📊 โครงสร้างข้อมูล PKGemployee
+**สาเหตุ:** ข้อมูลนี้มีอยู่แล้วในปลายทาง
 
-ไฟล์ `Migration.gs` Map ข้อมูลตาม Column Order ของ `PKGemployee`:
+**แก้ไข:**
+- ปกติไม่ใช่ปัญหา (ระบบข้ามให้อัตโนมัติ)
+- ถ้าต้องการ import ซ้ำ: ลบข้อมูลเก่าก่อน
 
-| Column | Field | คำอธิบาย |
-|--------|-------|-----------|
-| A | row_number | ลำดับ (Auto) |
-| B | id | รหัสพนักงาน (7 หลัก) ⭐ Required |
-| C | prefix | คำนำหน้า (นาย/นาง/นางสาว) |
-| D | firstname | ชื่อ ⭐ Required |
-| E | lastname | นามสกุล ⭐ Required |
-| F | full_name | ชื่อ-นามสกุล ⭐ Required |
-| G | email | อีเมล ⭐ Required |
-| H | department | ฝ่ายงาน |
-| I | team | ทีม |
-| J | business_unit | หน่วยธุรกิจ |
-| K | work_location | สถานที่ทำงาน |
-| L | employee_type | ประเภทพนักงาน |
-| M | employee_status | สถานะพนักงาน ⭐ Required |
-| N | start_date | วันที่เริ่มงาน ⭐ Required |
-| O | tenure_years | อายุงาน (ปี) |
-| P-AI | ... | ฟิลด์อื่นๆ (ดูใน Migration.gs) |
+### ❌ "MIGRATION FAILED: ... ROLLBACK สำเร็จ"
 
----
+**สาเหตุ:** เกิด error ร้ายแรงระหว่าง import
 
-## 🧪 การทดสอบ
+**แก้ไข:**
+1. ดูปรับปรุัง log ที่ได้
+2. แก้ไขข้อมูลต้นทาง
+3. รัน migration ใหม่
 
-### รันทดสอบทั้งหมด
+### ❌ "JSON parse error"
+
+**สาเหตุ:** ข้อมูล JSON array ไม่ถูกต้อง
+
+**แก้ไข:**
+```javascript
+// ตัวอย่าง JSON ที่ถูกต้อง
+'["link1", "link2", "link3"]'
+'[{"criteria":"Leadership","score":4}]'
+
+// ตัวอย่าง JSON ที่ผิด
+'not-json'
+'{invalid json}'
+```
+
+## 📊 Data Flow: P1 → P2 → P3
+
+ระบบรักษา Data Flow ตามกฎ:
+
+1. **Evidence-First Rule (P4)**
+   - ถ้า `kpi_score < 3` → `evidence_links` ต้องไม่ว่าง
+
+2. **Cascade Update**
+   - P4 ประเมินเสร็จ → สร้าง Draft P5 อัตโนมัติ
+
+3. **Feedback Loop (P7)**
+   - ข้อมูล P7 เชิงลบ → Alert ไป Manager Dashboard
+
+## 🧪 ทดสอบระบบ
 
 ```javascript
-testAll();
+// รัน test ทั้งหมด
+function testMigration() {
+  const results = runAllTests();
+  console.log(results);
+}
 ```
 
-ดูผลลัพธ์ใน **Apps Script > View > Logs**
+Test Cases ครอบคลุม:
+- ✅ Required fields validation
+- ✅ Email format validation
+- ✅ Number range validation
+- ✅ Enum values validation
+- ✅ Date format validation
+- ✅ Boolean type validation
+- ✅ JSON array validation
+- ✅ Duplicate detection
+- ✅ Rollback mechanism
+- ✅ Full P1 migration flow
+- ✅ Cross-process data flow (P1→P2→P3)
 
-### การทดสอบแต่ละส่วน
+## 📝 หมายเหตุสำคัญ
 
-```javascript
-testValidateRowRequired();    // ทดสอบ Required Fields
-testValidateRowFormat();      // ทดสอบ Format Checking
-testValidateRowAllowedValues(); // ทดสอบ Allowed Values
-testValidateRowDate();        // ทดสอบ Date Validation
-testDuplicateDetection();     // ทดสอบ Duplicate Detection
-testEmptyRowDetection();      // ทดสอบ Empty Row Detection
-testColumnMapping();          // ทดสอบ Column Mapping
-testHeaderMapping();          // ทดสอบ Header to Field Map
-testTemplateCreation();       // ทดสอบ Template Structure
-testRollbackMechanism();      // ทดสอบ Rollback Logic
-testMapSourceRowToSchema();   // ทดสอบ Data Mapping
-testSchemaRulesCompleteness(); // ทดสอบ Schema Completeness
-testIntegrationWithRealData(); // ทดสอบกับข้อมูลจริง
-testProcessTemplateFields();  // ทดสอบ Template Fields ครบถ้วน
-```
+### 🎯 Best Practices
+
+1. **Backup ก่อน Import**
+   ```javascript
+   // สำเนา source sheet ก่อน
+   const sourceSS = SpreadsheetApp.openById(sourceSheetId);
+   sourceSS.copy('BACKUP_' + new Date().getTime());
+   ```
+
+2. **Import ทีละ Process**
+   - อย่า import ทั้งหมดพร้อมกัน
+   - ตรวจผลการ import แต่ละครั้งก่อนไปต่อ
+
+3. **ตรวจสอบ Data Flow**
+   - P1 ต้องมี `status: Passed_to_P2` ก่อนส่ง P2
+   - P2 ต้องมี `result: ผ่าน` ก่อนส่ง P3
+
+4. **ใช้ Transaction ID**
+   - เก็บ `transactionId` จากผลการ migration
+   - ใช้สำหรับ rollback ถ้าต้องการ
+
+### ⚠️ ข้อควรระวัง
+
+- **ห้าม** import ข้อมูลที่มี merged cells
+- **ห้าม** import ข้าม process (ต้องทำลำดับ P1→P2→P3→...)
+- **ระวัง** ข้อมูล PDPA ต้องเป็น TRUE เท่านั้น
+- **ระวัง** evidence_links ใน P4 ต้องมีหลักฐานถ้าคะแนนต่ำ
+
+### 🔗 Schema Reference
+
+Schema ทั้งหมดอ้างอิงจาก:
+- `PP7_Design_P1_แสวงหา.md`
+- `web_pp7_api_dataflow.md`
+- `Code.gs` (Dashboard API)
+
+### 📞 ติดต่อ/สอบถาม
+
+ถ้าพบปัญหาหรือต้องการความช่วยเหลือ:
+1. ตรวจสอบ log จากผลการ migration
+2. รัน test cases (`runAllTests()`)
+3. ตรวจสอบว่าตรงกับ schema หรือไม่
 
 ---
 
-## 🛠️ Developer Notes
-
-### เพิ่ม Field ใหม่
-
-1. เพิ่มใน `COLUMN_MAP` (Migration.gs)
-2. เพิ่ม validation rule ใน `SCHEMA_RULES`
-3. อัปเดต Template ใน `Migration_Template.gs`
-4. เพิ่ม test case ใน `test_migration.gs`
-
-### เพิ่ม Process ใหม่ (P8, P9, ...)
-
-1. เพิ่ม Template object ใน `Migration_Template.gs`
-2. เพิ่มใน `ALL_TEMPLATES` array
-3. เพิ่ม schema ใน `processSchemas` ของ `batchMigrate()`
-4. เพิ่ม test case
-
----
-
-## 📎 ความสัมพันธ์กับ Data Flow
-
-```
-[P1 แสวงหา] → [P2 หยั่งประเมิน] → [P3 จับคู่] → [P4 ประเมินผล]
-     ↓                                              ↓
-  [P5 พัฒนา] + [P6 ค่าตอบแทน]               ← [P7 คุณภาพชีวิต]
-     ↓                                              ↓
-  ←────── Feedback Loop / Alert System ────────→
-```
-
-- **P1-P3**: ข้อมูลไหลจากซ้ายไปขวา
-- **P4**: Evidence-First Rule (ต้องมี evidence_links)
-- **P5-P7**: ส่งข้อมูล Feedback กลับไปยังกระบวนการก่อนหน้า
-
-Template แต่ละ Process ออกแบบให้สอดคล้องกับ Data Flow ด้านบน
-
----
-
-## 📄 License
-
-ระบบนี้เป็นส่วนหนึ่งของ Web PP7 Project  
-Developed for Pakorn HRMS (PKG)  
-2026-07-06
+**เวอร์ชัน:** 1.0  
+**วันที่:** 2026-07-06  
+**ผู้พัฒนา:** Web PP7 Team
