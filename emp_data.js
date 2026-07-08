@@ -5,7 +5,7 @@
 /* ===== EMP_STATS — ตัวเลขบุคลากร ===== */
 const EMP_STATS = {
   total: 1247,
-  byDept: { Tech:210, Sales:340, Operations:280, Finance:120, HR:85, R&D:212 },
+  byDept: { Tech:210, Sales:340, Operations:280, Finance:120, HR:85, 'R&D':212 },
   byLevel: { Top:180, Solid:420, Develop:480, Exceeds:95, Meets:72 },
   newThisMonth: 12,
   resignedThisMonth: 3,
@@ -21,7 +21,7 @@ const WG_DATA = {
   RPLCG:   { name:'RPLCG',   count:120, avgScore:3.9, turnover:1.5 },
   RAFCOG:  { name:'RAFCOG',  count:85,  avgScore:3.7, turnover:2.0 },
   PGHG:    { name:'PGHG',    count:150, avgScore:3.5, turnover:4.1 },
-  21RTG:   { name:'21RTG',   count:95,  avgScore:3.3, turnover:5.2 },
+  '21RTG': { name:'21RTG',   count:95,  avgScore:3.3, turnover:5.2 },
   Other:   { name:'Other',   count:102, avgScore:3.2, turnover:3.8 },
 };
 
