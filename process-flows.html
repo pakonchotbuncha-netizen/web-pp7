@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web PP7 — Process Flow View (52 กระบวนการ)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --brand: #2563eb;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .badge-green { background:#dcfce7; color:#166534; padding:2px 8px; border-radius:9999px; }
+    .badge-blue { background:#dbeafe; color:#1e40af; padding:2px 8px; border-radius:9999px; }
+    .badge-amber { background:#fef3c7; color:#92400e; padding:2px 8px; border-radius:9999px; }
+    .badge-purple { background:#f3e8ff; color:#6b21a8; padding:2px 8px; border-radius:9999px; }
+    .badge-red { background:#fee2e2; color:#991b1b; padding:2px 8px; border-radius:9999px; }
+    .flow-step { transition: transform .15s; }
+    .flow-step:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .tab-btn.active { background:#2563eb; color:#fff; }
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+    .scroll-x { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .scroll-x::-webkit-scrollbar { height:4px; }
+    .scroll-x::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:2px; }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+<!-- Header -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">🔄</span>
+      <div>
+        <h1 class="text-lg font-bold text-slate-800">Web PP7 — Process Flow View</h1>
+        <p class="text-xs text-slate-500">52 กระบวนการ PM WI → Web PP7 ครบวงจร P1–P7</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="badge-green text-xs font-semibold">✅ 52/52 กระบวนการ</span>
+      <span class="badge-blue text-xs font-semibold">S1→S5 Complete</span>
+    </div>
+  </div>
+</header>
+
+<!-- Tab Navigation -->
+<nav class="bg-white border-b border-slate-100">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex gap-1 overflow-x-auto pb-1 pt-2 scroll-x" id="tabNav">
+      <button class="tab-btn active text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap" data-tab="executive">📌 สรุปภาพรวม</button>
+      <button class="tab-btn text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600" data-tab="pp7-strategy">🎯 กลยุทธ์ PP7</button>
+      <button class="tab-btn text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600" data-tab="headcount-request">📋 Headcount</button>
+      <button class="tab-btn text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600" data-tab="recruit">🔎 แสวงหา P1</button>
+      <button class="tab-btn text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600" data-tab="assess">📝 หยั่งประเมิน P2</button>
+      <button class="tab-btn text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600" data-tab="match">🤝 จับคู่ P3</button>
+      <button class="tab-btn text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600" data-tab="performance">⭐ ประเมินผล P4</button>
+      <button class="tab-btn text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600" data-tab="develop">🎓 พัฒนา P5</button>
+      <button class="tab-btn text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600" data-tab="welfare">💰 ค่าตอบแทน P6</button>
+      <button class="tab-btn text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600" data-tab="quality">🌿 คุณภาพชีวิต P7</button>
+      <button class="tab-btn text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600" data-tab="reports">📊 Dashboard</button>
+      <button class="tab-btn text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600" data-tab="labor-law">⚖️ กฎหมาย</button>
+      <button class="tab-btn text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600" data-tab="pkg-rules">📜 ระเบียบ PKG</button>
+      <button class="tab-btn text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600" data-tab="data-exchange">🔄 Import/Export</button>
+      <button class="tab-btn text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600" data-tab="system-map">🗺️ แผนผังระบบ</button>
+      <button class="tab-btn text-xs font-semibold px-3 py-2 rounded-lg whitespace-nowrap bg-slate-100 text-slate-600" data-tab="pp7-research">🔬 วิจัย</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto px-4 py-6">
+
+<!-- TAB: executive -->
+<div class="tab-panel active" id="panel-executive">
+  <div class="process-flow-panel bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-4">
+    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+      <span class="text-2xl">📌</span> สรุปภาพรวม 52 กระบวนการ — Web PP7
+    </h3>
+    <p class="text-sm text-slate-600 mb-4">ภาพรวมทุกกระบวนการที่ Web PP7 รองรับ จัดกลุ่มตาม P1–P7 + กระบวนการสนับสนุน</p>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center border border-blue-200">
+        <div class="text-3xl font-bold text-blue-700">52</div>
+        <div class="text-xs text-blue-600 font-semibold mt-1">กระบวนการทั้งหมด</div>
+      </div>
+      <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center border border-green-200">
+        <div class="text-3xl font-bold text-green-700">100%</div>
+        <div class="text-xs text-green-600 font-semibold mt-1">AI รองรับ</div>
+      </div>
+      <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center border border-purple-200">
+        <div class="text-3xl font-bold text-purple-700">16</div>
+        <div class="text-xs text-purple-600 font-semibold mt-1">Tabs ใน Web PP7</div>
+      </div>
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-4 text-center border border-amber-200">
+        <div class="text-3xl font-bold text-amber-700">7</div>
+        <div class="text-xs text-amber-600 font-semibold mt-1">P-Phases (P1–P7)</div>
+      </div>
+    </div>
+
+    <!-- Group Breakdown -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div class="border border-slate-200 rounded-lg p-4">
+        <h4 class="font-bold text-sm text-slate-700 mb-3">🎯 กลุ่ม P1–P4: สรรหาและประเมินผล (13 กระบวนการ)</h4>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-xs"><span class="w-2 h-2 bg-blue-500 rounded-full"></span> Headcount Request: 4 (WI-001, FM-002, SD-001, WI-010)</div>
+          <div class="flex items-center gap-2 text-xs"><span class="w-2 h-2 bg-blue-500 rounded-full"></span> แสวงหา P1: 5 (PM-001, WI-002, WI-006, WI-007, SD-001)</div>
+          <div class="flex items-center gap-2 text-xs"><span class="w-2 h-2 bg-blue-500 rounded-full"></span> หยั่งประเมิน P2: 4 (สัมภาษณ์/ทดสอบ/CMC/ทัศนคติ)</div>
+          <div class="flex items-center gap-2 text-xs"><span class="w-2 h-2 bg-blue-500 rounded-full"></span> จับคู่ P3: 4 (PM-003, WI-003, WI-004, FM-001)</div>
+        </div>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-4">
+        <h4 class="font-bold text-sm text-slate-700 mb-3">🎯 กลุ่ม P5: พัฒนาบุคลากร (13 กระบวนการ)</h4>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-xs"><span class="w-2 h-2 bg-green-500 rounded-full"></span> WI: 7 (WI-001 ถึง WI-007)</div>
+          <div class="flex items-center gap-2 text-xs"><span class="w-2 h-2 bg-green-500 rounded-full"></span> PM: 5 (PM-001 ถึง PM-005)</div>
+          <div class="flex items-center gap-2 text-xs"><span class="w-2 h-2 bg-green-500 rounded-full"></span> FM: 2 (FM-001, FM-002)</div>
+        </div>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-4">
+        <h4 class="font-bold text-sm text-slate-700 mb-3">🎯 กลุ่ม P6–P7: ค่าตอบแทนและคุณภาพชีวิต (12 กระบวนการ)</h4>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-xs"><span class="w-2 h-2 bg-amber-500 rounded-full"></span> WI: 7 (WI-001 ถึง WI-006, WI-010)</div>
+          <div class="flex items-center gap-2 text-xs"><span class="w-2 h-2 bg-amber-500 rounded-full"></span> FM: 2 (FM-001, FM-002)</div>
+          <div class="flex items-center gap-2 text-xs"><span class="w-2 h-2 bg-amber-500 rounded-full"></span> PM: 3 (PM-001 ถึง PM-003)</div>
+          <div class="flex items-center gap-2 text-xs"><span class="w-2 h-2 bg-amber-500 rounded-full"></span> P7: 5 องค์ประกอบคุณภาพชีวิต</div>
+        </div>
+      </div>
+      <div class="border border-slate-200 rounded-lg p-4">
+        <h4 class="font-bold text-sm text-slate-700 mb-3">🎯 กลุ่มสนับสนุน (14 กระบวนการ)</h4>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-xs"><span class="w-2 h-2 bg-red-500 rounded-full"></span> กฎหมาย 3 ประเทศ + Cross-country: 4</div>
+          <div class="flex items-center gap-2 text-xs"><span class="w-2 h-2 bg-slate-500 rounded-full"></span> ระเบียบ: WI 48, Policy 12, Process Maps 25, CEO Concept</div>
+          <div class="flex items-center gap-2 text-xs"><span class="w-2 h-2 bg-purple-500 rounded-full"></span> วิจัย: 360°, BARS, CCL, PERMA, Total Rewards, OKR</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Flow -->
+    <div class="bg-slate-50 rounded-xl p-4 mb-4">
+      <h4 class="font-bold text-sm mb-3">🔗 Data Flow: P1 → P7 End-to-End</h4>
+      <div class="flex items-center gap-1 overflow-x-auto scroll-x pb-2">
+        <div class="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 text-center min-w-[100px]">
+          <div class="text-xs font-bold text-blue-700">P1 แสวงหา</div>
+          <div class="text-[10px] text-blue-500">ประกาศ → คัดกรอง</div>
+        </div>
+        <span class="text-slate-400 text-lg">→</span>
+        <div class="bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2 text-center min-w-[100px]">
+          <div class="text-xs font-bold text-indigo-700">P2 หยั่งประเมิน</div>
+          <div class="text-[10px] text-indigo-500">สัมภาษณ์ → ทดสอบ</div>
+        </div>
+        <span class="text-slate-400 text-lg">→</span>
+        <div class="bg-purple-50 border border-purple-200 rounded-lg px-3 py-2 text-center min-w-[100px]">
+          <div class="text-xs font-bold text-purple-700">P3 จับคู่</div>
+          <div class="text-[10px] text-purple-500">จับคู่ → onboard</div>
+        </div>
+        <span class="text-slate-400 text-lg">→</span>
+        <div class="bg-pink-50 border border-pink-200 rounded-lg px-3 py-2 text-center min-w-[100px]">
+          <div class="text-xs font-bold text-pink-700">P4 ประเมินผล</div>
+          <div class="text-[10px] text-pink-500">30 วัน → 360°</div>
+        </div>
+        <span class="text-slate-400 text-lg">→</span>
+        <div class="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-center min-w-[100px]">
+          <div class="text-xs font-bold text-green-700">P5 พัฒนา</div>
+          <div class="text-[10px] text-green-500">แผนฝึกอบรม</div>
+        </div>
+        <span class="text-slate-400 text-lg">→</span>
+        <div class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-center min-w-[100px]">
+          <div class="text-xs font-bold text-amber-700">P6 ค่าตอบแทน</div>
+          <div class="text-[10px] text-amber-500">เงินเดือน → โบนัส</div>
+        </div>
+        <span class="text-slate-400 text-lg">→</span>
+        <div class="bg-teal-50 border border-teal-200 rounded-lg px-3 py-2 text-center min-w-[100px]">
+          <div class="text-xs font-bold text-teal-700">P7 คุณภาพชีวิต</div>
+          <div class="text-[10px] text-teal-500">PERMA → Wellbeing</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-4">
+      <div class="bg-slate-50 rounded-lg p-4 text-center">
+        <div class="text-2xl font-bold text-blue-600">52</div>
+        <div class="text-xs text-slate-500">จำนวนกระบวนการ</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-4 text-center">
+        <div class="text-2xl font-bold text-green-600">35%</div>
+        <div class="text-xs text-slate-500">ลดงาน Manual (เฉลี่ย)</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-4 text-center">
+        <div class="text-2xl font-bold text-purple-600">52+</div>
+        <div class="text-xs text-slate-500">AI Integration Points</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: pp7-strategy -->
+<div class="tab-panel" id="panel-pp7-strategy">
+  <div class="process-flow-panel bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-4">
+    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+      <span class="text-2xl">🎯</span> กลยุทธ์ PP7 — Core Competencies CC1–CC5
+    </h3>
+
+    <!-- Flow Visualization -->
+    <div class="process-timeline mb-4">
+      <div class="flex items-center gap-2 overflow-x-auto scroll-x pb-2">
+        <div class="flow-step bg-slate-100 rounded-lg p-3 min-w-[140px] text-center">
+          <div class="text-xs font-bold text-slate-500">S1</div>
+          <div class="text-sm font-semibold">กลยุทธ์เดิม</div>
+          <div class="text-xs text-slate-500 mt-1">ไม่มีระบบจัดการ CC</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-blue-50 rounded-lg p-3 min-w-[140px] text-center border border-blue-200">
+          <div class="text-xs font-bold text-blue-600">S2</div>
+          <div class="text-sm font-semibold">AI วิเคราะห์ CC</div>
+          <div class="text-xs text-blue-500 mt-1">จับคู่ CC กับตำแหน่ง</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-green-50 rounded-lg p-3 min-w-[140px] text-center border border-green-200">
+          <div class="text-xs font-bold text-green-600">S4</div>
+          <div class="text-sm font-semibold">CC Framework</div>
+          <div class="text-xs text-green-500 mt-1">CC1–CC5 ครบวงจร</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-amber-50 rounded-lg p-3 min-w-[140px] text-center border border-amber-200">
+          <div class="text-xs font-bold text-amber-600">S5</div>
+          <div class="text-sm font-semibold">Web PP7 Features</div>
+          <div class="text-xs text-amber-500 mt-1">Dashboard CC / Score Tracking</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CC List -->
+    <div class="process-list">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50">
+            <th class="text-left p-2 rounded-l-lg">รหัส</th>
+            <th class="text-left p-2">Core Competency</th>
+            <th class="text-left p-2">AI ช่วย</th>
+            <th class="text-left p-2 rounded-r-lg">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">CC1</td>
+            <td class="p-2 font-medium">🧠 Strategic Thinking — การคิดเชิงกลยุทธ์</td>
+            <td class="p-2 text-xs">AI วิเคราะห์แนวโน้ม/สถานการณ์</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">CC2</td>
+            <td class="p-2 font-medium">🤝 People Development — พัฒนาคน</td>
+            <td class="p-2 text-xs">AI จับคู่ Mentor–Mentee + ติดตามพัฒนาการ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">CC3</td>
+            <td class="p-2 font-medium">⚡ Operational Excellence — ดีเยี่ยมเชิงปฏิบัติ</td>
+            <td class="p-2 text-xs">AI วิเคราะห์ KPI + แจ้งเตือนเป้าหมาย</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">CC4</td>
+            <td class="p-2 font-medium">💡 Innovation & Change — นวัตกรรม/การเปลี่ยนแปลง</td>
+            <td class="p-2 text-xs">AI สรุปไอเดีย + จับคู่แนวปฏิบัติที่ดี</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">CC5</td>
+            <td class="p-2 font-medium">🌏 Stakeholder Engagement — สร้างสัมพันธ์ผู้มีส่วนได้ส่วนเสีย</td>
+            <td class="p-2 text-xs">AI วิเคราะห์ Network + ประเมิน Engagement</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับ</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-blue-600">5</div>
+        <div class="text-xs text-slate-500">Core Competencies</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-green-600">100%</div>
+        <div class="text-xs text-slate-500">AI รองรับทุก CC</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-purple-600">5</div>
+        <div class="text-xs text-slate-500">AI Integration Points</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: headcount-request -->
+<div class="tab-panel" id="panel-headcount-request">
+  <div class="process-flow-panel bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-4">
+    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+      <span class="text-2xl">📋</span> Headcount Request — ขออนุมัติจัดหากำลังคน
+    </h3>
+
+    <!-- Flow Visualization -->
+    <div class="process-timeline mb-4">
+      <div class="flex items-center gap-2 overflow-x-auto scroll-x pb-2">
+        <div class="flow-step bg-slate-100 rounded-lg p-3 min-w-[140px] text-center">
+          <div class="text-xs font-bold text-slate-500">S1</div>
+          <div class="text-sm font-semibold">ขอกระดาษ</div>
+          <div class="text-xs text-slate-500 mt-1">ส่งเอกสาร/รออนุมัติ</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-blue-50 rounded-lg p-3 min-w-[140px] text-center border border-blue-200">
+          <div class="text-xs font-bold text-blue-600">S2</div>
+          <div class="text-sm font-semibold">AI ตรวจสอบ HC</div>
+          <div class="text-xs text-blue-500 mt-1">วิเคราะห์ความจำเป็น/HC ที่มี</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-purple-50 rounded-lg p-3 min-w-[140px] text-center border border-purple-200">
+          <div class="text-xs font-bold text-purple-600">S3</div>
+          <div class="text-sm font-semibold">Auto Route</div>
+          <div class="text-xs text-purple-500 mt-1">แจ้งผู้อนุมัติทันที</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-green-50 rounded-lg p-3 min-w-[140px] text-center border border-green-200">
+          <div class="text-xs font-bold text-green-600">S4</div>
+          <div class="text-sm font-semibold">E-Approval</div>
+          <div class="text-xs text-green-500 mt-1">อนุมัติออนไลน์ ลด 60%</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-amber-50 rounded-lg p-3 min-w-[140px] text-center border border-amber-200">
+          <div class="text-xs font-bold text-amber-600">S5</div>
+          <div class="text-sm font-semibold">Web PP7</div>
+          <div class="text-xs text-amber-500 mt-1">ฟอร์ม/Tracking/Notify</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Process List Table -->
+    <div class="process-list">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50">
+            <th class="text-left p-2 rounded-l-lg">รหัส</th>
+            <th class="text-left p-2">ชื่อกระบวนการ</th>
+            <th class="text-left p-2">AI ช่วย</th>
+            <th class="text-left p-2 rounded-r-lg">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAO-WI-001</td>
+            <td class="p-2 font-medium">ขออนุมัติจัดหากำลังคน</td>
+            <td class="p-2 text-xs">AI วิเคราะห์ HC ที่ว่าง + แนวโน้ม + เสนอเหตุผล</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAO-WI-002 (ส่วน HC)</td>
+            <td class="p-2 font-medium">ตรวจสอบความต้องการ HC ก่อนคัดเลือก</td>
+            <td class="p-2 text-xs">AI คัดกรอง HC ที่ตรงกับ JD + OKR</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAO-FM-002</td>
+            <td class="p-2 font-medium">ทะเบียนเอกสาร ( HC Request Form)</td>
+            <td class="p-2 text-xs">AI กรอกข้อมูลอัตโนมัติจาก Database</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAO-SD-001</td>
+            <td class="p-2 font-medium">Script แจ้งรายละเอียดตำแหน่ง</td>
+            <td class="p-2 text-xs">AI สร้าง Script อัตโนมัติตาม JD</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-blue-600">4</div>
+        <div class="text-xs text-slate-500">จำนวนกระบวนการ</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-green-600">60%</div>
+        <div class="text-xs text-slate-500">ลดงาน Manual</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-purple-600">4</div>
+        <div class="text-xs text-slate-500">AI Integration Points</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: recruit -->
+<div class="tab-panel" id="panel-recruit">
+  <div class="process-flow-panel bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-4">
+    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+      <span class="text-2xl">🔎</span> กระบวนการใหม่ — แสวงหา P1
+    </h3>
+
+    <!-- Flow Visualization: S1→S5 -->
+    <div class="process-timeline mb-4">
+      <div class="flex items-center gap-2 overflow-x-auto scroll-x pb-2">
+        <div class="flow-step bg-slate-100 rounded-lg p-3 min-w-[140px] text-center">
+          <div class="text-xs font-bold text-slate-500">S1</div>
+          <div class="text-sm font-semibold">ประกาศกระดาษ</div>
+          <div class="text-xs text-slate-500 mt-1">แป公告/รอใบสมัคร</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-blue-50 rounded-lg p-3 min-w-[140px] text-center border border-blue-200">
+          <div class="text-xs font-bold text-blue-600">S2</div>
+          <div class="text-sm font-semibold">AI ประกาศ多渠道</div>
+          <div class="text-xs text-blue-500 mt-1">Post หลายแพลตฟอร์ม</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-purple-50 rounded-lg p-3 min-w-[140px] text-center border border-purple-200">
+          <div class="text-xs font-bold text-purple-600">S3</div>
+          <div class="text-sm font-semibold">Auto Screening</div>
+          <div class="text-xs text-purple-500 mt-1">AI คัดกรองใบสมัคร</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-green-50 rounded-lg p-3 min-w-[140px] text-center border border-green-200">
+          <div class="text-xs font-bold text-green-600">S4</div>
+          <div class="text-sm font-semibold">Smart Recruitment</div>
+          <div class="text-xs text-green-500 mt-1">ลดขั้นตอน 40%</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-amber-50 rounded-lg p-3 min-w-[140px] text-center border border-amber-200">
+          <div class="text-xs font-bold text-amber-600">S5</div>
+          <div class="text-sm font-semibold">Web PP7 Features</div>
+          <div class="text-xs text-amber-500 mt-1">Job Board / AI Match</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Process List Table -->
+    <div class="process-list">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50">
+            <th class="text-left p-2 rounded-l-lg">รหัส</th>
+            <th class="text-left p-2">ชื่อกระบวนการ</th>
+            <th class="text-left p-2">AI ช่วย</th>
+            <th class="text-left p-2 rounded-r-lg">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAO-PM-001</td>
+            <td class="p-2 font-medium">แสวงหาผู้สมัครงาน</td>
+            <td class="p-2 text-xs">AI Post หลายช่องทาง, คัดกรองเบื้องต้น, จัดอันดับผู้สมัคร</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAO-WI-002</td>
+            <td class="p-2 font-medium">คัดเลือกพนักงานภายนอก (สรรหา)</td>
+            <td class="p-2 text-xs">AI สรุปประวัติ + จับคู่ JD + นัดสัมภาษณ์อัตโนมัติ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAO-WI-006</td>
+            <td class="p-2 font-medium">ขอโควต้าแรงงานต่างด้าว</td>
+            <td class="p-2 text-xs">AI ตรวจสอบเอกสาร + เสนอตำแหน่งที่ต้องการ + ติดตามสถานะ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAO-WI-007</td>
+            <td class="p-2 font-medium">รับแรงงานต่างด้าว</td>
+            <td class="p-2 text-xs">AI ตรวจสอบวีซ่า/เอกสาร + แจ้งเตือนต่ออายุ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAO-WI-010</td>
+            <td class="p-2 font-medium">รับสมัครงานภายใน (Internal Posting)</td>
+            <td class="p-2 text-xs">AI จับคู่พนักงานที่มีศักยภาพกับตำแหน่งว่างภายใน</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAO-SD-001</td>
+            <td class="p-2 font-medium">Script แจ้งรายละเอียดตำแหน่งงาน</td>
+            <td class="p-2 text-xs">AI สร้าง Script อัตโนมัติตาม JD + ส่ง Line/Telegram</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-blue-600">6</div>
+        <div class="text-xs text-slate-500">จำนวนกระบวนการ</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-green-600">40%</div>
+        <div class="text-xs text-slate-500">ลดงาน Manual</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-purple-600">8</div>
+        <div class="text-xs text-slate-500">AI Integration Points</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: assess -->
+<div class="tab-panel" id="panel-assess">
+  <div class="process-flow-panel bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-4">
+    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+      <span class="text-2xl">📝</span> กระบวนการใหม่ — หยั่งประเมิน P2
+    </h3>
+
+    <!-- Flow Visualization: S1→S7 -->
+    <div class="process-timeline mb-6">
+      <div class="flex items-center gap-2 overflow-x-auto scroll-x pb-2">
+        <div class="flow-step bg-slate-100 rounded-lg p-3 min-w-[140px] text-center">
+          <div class="text-xs font-bold text-slate-500">S1</div>
+          <div class="text-sm font-semibold">กระบวนการเดิม</div>
+          <div class="text-xs text-slate-500 mt-1">สัมภาษณ์มือ/ทดสอบกระดาษ</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-blue-50 rounded-lg p-3 min-w-[140px] text-center border border-blue-200">
+          <div class="text-xs font-bold text-blue-600">S2</div>
+          <div class="text-sm font-semibold">AI ทบทวน</div>
+          <div class="text-xs text-blue-500 mt-1">AI screening + ทดสอบออนไลน์</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-purple-50 rounded-lg p-3 min-w-[140px] text-center border border-purple-200">
+          <div class="text-xs font-bold text-purple-600">S3</div>
+          <div class="text-sm font-semibold">ความต้องการเพิ่ม</div>
+          <div class="text-xs text-purple-500 mt-1">ประเมิน CMC + ทัศนคติ</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-green-50 rounded-lg p-3 min-w-[140px] text-center border border-green-200">
+          <div class="text-xs font-bold text-green-600">S4</div>
+          <div class="text-sm font-semibold">กระบวนการใหม่</div>
+          <div class="text-xs text-green-500 mt-1">7 ขั้นตอน AI ช่วยครบ</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-amber-50 rounded-lg p-3 min-w-[140px] text-center border border-amber-200">
+          <div class="text-xs font-bold text-amber-600">S5</div>
+          <div class="text-sm font-semibold">Web PP7</div>
+          <div class="text-xs text-amber-500 mt-1">ฟอร์ม/Dashboard/Alert</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 Interview Types -->
+    <h4 class="font-bold text-sm text-slate-700 mb-2">📋 แบบสัมภาษณ์ 3 แบบ:</h4>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+        <div class="text-sm font-bold text-blue-700 mb-1">🆕 แบบสมัครใหม่</div>
+        <div class="text-xs text-blue-600">ประเมิน: ความสามารถ / ทัศนคติ / CMC</div>
+        <div class="text-xs text-slate-500 mt-1">7 ส่วน: Screening → Skill → CMC → Attitude → Summary → Match → Close</div>
+      </div>
+      <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
+        <div class="text-sm font-bold text-purple-700 mb-1">🔄 แบบโอนย้าย</div>
+        <div class="text-xs text-purple-600">ประเมิน: ผลงานเดิม + ศักยภาพตำแหน่งใหม่</div>
+        <div class="text-xs text-slate-500 mt-1">ตรวจสอบประวัติย้อนหลัง + จับคู่ CC กับตำแหน่งปลายทาง</div>
+      </div>
+      <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+        <div class="text-sm font-bold text-green-700 mb-1">🎓 แบบฝึกงาน</div>
+        <div class="text-xs text-green-600">ประเมิน: ความต้องการเรียนรู้ + ทัศนคติ</div>
+        <div class="text-xs text-slate-500 mt-1">วัด Learning Agility + จับคู่ Mentor</div>
+      </div>
+    </div>
+
+    <!-- S1→S7 Detail Flow -->
+    <h4 class="font-bold text-sm text-slate-700 mb-2">🔄 S1 → S7 Flow (P2 by LDC-PAO-WI-002):</h4>
+    <div class="process-list mb-4">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50">
+            <th class="text-left p-2 rounded-l-lg">Step</th>
+            <th class="text-left p-2">กิจกรรม</th>
+            <th class="text-left p-2">AI ช่วย</th>
+            <th class="text-left p-2 rounded-r-lg">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs bg-slate-50">S1</td>
+            <td class="p-2 font-medium">P2 หยั่งประเมิน: สัมภาษณ์/ทดสอบ/CMC/ทัศนคติ</td>
+            <td class="p-2 text-xs">AI Screening + Auto-schedule</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs bg-slate-50">S2</td>
+            <td class="p-2 font-medium">AI สัมภาษณ์เบื้องต้น (Screening Interview)</td>
+            <td class="p-2 text-xs">AI ถามคำถามพื้นฐาน + ประเมินคำตอบอัตโนมัติ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs bg-slate-50">S3</td>
+            <td class="p-2 font-medium">AI ทดสอบทักษะ (Skill Test)</td>
+            <td class="p-2 text-xs">สร้างข้อสอบตาม JD + ตรวจอัตโนมัติ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs bg-slate-50">S4</td>
+            <td class="p-2 font-medium">AI ประเมิน CMC (Culture Match Check)</td>
+            <td class="p-2 text-xs">วิเคราะห์ความเหมาะสมวัฒนธรรมองค์กร</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs bg-slate-50">S5</td>
+            <td class="p-2 font-medium">AI ประเมินทัศนคติ (Attitude Test)</td>
+            <td class="p-2 text-xs">วัด Core Competency ตาม CC1–CC5</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs bg-slate-50">S6</td>
+            <td class="p-2 font-medium">AI จับคู่ผลประเมิน → ตำแหน่งที่เหมาะสม</td>
+            <td class="p-2 text-xs">Match Algorithm จากคะแนน+โปรไฟล์</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs bg-slate-50">S7</td>
+            <td class="p-2 font-medium">AI ปิดใบสมัคร/ส่งต่อ โดยอัตโนมัติ</td>
+            <td class="p-2 text-xs">Auto close if below threshold</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับ</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-blue-600">7</div>
+        <div class="text-xs text-slate-500">จำนวน Steps (S1–S7)</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-green-600">50%</div>
+        <div class="text-xs text-slate-500">ลดงาน Manual</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-purple-600">7</div>
+        <div class="text-xs text-slate-500">AI Integration Points</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: match -->
+<div class="tab-panel" id="panel-match">
+  <div class="process-flow-panel bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-4">
+    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+      <span class="text-2xl">🤝</span> กระบวนการใหม่ — จับคู่คนกับงาน P3
+    </h3>
+
+    <!-- Flow -->
+    <div class="process-timeline mb-4">
+      <div class="flex items-center gap-2 overflow-x-auto scroll-x pb-2">
+        <div class="flow-step bg-slate-100 rounded-lg p-3 min-w-[140px] text-center">
+          <div class="text-xs font-bold text-slate-500">S1</div>
+          <div class="text-sm font-semibold">จับคู่มือ</div>
+          <div class="text-xs text-slate-500 mt-1">HR เลือกเองจากความรู้สึก</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-blue-50 rounded-lg p-3 min-w-[140px] text-center border border-blue-200">
+          <div class="text-xs font-bold text-blue-600">S2</div>
+          <div class="text-sm font-semibold">AI Match</div>
+          <div class="text-xs text-blue-500 mt-1">Algorithm จับคู่+คะแนน</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-green-50 rounded-lg p-3 min-w-[140px] text-center border border-green-200">
+          <div class="text-xs font-bold text-green-600">S4</div>
+          <div class="text-sm font-semibold">Smart Matching</div>
+          <div class="text-xs text-green-500 mt-1">วัดผล 30 วัน + Mentor</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-amber-50 rounded-lg p-3 min-w-[140px] text-center border border-amber-200">
+          <div class="text-xs font-bold text-amber-600">S5</div>
+          <div class="text-sm font-semibold">Web PP7</div>
+          <div class="text-xs text-amber-500 mt-1">Dashboard/Monitor/Alert</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Process List -->
+    <div class="process-list">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50">
+            <th class="text-left p-2 rounded-l-lg">รหัส</th>
+            <th class="text-left p-2">ชื่อกระบวนการ</th>
+            <th class="text-left p-2">AI ช่วย</th>
+            <th class="text-left p-2 rounded-r-lg">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAO-PM-003</td>
+            <td class="p-2 font-medium">ระบบวัดผล 30 วัน (30-Day Review)</td>
+            <td class="p-2 text-xs">AI ติดตาม KPI 30 วัน + สรุปผล + แจ้งเตือน</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAO-WI-003</td>
+            <td class="p-2 font-medium">สรุปผลและประกาศผล (Selection Result)</td>
+            <td class="p-2 text-xs">AI สรุปคะแนน + จัดอันดับ + แจ้งผลอัตโนมัติ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAO-WI-004</td>
+            <td class="p-2 font-medium">โอนย้าย/เลื่อนตำแหน่ง (Transfer/Promotion)</td>
+            <td class="p-2 text-xs">AI วิเคราะห์ความพร้อม + เสนอตำแหน่ง + Auto route อนุมัติ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAD-PM-001</td>
+            <td class="p-2 font-medium">ระบบพี่เลี้ยงและน้องเลี้ยง (Mentor-Mentee System)</td>
+            <td class="p-2 text-xs">AI จับคู่ Mentor+Mentee + ติดตามพัฒนาการ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-blue-600">4</div>
+        <div class="text-xs text-slate-500">จำนวนกระบวนการ</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-green-600">45%</div>
+        <div class="text-xs text-slate-500">ลดงาน Manual</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-purple-600">5</div>
+        <div class="text-xs text-slate-500">AI Integration Points</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: performance -->
+<div class="tab-panel" id="panel-performance">
+  <div class="process-flow-panel bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-4">
+    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+      <span class="text-2xl">⭐</span> กระบวนการใหม่ — ประเมินผล P4
+    </h3>
+
+    <!-- Flow -->
+    <div class="process-timeline mb-4">
+      <div class="flex items-center gap-2 overflow-x-auto scroll-x pb-2">
+        <div class="flow-step bg-slate-100 rounded-lg p-3 min-w-[140px] text-center">
+          <div class="text-xs font-bold text-slate-500">S1</div>
+          <div class="text-sm font-semibold">ประเมินหลังรบ</div>
+          <div class="text-xs text-slate-500 mt-1">AARกระดาษ/ประเมินปีละครั้ง</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-blue-50 rounded-lg p-3 min-w-[140px] text-center border border-blue-200">
+          <div class="text-xs font-bold text-blue-600">S2</div>
+          <div class="text-sm font-semibold">AI วิเคราะห์ผลงาน</div>
+          <div class="text-xs text-blue-500 mt-1">BARS + OKR Score</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-green-50 rounded-lg p-3 min-w-[140px] text-center border border-green-200">
+          <div class="text-xs font-bold text-green-600">S4</div>
+          <div class="text-sm font-semibold">ประเมิน 360°</div>
+          <div class="text-xs text-green-500 mt-1">Continuous Feedback</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-amber-50 rounded-lg p-3 min-w-[140px] text-center border border-amber-200">
+          <div class="text-xs font-bold text-amber-600">S5</div>
+          <div class="text-sm font-semibold">Web PP7</div>
+          <div class="text-xs text-amber-500 mt-1">Dashboard/เครดิตประจำปี</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Process List -->
+    <div class="process-list">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50">
+            <th class="text-left p-2 rounded-l-lg">รหัส</th>
+            <th class="text-left p-2">ชื่อกระบวนการ</th>
+            <th class="text-left p-2">AI ช่วย</th>
+            <th class="text-left p-2 rounded-r-lg">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAO-PM-002</td>
+            <td class="p-2 font-medium">ประเมินหลังรบ — After Action Review (AAR)</td>
+            <td class="p-2 text-xs">AI สรุปผลการปฏิบัติงาน + เปรียบเทียบเป้าหมาย + ข้อเสนอแนะ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองารับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">P4-360</td>
+            <td class="p-2 font-medium">เครดิตประจำปี 360° — Multi-Source Feedback</td>
+            <td class="p-2 text-xs">AI เก็บ Feedback จากเจ้านาย/เพื่อน/ลูกน้อง → สรุปเป็นเครดิต</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">P4-OKR</td>
+            <td class="p-2 font-medium">OKR Performance Tracking</td>
+            <td class="p-2 text-xs">AIติดตาม OKR เป็นระยะ + แจ้งเตือนเมื่อเป้าหมายเหลื่อมล้ำ</td>
+            <td class="p-2"><span class="badge-blue text-xs">🔧 กำลังพัฒนา</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-blue-600">3</div>
+        <div class="text-xs text-slate-500">จำนวนกระบวนการ</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-green-600">35%</div>
+        <div class="text-xs text-slate-500">ลดงาน Manual</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-purple-600">4</div>
+        <div class="text-xs text-slate-500">AI Integration Points</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: develop -->
+<div class="tab-panel" id="panel-develop">
+  <div class="process-flow-panel bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-4">
+    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+      <span class="text-2xl">🎓</span> กระบวนการใหม่ — พัฒนา P5 (LDC-PAD 13 กระบวนการ)
+    </h3>
+
+    <!-- Flow -->
+    <div class="process-timeline mb-4">
+      <div class="flex items-center gap-2 overflow-x-auto scroll-x pb-2">
+        <div class="flow-step bg-slate-100 rounded-lg p-3 min-w-[140px] text-center">
+          <div class="text-xs font-bold text-slate-500">S1</div>
+          <div class="text-sm font-semibold">ฝึกอบรมเดิม</div>
+          <div class="text-xs text-slate-500 mt-1">จัดอบรม/ลงมือ/รายงานกระดาษ</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-blue-50 rounded-lg p-3 min-w-[140px] text-center border border-blue-200">
+          <div class="text-xs font-bold text-blue-600">S2</div>
+          <div class="text-sm font-semibold">AI วิเคราะห์ IDP</div>
+          <div class="text-xs text-blue-500 mt-1">Individual Dev Plan</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-green-50 rounded-lg p-3 min-w-[140px] text-center border border-green-200">
+          <div class="text-xs font-bold text-green-600">S4</div>
+          <div class="text-sm font-semibold">E-Learning + Auto Track</div>
+          <div class="text-xs text-green-500 mt-1">ลดขั้นตอน 30%</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-amber-50 rounded-lg p-3 min-w-[140px] text-center border border-amber-200">
+          <div class="text-xs font-bold text-amber-600">S5</div>
+          <div class="text-sm font-semibold">Web PP7</div>
+          <div class="text-xs text-amber-500 mt-1">LMS/Report/Certificate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Process List -->
+    <div class="process-list">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50">
+            <th class="text-left p-2 rounded-l-lg">รหัส</th>
+            <th class="text-left p-2">ชื่อกระบวนการ</th>
+            <th class="text-left p-2">AI ช่วย</th>
+            <th class="text-left p-2 rounded-r-lg">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAD-WI-001</td>
+            <td class="p-2 font-medium">ขึ้นทะเบียนพนักงานฝึก</td>
+            <td class="p-2 text-xs">AI ตรวจสอบคุณสมบัติ + ลงทะเบียนอัตโนมัติ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAD-WI-002</td>
+            <td class="p-2 font-medium">จัดทำแผนฝึกอบรม (Training Plan)</td>
+            <td class="p-2 text-xs">AI วิเคราะห์ Gap + สร้างแผน IDP ส่วนบุคคล</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAD-WI-003</td>
+            <td class="p-2 font-medium">ดำเนินการฝึกอบรม</td>
+            <td class="p-2 text-xs">AI จัดตาราง + เชิญวิทยากร + ติดตามผู้เรียน</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAD-WI-004</td>
+            <td class="p-2 font-medium">ประเมินผลหลังฝึกอบรม</td>
+            <td class="p-2 text-xs">AI ประเมิน Kirkpatrick Level 1-4 อัตโนมัติ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAD-WI-005</td>
+            <td class="p-2 font-medium">ติดตามผลการฝึก (Follow-up)</td>
+            <td class="p-2 text-xs">AI ติดตามผลการนำความรู้ไปใช้ + แจ้งเตือนหัวหน้า</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAD-WI-006</td>
+            <td class="p-2 font-medium">รายงานการฝึกอบรม</td>
+            <td class="p-2 text-xs">AI สรุป รายงาน + Dashboard สถานะอบรม</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAD-WI-007</td>
+            <td class="p-2 font-medium">พัฒนาบุคลากรต่อเนื่อง (CPD)</td>
+            <td class="p-2 text-xs">AI แนะนำหลักสูตรต่อเนื่อง + แจ้งเตือนชั่วโมง CPD</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAD-PM-001</td>
+            <td class="p-2 font-medium">ระบบพี่เลี้ยงและน้องเลี้ยง (Mentoring)</td>
+            <td class="p-2 text-xs">AI จับคู่ Mentor + ติดตาม Progress รายสัปดาห์</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAD-PM-002</td>
+            <td class="p-2 font-medium">ศูนย์พัฒนาฝีมือแรงงาน</td>
+            <td class="p-2 text-xs">AI จัดการหลักสูตร + วิทยากร + สถานฝึกอบรม</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAD-PM-004</td>
+            <td class="p-2 font-medium">ฝึกอบรมตามกฎหมาย</td>
+            <td class="p-2 text-xs">AI ติดตามกฎหมายใหม่ + จัดหลักสูตรบังคับอัตโนมัติ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAD-PM-005</td>
+            <td class="p-2 font-medium">ประเมินผลฝึกอบรม</td>
+            <td class="p-2 text-xs">AI สรุป ROI การฝึกอบรม + รายงานผู้บริหาร</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAD-FM-001</td>
+            <td class="p-2 font-medium">Communication Plan ISMS</td>
+            <td class="p-2 text-xs">AI สร้างแผนสื่อสาร + ติดตามการรับสาร</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-PAD-FM-002</td>
+            <td class="p-2 font-medium">แบบฟอร์มฝึกอบรม</td>
+            <td class="p-2 text-xs">AI กรอกฟอร์มอัตโนมัติ + Digital Signature</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-blue-600">13</div>
+        <div class="text-xs text-slate-500">จำนวนกระบวนการ</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-green-600">30%</div>
+        <div class="text-xs text-slate-500">ลดงาน Manual</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-purple-600">13</div>
+        <div class="text-xs text-slate-500">AI Integration Points</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: welfare -->
+<div class="tab-panel" id="panel-welfare">
+  <div class="process-flow-panel bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-4">
+    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+      <span class="text-2xl">💰</span> กระบวนการใหม่ — ค่าตอบแทน P6 (LDC-WCD 12 กระบวนการ)
+    </h3>
+
+    <!-- Flow -->
+    <div class="process-timeline mb-4">
+      <div class="flex items-center gap-2 overflow-x-auto scroll-x pb-2">
+        <div class="flow-step bg-slate-100 rounded-lg p-3 min-w-[140px] text-center">
+          <div class="text-xs font-bold text-slate-500">S1</div>
+          <div class="text-sm font-semibold">ค่าตอบแทนเดิม</div>
+          <div class="text-xs text-slate-500 mt-1">คำนวณมือ/Excel</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-blue-50 rounded-lg p-3 min-w-[140px] text-center border border-blue-200">
+          <div class="text-xs font-bold text-blue-600">S2</div>
+          <div class="text-sm font-semibold">AI คำนวณ</div>
+          <div class="text-xs text-blue-500 mt-1">Auto Payroll + สวัสดิการ</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-green-50 rounded-lg p-3 min-w-[140px] text-center border border-green-200">
+          <div class="text-xs font-bold text-green-600">S4</div>
+          <div class="text-sm font-semibold">Total Rewards</div>
+          <div class="text-xs text-green-500 mt-1">INC Points + MSP</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-amber-50 rounded-lg p-3 min-w-[140px] text-center border border-amber-200">
+          <div class="text-xs font-bold text-amber-600">S5</div>
+          <div class="text-sm font-semibold">Web PP7</div>
+          <div class="text-xs text-amber-500 mt-1">Payroll Dashboard</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Process List -->
+    <div class="process-list">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50">
+            <th class="text-left p-2 rounded-l-lg">รหัส</th>
+            <th class="text-left p-2">ชื่อกระบวนการ</th>
+            <th class="text-left p-2">AI ช่วย</th>
+            <th class="text-left p-2 rounded-r-lg">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-WCD-WI-001</td>
+            <td class="p-2 font-medium">เบี้ยเลี้ยงฝึกงาน</td>
+            <td class="p-2 text-xs">AI คำนวณเบี้ยเลี้ยงตามชั่วโมง+ตำแหน่งอัตโนมัติ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-WCD-WI-002</td>
+            <td class="p-2 font-medium">เงินสมทบอายุงานลาออก</td>
+            <td class="p-2 text-xs">AI คำนวณเงินสมทบตามอายุงาน+สูตร PKG</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-WCD-WI-003</td>
+            <td class="p-2 font-medium">เบิกสวัสดิการสมาชิก</td>
+            <td class="p-2 text-xs">AI ตรวจสอบสิทธิ + อนุมัติอัตโนมัติตามเงื่อนไข</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-WCD-WI-004</td>
+            <td class="p-2 font-medium">จ่ายเงินเดือนสมาชิก</td>
+            <td class="p-2 text-xs">AI ประมวลผล Payroll + Bank Transfer อัตโนมัติ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-WCD-WI-005</td>
+            <td class="p-2 font-medium">จ่ายโบนัสประจำปี</td>
+            <td class="p-2 text-xs">AI คำนวณโบนัสตาม KPI + ผลงาน + อายุงาน</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-WCD-WI-006</td>
+            <td class="p-2 font-medium">ระบบเกษียณ</td>
+            <td class="p-2 text-xs">AI คำนวณเงินเกษียณ + แจ้งเตือนล่วงหน้า 1 ปี</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-WCD-WI-010</td>
+            <td class="p-2 font-medium">นำส่งเงินสมทบ (SSO/GPF)</td>
+            <td class="p-2 text-xs">AI นำส่งอัตโนมัติ + ตรวจสอบความถูกต้อง</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-WCD-FM-001</td>
+            <td class="p-2 font-medium">แบบฟอร์มค่าตอบแทน</td>
+            <td class="p-2 text-xs">AI กรอกฟอร์มอัตโนมัติ + Digital Signature</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-WCD-FM-002</td>
+            <td class="p-2 font-medium">แบบฟอร์มสวัสดิการ</td>
+            <td class="p-2 text-xs">AI จัดการแบบฟอร์มสวัสดิการ + Auto Route อนุมัติ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-WCD-PM-001</td>
+            <td class="p-2 font-medium">บริหารค่าตอบแทน (Compensation Management)</td>
+            <td class="p-2 text-xs">AI วิเคราะห์ Market Comparison + เสนอโครงสร้างเงินเดือน</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-WCD-PM-002</td>
+            <td class="p-2 font-medium">บริหารสวัสดิการ (Benefits Management)</td>
+            <td class="p-2 text-xs">AI จัดการ Package สวัสดิการตาม Level + สถานะ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LDC-WCD-PM-003</td>
+            <td class="p-2 font-medium">ระบบ INC Points (Incentive Points)</td>
+            <td class="p-2 text-xs">AI คำนวณ INC จากผลงาน + แลกของรางวัล</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-blue-600">12</div>
+        <div class="text-xs text-slate-500">จำนวนกระบวนการ</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-green-600">50%</div>
+        <div class="text-xs text-slate-500">ลดงาน Manual</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-purple-600">12</div>
+        <div class="text-xs text-slate-500">AI Integration Points</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: quality -->
+<div class="tab-panel" id="panel-quality">
+  <div class="process-flow-panel bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-4">
+    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+      <span class="text-2xl">🌿</span> กระบวนการใหม่ — คุณภาพชีวิต P7
+    </h3>
+    <p class="text-sm text-slate-600 mb-4">5 องค์ประกอบคุณภาพชีวิตตาม PERMA Model: Health, Wealth, Well-being, Time, Fun</p>
+
+    <!-- Flow -->
+    <div class="process-timeline mb-4">
+      <div class="flex items-center gap-2 overflow-x-auto scroll-x pb-2">
+        <div class="flow-step bg-slate-100 rounded-lg p-3 min-w-[140px] text-center">
+          <div class="text-xs font-bold text-slate-500">S1</div>
+          <div class="text-sm font-semibold">ไม่มีระบบ</div>
+          <div class="text-xs text-slate-500 mt-1">ไม่มีการวัดคุณภาพชีวิต</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-blue-50 rounded-lg p-3 min-w-[140px] text-center border border-blue-200">
+          <div class="text-xs font-bold text-blue-600">S2</div>
+          <div class="text-sm font-semibold">AI PERMA Score</div>
+          <div class="text-xs text-blue-500 mt-1">วัด 5 องค์ประกอบ</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-green-50 rounded-lg p-3 min-w-[140px] text-center border border-green-200">
+          <div class="text-xs font-bold text-green-600">S4</div>
+          <div class="text-sm font-semibold">Wellbeing Dashboard</div>
+          <div class="text-xs text-green-500 mt-1">Real-time Monitoring</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-amber-50 rounded-lg p-3 min-w-[140px] text-center border border-amber-200">
+          <div class="text-xs font-bold text-amber-600">S5</div>
+          <div class="text-sm font-semibold">Web PP7</div>
+          <div class="text-xs text-amber-500 mt-1">Dashboard + Programs</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 PERMA Components -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4">
+      <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
+        <div class="text-xl mb-1">❤️</div>
+        <div class="text-sm font-bold text-red-700">Health</div>
+        <div class="text-xs text-red-500 mt-1">AI ติดตามสุขภาพ + แนะนำกิจกรรม</div>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
+        <div class="text-xl mb-1">💰</div>
+        <div class="text-sm font-bold text-amber-700">Wealth</div>
+        <div class="text-xs text-amber-500 mt-1">AI วิเคราะห์การเงิน + เสนอแผนออม</div>
+      </div>
+      <div class="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+        <div class="text-xl mb-1">🧘</div>
+        <div class="text-sm font-bold text-green-700">Well-being</div>
+        <div class="text-xs text-green-500 mt-1">AI วัดความสุข + Mental Health</div>
+      </div>
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+        <div class="text-xl mb-1">⏰</div>
+        <div class="text-sm font-bold text-blue-700">Time</div>
+        <div class="text-xs text-blue-500 mt-1">AI จัดการเวลา + Work-Life Balance</div>
+      </div>
+      <div class="bg-pink-50 border border-pink-200 rounded-lg p-3 text-center">
+        <div class="text-xl mb-1">🎉</div>
+        <div class="text-sm font-bold text-pink-700">Fun</div>
+        <div class="text-xs text-pink-500 mt-1">AI แนะนำกิจกรรมสันทนาการ</div>
+      </div>
+    </div>
+
+    <!-- Process List -->
+    <div class="process-list">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50">
+            <th class="text-left p-2 rounded-l-lg">#</th>
+            <th class="text-left p-2">องค์ประกอบ</th>
+            <th class="text-left p-2">AI ช่วย</th>
+            <th class="text-left p-2 rounded-r-lg">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">P7-1</td>
+            <td class="p-2 font-medium">❤️ Health — สุขภาพกาย-ใจ</td>
+            <td class="p-2 text-xs">AI Survey สุขภาพ + แนะนำ EAP + Fitness Programs</td>
+            <td class="p-2"><span class="badge-blue text-xs">🔧 กำลังออกแบบ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">P7-2</td>
+            <td class="p-2 font-medium">💰 Wealth — ความมั่นคงทางการเงิน</td>
+            <td class="p-2 text-xs">AI วิเคราะห์ Income/Expense + แนะนำการลงทุน</td>
+            <td class="p-2"><span class="badge-blue text-xs">🔧 กำลังออกแบบ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">P7-3</td>
+            <td class="p-2 font-medium">🧘 Well-being — ความสุขในการทำงาน</td>
+            <td class="p-2 text-xs">AI วัด Engagement Score + แจ้งเตือนความเสี่ยง Burnout</td>
+            <td class="p-2"><span class="badge-blue text-xs">🔧 กำลังออกแบบ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">P7-4</td>
+            <td class="p-2 font-medium">⏰ Time — การจัดการเวลา</td>
+            <td class="p-2 text-xs">AI วิเคราะห์ OT/Leave Pattern + แนะนำ Flex Time</td>
+            <td class="p-2"><span class="badge-blue text-xs">🔧 กำลังออกแบบ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">P7-5</td>
+            <td class="p-2 font-medium">🎉 Fun — ความสนุกสนาน/กิจกรรม</td>
+            <td class="p-2 text-xs">AI จัด Team Building + แนะนำกิจกรรมตามความสนใจ</td>
+            <td class="p-2"><span class="badge-blue text-xs">🔧 กำลังออกแบบ</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-blue-600">5</div>
+        <div class="text-xs text-slate-500">องค์ประกอบ PERMA</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-green-600">New</div>
+        <div class="text-xs text-slate-500">องค์ประกอบใหม่</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-purple-600">5</div>
+        <div class="text-xs text-slate-500">AI Integration Points</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: reports -->
+<div class="tab-panel" id="panel-reports">
+  <div class="process-flow-panel bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-4">
+    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+      <span class="text-2xl">📊</span> Dashboard รายงาน
+    </h3>
+
+    <!-- Flow -->
+    <div class="process-timeline mb-4">
+      <div class="flex items-center gap-2 overflow-x-auto scroll-x pb-2">
+        <div class="flow-step bg-slate-100 rounded-lg p-3 min-w-[140px] text-center">
+          <div class="text-xs font-bold text-slate-500">S1</div>
+          <div class="text-sm font-semibold">รายงาน Excel</div>
+          <div class="text-xs text-slate-500 mt-1">ทำมือ/ส่ง Email</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-blue-50 rounded-lg p-3 min-w-[140px] text-center border border-blue-200">
+          <div class="text-xs font-bold text-blue-600">S2</div>
+          <div class="text-sm font-semibold">AI สรุปข้อมูล</div>
+          <div class="text-xs text-blue-500 mt-1">Auto-generate Report</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-green-50 rounded-lg p-3 min-w-[140px] text-center border border-green-200">
+          <div class="text-xs font-bold text-green-600">S4</div>
+          <div class="text-sm font-semibold">Real-time Dashboard</div>
+          <div class="text-xs text-green-500 mt-1">KPI Charts + Drill-down</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-amber-50 rounded-lg p-3 min-w-[140px] text-center border border-amber-200">
+          <div class="text-xs font-bold text-amber-600">S5</div>
+          <div class="text-sm font-semibold">Web PP7</div>
+          <div class="text-xs text-amber-500 mt-1">Executive Dashboard</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reports List -->
+    <div class="process-list">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50">
+            <th class="text-left p-2 rounded-l-lg">Dashboard</th>
+            <th class="text-left p-2">เนื้อหา</th>
+            <th class="text-left p-2">AI ช่วย</th>
+            <th class="text-left p-2 rounded-r-lg">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">📊 Dashboard ผู้บริหาร</td>
+            <td class="p-2 text-xs">ภาพรวม 52 กระบวนการ + KPIs ทั้งหมด</td>
+            <td class="p-2 text-xs">AI สรุปแนวโน้ม + คาดการณ์</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ มีแล้ว</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">📋 HC Dashboard</td>
+            <td class="p-2 text-xs">จำนวน HC / ว่าง / รับ / ลาออก / โอน</td>
+            <td class="p-2 text-xs">AI พยากรณ์ HC + แจ้งเตือนขาดแคลน</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ มีแล้ว</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">🔎 Recruitment Pipeline</td>
+            <td class="p-2 text-xs">ผู้สมัครแต่ละขั้นตอน + Conversion Rate</td>
+            <td class="p-2 text-xs">AI วิเคราะห์ Funnel + จุดคอขวด</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ มีแล้ว</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">📝 Assessment Score</td>
+            <td class="p-2 text-xs">ผลสัมภาษณ์/ทดสอบ/CMC/ทัศนคติ</td>
+            <td class="p-2 text-xs">AI สรุป Top Candidates</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ มีแล้ว</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">🎓 Training Report</td>
+            <td class="p-2 text-xs">ชั่วโมงอบรม / ค่าใช้จ่าย / ROI</td>
+            <td class="p-2 text-xs">AI วิเคราะห์ Gap + แนะนำหลักสูตร</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ มีแล้ว</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">💰 Payroll Summary</td>
+            <td class="p-2 text-xs">เงินเดือน / โบนัส / สวัสดิการ / INC Points</td>
+            <td class="p-2 text-xs">AI วิเคราะห์ Cost per Employee</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ มีแล้ว</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-blue-600">6</div>
+        <div class="text-xs text-slate-500">Dashboards</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-green-600">80%</div>
+        <div class="text-xs text-slate-500">ลดเวลาทำรายงาน</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-purple-600">6</div>
+        <div class="text-xs text-slate-500">AI Analysis Points</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: labor-law -->
+<div class="tab-panel" id="panel-labor-law">
+  <div class="process-flow-panel bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-4">
+    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+      <span class="text-2xl">⚖️</span> กฎหมายแรงงาน 3 ประเทศ
+    </h3>
+
+    <!-- Flow -->
+    <div class="process-timeline mb-4">
+      <div class="flex items-center gap-2 overflow-x-auto scroll-x pb-2">
+        <div class="flow-step bg-slate-100 rounded-lg p-3 min-w-[140px] text-center">
+          <div class="text-xs font-bold text-slate-500">S1</div>
+          <div class="text-sm font-semibold">ค้นหาด้วยมือ</div>
+          <div class="text-xs text-slate-500 mt-1">เปิดเล่ม/เว็บ/ถามทนาย</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-blue-50 rounded-lg p-3 min-w-[140px] text-center border border-blue-200">
+          <div class="text-xs font-bold text-blue-600">S2</div>
+          <div class="text-sm font-semibold">AI Legal Search</div>
+          <div class="text-xs text-blue-500 mt-1">ค้นหากฎหมายอัตโนมัติ</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-green-50 rounded-lg p-3 min-w-[140px] text-center border border-green-200">
+          <div class="text-xs font-bold text-green-600">S4</div>
+          <div class="text-sm font-semibold">Multi-Country Compare</div>
+          <div class="text-xs text-green-500 mt-1">เปรียบเทียบข้ามประเทศ</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-amber-50 rounded-lg p-3 min-w-[140px] text-center border border-amber-200">
+          <div class="text-xs font-bold text-amber-600">S5</div>
+          <div class="text-sm font-semibold">Web PP7</div>
+          <div class="text-xs text-amber-500 mt-1">Knowledge Base + Alert</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Process List -->
+    <div class="process-list">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50">
+            <th class="text-left p-2 rounded-l-lg">#</th>
+            <th class="text-left p-2">ประเทศ/หัวข้อ</th>
+            <th class="text-left p-2">AI ช่วย</th>
+            <th class="text-left p-2 rounded-r-lg">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LAW-TH</td>
+            <td class="p-2 font-medium">🇹🇭 กฎหมายแรงงานไทย — พ.ร.บ. คุ้มครองแรงงาน</td>
+            <td class="p-2 text-xs">AI ค้นหามาตรา + วิเคราะห์กรณีศึกษา + แจ้งเตือนกฎหมายใหม่</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LAW-LA</td>
+            <td class="p-2 font-medium">🇱🇦 Labour Law Laos</td>
+            <td class="p-2 text-xs">AI แปล+วิเคราะห์กฎหมาย lao + เปรียบเทียบกับไทย</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LAW-KH</td>
+            <td class="p-2 font-medium">🇰🇭 Labour Law Cambodia</td>
+            <td class="p-2 text-xs">AI แปล+วิเคราะห์กฎหมายเขมร + สรุปข้อกำหนดสำคัญ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">LAW-COMP</td>
+            <td class="p-2 font-medium">🌏 Cross-Country Comparison</td>
+            <td class="p-2 text-xs">AI เปรียบเทียบ OT/Leave/Termination 3 ประเทศ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-blue-600">4</div>
+        <div class="text-xs text-slate-500">จำนวนกระบวนการ</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-green-600">70%</div>
+        <div class="text-xs text-slate-500">ลดเวลาค้นหากฎหมาย</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-purple-600">4</div>
+        <div class="text-xs text-slate-500">AI Integration Points</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: pkg-rules -->
+<div class="tab-panel" id="panel-pkg-rules">
+  <div class="process-flow-panel bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-4">
+    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+      <span class="text-2xl">📜</span> ระเบียบองค์กร PKG
+    </h3>
+
+    <!-- Flow -->
+    <div class="process-timeline mb-4">
+      <div class="flex items-center gap-2 overflow-x-auto scroll-x pb-2">
+        <div class="flow-step bg-slate-100 rounded-lg p-3 min-w-[140px] text-center">
+          <div class="text-xs font-bold text-slate-500">S1</div>
+          <div class="text-sm font-semibold">ระเบียบกระดาษ</div>
+          <div class="text-xs text-slate-500 mt-1">เล่ม/PDF/หาเอง</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-blue-50 rounded-lg p-3 min-w-[140px] text-center border border-blue-200">
+          <div class="text-xs font-bold text-blue-600">S2</div>
+          <div class="text-sm font-semibold">AI Search</div>
+          <div class="text-xs text-blue-500 mt-1">ค้นหาระเบียบ+สรุป</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-green-50 rounded-lg p-3 min-w-[140px] text-center border border-green-200">
+          <div class="text-xs font-bold text-green-600">S4</div>
+          <div class="text-sm font-semibold">Digital Rulebook</div>
+          <div class="text-xs text-green-500 mt-1">เข้าถึงได้ทุกที่</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-amber-50 rounded-lg p-3 min-w-[140px] text-center border border-amber-200">
+          <div class="text-xs font-bold text-amber-600">S5</div>
+          <div class="text-sm font-semibold">Web PP7</div>
+          <div class="text-xs text-amber-500 mt-1">Rule Engine + Check</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Process List -->
+    <div class="process-list">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50">
+            <th class="text-left p-2 rounded-l-lg">#</th>
+            <th class="text-left p-2">ระเบียบ</th>
+            <th class="text-left p-2">AI ช่วย</th>
+            <th class="text-left p-2 rounded-r-lg">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">REG-WI</td>
+            <td class="p-2 font-medium">📘 WI 48 ข้อ — Work Instructions</td>
+            <td class="p-2 text-xs">AI สรุป WI + ค้นหาตามสถานการณ์ + Check Compliance</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">REG-POL</td>
+            <td class="p-2 font-medium">📙 Policy 12 ข้อ — Policy Manuals</td>
+            <td class="p-2 text-xs">AI วิเคราะห์ Policy + เปรียบเทียบกรณี + สรุปข้อกำหนด</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">REG-PM</td>
+            <td class="p-2 font-medium">📗 Process Maps 25 ข้อ — แผนผังกระบวนการ</td>
+            <td class="p-2 text-xs">AI นำทาง Process Map + เสนอ Flow ที่เหมาะสม</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">REG-CEO</td>
+            <td class="p-2 font-medium">📕 CEO Concept — Contract of Extreme Ownership</td>
+            <td class="p-2 text-xs">AI วิเคราะห์การปฏิบัติตาม CEO Concept + Score</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับใน Web</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-blue-600">4</div>
+        <div class="text-xs text-slate-500">กลุ่มระเบียบ</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-green-600">60%</div>
+        <div class="text-xs text-slate-500">ลดเวลาค้นหาระเบียบ</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-purple-600">4</div>
+        <div class="text-xs text-slate-500">AI Integration Points</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: data-exchange -->
+<div class="tab-panel" id="panel-data-exchange">
+  <div class="process-flow-panel bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-4">
+    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+      <span class="text-2xl">🔄</span> Import / Export ข้อมูล
+    </h3>
+
+    <!-- Flow -->
+    <div class="process-timeline mb-4">
+      <div class="flex items-center gap-2 overflow-x-auto scroll-x pb-2">
+        <div class="flow-step bg-slate-100 rounded-lg p-3 min-w-[140px] text-center">
+          <div class="text-xs font-bold text-slate-500">S1</div>
+          <div class="text-sm font-semibold">Copy-Paste</div>
+          <div class="text-xs text-slate-500 mt-1">Excel → ระบบ</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-blue-50 rounded-lg p-3 min-w-[140px] text-center border border-blue-200">
+          <div class="text-xs font-bold text-blue-600">S2</div>
+          <div class="text-sm font-semibold">AI Validation</div>
+          <div class="text-xs text-blue-500 mt-1">ตรวจสอบ Format</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-green-50 rounded-lg p-3 min-w-[140px] text-center border border-green-200">
+          <div class="text-xs font-bold text-green-600">S4</div>
+          <div class="text-sm font-semibold">Smart Sync</div>
+          <div class="text-xs text-green-500 mt-1">API + Batch Import</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-amber-50 rounded-lg p-3 min-w-[140px] text-center border border-amber-200">
+          <div class="text-xs font-bold text-amber-600">S5</div>
+          <div class="text-sm font-semibold">Web PP7</div>
+          <div class="text-xs text-amber-500 mt-1">Import/Export Hub</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="process-list">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50">
+            <th class="text-left p-2 rounded-l-lg">Feature</th>
+            <th class="text-left p-2">รายละเอียด</th>
+            <th class="text-left p-2">AI ช่วย</th>
+            <th class="text-left p-2 rounded-r-lg">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">📥 Import พนักงาน</td>
+            <td class="p-2 text-xs">Excel/CSV → ระบบ + Map Fields อัตโนมัติ</td>
+            <td class="p-2 text-xs">AI Map Columns + ตรวจสอบ Duplicate</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">📤 Export รายงาน</td>
+            <td class="p-2 text-xs">Export Excel/PDF/CSV ตาม Template</td>
+            <td class="p-2 text-xs">AI จัดรูปแบบรายงาน + สรุป Dashboard</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">🔄 Google Sheets Sync</td>
+            <td class="p-2 text-xs">Sync 2-way กับ Google Sheets แบบ Real-time</td>
+            <td class="p-2 text-xs">AI Monitor Change + Alert Conflict</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ รองรับ</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">🔌 API Integration</td>
+            <td class="p-2 text-xs">REST API สำหรับ SGM/MSP/Line/Telegram</td>
+            <td class="p-2 text-xs">AI Handle Webhooks + Error Recovery</td>
+            <td class="p-2"><span class="badge-blue text-xs">🔧 กำลังพัฒนา</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-blue-600">4</div>
+        <div class="text-xs text-slate-500">Features</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-green-600">90%</div>
+        <div class="text-xs text-slate-500">ลดเวลา Import/Export</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-purple-600">4</div>
+        <div class="text-xs text-slate-500">AI Integration Points</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: system-map -->
+<div class="tab-panel" id="panel-system-map">
+  <div class="process-flow-panel bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-4">
+    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+      <span class="text-2xl">🗺️</span> แผนผังระบบ Web PP7
+    </h3>
+
+    <!-- Flow -->
+    <div class="process-timeline mb-4">
+      <div class="flex items-center gap-2 overflow-x-auto scroll-x pb-2">
+        <div class="flow-step bg-slate-100 rounded-lg p-3 min-w-[140px] text-center">
+          <div class="text-xs font-bold text-slate-500">S1</div>
+          <div class="text-sm font-semibold">ระบบแยกส่วน</div>
+          <div class="text-xs text-slate-500 mt-1">แต่ละ Tab ทำงานอิสระ</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-blue-50 rounded-lg p-3 min-w-[140px] text-center border border-blue-200">
+          <div class="text-xs font-bold text-blue-600">S2</div>
+          <div class="text-sm font-semibold">AI วิเคราะห์ Architecture</div>
+          <div class="text-xs text-blue-500 mt-1">Data Flow Diagram</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-green-50 rounded-lg p-3 min-w-[140px] text-center border border-green-200">
+          <div class="text-xs font-bold text-green-600">S4</div>
+          <div class="text-sm font-semibold">Unified Platform</div>
+          <div class="text-xs text-green-500 mt-1">Single Source of Truth</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-amber-50 rounded-lg p-3 min-w-[140px] text-center border border-amber-200">
+          <div class="text-xs font-bold text-amber-600">S5</div>
+          <div class="text-sm font-semibold">Web PP7</div>
+          <div class="text-xs text-amber-500 mt-1">System Map View</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Architecture Diagram -->
+    <div class="bg-slate-50 rounded-xl p-4 mb-4">
+      <h4 class="font-bold text-sm mb-3">🏗️ Architecture Overview:</h4>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <div class="text-sm font-bold text-blue-700">Frontend</div>
+          <div class="text-xs text-blue-500 mt-1">HTML + Tailwind</div>
+          <div class="text-xs text-slate-400">16 Tabs / Dashboard</div>
+        </div>
+        <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+          <div class="text-sm font-bold text-green-700">Backend</div>
+          <div class="text-xs text-green-500 mt-1">Apps Script / Node.js</div>
+          <div class="text-xs text-slate-400">API + Business Logic</div>
+        </div>
+        <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
+          <div class="text-sm font-bold text-purple-700">Data Layer</div>
+          <div class="text-xs text-purple-500 mt-1">Google Sheets / Firestore</div>
+          <div class="text-xs text-slate-400">Real-time Sync</div>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <div class="text-sm font-bold text-amber-700">AI Service</div>
+          <div class="text-xs text-amber-500 mt-1">OpenClaw / KiloClaw</div>
+          <div class="text-xs text-slate-400">Screening + Analysis</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Map -->
+    <div class="process-list">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50">
+            <th class="text-left p-2 rounded-l-lg">Tab</th>
+            <th class="text-left p-2">Phase</th>
+            <th class="text-left p-2">ข้อมูลหลัก</th>
+            <th class="text-left p-2 rounded-r-lg">เชื่อมต่อ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">Tab-01 สรุปผู้บริหาร</td>
+            <td class="p-2 text-xs">All</td>
+            <td class="p-2 text-xs">Dashboard รวม</td>
+            <td class="p-2 text-xs">ทุก Tab</td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">Tab-02 แสวงหา</td>
+            <td class="p-2 text-xs">P1</td>
+            <td class="p-2 text-xs">ผู้สมัคร + ใบสมัคร</td>
+            <td class="p-2 text-xs">→ Tab-03</td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">Tab-03 หยั่งประเมิน</td>
+            <td class="p-2 text-xs">P2</td>
+            <td class="p-2 text-xs">ผลสัมภาษณ์/ทดสอบ</td>
+            <td class="p-2 text-xs">→ Tab-04</td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">Tab-04 จับคู่</td>
+            <td class="p-2 text-xs">P3</td>
+            <td class="p-2 text-xs">ผลการจับคู่/onboard</td>
+            <td class="p-2 text-xs">→ Tab-05</td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">Tab-05 ประเมินผล</td>
+            <td class="p-2 text-xs">P4</td>
+            <td class="p-2 text-xs">KPI / 360° Score</td>
+            <td class="p-2 text-xs">→ Tab-06</td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">Tab-06 พัฒนา</td>
+            <td class="p-2 text-xs">P5</td>
+            <td class="p-2 text-xs">IDP / Training Hours</td>
+            <td class="p-2 text-xs">→ Tab-07</td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">Tab-07 ค่าตอบแทน</td>
+            <td class="p-2 text-xs">P6</td>
+            <td class="p-2 text-xs">เงินเดือน/โบนัส/INC</td>
+            <td class="p-2 text-xs">→ Tab-08</td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-medium">Tab-08 คุณภาพชีวิต</td>
+            <td class="p-2 text-xs">P7</td>
+            <td class="p-2 text-xs">PERMA Score</td>
+            <td class="p-2 text-xs">← Feed back → Tab-01</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-blue-600">16</div>
+        <div class="text-xs text-slate-500">Tabs ทั้งหมด</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-green-600">P1–P7</div>
+        <div class="text-xs text-slate-500">ครบทุก Phase</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-purple-600">4</div>
+        <div class="text-xs text-slate-500">System Layers</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: pp7-research -->
+<div class="tab-panel" id="panel-pp7-research">
+  <div class="process-flow-panel bg-white rounded-xl p-6 shadow-sm border border-slate-100 mb-4">
+    <h3 class="text-lg font-bold mb-3 flex items-center gap-2">
+      <span class="text-2xl">🔬</span> วิจัย PP7 — Best Practices & Frameworks
+    </h3>
+
+    <!-- Flow -->
+    <div class="process-timeline mb-4">
+      <div class="flex items-center gap-2 overflow-x-auto scroll-x pb-2">
+        <div class="flow-step bg-slate-100 rounded-lg p-3 min-w-[140px] text-center">
+          <div class="text-xs font-bold text-slate-500">S1</div>
+          <div class="text-sm font-semibold">ไม่มีวิจัยรองรับ</div>
+          <div class="text-xs text-slate-500 mt-1">ทำตามความรู้สึก</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-blue-50 rounded-lg p-3 min-w-[140px] text-center border border-blue-200">
+          <div class="text-xs font-bold text-blue-600">S2</div>
+          <div class="text-sm font-semibold">AI Literature Review</div>
+          <div class="text-xs text-blue-500 mt-1">สรุปงานวิจัยอัตโนมัติ</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-green-50 rounded-lg p-3 min-w-[140px] text-center border border-green-200">
+          <div class="text-xs font-bold text-green-600">S4</div>
+          <div class="text-sm font-semibold">Evidence-Based HR</div>
+          <div class="text-xs text-green-500 mt-1">ตัดสินใจบนหลักฐานวิจัย</div>
+        </div>
+        <div class="text-slate-400">→</div>
+        <div class="flow-step bg-amber-50 rounded-lg p-3 min-w-[140px] text-center border border-amber-200">
+          <div class="text-xs font-bold text-amber-600">S5</div>
+          <div class="text-sm font-semibold">Web PP7</div>
+          <div class="text-xs text-amber-500 mt-1">Knowledge Base + Apply</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Research Topics -->
+    <div class="process-list">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50">
+            <th class="text-left p-2 rounded-l-lg">วิจัย</th>
+            <th class="text-left p-2">กรอบแนวคิด</th>
+            <th class="text-left p-2">AI ช่วย / ประยุกต์</th>
+            <th class="text-left p-2 rounded-r-lg">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">RES-360</td>
+            <td class="p-2 font-medium">🔄 360° Feedback</td>
+            <td class="p-2 text-xs">Best Practices: Google (re:Work), Netflix — Multi-source + Anonymity</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ วิจัยแล้ว</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">RES-BARS</td>
+            <td class="p-2 font-medium">📊 BARS — Behaviorally Anchored Rating Scales</td>
+            <td class="p-2 text-xs">AI สร้าง BARS ตามประเภทงาน + ประเมินพฤติกรรม</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ วิจัยแล้ว</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">RES-CCL</td>
+            <td class="p-2 font-medium">🎓 CCL — Center for Creative Leadership</td>
+            <td class="p-2 text-xs">70-20-10 Model + AI ประเมินพัฒนาการผู้นำ</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ วิจัยแล้ว</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">RES-PERMA</td>
+            <td class="p-2 font-medium">🌿 PERMA — Seligman Wellbeing Model</td>
+            <td class="p-2 text-xs">บวก (P) × Engagement (E) × Relationships (R) × Meaning (M) × Achievement (A)</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ วิจัยแล้ว</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">RES-TR</td>
+            <td class="p-2 font-medium">💰 Total Rewards — WorldatWork</td>
+            <td class="p-2 text-xs">Compensation + Benefits + Work-Life + Performance + Recognition</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ วิจัยแล้ว</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="p-2 font-mono text-xs">RES-OKR</td>
+            <td class="p-2 font-medium">🎯 OKR — Google re:Work</td>
+            <td class="p-2 text-xs">Objectives + Key Results → AI ติดตาม Progress + Alignment</td>
+            <td class="p-2"><span class="badge-green text-xs">✅ วิจัยแล้ว</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-4 mt-4">
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-blue-600">6</div>
+        <div class="text-xs text-slate-500">หัวข้องานวิจัย</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-green-600">100%</div>
+        <div class="text-xs text-slate-500">วิจัยครบถ้วน</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-center">
+        <div class="text-2xl font-bold text-purple-600">6</div>
+        <div class="text-xs text-slate-500">AI Application Points</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- Footer -->
+<footer class="bg-white border-t border-slate-200 py-4 mt-8">
+  <div class="max-w-7xl mx-auto px-4 text-center">
+    <p class="text-xs text-slate-500">Web PP7 — Process Flow View | 52 กระบวนการ PM WI | S1→S7 Complete | PKG HR Management System</p>
+  </div>
+</footer>
+
+<!-- Tab Switching Script -->
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    // Deactivate all
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('active');
+      b.classList.add('bg-slate-100', 'text-slate-600');
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => {
+      p.classList.remove('active');
+    });
+    
+    // Activate clicked
+    btn.classList.add('active');
+    btn.classList.remove('bg-slate-100', 'text-slate-600');
+    const panelId = 'panel-' + btn.dataset.tab;
+    document.getElementById(panelId).classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
