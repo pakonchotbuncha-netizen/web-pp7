@@ -19,6 +19,27 @@
     *{font-family:'Prompt',sans-serif}
     body{background:#f1f5f9;color:#1e293b}
     .card{background:#fff;border-radius:1rem;box-shadow:0 4px 24px rgba(15,23,42,.07);padding:1.5rem}
+    /* Sidebar Navigation */
+    .sidebar{position:fixed;left:0;top:0;bottom:0;width:260px;background:linear-gradient(180deg,#0f172a 0%,#1e3a5f 100%);color:#fff;z-index:50;overflow-y:auto;transition:transform .3s;box-shadow:4px 0 20px rgba(15,23,42,.1)}
+    .sidebar-header{padding:1.25rem 1rem;border-bottom:1px solid rgba(255,255,255,.1)}
+    .sidebar-header h2{font-size:1rem;font-weight:700;color:#fff;margin:0}
+    .sidebar-header p{font-size:.7rem;color:#94a3b8;margin-top:.25rem}
+    .sidebar-section{padding:.75rem 0}
+    .sidebar-section-title{padding:.5rem 1rem;font-size:.65rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
+    .nav-item{display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;color:#cbd5e1;font-size:.85rem;cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:all .15s;font-family:'Prompt',sans-serif;border-left:3px solid transparent}
+    .nav-item:hover{background:rgba(255,255,255,.05);color:#fff}
+    .nav-item.active{background:rgba(59,130,246,.15);color:#60a5fa;border-left-color:#3b82f6}
+    .nav-item-icon{font-size:1.1rem;width:1.5rem;text-align:center}
+    .main-content{margin-left:260px;min-height:100vh;background:#f1f5f9}
+    @media(max-width:768px){
+      .sidebar{transform:translateX(-100%)}
+      .sidebar.open{transform:translateX(0)}
+      .main-content{margin-left:0}
+      .mobile-menu-btn{display:block!important}
+    }
+    .mobile-menu-btn{display:none;position:fixed;top:1rem;left:1rem;z-index:60;background:#2563eb;color:#fff;border:none;border-radius:.5rem;padding:.5rem .75rem;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 12px rgba(37,99,235,.3)}
+    @media(max-width:768px){.mobile-menu-btn{display:block!important}}
+    /* Legacy tab-btn (kept for compatibility) */
     .tab-btn{position:relative;padding:.85rem 1.1rem;font-weight:500;white-space:nowrap;cursor:pointer;border:none;background:transparent;color:#64748b;transition:color .15s}
     .tab-btn:hover{color:#2563eb}
     .tab-btn.active{color:#2563eb}
@@ -612,8 +633,80 @@ window.RESIGNATION_PIPELINE = {
 </div>
 
 <!-- HEADER -->
-<header class="bg-gradient-to-r from-pp7-700 to-pp7-900 text-white py-4 px-4 shadow-lg">
-  <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+
+<!-- Mobile Menu Button -->
+<button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<!-- Sidebar Navigation -->
+<aside id="sidebar" class="sidebar">
+  <div class="sidebar-header">
+    <h2>📊 PP7 System</h2>
+    <p>ระบบบริหารบุคลากร</p>
+  </div>
+  
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">📋核心 Core PP7</div>
+    <button class="nav-item active" data-tab="executive" onclick="showTab('executive')">
+      <span class="nav-item-icon">📌</span>สรุปผู้บริหาร
+    </button>
+    <button class="nav-item" data-tab="pp7-strategy" onclick="showTab('pp7-strategy')">
+      <span class="nav-item-icon">🧬</span>กลยุทธ์ PP7
+    </button>
+    <button class="nav-item" data-tab="headcount-request" onclick="showTab('headcount-request')">
+      <span class="nav-item-icon">📋</span>ขออัตรากำลัง
+    </button>
+    <button class="nav-item" data-tab="recruit" onclick="showTab('recruit')">
+      <span class="nav-item-icon">🔎</span>แสวงหา
+    </button>
+    <button class="nav-item" data-tab="assess" onclick="showTab('assess')">
+      <span class="nav-item-icon">🧭</span>ประเมินศักยภาพ
+    </button>
+    <button class="nav-item" data-tab="match" onclick="showTab('match')">
+      <span class="nav-item-icon">🤝</span>จับคู่
+    </button>
+    <button class="nav-item" data-tab="performance" onclick="showTab('performance')">
+      <span class="nav-item-icon">📈</span>ประเมินผล
+    </button>
+    <button class="nav-item" data-tab="develop" onclick="showTab('develop')">
+      <span class="nav-item-icon">🎓</span>พัฒนา
+    </button>
+    <button class="nav-item" data-tab="welfare" onclick="showTab('welfare')">
+      <span class="nav-item-icon">💰</span>สวัสดิการ
+    </button>
+    <button class="nav-item" data-tab="quality" onclick="showTab('quality')">
+      <span class="nav-item-icon">🌿</span>คุณภาพชีวิต
+    </button>
+    <button class="nav-item" data-tab="reports" onclick="showTab('reports')">
+      <span class="nav-item-icon">📊</span>รายงาน
+    </button>
+  </div>
+  
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">🔧 เครื่องมือสนับสนุน</div>
+    <button class="nav-item" data-tab="labor-law" onclick="showTab('labor-law')">
+      <span class="nav-item-icon">⚖️</span>กฎหมายแรงงาน
+    </button>
+    <button class="nav-item" data-tab="pkg-rules" onclick="showTab('pkg-rules')">
+      <span class="nav-item-icon">📘</span>ระเบียบ PKG
+    </button>
+    <button class="nav-item" data-tab="data-exchange" onclick="showTab('data-exchange')">
+      <span class="nav-item-icon">🔄</span>Import/Export
+    </button>
+    <button class="nav-item" data-tab="system-map" onclick="showTab('system-map')">
+      <span class="nav-item-icon">🗺️</span>System Map
+    </button>
+    <button class="nav-item" data-tab="pp7-research" onclick="showTab('pp7-research')">
+      <span class="nav-item-icon">🧪</span>งานวิจัย PP7
+    </button>
+  </div>
+</aside>
+
+<!-- Main Content Wrapper -->
+<div class="main-content" id="mainContentWrapper">
+
+<!-- SIMPLIFIED HEADER (user info moved to sidebar) -->
+<header class="bg-gradient-to-r from-pp7-700 to-pp7-900 text-white py-3 px-4 shadow-lg">
+  <div class="flex items-center justify-between gap-3">
     <div>
       <h1 class="text-xl md:text-3xl font-bold tracking-tight" data-i18n="appTitle">📊 ระบบบริหารบุคลากร PP7</h1>
       <p class="text-pp7-200 mt-0.5 text-sm" data-i18n="appSubtitle">Pakorn HRMS Dashboard — ข้อมูลภาพรวมแบบเรียลไทม์</p>
@@ -651,39 +744,6 @@ window.RESIGNATION_PIPELINE = {
     </div>
   </div>
 </header>
-
-<!-- TAB NAV Row 1: PP7 Core -->
-<nav class="sticky-nav bg-white border-b border-slate-200">
-  <div class="max-w-7xl mx-auto flex flex-wrap gap-0">
-    <button class="tab-btn active" data-tab="executive" onclick="showTab('executive')">📌 สรุปผู้บริหาร</button>
-    <button class="tab-btn" data-tab="pp7-strategy" onclick="showTab('pp7-strategy')">🧬 กลยุทธ์ PP7</button>
-    <button class="tab-btn" data-tab="headcount-request" onclick="showTab('headcount-request')">📋 ขออัตรากำลัง</button>
-    <button class="tab-btn" data-tab="recruit" onclick="showTab('recruit')">🔎 แสวงหา</button>
-    <button class="tab-btn" data-tab="assess" onclick="showTab('assess')">🧭 ประเมินศักยภาพ</button>
-    <button class="tab-btn" data-tab="match" onclick="showTab('match')">🤝 จับคู่</button>
-    <button class="tab-btn" data-tab="performance" onclick="showTab('performance')"> ประเมินผล</button>
-    <button class="tab-btn" data-tab="develop" onclick="showTab('develop')">🎓 พัฒนา</button>
-    <button class="tab-btn" data-tab="welfare" onclick="showTab('welfare')">💰 สวัสดิการ</button>
-    <button class="tab-btn" data-tab="quality" onclick="showTab('quality')">🌿 คุณภาพชีวิต</button>
-    <button class="tab-btn" data-tab="reports" onclick="showTab('reports')">📊 รายงาน</button>
-  </div>
-</nav>
-<!-- TAB NAV Row 2: Support Tools -->
-<nav class="sticky-nav bg-white border-b border-slate-200" style="box-shadow:none;border-top:1px solid #e2e8f0;">
-  <div class="max-w-7xl mx-auto flex flex-wrap gap-0">
-    <button class="tab-btn" data-tab="labor-law" onclick="showTab('labor-law')">️ กฎหมายแรงงาน</button>
-    <button class="tab-btn" data-tab="pkg-rules" onclick="showTab('pkg-rules')">📘 ระเบียบ PKG</button>
-    <button class="tab-btn" data-tab="data-exchange" onclick="showTab('data-exchange')">🔄 Import/Export</button>
-    <button class="tab-btn" data-tab="system-map" onclick="showTab('system-map')">🗺️ System Map</button>
-  </div>
-</nav>
-<!-- TAB NAV Row 3: Research -->
-<nav class="sticky-nav bg-white border-b border-slate-200" style="box-shadow:none;border-top:1px solid #e2e8f0;">
-  <div class="max-w-7xl mx-auto flex flex-wrap gap-0">
-    <button class="tab-btn" data-tab="pp7-research" onclick="showTab('pp7-research')">🧪 งานวิจัย PP7</button>
-  </div>
-</nav>
-
 <!-- EXPORT / TOOLBAR -->
 <div class="max-w-7xl mx-auto px-3 md:px-4 mt-3">
   <div class="toolbar bg-white rounded-lg p-2 shadow-sm border border-slate-100">
@@ -3561,7 +3621,7 @@ window.RESIGNATION_PIPELINE = {
 
 </section>
 
-</main></div><!-- /.app-wrapper -->
+</main></div><!-- /.main-content --></div><!-- /.app-wrapper -->
 
 <!-- DRILL-DOWN MODAL -->
 <div class="modal-overlay" id="drillModal" onclick="if(event.target===this)closeDrill()">
@@ -3656,12 +3716,14 @@ function showTab(name){
   const el=document.getElementById('tab-'+name);
   if(!el)return;
   el.classList.remove('hidden');
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  const btn=document.querySelector('.tab-btn[data-tab="'+name+'"]');
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  const btn=document.querySelector('.nav-item[data-tab="'+name+'"]');
   if(btn)btn.classList.add('active');
   el.classList.remove('fade-in');void el.offsetWidth;el.classList.add('fade-in');
   if(location.hash!==`#tab=${name}`)history.replaceState(null,'',`#tab=${name}`);
   initCharts(name);
+  // close mobile sidebar
+  document.getElementById('sidebar').classList.remove('open');
 }
 
 // ========== Search ==========
