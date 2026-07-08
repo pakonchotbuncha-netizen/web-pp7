@@ -1,0 +1,3146 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+ <meta http-equiv="Pragma" content="no-cache" />
+ <meta http-equiv="Expires" content="0" />
+ <title id="pageTitle">ระบบบริหารบุคลากร PP7 — Pakorn Dashboard</title>
+ <script>console.log("Web PP7 v20260625-2 — Cache cleared");</script>
+ <script src="https://cdn.tailwindcss.com"></script>
+ <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+ <script>
+// dev_data.js — ข้อมูลจำลองสำหรับ Tab พัฒนาบุคลากร (P5)
+// รวมอยู่ในไฟล์นี้แล้วเพื่อให้ใช้งานง่าย (Single File)
+
+const DEV_DATA = {
+  records: [
+    { id: 'D-001', name: 'วรรณ์วิภา จันทร์เพ็ญ', dept: 'Tech', course: 'AWS Solutions Architect', hours: 32, score: 3.4, status: 'กำลังเรียน', completed: '—' },
+    { id: 'D-002', name: 'กิตติชัย ศรีจันทร์', dept: 'Sales', course: 'Advanced Sales Strategy', hours: 32, score: 4.7, status: 'เสร็จสิ้น', completed: '2026-03-05' },
+    { id: 'D-003', name: 'วิไลวรรณ แก้วประเสริฐ', dept: 'Finance', course: 'Finance Leadership Program', hours: 48, score: 3.4, status: 'เสร็จสิ้น', completed: '2026-02-18' },
+    { id: 'D-004', name: 'กิตติ ทองดี', dept: 'Tech', course: 'Machine Learning Specialization', hours: 20, score: 3.8, status: 'กำลังเรียน', completed: '—' },
+    { id: 'D-005', name: 'พิชัย ใจดี', dept: 'Tech', course: 'Kubernetes Certification', hours: 28, score: 4.7, status: 'เสร็จสิ้น', completed: '2026-03-04' },
+    { id: 'D-006', name: 'ธนพร แก้วประเสริฐ', dept: 'HR', course: 'Agile/Scrum Master', hours: 20, score: 4.8, status: 'เสร็จสิ้น', completed: '2026-03-12' },
+    { id: 'D-007', name: 'ธนวัฒน์ รุ่งเรือง', dept: 'Management', course: 'Leadership Excellence', hours: 48, score: 5.0, status: 'กำลังเรียน', completed: '—' },
+    { id: 'D-008', name: 'วิทยา ทองประเสริฐ', dept: 'Tech', course: 'Data Analytics with Python', hours: 24, score: 4.4, status: 'เสร็จสิ้น', completed: '2026-01-06' }
+  ],
+  courses: [
+    'AWS Solutions Architect',
+    'Advanced Sales Strategy',
+    'Finance Leadership Program',
+    'Machine Learning Specialization',
+    'Kubernetes Certification',
+    'Agile/Scrum Master',
+    'Leadership Excellence',
+    'Data Analytics with Python',
+    'Cybersecurity Fundamentals'
+  ]
+};
+
+function addDevRecord(record) {
+  DEV_DATA.records.push(record);
+  renderDevTable();
+  renderDevCharts();
+}
+</script>
+ <script>
+// emp_data.js — ข้อมูลจำลองสำหรับ PP7 Dashboard
+const EMP_STATS = {
+ total: 1247,
+ byDept: { Tech:210, Sales:340, Operations:280, Finance:120, HR:85, 'R&D':212 },
+ byLevel: { Top:180, Solid:420, Develop:480, Exceeds:95, Meets:72 },
+ newThisMonth: 12,
+ resignedThisMonth: 3,
+ transferThisMonth: 5,
+};
+
+const WG_DATA = {
+ PMSG: { name:'PMSG', count:210, avgScore:3.8, turnover:3.2 },
+ AAMG: { name:'AAMG', count:340, avgScore:3.4, turnover:7.1 },
+ CPDG: { name:'CPDG', count:280, avgScore:3.6, turnover:2.8 },
+ RPLCG: { name:'RPLCG', count:120, avgScore:3.9, turnover:1.5 },
+ RAFCOG: { name:'RAFCOG', count:85, avgScore:3.7, turnover:2.0 },
+ PGHG: { name:'PGHG', count:150, avgScore:3.5, turnover:4.1 },
+ '21RTG': { name:'21RTG', count:95, avgScore:3.3, turnover:5.2 },
+ Other: { name:'Other', count:102, avgScore:3.2, turnover:3.8 },
+};
+
+const RECRUIT_CLEAN_DATA = {
+ summary: { total: 42, matchedEmployment: 18, openPositions: 42, inPipeline: 186, interviewed: 34, offerSent: 12 },
+ rows: [
+ { running:'A1-001', fullNameNoPrefix:'สมชาย ใจดี', jobPosition1:'Software Engineer', schoolName:'Referral', status_register:'จ้างงาน', employmentStatus:'พบใน employee', applicationDate:'2026-03-15' },
+ { running:'A1-002', fullNameNoPrefix:'สมหญิง รักเรียน', jobPosition1:'Sales Executive', schoolName:'LinkedIn', status_register:'จ้างงาน', employmentStatus:'พบใน employee', applicationDate:'2026-03-18' },
+ { running:'A1-003', fullNameNoPrefix:'วิชัย สุขสมบูรณ์', jobPosition1:'Operations Supervisor', schoolName:'Job Board', status_register:'มาสัมภาษณ์', employmentStatus:'', applicationDate:'2026-04-01' }
+ ]
+};
+
+// ====== กระบวนการใหม่ (S4) ======
+const NEW_PROCESS_DATA = {
+  p1_4: [
+    { doc: "LDC-PAO-WI-002", name: "การคัดเลือกพนักงานจากภายนอก (สรรหา)", s4: "🔄 กระบวนการใหม่: 1. AI สรุป/ตรวจสอบใบขออัตรากำลังคนอัตโนมัติ 2. AI จัดเรียง/คัดกรองใบสมัครจาก 10 ช่องทาง 3. AI ช่วยสัมภาษณ์เบื้องต้น + ประเมินทักษะ", task: "1. KiloClaw สร้าง UI Form กรอกใบขออัตรากำลัง 2. KiloClaw เขียน JS กรองใบสมัครตามเงื่อนไข 3. PKG กำหนดเกณฑ์การคัดกรองและทดสอบ", owner: "KiloClaw / PKG", status: "รอดำเนินการ" },
+    { doc: "LDC-PAO-WI-001", name: "การขออนุมัติจัดหากำลังคน (สรรหา)", s4: "🔄 กระบวนการใหม่: 1. BU คีย์ฟอร์มขออัตรากำลัง → AI ตรวจสอบความถูกต้องทันที 2. หากข้อมูลไม่ครบ AI แจ้งเตือน BU ให้แก้ไขและปิดใบสมัครเก่าอัตโนมัติ 3. ประกาศรับสมัครอัตโนมัติ", task: "1. KiloClaw เขียนระบบตรวจสอบความครบถ้วนแบบ Real-time 2. KiloClaw สร้างระบบแจ้งเตือนและปิดใบสมัครอัตโนมัติ 3. PKG ตรวจสอบ Flow การอนุมัติ", owner: "KiloClaw / PKG", status: "รอดำเนินการ" },
+    { doc: "LDC-PAO-PM-001", name: "การแสวงหา_ผู้สมัครงาน (สรรหา)", s4: "🔄 กระบวนการใหม่: 1. AI ตรวจสอบใบขออัตรากำลังคน + คัดกรองใบสมัครทุกช่องทาง 2. AI ช่วยสัมภาษณ์เบื้องต้น + ประเมินทักษะ 3. AI จับคู่คนกับงานจากโปรไฟล์ + ปิดใบสมัครไม่ผ่านอัตโนมัติ", task: "1. KiloClaw สร้าง Dashboard กลางรวบรวมใบสมัคร 2. KiloClaw เขียน Algorithm จับคู่คนกับงาน 3. PKG ทดสอบความแม่นยำของการจับคู่", owner: "KiloClaw / PKG", status: "รอดำเนินการ" },
+    { doc: "LDC-PAO-PM-003", name: "การประเมินผลทดลองงาน/โอนย้าย/เลื่อนตำแหน่ง", s4: "🔄 กระบวนการใหม่: 1. รับข้อมูลจาก BU ผ่านระบบกลาง 2. AI ประมวลผลและเปรียบเทียบกับเกณฑ์ CC 3. แจ้งเตือนหัวหน้าและพนักงานเพื่อทราบผล 4. ระบบเสนอแผนพัฒนาบุคคล (P5) อัตโนมัติตามผลประเมิน", task: "1. KiloClaw สร้าง UI แบบประเมินผล 2. KiloClaw เขียนระบบคำนวณคะแนน CC อัตโนมัติ 3. PKG ตรวจสอบความถูกต้องของเกณฑ์คะแนน", owner: "KiloClaw / PKG", status: "รอดำเนินการ" }
+  ],
+  p5: [
+    { doc: "LDC-PAD-PM-001", name: "ระบบพี่เลี้ยงและน้องเลี้ยง", s4: "🔄 กระบวนการใหม่: 1. ดึงข้อมูล+ตรวจสอบ → รวมขั้นตอนเดียว 2. กำหนดกลุ่ม+Set ระบบ → ทำครั้งเดียว 3. ตรวจสอบวินัย+สรุปคะแนน → อัตโนมัติ", task: "1. KiloClaw เขียนระบบดึงข้อมูลสมาชิกจากฐานข้อมูลกลาง 2. KiloClaw สร้างระบบ assign พี่เลี้ยงอัตโนมัติ 3. PKG ตรวจสอบรายชื่อและเงื่อนไขการจับคู่", owner: "KiloClaw / PKG", status: "รอดำเนินการ" },
+    { doc: "LDC-PAD-WI-001", name: "กระบวนการเปิดอบรมภายใน", s4: "🔄 กระบวนการใหม่: 1. PAD ตรวจสอบ + พิจารณา → รวมเป็นขั้นตอนเดียว 2. AI ตรวจสอบเอกสารตาม Checklist อัตโนมัติ 3. AI แจ้งผลการตรวจอัตโนมัติ", task: "1. KiloClaw สร้างระบบ Upload เอกสารและ Checklist 2. KiloClaw เขียนฟังก์ชันตรวจสอบความครบถ้วนอัตโนมัติ 3. PKG ทดสอบ Flow การอนุมัติ", owner: "KiloClaw / PKG", status: "รอดำเนินการ" },
+    { doc: "LDC-PAD-PM-004", name: "ระบบ 3 ผ่าน PKG", s4: "🔄 กระบวนการใหม่: 1. ทฤษฎี + Roleplay → รวมประเมินครั้งเดียว 2. AI ติดตามผล Audit + เสียงลูกค้าอัตโนมัติ 3. AI สรุปผล 3 ผ่านอัตโนมัติ", task: "1. KiloClaw สร้างแบบประเมินออนไลน์ (ทฤษฎี+Roleplay) 2. KiloClaw สร้าง Dashboard สรุปผล 3 ผ่าน 3. PKG ตรวจสอบความถูกต้องของเกณฑ์การผ่าน", owner: "KiloClaw / PKG", status: "รอดำเนินการ" }
+  ],
+  p6_7: [
+    { doc: "LDC-WCD-WI-001", name: "การจ่ายค่าเบี้ยเลี้ยงนักศึกษาฝึกงาน (สวัสดิการ)", s4: "🔄 กระบวนการใหม่: 1. ลงเวลาผ่านฟอร์มกลาง Web PP7 2. ระบบตรวจสอบความถูกต้องอัตโนมัติ 3. HR/PAO อนุมัติผ่าน Dashboard 4. คำนวณเบี้ยเลี้ยงสิ้นเดือนอัตโนมัติ 5. ส่งออกข้อมูลไป BCT Payroll", task: "1. KiloClaw สร้าง UI Form ลงเวลา 2. KiloClaw เขียนฟังก์ชันคำนวณเบี้ยเลี้ยงอัตโนมัติ 3. PKG ทดสอบความถูกต้องของสูตรคำนวณและเงื่อนไข", owner: "KiloClaw / PKG", status: "รอดำเนินการ" },
+    { doc: "LDC-WCD-WI-002", name: "การทำยอดเงินสมทบอายุงานสมาชิกลาออก (สวัสดิการ)", s4: "🔄 กระบวนการใหม่: 1. รับข้อมูลอนุมัติลาออกผ่าน Telegram อัตโนมัติ 2. ดึงข้อมูลอายุงานและคำนวณสิทธิประโยชน์อัตโนมัติ 3. PAO ตรวจสอบความถูกต้อง 4. ส่งแจ้งรายละเอียดสิทธิ์ล่วงหน้า 5. เมื่อพ้นสภาพ โอนเงินภายใน 7 วัน 6. แจ้งเตือนยืนยัน", task: "1. KiloClaw เขียนระบบดึงข้อมูลอายุงานและคำนวณสิทธิประโยชน์ 2. KiloClaw สร้างระบบแจ้งเตือนอัตโนมัติ 3. PKG ตรวจสอบความถูกต้องของเกณฑ์อายุงานและสิทธิ์", owner: "KiloClaw / PKG", status: "รอดำเนินการ" },
+    { doc: "LDC-WCD-WI-003", name: "การเบิกสวัสดิการสมาชิก (สวัสดิการ)", s4: "🔄 กระบวนการใหม่: 1. ยื่นคำขอผ่าน App MS24/Web PP7 2. แจ้งเตือนห้อง TG และ Dashboard อัตโนมัติ 3. PAO/การเงิน ตรวจสอบผ่านระบบกลาง 4. ตรงเงื่อนไข: ระบบสร้าง VC ส่ง BCT อัตโนมัติ 5. ไม่ตรง: แจ้งเตือนสมาชิก 6. การเงินโอนเงิน 7. แจ้งเตือน Line/TG 8. MSP/Cashout อัตโนมัติ", task: "1. KiloClaw สร้าง UI ยื่นคำขอเบิกสวัสดิการ 2. KiloClaw เขียนระบบตรวจสอบเงื่อนไข (If-Else) อัตโนมัติ 3. PKG ทดสอบเงื่อนไขการอนุมัติทุกกรณี", owner: "KiloClaw / PKG", status: "รอดำเนินการ" },
+    { doc: "LDC-WCD-WI-004", name: "การจ่ายเงินเดือนให้กับสมาชิก PKG (สวัสดิการ)", s4: "🔄 กระบวนการใหม่: 1. วันที่ 1-5: PAO อัปเดตสถานะบริษัท 2. วันที่ 1-10: อัปเดตข้อมูลสมาชิกและเปิดสิทธิ์ BU คีย์ INC 3. วันที่ 10: ระบบดึงข้อมูล CU มารวมยอดอัตโนมัติ 4. วันที่ 11: ระบบปิดสิทธิ์ INC และดึงข้อมูลมากระทบยอดอัตโนมัติ", task: "1. KiloClaw สร้างระบบตั้งเวลา (Cron/Schedule) เปิด-ปิดสิทธิ์อัตโนมัติ 2. KiloClaw เขียนฟังก์ชันดึงและกระทบยอดข้อมูล 3. PKG ตรวจสอบความถูกต้องของรายงานกระทบยอด", owner: "KiloClaw / PKG", status: "รอดำเนินการ" },
+    { doc: "LDC-WCD-WI-006", name: "ระบบเกษียณ (สวัสดิการ)", s4: "🔄 กระบวนการใหม่: 1. ระบบตรวจสอบและรายงานรายชื่อสมาชิกที่ใกล้อายุครบ 55 ปี ให้กับ BMC ทราบล่วงหน้าผ่าน Dashboard 2. BMC จัดเวทีพูดคุยแจ้งรายละเอียดเงื่อนไข 3. สมาชิกศึกษาข้อมูลและตัดสินใจเลือกผ่านระบบ 4. ระบบคำนวณและสรุปข้อมูลเงินชดเชย อัตโนมัติ", task: "1. KiloClaw เขียนระบบแจ้งเตือนสมาชิกที่ใกล้เกษียณ 2. KiloClaw สร้างแบบฟอร์มตัดสินใจและระบบคำนวณเงินชดเชยอัตโนมัติ 3. PKG ตรวจสอบความถูกต้องของสูตรคำนวณเงินชดเชย", owner: "KiloClaw / PKG", status: "รอดำเนินการ" }
+  ]
+};
+</script>
+ <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+ <style>
+ *{font-family:'Prompt',sans-serif}
+ body{background:#f1f5f9;color:#1e293b}
+ .card{background:#fff;border-radius:1rem;box-shadow:0 4px 24px rgba(15,23,42,.07);padding:1.5rem}
+ .tab-btn{position:relative;padding:.85rem 1.1rem;font-weight:500;white-space:nowrap;cursor:pointer;border:none;background:transparent;color:#64748b;transition:color .15s}
+ .tab-btn:hover{color:#2563eb}
+ .tab-btn.active{color:#2563eb}
+ .tab-btn.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:#2563eb;border-radius:3px 3px 0 0}
+ .badge{display:inline-flex;align-items:center;padding:.2rem .6rem;border-radius:9999px;font-size:.75rem;font-weight:500}
+ .badge-green{background:#dcfce7;color:#166534}
+ .badge-amber{background:#fef3c7;color:#92400e}
+ .badge-red{background:#fee2e2;color:#991b1b}
+ .badge-blue{background:#dbeafe;color:#1e40af}
+ .kpi-num{font-size:2.25rem;font-weight:700;line-height:1.1;cursor:pointer;transition:transform .1s}
+ .kpi-num:hover{transform:scale(1.05)}
+ .search-box{position:relative}
+ .search-box input{width:100%;padding:.65rem 1rem .65rem 2.5rem;border-radius:.75rem;border:1px solid #e2e8f0;background:#f8fafc;font-size:.875rem;outline:none;transition:border .15s}
+ .search-box input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+ .search-box svg{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);color:#94a3b8}
+ table{width:100%;border-collapse:collapse}
+ th{padding:.7rem 1rem;font-size:.75rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #e2e8f0;background:#f8fafc;cursor:pointer;user-select:none}
+ th:hover{background:#e2e8f0}
+ th .sort-icon{margin-left:4px;opacity:.4;font-size:.65rem}
+ th.sorted .sort-icon{opacity:1;color:#2563eb}
+ td{padding:.7rem 1rem;border-bottom:1px solid #f1f5f9;font-size:.875rem}
+ tr:hover td{background:#f8fafc}
+ .chart-box{position:relative;width:100%;height:280px}
+ .sticky-nav{position:sticky;top:0;z-index:20;box-shadow:0 2px 8px rgba(15,23,42,.06)}
+ .sticky-nav > div::-webkit-scrollbar{height:6px}
+ .sticky-nav > div::-webkit-scrollbar-track{background:transparent}
+ .sticky-nav > div::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+ .fade-in{animation:fadeIn .3s ease}
+ @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+ .toolbar{display:flex;flex-wrap:wrap;gap:3;align-items:center}
+ .toolbar select,.toolbar input[type="date"]{padding:.45rem .7rem;border:1px solid #e2e8f0;border-radius:.5rem;font-size:.8rem;outline:none;background:#fff}
+ .btn{padding:.45rem 1rem;border-radius:.5rem;font-size:.8rem;font-weight:500;cursor:pointer;border:none;transition:background .15s}
+ .btn-primary{background:#2563eb;color:#fff}
+ .btn-outline{background:#fff;border:1px solid #e2e8f0;color:#64748b}
+ .notif-btn{position:relative;background:none;border:none;cursor:pointer;font-size:1.3rem;padding:.25rem}
+ .notif-badge{position:absolute;top:-2px;right:-4px;background:#ef4444;color:#fff;border-radius:9999px;font-size:.6rem;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-weight:700}
+ .notif-panel{position:absolute;top:100%;right:0;width:340px;max-h:80vh;overflow-y:auto;background:#fff;border:1px solid #e2e8f0;border-radius:1rem;box-shadow:0 20px 60px rgba(15,23,42,.15);display:none;z-index:50}
+ .notif-panel.open{display:block}
+ .notif-item{padding:.75rem 1rem;border-bottom:1px solid #f1f5f9;font-size:.8rem;display:flex;gap:.5rem;align-items:flex-start}
+ .notif-item.unread{background:#eff6ff}
+ .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.4);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem}
+ .modal-overlay.open{display:flex}
+ .alert-banner{position:relative;background:#fef3c7;border:1px solid #fde68a;padding:.6rem 1rem;font-size:.8rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+ .alert-banner .close-alert{position:absolute;right:.5rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#92400e;font-size:1rem}
+ @media print{.sticky-nav,.toolbar,.search-box,.notif-btn,.alert-banner{display:none !important}.tab-pane{display:block !important}.card{break-inside:avoid;box-shadow:none;border:1px solid #e5e7eb}}
+ #loginOverlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0f172a 100%)}
+ #loginOverlay.hidden{display:none}
+ .login-card{background:#fff;border-radius:1.5rem;box-shadow:0 25px 80px rgba(0,0,0,.3);padding:2.5rem;max-width:420px;width:90%;text-align:center}
+ .login-logo{font-size:3rem;margin-bottom:.5rem}
+ .login-card h2{font-size:1.4rem;font-weight:700;color:#0f172a;margin-bottom:.25rem}
+ .login-card .subtitle{color:#64748b;font-size:.85rem;margin-bottom:1.5rem}
+ .login-input{width:100%;padding:.85rem 1rem;border:2px solid #e2e8f0;border-radius:.75rem;font-size:1rem;outline:none;transition:border .15s;font-family:'Prompt',sans-serif}
+ .login-input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+ .login-btn{width:100%;padding:.85rem;border:none;border-radius:.75rem;font-size:1rem;font-weight:600;cursor:pointer;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff;margin-top:1rem;transition:transform .1s,box-shadow .1s;font-family:'Prompt',sans-serif}
+ .login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,.3)}
+ .login-error{color:#ef4444;font-size:.8rem;margin-top:.5rem;min-height:1.25em}
+ .content-blur{filter:blur(12px)!important;pointer-events:none!important;user-select:none!important}
+ .header-btn{padding:.35rem .75rem;border-radius:.5rem;font-size:.75rem;font-weight:500;cursor:pointer;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;transition:background .15s;font-family:'Prompt',sans-serif}
+ #userInfo{display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:#bfdbfe}
+ #userInfo .avatar{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:.75rem}
+ /* 🔴 PROOF MARKER v4976eda+P3: ถ้าเห็นแถบแดง = เปิดไฟล์ถูกต้อง */
+ .version-proof-banner{position:fixed;top:0;left:0;right:0;z-index:999999;background:linear-gradient(135deg,#dc2626,#ef4444);color:white;padding:16px;text-align:center;font-size:18px;font-weight:900;box-shadow:0 4px 20px rgba(220,38,38,0.5);letter-spacing:1px}
+ </style>
+ <script>
+ tailwind.config={theme:{extend:{colors:{pp7:{50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',500:'#3b82f6',600:'#2563ec',700:'#1d4ed8',800:'#1e40af',900:'#172554'}}}}}
+ </script>
+</head>
+<body>
+
+<!-- 🔴 PROOF MARKER: เห็นแถบแดง = เปิด Version 4976eda+P3 ถูกต้อง -->
+<div class="version-proof-banner no-print">✅ Web PP7 Version 4976eda+P3 — มี Tab จับคู่!</div>
+
+<!-- ===== LOGIN OVERLAY (Disabled for Public Preview) ===== -->
+<div id="loginOverlay">
+ <div class="login-card">
+ <div class="login-logo">🔐</div>
+ <h2>Pakorn HRMS</h2>
+ <p class="subtitle">ระบบบริหารบุคลากร PP7</p>
+ <form id="loginForm" onsubmit="handleLogin(event)">
+ <div style="margin-bottom:.75rem">
+ <input type="text" id="loginUser" class="login-input" placeholder="ชื่อผู้ใช้งาน" autocomplete="username" />
+ </div>
+ <div>
+ <input type="password" id="loginPass" class="login-input" placeholder="รหัสผ่าน" autocomplete="current-password" />
+ </div>
+ <div class="login-error" id="loginError"></div>
+ <button type="submit" class="login-btn">เข้าสู่ระบบ</button>
+ </form>
+ <div style="margin-top:1.25rem;padding:1rem;background:#f1f5f9;border-radius:.75rem;text-align:left;font-size:.75rem;color:#64748b">
+ <p style="font-weight:600;margin-bottom:.5rem;color:#334155">📋 บัญชีทดสอบ:</p>
+ <p>• <strong>admin</strong> / Prachakij01@ <span style="color:#2563eb">ผู้ดูแลระบบ</span></p>
+ <p>• <strong>pao</strong> / pao2026 <span style="color:#64748b">ทีมสรรหา</span></p>
+ <p>• <strong>pad</strong> / pad2026 <span style="color:#64748b">ทีมพัฒนา</span></p>
+ <p>• <strong>wcd</strong> / wcd2026 <span style="color:#64748b">ทีมค่าตอบแทน</span></p>
+ <p>• <strong>test</strong> / test2026 <span style="color:#f59e0b">ผู้ทดสอบ (ทุก Tab)</span></p>
+ </div>
+ <p class="login-footer" style="margin-top:1.25rem;font-size:.75rem;color:#94a3b8">© 2026 Pakorn HRMS</p>
+ </div>
+</div>
+
+<div id="alertBanner" class="hidden alert-banner">
+ <span class="alert-dot bg-red-500" style="width:8px;height:8px;border-radius:50%;animation:pulse 2s infinite"></span>
+ <span id="alertText"></span>
+ <button class="close-alert" onclick="document.getElementById('alertBanner').classList.add('hidden')">✕</button>
+</div>
+
+<header class="bg-gradient-to-r from-pp7-700 to-pp7-900 text-white py-4 px-4 shadow-lg">
+ <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+ <div>
+ <h1 class="text-xl md:text-3xl font-bold tracking-tight">📊 ระบบบริหารบุคลากร PP7</h1>
+ <p class="text-pp7-200 mt-0.5 text-sm">Pakorn HRMS Dashboard — ข้อมูลภาพรวมแบบเรียลไทม์</p>
+ </div>
+ <div class="flex items-center gap-4">
+ <div id="userInfo" style="display:none">
+ <span class="avatar">👤</span>
+ <span id="userName"></span>
+ </div>
+ <button id="logoutBtn" class="header-btn" onclick="handleLogout()" style="display:none">🚪 ออกจากระบบ</button>
+ <div class="text-right">
+ <div id="clock" class="text-base font-semibold tabular-nums"></div>
+ <div class="text-pp7-200 text-xs">อัปเดตล่าสุด: <span id="lastUpdate">วันนี้ 08:30 ICT</span></div>
+ </div>
+ </div>
+ </div>
+</header>
+
+<nav class="sticky-nav bg-white border-b border-slate-200">
+ <div class="max-w-7xl mx-auto flex flex-wrap gap-0 overflow-x-auto">
+ <button class="tab-btn active" data-tab="executive" onclick="showTab('executive')">📌 สรุปผู้บริหาร</button>
+ <button class="tab-btn" data-tab="members" onclick="showTab('members')">👥 ฐานข้อมูลสมาชิก</button>
+ <button class="tab-btn" data-tab="headcount-request" onclick="showTab('headcount-request')">📋 ขออัตรากำลัง</button>
+ <button class="tab-btn" data-tab="recruit" onclick="showTab('recruit')">🔎 แสวงหา</button>
+ <button class="tab-btn" data-tab="assess" onclick="showTab('assess')">🧭 หยั่งประเมิน</button>
+ <button class="tab-btn" data-tab="match" onclick="showTab('match')">🤝 จับคู่</button>
+ <button class="tab-btn" data-tab="performance" onclick="showTab('performance')">📊 ประเมินผล</button>
+ <button class="tab-btn" data-tab="develop" onclick="showTab('develop')">🎓 พัฒนา</button>
+ <button class="tab-btn" data-tab="welfare" onclick="showTab('welfare')">💰 ค่าตอบแทน</button>
+ <button class="tab-btn" data-tab="wi001" onclick="showTab('wi001')">📝 เบี้ยเลี้ยงฝึกงาน (WI-001)</button>
+ <button class="tab-btn" data-tab="wi002" onclick="showTab('wi002')">💼 สมทบอายุงาน (WI-002)</button>
+ <button class="tab-btn" data-tab="quality" onclick="showTab('quality')">🌿 คุณภาพชีวิต</button>
+ <button class="tab-btn" data-tab="labor-law" onclick="showTab('labor-law')">⚖️ กฎหมาย</button>
+ <button class="tab-btn" data-tab="pkg-rules" onclick="showTab('pkg-rules')">📜 ระเบียบ</button>
+ <button class="tab-btn" data-tab="research" onclick="showTab('research')">🔬 วิจัย</button>
+ <button class="tab-btn" data-tab="new-process" onclick="showTab('new-process')">🔄 กระบวนการใหม่ (S4)</button>
+ </div>
+</nav>
+
+<div class="max-w-7xl mx-auto px-3 md:px-4 mt-3">
+ <div class="toolbar bg-white rounded-lg p-2 shadow-sm border border-slate-100">
+ <button class="btn btn-outline" onclick="exportPDF()">📄 ส่งออก PDF</button>
+ <button class="btn btn-outline" onclick="exportExcel()" style="background:#10b981;color:#fff;border:none">📊 ส่งออก Excel</button>
+ <span class="text-xs text-slate-400 ml-2">* ใช้งานได้ใน Tab ปัจจุบัน</span>
+ </div>
+</div>
+
+<div id="app-wrapper"><main id="main-content" class="max-w-7xl mx-auto px-3 md:px-4 py-6">
+
+<section id="tab-executive" class="tab-pane fade-in space-y-6">
+ <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+ <div class="card border-l-4 border-l-blue-500"><div class="text-sm text-slate-400">บุคลากรทั้งหมด</div><div class="kpi-num text-blue-600">1,247</div></div>
+ <div class="card border-l-4 border-l-emerald-500"><div class="text-sm text-slate-400">Match Rate</div><div class="kpi-num text-emerald-600">66%</div></div>
+ <div class="card border-l-4 border-l-violet-500"><div class="text-sm text-slate-400">Avg Performance</div><div class="kpi-num text-violet-600">3.5</div></div>
+ <div class="card border-l-4 border-l-amber-500"><div class="text-sm text-slate-400">Welfare Payout</div><div class="kpi-num text-amber-600">฿8.2M</div></div>
+ </div>
+</section>
+
+<!-- ========== Members Database ========== -->
+<section id="tab-members" class="tab-pane fade-in hidden space-y-6">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">👥 ฐานข้อมูลสมาชิก</h2>
+    <button onclick="addMember()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
+      ➕ เพิ่มสมาชิกใหม่
+    </button>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+    <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-lg shadow">
+      <div class="text-3xl font-bold">1,247</div>
+      <div class="text-sm opacity-90">สมาชิกทั้งหมด</div>
+    </div>
+    <div class="bg-gradient-to-br from-green-500 to-green-600 text-white p-4 rounded-lg shadow">
+      <div class="text-3xl font-bold">1,189</div>
+      <div class="text-sm opacity-90">ประจำ</div>
+    </div>
+    <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-white p-4 rounded-lg shadow">
+      <div class="text-3xl font-bold">58</div>
+      <div class="text-sm opacity-90">ทดลองงาน</div>
+    </div>
+    <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 rounded-lg shadow">
+      <div class="text-3xl font-bold">12</div>
+      <div class="text-sm opacity-90">ใหม่ในเดือนนี้</div>
+    </div>
+    <div class="bg-gradient-to-br from-red-500 to-red-600 text-white p-4 rounded-lg shadow">
+      <div class="text-3xl font-bold">0</div>
+      <div class="text-sm opacity-90">ลาออก</div>
+    </div>
+  </div>
+
+  <!-- Search & Filter -->
+  <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div>
+        <label class="text-sm font-medium text-gray-700">ค้นหา</label>
+        <input type="text" placeholder="ชื่อ, รหัส, email..." 
+               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+               onkeyup="filterMembers(this.value)">
+      </div>
+      <div>
+        <label class="text-sm font-medium text-gray-700">แผนก</label>
+        <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option value="">ทุกแผนก</option>
+          <option value="Tech">Tech</option>
+          <option value="Sales">Sales</option>
+          <option value="Operations">Operations</option>
+          <option value="Finance">Finance</option>
+          <option value="HR">HR</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-sm font-medium text-gray-700">สถานะ</label>
+        <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option value="">ทั้งหมด</option>
+          <option value="regular">ประจำ</option>
+          <option value="probation">ทดลองงาน</option>
+          <option value="resigned">ลาออก</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-sm font-medium text-gray-700">ประเทศ</label>
+        <select class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+          <option value="">ทั้งหมด</option>
+          <option value="TH">ไทย</option>
+          <option value="LA">ลาว</option>
+          <option value="KH">กัมพูชา</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="bg-white border border-gray-200 rounded-lg shadow overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัส</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ-นามสกุล</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">แผนก</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ตำแหน่ง</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200" id="membersTable">
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">EMP001</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">สมชาย ใจดี</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">somchai@pkg.com</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Tech</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Software Engineer</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+              ประจำ
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <button class="text-blue-600 hover:text-blue-900 mr-3">แก้ไข</button>
+            <button class="text-red-600 hover:text-red-900">ลบ</button>
+          </td>
+        </tr>
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">EMP002</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">สมหญิง รักเรียน</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">somying@pkg.com</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Sales</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Sales Executive</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+              ประจำ
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <button class="text-blue-600 hover:text-blue-900 mr-3">แก้ไข</button>
+            <button class="text-red-600 hover:text-red-900">ลบ</button>
+          </td>
+        </tr>
+        <tr>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">EMP003</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">วิชัย สุขสมบูรณ์</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">wichai@pkg.com</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Operations</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Supervisor</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800">
+              ทดลองงาน
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <button class="text-blue-600 hover:text-blue-900 mr-3">แก้ไข</button>
+            <button class="text-red-600 hover:text-red-900">ลบ</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="flex justify-between items-center mt-6">
+    <div class="text-sm text-gray-700">
+      แสดง <span class="font-medium">1</span> - <span class="font-medium">3</span> จาก <span class="font-medium">1,247</span> รายการ
+    </div>
+    <div class="flex gap-2">
+      <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50" disabled>
+        ก่อนหน้า
+      </button>
+      <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+        ถัดไป
+      </button>
+    </div>
+  </div>
+</section>
+<section id="tab-headcount-request" class="tab-pane fade-in hidden space-y-6">
+  <div class="card">
+    <h2 class="text-xl font-bold text-pp7-800 mb-4">📋 ขออัตรากำลังคน</h2>
+    <p class="text-gray-600 mb-4">ระบบบริหารจัดการคำขออัตรากำลังคน (LDC-PAO-WI-001)</p>
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">📝</div>
+        <div class="font-semibold text-blue-800">1. ยื่นคำขอ</div>
+        <div class="text-sm text-gray-600 mt-1">BU กรอกแบบฟอร์มขออัตรากำลัง</div>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">🤖</div>
+        <div class="font-semibold text-amber-800">2. AI ตรวจสอบ</div>
+        <div class="text-sm text-gray-600 mt-1">ตรวจสอบความครบถ้วนอัตโนมัติ</div>
+      </div>
+      <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">✅</div>
+        <div class="font-semibold text-green-800">3. อนุมัติ</div>
+        <div class="text-sm text-gray-600 mt-1">ส่งต่อผู้บริหารอนุมัติ</div>
+      </div>
+    </div>
+    <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+      🚧 <strong>ระบบกำลังพัฒนา — ดูรายละเอียดที่ Tab "กระบวนการใหม่ (S4)"</strong>
+    </div>
+  </div>
+</section>
+
+<section id="tab-recruit" class="tab-pane fade-in hidden space-y-8">
+  <div class="flex flex-wrap items-center gap-4 pb-4 border-b border-slate-200">
+    <h2 class="text-xl font-bold text-pp7-800 flex-1">🔎 แสวงหาบุคลากร</h2>
+    <div class="search-box w-64">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="search-recruit" placeholder="ค้นหา ID, ชื่อ..." oninput="searchTable('recruit-table',this.value)">
+    </div>
+  </div>
+
+  <div class="card bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+    <h3 class="font-bold text-pp7-800 mb-3 text-lg flex items-center gap-2">
+      <span class="bg-pp7-600 text-white px-2 py-1 rounded text-xs">LDC-PAO-PM-001</span>
+      📌 กระบวนการแสวงหาบุคลากร (Web PP7 Operation Flow)
+    </h3>
+    <div class="grid md:grid-cols-5 gap-3 text-sm">
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-blue-400"><div class="text-2xl mb-1">📱</div><div class="font-semibold text-pp7-700">1. รับสมัคร</div><div class="text-slate-600 mt-1 text-xs">ผู้สมัครสแกน QR / กรอกฟอร์มออนไลน์</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-indigo-400"><div class="text-2xl mb-1">🤖</div><div class="font-semibold text-pp7-700">2. AI Validation</div><div class="text-slate-600 mt-1 text-xs">ตรวจสอบความครบถ้วน & สกัดข้อมูล Resume</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-purple-400"><div class="text-2xl mb-1">💾</div><div class="font-semibold text-pp7-700">3. บันทึก DB</div><div class="text-slate-600 mt-1 text-xs">Single Source of Truth + สถานะ "ผู้สมัครใหม่"</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-amber-400"><div class="text-2xl mb-1">🔔</div><div class="font-semibold text-pp7-700">4. แจ้งเตือน</div><div class="text-slate-600 mt-1 text-xs">แจ้งเตือน HR/ผู้คัดกรองผ่าน Telegram ทันที</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-emerald-400">
+        <div class="text-2xl mb-1">📤</div>
+        <div class="font-semibold text-pp7-700">5. ส่งต่อ P2</div>
+        <div class="text-slate-600 mt-1 text-xs">HR คัดกรองเบื้องต้น</div>
+        <a href="docs/p2-forms/p2-router.html" target="_blank" class="mt-2 inline-block px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs rounded font-medium transition">
+          🚀 เข้าสู่ P2
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="card bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200 mt-8" id="section-wi-002">
+    <h3 class="font-bold text-pp7-800 mb-3 text-lg flex items-center gap-2">
+      <span class="bg-emerald-600 text-white px-2 py-1 rounded text-xs font-mono">[LDC-PAO-WI-002]</span>
+      📌 การคัดเลือกพนักงานจากภายนอก (Web PP7 Operation Flow)
+    </h3>
+    <div class="grid md:grid-cols-5 gap-3 text-sm">
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-emerald-400"><div class="text-2xl mb-1">📥</div><div class="font-semibold text-pp7-700">1. คัดกรองใบสมัคร</div><div class="text-slate-600 mt-1 text-xs">AI คัดกรองคุณสมบัติพื้นฐานและ CC เบื้องต้น</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-teal-400"><div class="text-2xl mb-1">📅</div><div class="font-semibold text-pp7-700">2. นัดหมายสัมภาษณ์</div><div class="text-slate-600 mt-1 text-xs">ส่งอีเมล/SMS นัดหมายอัตโนมัติพร้อมลิงก์ประเมิน</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-cyan-400"><div class="text-2xl mb-1">💬</div><div class="font-semibold text-pp7-700">3. ดำเนินการสัมภาษณ์</div><div class="text-slate-600 mt-1 text-xs">HR/Hiring Manager บันทึกผลและคะแนน CC ผ่านระบบ</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-blue-400"><div class="text-2xl mb-1">📊</div><div class="font-semibold text-pp7-700">4. สรุปผลและตรวจสอบ</div><div class="text-slate-600 mt-1 text-xs">ระบบรวมคะแนนสัมภาษณ์ + ตรวจสอบประวัติ</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-indigo-400"><div class="text-2xl mb-1">📤</div><div class="font-semibold text-pp7-700">5. ส่งต่ออนุมัติจ้าง</div><div class="text-slate-600 mt-1 text-xs">เสนอผลต่อผู้บริหาร → ส่งต่อข้อมูลไปยัง P3/P4</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="tab-assess" class="tab-pane fade-in hidden space-y-8">
+  <div class="flex flex-wrap items-center gap-4 pb-4 border-b border-slate-200">
+    <h2 class="text-xl font-bold text-pp7-800 flex-1">🧭 หยั่งประเมิน (P2)</h2>
+    <div class="search-box w-64">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="search-assess" placeholder="ค้นหา ID, ชื่อ..." oninput="searchTable('assess-table',this.value)">
+    </div>
+  </div>
+
+  <!-- P2 Workflow -->
+  <div class="card bg-gradient-to-r from-purple-50 to-indigo-50 border-purple-200">
+    <h3 class="font-bold text-pp7-800 mb-3 text-lg flex items-center gap-2">
+      <span class="bg-purple-600 text-white px-2 py-1 rounded text-xs">LDC-PAO-PM-002</span>
+      📌 กระบวนการหยั่งประเมิน (ค้นหาและอ่าน CC, potential, attitude, skill)
+    </h3>
+    <div class="grid md:grid-cols-5 gap-3 text-sm">
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-purple-400"><div class="text-2xl mb-1">📥</div><div class="font-semibold text-pp7-700">1. รับผู้สมัคร</div><div class="text-slate-600 mt-1 text-xs">รับข้อมูลจาก P1 (แสวงหา)</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-indigo-400"><div class="text-2xl mb-1">🤔</div><div class="font-semibold text-pp7-700">2. เลือกแบบฟอร์ม</div><div class="text-slate-600 mt-1 text-xs">จำแนกประเภท: ภายนอก/ภายใน/ฝึกงาน</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-cyan-400"><div class="text-2xl mb-1">📝</div><div class="font-semibold text-pp7-700">3. สัมภาษณ์+ประเมิน</div><div class="text-slate-600 mt-1 text-xs">กรอกแบบฟอร์ม + คำนวณคะแนน TCC</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-blue-400"><div class="text-2xl mb-1">📊</div><div class="font-semibold text-pp7-700">4. สรุปผล</div><div class="text-slate-600 mt-1 text-xs">ผ่าน ≥65% (32.5/50) หรือพิจารณาเพิ่ม</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-emerald-400">
+        <div class="text-2xl mb-1">📤</div>
+        <div class="font-semibold text-pp7-700">5. ส่งต่อ P3</div>
+        <div class="text-slate-600 mt-1 text-xs">จับคู่คนกับงาน / แจ้งผล</div>
+        <a href="#" onclick="showTab('match')" class="mt-2 inline-block px-3 py-1 bg-emerald-500 hover:bg-emerald-600 text-white text-xs rounded font-medium transition">
+          🚀 ไป P3
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- แบบฟอร์มสัมภาษณ์ 3 แบบ -->
+  <div class="card bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 mt-8">
+    <h3 class="font-bold text-pp7-800 mb-4 text-lg flex items-center gap-2">
+      <span class="bg-blue-600 text-white px-2 py-1 rounded text-xs">P2-Forms</span>
+      📋 แบบฟอร์มสัมภาษณ์ 3 กรณี
+    </h3>
+    <p class="text-slate-600 text-sm mb-4">เลือกแบบฟอร์มตามประเภทผู้สมัคร — ทุกแบบมีเกณฑ์ผ่าน ≥ 65% (32.5/50 คะแนน)</p>
+
+    <!-- ปุ่มเปิด Form Router -->
+    <div class="mb-4 p-4 bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-300 rounded-lg">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h4 class="font-bold text-cyan-800 text-base mb-1">🔀 ระบบเส้นทางอัตโนมัติ (Form Router)</h4>
+          <p class="text-sm text-slate-600">เลือกผู้สมัครจาก P1 → นำทางไปแบบฟอร์มที่เหมาะสม</p>
+        </div>
+        <a href="docs/p2-forms/p2-router.html" target="_blank" class="px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-lg font-bold shadow-lg hover:from-cyan-700 hover:to-blue-700 transition-all">
+          🚀 เปิด Form Router
+        </a>
+      </div>
+    </div>
+
+    <!-- ปุ่ม Dashboard -->
+    <div class="mb-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-300 rounded-lg">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h4 class="font-bold text-green-800 text-base mb-1">📊 Dashboard ผู้จัดการประเมิน (PAO Dashboard)</h4>
+          <p class="text-sm text-slate-600">ดูสรุปสถิติ, ประวัติ, และการแจ้งเตือนทั้งหมด</p>
+        </div>
+        <a href="docs/p2-forms/p2-dashboard.html" target="_blank" class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-bold shadow-lg hover:from-green-700 hover:to-emerald-700 transition-all">
+          📊 เปิด Dashboard
+        </a>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-4">
+      <!-- Form 1: สมาชิกใหม่ -->
+      <div class="bg-white rounded-xl border-l-4 border-blue-500 p-4 shadow-sm hover:shadow-lg transition-shadow">
+        <div class="text-center mb-3">
+          <div class="text-3xl mb-2">📋</div>
+          <h4 class="font-bold text-blue-700 text-base">แบบที่ 1: สัมภาษณ์สมาชิกใหม่</h4>
+          <span class="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs">LDC-PAO-WI-002</span>
+        </div>
+        <div class="space-y-1 text-xs text-slate-600 mb-3">
+          <div class="flex items-center gap-1"><span class="text-blue-500">●</span> ผู้สมัครภายนอกองค์กร</div>
+          <div class="flex items-center gap-1"><span class="text-blue-500">●</span> TCC ทัศนคติพื้นฐาน (10 ข้อ)</div>
+          <div class="flex items-center gap-1"><span class="text-blue-500">●</span> 8 ส่วน (A-H): ข้อมูล, TCC, EVP, ผล, ตำแหน่ง, ค่าตอบแทน, พี่เลี้ยง, อนุมัติ</div>
+          <div class="flex items-center gap-1"><span class="text-blue-500">●</span> 7 EVP + ค่าตอบแทน 7 รายการ</div>
+        </div>
+        <a href="docs/p2-forms/interview-form1.html" target="_blank" class="block text-center bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium transition">🔍 เปิดแบบฟอร์ม</a>
+      </div>
+
+      <!-- Form 2: โอนย้าย/เลื่อน -->
+      <div class="bg-white rounded-xl border-l-4 border-purple-500 p-4 shadow-sm hover:shadow-lg transition-shadow">
+        <div class="text-center mb-3">
+          <div class="text-3xl mb-2">🔄</div>
+          <h4 class="font-bold text-purple-700 text-base">แบบที่ 2: โอนย้าย/เลื่อนตำแหน่ง</h4>
+          <span class="inline-block mt-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs">LDC-PAO-WI-004</span>
+        </div>
+        <div class="space-y-1 text-xs text-slate-600 mb-3">
+          <div class="flex items-center gap-1"><span class="text-purple-500">●</span> สมาชิกภายในองค์กร</div>
+          <div class="flex items-center gap-1"><span class="text-purple-500">●</span> TCC ภาวะผู้นำ (10 ข้อ)</div>
+          <div class="flex items-center gap-1"><span class="text-purple-500">●</span> 9 ส่วน (A-I): ข้อมูล, TCC, EVP, คำถามบังคับ, ขั้นตอน, ผล, ตำแหน่ง, ค่าตอบแทน, พี่เลี้ยง</div>
+          <div class="flex items-center gap-1"><span class="text-purple-500">●</span> 5 คำถามบังคับ + ขั้นตอน 1.30 ชม.</div>
+        </div>
+        <a href="docs/p2-forms/interview-form2.html" target="_blank" class="block text-center bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg text-sm font-medium transition">🔍 เปิดแบบฟอร์ม</a>
+      </div>
+
+      <!-- Form 3: ฝึกงาน -->
+      <div class="bg-white rounded-xl border-l-4 border-amber-500 p-4 shadow-sm hover:shadow-lg transition-shadow">
+        <div class="text-center mb-3">
+          <div class="text-3xl mb-2">🎓</div>
+          <h4 class="font-bold text-amber-700 text-base">แบบที่ 3: นักศึกษาฝึกงาน</h4>
+          <span class="inline-block mt-1 px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs">LDC-PAO-WI-Intern</span>
+        </div>
+        <div class="space-y-1 text-xs text-slate-600 mb-3">
+          <div class="flex items-center gap-1"><span class="text-amber-500">●</span> นักศึกษาฝึกงาน</div>
+          <div class="flex items-center gap-1"><span class="text-amber-500">●</span> เกณฑ์ประเมิน 10 หัวข้อ</div>
+          <div class="flex items-center gap-1"><span class="text-amber-500">●</span> 5 ส่วน (A-E): ข้อมูล, ประเมิน, ผล, พี่เลี้ยง, เพิ่มเติม</div>
+          <div class="flex items-center gap-1"><span class="text-amber-500">●</span> พี่เลี้ยง 2 คน + ระยะเวลาฝึก</div>
+        </div>
+        <a href="docs/p2-forms/interview-form3.html" target="_blank" class="block text-center bg-amber-600 hover:bg-amber-700 text-white py-2 rounded-lg text-sm font-medium transition">🔍 เปิดแบบฟอร์ม</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ตารางเปรียบเทียบ -->
+  <div class="card mt-8">
+    <h3 class="font-bold text-pp7-800 mb-3 flex items-center gap-2">📊 เปรียบเทียบแบบฟอร์มทั้ง 3 แบบ</h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm" id="assess-table">
+        <thead>
+          <tr class="bg-slate-100">
+            <th class="px-3 py-2 text-left font-semibold text-slate-700">หัวข้อ</th>
+            <th class="px-3 py-2 text-center text-blue-600 font-semibold">📋 แบบที่ 1</th>
+            <th class="px-3 py-2 text-center text-purple-600 font-semibold">🔄 แบบที่ 2</th>
+            <th class="px-3 py-2 text-center text-amber-600 font-semibold">🎓 แบบที่ 3</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr><td class="px-3 py-2 font-medium">กลุ่มเป้าหมาย</td><td class="px-3 py-2 text-center text-slate-600">ผู้สมัครภายนอก</td><td class="px-3 py-2 text-center text-slate-600">สมาชิกภายใน</td><td class="px-3 py-2 text-center text-slate-600">นักศึกษาฝึก</td></tr>
+          <tr><td class="px-3 py-2 font-medium">TCC ประเมิน</td><td class="px-3 py-2 text-center"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">ทัศนคติพื้นฐาน</span></td><td class="px-3 py-2 text-center"><span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs">ภาวะผู้นำ</span></td><td class="px-3 py-2 text-center"><span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-xs">บุคลิก+ทักษะ</span></td></tr>
+          <tr><td class="px-3 py-2 font-medium">เกณฑ์ผ่าน</td><td class="px-3 py-2 text-center text-green-600">≥ 65% (32.5/50)</td><td class="px-3 py-2 text-center text-green-600">≥ 65% (32.5/50)</td><td class="px-3 py-2 text-center text-green-600">≥ 65% (32.5/50)</td></tr>
+          <tr><td class="px-3 py-2 font-medium">EVP</td><td class="px-3 py-2 text-center text-slate-600">7 ข้อ</td><td class="px-3 py-2 text-center text-slate-600">6 ข้อ</td><td class="px-3 py-2 text-center text-slate-400">—</td></tr>
+          <tr><td class="px-3 py-2 font-medium">คำถามบังคับ</td><td class="px-3 py-2 text-center text-slate-400">—</td><td class="px-3 py-2 text-center text-yellow-600">5 ข้อ</td><td class="px-3 py-2 text-center text-slate-400">—</td></tr>
+          <tr><td class="px-3 py-2 font-medium">ขั้นตอนสัมภาษณ์</td><td class="px-3 py-2 text-center text-slate-400">—</td><td class="px-3 py-2 text-center text-purple-600">1.30 ชม.</td><td class="px-3 py-2 text-center text-slate-400">—</td></tr>
+          <tr><td class="px-3 py-2 font-medium">คกก. สัมภาษณ์</td><td class="px-3 py-2 text-center text-slate-600">สูงสุด 5 คน</td><td class="px-3 py-2 text-center text-slate-600">สูงสุด 3 คน</td><td class="px-3 py-2 text-center text-slate-600">สูงสุด 3 คน</td></tr>
+          <tr><td class="px-3 py-2 font-medium">พี่เลี้ยง</td><td class="px-3 py-2 text-center text-slate-600">สายงาน 2 + ทุน 1</td><td class="px-3 py-2 text-center text-slate-600">สายงาน 2 + ทุน 1</td><td class="px-3 py-2 text-center text-slate-600">2 คน</td></tr>
+          <tr><td class="px-3 py-2 font-medium">ค่าตอบแทน</td><td class="px-3 py-2 text-center"><span class="text-green-600">✓ 7 รายการ</span></td><td class="px-3 py-2 text-center"><span class="text-green-600">✓ 6 รายการ</span></td><td class="px-3 py-2 text-center text-slate-400">—</td></tr>
+          <tr><td class="px-3 py-2 font-medium">เป้าหมายปฏิบัติงาน</td><td class="px-3 py-2 text-center text-slate-400">—</td><td class="px-3 py-2 text-center text-yellow-600">5 เรื่อง</td><td class="px-3 py-2 text-center text-slate-400">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- คุณสมบัติระบบ -->
+  <div class="card mt-8 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+    <h3 class="font-bold text-pp7-800 mb-3 flex items-center gap-2">✨ ระบบที่มีในแต่ละแบบฟอร์ม</h3>
+    <div class="grid md:grid-cols-3 gap-3 text-sm">
+      <div class="flex items-center gap-2"><span class="text-green-600">📊</span><span class="text-slate-700">TCC Score Engine (เต็ม 50, ผ่าน ≥ 65%)</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">📈</span><span class="text-slate-700">Progress Bar (ความสมบูรณ์)</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">✅</span><span class="text-slate-700">Field Validation (ฟิลด์บังคับ)</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">💾</span><span class="text-slate-700">LocalStorage (mock database)</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">📥</span><span class="text-slate-700">Export CSV + PDF</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">📤</span><span class="text-slate-700">Notification (Line/Telegram)</span></div>
+    </div>
+  </div>
+
+  <!-- ประวัติการสัมภาษณ์ -->
+  <div class="card mt-8 bg-gradient-to-r from-indigo-50 to-blue-50 border-indigo-200">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-pp7-800 text-lg flex items-center gap-2">📜 ประวัติการสัมภาษณ์ (P2 Log)</h3>
+      <button onclick="showAddInterviewModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition">
+        ➕ เพิ่มประวัติ
+      </button>
+    </div>
+    <p class="text-sm text-slate-600 mb-4">เก็บประวัติการสัมภาษณ์ทั้งหมด — ใครผ่าน ใครไม่ผ่าน พร้อมคะแนน CC และผู้สัมภาษณ์</p>
+
+    <!-- สถิติการสัมภาษณ์ -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white rounded-lg border border-indigo-200 p-4 text-center">
+        <div class="text-3xl font-bold text-indigo-600" id="p2-total-interviews">0</div>
+        <div class="text-sm text-slate-600 mt-1">สัมภาษณ์ทั้งหมด</div>
+      </div>
+      <div class="bg-white rounded-lg border border-green-200 p-4 text-center">
+        <div class="text-3xl font-bold text-green-600" id="p2-passed">0</div>
+        <div class="text-sm text-slate-600 mt-1">ผ่าน ✅</div>
+      </div>
+      <div class="bg-white rounded-lg border border-red-200 p-4 text-center">
+        <div class="text-3xl font-bold text-red-600" id="p2-failed">0</div>
+        <div class="text-sm text-slate-600 mt-1">ไม่ผ่าน ❌</div>
+      </div>
+      <div class="bg-white rounded-lg border border-amber-200 p-4 text-center">
+        <div class="text-3xl font-bold text-amber-600" id="p2-pending">0</div>
+        <div class="text-sm text-slate-600 mt-1">รอผล ⏳</div>
+      </div>
+    </div>
+
+    <!-- ตัวกรอง -->
+    <div class="bg-white rounded-lg border border-slate-200 p-4 mb-4">
+      <div class="grid md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ค้นหา</label>
+          <input type="text" id="p2-search" placeholder="ชื่อผู้สมัคร..." 
+                 class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                 oninput="filterInterviewHistory()">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ประเภท</label>
+          <select id="p2-type-filter" class="w-full px-3 py-2 border border-slate-300 rounded-lg" onchange="filterInterviewHistory()">
+            <option value="">ทั้งหมด</option>
+            <option value="new">สมาชิกใหม่</option>
+            <option value="transfer">โอนย้าย/เลื่อน</option>
+            <option value="intern">ฝึกงาน</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ผลประเมิน</label>
+          <select id="p2-status-filter" class="w-full px-3 py-2 border border-slate-300 rounded-lg" onchange="filterInterviewHistory()">
+            <option value="">ทั้งหมด</option>
+                <option value="passed">ผ่าน ✅</option>
+                <option value="failed">ไม่ผ่าน ❌</option>
+            <option value="pending">รอผล ⏳</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ช่วงวันที่</label>
+          <input type="date" id="p2-date-filter" class="w-full px-3 py-2 border border-slate-300 rounded-lg" onchange="filterInterviewHistory()">
+        </div>
+      </div>
+    </div>
+
+    <!-- ตารางประวัติ -->
+    <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-100 border-b-2 border-slate-300">
+          <tr>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">วันที่</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-700">ชื่อผู้สมัคร</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-700">ประเภท</th>
+            <th class="px-4 py-3 text-left font-semibold text-slate-700">ตำแหน่ง</th>
+                <th class="px-4 py-3 text-center font-semibold text-slate-700">คะแนน CC</th>
+                <th class="px-4 py-3 text-center font-semibold text-slate-700">ผลประเมิน</th>
+                <th class="px-4 py-3 text-left font-semibold text-slate-700">ผู้สัมภาษณ์</th>
+            <th class="px-4 py-3 text-center font-semibold text-slate-700">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="interview-history-table" class="divide-y divide-slate-100">
+          <!-- ข้อมูลจะถูกเติมด้วย JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between mt-4">
+      <div class="text-sm text-slate-600">
+        แสดง <span id="p2-showing-start">0</span>-<span id="p2-showing-end">0</span> จาก <span id="p2-showing-total">0</span> รายการ
+      </div>
+      <div class="flex gap-2">
+        <button onclick="interviewPrevPage()" id="p2-prev-btn" class="px-3 py-1 border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50" disabled>← ก่อนหน้า</button>
+        <button onclick="interviewNextPage()" id="p2-next-btn" class="px-3 py-1 border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50" disabled>ถัดไป →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Modal เพิ่มประวัติการสัมภาษณ์ -->
+<div id="interview-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+      <h3 class="text-xl font-bold text-slate-800">📜 เพิ่มประวัติการสัมภาษณ์</h3>
+      <button onclick="closeInterviewModal()" class="text-slate-500 hover:text-slate-700 text-2xl">&times;</button>
+    </div>
+    <form id="interview-form" onsubmit="saveInterviewData(event)" class="p-6 space-y-4">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">วันที่สัมภาษณ์ *</label>
+          <input type="date" id="interview-date" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ประเภท *</label>
+          <select id="interview-type" required class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+            <option value="">เลือกประเภท</option>
+            <option value="new">สมาชิกใหม่</option>
+                <option value="transfer">โอนย้าย/เลื่อน</option>
+            <option value="intern">ฝึกงาน</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อ-นามสกุล *</label>
+          <input type="text" id="interview-name" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ตำแหน่ง *</label>
+          <input type="text" id="interview-position" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">คะแนน CC (0-50) *</label>
+          <input type="number" id="interview-score" min="0" max="50" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">ผลประเมิน *</label>
+          <select id="interview-result" required class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+            <option value="">เลือกผล</option>
+            <option value="passed">ผ่าน ✅</option>
+            <option value="failed">ไม่ผ่าน ❌</option>
+            <option value="pending">รอผล ⏳</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">ผู้สัมภาษณ์ *</label>
+        <input type="text" id="interviewer" required placeholder="ชื่อผู้สัมภาษณ์" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">หมายเหตุ</label>
+        <textarea id="interview-notes" rows="3" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="ข้อสังเกตเพิ่มเติม..."></textarea>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-4 border-t border-slate-200">
+        <button type="button" onclick="closeInterviewModal()" class="px-6 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50">ยกเลิก</button>
+        <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">💾 บันทึก</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- P3 จับคู่คนกับงาน (Member Management) -->
+<!-- ============================================ -->
+<section id="tab-match" class="tab-pane fade-in hidden space-y-8">
+  <div class="flex flex-wrap items-center gap-4 pb-4 border-b border-slate-200">
+    <h2 class="text-xl font-bold text-pp7-800 flex-1">🤝 จับคู่คนกับงาน (P3) — ฐานข้อมูลสมาชิก</h2>
+    <div class="search-box w-64">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="search-member" placeholder="ค้นหาสมาชิก...">
+    </div>
+  </div>
+
+  <!-- P3 Workflow -->
+  <div class="card bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+    <h3 class="font-bold text-pp7-800 mb-3 text-lg flex items-center gap-2">
+      <span class="bg-emerald-600 text-white px-2 py-1 rounded text-xs">LDC-PAO-PM-003</span>
+      📌 P3 จับคู่คนกับงาน — วงจรการบริหารสมาชิก
+    </h3>
+    <div class="grid md:grid-cols-6 gap-2 text-sm">
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-purple-400">
+        <div class="text-2xl mb-1">📥</div>
+        <div class="font-semibold text-pp7-700">1. รับจาก P2</div>
+        <div class="text-slate-600 mt-1 text-xs">Auto-Import สมาชิกผ่านเกณฑ์</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-blue-400">
+        <div class="text-2xl mb-1">👥</div>
+        <div class="font-semibold text-pp7-700">2. ฐานข้อมูลสมาชิก</div>
+        <div class="text-slate-600 mt-1 text-xs">Single Source of Truth</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-cyan-400">
+        <div class="text-2xl mb-1">🔄</div>
+        <div class="font-semibold text-pp7-700">3. โอนย้าย</div>
+        <div class="text-slate-600 mt-1 text-xs">WI-003</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-purple-400">
+        <div class="text-2xl mb-1">📈</div>
+        <div class="font-semibold text-pp7-700">4. เลื่อนตำแหน่ง</div>
+        <div class="text-slate-600 mt-1 text-xs">WI-004</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-red-400">
+        <div class="text-2xl mb-1">🚪</div>
+        <div class="font-semibold text-pp7-700">5. ลาออก</div>
+        <div class="text-slate-600 mt-1 text-xs">WI-005 → แจ้ง P1</div>
+      </div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-amber-400">
+        <div class="text-2xl mb-1">📤</div>
+        <div class="font-semibold text-pp7-700">6. ไป P4</div>
+        <div class="text-slate-600 mt-1 text-xs">ประเมินผล + พี่เลี้ยง</div>
+      </div>
+    </div>
+    <!-- Data Flow Loop -->
+    <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-center text-sm text-yellow-800">
+      🔄 <strong>Loop กลับ P1:</strong> เมื่อสมาชิกลาออก (WI-005) → ระบบแจ้งเตือนกลับ P1 ว่ามีตำแหน่งว่าง → สรรหาใหม่
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+    <div class="card border-l-4 border-l-emerald-500">
+      <div class="text-sm text-slate-400">สมาชิกทั้งหมด</div>
+      <div class="kpi-num text-emerald-600" id="p3-total">—</div>
+    </div>
+    <div class="card border-l-4 border-l-blue-500">
+      <div class="text-sm text-slate-400">Active</div>
+      <div class="kpi-num text-blue-600" id="p3-active">—</div>
+    </div>
+    <div class="card border-l-4 border-l-yellow-500">
+      <div class="text-sm text-slate-400">ทดลองงาน</div>
+      <div class="kpi-num text-yellow-600" id="p3-probation">—</div>
+    </div>
+    <div class="card border-l-4 border-l-green-500">
+      <div class="text-sm text-slate-400">ประจำ</div>
+      <div class="kpi-num text-green-600" id="p3-permanent">—</div>
+    </div>
+    <div class="card border-l-4 border-l-red-500">
+      <div class="text-sm text-slate-400">ลาออก</div>
+      <div class="kpi-num text-red-600" id="p3-resigned">—</div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="grid md:grid-cols-3 gap-4">
+    <!-- WI-003: โอนย้าย -->
+    <a href="docs/p3-forms/transfer-form.html" target="_blank" class="card bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-lg transition cursor-pointer group">
+      <div class="text-center">
+        <div class="text-4xl mb-2">🔄</div>
+        <h4 class="font-bold text-blue-800 text-lg">โอนย้ายสมาชิก</h4>
+        <p class="text-xs text-blue-600 font-mono mt-1">LDC-PAO-WI-003</p>
+        <p class="text-sm text-slate-600 mt-2">เปลี่ยนบริษัท/สาขา/ฝ่าย/ทีม</p>
+        <div class="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium group-hover:bg-blue-700 transition">เปิดฟอร์ม →</div>
+      </div>
+    </a>
+
+    <!-- WI-004: เลื่อนตำแหน่ง -->
+    <a href="docs/p3-forms/promote-form.html" target="_blank" class="card bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-lg transition cursor-pointer group">
+      <div class="text-center">
+        <div class="text-4xl mb-2">📈</div>
+        <h4 class="font-bold text-purple-800 text-lg">เลื่อนตำแหน่ง</h4>
+        <p class="text-xs text-purple-600 font-mono mt-1">LDC-PAO-WI-004</p>
+        <p class="text-sm text-slate-600 mt-2">ปรับตำแหน่ง + เงินเดือน</p>
+        <div class="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium group-hover:bg-purple-700 transition">เปิดฟอร์ม →</div>
+      </div>
+    </a>
+
+    <!-- WI-005: ลาออก -->
+    <a href="docs/p3-forms/resign-form.html" target="_blank" class="card bg-gradient-to-br from-red-50 to-red-100 border-red-200 hover:shadow-lg transition cursor-pointer group">
+      <div class="text-center">
+        <div class="text-4xl mb-2">🚪</div>
+        <h4 class="font-bold text-red-800 text-lg">ลาออก</h4>
+        <p class="text-xs text-red-600 font-mono mt-1">LDC-PAO-WI-005</p>
+        <p class="text-sm text-slate-600 mt-2">เปลี่ยนสถานะ + แจ้ง P1</p>
+        <div class="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium group-hover:bg-red-700 transition">เปิดฟอร์ม →</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- P3 Full Dashboard Link -->
+  <div class="card bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <h4 class="font-bold text-green-800 text-lg mb-1">📊 Dashboard ฐานข้อมูลสมาชิก (P3 Full Dashboard)</h4>
+        <p class="text-sm text-slate-600">ดูสมาชิกทั้งหมด, ประวัติ, การแจ้งเตือน, และข้อมูลสำหรับระบบพี่เลี้ยง</p>
+      </div>
+      <a href="docs/p3-forms/index.html" target="_blank" class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-bold shadow-lg hover:from-green-700 hover:to-emerald-700 transition-all">
+        🚀 เปิด P3 Dashboard
+      </a>
+    </div>
+  </div>
+
+  <!-- เชื่อมต่อไป P4 + ระบบพี่เลี้ยง -->
+  <div class="card bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200">
+    <h3 class="font-bold text-pp7-800 mb-3 text-lg flex items-center gap-2">
+      🔗 Data Flow จาก P3
+    </h3>
+    <div class="grid md:grid-cols-3 gap-4 text-sm">
+      <div class="p-3 bg-white rounded-lg border-l-4 border-emerald-400">
+        <div class="font-semibold text-emerald-700 mb-1">📊 → P4 ประเมินผล</div>
+        <div class="text-slate-600">ข้อมูลสมาชิก → ใช้ประเมิน CC หลังทำงาน</div>
+      </div>
+      <div class="p-3 bg-white rounded-lg border-l-4 border-blue-400">
+        <div class="font-semibold text-blue-700 mb-1">👨‍🏫 → ระบบพี่เลี้ยง</div>
+        <div class="text-slate-600">getMentorData() → LDC-PAD-PM-001</div>
+      </div>
+      <div class="p-3 bg-white rounded-lg border-l-4 border-red-400">
+        <div class="font-semibold text-red-700 mb-1">🔄 → P1 สรรหาใหม่</div>
+        <div class="text-slate-600">notifyP1Vacancy() → เมื่อมีลาออก</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="card">
+    <h4 class="font-semibold text-pp7-700 mb-3">🚀 ฟีเจอร์อัตโนมัติ</h4>
+    <div class="grid md:grid-cols-2 gap-2 text-sm">
+      <div class="flex items-center gap-2"><span class="text-green-600">🤖</span><span class="text-slate-700">Auto-Import จาก P2 (addMemberFromP2)</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">📋</span><span class="text-slate-700">บันทึกประวัติทุกครั้ง (History Log)</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">📢</span><span class="text-slate-700">Auto-notify P1 เมื่อลาออก</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">💾</span><span class="text-slate-700">LocalStorage (mock database)</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">📥</span><span class="text-slate-700">Export CSV ทุกฟอร์ม</span></div>
+      <div class="flex items-center gap-2"><span class="text-green-600">📤</span><span class="text-slate-700">ส่งข้อมูลไป P4 + พี่เลี้ยง</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Performance Evaluation (P4) ========== -->
+<section id="tab-performance" class="tab-pane fade-in hidden space-y-6">
+  <div class="card">
+    <h2 class="text-xl font-bold text-pp7-800 mb-4">📊 ประเมินผล (P4) — ประเมินหลังรบ</h2>
+    <p class="text-gray-600 mb-4">ระบบประเมินผลการปฏิบัติงานตาม Core Competency ทั้ง 5 ด้าน</p>
+    <div class="grid md:grid-cols-5 gap-3 text-sm mb-6">
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-blue-400"><div class="text-2xl mb-1">📝</div><div class="font-semibold">1. ประเมินตนเอง</div><div class="text-xs text-gray-500 mt-1">Self-evaluation</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-purple-400"><div class="text-2xl mb-1">👔</div><div class="font-semibold">2. หัวหน้าประเมิน</div><div class="text-xs text-gray-500 mt-1">Manager eval</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-cyan-400"><div class="text-2xl mb-1">🤝</div><div class="font-semibold">3. เพื่อนร่วมงาน</div><div class="text-xs text-gray-500 mt-1">Peer eval</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-green-400"><div class="text-2xl mb-1">👥</div><div class="font-semibold">4. ลูกน้องประเมิน</div><div class="text-xs text-gray-500 mt-1">Subordinate eval</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-amber-400"><div class="text-2xl mb-1">🏢</div><div class="font-semibold">5. ลูกค้าประเมิน</div><div class="text-xs text-gray-500 mt-1">Customer eval</div></div>
+    </div>
+    <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <h3 class="font-semibold text-blue-800 mb-2">🎯 360° Annual Credit Evaluation</h3>
+      <p class="text-sm text-gray-700">ประเมินเครดิตประจำปี 5 มุมมอง — ลดการประเมินด้วยอารมณ์ → ใช้ข้อมูลจริงวัดผล CC ทั้ง 5 ด้าน:</p>
+      <div class="grid md:grid-cols-5 gap-2 mt-3 text-xs">
+        <div class="bg-white p-2 rounded text-center"><strong>CC1</strong><br>Servant Leadership</div>
+        <div class="bg-white p-2 rounded text-center"><strong>CC2</strong><br>Adaptive Innovation</div>
+        <div class="bg-white p-2 rounded text-center"><strong>CC3</strong><br>Trust-Based Value</div>
+        <div class="bg-white p-2 rounded text-center"><strong>CC4</strong><br>Consensus Teamwork</div>
+        <div class="bg-white p-2 rounded text-center"><strong>CC5</strong><br>Disciplined Pro.</div>
+      </div>
+    </div>
+    <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+      🚧 <strong>ระบบประเมินผล P4 กำลังพัฒนา — เป้าหมายออกแบบระบบใหม่เสร็จภายในปี 2569</strong>
+    </div>
+  </div>
+</section>
+
+<section id="tab-develop" class="tab-pane fade-in hidden space-y-6">
+  <div class="flex flex-wrap items-center gap-4">
+    <h2 class="text-xl font-bold text-pp7-800 flex-1">🎓 พัฒนาบุคลากร (P5)</h2>
+  </div>
+
+  <div class="card bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200" id="section-p5-workflow">
+    <h3 class="font-bold text-pp7-800 mb-3 text-lg flex items-center gap-2">
+      <span class="bg-emerald-600 text-white px-2 py-1 rounded text-xs font-mono">[P5-Develop]</span>
+      📌 กระบวนการพัฒนาบุคลากร (Web PP7 Operation Flow)
+    </h3>
+    <div class="grid md:grid-cols-5 gap-3 text-sm">
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-emerald-400"><div class="text-2xl mb-1">📊</div><div class="font-semibold text-pp7-700">1. วิเคราะห์ Gap</div><div class="text-slate-600 mt-1 text-xs">ดึงผลประเมิน CC จาก P4 เพื่อหาจุดพัฒนา</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-teal-400"><div class="text-2xl mb-1">📝</div><div class="font-semibold text-pp7-700">2. จัดทำ IDP</div><div class="text-slate-600 mt-1 text-xs">พนักงานและหัวหน้าร่วมจัดทำแผนพัฒนารายบุคคล</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-cyan-400"><div class="text-2xl mb-1">🤝</div><div class="font-semibold text-pp7-700">3. จับคู่/มอบหมาย</div><div class="text-slate-600 mt-1 text-xs">ระบบแนะนำพี่เลี้ยง (Mentor) หรือหลักสูตรฝึกอบรม</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-blue-400"><div class="text-2xl mb-1">📈</div><div class="font-semibold text-pp7-700">4. ติดตามผล</div><div class="text-slate-600 mt-1 text-xs">บันทึก Learning Log และความคืบหน้าแบบ Real-time</div></div>
+      <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-indigo-400"><div class="text-2xl mb-1">✅</div><div class="font-semibold text-pp7-700">5. ประเมินผลลัพธ์</div><div class="text-slate-600 mt-1 text-xs">วัดผลพัฒนาการ CC และอัปเดตสถานะความพร้อม</div></div>
+    </div>
+  </div>
+
+  <div class="card bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+    <h3 class="font-bold text-pp7-800 mb-3 flex items-center gap-2"><span class="bg-blue-600 text-white px-2 py-1 rounded text-xs">📝 Mock Form</span> เสนอแผนพัฒนา (IDP)</h3>
+    <form id="dev-form" onsubmit="handleDevFormSubmit(event)" class="grid md:grid-cols-2 gap-4">
+      <div><label class="block text-xs font-semibold text-slate-600 mb-1">ชื่อ-สกุล</label><input type="text" id="dev-name" required class="w-full px-3 py-2 rounded border border-slate-300 text-sm focus:ring-2 focus:ring-blue-400 outline-none"></div>
+      <div><label class="block text-xs font-semibold text-slate-600 mb-1">ฝ่าย/แผนก</label><select id="dev-dept" required class="w-full px-3 py-2 rounded border border-slate-300 text-sm outline-none"><option value="Tech">Tech</option><option value="Sales">Sales</option><option value="Finance">Finance</option></select></div>
+      <div><label class="block text-xs font-semibold text-slate-600 mb-1">หลักสูตร</label><select id="dev-course" required class="w-full px-3 py-2 rounded border border-slate-300 text-sm outline-none"></select></div>
+      <div><label class="block text-xs font-semibold text-slate-600 mb-1">จำนวนชั่วโมง</label><input type="number" id="dev-hours" required min="1" class="w-full px-3 py-2 rounded border border-slate-300 text-sm outline-none"></div>
+      <div class="md:col-span-2 flex justify-end"><button type="submit" class="px-6 py-2 rounded-lg bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 transition shadow-md">บันทึกข้อมูล (Mock)</button></div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3 class="font-semibold text-pp7-800 mb-3">📋 คอร์สและการพัฒนา</h3>
+    <div class="overflow-x-auto">
+      <table id="dev-table" data-sortable="true">
+        <thead><tr><th>ID</th><th>ชื่อ-สกุล</th><th>ฝ่าย</th><th>คอร์ส</th><th>ชั่วโมง</th><th>คะแนน</th><th>สถานะ</th><th>เสร็จสิ้น</th></tr></thead>
+        <tbody id="dev-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ========== กระบวนการใหม่ (S4) ========== -->
+<section id="tab-new-process" class="tab-pane fade-in hidden space-y-6">
+  <div class="card">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-xl font-bold text-pp7-800">🔄 กระบวนการใหม่ (S4) - พร้อมใช้งานสำหรับทีม HR</h2>
+        <p class="text-gray-600 text-sm mt-1">พื้นที่ทำงานสำหรับทีม HR เพื่อดูและติดตาม "กระบวนการใหม่" ที่ได้รับการออกแบบและลดความซ้ำซ้อนแล้ว แทนการใช้ Google Sheets Board</p>
+      </div>
+      <button onclick="renderNewProcessTab()" class="btn btn-primary flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+        รีเฟรชข้อมูล
+      </button>
+    </div>
+
+    <div class="flex gap-2 mb-6 border-b border-gray-200">
+      <button class="new-process-subtab-btn px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600 transition-colors" data-subtab="p1-4" onclick="showNewProcessSubTab('p1-4')">P1-P4</button>
+      <button class="new-process-subtab-btn px-4 py-2 font-medium text-gray-500 hover:text-blue-600 transition-colors" data-subtab="p5" onclick="showNewProcessSubTab('p5')">P5</button>
+      <button class="new-process-subtab-btn px-4 py-2 font-medium text-gray-500 hover:text-blue-600 transition-colors" data-subtab="p6-7" onclick="showNewProcessSubTab('p6-7')">P6-P7</button>
+    </div>
+
+    <div id="new-process-p1-4" class="new-process-subpane">
+      <div class="overflow-x-auto rounded-lg border border-gray-200">
+        <table class="w-full text-sm">
+          <thead class="bg-blue-50 text-pp7-800">
+            <tr>
+              <th class="p-3 text-left font-semibold border-b">รหัสเอกสาร</th>
+              <th class="p-3 text-left font-semibold border-b">ชื่อกระบวนการ</th>
+              <th class="p-3 text-left font-semibold border-b w-1/3">กระบวนการใหม่ (S4)</th>
+              <th class="p-3 text-left font-semibold border-b w-1/3">Task สำหรับ Web PP7</th>
+              <th class="p-3 text-left font-semibold border-b">ผู้รับผิดชอบ</th>
+              <th class="p-3 text-left font-semibold border-b">สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="table-p1-4-body" class="divide-y divide-gray-100 bg-white">
+            <tr><td colspan="6" class="p-4 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="new-process-p5" class="new-process-subpane hidden">
+      <div class="overflow-x-auto rounded-lg border border-gray-200">
+        <table class="w-full text-sm">
+          <thead class="bg-blue-50 text-pp7-800">
+            <tr>
+              <th class="p-3 text-left font-semibold border-b">รหัสเอกสาร</th>
+              <th class="p-3 text-left font-semibold border-b">ชื่อกระบวนการ</th>
+              <th class="p-3 text-left font-semibold border-b w-1/3">กระบวนการใหม่ (S4)</th>
+              <th class="p-3 text-left font-semibold border-b w-1/3">Task สำหรับ Web PP7</th>
+              <th class="p-3 text-left font-semibold border-b">ผู้รับผิดชอบ</th>
+              <th class="p-3 text-left font-semibold border-b">สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="table-p5-body" class="divide-y divide-gray-100 bg-white">
+            <tr><td colspan="6" class="p-4 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="new-process-p6-7" class="new-process-subpane hidden">
+      <div class="overflow-x-auto rounded-lg border border-gray-200">
+        <table class="w-full text-sm">
+          <thead class="bg-blue-50 text-pp7-800">
+            <tr>
+              <th class="p-3 text-left font-semibold border-b">รหัสเอกสาร</th>
+              <th class="p-3 text-left font-semibold border-b">ชื่อกระบวนการ</th>
+              <th class="p-3 text-left font-semibold border-b w-1/3">กระบวนการใหม่ (S4)</th>
+              <th class="p-3 text-left font-semibold border-b w-1/3">Task สำหรับ Web PP7</th>
+              <th class="p-3 text-left font-semibold border-b">ผู้รับผิดชอบ</th>
+              <th class="p-3 text-left font-semibold border-b">สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="table-p6-7-body" class="divide-y divide-gray-100 bg-white">
+            <tr><td colspan="6" class="p-4 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== WI-001: เบี้ยเลี้ยงนักศึกษาฝึกงาน ========== -->
+<section id="tab-wi001" class="tab-pane fade-in hidden space-y-6">
+  <div class="card">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-xl font-bold text-pp7-800">📝 แบบฟอร์มเบิกค่าเบี้ยเลี้ยงนักศึกษาฝึกงาน (LDC-WCD-WI-001)</h2>
+        <p class="text-gray-600 text-sm mt-1">หัวหน้างานกรอกจำนวนวันที่ทำงานจริง (ตามใบลงเวลาที่ตรวจสอบแล้ว) เพื่อคำนวณและขออนุมัติจ่ายเงิน</p>
+      </div>
+    </div>
+    
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- Form Inputs -->
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">ชื่อ-สกุล นักศึกษาฝึกงาน</label>
+          <input type="text" id="wi001-intern-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" placeholder="ระบุชื่อ-สกุล">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">แผนก / หัวหน้างานผู้ควบคุม</label>
+          <input type="text" id="wi001-supervisor" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" placeholder="ระบุแผนกและชื่อหัวหน้างาน">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">เดือน/ปีที่เบิก</label>
+          <input type="month" id="wi001-month" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">จำนวนวันทำงานจริง (ตามใบลงเวลา)</label>
+            <input type="number" id="wi001-days" min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500 font-bold text-pp7-700" placeholder="0" oninput="calculateWI001()">
+            <p class="text-xs text-gray-500 mt-1">* หัวหน้างานตรวจสอบจากใบลงเวลาจริงก่อนกรอก</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">อัตราค่าเบี้ยเลี้ยง (บาท/วัน)</label>
+            <input type="number" value="35" readonly class="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm p-2 border text-gray-500 cursor-not-allowed font-bold">
+          </div>
+        </div>
+      </div>
+
+      <!-- Calculation & Output -->
+      <div class="space-y-4 bg-blue-50 p-5 rounded-lg border border-blue-100">
+        <h3 class="font-semibold text-pp7-800 text-lg">💰 สรุปผลการคำนวณอัตโนมัติ</h3>
+        <div class="flex justify-between items-center border-b border-blue-200 pb-2">
+          <span class="text-sm text-gray-600">จำนวนวันทำงานจริง (ที่หัวหน้างานยืนยัน)</span>
+          <span class="font-bold text-lg text-gray-800" id="wi001-working-days">0 วัน</span>
+        </div>
+        <div class="flex justify-between items-center border-b border-blue-200 pb-2">
+          <span class="text-sm text-gray-600">อัตราค่าเบี้ยเลี้ยง</span>
+          <span class="font-bold text-lg text-gray-800">35 บาท/วัน</span>
+        </div>
+        <div class="flex justify-between items-center pt-2">
+          <span class="text-base font-semibold text-gray-800">ยอดรวมค่าเบี้ยเลี้ยงที่เบิกได้</span>
+          <span class="font-bold text-2xl text-pp7-600" id="wi001-total-amount">0.00 บาท</span>
+        </div>
+        
+        <div class="mt-6 space-y-3 pt-4 border-t border-blue-200">
+          <label class="flex items-start space-x-2 text-sm text-gray-700 cursor-pointer">
+            <input type="checkbox" class="mt-1 rounded text-pp7-600 focus:ring-pp7-500" id="wi001-doc-check">
+            <span>ยืนยันการแนบไฟล์ "ใบลงเวลาและเอกสารเบิกค่าเบี้ยเลี้ยง" ที่หัวหน้างานเซ็นตรวจสอบแล้ว</span>
+          </label>
+          
+          <button onclick="generateWI001Doc()" class="w-full bg-pp7-600 hover:bg-pp7-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            สร้างเอกสารส่งหัวหน้างานอนุมัติ (Nitro Sign)
+          </button>
+          <p class="text-xs text-gray-500 text-center leading-relaxed">* เมื่อหัวหน้างานเซ็นอนุมัติผ่านระบบแล้ว คำขอจะถูกส่งต่อไปยังฝ่ายการเงินเพื่อดำเนินการโอนเงินให้โดยตรง</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== WI-002: เงินสมทบอายุงานเมื่อสมาชิกลาออก ========== -->
+<section id="tab-wi002" class="tab-pane fade-in hidden space-y-6">
+  <div class="card">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-xl font-bold text-pp7-800">💼 คำนวณเงินสมทบอายุงานเมื่อสมาชิกลาออก (LDC-WCD-WI-002)</h2>
+        <p class="text-gray-600 text-sm mt-1">ระบบคำนวณเงินสมทบตามอายุงาน + รายการหัก (สหกรณ์/ภาษี/อื่นๆ) เพื่อเสนอจ่ายสุทธิ</p>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- Form Inputs -->
+      <div class="space-y-4">
+        <div class="border-b border-gray-200 pb-2">
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">📋 ข้อมูลสมาชิก</h3>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">รหัสสมาชิก</label>
+            <input type="text" id="wi002-member-id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" placeholder="EMP-001">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">ชื่อสมาชิก</label>
+            <input type="text" id="wi002-member-name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" placeholder="ชื่อ-สกุล">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">วันที่เริ่มงาน</label>
+            <input type="date" id="wi002-start-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" oninput="calculateWI002()">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">วันที่ลาออก</label>
+            <input type="date" id="wi002-end-date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" oninput="calculateWI002()">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">เงินเดือนล่าสุด (บาท)</label>
+          <input type="number" id="wi002-salary" min="0" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500 font-bold text-pp7-700" placeholder="0.00" oninput="calculateWI002()">
+        </div>
+
+        <div class="border-b border-gray-200 pb-2 pt-4">
+          <h3 class="text-sm font-semibold text-gray-700 mb-3">💸 รายการหักก่อนจ่าย</h3>
+        </div>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-600">💳 เงินกู้สหกรณ์ (CU) คงค้าง</label>
+            <input type="number" id="wi002-cu-loan" min="0" step="0.01" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" placeholder="0.00" oninput="calculateWI002()">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600">💧 ค่าใช้จ่ายสวัสดิการค้างชำระ</label>
+            <input type="number" id="wi002-welfare-due" min="0" step="0.01" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" placeholder="0.00" oninput="calculateWI002()">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600">⚠️ ค่าเสียหาย/ค่าปรับจากงาน</label>
+            <input type="number" id="wi002-damage" min="0" step="0.01" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" placeholder="0.00" oninput="calculateWI002()">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600">🏦 เงินกองทุนสำรองเลี้ยงชีพ</label>
+            <input type="number" id="wi002-pension" min="0" step="0.01" value="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border focus:border-pp7-500 focus:ring-pp7-500" placeholder="0.00" oninput="calculateWI002()">
+          </div>
+          <p class="text-xs text-gray-500 italic">* ภาษี ณ ที่จ่าย 3% จะถูกคำนวณอัตโนมัติ (หลังหักเงินกู้ CU)</p>
+        </div>
+      </div>
+
+      <!-- Calculation & Output -->
+      <div class="space-y-3 bg-amber-50 p-5 rounded-lg border border-amber-200">
+        <h3 class="font-semibold text-pp7-800 text-lg">📊 สรุปผลการคำนวณอัตโนมัติ</h3>
+
+        <!-- Duration -->
+        <div class="bg-white rounded p-3 space-y-1">
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">ระยะเวลาทำงานจริง (เศษปี)</span>
+            <span class="font-bold text-gray-800" id="wi002-duration-display">0.00 ปี</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">เกณฑ์การสมทบตามอายุงาน</span>
+            <span class="font-bold text-pp7-700" id="wi002-tier-display">0% (ยังไม่ถึงเกณฑ์)</span>
+          </div>
+        </div>
+
+        <!-- Gross calculation -->
+        <div class="bg-white rounded p-3 space-y-1">
+          <div class="text-xs font-semibold text-gray-700 mb-2">💰 การคำนวณเงินสมทบ</div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">เงินสะสม 2% ต่อปี</span>
+            <span class="font-medium" id="wi002-annual-saving">0.00 ฿</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">× จำนวนปีทำงานจริง</span>
+            <span class="font-medium" id="wi002-total-saving">0.00 ฿</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">× % สมทบตามเกณฑ์</span>
+            <span class="font-medium" id="wi002-tier-multiplier">0%</span>
+          </div>
+          <div class="flex justify-between text-sm border-t border-gray-200 pt-1 mt-1">
+            <span class="font-semibold text-gray-700">💵 ยอดเงินสมทบ (ก่อนหัก)</span>
+            <span class="font-bold text-lg text-green-700" id="wi002-gross-amount">0.00 ฿</span>
+          </div>
+        </div>
+
+        <!-- Deductions -->
+        <div class="bg-white rounded p-3 space-y-1">
+          <div class="text-xs font-semibold text-gray-700 mb-2">💸 รายการหัก (ตามลำดับ)</div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">① หักเงินกู้สหกรณ์ (CU)</span>
+            <span class="font-medium text-red-600" id="wi002-deduct-cu">- 0.00 ฿</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">⤷ เหลือหลังหัก CU</span>
+            <span class="font-medium" id="wi002-after-cu">0.00 ฿</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">② ภาษี ณ ที่จ่าย 3%</span>
+            <span class="font-medium text-red-600" id="wi002-deduct-tax">- 0.00 ฿</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">③ ค่าสวัสดิการค้างชำระ</span>
+            <span class="font-medium text-red-600" id="wi002-deduct-welfare">- 0.00 ฿</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">④ ค่าเสียหาย/ค่าปรับ</span>
+            <span class="font-medium text-red-600" id="wi002-deduct-damage">- 0.00 ฿</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-600">⑤ กองทุนสำรองเลี้ยงชีพ</span>
+            <span class="font-medium text-red-600" id="wi002-deduct-pension">- 0.00 ฿</span>
+          </div>
+          <div class="flex justify-between text-sm border-t border-gray-200 pt-1 mt-1">
+            <span class="font-semibold text-gray-700">รวมรายการหักทั้งหมด</span>
+            <span class="font-bold text-red-600" id="wi002-total-deduction">- 0.00 ฿</span>
+          </div>
+        </div>
+
+        <!-- Net -->
+        <div class="bg-pp7-600 text-white rounded-lg p-4 shadow-md">
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-semibold">🎯 ยอดสุทธิที่จะจ่ายสมาชิกลาออก</span>
+            <span class="font-bold text-2xl" id="wi002-net-amount">0.00 ฿</span>
+          </div>
+          <p class="text-xs text-amber-100 mt-1">* ปัดเป็นทศนิยม 2 หลักตามระบบโอนเงิน (ไม่ปัดเศษ)</p>
+        </div>
+
+        <div class="mt-2 space-y-2 pt-2 border-t border-amber-200">
+          <label class="flex items-start space-x-2 text-sm text-gray-700 cursor-pointer">
+            <input type="checkbox" class="mt-1 rounded text-pp7-600 focus:ring-pp7-500" id="wi002-doc-check">
+            <span>ยืนยันการแนบ "เอกสารแสดงยอดค้างชำระทั้งหมด" ที่สมาชิกเซ็นรับทราบแล้ว</span>
+          </label>
+
+          <button onclick="generateWI002Doc()" class="w-full bg-pp7-600 hover:bg-pp7-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            สร้างเอกสารส่งผู้อนุมัติ (Nitro Sign)
+          </button>
+          <p class="text-xs text-gray-500 text-center leading-relaxed">* Flow: หัวหน้างาน → PAO/WCD Manager → HR Manager → ฝ่ายการเงิน</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Welfare (P6) ========== -->
+<section id="tab-welfare" class="tab-pane fade-in hidden space-y-6">
+  <div class="card">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-xl font-bold text-pp7-800">💰 ค่าตอบแทนและแรงจูงใจ (P6)</h2>
+        <p class="text-gray-600 text-sm mt-1">ระบบจ่ายเงินเดือน, ค่าตอบแทน และ Incentive Points — เชื่อมข้อมูลจาก P3 อัตโนมัติ</p>
+      </div>
+      <a href="docs/p6-forms/index.html" target="_blank" class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700">🚀 เปิด P6 Dashboard</a>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-4">
+      <a href="docs/p6-forms/index.html?mode=payroll" target="_blank" class="border border-green-200 rounded-lg p-4 bg-green-50 text-center hover:shadow-lg transition cursor-pointer block">
+        <div class="text-4xl mb-2">💵</div>
+        <h3 class="font-bold text-green-800">คำนวณเงินเดือน</h3>
+        <p class="text-xs text-gray-600 mt-1">ดึงข้อมูลจาก P3 อัตโนมัติ</p>
+        <p class="text-xs text-green-600 mt-2">LDC-WCD-WI-004</p>
+      </a>
+      <a href="docs/p6-forms/index.html?mode=retirement" target="_blank" class="border border-blue-200 rounded-lg p-4 bg-blue-50 text-center hover:shadow-lg transition cursor-pointer block">
+        <div class="text-4xl mb-2">👴</div>
+        <h3 class="font-bold text-blue-800">ระบบเกษียณ</h3>
+        <p class="text-xs text-gray-600 mt-1">คำนวณเงินชดเชยตามกฎหมาย</p>
+        <p class="text-xs text-blue-600 mt-2">LDC-WCD-WI-006</p>
+      </a>
+      <a href="docs/p6-forms/index.html?mode=incentive" target="_blank" class="border border-purple-200 rounded-lg p-4 bg-purple-50 text-center hover:shadow-lg transition cursor-pointer block">
+        <div class="text-4xl mb-2">🎯</div>
+        <h3 class="font-bold text-purple-800">Incentive Points</h3>
+        <p class="text-xs text-gray-600 mt-1">BU บันทึก → โอน MSP App</p>
+        <p class="text-xs text-purple-600 mt-2">Cash → Points → Cashout</p>
+      </a>
+    </div>
+
+    <div class="mt-6">
+      <h3 class="font-bold text-pp7-800 mb-3">🔄 Data Flow P6</h3>
+      <div class="grid md:grid-cols-4 gap-3 text-sm">
+        <div class="border-l-4 border-purple-500 pl-3">
+          <div class="font-bold text-purple-700">📥 P3 → P6</div>
+          <p class="text-xs text-gray-600 mt-1">ข้อมูลสมาชิก, ตำแหน่ง, ค่าตอบแทน</p>
+        </div>
+        <div class="border-l-4 border-blue-500 pl-3">
+          <div class="font-bold text-blue-700">📥 BU → P6</div>
+          <p class="text-xs text-gray-600 mt-1">Incentive (INC) รายเดือน</p>
+        </div>
+        <div class="border-l-4 border-amber-500 pl-3">
+          <div class="font-bold text-amber-700">💳 CU Data</div>
+          <p class="text-xs text-gray-600 mt-1">เงินกู้สหกรณ์ (ดึงวัน 10)</p>
+        </div>
+        <div class="border-l-4 border-green-500 pl-3">
+          <div class="font-bold text-green-700">📤 → BCT</div>
+          <p class="text-xs text-gray-600 mt-1">Export CSV ไป Payroll</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 border-t pt-4">
+      <h3 class="font-bold text-pp7-800 mb-3">📋 ตาราง WI ใน P6</h3>
+      <div class="space-y-2 text-sm">
+        <div class="flex items-center justify-between p-3 bg-white rounded border hover:shadow-sm transition cursor-pointer" onclick="showTab('wi001')">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">📝</span>
+            <div>
+              <div class="font-semibold">WI-001: เบี้ยเลี้ยงนักศึกษาฝึกงาน</div>
+              <p class="text-xs text-gray-600">คำนวณและอนุมัติจ่ายค่าเบี้ยเลี้ยง</p>
+            </div>
+          </div>
+          <span class="text-green-600 text-xs">→ เปิด</span>
+        </div>
+        <div class="flex items-center justify-between p-3 bg-white rounded border hover:shadow-sm transition cursor-pointer" onclick="showTab('wi002')">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">💼</span>
+            <div>
+              <div class="font-semibold">WI-002: สมทบอายุงาน (ลาออก)</div>
+              <p class="text-xs text-gray-600">คำนวณเงินสมทบตามอายุงาน</p>
+            </div>
+          </div>
+          <span class="text-green-600 text-xs">→ เปิด</span>
+        </div>
+        <a href="docs/p6-forms/index.html?mode=payroll" target="_blank" class="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded border border-green-300 hover:shadow-md transition cursor-pointer">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">💵</span>
+            <div>
+              <div class="font-semibold">WI-004: จ่ายเงินเดือนสมาชิก</div>
+              <p class="text-xs text-gray-600">รอบรายเดือน: วันที่ 1-11</p>
+            </div>
+          </div>
+          <span class="bg-green-600 text-white px-2 py-1 rounded text-xs">🚀 ใหม่</span>
+        </a>
+        <a href="docs/p6-forms/index.html?mode=retirement" target="_blank" class="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded border border-blue-300 hover:shadow-md transition cursor-pointer">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">👴</span>
+            <div>
+              <div class="font-semibold">WI-006: ระบบเกษียณ</div>
+              <p class="text-xs text-gray-600">คำนวณเงินชดเชยตามกฎหมาย</p>
+            </div>
+          </div>
+          <span class="bg-blue-600 text-white px-2 py-1 rounded text-xs">🚀 ใหม่</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ========== Quality of Life (P7) ========== -->
+<section id="tab-quality" class="tab-pane fade-in hidden space-y-6">
+  <div class="card">
+    <h2 class="text-xl font-bold text-pp7-800 mb-4">🌿 คุณภาพชีวิตสมาชิก (P7)</h2>
+    <p class="text-gray-600 mb-4">ดูแลสมาชิกในฐานะ "คนคนหนึ่ง" — สร้างสภาพแวดล้อมที่สมาชิก "อยากอยู่"</p>
+    <div class="grid md:grid-cols-5 gap-3 text-sm">
+      <div class="text-center p-4 rounded-lg bg-red-50 border border-red-200">
+        <div class="text-3xl mb-2">❤️</div>
+        <div class="font-bold text-red-800">สุขภาพ</div>
+        <div class="text-xs text-gray-600 mt-1">Health</div>
+        <div class="text-xs text-gray-500 mt-1">องค์กรใส่ใจทั้งกายและใจ</div>
+      </div>
+      <div class="text-center p-4 rounded-lg bg-yellow-50 border border-yellow-200">
+        <div class="text-3xl mb-2">💰</div>
+        <div class="font-bold text-yellow-800">ความมั่งคั่ง</div>
+        <div class="text-xs text-gray-600 mt-1">Wealth</div>
+        <div class="text-xs text-gray-500 mt-1">มั่นคงทางการเงิน</div>
+      </div>
+      <div class="text-center p-4 rounded-lg bg-blue-50 border border-blue-200">
+        <div class="text-3xl mb-2">🏢</div>
+        <div class="font-bold text-blue-800">บรรยากาศ</div>
+        <div class="text-xs text-gray-600 mt-1">Well-being</div>
+        <div class="text-xs text-gray-500 mt-1">ปลอดภัย เป็นตัวของตัวเอง</div>
+      </div>
+      <div class="text-center p-4 rounded-lg bg-green-50 border border-green-200">
+        <div class="text-3xl mb-2">⏰</div>
+        <div class="font-bold text-green-800">เวลา</div>
+        <div class="text-xs text-gray-600 mt-1">Time</div>
+        <div class="text-xs text-gray-500 mt-1">ให้ครอบครัวและชีวิตส่วนตัว</div>
+      </div>
+      <div class="text-center p-4 rounded-lg bg-purple-50 border border-purple-200">
+        <div class="text-3xl mb-2">😄</div>
+        <div class="font-bold text-purple-800">อารมณ์ขัน</div>
+        <div class="text-xs text-gray-600 mt-1">Fun</div>
+        <div class="text-xs text-gray-500 mt-1">รอยยิ้มและความสุข</div>
+      </div>
+    </div>
+    <div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+      <h3 class="font-semibold text-green-800 mb-2">🎯 เป้าหมาย</h3>
+      <p class="text-sm text-gray-700">สร้างสภาพแวดล้อมที่สมาชิก "อยากอยู่" ไม่ใช่แค่ "ถูกให้อยู่" — ดูแลทั้ง 5 มิติเพื่อคุณภาพชีวิตที่ยั่งยืน</p>
+    </div>
+    <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+      🚧 <strong>ระบบ P7 กำลังพัฒนา — เป้าหมายคือระบบดูแลอัจฉริยะ (AI Wellbeing Tracker)</strong>
+    </div>
+  </div>
+</section>
+
+<!-- ========== Labor Law (กฎหมายแรงงาน) ========== -->
+<section id="tab-labor-law" class="tab-pane fade-in hidden space-y-6">
+  <div class="card">
+    <h2 class="text-xl font-bold text-pp7-800">⚖️ กฎหมายแรงงาน</h2>
+    <p class="text-gray-600 mb-4">คลังข้อมูลกฎหมายแรงงานและสิทธิแรงงาน — อ้างอิง compliance สำหรับระบบ PP7</p>
+    
+    <!-- Overview Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+        <div class="text-3xl text-red-600">🇹🇭</div>
+        <div class="text-2xl font-bold text-red-800">ไทย</div>
+        <div class="text-sm text-gray-600">พ.ร.บ. คุ้มครองแรงงาน</div>
+      </div>
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+        <div class="text-3xl text-blue-600">🇱🇦</div>
+        <div class="text-2xl font-bold text-blue-800">ลาว</div>
+        <div class="text-sm text-gray-600">กฎหมายแรงงานลาว</div>
+      </div>
+      <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+        <div class="text-3xl text-green-600">🇰🇭</div>
+        <div class="text-2xl font-bold text-green-800">กัมพูชา</div>
+        <div class="text-sm text-gray-600">Labour Law Cambodia</div>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
+        <div class="text-3xl text-amber-600">📋</div>
+        <div class="text-2xl font-bold text-amber-800">เปรียบเทียบ</div>
+        <div class="text-sm text-gray-600">Comparative Summary</div>
+      </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="bg-gray-50 border rounded-lg p-4 mb-6">
+      <div class="flex flex-wrap gap-3">
+        <input type="text" id="lawSearch" placeholder="🔍 ค้นหากฎหมาย... (เช่น OT, La, termination)" class="flex-1 min-w-48 px-3 py-2 border rounded-lg">
+        <select id="lawCountry" class="px-3 py-2 border rounded-lg">
+          <option value="">ทุกประเทศ</option>
+          <option value="th">🇹🇭 ไทย</option>
+          <option value="la">🇱🇦 ลาว</option>
+          <option value="kh">🇰🇭 กัมพูชา</option>
+        </select>
+        <select id="lawCategory" class="px-3 py-2 border rounded-lg">
+          <option value="">ทุกหมวด</option>
+          <option value="time">เวลาทำงาน/OT</option>
+          <option value="leave">วันลา</option>
+          <option value="wage">ค่าจ้าง/เงินเดือน</option>
+          <option value="severance">ค่าชดเชย</option>
+          <option value="social">ประกันสังคม</option>
+          <option value="termination">การเลิกจ้าง</option>
+          <option value="safety">ความปลอดภัย</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Law Categories -->
+    <div class="space-y-4">
+      <h3 class="text-lg font-bold text-gray-800">📚 หมวดหมู่กฎหมายแรงงาน</h3>
+      
+      <div class="grid md:grid-cols-2 gap-4">
+        <!-- Working Time & OT -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow transition">
+          <h4 class="font-bold text-blue-700 mb-3">⏰ เวลาทำงานและ OT</h4>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded"><strong>🇹🇭 ไทย:</strong> ไม่เกิน 48 ชม./สัปดาห์, OT ไม่เกิน 36 ชม./สัปดาห์</div>
+            <div class="bg-green-50 p-2 rounded"><strong>🇱🇦 ลาว:</strong> ไม่เกิน 48 ชม./สัปดาห์, OT ไม่เกิน 10 ชม./สัปดาห์</div>
+            <div class="bg-amber-50 p-2 rounded"><strong>🇰🇭 กัมพูชา:</strong> ไม่เกิน 48 ชม./สัปดาห์, OT ไม่เกิน 4 ชม./วัน</div>
+          </div>
+        </div>
+
+        <!-- Leave -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow transition">
+          <h4 class="font-bold text-purple-700 mb-3">🏖️ วันลา</h4>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded"><strong>🇹🇭 ไทย:</strong> ลาป่วย (ป่วยจริง), ลาพักผ่อน 6 วัน/ปี (หลัง 1 ปี)</div>
+            <div class="bg-green-50 p-2 rounded"><strong>🇱🇦 ลาว:</strong> ลาพักผ่อน 15 วัน/ปี, ลาป่วย 30 วัน/ปี</div>
+            <div class="bg-amber-50 p-2 rounded"><strong>🇰🇭 กัมพูชา:</strong> ลาพักผ่อน 18 วัน/ปี, ลาป่วย (ตามใบรับรองแพทย์)</div>
+          </div>
+        </div>
+
+        <!-- Wage & Salary -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow transition">
+          <h4 class="font-bold text-emerald-700 mb-3">💰 ค่าจ้างและเงินเดือน</h4>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded"><strong>🇹🇭 ไทย:</strong> ค่าจ้างขั้นต่ำ 330-370 บาท/วัน (แต่ละจังหวัด), จ่ายทุก 15 วัน</div>
+            <div class="bg-green-50 p-2 rounded"><strong>🇱🇦 ลาว:</strong> ค่าจ้างขั้นต่ำ 11,000 LAK/เดือน (~1,100 USD)</div>
+            <div class="bg-amber-50 p-2 rounded"><strong>🇰🇭 กัมพูชา:</strong> ค่าจ้างขั้นต่ำ 204 USD/เดือน (ปี 2024)</div>
+          </div>
+        </div>
+
+        <!-- Severance Pay -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow transition">
+          <h4 class="font-bold text-red-700 mb-3">💵 ค่าชดเชยเลิกจ้าง</h4>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded"><strong>🇹🇭 ไทย:</strong> 120 วัน-20 ปี: 30-400 วัน ขึ้นกับอายุงาน</div>
+            <div class="bg-green-50 p-2 rounded"><strong>🇱🇦 ลาว:</strong> 10 วัน/ปี × จำนวนปีทำงาน (กรณีเลิกจ้างโดยไม่มีเหตุผล)</div>
+            <div class="bg-amber-50 p-2 rounded"><strong>🇰🇭 กัมพูชา:</strong> ค่าชดเชยตามสัญญา หรือตามกฎหมายขั้นต่ำ</div>
+          </div>
+        </div>
+
+        <!-- Social Security -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow transition">
+          <h4 class="font-bold text-cyan-700 mb-3">🏥 ประกันสังคม</h4>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded"><strong>🇹🇭 ไทย:</strong> นายจ้าง 5% + ลูกจ้าง 5% (ฐานสูงสุด 15,000 บาท)</div>
+            <div class="bg-green-50 p-2 rounded"><strong>🇱🇦 ลาว:</strong> นายจ้าง 9% + ลูกจ้าง 5% (ประกันสังคม)</div>
+            <div class="bg-amber-50 p-2 rounded"><strong>🇰🇭 กัมพูชา:</strong> นายจ้าง 4.65% + ลูกจ้าง 2.75%</div>
+          </div>
+        </div>
+
+        <!-- Termination Rights -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow transition">
+          <h4 class="font-bold text-orange-700 mb-3">🚪 การเลิกจ้าง</h4>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded"><strong>🇹🇭 ไทย:</strong> แจ้งล่วงหน้า 1 งวดการจ่าย, จ่ายค่าชดเชย + ค่าเสียหาย</div>
+            <div class="bg-green-50 p-2 rounded"><strong>🇱🇦 ลาว:</strong> แจ้งล่วงหน้า 30 วัน + ค่าชดเชย</div>
+            <div class="bg-amber-50 p-2 rounded"><strong>🇰🇭 กัมพูชา:</strong> สัญญาจ้างกำหนดระยะเวลา (FDC/UDC)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Development Phases -->
+    <div class="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+      <h4 class="font-bold text-green-900 mb-3">🚀 แผนพัฒนาระบบกฎหมายแรงงาน</h4>
+      <div class="space-y-2 text-sm">
+        <div class="flex items-start gap-2">
+          <span class="bg-red-500 text-white px-2 py-0.5 rounded text-xs">Phase 1</span>
+          <div>คลังข้อมูลกฎหมายแรงงาน, ระบบค้นหา & กรอง, ระบบอ้างอิง</div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="bg-orange-500 text-white px-2 py-0.5 rounded text-xs">Phase 2</span>
+          <div>ติดตามเวอร์ชัน + เชื่อมกับ workflow PP7 (P1-P7)</div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="bg-yellow-500 text-white px-2 py-0.5 rounded text-xs">Phase 3</span>
+          <div>ระบบเตือนประเด็นเสี่ยงด้านกฎหมาย (Legal Risk Alert)</div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="bg-green-500 text-white px-2 py-0.5 rounded text-xs">Phase 4</span>
+          <div>Dashboard สถานะความพร้อมด้านกฎหมาย</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PKG Rules (ระเบียบบริษัท) ========== -->
+<section id="tab-pkg-rules" class="tab-pane fade-in hidden space-y-6">
+  <div class="card">
+    <h2 class="text-xl font-bold text-pp7-800">📜 ระเบียบ PKG</h2>
+    <p class="text-gray-600 mb-4">คลังนโยบาย ระเบียบ และ Work Instruction (WI) ภายใน PKG — มาตรฐานและกติกาภายใน</p>
+    
+    <!-- Overview Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">📋</div>
+        <div class="text-2xl font-bold text-blue-800">48</div>
+        <div class="text-sm text-gray-600">Work Instructions</div>
+      </div>
+      <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">📑</div>
+        <div class="text-2xl font-bold text-purple-800">12</div>
+        <div class="text-sm text-gray-600">Policy Manuals</div>
+      </div>
+      <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">📝</div>
+        <div class="text-2xl font-bold text-emerald-800">25</div>
+        <div class="text-sm text-gray-600">Process Maps</div>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">⭐</div>
+        <div class="text-2xl font-bold text-amber-800">CEO</div>
+        <div class="text-sm text-gray-600">Contract of Extreme Ownership</div>
+      </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="bg-gray-50 border rounded-lg p-4 mb-6">
+      <div class="flex flex-wrap gap-3">
+        <input type="text" id="rulesSearch" placeholder="🔍 ค้นหาระเบียบ... (เช่น WI-001, LDC, leave)" class="flex-1 min-w-48 px-3 py-2 border rounded-lg">
+        <select id="rulesType" class="px-3 py-2 border rounded-lg">
+          <option value="">ทุกประเภท</option>
+          <option value="wi">Work Instructions (WI)</option>
+          <option value="pm">Process Maps (PM)</option>
+          <option value="policy">Policy Manuals</option>
+          <option value="disciplinary">Disciplinary Rules</option>
+        </select>
+        <select id="rulesDept" class="px-3 py-2 border rounded-lg">
+          <option value="">ทุกฝ่าย</option>
+          <option value="wcd">WCD - ฝ่ายค่าตอบแทน/สวัสดิการ</option>
+          <option value="pao">PAO - ฝ่ายบริหารงานบุคคล</option>
+          <option value="pad">PAD - ฝ่ายพัฒนาบุคลากร</option>
+          <option value="rec">REC - ฝ่ายสรรหา</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Key Concepts -->
+    <div class="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-4 mb-6">
+      <h4 class="font-bold text-amber-900 mb-2">⭐ แนวคิดสำคัญ: CEO (Contract of Extreme Ownership)</h4>
+      <p class="text-sm text-gray-700">
+        <strong>CEO = Contract of Extreme Ownership</strong> (สัญญาแห่งความเป็นเจ้าของอย่างสุดขั้ว)<br>
+        ใช้เป็นกรอบแทน LIA ในบริบทที่เกี่ยวข้อง — เน้น ownership, commitment, การเป็นเจ้าของผลลัพธ์ และการไม่ผลักภาระ<br>
+        นำไปใช้ในงานประเมิน จับคู่คนกับงาน ค่าตอบแทน และการออกแบบพฤติกรรมที่องค์กรต้องการ
+      </p>
+    </div>
+
+    <!-- Rules Categories -->
+    <div class="space-y-4">
+      <h3 class="text-lg font-bold text-gray-800">📂 หมวดหมู่ระเบียบ</h3>
+      
+      <div class="grid md:grid-cols-3 gap-4">
+        <!-- Work Instructions -->
+        <div class="border border-blue-200 rounded-lg p-4 hover:shadow-lg transition bg-gradient-to-br from-blue-50 to-white">
+          <h4 class="font-bold text-blue-700 mb-2">📋 Work Instructions</h4>
+          <div class="text-2xl font-bold text-blue-900 mb-1">48 รายการ</div>
+          <div class="text-sm text-gray-600 mb-3">ขั้นตอนการปฏิบัติงานที่ชัดเจน</div>
+          <ul class="text-xs space-y-1 text-gray-700">
+            <li>• LDC-PAO-WI-001 ถึง LDC-PAO-WI-010</li>
+            <li>• LDC-PAD-WI-001 ถึง LDC-PAD-WI-015</li>
+            <li>• LDC-WCD-WI-001 ถึง LDC-WCD-WI-010</li>
+            <li>• และอื่นๆ</li>
+          </ul>
+        </div>
+
+        <!-- Process Maps -->
+        <div class="border border-emerald-200 rounded-lg p-4 hover:shadow-lg transition bg-gradient-to-br from-emerald-50 to-white">
+          <h4 class="font-bold text-emerald-700 mb-2">📊 Process Maps</h4>
+          <div class="text-2xl font-bold text-emerald-900 mb-1">25 รายการ</div>
+          <div class="text-sm text-gray-600 mb-3">ผังกระบวนการใน PP7</div>
+          <ul class="text-xs space-y-1 text-gray-700">
+            <li>• P1-P7: Core Processes</li>
+            <li>• Data Flow ระหว่างระบบ</li>
+            <li>• Approval Workflow</li>
+            <li>• Integration Points</li>
+          </ul>
+        </div>
+
+        <!-- Policy Manuals -->
+        <div class="border border-purple-200 rounded-lg p-4 hover:shadow-lg transition bg-gradient-to-br from-purple-50 to-white">
+          <h4 class="font-bold text-purple-700 mb-2">📑 Policy Manuals</h4>
+          <div class="text-2xl font-bold text-purple-900 mb-1">12 เล่ม</div>
+          <div class="text-sm text-gray-600 mb-3">คู่มือนโยบายต่างๆ</div>
+          <ul class="text-xs space-y-1 text-gray-700">
+            <li>• Employee Handbook</li>
+            <li>• Code of Conduct</li>
+            <li>• Disciplinary Policy</li>
+            <li>• Compensation Policy</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Disciplinary Rules -->
+      <div class="border border-red-200 rounded-lg p-4 bg-red-50 mt-4">
+        <h4 class="font-bold text-red-700 mb-2">⚠️ ระเบียบวินัย (Disciplinary Rules)</h4>
+        <div class="grid md:grid-cols-3 gap-3 text-sm">
+          <div>
+            <div class="font-semibold">ระดับเตือน (Warning)</div>
+            <ul class="text-xs text-gray-700 space-y-0.5">
+              <li>• สาย/ขาดงานโดยไม่แจ้ง</li>
+              <li>• ไม่ปฏิบัติตามคำสั่ง</li>
+              <li>• ละเมิดระเบียบการแต่งกาย</li>
+            </ul>
+          </div>
+          <div>
+            <div class="font-semibold">ระดับพักงาน (Suspension)</div>
+            <ul class="text-xs text-gray-700 space-y-0.5">
+              <li>• ทำผิดซ้ำหลังได้รับคำเตือน</li>
+              <li>• ประมาทเลินเล่อจนเกิดความเสียหาย</li>
+              <li>• ไม่ปฏิบัติตามขั้นตอนความปลอดภัย</li>
+            </ul>
+          </div>
+          <div>
+            <div class="font-semibold">ระดับเลิกจ้าง (Termination)</div>
+            <ul class="text-xs text-gray-700 space-y-0.5">
+              <li>•ทุจริตต่อหน้าที่</li>
+              <li>• ทำผิดกฎหมายอาญา</li>
+              <li>• ละเมิดความลับของบริษัท</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Development Phases -->
+    <div class="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+      <h4 class="font-bold text-green-900 mb-3">🚀 แผนพัฒนาระบบระเบียบ PKG</h4>
+      <div class="space-y-2 text-sm">
+        <div class="flex items-start gap-2">
+          <span class="bg-red-500 text-white px-2 py-0.5 rounded text-xs">Phase 1</span>
+          <div>คลังข้อมูลระเบียบ PKG, ระบบค้นหา & กรอง,เอกสารอ้างอิง</div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="bg-orange-500 text-white px-2 py-0.5 rounded text-xs">Phase 2</span>
+          <div>ติดตามเวอร์ชันระเบียบ + เชื่อม workflow PP7</div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="bg-yellow-500 text-white px-2 py-0.5 rounded text-xs">Phase 3</span>
+          <div>สื่อสารระเบียบกับผู้ใช้อย่างมีประสิทธิภาพ</div>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="bg-green-500 text-white px-2 py-0.5 rounded text-xs">Phase 4</span>
+          <div>Dashboard สถานะความครบถ้วนของระเบียบ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PP7 Research (วิจัย PP7) ========== -->
+<section id="tab-research" class="tab-pane fade-in hidden space-y-6">
+  <div class="card">
+    <h2 class="text-xl font-bold text-pp7-800">🔬 วิจัย PP7</h2>
+    <p class="text-gray-600 mb-4">คลังงานวิจัย หลักฐานเชิงประจักษ์ และ best practices จากทั่วโลก — "เรียนแบบ" ไม่ใช่ "เลียนแบบ"</p>
+
+    <!-- Research Philosophy -->
+    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 rounded-lg p-4 mb-6">
+      <h4 class="font-bold text-indigo-900 mb-2">💡 ปรัชญาการออกแบบ PP7</h4>
+      <p class="text-sm text-gray-700">
+        <strong>"เรียนแบบ" ไม่ใช่ "เลียนแบบ"</strong> — ศึกษางานวิจัยและความสำเร็จของบริษัททั่วโลก,
+        เรียนรู้หลักการที่พิสูจน์แล้ว, แล้วนำมาปรับใช้ให้สอดคล้องกับบริบทและคุณค่าขององค์กร (PKG)
+      </p>
+      <div class="grid md:grid-cols-3 gap-3 mt-3 text-xs">
+        <div class="bg-white p-2 rounded border border-indigo-200">
+          <div class="font-bold text-indigo-700">1. ค้นหา</div>
+          <div class="text-gray-600">ข้อมูลความสำเร็จของคนอื่น</div>
+        </div>
+        <div class="bg-white p-2 rounded border border-indigo-200">
+          <div class="font-bold text-indigo-700">2. เรียนรู้</div>
+          <div class="text-gray-600">หลักการจากงานวิจัยที่เชื่อถือได้</div>
+        </div>
+        <div class="bg-white p-2 rounded border border-indigo-200">
+          <div class="font-bold text-indigo-700">3. ปรับใช้</div>
+          <div class="text-gray-600">ให้เหมาะกับบริบท PKG</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Research Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">📚</div>
+        <div class="text-2xl font-bold text-blue-800">35+</div>
+        <div class="text-sm text-gray-600">งานวิจัยที่ศึกษา</div>
+      </div>
+      <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">🏢</div>
+        <div class="text-2xl font-bold text-purple-800">15+</div>
+        <div class="text-sm text-gray-600">Case Studies</div>
+      </div>
+      <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">🌍</div>
+        <div class="text-2xl font-bold text-emerald-800">5</div>
+        <div class="text-sm text-gray-600">ประเทศที่ศึกษา</div>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
+        <div class="text-3xl mb-2">🎯</div>
+        <div class="text-2xl font-bold text-amber-800">7</div>
+        <div class="text-sm text-gray-600">หัวข้อความสำคัญ</div>
+      </div>
+    </div>
+
+    <!-- Featured: Credit Evaluation Research -->
+    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-lg p-5 mb-6">
+      <h3 class="text-lg font-bold text-amber-900 mb-3 flex items-center gap-2">
+        <span class="bg-amber-500 text-white px-3 py-1 rounded text-sm">🔥 FEATURED</span>
+        📊 วิจัยการประเมินเครดิตประจำปี 360° (P4 Redesign)
+      </h3>
+
+      <div class="space-y-4">
+        <!-- Success Stories -->
+        <div class="bg-white rounded-lg p-4">
+          <h4 class="font-bold text-gray-800 mb-3">🌟 องค์กรที่ใช้ 360 องศาได้สำเร็จ</h4>
+          <div class="grid md:grid-cols-2 gap-3 text-sm">
+            <div class="bg-blue-50 p-2 rounded">
+              <strong class="text-blue-700">Google</strong>
+              <div class="text-gray-600 text-xs">ใช้ 360 feedback จากเพื่อนร่วมงาน</div>
+            </div>
+            <div class="bg-purple-50 p-2 rounded">
+              <strong class="text-purple-700">Netflix</strong>
+              <div class="text-gray-600 text-xs">วัฒนธรรม Radical Candor — เปิดตรงไปตรงมา</div>
+            </div>
+            <div class="bg-emerald-50 p-2 rounded">
+              <strong class="text-emerald-700">Goldman Sachs</strong>
+              <div class="text-gray-600 text-xs">ปรับปรุงระบบ 360 ตั้งแต่ 2016 — เน้นพัฒนาอย่างต่อเนื่อง</div>
+            </div>
+            <div class="bg-cyan-50 p-2 rounded">
+              <strong class="text-cyan-700">Barclays</strong>
+              <div class="text-gray-600 text-xs">ใช้ 360 feedback มาตั้งแต่ 2002 — องค์กรการเงินยุคแรก</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Research Foundations -->
+        <div class="bg-white rounded-lg p-4">
+          <h4 class="font-bold text-gray-800 mb-3">📚 งานวิจัย/ทฤษฎีที่น่าเชื่อถือ</h4>
+          <div class="space-y-2 text-sm">
+            <div class="border-l-4 border-amber-400 pl-3">
+              <strong class="text-amber-700">BARS (Behaviorally Anchored Rating Scales)</strong>
+              <div class="text-xs text-gray-600">ใช้พฤติกรรมที่สังเกตได้จริงเป็นเกณฑ์ ลดอคติได้สูงสุด (UTC Scholar / ETS)</div>
+            </div>
+            <div class="border-l-4 border-blue-400 pl-3">
+              <strong class="text-blue-700">CCL (Center for Creative Leadership)</strong>
+              <div class="text-xs text-gray-600">360 ให้ ROI เมื่อใช้เพื่อพัฒนา + Follow-up ทุก 2-3 เดือน</div>
+            </div>
+            <div class="border-l-4 border-purple-400 pl-3">
+              <strong class="text-purple-700">Qualtrics Research</strong>
+              <div class="text-xs text-gray-600">แยก 360 ออกจากเงินเดือน/โปรโมท เพื่อความซื่อสัตย์ในการตอบ</div>
+            </div>
+            <div class="border-l-4 border-emerald-400 pl-3">
+              <strong class="text-emerald-700">AIHR + SHRM</strong>
+              <div class="text-xs text-gray-600">8-12 ข้อ/competency, ไม่เกิน 4 competencies ต่อคน</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Best Practices -->
+        <div class="bg-white rounded-lg p-4">
+          <h4 class="font-bold text-gray-800 mb-3">💡 Best Practices สำหรับ PKG (Learn Not Copy)</h4>
+          <div class="grid md:grid-cols-2 gap-3 text-sm">
+            <div class="bg-green-50 p-3 rounded border border-green-300">
+              <div class="font-bold text-green-800 mb-1">✅ DO — ใช้ BARS</div>
+              <div class="text-xs text-gray-700">ทุกข้อประเมินต้องมีพฤติกรรมตัวอย่าง ไม่ใช่แค่รู้สึกดี/ไม่ดี</div>
+            </div>
+            <div class="bg-green-50 p-3 rounded border border-green-300">
+              <div class="font-bold text-green-800 mb-1">✅ DO — แยกจากเงินเดือน</div>
+              <div class="text-xs text-gray-700">360 เพื่อพัฒนา — ค่าตอบแทนใช้ KPI/objective แยก</div>
+            </div>
+            <div class="bg-green-50 p-3 rounded border border-green-300">
+              <div class="font-bold text-green-800 mb-1">✅ DO — Follow-up เป็นประจำ</div>
+              <div class="text-xs text-gray-700">Coaching ทุก 2-3 เดือน ไม่ใช่แค่ปีละครั้งแล้วจบ</div>
+            </div>
+            <div class="bg-green-50 p-3 rounded border border-green-300">
+              <div class="font-bold text-green-800 mb-1">✅ DO — Anonymity</div>
+              <div class="text-xs text-gray-700">ผู้ตอบต้องไม่รู้ว่าใครตอบ เพื่อความซื่อสัตย์</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="bg-gray-50 border rounded-lg p-4 mb-6">
+      <div class="flex flex-wrap gap-3">
+        <input type="text" id="researchSearch" placeholder="🔍 ค้นหางานวิจัย... (เช่น performance engagement OKR)" class="flex-1 min-w-48 px-3 py-2 border rounded-lg">
+        <select id="researchCategory" class="px-3 py-2 border rounded-lg">
+          <option value="">ทุกหมวด</option>
+          <option value="assessment">การประเมิน (Assessment)</option>
+          <option value="compensation">ค่าตอบแทน (Compensation)</option>
+          <option value="development">การพัฒนา (Development)</option>
+          <option value="engagement">ความผูกพัน (Engagement)</option>
+          <option value="performance">Performance</option>
+          <option value="wellbeing">Wellbeing</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Key Research Areas -->
+    <div class="space-y-4">
+      <h3 class="text-lg font-bold text-gray-800">📖 หัวข้อวิจัยสำคัญใน PP7</h3>
+
+      <div class="grid md:grid-cols-2 gap-4">
+        <!-- Performance Evaluation -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition">
+          <h4 class="font-bold text-amber-700 mb-3">📊 P4: การประเมินผลเชิงประจักษ์</h4>
+          <div class="bg-red-50 p-2 rounded text-xs text-red-700 mb-2">
+            <strong>ปัญหาเดิม:</strong> การประเมินเครดิตประจำปีใช้ความรู้สึก/อารมณ์เป็นหลัก
+          </div>
+          <div class="bg-green-50 p-2 rounded text-xs text-green-700 mb-3">
+            <strong>เป้าหมาย:</strong> ออกแบบให้วัดผลได้ ลดอคติ, ครบ 360° (5 มุมมอง)
+          </div>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded">
+              <strong>🏢 Workday / SAP SuccessFactors:</strong> Continuous Performance Management + AI-powered feedback
+            </div>
+            <div class="bg-purple-50 p-2 rounded">
+              <strong>📚 Gallup Q12:</strong> Employee Engagement → Performance Predictor
+            </div>
+            <div class="bg-emerald-50 p-2 rounded">
+              <strong>📚 Google re:Work:</strong> OKRs — ตั้งเป้า measurable data-driven
+            </div>
+          </div>
+        </div>
+
+        <!-- Competency Assessment -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition">
+          <h4 class="font-bold text-blue-700 mb-3">🎯 P2: Core Competency Assessment</h4>
+          <div class="text-xs text-gray-700 mb-3">การประเมิน CC 5 ประการของ PKG โดยใช้หลัก IO Psychology</div>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded">
+              <strong>📚 SIOP (Society for I/O Psychology):</strong> Competency-based interview frameworks
+            </div>
+            <div class="bg-purple-50 p-2 rounded">
+              <strong>📊 McClelland's Iceberg Model:</strong> Skills (visible) vs Attitude/Values (hidden)
+            </div>
+            <div class="bg-emerald-50 p-2 rounded">
+              <strong>🏢 Amazon:</strong> Leadership Principles-based hiring + assessment
+            </div>
+          </div>
+        </div>
+
+        <!-- Compensation & Incentive -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition">
+          <h4 class="font-bold text-green-700 mb-3">💰 P6: Total Rewards & Points System</h4>
+          <div class="text-xs text-gray-700 mb-3">ระบบค่าตอบแทน + INC Points ใหม่ (Cash → Points → MSP App)</div>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded">
+              <strong>📚 WorldatWork:</strong> Total Rewards Model (Compensation + Benefits + Work-Life + Performance + Development)
+            </div>
+            <div class="bg-purple-50 p-2 rounded">
+              <strong>🏢 Salesforce:</strong> Points-based recognition system + peer-to-peer rewards
+            </div>
+            <div class="bg-emerald-50 p-2 rounded">
+              <strong>📊 Self-Determination Theory:</strong> Intrinsic + Extrinsic motivation balance
+            </div>
+          </div>
+        </div>
+
+        <!-- Wellbeing & Quality of Life -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition">
+          <h4 class="font-bold text-pink-700 mb-3">🌿 P7: 5 องค์ประกอบคุณภาพชีวิต</h4>
+          <div class="text-xs text-gray-700 mb-3">Health, Wealth, Well-being, Time, Fun</div>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded">
+              <strong>📚 PERMA Model (Martin Seligman):</strong> Positive Emotions, Engagement, Relationships, Meaning, Accomplishment
+            </div>
+            <div class="bg-purple-50 p-2 rounded">
+              <strong>🏢 Google's Project Aristotle:</strong> Psychological safety = key to team performance
+            </div>
+            <div class="bg-emerald-50 p-2 rounded">
+              <strong>📚 Gallup Wellbeing Index:</strong> 5 elements — Career, Social, Financial, Physical, Community
+            </div>
+          </div>
+        </div>
+
+        <!-- People Matching -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition">
+          <h4 class="font-bold text-cyan-700 mb-3">🤝 P3: People-Job Matching</h4>
+          <div class="text-xs text-gray-700 mb-3">จับคู่คนกับงาน + ระบบพี่เลี้ยง</div>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded">
+              <strong>📚 Holland Codes (RIASEC):</strong> Person-Environment Fit theory
+            </div>
+            <div class="bg-purple-50 p-2 rounded">
+              <strong>🏢 Netflix's Talent Density:</strong> Right people in right seats → high performance
+            </div>
+            <div class="bg-emerald-50 p-2 rounded">
+              <strong>📚 Mentoring Research:</strong> 3-tier mentor model (สายงาน + ทุนองค์กร) — unique to PKG
+            </div>
+          </div>
+        </div>
+
+        <!-- Servant Leadership -->
+        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition">
+          <h4 class="font-bold text-red-700 mb-3">⭐ CC1: Servant Leadership</h4>
+          <div class="text-xs text-gray-700 mb-3">CC1: ความเก่งในการนำผู้รับใช้ — กรอบคิดเฉพาะของ PKG (6 รับ + 8 อุปนิสัย + 5 บทบาท)</div>
+          <div class="space-y-2 text-sm">
+            <div class="bg-blue-50 p-2 rounded">
+              <strong>📚 Robert Greenleaf:</strong> Servant Leadership — The servant-leader is servant first
+            </div>
+            <div class="bg-purple-50 p-2 rounded">
+              <strong>📊 Larry Spears (10 Characteristics):</strong> Listening, Empathy, Healing, Awareness, Persuasion...
+            </div>
+            <div class="bg-emerald-50 p-2 rounded">
+              <strong>🏢 Southwest Airlines/Starbucks:</strong> Servant-first culture → business success
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Research Projects -->
+    <div class="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+      <h4 class="font-bold text-green-900 mb-3">🔬 โครงการวิจัยที่กำลังดำเนินการ</h4>
+      <div class="space-y-3">
+        <div class="bg-white border-l-4 border-amber-400 rounded p-3">
+          <h5 class="font-bold text-gray-800">1. การประเมินเครดิตประจำปีแบบใหม่ (P4 Redesign)</h5>
+          <p class="text-sm text-gray-600 mt-1">Deadline: ต้องเสร็จภายในปี 2569</p>
+          <div class="text-xs text-gray-500 mt-2">การศึกษา: Workday, SAP, Oracle HCM, Gallup, Google re:Work</div>
+        </div>
+        <div class="bg-white border-l-4 border-blue-400 rounded p-3">
+          <h5 class="font-bold text-gray-800">2. INC Points System Design (P6)</h5>
+          <p class="text-sm text-gray-600 mt-1">ศึกษา: Total Rewards, Points-based Recognition, Gamification</p>
+        </div>
+        <div class="bg-white border-l-4 border-purple-400 rounded p-3">
+          <h5 class="font-bold text-gray-800">3. Wellbeing Tracker Framework (P7)</h5>
+          <p class="text-sm text-gray-600 mt-1">ศึกษา: PERMA, WHO Wellbeing Index, AI-based Sentiment Analysis</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resources & Links -->
+    <div id="research-links" class="mt-6">
+      <h4 class="font-bold text-gray-800 mb-3">🔗 แหล่งข้อมูล</h4>
+      <div class="grid md:grid-cols-2 gap-3 text-sm">
+        <div class="border rounded-lg p-3 hover:bg-gray-50 transition cursor-pointer" onclick="window.open('https://rework.withgoogle.com/','_blank')">
+          <div class="font-semibold text-blue-700">🌐 Google re:Work</div>
+          <div class="text-xs text-gray-600">People analytics + best practices from Google</div>
+        </div>
+        <div class="border rounded-lg p-3 hover:bg-gray-50 transition cursor-pointer" onclick="window.open('https://www.gallup.com/workplace','_blank')">
+          <div class="font-semibold text-purple-700">📊 Gallup Workplace</div>
+          <div class="text-xs text-gray-600">Employee engagement + Q12 research</div>
+        </div>
+        <div class="border rounded-lg p-3 hover:bg-gray-50 transition cursor-pointer" onclick="window.open('https://www.worldatwork.org/','_blank')">
+          <div class="font-semibold text-emerald-700">💰 WorldatWork</div>
+          <div class="text-xs text-gray-600">Total rewards + compensation research</div>
+        </div>
+        <div class="border rounded-lg p-3 hover:bg-gray-50 transition cursor-pointer" onclick="window.open('https://positivepsychology.com/perma-model/','_blank')">
+          <div class="font-semibold text-pink-700">🌿 PERMA Model</div>
+          <div class="text-xs text-gray-600">Martin Seligman's Wellbeing framework</div>
+        </div>
+        <div class="border rounded-lg p-3 hover:bg-gray-50 transition cursor-pointer" onclick="window.open('https://www.ccl.org/wp-content/uploads/2026/02/360-degree-feedback-best-practices-research-paper-center-for-creative-leadership.pdf','_blank')">
+          <div class="font-semibold text-amber-700">📄 CCL - 360 Best Practices (PDF)</div>
+          <div class="text-xs text-gray-600">360 Degree Feedback Research Paper</div>
+        </div>
+        <div class="border rounded-lg p-3 hover:bg-gray-50 transition cursor-pointer" onclick="window.open('https://files.eric.ed.gov/fulltext/EJ1202769.pdf','_blank')">
+          <div class="font-semibold text-red-700">📄 BARS Research (ETS PDF)</div>
+          <div class="text-xs text-gray-600">Behaviorally Anchored Rating Scales Study</div>
+        </div>
+        <div class="border rounded-lg p-3 hover:bg-gray-50 transition cursor-pointer" onclick="window.open('https://hbr.org/2020/12/what-makes-a-360-degree-review-successful','_blank')">
+          <div class="font-semibold text-cyan-700">📄 HBR - What Makes 360 Successful</div>
+          <div class="text-xs text-gray-600">Harvard Business Review Article</div>
+        </div>
+        <div class="border rounded-lg p-3 hover:bg-gray-50 transition cursor-pointer" onclick="window.open('https://aihr.com/blog/360-degree-feedback','_blank')">
+          <div class="font-semibold text-indigo-700">📄 AIHR - 360 Feedback Guide</div>
+          <div class="text-xs text-gray-600">Academy to Innovate HR</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Design Framework -->
+    <div class="mt-6 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300 rounded-lg p-5">
+      <h4 class="font-bold text-purple-900 mb-3 text-lg">🎯 กรอบการออกแบบระบบประเมินเครดิตใหม่ (จาก Google Sheet)</h4>
+      
+      <div class="space-y-4">
+        <!-- Part 1 -->
+        <div class="bg-white rounded-lg p-4">
+          <h5 class="font-bold text-purple-800 mb-2">ส่วนที่ 1: โครงสร้างการประเมิน</h5>
+          <div class="grid md:grid-cols-3 gap-2 text-xs">
+            <div class="bg-purple-50 p-2 rounded">
+              <strong>1.1 ใช้ BARS เป็นเกณฑ์หลัก</strong>
+              <div class="text-gray-600">พฤติกรรมที่สังเกตได้จริง</div>
+            </div>
+            <div class="bg-purple-50 p-2 rounded">
+              <strong>1.2 แยกตามกลุ่มงาน</strong>
+              <div class="text-gray-600">Core + Functional competency</div>
+            </div>
+            <div class="bg-purple-50 p-2 rounded">
+              <strong>1.3 ใช้ 5 มุมมอง 360°</strong>
+              <div class="text-gray-600">น้ำหนัก: หัวหน้า 30%, เพื่อน 25%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Part 2 -->
+        <div class="bg-white rounded-lg p-4">
+          <h5 class="font-bold text-blue-800 mb-2">ส่วนที่ 2: คำถามและเกณฑ์</h5>
+          <div class="text-sm space-y-1">
+            <div class="flex items-start gap-2">
+              <span class="bg-blue-500 text-white px-2 py-0.5 rounded text-xs">2.1</span>
+              <div>จำนวนคำถาม: 15-20 ข้อ, 4 competency, 8-12 ข้อ/competency</div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="bg-blue-500 text-white px-2 py-0.5 rounded text-xs">2.2</span>
+              <div>โครงสร้าง BARS: 5 ระดับ พร้อมพฤติกรรมตัวอย่าง</div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="bg-blue-500 text-white px-2 py-0.5 rounded text-xs">2.3</span>
+              <div>แยก 2 ด้าน: ทักษะ (Skills) + ทุนองค์กร (Corporate Capital)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Part 3 -->
+        <div class="bg-white rounded-lg p-4">
+          <h5 class="font-bold text-emerald-800 mb-2">ส่วนที่ 3: กระบวนการดำเนินการ</h5>
+          <div class="text-sm space-y-1">
+            <div class="flex items-start gap-2">
+              <span class="bg-emerald-500 text-white px-2 py-0.5 rounded text-xs">3.1</span>
+              <div>Timeline: เตรียม 2 wk → เก็บข้อมูล 2-3 wk → วิเคราะห์ 1-2 wk → แจ้งผล 1 wk → Coaching 2 wk → Follow-up ทุก 2-3 เดือน</div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="bg-emerald-500 text-white px-2 py-0.5 rounded text-xs">3.2</span>
+              <div>Anonymity & Confidentiality: ไม่รู้ตัวผู้ตอบ, ≥3 rater/มุมมอง</div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="bg-emerald-500 text-white px-2 py-0.5 rounded text-xs">3.3</span>
+              <div>แยกจากเงินเดือน/โปรโมท: 360 เพื่อพัฒนา, ค่าจ้างใช้ KPI</div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="bg-emerald-500 text-white px-2 py-0.5 rounded text-xs">3.4</span>
+              <div>Follow-up: Coaching session ภายใน 2 สัปดาห์ + Development plan</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Part 4 -->
+        <div class="bg-white rounded-lg p-4">
+          <h5 class="font-bold text-amber-800 mb-2">ส่วนที่ 4: การออกแบบใน Web PP7</h5>
+          <div class="text-sm space-y-1">
+            <div class="flex items-start gap-2">
+              <span class="bg-amber-500 text-white px-2 py-0.5 rounded text-xs">4.1</span>
+              <div>Entity: EvaluationCycle (รอบปี), Rater Assignment, Scoring, Follow-up</div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="bg-amber-500 text-white px-2 py-0.5 rounded text-xs">4.2</span>
+              <div>7 หน้าจอ: ตั้งรอบประเมิน, ตั้ง rater, ทำแบบประเมิน, ดูผล, coaching plan, dashboard, follow-up</div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="bg-amber-500 text-white px-2 py-0.5 rounded text-xs">4.3</span>
+              <div>ระบบแจ้งเตือน: แจ้ง rater ที่ยังไม่ตอบ, coaching deadline</div>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="bg-amber-500 text-white px-2 py-0.5 rounded text-xs">4.4</span>
+              <div>Dashboard: Traffic light, Radar chart (5 มุมมอง), เปรียบเทียบข้ามปี</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparison -->
+        <div class="bg-white rounded-lg p-4">
+          <h5 class="font-bold text-red-800 mb-3">ส่วนที่ 5: เปรียบเทียบ เก่า vs ใหม่</h5>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+              <thead class="bg-gray-100">
+                <tr>
+                  <th class="p-2 text-left">เกณฑ์</th>
+                  <th class="p-2 text-left bg-red-50">แบบเก่า (ความรู้สึก)</th>
+                  <th class="p-2 text-left bg-green-50">แบบใหม่ (BARS + 360)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y">
+                <tr>
+                  <td class="p-2 font-semibold">เกณฑ์ให้คะแนน</td>
+                  <td class="p-2 bg-red-50">รู้สึกดี/ไม่ดี ให้คะแนนตามอารมณ์</td>
+                  <td class="p-2 bg-green-50">พฤติกรรมที่สังเกตได้จริง 5 ระดับ พร้อม anchor</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-semibold">มุมมอง</td>
+                  <td class="p-2 bg-red-50">หัวหน้าคนเดียว หรือไม่กี่คน</td>
+                  <td class="p-2 bg-green-50">5 มุมมอง (ตนเอง หัวหน้า เพื่อน ลูกน้อง ลูกค้า)</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-semibold">เกณฑ์</td>
+                  <td class="p-2 bg-red-50">เกณฑ์เดียวกันทั้งองค์กร</td>
+                  <td class="p-2 bg-green-50">แยกตามกลุ่มงาน + Core + Functional competency</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-semibold">Follow-up</td>
+                  <td class="p-2 bg-red-50">ประเมินปีละครั้ง แล้วจบ</td>
+                  <td class="p-2 bg-green-50">Coaching + Development plan + Follow-up ทุก 2-3 เดือน</td>
+                </tr>
+                <tr>
+                  <td class="p-2 font-semibold">วัตถุประสงค์</td>
+                  <td class="p-2 bg-red-50">ใช้ตัดสินเงินเดือน/โปรโมท</td>
+                  <td class="p-2 bg-green-50">เพื่อพัฒนา — ค่าตอบแทนใช้ KPI ต่างหาก</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Implementation Plan -->
+        <div class="bg-white rounded-lg p-4">
+          <h5 class="font-bold text-indigo-800 mb-3">ส่วนที่ 6: แผนดำเนินการ (ให้เสร็จภายในปี 2569)</h5>
+          <div class="space-y-2">
+            <div class="flex items-start gap-3">
+              <span class="bg-indigo-500 text-white px-3 py-1 rounded-full text-xs font-bold">Phase 1</span>
+              <div class="flex-1">
+                <div class="font-semibold text-indigo-700">ออกแบบ (1-2 เดือน)</div>
+                <div class="text-xs text-gray-600">กำหนด competency, ออกแบบ BARS 5 ระดับ, กำหนดน้ำหนัก, ออกแบบ entity</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="bg-indigo-500 text-white px-3 py-1 rounded-full text-xs font-bold">Phase 2</span>
+              <div class="flex-1">
+                <div class="font-semibold text-indigo-700">พัฒนา Web PP7 (2-3 เดือน)</div>
+                <div class="text-xs text-gray-600">สร้าง 7 หน้าจอ, ระบบ rater, scoring, แจ้งเตือน, dashboard + radar chart</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="bg-indigo-500 text-white px-3 py-1 rounded-full text-xs font-bold">Phase 3</span>
+              <div class="flex-1">
+                <div class="font-semibold text-indigo-700">ทดลองใช้ (1 เดือน)</div>
+                <div class="text-xs text-gray-600">เลือก BU นำร่อง 1 กลุ่ม, รันรอบทดลอง, เก็บ feedback, ปรับปรุงระบบ</div>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <span class="bg-indigo-500 text-white px-3 py-1 rounded-full text-xs font-bold">Phase 4</span>
+              <div class="flex-1">
+                <div class="font-semibold text-indigo-700">ใช้จริงทั้งองค์กร</div>
+                <div class="text-xs text-gray-600">ฝึกอบรม, เปิดรอบประเมินจริง, Coaching ทุก 2-3 เดือน, วัดผล</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main></div>
+
+<script>
+const USERS = {
+  admin:  { password: 'Prachakij01@', role: 'admin', name: 'ผู้ดูแลระบบ' },
+  pakorn: { password: 'pakorn2026', role: 'admin', name: 'ปกรณ์(หนึ่ง)' },
+  nan:    { password: 'nan2026', role: 'viewer', name: 'รัฐพร(แนน)' },
+  // ทีมผู้ปฏิบัติงาน - ทดสอบระบบ
+  pao:    { password: 'pao2026', role: 'pao', name: 'ทีม PAO (สรรหา)' },
+  pad:    { password: 'pad2026', role: 'pad', name: 'ทีม PAD (พัฒนา)' },
+  wcd:    { password: 'wcd2026', role: 'wcd', name: 'ทีม WCD (ค่าตอบแทน)' },
+  test:   { password: 'test2026', role: 'tester', name: 'ผู้ทดสอบระบบ' }
+};
+
+// Role permissions for tab access
+const ROLE_TABS = {
+  admin: ['executive','members','headcount-request','recruit','assess','match','performance','develop','new-process','wi001','wi002','welfare','quality','labor-law','pkg-rules','research'],
+  pao:   ['executive','members','headcount-request','recruit','assess','match','performance','new-process','wi001','wi002'],
+  pad:   ['executive','members','develop','performance','match'],
+  wcd:   ['executive','members','welfare','quality','wi001','wi002'],
+  viewer:['executive','members','recruit','assess','match'],
+  tester:['executive','members','headcount-request','recruit','assess','match','performance','develop','new-process','wi001','wi002','welfare','quality']
+};
+
+function handleLogin(e){
+  e.preventDefault();
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginError');
+  
+  if(!user||!pass){
+    errEl.textContent='กรุณากรอกชื่อผู้ใช้งานและรหัสผ่าน';
+    return;
+  }
+  
+  if(USERS[user] && USERS[user].password === pass){
+    const session = { user: user, role: USERS[user].role, name: USERS[user].name, at: Date.now() };
+    localStorage.setItem('pakorn_session', JSON.stringify(session));
+    applyLogin(session);
+    errEl.textContent = '';
+  } else {
+    errEl.textContent = 'ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง';
+    document.getElementById('loginPass').value = '';
+  }
+}
+
+function handleLogout(){
+  localStorage.removeItem('pakorn_session');
+  document.getElementById('loginOverlay').style.display = 'flex';
+  document.getElementById('app-wrapper').classList.add('content-blur');
+  document.getElementById('logoutBtn').style.display = 'none';
+  document.getElementById('userInfo').style.display = 'none';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').textContent = '';
+}
+
+function applyRoleTabs(role){
+  const allowedTabs = ROLE_TABS[role] || ROLE_TABS['viewer'];
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    const tabId = btn.getAttribute('data-tab');
+    if(tabId && !allowedTabs.includes(tabId)){
+      btn.style.display = 'none';
+    } else {
+      btn.style.display = '';
+    }
+  });
+}
+
+function applyLogin(session){
+  document.getElementById('loginOverlay').style.display = 'none';
+  document.getElementById('app-wrapper').classList.remove('content-blur');
+  document.getElementById('userName').textContent = session.name;
+  document.getElementById('userInfo').style.display = 'flex';
+  document.getElementById('logoutBtn').style.display = 'inline-block';
+  // Apply role-based tab visibility
+  applyRoleTabs(session.role);
+}
+
+function showTab(tabId){
+  const targetSection = document.getElementById('tab-' + tabId);
+  const targetButton = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+  
+  // Null check เพื่อป้องกัน error
+  if (!targetSection) {
+    console.warn(`⚠️ Section 'tab-${tabId}' ไม่มีในหน้านี้ กรุณา hard refresh (Ctrl+F5)`);
+    alert(`❌ ไม่พบเนื้อหาสำหรับ Tabนี้\n\nกรุณา Refresh หน้าเว็บ:\n• Windows: Ctrl+F5\n• Mac: Cmd+Shift+R\n\nหรือเปิดไฟล์ใหม่จาก GitHub Pages`);
+    return;
+  }
+  if (!targetButton) {
+    console.warn(`⚠️ Tab button 'data-tab="${tabId}"' ไม่มี`);
+    return;
+  }
+  
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('hidden'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  targetSection.classList.remove('hidden');
+  targetButton.classList.add('active');
+  
+  if(tabId === 'develop') initDevTab();
+  if(tabId === 'new-process') renderNewProcessTab();
+  if(tabId === 'members') initMembersTab();
+  if(tabId === 'assess') loadInterviewHistory();
+  if(tabId === 'match') {
+    console.log('✅ P3 Tab loaded successfully');
+    // โหลดสถิติ P3 (ถ้ามี)
+    loadP3Stats();
+  }
+}
+
+// ฟังก์ชันโหลดสถิติ P3
+function loadP3Stats() {
+  const stats = JSON.parse(localStorage.getItem('p3_member_stats') || '{}');
+  if (stats.total !== undefined) {
+    const totalEl = document.getElementById('p3-total');
+    const activeEl = document.getElementById('p3-active');
+    const probationEl = document.getElementById('p3-probation');
+    const permanentEl = document.getElementById('p3-permanent');
+    const resignedEl = document.getElementById('p3-resigned');
+    
+    if (totalEl) totalEl.textContent = stats.total || 0;
+    if (activeEl) activeEl.textContent = stats.active || 0;
+    if (probationEl) probationEl.textContent = stats.probation || 0;
+    if (permanentEl) permanentEl.textContent = stats.permanent || 0;
+    if (resignedEl) resignedEl.textContent = stats.resigned || 0;
+  }
+}
+
+function renderNewProcessTab() {
+  function renderTable(dataArray, tbodyId) {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    if (!dataArray || dataArray.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-500">ยังไม่มีข้อมูล</td></tr>';
+      return;
+    }
+    tbody.innerHTML = dataArray.map(row => `
+      <tr class="hover:bg-blue-50 transition-colors">
+        <td class="p-3 border-b font-medium text-pp7-700">${row.doc || '-'}</td>
+        <td class="p-3 border-b">${row.name || '-'}</td>
+        <td class="p-3 border-b text-sm text-gray-700 whitespace-pre-line">${row.s4 || '-'}</td>
+        <td class="p-3 border-b text-sm text-gray-600 whitespace-pre-line">${row.task || '-'}</td>
+        <td class="p-3 border-b"><span class="badge badge-blue">${row.owner || '-'}</span></td>
+        <td class="p-3 border-b"><span class="badge badge-amber">${row.status || '-'}</span></td>
+      </tr>
+    `).join('');
+  }
+  renderTable(NEW_PROCESS_DATA.p1_4, 'table-p1-4-body');
+  renderTable(NEW_PROCESS_DATA.p5, 'table-p5-body');
+  renderTable(NEW_PROCESS_DATA.p6_7, 'table-p6-7-body');
+}
+
+function showNewProcessSubTab(subTabName) {
+  document.querySelectorAll('.new-process-subpane').forEach(el => el.classList.add('hidden'));
+  document.getElementById('new-process-' + subTabName).classList.remove('hidden');
+  
+  document.querySelectorAll('.new-process-subtab-btn').forEach(btn => {
+    btn.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+    btn.classList.add('text-gray-500');
+  });
+  const activeBtn = document.querySelector(`.new-process-subtab-btn[data-subtab="${subTabName}"]`);
+  if (activeBtn) {
+    activeBtn.classList.remove('text-gray-500');
+    activeBtn.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+  }
+}
+
+// ========== WI-001: เบี้ยเลี้ยงนักศึกษาฝึกงาน ==========
+function calculateWI001() {
+  const daysInput = document.getElementById('wi001-days').value;
+  const rate = 35;
+  let days = parseInt(daysInput) || 0;
+  
+  if (days < 0) {
+    days = 0;
+    document.getElementById('wi001-days').value = 0;
+  }
+
+  const totalAmount = days * rate;
+
+  document.getElementById('wi001-working-days').textContent = days + ' วัน';
+  document.getElementById('wi001-total-amount').textContent = totalAmount.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' บาท';
+}
+
+function generateWI001Doc() {
+  const name = document.getElementById('wi001-intern-name').value || 'ไม่ระบุชื่อ';
+  const supervisor = document.getElementById('wi001-supervisor').value || 'ไม่ระบุหัวหน้างาน';
+  const month = document.getElementById('wi001-month').value || 'ไม่ระบุเดือน';
+  const days = document.getElementById('wi001-working-days').textContent;
+  const total = document.getElementById('wi001-total-amount').textContent;
+  const docChecked = document.getElementById('wi001-doc-check').checked;
+
+  if (!docChecked) {
+    alert('⚠️ กรุณายืนยันการแนบไฟล์ "ใบลงเวลาและเอกสารเบิกค่าเบี้ยเลี้ยง" ที่หัวหน้างานเซ็นตรวจสอบแล้ว ก่อนดำเนินสร้างคำขออนุมัติ');
+    return;
+  }
+
+  if (parseInt(days) === 0) {
+    alert('⚠️ กรุณาระบุจำนวนวันทำงานจริงให้ถูกต้อง (ต้องมากกว่า 0 วัน)');
+    return;
+  }
+
+  const msg = `✅ สร้างคำขออนุมัติเรียบร้อยแล้ว!\n\n` +
+              `👤 นักศึกษาฝึกงาน: ${name}\n` +
+              `🏢 หัวหน้างานผู้ควบคุม: ${supervisor}\n` +
+              `📅 เดือนที่เบิก: ${month}\n` +
+              `⏱️ จำนวนวันทำงานจริง (ตามที่ตรวจสอบ): ${days}\n` +
+              `💰 ยอดรวมค่าเบี้ยเลี้ยงที่เบิกได้: ${total}\n\n` +
+              `📌 สถานะต่อไป: เอกสารถูกเตรียมไว้สำหรับหัวหน้างานเซ็นอนุมัติผ่าน Nitro Sign ` +
+              `เมื่อเซ็นเสร็จแล้ว ระบบจะแจ้งเตือนไปยังฝ่ายการเงินเพื่อดำเนินการโอนเงินครับ`;
+  
+  alert(msg);
+}
+
+// ========== WI-002: เงินสมทบอายุงานเมื่อสมาชิกลาออก ==========
+function calculateWI002() {
+  const startStr = document.getElementById('wi002-start-date').value;
+  const endStr = document.getElementById('wi002-end-date').value;
+  const salary = parseFloat(document.getElementById('wi002-salary').value) || 0;
+  const cuLoan = parseFloat(document.getElementById('wi002-cu-loan').value) || 0;
+  const welfareDue = parseFloat(document.getElementById('wi002-welfare-due').value) || 0;
+  const damage = parseFloat(document.getElementById('wi002-damage').value) || 0;
+  const pension = parseFloat(document.getElementById('wi002-pension').value) || 0;
+
+  // Helper: จัดรูปแบบเลข
+  const fmt = (n) => n.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  if (!startStr || !endStr || salary <= 0) {
+    // Reset display
+    document.getElementById('wi002-duration-display').textContent = '0.00 ปี';
+    document.getElementById('wi002-tier-display').textContent = '0% (ยังไม่ถึงเกณฑ์)';
+    document.getElementById('wi002-annual-saving').textContent = '0.00 ฿';
+    document.getElementById('wi002-total-saving').textContent = '0.00 ฿';
+    document.getElementById('wi002-tier-multiplier').textContent = '0%';
+    document.getElementById('wi002-gross-amount').textContent = '0.00 ฿';
+    document.getElementById('wi002-deduct-cu').textContent = '- 0.00 ฿';
+    document.getElementById('wi002-after-cu').textContent = '0.00 ฿';
+    document.getElementById('wi002-deduct-tax').textContent = '- 0.00 ฿';
+    document.getElementById('wi002-deduct-welfare').textContent = '- 0.00 ฿';
+    document.getElementById('wi002-deduct-damage').textContent = '- 0.00 ฿';
+    document.getElementById('wi002-deduct-pension').textContent = '- 0.00 ฿';
+    document.getElementById('wi002-total-deduction').textContent = '- 0.00 ฿';
+    document.getElementById('wi002-net-amount').textContent = '0.00 ฿';
+    return;
+  }
+
+  const startDate = new Date(startStr);
+  const endDate = new Date(endStr);
+
+  if (endDate <= startDate) {
+    alert('⚠️ วันที่ลาออกต้องมากกว่าวันที่เริ่มงาน');
+    return;
+  }
+
+  // 1. คำนวณจำนวนปี (เศษปีแบบวันจริง)
+  const totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+  const yearsWorked = totalDays / 365.25; // ใช้ 365.25 เฉลี่ยปีอธิกสุรทิน
+  document.getElementById('wi002-duration-display').textContent = yearsWorked.toFixed(2) + ' ปี (' + Math.round(totalDays) + ' วัน)';
+
+  // 2. ตรวจสอบ % ตามเกณฑ์อายุงาน
+  let tierPercent = 0;
+  let tierLabel = '0% (ยังไม่ถึงเกณฑ์)';
+  if (yearsWorked >= 20) { tierPercent = 100; tierLabel = '100% (อายุงาน ≥ 20 ปี)'; }
+  else if (yearsWorked >= 15) { tierPercent = 75; tierLabel = '75% (อายุงาน ≥ 15 ปี)'; }
+  else if (yearsWorked >= 10) { tierPercent = 50; tierLabel = '50% (อายุงาน ≥ 10 ปี)'; }
+  else if (yearsWorked >= 5) { tierPercent = 25; tierLabel = '25% (อายุงาน ≥ 5 ปี)'; }
+  document.getElementById('wi002-tier-display').textContent = tierLabel;
+  document.getElementById('wi002-tier-multiplier').textContent = tierPercent + '%';
+
+  // 3. คำนวณเงินสมทบ (ไม่ปัดเศษ ตามระบบโอนเงิน)
+  const monthlySaving = salary * 0.02;        // 2% ของเงินเดือน
+  const annualSaving = monthlySaving * 12;      // ต่อปี
+  const totalSaving = annualSaving * yearsWorked; // รวมทุกปี
+  const grossAmount = totalSaving * (tierPercent / 100); // สมทบ %ตามเกณฑ์
+
+  document.getElementById('wi002-annual-saving').textContent = fmt(monthlySaving) + ' × 12 = ' + fmt(annualSaving) + ' ฿';
+  document.getElementById('wi002-total-saving').textContent = fmt(annualSaving) + ' × ' + yearsWorked.toFixed(2) + ' = ' + fmt(totalSaving) + ' ฿';
+  document.getElementById('wi002-gross-amount').textContent = fmt(grossAmount) + ' ฿';
+
+  // 4. หักตามลำดับ: CU → ภาษี 3% (จากยอดหลัง CU) → อื่นๆ
+  const afterCu = Math.max(0, grossAmount - cuLoan);
+  const taxAmount = afterCu * 0.03;
+  
+  const totalDeduction = cuLoan + taxAmount + welfareDue + damage + pension;
+  const netAmount = grossAmount - totalDeduction;
+
+  document.getElementById('wi002-deduct-cu').textContent = '- ' + fmt(cuLoan) + ' ฿';
+  document.getElementById('wi002-after-cu').textContent = fmt(afterCu) + ' ฿';
+  document.getElementById('wi002-deduct-tax').textContent = '- ' + fmt(taxAmount) + ' ฿';
+  document.getElementById('wi002-deduct-welfare').textContent = '- ' + fmt(welfareDue) + ' ฿';
+  document.getElementById('wi002-deduct-damage').textContent = '- ' + fmt(damage) + ' ฿';
+  document.getElementById('wi002-deduct-pension').textContent = '- ' + fmt(pension) + ' ฿';
+  document.getElementById('wi002-total-deduction').textContent = '- ' + fmt(totalDeduction) + ' ฿';
+  document.getElementById('wi002-net-amount').textContent = fmt(netAmount) + ' ฿';
+}
+
+function generateWI002Doc() {
+  const memberId = document.getElementById('wi002-member-id').value || 'ไม่ระบุ';
+  const memberName = document.getElementById('wi002-member-name').value || 'ไม่ระบุชื่อ';
+  const startDate = document.getElementById('wi002-start-date').value;
+  const endDate = document.getElementById('wi002-end-date').value;
+  const salary = parseFloat(document.getElementById('wi002-salary').value) || 0;
+  
+  const duration = document.getElementById('wi002-duration-display').textContent;
+  const tier = document.getElementById('wi002-tier-display').textContent;
+  const gross = document.getElementById('wi002-gross-amount').textContent;
+  const totalDeduct = document.getElementById('wi002-total-deduction').textContent;
+  const net = document.getElementById('wi002-net-amount').textContent;
+  
+  const docChecked = document.getElementById('wi002-doc-check').checked;
+
+  if (!startDate || !endDate) {
+    alert('⚠️ กรุณาระบุวันที่เริ่มงานและวันที่ลาออกให้ครบถ้วน');
+    return;
+  }
+
+  if (salary <= 0) {
+    alert('⚠️ กรุณาระบุเงินเดือนล่าสุดให้ถูกต้อง');
+    return;
+  }
+
+  if (!docChecked) {
+    alert('⚠️ กรุณายืนยันการแนบ "เอกสารแสดงยอดค้างชำระทั้งหมด" ที่สมาชิกเซ็นรับทราบแล้ว');
+    return;
+  }
+
+  const msg = `✅ สร้างเอกสารสมทบอายุงานเรียบร้อยแล้ว!\n\n` +
+              `👤 สมาชิก: ${memberName} (${memberId})\n` +
+              `📅 วันเริ่มงาน: ${startDate}\n` +
+              `📅 วันลาออก: ${endDate}\n` +
+              `⏱️ ระยะเวลาทำงาน: ${duration}\n` +
+              `💰 เกณฑ์สมทบ: ${tier}\n` +
+              `💵 ยอดสมทบก่อนหัก: ${gross}\n` +
+              `💸 รวมรายการหัก: ${totalDeduct}\n` +
+              `🎯 ยอดสุทธิที่จะจ่าย: ${net}\n\n` +
+              `📌 Flow อนุมัติ: หัวหน้างาน → PAO/WCD Manager → HR Manager → ฝ่ายการเงิน\n` +
+              `เอกสารถูกเตรียมไว้สำหรับเซ็นผ่าน Nitro Sign ตามลำดับครับ`;
+  
+  alert(msg);
+}
+
+function initDevTab() {
+  const courseSelect = document.getElementById('dev-course');
+  if (courseSelect && typeof DEV_DATA !== 'undefined') {
+    courseSelect.innerHTML = '';
+    DEV_DATA.courses.forEach(course => {
+      const option = document.createElement('option');
+      option.value = course;
+      option.textContent = course;
+      courseSelect.appendChild(option);
+    });
+  }
+  renderDevTable();
+}
+
+function renderDevTable() {
+  const tbody = document.getElementById('dev-tbody');
+  if (!tbody || typeof DEV_DATA === 'undefined') return;
+  tbody.innerHTML = '';
+  DEV_DATA.records.forEach((r, index) => {
+    const tr = document.createElement('tr');
+    const statusClass = r.status === 'เสร็จสิ้น' ? 'badge-green' : 'badge-amber';
+    tr.innerHTML = `<td>${r.id || 'D-' + String(index + 1).padStart(3, '0')}</td><td>${r.name}</td><td>${r.dept || '—'}</td><td>${r.course}</td><td>${r.hours}</td><td>${r.score}</td><td><span class="badge ${statusClass}">${r.status}</span></td><td>${r.completed}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function handleDevFormSubmit(event) {
+  event.preventDefault();
+  const name = document.getElementById('dev-name').value;
+  const dept = document.getElementById('dev-dept').value;
+  const course = document.getElementById('dev-course').value;
+  const hours = document.getElementById('dev-hours').value;
+  const newId = 'D-' + String(DEV_DATA.records.length + 1).padStart(3, '0');
+  addDevRecord({ id: newId, name: name, dept: dept, course: course, hours: parseInt(hours), score: '—', status: 'กำลังเรียน', completed: '—' });
+  document.getElementById('dev-form').reset();
+  alert('✅ บันทึกข้อมูลสำเร็จ!');
+}
+
+// ===== Members Database CRUD Functions =====
+// ===== Interview History (P2 Log) =====
+let interviewHistory = [];
+let interviewCurrentPage = 1;
+const interviewItemsPerPage = 10;
+let filteredInterviews = [];
+
+// Mock interview history data
+const MOCK_INTERVIEW_HISTORY = [
+  { id: 'INT001', date: '2026-06-20', name: 'สุรศักดิ์ มั่นคงดี', type: 'new', position: 'Software Engineer', score: 42, result: 'passed', interviewer: 'ปกรณ์, สมชาย', notes: 'ทัศนคติดีมาก CC ครบทั้ง 5 ด้าน', createdAt: '2026-06-20T10:30:00Z' },
+  { id: 'INT002', date: '2026-06-18', name: 'วารุณี ดีงาม', type: 'transfer', position: 'Team Leader', score: 38, result: 'passed', interviewer: 'ปกรณ์, วิชัย', notes: 'มีภาวะผู้นำเหมาะสม', createdAt: '2026-06-18T14:00:00Z' },
+  { id: 'INT003', date: '2026-06-17', name: 'ธนากร ประเสริฐ', type: 'new', position: 'Sales Executive', score: 28, result: 'failed', interviewer: 'ปกรณ์, สมหญิง', notes: 'ขาด CC3 (ความไว้วางใจ) และ CC4 (การทำงานทีม)', createdAt: '2026-06-17T09:15:00Z' },
+  { id: 'INT004', date: '2026-06-15', name: 'พิมพ์ชนก วงศ์สวัสดิ์', type: 'intern', position: 'HR Intern', score: 45, result: 'passed', interviewer: 'พรทิพย์, ปกรณ์', notes: 'นักศึกษาฝึกงานดีเด่น', createdAt: '2026-06-15T11:00:00Z' },
+  { id: 'INT005', date: '2026-06-22', name: 'อนันต์ ศรีสุข', type: 'new', position: 'Accountant', score: 0, result: 'pending', interviewer: 'ธนพล', notes: 'รอผลทดสอบทักษะเพิ่มเติม', createdAt: '2026-06-22T16:30:00Z' },
+  { id: 'INT006', date: '2026-06-10', name: 'กนกพร จันทร์สว่าง', type: 'transfer', position: 'Operations Manager', score: 35, result: 'passed', interviewer: 'วิชัย, ปกรณ์', notes: 'มีศักยภาพเหมาะสม', createdAt: '2026-06-10T13:45:00Z' },
+  { id: 'INT007', date: '2026-06-08', name: 'พิเชษฐ์ ใจดี', type: 'new', position: 'Marketing Executive', score: 25, result: 'failed', interviewer: 'สมหญิง, ปกรณ์', notes: 'ขาดทัศนคติเชิงบวก (CC2)', createdAt: '2026-06-08T10:00:00Z' },
+];
+
+// Load interview history from localStorage or mock data
+function loadInterviewHistory() {
+  const saved = localStorage.getItem('interview_history');
+  if (saved) {
+    interviewHistory = JSON.parse(saved);
+  } else {
+    interviewHistory = MOCK_INTERVIEW_HISTORY;
+    localStorage.setItem('interview_history', JSON.stringify(interviewHistory));
+  }
+  filteredInterviews = [...interviewHistory];
+  updateInterviewTable();
+  updateInterviewStats();
+}
+
+// Update interview table display
+function updateInterviewTable() {
+  const tbody = document.getElementById('interview-history-table');
+  if (!tbody) return;
+
+  const start = (interviewCurrentPage - 1) * interviewItemsPerPage;
+  const end = start + interviewItemsPerPage;
+  const pageData = filteredInterviews.slice(start, end);
+
+  tbody.innerHTML = '';
+  pageData.forEach(data => {
+    const typeLabel = data.type === 'new' ? '<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">สมาชิกใหม่</span>' :
+                     data.type === 'transfer' ? '<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">โอนย้าย/เลื่อน</span>' :
+                     data.type === 'intern' ? '<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs">ฝึกงาน</span>' : '';
+
+    const statusClass = data.result === 'passed' ? 'bg-green-100 text-green-800' :
+                       data.result === 'failed' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800';
+    const statusText = data.result === 'passed' ? 'ผ่าน ✅' :
+                      data.result === 'failed' ? 'ไม่ผ่าน ❌' : 'รอผล ⏳';
+
+    const scorePercent = (data.score / 50 * 100).toFixed(0);
+    const scoreColor = data.score >= 32.5 ? 'text-green-600' : 'text-red-600';
+
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-slate-50';
+    tr.innerHTML = `
+      <td class="px-4 py-3 text-slate-700">${formatDate(data.date)}</td>
+      <td class="px-4 py-3 font-medium text-slate-900">${data.name}</td>
+      <td class="px-4 py-3">${typeLabel}</td>
+      <td class="px-4 py-3 text-slate-700">${data.position}</td>
+      <td class="px-4 py-3 text-center">
+        <span class="font-bold ${scoreColor}">${data.score}</span><span class="text-slate-400">/50</span>
+        <div class="text-xs text-slate-500">(${scorePercent}%)</div>
+      </td>
+      <td class="px-4 py-3 text-center">
+        <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${statusText}</span>
+      </td>
+      <td class="px-4 py-3 text-slate-700">${data.interviewer}</td>
+      <td class="px-4 py-3 text-center">
+        <button onclick="viewInterviewDetail('${data.id}')" class="text-indigo-600 hover:text-indigo-800 text-xs mr-2">ดูรายละเอียด</button>
+        <button onclick="deleteInterviewData('${data.id}')" class="text-red-600 hover:text-red-800 text-xs">ลบ</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Update pagination info
+  const showingStart = filteredInterviews.length > 0 ? start + 1 : 0;
+  const showingEnd = Math.min(end, filteredInterviews.length);
+  document.getElementById('p2-showing-start').textContent = showingStart;
+  document.getElementById('p2-showing-end').textContent = showingEnd;
+  document.getElementById('p2-showing-total').textContent = filteredInterviews.length;
+
+  // Update pagination buttons
+  document.getElementById('p2-prev-btn').disabled = interviewCurrentPage === 1;
+  document.getElementById('p2-next-btn').disabled = end >= filteredInterviews.length;
+}
+
+// Update interview stats
+function updateInterviewStats() {
+  const total = interviewHistory.length;
+  const passed = interviewHistory.filter(d => d.result === 'passed').length;
+  const failed = interviewHistory.filter(d => d.result === 'failed').length;
+  const pending = interviewHistory.filter(d => d.result === 'pending').length;
+
+  document.getElementById('p2-total-interviews').textContent = total;
+  document.getElementById('p2-passed').textContent = passed;
+  document.getElementById('p2-failed').textContent = failed;
+  document.getElementById('p2-pending').textContent = pending;
+}
+
+// Filter interview history
+function filterInterviewHistory() {
+  const search = document.getElementById('p2-search').value.toLowerCase();
+  const type = document.getElementById('p2-type-filter').value;
+  const status = document.getElementById('p2-status-filter').value;
+  const date = document.getElementById('p2-date-filter').value;
+
+  filteredInterviews = interviewHistory.filter(data => {
+    if (search && !data.name.toLowerCase().includes(search)) return false;
+    if (type && data.type !== type) return false;
+    if (status && data.result !== status) return false;
+    if (date && data.date !== date) return false;
+    return true;
+  });
+
+  interviewCurrentPage = 1;
+  updateInterviewTable();
+}
+
+// Show add interview modal
+function showAddInterviewModal() {
+  document.getElementById('interview-modal').classList.remove('hidden');
+  document.getElementById('interview-form').reset();
+  // Set default date to today
+  document.getElementById('interview-date').valueAsDate = new Date();
+}
+
+// Close interview modal
+function closeInterviewModal() {
+  document.getElementById('interview-modal').classList.add('hidden');
+}
+
+// Save interview data
+function saveInterviewData(event) {
+  event.preventDefault();
+  const newId = 'INT' + String(interviewHistory.length + 1).padStart(3, '0');
+  const newData = {
+    id: newId,
+    date: document.getElementById('interview-date').value,
+    name: document.getElementById('interview-name').value,
+    type: document.getElementById('interview-type').value,
+    position: document.getElementById('interview-position').value,
+    score: parseInt(document.getElementById('interview-score').value),
+    result: document.getElementById('interview-result').value,
+    interviewer: document.getElementById('interviewer').value,
+    notes: document.getElementById('interview-notes').value,
+    createdAt: new Date().toISOString()
+  };
+
+  interviewHistory.unshift(newData);
+  localStorage.setItem('interview_history', JSON.stringify(interviewHistory));
+  filteredInterviews = [...interviewHistory];
+  interviewCurrentPage = 1;
+  updateInterviewTable();
+  updateInterviewStats();
+  closeInterviewModal();
+  alert('✅ บันทึกประวัติการสัมภาษณ์สำเร็จ');
+}
+
+// Delete interview data
+function deleteInterviewData(id) {
+  if (!confirm('ต้องการลบประวัติการสัมภาษณ์นี้หรือไม่?')) return;
+  interviewHistory = interviewHistory.filter(d => d.id !== id);
+  localStorage.setItem('interview_history', JSON.stringify(interviewHistory));
+  filteredInterviews = [...interviewHistory];
+  updateInterviewTable();
+  updateInterviewStats();
+  alert('✅ ลบประวัติสำเร็จ');
+}
+
+// View interview detail
+function viewInterviewDetail(id) {
+  const data = interviewHistory.find(d => d.id === id);
+  if (!data) return;
+
+  const typeLabel = data.type === 'new' ? 'สมาชิกใหม่' : data.type === 'transfer' ? 'โอนย้าย/เลื่อน' : 'ฝึกงาน';
+  const resultLabel = data.result === 'passed' ? 'ผ่าน ✅' : data.result === 'failed' ? 'ไม่ผ่าน ❌' : 'รอผล ⏳';
+  const passLine = data.score >= 32.5 ? '✅ ผ่านเกณฑ์ (≥ 32.5)' : '❌ ไม่ผ่านเกณฑ์ (≥ 32.5)';
+
+  alert(`📋 รายละเอียดการสัมภาษณ์
+
+วันที่: ${formatDate(data.date)}
+ชื่อ: ${data.name}
+ประเภท: ${typeLabel}
+ตำแหน่ง: ${data.position}
+คะแนน CC: ${data.score}/50 (${(data.score/50*100).toFixed(0)}%)
+${passLine}
+ผลประเมิน: ${resultLabel}
+ผู้สัมภาษณ์: ${data.interviewer}
+หมายเหตุ: ${data.notes || '-'}`);
+}
+
+// Pagination
+function interviewPrevPage() {
+  if (interviewCurrentPage > 1) {
+    interviewCurrentPage--;
+    updateInterviewTable();
+  }
+}
+
+function interviewNextPage() {
+  const totalPages = Math.ceil(filteredInterviews.length / interviewItemsPerPage);
+  if (interviewCurrentPage < totalPages) {
+    interviewCurrentPage++;
+    updateInterviewTable();
+  }
+}
+
+// Helper function for date formatting
+function formatDate(dateStr) {
+  if (!dateStr) return '-';
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+let membersData = [];
+let currentPage = 1;
+const itemsPerPage = 10;
+
+// Load members from localStorage or mock data
+function loadMembers() {
+  const saved = localStorage.getItem('members_data');
+  if (saved) {
+    membersData = JSON.parse(saved);
+  } else {
+    // Mock data for demo
+    membersData = [
+      { id: 'EMP001', code: 'EMP001', title: 'นาย', firstName: 'สมชาย', lastName: 'ใจดี', email: 'somchai@pkg.com', phone: '0812345678', dept: 'Tech', position: 'Software Engineer', startDate: '2024-01-15', status: 'regular', country: 'TH', bu: '', createdAt: '2024-01-15T00:00:00Z' },
+      { id: 'EMP002', code: 'EMP002', title: 'นางสาว', firstName: 'สมหญิง', lastName: 'รักเรียน', email: 'somying@pkg.com', phone: '0823456789', dept: 'Sales', position: 'Sales Executive', startDate: '2023-06-01', status: 'regular', country: 'TH', bu: '', createdAt: '2023-06-01T00:00:00Z' },
+      { id: 'EMP003', code: 'EMP003', title: 'นาย', firstName: 'วิชัย', lastName: 'สุขสมบูรณ์', email: 'wichai@pkg.com', phone: '0834567890', dept: 'Operations', position: 'Supervisor', startDate: '2026-05-01', status: 'probation', country: 'TH', bu: '', createdAt: '2026-05-01T00:00:00Z' },
+      { id: 'EMP004', code: 'EMP004', title: 'นาง', firstName: 'พรทิพย์', lastName: 'ศรีสุข', email: 'porntip@pkg.com', phone: '0845678901', dept: 'HR', position: 'HR Manager', startDate: '2022-03-10', status: 'regular', country: 'TH', bu: '', createdAt: '2022-03-10T00:00:00Z' },
+      { id: 'EMP005', code: 'EMP005', title: 'นาย', firstName: 'ธนพล', lastName: 'แก้วประเสริฐ', email: 'thanapol@pkg.com', phone: '0856789012', dept: 'Finance', position: 'Accountant', startDate: '2024-08-20', status: 'regular', country: 'TH', bu: '', createdAt: '2024-08-20T00:00:00Z' },
+    ];
+    localStorage.setItem('members_data', JSON.stringify(membersData));
+  }
+  updateMembersTable();
+  updateMembersStats();
+}
+
+// Update members table display
+function updateMembersTable() {
+  const tbody = document.getElementById('membersTable');
+  if (!tbody) return;
+  
+  const start = (currentPage - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  const pageData = membersData.slice(start, end);
+  
+  tbody.innerHTML = '';
+  pageData.forEach(m => {
+    const statusClass = m.status === 'regular' ? 'bg-green-100 text-green-800' : 
+                       m.status === 'probation' ? 'bg-amber-100 text-amber-800' :
+                       m.status === 'contract' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800';
+    const statusText = m.status === 'regular' ? 'ประจำ' :
+                      m.status === 'probation' ? 'ทดลองงาน' :
+                      m.status === 'contract' ? 'สัญญาจ้าง' : 'ลาออก';
+    
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-gray-50';
+    tr.innerHTML = `
+      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${m.code || m.id}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${m.title} ${m.firstName} ${m.lastName}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${m.email}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${m.dept}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${m.position}</td>
+      <td class="px-6 py-4 whitespace-nowrap">
+        <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">${statusText}</span>
+      </td>
+      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+        ${m.status === 'resigned' ? 
+          `<button onclick="reinstateMember('${m.id}')" class="text-green-600 hover:text-green-900 mr-3">คืนค่า</button>` :
+          `<button onclick="editMember('${m.id}')" class="text-blue-600 hover:text-blue-900 mr-3">แก้ไข</button>`
+        }
+        ${m.status !== 'resigned' ? 
+          `<button onclick="deleteMember('${m.id}')" class="text-red-600 hover:text-red-900">ลาออก</button>` :
+          `<span class="text-xs text-gray-500">ออก ${m.resignedDate || ''}</span>`
+        }
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  
+  // Update pagination info
+  const paginationEl = document.querySelector('#tab-members .flex.justify-between.items-center.mt-6 .text-sm.text-gray-700');
+  if (paginationEl) {
+    paginationEl.innerHTML = `แสดง <span class="font-medium">${start + 1}</span> - <span class="font-medium">${Math.min(end, membersData.length)}</span> จาก <span class="font-medium">${membersData.length}</span> รายการ`;
+  }
+}
+
+// Update stats cards
+function updateMembersStats() {
+  const total = membersData.length;
+  const regular = membersData.filter(m => m.status === 'regular').length;
+  const probation = membersData.filter(m => m.status === 'probation').length;
+  const resigned = membersData.filter(m => m.status === 'resigned').length;
+  const thisMonth = membersData.filter(m => {
+    const start = new Date(m.startDate);
+    const now = new Date();
+    return start.getMonth() === now.getMonth() && start.getFullYear() === now.getFullYear();
+  }).length;
+  
+  const stats = document.querySelectorAll('#tab-members .text-3xl.font-bold');
+  if (stats.length >= 5) {
+    stats[0].textContent = total.toLocaleString();
+    stats[1].textContent = regular.toLocaleString();
+    stats[2].textContent = probation.toLocaleString();
+    stats[3].textContent = thisMonth.toLocaleString();
+    stats[4].textContent = resigned.toLocaleString();
+  }
+}
+
+// Show add member modal
+function addMember() {
+  alert('🚧 ฟีเจอร์นี้กำลังพัฒนา — ระบบจะรองรับการเพิ่มสมาชิกเร็วๆ นี้');
+}
+
+// Edit member
+function editMember(id) {
+  alert('🚧 ฟีเจอร์นี้กำลังพัฒนา — ระบบจะรองรับการแก้ไขข้อมูลเร็วๆ นี้');
+}
+
+// Delete member
+function deleteMember(id) {
+  const member = membersData.find(m => m.id === id);
+  if (!member) return;
+
+  if (confirm(`ต้องการให้สมาชิก "${member.firstName} ${member.lastName}" ลาออกหรือไม่?`)) {
+    // Soft delete: เปลี่ยน status เป็น "resigned" แทนการลบข้อมูลจริง
+    member.status = 'resigned';
+    member.resignedDate = new Date().toISOString().split('T')[0];
+    member.resignReason = prompt('กรุณาระบุสาเหตุการลาออก (ถ้ามี):', '') || 'ไม่ได้ระบุ';
+
+    localStorage.setItem('members_data', JSON.stringify(membersData));
+    updateMembersTable();
+    updateMembersStats();
+    alert('✅ บันทึกสถานะลาออกแล้ว (ข้อมูลยังเก็บไว้ สำหรับอนาคต)');
+  }
+}
+
+// คืนค่าสมาชิกที่ลาออก → กลับมาเป็น regular
+function reinstateMember(id) {
+  const member = membersData.find(m => m.id === id);
+  if (!member || member.status !== 'resigned') {
+    alert('ไม่พบข้อมูลสมาชิกที่ลาออก');
+    return;
+  }
+
+  if (confirm(`ต้องการคืนค่าสมาชิก "${member.firstName} ${member.lastName}" ให้กลับมาทำงานอีกครั้งหรือไม่?`)) {
+    member.status = 'regular';
+    member.resignReason = null;
+    member.resignReason = null;
+    member.reinstatedDate = new Date().toISOString().split('T')[0];
+
+    localStorage.setItem('members_data', JSON.stringify(membersData));
+    updateMembersTable();
+    updateMembersStats();
+    alert('✅ คืนค่าสมาชิกสำเร็จ — ข้อมูลถูกส่งต่อไปยัง P3 จับคู่คนกับงาน');
+  }
+}
+
+// Filter members
+function filterMembers(query) {
+  const saved = localStorage.getItem('members_data');
+  if (saved) {
+    membersData = JSON.parse(saved);
+  }
+  
+  if (!query) {
+    loadMembers();
+    return;
+  }
+  
+  const q = query.toLowerCase();
+  membersData = JSON.parse(saved).filter(m => 
+    (m.firstName + ' ' + m.lastName).toLowerCase().includes(q) ||
+    m.email.toLowerCase().includes(q) ||
+    (m.code || m.id).toLowerCase().includes(q)
+  );
+  
+  currentPage = 1;
+  updateMembersTable();
+}
+
+// Export to CSV
+function exportMembersToCSV() {
+  const headers = ['รหัส', 'คำนำหน้า', 'ชื่อ', 'นามสกุล', 'Email', 'เบอร์โทร', 'แผนก', 'ตำแหน่ง', 'วันที่เริ่มงาน', 'สถานะ', 'ประเทศ'];
+  const rows = membersData.map(m => [
+    m.code || m.id, m.title, m.firstName, m.lastName, m.email, m.phone, m.dept, m.position, m.startDate, m.status, m.country
+  ]);
+  
+  let csv = headers.join(',') + '\n';
+  rows.forEach(row => {
+    csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+  });
+  
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `members_export_${new Date().toISOString().split('T')[0]}.csv`;
+  link.click();
+}
+
+// Initialize members tab when shown
+function initMembersTab() {
+  loadMembers();
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  // Force reload if syntax errors exist
+  try {
+    if (document.querySelector('#loginOverlay').style.display !== 'none') {
+      document.querySelector('#loginOverlay').style.display = 'flex';
+    }
+  } catch(e) {
+    console.log('Auto-reload due to cache:', e);
+    window.location.reload(true);
+  }
+});
+
+(function(){
+  // Login system - require authentication
+  try {
+    const saved = JSON.parse(localStorage.getItem('pakorn_session'));
+    if(saved && saved.user && USERS[saved.user]){
+      applyLogin(saved);
+    } else {
+      // Show login overlay and blur content
+      document.getElementById('loginOverlay').style.display = 'flex';
+      document.getElementById('app-wrapper').classList.add('content-blur');
+    }
+  } catch(e){
+    // Show login if no saved session
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('app-wrapper').classList.add('content-blur');
+  }
+  showTab('executive');
+})();
+// Trigger rebuild: Single File Version (No external dev_data.js)
+</script>
+</body>
+</html>
