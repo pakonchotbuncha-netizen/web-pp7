@@ -58,4 +58,3 @@ const RECRUIT_CLEAN_DATA = {
     { running:'A1-020', fullNameNoPrefix:'ดวงใจ ประสิทธิ์', jobPosition1:'Payroll Admin', schoolName:'Job Board', status_register:'รอคัดเลือกใบสมัคร', employmentStatus:'', applicationDate:'2026-05-05' },
   ]
 };
-// Cache bust: 1783486260
