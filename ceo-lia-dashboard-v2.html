@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEO LIA 2.0 Dashboard v2 - ปกรณ์ โชติบัญชา | Web PP7 Metrics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        .progress-bar {
+            height: 24px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #e5e7eb;
+        }
+        .progress-bar-sm {
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #e5e7eb;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.6s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .progress-fill-sm {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.6s ease;
+        }
+        .gradient-1 { background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); }
+        .gradient-2 { background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%); }
+        .gradient-3 { background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); }
+        .gradient-4 { background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%); }
+        .gradient-5 { background: linear-gradient(90deg, #fa709a 0%, #fee140 100%); }
+        .gradient-6 { background: linear-gradient(90deg, #a18cd1 0%, #fbc2eb 100%); }
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .team-member {
+            border-left: 4px solid #667eea;
+            padding-left: 1rem;
+            transition: all 0.3s ease;
+        }
+        .team-member:hover {
+            border-left-color: #764ba2;
+            background: #f3f4f6;
+        }
+        /* Web PP7 Section Styles */
+        .pp7-section {
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .pp7-section .section-header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            border-radius: 1rem;
+            padding: 1.5rem 2rem;
+            margin: -2rem -2rem 2rem -2rem;
+            border-bottom: 3px solid #4facfe;
+        }
+        .pp7-inner-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        .pp7-inner-card:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-done {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-progress {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-pending {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2.5rem;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #43e97b 0%, #38f9d7 30%, #4facfe 50%, #667eea 70%, #764ba2 100%);
+            border-radius: 3px;
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -2.5rem;
+            top: 0.25rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .timeline-dot.done {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+        }
+        .timeline-dot.pending {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(102, 126, 234, 0); }
+        }
+        /* Stat highlight */
+        .stat-highlight {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            text-align: center;
+            border: 1px solid #cbd5e1;
+        }
+        .stat-highlight .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        /* Animated counter */
+        .counter-animate {
+            animation: count-up 1s ease-out forwards;
+        }
+        @keyframes count-up {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Glow effect */
+        .glow-green { box-shadow: 0 0 15px rgba(67, 233, 123, 0.3); }
+        .glow-blue { box-shadow: 0 0 15px rgba(79, 172, 254, 0.3); }
+        .glow-purple { box-shadow: 0 0 15px rgba(102, 126, 234, 0.3); }
+        @media print {
+            body {
+                background: white;
+            }
+            .card, .pp7-inner-card {
+                page-break-inside: avoid;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+        }
+    </style>
+</head>
+<body class="py-8 px-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="card mb-8 overflow-hidden">
+            <div class="gradient-bg text-white p-8">
+                <div class="flex items-center gap-6 mb-4">
+                    <div class="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center text-5xl">
+                        👤
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-bold mb-2">ปกรณ์ โชติบัญชา</h1>
+                        <p class="text-xl opacity-90">
+                            <i class="fas fa-briefcase mr-2"></i>ผู้รับใช้ทีมPKG
+                        </p>
+                        <div class="flex gap-4 mt-2 text-sm opacity-90">
+                            <span><i class="fas fa-id-badge mr-1"></i>ID: 9611001</span>
+                            <span><i class="fas fa-users mr-1"></i>ทีม: AWG PAC</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4 mt-6 pt-6 border-t border-white/20">
+                    <div>
+                        <h3 class="font-semibold mb-2 flex items-center gap-2">
+                            <i class="fas fa-bullseye"></i>
+                            วัตถุประสงค์
+                        </h3>
+                        <p class="opacity-90">รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง</p>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold mb-2 flex items-center gap-2">
+                            <i class="fas fa-eye"></i>
+                            วิสัยทัศน์
+                        </h3>
+                        <p class="opacity-90">เราทำงานเพื่อให้ลูกค้า สมาชิก คู่ค้า ผู้ถือหุ้น และสังคมประสบความสำเร็จในจุดมุ่งหมายของตน</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="metric-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm opacity-90 mb-1">วัตถุประสงค์ทั้งหมด</p>
+                        <p class="text-4xl font-bold">5</p>
+                    </div>
+                    <div class="text-3xl opacity-50">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                </div>
+                <div class="text-sm opacity-75">
+                    4 วัตถุประสงค์ธุรกิจ + 1 ส่วนตัว
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm opacity-90 mb-1">น้ำหนักรวม</p>
+                        <p class="text-4xl font-bold">140%</p>
+                    </div>
+                    <div class="text-3xl opacity-50">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                </div>
+                <div class="text-sm opacity-75">
+                    ปรับสัดส่วนตามความสำคัญ
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm opacity-90 mb-1">สถานะความสำเร็จ</p>
+                        <p class="text-4xl font-bold">75%</p>
+                    </div>
+                    <div class="text-3xl opacity-50">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="progress-bar bg-white/20 mt-2">
+                    <div class="progress-fill bg-white/40" style="width: 75%;">75%</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm opacity-90 mb-1">สมาชิกในทีม</p>
+                        <p class="text-4xl font-bold">4</p>
+                    </div>
+                    <div class="text-3xl opacity-50">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                </div>
+                <div class="text-sm opacity-75">
+                    อารีย์, รัฐพร, ศิริวรรณ, ภีรุวัส
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- 📊 Web PP7 Metrics Section — New in v2 -->
+        <!-- ============================================= -->
+        <div class="pp7-section mb-8">
+            <div class="section-header">
+                <h2 class="text-3xl font-bold text-white flex items-center gap-3">
+                    <span class="text-4xl">📊</span>
+                    Web PP7 Metrics — ตัวเลขจริงตาม OKR
+                </h2>
+                <p class="text-blue-300 mt-2">ระบบจัดการบุคคลครบวงจร 7 กระบวนการ (P1-P7) | อัปเดต: กรกฎาคม 2026</p>
+            </div>
+
+            <!-- Row 1: Team Growth + Business Growth -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+                <!-- 1. Team Growth - ระบบ P1-4 (30%) -->
+                <div class="pp7-inner-card">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">Team Growth — ระบบ P1-4</h3>
+                            <span class="text-sm text-gray-500">น้ำหนัก 30% | Web PP7</span>
+                        </div>
+                    </div>
+
+                    <!-- O1: Real-time Database -->
+                    <div class="mb-5 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-semibold text-gray-800 text-sm">
+                                <span class="text-green-600 mr-1">O1:</span> สร้างฐานข้อมูล P1-4 Real-time
+                            </h4>
+                            <span class="status-badge status-done">✅ 85%</span>
+                        </div>
+                        <div class="progress-bar-sm mb-2">
+                            <div class="progress-fill-sm gradient-4" style="width: 85%;"></div>
+                        </div>
+                        <div class="flex flex-wrap gap-2 text-xs text-gray-600">
+                            <span>⚡ ลดงาน Manual ≥ 80%</span>
+                            <span>•</span>
+                            <span>🔍 สมาชิกเข้าถึงข้อมูลได้ทันที</span>
+                        </div>
+                        <p class="text-xs text-green-700 mt-2 italic">📌 สถานะ: DB Schema ครบ, UI ready, รอ Cloudflare</p>
+                    </div>
+
+                    <!-- O2: Web-admin -->
+                    <div class="mb-5 p-4 bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg border border-teal-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-semibold text-gray-800 text-sm">
+                                <span class="text-teal-600 mr-1">O2:</span> ระบบงาน P1-4 เป็น Web-admin ทั้งหมด
+                            </h4>
+                            <span class="status-badge status-done">✅ 82%</span>
+                        </div>
+                        <div class="progress-bar-sm mb-2">
+                            <div class="progress-fill-sm" style="width: 82%; background: linear-gradient(90deg, #0d9488, #06b6d4);"></div>
+                        </div>
+                        <div class="flex flex-wrap gap-2 text-xs text-gray-600">
+                            <span>📉 ลดเวลาทำงานซ้ำซ้อน ≥ 20%</span>
+                            <span>•</span>
+                            <span>🛡️ ลด Human Error ≥ 80%</span>
+                        </div>
+                        <p class="text-xs text-teal-700 mt-2 italic">📌 สถานะ: Validation systems, data integrity checks</p>
+                    </div>
+
+                    <!-- O3: Real-time Monitoring -->
+                    <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-semibold text-gray-800 text-sm">
+                                <span class="text-blue-600 mr-1">O3:</span> ผู้กำกับระบบงาน P1-4 แบบ Real-time
+                            </h4>
+                            <span class="status-badge status-progress">🔄 78%</span>
+                        </div>
+                        <div class="progress-bar-sm mb-2">
+                            <div class="progress-fill-sm gradient-3" style="width: 78%;"></div>
+                        </div>
+                        <div class="flex flex-wrap gap-2 text-xs text-gray-600">
+                            <span>📺 Monitor ผ่าน Dashboard 100%</span>
+                        </div>
+                        <p class="text-xs text-blue-700 mt-2 italic">📌 สถานะ: CEO Dashboard เสร็จ, Process Flow 52 กระบวนการ, รอ real-time sync</p>
+                    </div>
+                </div>
+
+                <!-- 2. Business Growth - ทุนสารสนเทศ IC (30%) -->
+                <div class="pp7-inner-card">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">Business Growth — ทุนสารสนเทศ (IC)</h3>
+                            <span class="text-sm text-gray-500">น้ำหนัก 30% | Information Capital</span>
+                        </div>
+                    </div>
+
+                    <!-- O3-KR1 -->
+                    <div class="mb-5 p-4 bg-gradient-to-r from-blue-50 to-sky-50 rounded-lg border border-blue-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-semibold text-gray-800 text-sm">
+                                <span class="text-blue-600 mr-1">O3-KR1:</span> สมาชิก ≥ 80% เข้าถึงความรู้ Real-time
+                            </h4>
+                            <div class="text-right">
+                                <span class="text-lg font-bold text-blue-600">75%</span>
+                                <span class="text-xs text-gray-400"> / 80%</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar-sm mb-2">
+                            <div class="progress-fill-sm gradient-3" style="width: 93.75%;"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>ปัจจุบัน: 75%</span>
+                            <span>เป้าหมาย: 80%</span>
+                        </div>
+                        <!-- Visual ratio bar -->
+                        <div class="mt-2 flex items-center gap-2">
+                            <div class="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
+                                <div class="h-full rounded-full" style="width:75%; background: linear-gradient(90deg, #4facfe, #00f2fe);"></div>
+                            </div>
+                            <span class="text-xs font-semibold text-blue-600">93.75% of target</span>
+                        </div>
+                    </div>
+
+                    <!-- O3-KR2 -->
+                    <div class="mb-5 p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-lg border border-violet-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-semibold text-gray-800 text-sm">
+                                <span class="text-violet-600 mr-1">O3-KR2:</span> ลดเวลา Search/Prep ≥ 30%
+                            </h4>
+                            <div class="text-right">
+                                <span class="text-lg font-bold text-violet-600">28%</span>
+                                <span class="text-xs text-gray-400"> / 30%</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar-sm mb-2">
+                            <div class="progress-fill-sm gradient-1" style="width: 93.33%;"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>ปัจจุบัน: 28%</span>
+                            <span>เป้าหมาย: 30%</span>
+                        </div>
+                        <div class="mt-2 flex items-center gap-2">
+                            <div class="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
+                                <div class="h-full rounded-full" style="width:93.33%; background: linear-gradient(90deg, #a18cd1, #fbc2eb);"></div>
+                            </div>
+                            <span class="text-xs font-semibold text-violet-600">93.33% of target</span>
+                        </div>
+                    </div>
+
+                    <!-- O3-KR3 -->
+                    <div class="p-4 bg-gradient-to-r from-cyan-50 to-teal-50 rounded-lg border border-cyan-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-semibold text-gray-800 text-sm">
+                                <span class="text-cyan-600 mr-1">O3-KR3:</span> AI Infrastructure พร้อมใช้ 100%
+                            </h4>
+                            <div class="text-right">
+                                <span class="text-lg font-bold text-cyan-600">85%</span>
+                                <span class="text-xs text-gray-400"> / 100%</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar-sm mb-2">
+                            <div class="progress-fill-sm gradient-3" style="width: 85%;"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>ปัจจุบัน: 85%</span>
+                            <span>เป้าหมาย: 100%</span>
+                        </div>
+                        <div class="mt-2 flex items-center gap-2">
+                            <div class="flex-1 bg-gray-100 rounded-full h-2 overflow-hidden">
+                                <div class="h-full rounded-full" style="width:85%; background: linear-gradient(90deg, #4facfe, #00f2fe);"></div>
+                            </div>
+                            <span class="text-xs font-semibold text-cyan-600">85% of target</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2: Operational KPI + Key Numbers -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+
+                <!-- 3. Operational KPI 3 -->
+                <div class="pp7-inner-card">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">ความเป็นเลิศด้านดิจิทัล</h3>
+                            <span class="text-sm text-gray-500">Operational KPI 3</span>
+                        </div>
+                    </div>
+
+                    <!-- PP7 System Ready -->
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-gray-700 font-medium">PP7 System Ready</span>
+                            <span class="status-badge status-done">✅ 100%</span>
+                        </div>
+                        <div class="progress-bar-sm">
+                            <div class="progress-fill-sm gradient-4" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Data Accuracy -->
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-gray-700 font-medium">Data Accuracy</span>
+                            <span class="status-badge status-progress">🔄 95%</span>
+                        </div>
+                        <div class="progress-bar-sm">
+                            <div class="progress-fill-sm gradient-3" style="width: 95%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- ลด Error -->
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm text-gray-700 font-medium">ลด Error</span>
+                            <span class="status-badge status-done">✅ 80%</span>
+                        </div>
+                        <div class="progress-bar-sm">
+                            <div class="progress-fill-sm gradient-1" style="width: 80%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Overall Score -->
+                    <div class="mt-4 p-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg text-center border border-indigo-200">
+                        <p class="text-xs text-gray-500 mb-1">คะแนนรวม Digital Excellence</p>
+                        <p class="text-3xl font-bold" style="background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">91.7%</p>
+                    </div>
+                </div>
+
+                <!-- 4. Web PP7 Key Numbers -->
+                <div class="pp7-inner-card">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                            <i class="fas fa-hashtag"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">Web PP7 ตัวเลขสำคัญ</h3>
+                            <span class="text-sm text-gray-500">Key System Metrics</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div class="stat-highlight">
+                            <div class="stat-number">16</div>
+                            <p class="text-xs text-gray-600 font-medium">Tabs พร้อมใช้</p>
+                            <p class="text-xs text-gray-400 mt-1">ครบทุกกระบวนการ</p>
+                        </div>
+                        <div class="stat-highlight">
+                            <div class="stat-number">52</div>
+                            <p class="text-xs text-gray-600 font-medium">Process Flows</p>
+                            <p class="text-xs text-gray-400 mt-1">End-to-end workflows</p>
+                        </div>
+                        <div class="stat-highlight">
+                            <div class="stat-number">7</div>
+                            <p class="text-xs text-gray-600 font-medium">P-Phases</p>
+                            <p class="text-xs text-gray-400 mt-1">P1 แสวงหา → P7 คุณภาพชีวิต</p>
+                        </div>
+                        <div class="stat-highlight glow-green">
+                            <div class="stat-number">240x</div>
+                            <p class="text-xs text-gray-600 font-medium">Productivity ↑</p>
+                            <p class="text-xs text-gray-400 mt-1">เทียบกับระบบเดิม</p>
+                        </div>
+                    </div>
+
+                    <!-- Mini donut chart placeholder -->
+                    <canvas id="pp7Donut" height="180"></canvas>
+                </div>
+
+                <!-- 5. Timeline -->
+                <div class="pp7-inner-card">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl" style="background: linear-gradient(135deg, #fa709a, #fee140);">
+                            <i class="fas fa-road"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">Timeline การพัฒนา</h3>
+                            <span class="text-sm text-gray-500">5 Phases | Jul 2026 - Oct 2026</span>
+                        </div>
+                    </div>
+
+                    <div class="timeline">
+                        <!-- Phase 1 -->
+                        <div class="timeline-item">
+                            <div class="timeline-dot done">✓</div>
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                                <div class="flex items-center justify-between mb-1">
+                                    <h5 class="font-bold text-sm text-green-800">Phase 1: Foundation</h5>
+                                    <span class="status-badge status-done text-xs">✅ Done</span>
+                                </div>
+                                <p class="text-xs text-gray-600">โครงสร้างพื้นฐาน, DB Schema, UI Design</p>
+                                <p class="text-xs text-green-600 font-medium mt-1">📅 Jul 2026</p>
+                            </div>
+                        </div>
+
+                        <!-- Phase 2 -->
+                        <div class="timeline-item">
+                            <div class="timeline-dot done">✓</div>
+                            <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                                <div class="flex items-center justify-between mb-1">
+                                    <h5 class="font-bold text-sm text-green-800">Phase 2: Process Flows</h5>
+                                    <span class="status-badge status-done text-xs">✅ Done</span>
+                                </div>
+                                <p class="text-xs text-gray-600">52 Process Flows ครบทุก P-Phase</p>
+                                <p class="text-xs text-green-600 font-medium mt-1">📅 Jul 2026</p>
+                            </div>
+                        </div>
+
+                        <!-- Phase 3 -->
+                        <div class="timeline-item">
+                            <div class="timeline-dot pending">3</div>
+                            <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+                                <div class="flex items-center justify-between mb-1">
+                                    <h5 class="font-bold text-sm text-indigo-800">Phase 3: Cloudflare + Database</h5>
+                                    <span class="status-badge status-pending text-xs">⏳ Next</span>
+                                </div>
+                                <p class="text-xs text-gray-600">Deploy Cloudflare Workers + Database connection</p>
+                                <p class="text-xs text-indigo-600 font-medium mt-1">📅 Jul 2026</p>
+                            </div>
+                        </div>
+
+                        <!-- Phase 4 -->
+                        <div class="timeline-item">
+                            <div class="timeline-dot pending">4</div>
+                            <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-3">
+                                <div class="flex items-center justify-between mb-1">
+                                    <h5 class="font-bold text-sm text-indigo-800">Phase 4: 2FA + Security</h5>
+                                    <span class="status-badge status-pending text-xs">⏳ Planned</span>
+                                </div>
+                                <p class="text-xs text-gray-600">Authentication, RBAC, Security hardening</p>
+                                <p class="text-xs text-indigo-600 font-medium mt-1">📅 Jul 2026</p>
+                            </div>
+                        </div>
+
+                        <!-- Phase 5 -->
+                        <div class="timeline-item">
+                            <div class="timeline-dot pending">5</div>
+                            <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                                <div class="flex items-center justify-between mb-1">
+                                    <h5 class="font-bold text-sm text-purple-800">Phase 5: Data Import + Testing</h5>
+                                    <span class="status-badge status-pending text-xs">⏳ Planned</span>
+                                </div>
+                                <p class="text-xs text-gray-600">Import ข้อมูลจริง, UAT, Performance testing</p>
+                                <p class="text-xs text-purple-600 font-medium mt-1">📅 Aug-Oct 2026</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress summary -->
+                    <div class="mt-5 p-3 bg-gradient-to-r from-green-50 to-teal-50 rounded-lg border border-green-200">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="font-medium text-green-800">ความคืบหน้ารวม</span>
+                            <span class="font-bold text-green-700">2/5 Phases (40%)</span>
+                        </div>
+                        <div class="progress-bar-sm mt-2">
+                            <div class="progress-fill-sm gradient-4" style="width: 40%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 3: Web PP7 Radar Chart + Summary -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Radar Chart -->
+                <div class="pp7-inner-card">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                            <i class="fas fa-chart-radar"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800">Web PP7 Progress Radar</h3>
+                    </div>
+                    <canvas id="pp7Radar" height="260"></canvas>
+                </div>
+
+                <!-- Overall PP7 Summary -->
+                <div class="pp7-inner-card">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800">สรุปภาพรวม Web PP7</h3>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Team Growth Summary -->
+                        <div class="p-4 rounded-lg border-l-4 border-green-500 bg-green-50">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-semibold text-sm text-gray-800">🏗️ Team Growth (P1-4)</span>
+                                <span class="text-2xl font-bold text-green-600">81.7%</span>
+                            </div>
+                            <div class="progress-bar-sm">
+                                <div class="progress-fill-sm gradient-4" style="width: 81.7%;"></div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">O1: 85% | O2: 82% | O3: 78%</p>
+                        </div>
+
+                        <!-- Business Growth Summary -->
+                        <div class="p-4 rounded-lg border-l-4 border-blue-500 bg-blue-50">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-semibold text-sm text-gray-800">📈 Business Growth (IC)</span>
+                                <span class="text-2xl font-bold text-blue-600">90.4%</span>
+                            </div>
+                            <div class="progress-bar-sm">
+                                <div class="progress-fill-sm gradient-3" style="width: 90.4%;"></div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">KR1: 93.8% | KR2: 93.3% | KR3: 85% of target</p>
+                        </div>
+
+                        <!-- Digital Excellence Summary -->
+                        <div class="p-4 rounded-lg border-l-4 border-indigo-500 bg-indigo-50">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-semibold text-sm text-gray-800">💻 Digital Excellence</span>
+                                <span class="text-2xl font-bold text-indigo-600">91.7%</span>
+                            </div>
+                            <div class="progress-bar-sm">
+                                <div class="progress-fill-sm gradient-1" style="width: 91.7%;"></div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">PP7 Ready: 100% | Accuracy: 95% | Error ↓: 80%</p>
+                        </div>
+
+                        <!-- Grand Total -->
+                        <div class="p-4 rounded-xl text-center" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+                            <p class="text-sm opacity-90 mb-1">คะแนนรวม Web PP7 ทั้งหมด</p>
+                            <p class="text-4xl font-bold">87.9%</p>
+                            <p class="text-sm opacity-75 mt-1">🎯 On Track — ระบบพร้อม Deploy</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Web PP7 Metrics Section -->
+
+        <!-- Objectives Progress -->
+        <div class="card p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <i class="fas fa-clipboard-list text-indigo-600"></i>
+                <span>วัตถุประสงค์และผลลัพธ์หลัก (OKRs)</span>
+            </h2>
+
+            <!-- Objective 1 -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm mr-2">S-Objective 1</span>
+                        ทุนองค์กร (Organizational Capital)
+                    </h3>
+                    <span class="text-sm font-semibold text-gray-600">น้ำหนัก: 30%</span>
+                </div>
+                <div class="space-y-3 ml-4">
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>KR1: Engagement Score ≥ 85%</span>
+                            <span class="font-semibold">85%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gradient-1" style="width: 85%;">85%</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>KR2: Members ≥ 80% aligned with culture</span>
+                            <span class="font-semibold">80%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gradient-1" style="width: 80%;">80%</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>KR3: 100% monthly alignment & communication</span>
+                            <span class="font-semibold">100%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gradient-1" style="width: 100%;">100%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Objective 2 -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <span class="inline-block px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-sm mr-2">S-Objective 2</span>
+                        ทุนมนุษย์ (Human Capital)
+                    </h3>
+                    <span class="text-sm font-semibold text-gray-600">น้ำหนัก: 30%</span>
+                </div>
+                <div class="space-y-3 ml-4">
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>KR1: Productivity ↑ ≥ 20%</span>
+                            <span class="font-semibold">75%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gradient-2" style="width: 75%;">75%</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>KR2: Members ≥ 80% using AI tools</span>
+                            <span class="font-semibold">85%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gradient-2" style="width: 85%;">85%</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>KR3: Reduce repetitive work ≥ 20%</span>
+                            <span class="font-semibold">70%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gradient-2" style="width: 70%;">70%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Objective 3 -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <span class="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm mr-2">S-Objective 3</span>
+                        ทุนสารสนเทศ (Information Capital)
+                    </h3>
+                    <span class="text-sm font-semibold text-gray-600">น้ำหนัก: 30%</span>
+                </div>
+                <div class="space-y-3 ml-4">
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>KR1: Members ≥ 80% access real-time knowledge</span>
+                            <span class="font-semibold">82%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gradient-3" style="width: 82%;">82%</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>KR2: Reduce search/prep time ≥ 30%</span>
+                            <span class="font-semibold">65%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gradient-3" style="width: 65%;">65%</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>KR3: AI Infrastructure ready 100%</span>
+                            <span class="font-semibold">90%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gradient-3" style="width: 90%;">90%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Objective 4 - Team Growth -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <span class="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm mr-2">S-Objective 4</span>
+                        Team Growth: P1-4 System
+                    </h3>
+                    <span class="text-sm font-semibold text-gray-600">น้ำหนัก: 30%</span>
+                </div>
+                <div class="space-y-3 ml-4">
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>Objective 1: Real-time P1-4 database, reduce manual ≥ 80%</span>
+                            <span class="font-semibold">78%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gradient-4" style="width: 78%;">78%</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>Objective 2: Web-admin for P1-4, reduce errors ≥ 80%</span>
+                            <span class="font-semibold">85%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gradient-4" style="width: 85%;">85%</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>Objective 3: Real-time monitoring dashboard 100%</span>
+                            <span class="font-semibold">92%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gradient-4" style="width: 92%;">92%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Objective 5 - Personal Growth -->
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-lg font-semibold text-gray-800">
+                        <span class="inline-block px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm mr-2">S-Objective 5</span>
+                        Personal Growth
+                    </h3>
+                    <span class="text-sm font-semibold text-gray-600">น้ำหนัก: 20%</span>
+                </div>
+                <div class="space-y-3 ml-4">
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>Objective 1: Systems Thinking (MMOA ≥ 30%)</span>
+                            <span class="font-semibold">60%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gradient-5" style="width: 60%;">60%</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>Objective 2: Data-Driven HR (HRD Dashboard)</span>
+                            <span class="font-semibold">55%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gradient-5" style="width: 55%;">55%</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm text-gray-600 mb-1">
+                            <span>Objective 3: OpenClaw/AI skills (CSI ≥ 10%)</span>
+                            <span class="font-semibold">50%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gradient-5" style="width: 50%;">50%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Objective Weights Chart -->
+            <div class="card p-6">
+                <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <i class="fas fa-chart-pie text-indigo-600"></i>
+                    <span>สัดส่วนน้ำหนักวัตถุประสงค์</span>
+                </h3>
+                <canvas id="weightChart"></canvas>
+            </div>
+
+            <!-- Progress Chart -->
+            <div class="card p-6">
+                <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <i class="fas fa-chart-bar text-indigo-600"></i>
+                    <span>ความคืบหน้าแต่ละวัตถุประสงค์</span>
+                </h3>
+                <canvas id="progressChart"></canvas>
+            </div>
+        </div>
+
+        <!-- KPI Dashboard -->
+        <div class="card p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <i class="fas fa-tachometer-alt text-indigo-600"></i>
+                <span>ตัวชี้วัดการดำเนินงาน (KPIs)</span>
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- KPI 1 -->
+                <div class="border border-gray-200 rounded-lg p-6 hover:border-indigo-500 transition-colors">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-cogs text-2xl text-indigo-600"></i>
+                        </div>
+                        <span class="text-3xl font-bold text-indigo-600">98%</span>
+                    </div>
+                    <h4 class="font-semibold text-gray-800 mb-3">ประสิทธิภาพการดำเนินงาน</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">กระบวนการ ≥ 95%</span>
+                            <span class="font-semibold text-green-600">✓ 98%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">ข้อผิดพลาด ↓ ≥ 50%</span>
+                            <span class="font-semibold text-green-600">✓ ลดลง 65%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">เวลา ↓ ≥ 30%</span>
+                            <span class="font-semibold text-green-600">✓ ลดลง 42%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI 2 -->
+                <div class="border border-gray-200 rounded-lg p-6 hover:border-pink-500 transition-colors">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-headset text-2xl text-pink-600"></i>
+                        </div>
+                        <span class="text-3xl font-bold text-pink-600">94%</span>
+                    </div>
+                    <h4 class="font-semibold text-gray-800 mb-3">ความเป็นเลิศในการให้บริการ</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">การตอบสนอง ≥ 90%</span>
+                            <span class="font-semibold text-green-600">✓ 92%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">ความพึงพอใจ ≥ 90%</span>
+                            <span class="font-semibold text-green-600">✓ 95%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">ปัญหา ↓ ≥ 50%</span>
+                            <span class="font-semibold text-green-600">✓ ลดลง 58%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI 3 -->
+                <div class="border border-gray-200 rounded-lg p-6 hover:border-blue-500 transition-colors">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-laptop-code text-2xl text-blue-600"></i>
+                        </div>
+                        <span class="text-3xl font-bold text-blue-600">96%</span>
+                    </div>
+                    <h4 class="font-semibold text-gray-800 mb-3">ความเป็นเลิศทางดิจิทัล</h4>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">PP7 พร้อมใช้ 100%</span>
+                            <span class="font-semibold text-green-600">✓ 100%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">ความถูกต้อง ≥ 95%</span>
+                            <span class="font-semibold text-green-600">✓ 97%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">ข้อผิดพลาด ↓ ≥ 80%</span>
+                            <span class="font-semibold text-green-600">✓ ลดลง 88%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Structure -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Team Members -->
+            <div class="card p-6">
+                <h3 class="text-xl font-semibold mb-6 flex items-center gap-2">
+                    <i class="fas fa-users text-indigo-600"></i>
+                    <span>โครงสร้างทีม</span>
+                </h3>
+
+                <div class="space-y-4">
+                    <!-- Mentor/Leader -->
+                    <div class="team-member">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-800">ประวิทย์ ผ่องโสภา</p>
+                                <p class="text-sm text-gray-600">Mentor & Service Leader</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-4">
+                        <p class="text-sm font-semibold text-gray-600 mb-3">สมาชิกในทีม</p>
+                        
+                        <!-- Team Member 1 -->
+                        <div class="team-member mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-indigo-400 rounded-full flex items-center justify-center text-white text-sm">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <p class="text-gray-800">อารีย์</p>
+                            </div>
+                        </div>
+
+                        <!-- Team Member 2 -->
+                        <div class="team-member mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-pink-400 rounded-full flex items-center justify-center text-white text-sm">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <p class="text-gray-800">รัฐพร</p>
+                            </div>
+                        </div>
+
+                        <!-- Team Member 3 -->
+                        <div class="team-member mb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center text-white text-sm">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <p class="text-gray-800">ศิริวรรณ</p>
+                            </div>
+                        </div>
+
+                        <!-- Team Member 4 -->
+                        <div class="team-member">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center text-white text-sm">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <p class="text-gray-800">ภีรุวัส</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Metrics -->
+            <div class="card p-6">
+                <h3 class="text-xl font-semibold mb-6 flex items-center gap-2">
+                    <i class="fas fa-chart-line text-indigo-600"></i>
+                    <span>ตัวชี้วัดสำคัญ</span>
+                </h3>
+
+                <div class="space-y-6">
+                    <div class="border-b border-gray-200 pb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-600">ความสำเร็จเฉลี่ย</span>
+                            <span class="text-2xl font-bold text-indigo-600">75%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill gradient-1" style="width: 75%;">75%</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-indigo-50 rounded-lg p-4">
+                            <div class="text-3xl font-bold text-indigo-600 mb-1">12</div>
+                            <p class="text-sm text-gray-600">Key Results ที่ตั้งไว้</p>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-4">
+                            <div class="text-3xl font-bold text-green-600 mb-1">9</div>
+                            <p class="text-sm text-gray-600">KR ที่บรรลุเป้าหมาย</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-pink-50 rounded-lg p-4">
+                            <div class="text-3xl font-bold text-pink-600 mb-1">85%</div>
+                            <p class="text-sm text-gray-600">AI Tool Adoption</p>
+                        </div>
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <div class="text-3xl font-bold text-blue-600 mb-1">100%</div>
+                            <p class="text-sm text-gray-600">PP7 System Ready</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Items -->
+        <div class="card p-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                <i class="fas fa-rocket text-indigo-600"></i>
+                <span>แผนการดำเนินงานและเป้าหมายถัดไป</span>
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Current Focus -->
+                <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg p-6">
+                    <h4 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="fas fa-crosshairs text-indigo-600"></i>
+                        <span>เป้าหมายปัจจุบัน</span>
+                    </h4>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex items-start gap-2">
+                            <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                            <span class="text-gray-700">ดำเนินการระบบ P1-4 ให้แล้วเสร็จสมบูรณ์</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                            <span class="text-gray-700">เพิ่ม Productivity ผ่าน AI Tools</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fas fa-check-circle text-yellow-500 mt-1"></i>
+                            <span class="text-gray-700">พัฒนาทักษะ Systems Thinking</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fas fa-check-circle text-yellow-500 mt-1"></i>
+                            <span class="text-gray-700">สร้าง HRD Dashboard</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Next Steps -->
+                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg p-6">
+                    <h4 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="fas fa-arrow-right text-blue-600"></i>
+                        <span>ขั้นตอนถัดไป</span>
+                    </h4>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex items-start gap-2">
+                            <span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
+                            <span class="text-gray-700">สรุปผล P1-4 System และนำเสนอ</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
+                            <span class="text-gray-700">จัดทำ Data-Driven HR โครงการ</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
+                            <span class="text-gray-700">อบรม OpenClaw/AI เพิ่มเติม</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">4</span>
+                            <span class="text-gray-700">ประเมินผล Q4 และวางแผน Q1 ปีหน้า</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 text-white/80 text-sm">
+            <p>LIA 2.0 Dashboard v2 — Web PP7 Metrics Edition | อัปเดตล่าสุด: กรกฎาคม 2026</p>
+            <p class="mt-1">ระบบ Web PP7 | 16 Tabs • 52 Process Flows • 7 P-Phases • 240x Productivity ↑</p>
+            <p class="mt-1">AWG PAC Team | <i class="fas fa-code mr-1"></i> Powered by OpenClaw</p>
+        </div>
+    </div>
+
+    <script>
+        // Objective Weights Chart
+        const weightCtx = document.getElementById('weightChart').getContext('2d');
+        new Chart(weightCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['ทุนองค์กร', 'ทุนมนุษย์', 'ทุนสารสนเทศ', 'Team Growth', 'Personal Growth'],
+                datasets: [{
+                    data: [30, 30, 30, 30, 20],
+                    backgroundColor: [
+                        '#667eea',
+                        '#f5576c',
+                        '#4facfe',
+                        '#43e97b',
+                        '#fa709a'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 12
+                            },
+                            padding: 15
+                        }
+                    }
+                }
+            }
+        });
+
+        // Progress Chart
+        const progressCtx = document.getElementById('progressChart').getContext('2d');
+        new Chart(progressCtx, {
+            type: 'bar',
+            data: {
+                labels: ['S-Obj 1', 'S-Obj 2', 'S-Obj 3', 'S-Obj 4', 'S-Obj 5'],
+                datasets: [{
+                    label: 'ความสำเร็จ (%)',
+                    data: [88, 77, 79, 85, 55],
+                    backgroundColor: [
+                        'rgba(102, 126, 234, 0.8)',
+                        'rgba(245, 87, 108, 0.8)',
+                        'rgba(79, 172, 254, 0.8)',
+                        'rgba(67, 233, 123, 0.8)',
+                        'rgba(250, 112, 154, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgb(102, 126, 234)',
+                        'rgb(245, 87, 108)',
+                        'rgb(79, 172, 254)',
+                        'rgb(67, 233, 123)',
+                        'rgb(250, 112, 154)'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // PP7 Donut Chart - Key Numbers
+        const pp7DonutCtx = document.getElementById('pp7Donut').getContext('2d');
+        new Chart(pp7DonutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Tabs', 'Process Flows', 'P-Phases', 'Completed Phases'],
+                datasets: [{
+                    data: [16, 52, 7, 2],
+                    backgroundColor: [
+                        'rgba(102, 126, 234, 0.85)',
+                        'rgba(245, 87, 108, 0.85)',
+                        'rgba(79, 172, 254, 0.85)',
+                        'rgba(67, 233, 123, 0.85)'
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 11 },
+                            padding: 10,
+                            usePointStyle: true
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Web PP7 Structure',
+                        font: { size: 14, weight: 'bold' },
+                        padding: { bottom: 10 }
+                    }
+                }
+            }
+        });
+
+        // PP7 Radar Chart - Progress across areas
+        const pp7RadarCtx = document.getElementById('pp7Radar').getContext('2d');
+        new Chart(pp7RadarCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Team Growth O1', 'Team Growth O2', 'Team Growth O3', 'IC KR1', 'IC KR2', 'IC KR3', 'Digital Excellence'],
+                datasets: [
+                    {
+                        label: 'ปัจจุบัน (%)',
+                        data: [85, 82, 78, 75, 28, 85, 91.7],
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                        borderColor: 'rgba(102, 126, 234, 0.8)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'เป้าหมาย (%)',
+                        data: [80, 80, 100, 80, 30, 100, 100],
+                        backgroundColor: 'rgba(67, 233, 123, 0.1)',
+                        borderColor: 'rgba(67, 233, 123, 0.6)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointBackgroundColor: 'rgba(67, 233, 123, 0.8)',
+                        pointRadius: 3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20,
+                            font: { size: 10 }
+                        },
+                        pointLabels: {
+                            font: { size: 10 }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 12 },
+                            padding: 15
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
