@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P1 System Map — ระบบแสวงหา | PP7</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Prompt', sans-serif; box-sizing: border-box; }
+    body { background: #f1f5f9; color: #1e293b; margin: 0; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 260px; background: linear-gradient(135deg,#1e293b 0%,#0f172a 100%);
+      min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 30;
+      transition: transform .3s; overflow-y: auto;
+    }
+    .sidebar-collapsed { transform: translateX(-260px); }
+    .sidebar-logo { padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .sidebar-logo h1 { font-size: 1.1rem; font-weight: 700; color: #f8fafc; margin: 0; }
+    .sidebar-logo span { font-size: .7rem; color: #94a3b8; }
+    .sidebar-link { display:flex; align-items:center; gap:.75rem; padding:.65rem 1.25rem;
+      color:#94a3b8; font-size:.85rem; border-radius:.5rem; margin:.1rem .75rem;
+      transition:all .15s; text-decoration:none; cursor:pointer; }
+    .sidebar-link:hover { background:rgba(255,255,255,.08); color:#e2e8f0; }
+    .sidebar-link.active { background:rgba(59,130,246,.15); color:#60a5fa; font-weight:500; }
+    .sidebar-section { padding:.5rem 1.25rem; font-size:.65rem; font-weight:600;
+      color:#475569; text-transform:uppercase; letter-spacing:.1em; margin-top:.75rem; }
+
+    /* ── Main ── */
+    .main-content { margin-left: 260px; padding: 1.5rem; transition: margin .3s; }
+    @media(max-width:1024px){
+      .sidebar { transform:translateX(-260px); }
+      .sidebar.open { transform:translateX(0); }
+      .main-content { margin-left:0 !important; }
+    }
+
+    /* ── Hamburger ── */
+    .hamburger { display:none; position:fixed; top:.75rem; left:.75rem; z-index:40;
+      background:#1e293b; color:#fff; border:none; border-radius:.5rem;
+      padding:.5rem .65rem; cursor:pointer; font-size:1.2rem; }
+    @media(max-width:1024px){ .hamburger{display:block;} }
+
+    /* ── Cards ── */
+    .card { background:#fff; border-radius:1rem; box-shadow:0 4px 24px rgba(15,23,42,.07);
+      padding:1.5rem; margin-bottom:1.5rem; }
+    .card h2 { font-size:1.1rem; font-weight:600; margin:0 0 1rem; color:#1e293b;
+      display:flex; align-items:center; gap:.5rem; }
+
+    /* ── Architecture diagram ── */
+    .arch-container { display:flex; flex-wrap:wrap; gap:1rem; justify-content:center; align-items:stretch; }
+    .arch-box { border:2px solid #e2e8f0; border-radius:.75rem; padding:1rem 1.25rem;
+      min-width:150px; text-align:center; background:#f8fafc; transition:all .2s; flex:1; max-width:220px; }
+    .arch-box:hover { border-color:#3b82f6; box-shadow:0 4px 16px rgba(59,130,246,.12); }
+    .arch-box .icon { font-size:1.75rem; margin-bottom:.4rem; }
+    .arch-box .title { font-size:.8rem; font-weight:600; color:#1e293b; }
+    .arch-box .sub { font-size:.7rem; color:#64748b; margin-top:.2rem; }
+    .arch-arrow { display:flex; align-items:center; justify-content:center; color:#94a3b8;
+      font-size:1.5rem; min-width:30px; flex-shrink:0; }
+    @media(max-width:640px){
+      .arch-container { flex-direction:column; align-items:center; }
+      .arch-box { max-width:100%; width:100%; }
+      .arch-arrow { transform:rotate(90deg); }
+    }
+
+    /* ── Flow Steps ── */
+    .flow-row { display:flex; flex-wrap:wrap; gap:1rem; }
+    .flow-step { flex:1; min-width:180px; border-radius:.75rem; overflow:hidden;
+      box-shadow:0 2px 12px rgba(15,23,42,.06); background:#fff; border:1px solid #e2e8f0; transition:all .2s; }
+    .flow-step:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(15,23,42,.1); }
+    .flow-step-header { padding:.65rem 1rem; color:#fff; font-size:.75rem; font-weight:600;
+      display:flex; align-items:center; gap:.4rem; }
+    .flow-step-body { padding:.85rem 1rem; font-size:.8rem; line-height:1.6; }
+    .flow-step-body strong { color:#1e293b; }
+    .flow-step-body .tag { display:inline-block; padding:.1rem .45rem; border-radius:9999px;
+      font-size:.65rem; font-weight:500; margin-right:.25rem; margin-top:.25rem; }
+
+    /* step colors */
+    .step1 .flow-step-header { background:linear-gradient(135deg,#2563eb,#1d4ed8); }
+    .step2 .flow-step-header { background:linear-gradient(135deg,#7c3aed,#6d28d9); }
+    .step3 .flow-step-header { background:linear-gradient(135deg,#0891b2,#0e7490); }
+    .step4 .flow-step-header { background:linear-gradient(135deg,#d97706,#b45309); }
+    .step5 .flow-step-header { background:linear-gradient(135deg,#059669,#047857); }
+
+    /* ── Tables ── */
+    table { width:100%; border-collapse:collapse; font-size:.82rem; }
+    th { padding:.6rem .85rem; text-align:left; font-weight:600; color:#64748b;
+      text-transform:uppercase; letter-spacing:.04em; border-bottom:2px solid #e2e8f0;
+      background:#f8fafc; font-size:.72rem; }
+    td { padding:.6rem .85rem; border-bottom:1px solid #f1f5f9; }
+    tr:hover td { background:#f8fafc; }
+
+    /* ── Badges ── */
+    .badge { display:inline-flex; align-items:center; padding:.15rem .55rem;
+      border-radius:9999px; font-size:.7rem; font-weight:500; }
+    .badge-green { background:#dcfce7; color:#166534; }
+    .badge-blue { background:#dbeafe; color:#1e40af; }
+    .badge-amber { background:#fef3c7; color:#92400e; }
+    .badge-red { background:#fee2e2; color:#991b1b; }
+    .badge-purple { background:#f3e8ff; color:#6b21a8; }
+
+    /* ── Handover ── */
+    .handover-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+    @media(max-width:768px){ .handover-grid { grid-template-columns:1fr; } }
+    .handover-card { border-radius:.75rem; overflow:hidden; border:1px solid #e2e8f0; background:#fff; }
+    .handover-header { padding:.6rem 1rem; color:#fff; font-size:.8rem; font-weight:600;
+      display:flex; align-items:center; gap:.4rem; }
+    .handover-body { padding:1rem; font-size:.8rem; line-height:1.7; }
+
+    /* ── Responsive table ── */
+    .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+    /* ── Animations ── */
+    .fade-in { animation:fadeIn .4s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── Section anchor offsets ── */
+    section { scroll-margin-top: 1rem; }
+  </style>
+</head>
+<body>
+
+<!-- Hamburger -->
+<button class="hamburger" id="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <h1>📋 PP7 System Map</h1>
+    <span>P1 — ระบบแสวงหา</span>
+  </div>
+  <div class="sidebar-section">ภาพรวม</div>
+  <a class="sidebar-link active" onclick="scrollTo2('arch')">🏗️ สถาปัตยกรรมระบบ</a>
+  <a class="sidebar-link" onclick="scrollTo2('flow')">🔄 5 ขั้นตอน P1</a>
+  <div class="sidebar-section">Data Mapping</div>
+  <a class="sidebar-link" onclick="scrollTo2('dataflow')">📊 Data Flow</a>
+  <a class="sidebar-link" onclick="scrollTo2('tables')">🗄️ DB ↔ WI ↔ UI</a>
+  <div class="sidebar-section">Integration</div>
+  <a class="sidebar-link" onclick="scrollTo2('handover')">🤝 Hand-over Protocol</a>
+  <a class="sidebar-link" onclick="scrollTo2('ui-status')">🖥️ UI Module Status</a>
+  <div class="sidebar-section">อ้างอิง</div>
+  <a class="sidebar-link" href="https://docs.google.com/spreadsheets/d/1yP_l-WmsnlkMDCkZB7ulhe6oS_AAex8iE3LYdPdg-uc/edit" target="_blank">📊 Google Sheet PP7</a>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content" id="main">
+
+  <!-- Header -->
+  <div class="fade-in" style="margin-bottom:1.5rem;">
+    <h1 style="font-size:1.5rem;font-weight:700;margin:0;">🏗️ P1 System Design — ระบบแสวงหา</h1>
+    <p style="font-size:.85rem;color:#64748b;margin:.35rem 0 0;">
+      แผนผังระบบเชื่อมโยง Google Sheet → WI → Database → UI Module
+    </p>
+  </div>
+
+  <!-- ═══ Section 1: Architecture ═══ -->
+  <section id="arch" class="card fade-in">
+    <h2>🏗️ สถาปัตยกรรมระบบ P1</h2>
+    <p style="font-size:.82rem;color:#64748b;margin-bottom:1rem;">
+      Flow ตั้งแต่ใบขออัตรากำลัง → รับสมัคร → คัดเลือก → ส่งต่อสมาชิก
+    </p>
+    <div class="arch-container">
+      <div class="arch-box" style="border-color:#2563eb; background:#eff6ff;">
+        <div class="icon">📝</div>
+        <div class="title">Step 1: ขออัตรา</div>
+        <div class="sub">headcount_requests</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box" style="border-color:#7c3aed; background:#f5f3ff;">
+        <div class="icon">📢</div>
+        <div class="title">Step 2: เปิดรับสมัคร</div>
+        <div class="sub">Job Posting</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box" style="border-color:#0891b2; background:#ecfeff;">
+        <div class="icon">📋</div>
+        <div class="title">Step 3: รับใบสมัคร</div>
+        <div class="sub">candidates</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box" style="border-color:#d97706; background:#fffbeb;">
+        <div class="icon">🔍</div>
+        <div class="title">Step 4: คัดเลือก</div>
+        <div class="sub">Pipeline Stage</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box" style="border-color:#059669; background:#ecfdf5;">
+        <div class="icon">✅</div>
+        <div class="title">Step 5: บรรจุ</div>
+        <div class="sub">→ employees</div>
+      </div>
+    </div>
+
+    <!-- Reference Data -->
+    <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px dashed #e2e8f0;">
+      <p style="font-size:.75rem;font-weight:600;color:#475569;margin-bottom:.75rem;">📚 ฐานข้อมูลอ้างอิง</p>
+      <div style="display:flex;flex-wrap:wrap;gap:.75rem;">
+        <span class="badge badge-blue">business_units (บริษัท/BU)</span>
+        <span class="badge badge-purple">departments (แผนก/ทีม)</span>
+        <span class="badge badge-amber">roles (บทบาท)</span>
+        <span class="badge badge-green">recruitment_sources (แหล่งผู้สมัคร)</span>
+      </div>
+    </div>
+
+    <!-- BCT Flow -->
+    <div style="margin-top:1.25rem;padding:1rem;background:#f8fafc;border-radius:.75rem;border:1px solid #e2e8f0;">
+      <p style="font-size:.75rem;font-weight:600;color:#475569;margin-bottom:.5rem;">📌 Flow ต้นฉบับ BCT PPP7</p>
+      <div style="font-size:.8rem;line-height:1.8;color:#374151;">
+        ใบ kryeer ขออัตตรากำลังพล → ฐานข้อมูล kryeer ขออัตรากำลังคน →
+        ฐานข้อมูลใบสมัครงาน → ใบสมัครงาน PKG → ฐานข้อมูลสมาชิก →
+        <span style="color:#059669;font-weight:600;">ส่งต่อ P4 PAO เซ็ตสมาชิกใหม่</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Section 2: 5 Steps ═══ -->
+  <section id="flow" class="card fade-in">
+    <h2>🔄 5 ขั้นตอน P1 — Process Detail</h2>
+    <div class="flow-row">
+
+      <!-- Step 1 -->
+      <div class="flow-step step1">
+        <div class="flow-step-header">Step 1 — ขออัตรากำลัง</div>
+        <div class="flow-step-body">
+          <strong>WI:</strong> WI-001, P1_HC-001<br>
+          <strong>DB:</strong> <code>headcount_requests</code><br>
+          <strong>UI:</strong> p1-headcount.html<br><br>
+          <span class="tag" style="background:#dbeafe;color:#1e40af;">Input: ความต้องการ BU</span>
+          <span class="tag" style="background:#dcfce7;color:#166534;">Output: HC approved</span>
+          <br><br>
+         Dept Head สร้างคำขอ → ระบุ ตำแหน่ง/ระดับ/งบประมาณ → ผู้อนุมัติ approve
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="flow-step step2">
+        <div class="flow-step-header">Step 2 — เปิดรับสมัคร</div>
+        <div class="flow-step-body">
+          <strong>WI:</strong> WI-001 (ต่อเนื่อง)<br>
+          <strong>DB:</strong> headcount_requests → job_posting<br>
+          <strong>UI:</strong> p1-headcount.html<br><br>
+          <span class="tag" style="background:#f3e8ff;color:#6b21a8;">Input: HC approved</span>
+          <span class="tag" style="background:#dcfce7;color:#166534;">Output: Job Post</span>
+          <br><br>
+          สร้าง Job Posting → เลือกแหล่งรับสมัคร → เผยแพร่ QR / Job Board
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="flow-step step3">
+        <div class="flow-step-header">Step 3 — รับใบสมัคร</div>
+        <div class="flow-step-body">
+          <strong>WI:</strong> WI-002 (รับใบสมัคร)<br>
+          <strong>DB:</strong> <code>candidates</code>, recruitment_sources<br>
+          <strong>UI:</strong> p1-candidates.html<br><br>
+          <span class="tag" style="background:#ecfeff;color:#155e75;">Input: ใบสมัคร PKG</span>
+          <span class="tag" style="background:#dcfce7;color:#166534;">Output: candidate record</span>
+          <br><br>
+          ผู้สมัครกรอก QR Form → บันทึก PDPA → stage: screening
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="flow-step step4">
+        <div class="flow-step-header">Step 4 — คัดเลือก</div>
+        <div class="flow-step-body">
+          <strong>WI:</strong> WI-002<br>
+          <strong>DB:</strong> <code>candidates</code> (stage update)<br>
+          <strong>UI:</strong> p1-candidates.html<br><br>
+          <span class="tag" style="background:#fef3c7;color:#92400e;">Input: candidate data</span>
+          <span class="tag" style="background:#dcfce7;color:#166534;">Output: stage→offer</span>
+          <br><br>
+          screening → phone_screen → interview → assessment → offer
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="flow-step step5">
+        <div class="flow-step-header">Step 5 — สรุปผล + บรรจุ</div>
+        <div class="flow-step-body">
+          <strong>WI:</strong> WI-003, WI-011<br>
+          <strong>DB:</strong> candidates → <code>employees</code><br>
+          <strong>UI:</strong> p1-candidates.html<br><br>
+          <span class="tag" style="background:#fef3c7;color:#92400e;">Input: offer accepted</span>
+          <span class="tag" style="background:#dcfce7;color:#166534;">Output: employee</span>
+          <br><br>
+          Offer accepted → สร้าง employee record → ส่งต่อ P4
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══ Section 3: Data Flow ═══ -->
+  <section id="dataflow" class="card fade-in">
+    <h2>📊 Data Flow Diagram</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Step</th>
+            <th>Input</th>
+            <th>Process</th>
+            <th>Output</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-blue">1. ขออัตรา</span></td>
+            <td>ความต้องการ BU/Dept, งบประมาณ</td>
+            <td>สร้าง HC Request → อนุมัติ</td>
+            <td><code>headcount_requests</code> (approved)</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-purple">2. เปิดรับ</span></td>
+            <td>HC Request (approved)</td>
+            <td>สร้าง Job Posting + เลือกแหล่ง</td>
+            <td>Job Post published + <code>recruitment_sources</code></td>
+          </tr>
+          <tr>
+            <td><span class="badge" style="background:#ecfeff;color:#155e75;">3. รับใบสมัคร</span></td>
+            <td>ใบสมัคร PKG, Resume, PDPA consent</td>
+            <td>สร้าง Candidate record</td>
+            <td><code>candidates</code> (stage: screening)</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-amber">4. คัดเลือก</span></td>
+            <td>Candidate data, ผลสัมภาษณ์</td>
+            <td>Stage advancement / rejection</td>
+            <td><code>candidates</code> (stage: offer / rejected)</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-green">5. สรุปผล</span></td>
+            <td>Candidate (offer), HC Request</td>
+            <td>สร้าง Employee record</td>
+            <td><code>employees</code> (new) → P4</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pipeline stage diagram -->
+    <div style="margin-top:1.5rem;">
+      <p style="font-size:.8rem;font-weight:600;color:#475569;margin-bottom:.75rem;">Pipeline Stages:</p>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;">
+        <span class="badge badge-blue">screening</span>
+        <span style="color:#94a3b8;">→</span>
+        <span class="badge" style="background:#e0e7ff;color:#3730a3;">phone_screen</span>
+        <span style="color:#94a3b8;">→</span>
+        <span class="badge badge-purple">interview</span>
+        <span style="color:#94a3b8;">→</span>
+        <span class="badge badge-amber">assessment</span>
+        <span style="color:#94a3b8;">→</span>
+        <span class="badge" style="background:#fef3c7;color:#92400e;">offer</span>
+        <span style="color:#94a3b8;">→</span>
+        <span class="badge badge-green">hired</span>
+        <span style="color:#94a3b8;font-size:.75rem;">│</span>
+        <span style="color:#ef4444;font-size:.75rem;">↘</span>
+        <span class="badge badge-red">rejected</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Section 4: DB ↔ WI ↔ UI Table ═══ -->
+  <section id="tables" class="card fade-in">
+    <h2>🗄️ DB Table ↔ WI ↔ UI Mapping</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>DB Table</th>
+            <th>WI อ้างอิง</th>
+            <th>UI Module</th>
+            <th>หน้าที่</th>
+            <th>สถานะ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>headcount_requests</code></td>
+            <td>WI-001, P1_HC-001</td>
+            <td>p1-headcount.html</td>
+            <td>คำขออัตรากำลัง — ขอ/อนุมัติ</td>
+            <td><span class="badge badge-green">✅ พร้อมใช้</span></td>
+          </tr>
+          <tr>
+            <td><code>candidates</code></td>
+            <td>WI-002, WI-003</td>
+            <td>p1-candidates.html</td>
+            <td>ผู้สมัครงาน — Pipeline ทั้งหมด</td>
+            <td><span class="badge badge-green">✅ พร้อมใช้</span></td>
+          </tr>
+          <tr>
+            <td><code>recruitment_sources</code></td>
+            <td>WI-002</td>
+            <td>p1-candidates.html</td>
+            <td>แหล่งที่มาผู้สมัคร</td>
+            <td><span class="badge badge-amber">⚠️ ขาด UI</span></td>
+          </tr>
+          <tr>
+            <td><code>employees</code></td>
+            <td>WI-011</td>
+            <td>(P4 module)</td>
+            <td>สมาชิกปลายทาง (Handover จาก P1)</td>
+            <td><span class="badge badge-green">✅ Schema พร้อม</span></td>
+          </tr>
+          <tr>
+            <td><code>departments</code></td>
+            <td>WI-009</td>
+            <td>(System Settings)</td>
+            <td>โครงสร้างแผนก/ทีม</td>
+            <td><span class="badge badge-green">✅ พร้อมใช้</span></td>
+          </tr>
+          <tr>
+            <td><code>business_units</code></td>
+            <td>WI-009</td>
+            <td>(System Settings)</td>
+            <td>โครงสร้างบริษัท/BU</td>
+            <td><span class="badge badge-green">✅ พร้อมใช้</span></td>
+          </tr>
+          <tr>
+            <td><code>roles</code></td>
+            <td>—</td>
+            <td>(System Settings)</td>
+            <td>สิทธิ์การเข้าถึง</td>
+            <td><span class="badge badge-green">✅ พร้อมใช้</span></td>
+          </tr>
+          <tr>
+            <td><code>users</code></td>
+            <td>—</td>
+            <td>(Login)</td>
+            <td>ผู้ใช้งานระบบ</td>
+            <td><span class="badge badge-green">✅ พร้อมใช้</span></td>
+          </tr>
+          <tr style="background:#fef3c7;">
+            <td><code>job_postings</code> 🔧</td>
+            <td>WI-001</td>
+            <td>p1-headcount.html</td>
+            <td>ตารางใหม่สำหรับประกาศรับสมัคร</td>
+            <td><span class="badge badge-red">❌ ต้องสร้าง</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══ Section 5: Hand-over Protocol ═══ -->
+  <section id="handover" class="card fade-in">
+    <h2>🤝 Hand-over Protocol</h2>
+    <div class="handover-grid">
+
+      <!-- P1 → P2 -->
+      <div class="handover-card">
+        <div class="handover-header" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);">
+          📤 P1 → P2 (หยั่งประเมิน)
+        </div>
+        <div class="handover-body">
+          <p style="font-weight:600;margin:0 0 .5rem;">🔑 Trigger: stage = <code>assessment</code></p>
+          <table style="font-size:.78rem;">
+            <thead><tr><th>ข้อมูล</th><th>จาก</th><th>ไป</th></tr></thead>
+            <tbody>
+              <tr><td>ข้อมูลผู้สมัคร</td><td>candidates</td><td>P2 Dashboard "รอประเมิน"</td></tr>
+              <tr><td>Screening notes</td><td>candidates.notes</td><td>P2 notes</td></tr>
+              <tr><td>Resume URL</td><td>candidates.resume_url</td><td>P2 viewer</td></tr>
+              <tr><td>PDPA consent</td><td>candidates.pdpa_consent</td><td>P2 compliance</td></tr>
+            </tbody>
+          </table>
+          <p style="margin:.75rem 0 0;font-size:.75rem;color:#64748b;">
+            P2 สร้าง: <code>interviews</code>, <code>assessment_results</code>, <code>competency_scores</code>
+          </p>
+        </div>
+      </div>
+
+      <!-- P1 → P4 -->
+      <div class="handover-card">
+        <div class="handover-header" style="background:linear-gradient(135deg,#059669,#047857);">
+          📤 P1 → P4 (เซ็ตสมาชิกใหม่)
+        </div>
+        <div class="handover-body">
+          <p style="font-weight:600;margin:0 0 .5rem;">🔑 Trigger: stage = <code>hired</code></p>
+          <table style="font-size:.78rem;">
+            <thead><tr><th>จาก candidates</th><th>→ employees</th></tr></thead>
+            <tbody>
+              <tr><td>first_name, last_name</td><td>first_name_en, last_name_en</td></tr>
+              <tr><td>email, phone</td><td>email, phone</td></tr>
+              <tr><td>applied_position</td><td>position</td></tr>
+              <tr><td>HC request → level</td><td>level</td></tr>
+              <tr><td>HC request → dept</td><td>department_id</td></tr>
+              <tr><td>HC request → BU</td><td>business_unit_id</td></tr>
+              <tr><td>(ใหม่) hire_date</td><td>hire_date</td></tr>
+              <tr><td>(คำนวณ 90 วัน)</td><td>probation_end</td></tr>
+            </tbody>
+          </table>
+          <p style="margin:.75rem 0 0;font-size:.75rem;color:#64748b;">
+            WI-003 (สรุปผล) → WI-011 (นำสมาชิกเข้าระบบ)
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Visual Handover Diagram -->
+    <div style="margin-top:1.5rem;padding:1.25rem;background:#f8fafc;border-radius:.75rem;border:1px solid #e2e8f0;">
+      <p style="font-size:.8rem;font-weight:600;color:#475569;margin-bottom:1rem;">🔗 Hand-over Flow Diagram</p>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;justify-content:center;">
+        <div style="padding:.6rem 1rem;background:#dbeafe;border-radius:.5rem;font-size:.8rem;font-weight:500;color:#1e40af;text-align:center;">
+          P1 candidates<br><small style="font-weight:400;color:#3b82f6;">stage: screening→offer</small>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:.65rem;color:#7c3aed;">assessment</div>
+          <div style="color:#94a3b8;font-size:1.2rem;">→</div>
+        </div>
+        <div style="padding:.6rem 1rem;background:#f3e8ff;border-radius:.5rem;font-size:.8rem;font-weight:500;color:#6b21a8;text-align:center;">
+          🔍 P2 Assessment<br><small style="font-weight:400;color:#8b5cf6;">interviews + scores</small>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:.65rem;color:#059669;">hired</div>
+          <div style="color:#94a3b8;font-size:1.2rem;">→</div>
+        </div>
+        <div style="padding:.6rem 1rem;background:#dcfce7;border-radius:.5rem;font-size:.8rem;font-weight:500;color:#166534;text-align:center;">
+          👤 P4 Employees<br><small style="font-weight:400;color:#059669;">SET สมาชิกใหม่ (WI-011)</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ Section 6: UI Module Status ═══ -->
+  <section id="ui-status" class="card fade-in">
+    <h2>🖥️ UI Module Status</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th colspan="2" style="background:#eff6ff;color:#1e40af;">p1-headcount.html — Headcount Request</th>
+          </tr>
+          <tr><th>ความสามารถ</th><th>สถานะ</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>แสดงรายการ HC Requests + Sorting</td><td><span class="badge badge-green">✅ มี</span></td></tr>
+          <tr><td>สร้าง HC Request ใหม่ (Modal form)</td><td><span class="badge badge-green">✅ มี</span></td></tr>
+          <tr><td>อนุมัติ/ปฏิเสธ HC Request</td><td><span class="badge badge-green">✅ มี</span></td></tr>
+          <tr><td>Dashboard สถิติ HC</td><td><span class="badge badge-green">✅ มี</span></td></tr>
+          <tr><td>Export Excel</td><td><span class="badge badge-green">✅ มี</span></td></tr>
+          <tr><td>เชื่อม business_units / departments</td><td><span class="badge badge-green">✅ มี</span></td></tr>
+          <tr><td>"เปิดรับสมัคร" จาก approved HC</td><td><span class="badge badge-amber">⚠️ ต้องเพิ่ม</span></td></tr>
+          <tr><td>เชื่อม recruitment_sources</td><td><span class="badge badge-amber">⚠️ ต้องเพิ่ม</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-wrap" style="margin-top:1.25rem;">
+      <table>
+        <thead>
+          <tr>
+            <th colspan="2" style="background:#ecfeff;color:#155e75;">p1-candidates.html — Candidate Pipeline</th>
+          </tr>
+          <tr><th>ความสามารถ</th><th>สถานะ</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Pipeline Kanban (7 stages)</td><td><span class="badge badge-green">✅ มี</span></td></tr>
+          <tr><td>แสดงรายการผู้สมัคร + filter</td><td><span class="badge badge-green">✅ มี</span></td></tr>
+          <tr><td>เพิ่มผู้สมัครใหม่ (Modal)</td><td><span class="badge badge-green">✅ มี</span></td></tr>
+          <tr><td>เปลี่ยน stage (Drag/Dropdown)</td><td><span class="badge badge-green">✅ มี</span></td></tr>
+          <tr><td>เชื่อม headcount_request</td><td><span class="badge badge-amber">⚠️ ต้องเพิ่ม</span></td></tr>
+          <tr><td>เชื่อม recruitment_source</td><td><span class="badge badge-amber">⚠️ ต้องเพิ่ม</span></td></tr>
+          <tr><td>Hire action (→ create employee)</td><td><span class="badge badge-red">❌ ขาด</span></td></tr>
+          <tr><td>QR Application Form</td><td><span class="badge badge-amber">⚠️ แยก p1-recruit-test.html</span></td></tr>
+          <tr><td>PDPA consent capture</td><td><span class="badge badge-red">❌ ขาด</span></td></tr>
+          <tr><td>Resume upload</td><td><span class="badge badge-red">❌ ขาด</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Gap summary -->
+    <div style="margin-top:1.25rem;padding:1rem;background:#fef3c7;border-radius:.75rem;border:1px solid #fde68a;">
+      <p style="font-size:.82rem;font-weight:600;color:#92400e;margin:0 0 .5rem;">⚡ สรุป Gap ที่ต้องพัฒนา</p>
+      <ol style="font-size:.8rem;padding-left:1.25rem;margin:0;line-height:1.8;">
+        <li><strong>Job Posting module</strong> — ยังไม่มี table + UI สำหรับประกาศรับสมัคร</li>
+        <li><strong>Application QR Form</strong> — p1-recruit-test.html ยังไม่เชื่อม DB จริง</li>
+        <li><strong>Hire Action</strong> — ปุ่มสร้าง employee record จาก candidate</li>
+        <li><strong>PDPA Consent</strong> — ต้องเพิ่มทั้ง UI + DB field ใน candidates</li>
+        <li><strong>Resume Upload</strong> — ต้องเพิ่ม file upload ในฟอร์มสมัคร</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div style="text-align:center;padding:2rem 0 1rem;font-size:.75rem;color:#94a3b8;">
+    P1 System Map — Web PP7 | LDC-PAO &nbsp;|&nbsp; v1.0 &nbsp;|&nbsp; 2026-07-13
+  </div>
+
+</main>
+
+<script>
+function scrollTo2(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Active sidebar
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  event.target.classList.add('active');
+  // Close mobile sidebar
+  if (window.innerWidth <= 1024) document.getElementById('sidebar').classList.remove('open');
+}
+</script>
+
+</body>
+</html>
