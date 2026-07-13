@@ -32,6 +32,14 @@
     .cc-bar { height: 8px; border-radius: 4px; transition: width 0.8s ease; }
     .detail-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:50; justify-content:center; align-items:center }
     .detail-modal.open { display:flex }
+    .override-btn { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; font-size:12px; cursor:pointer; border:2px solid transparent; transition:all .15s; }
+    .override-btn:hover { transform:scale(1.15); }
+    .override-btn.active { border-color:#1f2937; box-shadow:0 0 0 2px rgba(99,102,241,.4); }
+    .override-btn-pass { background:#d1fae5; color:#065f46; }
+    .override-btn-hold { background:#fef3c7; color:#92400e; }
+    .override-btn-reject { background:#fee2e2; color:#991b1b; }
+    .override-btn-reset { background:#e5e7eb; color:#374151; font-size:10px; }
+    .manual-tag { background:#6366f1; color:white; font-size:9px; padding:1px 6px; border-radius:8px; margin-left:4px; }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -233,6 +241,7 @@
             <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600">รวม</th>
             <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600">AI Rec.</th>
             <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600">สถานะเดิม</th>
+            <th class="px-3 py-2 text-center text-xs font-semibold text-indigo-600">🛠 Override<br><span class="text-[9px] text-gray-400 font-normal">(กดเปลี่ยนได้)</span></th>
             <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600">รายละเอียด</th>
           </tr>
         </thead>
@@ -452,6 +461,47 @@ function renderSummary() {
 }
 
 // =====================================================
+// OVERRIDE STATUS (manual change)
+// =====================================================
+const overrides = {};
+
+function overrideStatus(idx, newType, fromRowBtn = false) {
+  overrides[idx] = newType;
+  // Update in-memory data
+  const d = processedData[idx];
+  d.recommendation.type = newType;
+  d.recommendation.text = newType === 'Passed' ? '✅ ผ่าน → ไป P2' : newType === 'Hold' ? '⏳ รอพิจารณา → P3' : '❌ ไม่ผ่าน';
+  d.recommendation.cls = newType === 'Passed' ? 'recommend-pass' : newType === 'Hold' ? 'recommend-hold' : 'recommend-reject';
+  d.isManualOverride = true;
+  renderSummary();
+  applyFilters();
+  // Reopen detail modal if it was open
+  if (document.getElementById('detailModal').classList.contains('open')) {
+    showDetail(idx);
+  }
+}
+
+function resetOverride(idx) {
+  delete overrides[idx];
+  const d = processedData[idx];
+  // Restore original computed recommendation
+  const origRec = getRecommendation(d.overall);
+  d.recommendation = origRec;
+  d.isManualOverride = false;
+  renderSummary();
+  applyFilters();
+}
+
+function renderOverrideActions(idx, currentType, isManual) {
+  const btn = (t, color) => `<button class="override-btn override-btn-${color} ${currentType===t?'active':''}" title="${t}" onclick="overrideStatus(${idx},'${t}',true)">${t==='Passed'?'✅':t==='Hold'?'⏳':'❌'}</button>`;
+  let reset = '';
+  if (isManual) {
+    reset = `<button class="override-btn override-btn-reset" title="คืนเป็น AI" onclick="resetOverride(${idx})">⟲</button>`;
+  }
+  return `<div class="flex items-center gap-1 justify-center flex-wrap">${btn('Passed','pass')}${btn('Hold','hold')}${btn('Rejected','reject')}${reset}</div>`;
+}
+
+// =====================================================
 // RENDER TABLE
 // =====================================================
 function renderTable(data) {
@@ -482,6 +532,9 @@ function renderTable(data) {
       </td>
       <td class="px-3 py-2"><div class="${d.recommendation.cls} rounded px-2 py-1 text-xs font-medium whitespace-nowrap">${d.recommendation.text}</div></td>
       <td class="px-3 py-2 text-center">${statusBadge(d.status)}</td>
+      <td class="px-3 py-2 text-center">
+        ${renderOverrideActions(d.no-1, d.recommendation.type, d.isManualOverride)}
+      </td>
       <td class="px-3 py-2 text-center">
         <button onclick="showDetail(${d.no-1})" class="text-indigo-600 hover:text-indigo-800 text-xs font-semibold hover:underline">ดูรายละเอียด</button>
       </td>
