@@ -308,7 +308,7 @@ const REAL_APPLICANTS = [
 
 // =====================================================
 // AI CC SCORE CALCULATION ENGINE
-// คำนวณ CC1-CC5 จากคุณสมบัติจริงของผู้สมัคร
+// คำนวณ CC1-CC7 จากคุณสมบัติจริงของผู้สมัคร + อธิบายเหตุผล
 // =====================================================
 function calculateCCScores(app) {
   const edu = app.edu || '';
@@ -321,88 +321,109 @@ function calculateCCScores(app) {
   const isDup = app.status === 'ใบสมัครซ้ำ';
   const isHired = app.status === 'จ้างงาน';
 
+  // เก็บเหตุผลแต่ละ CC
+  const reasons = { cc1: [], cc2: [], cc3: [], cc4: [], cc5: [], cc6: [], cc7: [] };
+
   // CC1: Servant Leadership (ประสบการณ์+leadership) 
   let cc1 = 50;
-  if (isHired) cc1 += 25;
-  if (age > 25) cc1 += 10;
-  else if (age > 20) cc1 += 5;
-  if (hasPosition1 && hasPosition2) cc1 += 10;
-  if (edu.includes('ตรี')) cc1 += 5;
+  reasons.cc1.push('ฐาน 50');
+  if (isHired) { cc1 += 25; reasons.cc1.push('✅ เคยได้รับการจ้างงาน (+25)'); }
+  if (age > 25) { cc1 += 10; reasons.cc1.push(`✅ อายุ ${age} ปี มีวุฒิภาวะ (+10)`); }
+  else if (age > 20) { cc1 += 5; reasons.cc1.push(`⚡ อายุ ${age} ปี วัยทำงานเริ่มต้น (+5)`); }
+  if (hasPosition1 && hasPosition2) { cc1 += 10; reasons.cc1.push('✅ สมัครหลายตำแหน่ง แสดงความยืดหยุ่น (+10)'); }
+  if (edu.includes('ตรี')) { cc1 += 5; reasons.cc1.push('✅ การศึกษาระดับปริญญาตรี (+5)'); }
   cc1 = Math.min(cc1, 98);
   cc1 = Math.max(cc1, 35);
 
   // CC2: Adaptive Innovation (ทักษะ+การเรียนรู้)
   let cc2 = 45;
-  if (isTechMajor) cc2 += 15;
-  if (gpa >= 3.5) cc2 += 20;
-  else if (gpa >= 3.0) cc2 += 12;
-  else if (gpa >= 2.5) cc2 += 6;
-  if (edu.includes('ตรี')) cc2 += 8;
-  else if (edu.includes('ปวส')) cc2 += 5;
+  reasons.cc2.push('ฐาน 45');
+  if (isTechMajor) { cc2 += 15; reasons.cc2.push(`✅ สาขา "${app.major}" ตรงสายเทคนิค (+15)`); }
+  else { reasons.cc2.push(`⚠️ สาขา "${app.major}" ไม่ตรงสายเทคนิคโดยตรง`); }
+  if (gpa >= 3.5) { cc2 += 20; reasons.cc2.push(`✅ GPA ${gpa} สูงมาก แสดงการเรียนรู้ดี (+20)`); }
+  else if (gpa >= 3.0) { cc2 += 12; reasons.cc2.push(`✅ GPA ${gpa} ดี (+12)`); }
+  else if (gpa >= 2.5) { cc2 += 6; reasons.cc2.push(`⚡ GPA ${gpa} ปานกลาง (+6)`); }
+  else { reasons.cc2.push(`⚠️ GPA ${gpa} ต่ำกว่าเกณฑ์ (+0)`); }
+  if (edu.includes('ตรี')) { cc2 += 8; reasons.cc2.push('✅ ปริญญาตรี (+8)'); }
+  else if (edu.includes('ปวส')) { cc2 += 5; reasons.cc2.push('⚡ ปวส. (+5)'); }
   cc2 = Math.min(cc2, 97);
   cc2 = Math.max(cc2, 30);
 
   // CC3: Trust-Based Value (ทัศนคติ+ความน่าเชื่อถือ)
   let cc3 = 45;
-  if (!isDup) cc3 += 15;
-  if (isHired) cc3 += 20;
-  if (gpa >= 3.0) cc3 += 10;
-  if (hasPosition1) cc3 += 5;
-  if (age >= 22) cc3 += 5;
+  reasons.cc3.push('ฐาน 45');
+  if (!isDup) { cc3 += 15; reasons.cc3.push('✅ ไม่ใช่ใบสมัครซ้ำ แสดงความจริงใจ (+15)'); }
+  else { reasons.cc3.push('❌ เป็นใบสมัครซ้ำ ลดความน่าเชื่อถือ'); }
+  if (isHired) { cc3 += 20; reasons.cc3.push('✅ เคยได้รับการจ้างงาน = ผ่านการตรวจสอบแล้ว (+20)'); }
+  if (gpa >= 3.0) { cc3 += 10; reasons.cc3.push(`✅ GPA ${gpa} แสดงความรับผิดชอบ (+10)`); }
+  if (hasPosition1) { cc3 += 5; reasons.cc3.push('✅ มีตำแหน่งที่สมัครชัดเจน (+5)'); }
+  if (age >= 22) { cc3 += 5; reasons.cc3.push(`✅ อายุ ${age} ปี มีวุฒิภาวะเหมาะสม (+5)`); }
   cc3 = Math.min(cc3, 98);
   cc3 = Math.max(cc3, 25);
 
   // CC4: Consensus Teamwork (ศักยภาพ+ทำงานทีม)
   let cc4 = 45;
-  if (hasPosition2) cc4 += 15;
-  if (isHired) cc4 += 18;
-  if (gpa >= 3.0) cc4 += 10;
-  if (age > 20) cc4 += 8;
-  if (edu.includes('ตรี')) cc4 += 7;
-  if (isTechMajor) cc4 += 5;
+  reasons.cc4.push('ฐาน 45');
+  if (hasPosition2) { cc4 += 15; reasons.cc4.push('✅ มีตำแหน่งที่ 2 แสดงความพร้อมทำงานหลากหลาย (+15)'); }
+  else { reasons.cc4.push('⚠️ สมัครตำแหน่งเดียว อาจยังไม่ยืดหยุ่น'); }
+  if (isHired) { cc4 += 18; reasons.cc4.push('✅ เคยทำงานในองค์กร = ผ่านการทดสอบ teamwork (+18)'); }
+  if (gpa >= 3.0) { cc4 += 10; reasons.cc4.push(`✅ GPA ${gpa} แสดงความมุ่งมั่น (+10)`); }
+  if (age > 20) { cc4 += 8; reasons.cc4.push(`✅ อายุ ${age} ปี พร้อมทำงานทีม (+8)`); }
+  if (edu.includes('ตรี')) { cc4 += 7; reasons.cc4.push('✅ ปริญญาตรี (+7)'); }
+  if (isTechMajor) { cc4 += 5; reasons.cc4.push('✅ สาขาเทคนิค ทำงานเป็นระบบ (+5)'); }
   cc4 = Math.min(cc4, 98);
   cc4 = Math.max(cc4, 30);
 
   // CC5: Disciplined Professionalism (วินัย+ความพร้อม)
   let cc5 = 40;
-  if (gpa >= 3.5) cc5 += 22;
-  else if (gpa >= 3.0) cc5 += 15;
-  else if (gpa >= 2.5) cc5 += 8;
-  else cc5 += 3;
-  if (isHired) cc5 += 20;
-  if (!isDup) cc5 += 10;
+  reasons.cc5.push('ฐาน 40');
+  if (gpa >= 3.5) { cc5 += 22; reasons.cc5.push(`✅ GPA ${gpa} สูงมาก = วินัยดีเยี่ยม (+22)`); }
+  else if (gpa >= 3.0) { cc5 += 15; reasons.cc5.push(`✅ GPA ${gpa} ดี = มีวินัย (+15)`); }
+  else if (gpa >= 2.5) { cc5 += 8; reasons.cc5.push(`⚡ GPA ${gpa} ปานกลาง (+8)`); }
+  else { cc5 += 3; reasons.cc5.push(`⚠️ GPA ${gpa} ต่ำ (+3)`); }
+  if (isHired) { cc5 += 20; reasons.cc5.push('✅ ผ่านการจ้างงาน = มีวินัยทำงาน (+20)'); }
+  if (!isDup) { cc5 += 10; reasons.cc5.push('✅ ไม่ใช่ใบสมัครซ้ำ (+10)'); }
+  else { reasons.cc5.push('❌ ใบสมัครซ้ำ ลดความน่าเชื่อถือ'); }
   cc5 = Math.min(cc5, 97);
   cc5 = Math.max(cc5, 28);
 
   // CC6: Technology Mastery (ทักษะดิจิทัล+เทคโนโลยี)
   let cc6 = 35;
-  if (isTechMajor) cc6 += 25;
-  if (edu.includes('ตรี')) cc6 += 10;
-  else if (edu.includes('ปวส')) cc6 += 5;
-  if (gpa >= 3.0) cc6 += 10;
-  if (age < 30) cc6 += 8; // คนรุ่นใหม่อาจคุ้นเคยเทคโนโลยีมากกว่า
-  if (hasPosition1 && /คอม|tech|IT|digital/i.test(app.position1)) cc6 += 12;
+  reasons.cc6.push('ฐาน 35');
+  if (isTechMajor) { cc6 += 25; reasons.cc6.push(`✅ สาขา "${app.major}" ตรงสายเทคโนโลยี (+25)`); }
+  else { reasons.cc6.push(`⚠️ สาขา "${app.major}" ไม่ตรงสายเทคโนโลยี`); }
+  if (edu.includes('ตรี')) { cc6 += 10; reasons.cc6.push('✅ ปริญญาตรี (+10)'); }
+  else if (edu.includes('ปวส')) { cc6 += 5; reasons.cc6.push('⚡ ปวส. (+5)'); }
+  if (gpa >= 3.0) { cc6 += 10; reasons.cc6.push(`✅ GPA ${gpa} แสดงการเรียนรู้เทคโนโลยีได้ (+10)`); }
+  if (age < 30) { cc6 += 8; reasons.cc6.push(`✅ อายุ ${age} ปี เป็นคนรุ่นใหม่ คล่องดิจิทัล (+8)`); }
+  else { reasons.cc6.push(`⚡ อายุ ${age} ปี อาจต้องทดสอบทักษะดิจิทัลเพิ่ม`); }
+  if (hasPosition1 && /คอม|tech|IT|digital/i.test(app.position1)) { cc6 += 12; reasons.cc6.push('✅ ตำแหน่งงานเกี่ยวข้องกับเทคโนโลยี (+12)'); }
   cc6 = Math.min(cc6, 98);
   cc6 = Math.max(cc6, 25);
 
   // CC7: Humor & Joy (อารมณ์ขัน+บรรยากาศ)
   let cc7 = 40;
-  if (age >= 25) cc7 += 10; // อายุมากขึ้นอาจมีอารมณ์ขันดีขึ้น
-  if (isHired) cc7 += 15;
-  if (!isDup) cc7 += 8;
-  if (hasPosition2) cc7 += 7; // มีตัวเลือกที่ 2 แสดงว่ายืดหยุ่น
-  if (gpa >= 2.5 && gpa < 3.5) cc7 += 5; // GPA ปานกลางอาจเป็นคนสนุก
+  reasons.cc7.push('ฐาน 40');
+  if (age >= 25) { cc7 += 10; reasons.cc7.push(`✅ อายุ ${age} ปี มีวุฒิภาวะทางอารมณ์ (+10)`); }
+  else { reasons.cc7.push(`⚡ อายุ ${age} ปี กำลังพัฒนาอารมณ์ขัน`); }
+  if (isHired) { cc7 += 15; reasons.cc7.push('✅ เคยทำงานในองค์กร = สร้างบรรยากาศดี (+15)'); }
+  if (!isDup) { cc7 += 8; reasons.cc7.push('✅ ไม่ใช่ใบสมัครซ้ำ แสดงความมุ่งมั่น (+8)'); }
+  if (hasPosition2) { cc7 += 7; reasons.cc7.push('✅ สมัครหลายตำแหน่ง = ยืดหยุ่น + สนุกกับงาน (+7)'); }
+  if (gpa >= 2.5 && gpa < 3.5) { cc7 += 5; reasons.cc7.push(`⚡ GPA ${gpa} ปานกลาง อาจเป็นคนสนุก (+5)`); }
   cc7 = Math.min(cc7, 95);
   cc7 = Math.max(cc7, 30);
 
   return {
-    cc1: Math.round(cc1),
-    cc2: Math.round(cc2),
-    cc3: Math.round(cc3),
-    cc4: Math.round(cc4),
-    cc5: Math.round(cc5),
-    cc6: Math.round(cc6),
-    cc7: Math.round(cc7)
+    scores: {
+      cc1: Math.round(cc1),
+      cc2: Math.round(cc2),
+      cc3: Math.round(cc3),
+      cc4: Math.round(cc4),
+      cc5: Math.round(cc5),
+      cc6: Math.round(cc6),
+      cc7: Math.round(cc7)
+    },
+    reasons: reasons
   };
 }
 
@@ -437,12 +458,15 @@ function statusBadge(status) {
 
 // Process data
 const processedData = REAL_APPLICANTS.map(app => {
-  const scores = calculateCCScores(app);
+  const result = calculateCCScores(app);
+  const scores = result.scores;
+  const reasons = result.reasons;
   const overall = calcOverall(scores);
   const rec = getRecommendation(overall);
   return {
     ...app,
     scores,
+    reasons,
     overall,
     recommendation: rec
   };
@@ -585,17 +609,32 @@ function showDetail(idx) {
   const d = processedData[idx];
   const modal = document.getElementById('detailModal');
   
-  const ccLabels = ['CC1: Servant Leadership', 'CC2: Adaptive Innovation', 'CC3: Trust-Based Value', 'CC4: Consensus Teamwork', 'CC5: Disciplined Pro.'];
-  const ccKeys = ['cc1', 'cc2', 'cc3', 'cc4', 'cc5'];
-  const ccColors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-purple-500', 'bg-red-500'];
+  const ccLabels = ['CC1: Servant Leadership', 'CC2: Adaptive Innovation', 'CC3: Trust-Based Value', 'CC4: Consensus Teamwork', 'CC5: Disciplined Pro.', 'CC6: Technology Mastery', 'CC7: Humor & Joy'];
+  const ccKeys = ['cc1', 'cc2', 'cc3', 'cc4', 'cc5', 'cc6', 'cc7'];
+  const ccColors = ['bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-purple-500', 'bg-red-500', 'bg-cyan-500', 'bg-pink-500'];
+  const ccTextColors = ['text-blue-700', 'text-green-700', 'text-orange-700', 'text-purple-700', 'text-red-700', 'text-cyan-700', 'text-pink-700'];
 
   let barsHtml = ccKeys.map((k, i) => `
     <div class="flex items-center gap-2">
-      <div class="text-xs w-32 ${ccColors[i].includes('blue')?'text-blue-700':ccColors[i].includes('green')?'text-green-700':ccColors[i].includes('orange')?'text-orange-700':ccColors[i].includes('purple')?'text-purple-700':'text-red-700'} font-medium">${ccLabels[i]}</div>
+      <div class="text-xs w-32 ${ccTextColors[i]} font-medium">${ccLabels[i]}</div>
       <div class="flex-1 bg-gray-200 rounded-full h-4 overflow-hidden">
         <div class="${ccColors[i]} h-full rounded-full cc-bar" style="width:${d.scores[k]}%"></div>
       </div>
       <div class="text-sm font-bold w-8 text-right">${d.scores[k]}</div>
+    </div>
+  `).join('');
+
+  // AI Reasoning section
+  const ccReasonLabels = ['CC1: Servant Leadership', 'CC2: Adaptive Innovation', 'CC3: Trust-Based Value', 'CC4: Consensus Teamwork', 'CC5: Disciplined Pro.', 'CC6: Technology Mastery', 'CC7: Humor & Joy'];
+  const ccReasonColors = ['border-blue-300 bg-blue-50', 'border-green-300 bg-green-50', 'border-orange-300 bg-orange-50', 'border-purple-300 bg-purple-50', 'border-red-300 bg-red-50', 'border-cyan-300 bg-cyan-50', 'border-pink-300 bg-pink-50'];
+  const ccReasonTextColors = ['text-blue-800', 'text-green-800', 'text-orange-800', 'text-purple-800', 'text-red-800', 'text-cyan-800', 'text-pink-800'];
+
+  let reasoningHtml = ccKeys.map((k, i) => `
+    <div class="border-l-4 ${ccReasonColors[i]} rounded-r-lg p-2 mb-2">
+      <div class="font-bold text-xs ${ccReasonTextColors[i]}">${ccReasonLabels[i]} — <span class="text-base">${d.scores[k]}</span></div>
+      <div class="text-xs text-gray-700 mt-1 space-y-0.5">
+        ${d.reasons[k].map(r => `<div>${r}</div>`).join('')}
+      </div>
     </div>
   `).join('');
 
@@ -667,6 +706,11 @@ function showDetail(idx) {
     <div class="mt-5">
       <h4 class="text-sm font-bold text-gray-700 mb-3">🤖 AI CC Scores (Overall: <span class="text-xl font-bold text-indigo-600">${d.overall}</span>)</h4>
       <div class="space-y-2">${barsHtml}</div>
+    </div>
+
+    <div class="mt-5">
+      <h4 class="text-sm font-bold text-gray-700 mb-3">🧠 AI Reasoning — เหตุผลที่ให้คะแนนแต่ละ CC</h4>
+      <div class="space-y-1">${reasoningHtml}</div>
     </div>
 
     <div class="mt-4 ${d.recommendation.cls} rounded-lg px-3 py-2">
