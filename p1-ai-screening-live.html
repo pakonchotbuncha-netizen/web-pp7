@@ -114,6 +114,14 @@
         <div class="font-bold text-red-700">CC5: Disciplined Pro.</div>
         <div class="text-red-600">วินัย + ความพร้อมงาน</div>
       </div>
+      <div class="bg-cyan-50 rounded-lg p-2">
+        <div class="font-bold text-cyan-700">CC6: Technology Mastery</div>
+        <div class="text-cyan-600">ทักษะดิจิทัล + เทคโนโลยี</div>
+      </div>
+      <div class="bg-pink-50 rounded-lg p-2">
+        <div class="font-bold text-pink-700">CC7: Humor & Joy</div>
+        <div class="text-pink-600">อารมณ์ขัน + บรรยากาศ</div>
+      </div>
     </div>
   </div>
 </div>
@@ -238,6 +246,8 @@
             <th class="px-3 py-2 text-center text-xs font-semibold text-orange-600">CC3</th>
             <th class="px-3 py-2 text-center text-xs font-semibold text-purple-600">CC4</th>
             <th class="px-3 py-2 text-center text-xs font-semibold text-red-600">CC5</th>
+            <th class="px-3 py-2 text-center text-xs font-semibold text-cyan-600">CC6</th>
+            <th class="px-3 py-2 text-center text-xs font-semibold text-pink-600">CC7</th>
             <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600">รวม</th>
             <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600">AI Rec.</th>
             <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600">สถานะเดิม</th>
@@ -364,17 +374,40 @@ function calculateCCScores(app) {
   cc5 = Math.min(cc5, 97);
   cc5 = Math.max(cc5, 28);
 
+  // CC6: Technology Mastery (ทักษะดิจิทัล+เทคโนโลยี)
+  let cc6 = 35;
+  if (isTechMajor) cc6 += 25;
+  if (edu.includes('ตรี')) cc6 += 10;
+  else if (edu.includes('ปวส')) cc6 += 5;
+  if (gpa >= 3.0) cc6 += 10;
+  if (age < 30) cc6 += 8; // คนรุ่นใหม่อาจคุ้นเคยเทคโนโลยีมากกว่า
+  if (hasPosition1 && /คอม|tech|IT|digital/i.test(app.position1)) cc6 += 12;
+  cc6 = Math.min(cc6, 98);
+  cc6 = Math.max(cc6, 25);
+
+  // CC7: Humor & Joy (อารมณ์ขัน+บรรยากาศ)
+  let cc7 = 40;
+  if (age >= 25) cc7 += 10; // อายุมากขึ้นอาจมีอารมณ์ขันดีขึ้น
+  if (isHired) cc7 += 15;
+  if (!isDup) cc7 += 8;
+  if (hasPosition2) cc7 += 7; // มีตัวเลือกที่ 2 แสดงว่ายืดหยุ่น
+  if (gpa >= 2.5 && gpa < 3.5) cc7 += 5; // GPA ปานกลางอาจเป็นคนสนุก
+  cc7 = Math.min(cc7, 95);
+  cc7 = Math.max(cc7, 30);
+
   return {
     cc1: Math.round(cc1),
     cc2: Math.round(cc2),
     cc3: Math.round(cc3),
     cc4: Math.round(cc4),
-    cc5: Math.round(cc5)
+    cc5: Math.round(cc5),
+    cc6: Math.round(cc6),
+    cc7: Math.round(cc7)
   };
 }
 
 function calcOverall(cc) {
-  return Math.round(cc.cc1*0.25 + cc.cc2*0.30 + cc.cc3*0.20 + cc.cc4*0.15 + cc.cc5*0.10);
+  return Math.round(cc.cc1*0.20 + cc.cc2*0.20 + cc.cc3*0.15 + cc.cc4*0.15 + cc.cc5*0.10 + cc.cc6*0.10 + cc.cc7*0.10);
 }
 
 function getRecommendation(score) {
@@ -527,6 +560,8 @@ function renderTable(data) {
       <td class="px-3 py-2 text-center">${scorePill(d.scores.cc3)}</td>
       <td class="px-3 py-2 text-center">${scorePill(d.scores.cc4)}</td>
       <td class="px-3 py-2 text-center">${scorePill(d.scores.cc5)}</td>
+      <td class="px-3 py-2 text-center">${scorePill(d.scores.cc6)}</td>
+      <td class="px-3 py-2 text-center">${scorePill(d.scores.cc7)}</td>
       <td class="px-3 py-2 text-center">
         <span class="bg-gray-100 rounded-lg px-2 py-1 font-bold text-sm">${d.overall}</span>
       </td>
