@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P1 AI Screening - Web PP7</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Noto Sans Thai', sans-serif; }
+    .card { transition: all 0.2s; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+    .score-high { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+    .score-medium { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+    .score-low { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+    .recommend-pass { background: #d1fae5; color: #065f46; border-left: 4px solid #10b981; }
+    .recommend-hold { background: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b; }
+    .recommend-reject { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
+    .flow-arrow { animation: pulse-arrow 2s infinite; }
+    @keyframes pulse-arrow {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .score-bar { transition: width 0.8s ease-out; }
+    .badge { padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+    .badge-new { background: #dbeafe; color: #1e40af; }
+    .badge-screening { background: #fef3c7; color: #92400e; }
+    .badge-passed { background: #d1fae5; color: #065f46; }
+    .badge-rejected { background: #fee2e2; color: #991b1b; }
+    .tab-active { border-bottom: 3px solid #6366f1; color: #6366f1; font-weight: 600; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-indigo-900 to-purple-900 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-bold flex items-center gap-2">
+            🤖 P1 AI Screening Dashboard
+          </h1>
+          <p class="text-indigo-200 text-sm mt-1">ระบบคัดกรองผู้สมัครอัตโนมัติด้วย AI • Competency Check (CC) Scoring</p>
+        </div>
+        <div class="text-right">
+          <div class="text-xs text-indigo-300">อัพเดทล่าสุด</div>
+          <div class="text-sm font-semibold" id="update-time">กำลังโหลด...</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notice -->
+  <div class="max-w-7xl mx-auto px-6 pt-4">
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+      <div class="flex items-start gap-3">
+        <span class="text-2xl">ℹ️</span>
+        <div>
+          <h3 class="font-semibold text-blue-900">ข้อมูลตัวอย่าง (Simulated Data)</h3>
+          <p class="text-sm text-blue-800 mt-1">
+            ข้อมูลด้านล่างเป็นข้อมูลตัวอย่างเพื่อแสดงการทำงานของระบบ AI Screening
+            ระบบจริงจะดึงข้อมูลจาก Google Sheet โดยตรงผ่าน Google Apps Script
+            <a href="https://docs.google.com/spreadsheets/d/1yP_l-WmsnlkMDCkZB7ulhe6oS_AAex8iE3LYdPdg-uc/edit?usp=sharing" 
+               target="_blank" class="underline font-semibold">ดู Google Sheet →</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Screening Summary Box -->
+  <div class="max-w-7xl mx-auto px-6 py-6">
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-100">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center text-2xl">🧠</div>
+        <div>
+          <h2 class="text-xl font-bold text-gray-800">AI Screening Results Summary</h2>
+          <p class="text-gray-500 text-sm">ผลการคัดกรองผู้สมัครด้วย Competency Check (CC1-CC5)</p>
+        </div>
+      </div>
+      
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 text-center card">
+          <div class="text-3xl font-bold text-blue-700">24</div>
+          <div class="text-sm text-blue-600 font-medium mt-1">ผู้สมัครใหม่</div>
+          <div class="text-xs text-blue-500 mt-1">เดือนนี้</div>
+        </div>
+        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 text-center card">
+          <div class="text-3xl font-bold text-green-700">15</div>
+          <div class="text-sm text-green-600 font-medium mt-1">ผ่าน AI Screen</div>
+          <div class="text-xs text-green-500 mt-1">62.5%</div>
+        </div>
+        <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-4 text-center card">
+          <div class="text-3xl font-bold text-yellow-700">6</div>
+          <div class="text-sm text-yellow-600 font-medium mt-1">รอดำเนินการ</div>
+          <div class="text-xs text-yellow-500 mt-1">Hold</div>
+        </div>
+        <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-4 text-center card">
+          <div class="text-3xl font-bold text-red-700">3</div>
+          <div class="text-sm text-red-600 font-medium mt-1">ไม่ผ่าน</div>
+          <div class="text-xs text-red-500 mt-1">12.5%</div>
+        </div>
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-4 text-center card">
+          <div class="text-3xl font-bold text-purple-700">78</div>
+          <div class="text-sm text-purple-600 font-medium mt-1">Avg. CC Score</div>
+          <div class="text-xs text-purple-500 mt-1">คะแนนเฉลี่ย</div>
+        </div>
+      </div>
+
+      <!-- CC Criteria Legend -->
+      <div class="bg-gray-50 rounded-lg p-4">
+        <h3 class="text-sm font-semibold text-gray-700 mb-2">📋 เกณฑ์ Competency Check (CC1-CC5)</h3>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
+          <div class="bg-white rounded p-2">
+            <div class="font-semibold text-blue-700">CC1: ประสบการณ์</div>
+            <div class="text-gray-500">ตรงกับ JD & LIA</div>
+          </div>
+          <div class="bg-white rounded p-2">
+            <div class="font-semibold text-green-700">CC2: ทักษะ</div>
+            <div class="text-gray-500">Hard/Soft Skills</div>
+          </div>
+          <div class="bg-white rounded p-2">
+            <div class="font-semibold text-orange-700">CC3: ทัศนคติ</div>
+            <div class="text-gray-500">Culture Fit</div>
+          </div>
+          <div class="bg-white rounded p-2">
+            <div class="font-semibold text-purple-700">CC4: ศักยภาพ</div>
+            <div class="text-gray-500">Learning Ability</div>
+          </div>
+          <div class="bg-white rounded p-2">
+            <div class="font-semibold text-red-700">CC5: ความพร้อม</div>
+            <div class="text-gray-500">Readiness & Salary</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter & Search -->
+    <div class="bg-white rounded-xl shadow p-4 mb-6">
+      <div class="flex flex-wrap gap-4 items-center">
+        <input type="text" id="search-input" placeholder="🔍 ค้นหาชื่อผู้สมัคร..." 
+               class="px-4 py-2 border border-gray-300 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <select id="filter-status" class="px-4 py-2 border border-gray-300 rounded-lg">
+          <option value="">ทุกสถานะ</option>
+          <option value="Passed">ผ่าน (Passed)</option>
+          <option value="Hold">รอดำเนินการ (Hold)</option>
+          <option value="Rejected">ไม่ผ่าน (Rejected)</option>
+          <option value="Pending">รอคัดกรอง (Pending)</option>
+        </select>
+        <select id="filter-position" class="px-4 py-2 border border-gray-300 rounded-lg">
+          <option value="">ทุกตำแหน่ง</option>
+          <option value="Software Developer">Software Developer</option>
+          <option value="HR Officer">HR Officer</option>
+          <option value="Accountant">Accountant</option>
+          <option value="Sales Executive">Sales Executive</option>
+          <option value="Production Manager">Production Manager</option>
+        </select>
+        <button onclick="resetFilters()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm">
+          🔄 รีเซ็ต
+        </button>
+      </div>
+    </div>
+
+    <!-- Candidates Table -->
+    <div class="bg-white rounded-xl shadow overflow-hidden mb-8">
+      <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+        <h3 class="text-lg font-semibold text-gray-800">👥 รายชื่อผู้สมัคร & AI Screening Results</h3>
+        <span class="text-sm text-gray-500" id="result-count">แสดง 10 รายการ</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">#</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">ชื่อ-นามสกุล</th>
+              <th class="px-4 py-3 text-left font-semibold text-gray-700">ตำแหน่ง</th>
+              <th class="px-4 py-3 text-center font-semibold text-gray-700">CC1</th>
+              <th class="px-4 py-3 text-center font-semibold text-gray-700">CC2</th>
+              <th class="px-4 py-3 text-center font-semibold text-gray-700">CC3</th>
+              <th class="px-4 py-3 text-center font-semibold text-gray-700">CC4</th>
+              <th class="px-4 py-3 text-center font-semibold text-gray-700">CC5</th>
+              <th class="px-4 py-3 text-center font-semibold text-gray-700">คะแนนรวม</th>
+              <th class="px-4 py-3 text-center font-semibold text-gray-700">AI Recommendation</th>
+              <th class="px-4 py-3 text-center font-semibold text-gray-700">สถานะ</th>
+              <th class="px-4 py-3 text-center font-semibold text-gray-700"> action</th>
+            </tr>
+          </thead>
+          <tbody id="candidates-table">
+            <!-- JavaScript จะเติมข้อมูลที่นี่ -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Data Flow Diagram -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+      <h2 class="text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+        🔄 กระบวนการหลังจาก AI Screening (Data Flow)
+      </h2>
+      <p class="text-gray-500 text-sm mb-6">ข้อมูลผู้สมัครไหลผ่านกระบวนการต่างๆ ใน Web PP7 อย่างไร</p>
+      
+      <!-- Flow Diagram -->
+      <div class="relative">
+        <!-- P1 -->
+        <div class="flex items-center justify-center mb-4">
+          <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-4 text-center shadow-lg w-64">
+            <div class="text-2xl mb-1">📋</div>
+            <div class="font-bold">P1: แสวงหา</div>
+            <div class="text-xs opacity-80 mt-1">ผู้สมัครกรอกฟอร์ม → บันทึกข้อมูล</div>
+          </div>
+        </div>
+        
+        <!-- Arrow -->
+        <div class="flex justify-center mb-4">
+          <div class="w-0.5 h-8 bg-gray-300 flow-arrow"></div>
+        </div>
+        <div class="flex justify-center mb-4">
+          <div class="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-full text-sm font-semibold shadow">
+            🤖 AI Screening (CC1-CC5)
+          </div>
+        </div>
+        <div class="flex justify-center mb-4">
+          <div class="w-0.5 h-8 bg-gray-300 flow-arrow"></div>
+        </div>
+        
+        <!-- P2, P3, P4 Branches -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Passed → P2 -->
+          <div class="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+            <div class="text-center mb-3">
+              <div class="inline-block bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                ผ่าน → 62.5%
+              </div>
+            </div>
+            <div class="bg-white rounded-lg p-3 shadow-sm mb-2">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-lg">🔍</div>
+                <div>
+                  <div class="font-semibold text-green-800 text-sm">P2: หยั่งประเมิน</div>
+                  <div class="text-xs text-gray-500">สัมภาษณ์ CC Assessment</div>
+                </div>
+              </div>
+              <div class="text-xs text-gray-600 bg-gray-50 rounded p-2">
+                • สัมภาษณ์เชิงลึก<br>
+                • ทดสอบทักษะ<br>
+                • ประเมินทัศนคติ
+              </div>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-gray-400">↓ สถานะ: "รอประเมิน"</div>
+            </div>
+          </div>
+          
+          <!-- P2 → P3 -->
+          <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
+            <div class="text-center mb-3">
+              <div class="inline-block bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                รอพิจารณา → 25%
+              </div>
+            </div>
+            <div class="bg-white rounded-lg p-3 shadow-sm mb-2">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center text-lg">⚖️</div>
+                <div>
+                  <div class="font-semibold text-yellow-800 text-sm">P3: จับคู่คนกับงาน</div>
+                  <div class="text-xs text-gray-500">Position Matching</div>
+                </div>
+              </div>
+              <div class="text-xs text-gray-600 bg-gray-50 rounded p-2">
+                • เทียบกับตำแหน่งอื่น<br>
+                • AI แนะนำตำแหน่งที่เหมาะสม<br>
+                • พิจารณาโดย HR
+              </div>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-gray-400">↓ สถานะ: "พิจารณาเพิ่มเติม"</div>
+            </div>
+          </div>
+          
+          <!-- Rejected -->
+          <div class="bg-red-50 border-2 border-red-200 rounded-lg p-4">
+            <div class="text-center mb-3">
+              <div class="inline-block bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                ไม่ผ่าน → 12.5%
+              </div>
+            </div>
+            <div class="bg-white rounded-lg p-3 shadow-sm mb-2">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center text-lg">❌</div>
+                <div>
+                  <div class="font-semibold text-red-800 text-sm">ปฏิเสธ</div>
+                  <div class="text-xs text-gray-500">เก็บเข้า Talent Pool</div>
+                </div>
+              </div>
+              <div class="text-xs text-gray-600 bg-gray-50 rounded p-2">
+                • แจ้งผลผู้สมัคร<br>
+                • เก็บข้อมูลเข้า Pool<br>
+                • พิจารณาในอนาคต
+              </div>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-gray-400">↓ สถานะ: "ไม่ผ่าน"</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Continue Flow -->
+        <div class="mt-6 border-t border-gray-200 pt-6">
+          <h4 class="text-sm font-semibold text-gray-700 mb-4 text-center">กระบวนการต่อเนื่อง (หลัง P2 ผ่าน)</h4>
+          <div class="flex flex-wrap justify-center items-center gap-2 text-xs">
+            <div class="bg-green-100 text-green-800 px-3 py-2 rounded-lg font-medium">P2 ผ่าน</div>
+            <div class="text-gray-400">→</div>
+            <div class="bg-orange-100 text-orange-800 px-3 py-2 rounded-lg font-medium">P3: จับคู่</div>
+            <div class="text-gray-400">→</div>
+            <div class="bg-purple-100 text-purple-800 px-3 py-2 rounded-lg font-medium">P4: ประเมินผล</div>
+            <div class="text-gray-400">→</div>
+            <div class="bg-pink-100 text-pink-800 px-3 py-2 rounded-lg font-medium">P5: พัฒนา</div>
+            <div class="text-gray-400">→</div>
+            <div class="bg-indigo-100 text-indigo-800 px-3 py-2 rounded-lg font-medium">P6: ค่าตอบแทน</div>
+            <div class="text-gray-400">→</div>
+            <div class="bg-teal-100 text-teal-800 px-3 py-2 rounded-lg font-medium">P7: คุณภาพชีวิต</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Integration Info -->
+    <div class="bg-white rounded-xl shadow p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">🔗 การเชื่อมต่อข้อมูล</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-gray-50 rounded-lg p-4">
+          <div class="font-semibold text-gray-700 mb-2">📊 Google Sheets Data Source</div>
+          <a href="https://docs.google.com/spreadsheets/d/1yP_l-WmsnlkMDCkZB7ulhe6oS_AAex8iE3LYdPdg-uc/edit?usp=sharing" 
+             target="_blank" class="text-blue-600 hover:underline text-sm break-all">
+            https://docs.google.com/spreadsheets/d/1yP_l-WmsnlkMDCkZB7ulhe6oS_AAex8iE3LYdPdg-uc
+          </a>
+          <div class="text-xs text-gray-500 mt-2">
+            Tab ที่เกี่ยวข้อง: Tab-02-แสวงหา, Tab-03-หยั่งประเมิน
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <div class="font-semibold text-gray-700 mb-2">⚙️ AI Screening Logic</div>
+          <div class="text-sm text-gray-600">
+            CC Score = (CC1×0.25 + CC2×0.30 + CC3×0.20 + CC4×0.15 + CC5×0.10)<br>
+            <span class="font-medium">Pass:</span> Score ≥ 75 |
+            <span class="font-medium">Hold:</span> Score 60-74 |
+            <span class="font-medium">Reject:</span> Score < 60
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-100 border-t border-gray-200 py-4 mt-8">
+    <div class="max-w-7xl mx-auto px-6 text-center text-sm text-gray-500">
+      Web PP7 - P1 AI Screening Dashboard • พัฒนาโดย KiloClaw •
+      <span class="text-gray-400">เวอร์ชัน 1.0 - Simulated Data</span>
+    </div>
+  </footer>
+
+  <script>
+    // Simulated candidate data (จะแทนที่ด้วย API call เมื่อเชื่อมต่อ Google Apps Script)
+    const candidates = [
+      {
+        id: 1, name: "สมชาย ใจดี", position: "Software Developer",
+        cc1: 85, cc2: 90, cc3: 80, cc4: 85, cc5: 75,
+        status: "Passed", date: "2025-01-15", source: "LinkedIn"
+      },
+      {
+        id: 2, name: "สมหญิง รักงาน", position: "HR Officer",
+        cc1: 70, cc2: 85, cc3: 90, cc4: 80, cc5: 85,
+        status: "Passed", date: "2025-01-14", source: "JobThai"
+      },
+      {
+        id: 3, name: "วิชัย เก่งมาก", position: "Accountant",
+        cc1: 60, cc2: 55, cc3: 70, cc4: 65, cc5: 80,
+        status: "Hold", date: "2025-01-14", source: "Indeed"
+      },
+      {
+        id: 4, name: "อรุณี สดใส", position: "Sales Executive",
+        cc1: 90, cc2: 85, cc3: 88, cc4: 92, cc5: 78,
+        status: "Passed", date: "2025-01-13", source: "Facebook"
+      },
+      {
+        id: 5, name: "ประยุทธ์ มั่นคง", position: "Production Manager",
+        cc1: 45, cc2: 50, cc3: 55, cc4: 60, cc5: 70,
+        status: "Rejected", date: "2025-01-13", source: "Walk-in"
+      },
+      {
+        id: 6, name: "นิตยา มีสุข", position: "Software Developer",
+        cc1: 78, cc2: 82, cc3: 75, cc4: 80, cc5: 85,
+        status: "Passed", date: "2025-01-12", source: "LinkedIn"
+      },
+      {
+        id: 7, name: "ธนพล รวดเร็ว", position: "Sales Executive",
+        cc1: 65, cc2: 70, cc3: 68, cc4: 72, cc5: 75,
+        status: "Hold", date: "2025-01-12", source: "JobBKK"
+      },
+      {
+        id: 8, name: "ปิยะ น่ารัก", position: "HR Officer",
+        cc1: 55, cc2: 60, cc3: 58, cc4: 62, cc5: 70,
+        status: "Rejected", date: "2025-01-11", source: "Indeed"
+      },
+      {
+        id: 9, name: "กัญญา อัจฉริยะ", position: "Accountant",
+        cc1: 88, cc2: 92, cc3: 85, cc4: 88, cc5: 90,
+        status: "Passed", date: "2025-01-11", source: "LinkedIn"
+      },
+      {
+        id: 10, name: "รัชชAI ฉลาด", position: "Software Developer",
+        cc1: 80, cc2: 85, cc3: 78, cc4: 88, cc5: 82,
+        status: "Passed", date: "2025-01-10", source: "GitHub"
+      }
+    ];
+
+    // Calculate overall CC score
+    function calculateCCScore(cc1, cc2, cc3, cc4, cc5) {
+      return Math.round(cc1 * 0.25 + cc2 * 0.30 + cc3 * 0.20 + cc4 * 0.15 + cc5 * 0.10);
+    }
+
+    // Get recommendation based on score
+    function getRecommendation(score) {
+      if (score >= 75) return { text: "ผ่าน - ไป P2", class: "recommend-pass" };
+      if (score >= 60) return { text: "รอดำเนินการ - P3", class: "recommend-hold" };
+      return { text: "ไม่ผ่าน", class: "recommend-reject" };
+    }
+
+    // Get score color class
+    function getScoreClass(score) {
+      if (score >= 80) return "score-high";
+      if (score >= 65) return "score-medium";
+      return "score-low";
+    }
+
+    // Render score cell
+    function renderScoreCell(score) {
+      return `<div class="text-center">
+        <div class="inline-block w-10 h-10 rounded-full ${getScoreClass(score)} flex items-center justify-center text-xs font-bold">
+          ${score}
+        </div>
+      </div>`;
+    }
+
+    // Render table
+    function renderTable(filteredCandidates) {
+      const tbody = document.getElementById('candidates-table');
+      if (filteredCandidates.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="12" class="px-4 py-8 text-center text-gray-500">ไม่พบข้อมูล</td></tr>`;
+        document.getElementById('result-count').textContent = 'ไม่พบข้อมูล';
+        return;
+      }
+
+      tbody.innerHTML = filteredCandidates.map((c, idx) => {
+        const overallScore = calculateCCScore(c.cc1, c.cc2, c.cc3, c.cc4, c.cc5);
+        const rec = getRecommendation(overallScore);
+        
+        let statusBadge = '';
+        if (c.status === 'Passed') statusBadge = '<span class="badge badge-passed">ผ่าน</span>';
+        else if (c.status === 'Hold') statusBadge = '<span class="badge badge-screening">รอพิจารณา</span>';
+        else if (c.status === 'Rejected') statusBadge = '<span class="badge badge-rejected">ไม่ผ่าน</span>';
+        else statusBadge = '<span class="badge badge-new">ใหม่</span>';
+
+        return `<tr class="hover:bg-gray-50 border-b border-gray-100">
+          <td class="px-4 py-3 text-gray-500">${idx + 1}</td>
+          <td class="px-4 py-3">
+            <div class="font-semibold text-gray-800">${c.name}</div>
+            <div class="text-xs text-gray-500">${c.source} • ${c.date}</div>
+          </td>
+          <td class="px-4 py-3 text-gray-700">${c.position}</td>
+          ${renderScoreCell(c.cc1)}
+          ${renderScoreCell(c.cc2)}
+          ${renderScoreCell(c.cc3)}
+          ${renderScoreCell(c.cc4)}
+          ${renderScoreCell(c.cc5)}
+          <td class="px-4 py-3 text-center">
+            <div class="inline-block bg-gray-100 rounded-lg px-3 py-1 font-bold text-gray-800">
+              ${overallScore}
+            </div>
+          </td>
+          <td class="px-4 py-3">
+            <div class="${rec.class} rounded-lg px-3 py-2 text-xs font-medium">
+              ${rec.text}
+            </div>
+          </td>
+          <td class="px-4 py-3 text-center">${statusBadge}</td>
+          <td class="px-4 py-3 text-center">
+            <button class="text-blue-600 hover:text-blue-800 text-xs font-medium">
+              ดูรายละเอียด
+            </button>
+          </td>
+        </tr>`;
+      }).join('');
+
+      document.getElementById('result-count').textContent = `แสดง ${filteredCandidates.length} รายการ`;
+    }
+
+    // Filter function
+    function applyFilters() {
+      const searchTerm = document.getElementById('search-input').value.toLowerCase();
+      const statusFilter = document.getElementById('filter-status').value;
+      const positionFilter = document.getElementById('filter-position').value;
+
+      let filtered = candidates.filter(c => {
+        const matchSearch = c.name.toLowerCase().includes(searchTerm);
+        const matchStatus = !statusFilter || c.status === statusFilter;
+        const matchPosition = !positionFilter || c.position === positionFilter;
+        return matchSearch && matchStatus && matchPosition;
+      });
+
+      renderTable(filtered);
+    }
+
+    function resetFilters() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('filter-status').value = '';
+      document.getElementById('filter-position').value = '';
+      renderTable(candidates);
+    }
+
+    // Event listeners
+    document.getElementById('search-input').addEventListener('input', applyFilters);
+    document.getElementById('filter-status').addEventListener('change', applyFilters);
+    document.getElementById('filter-position').addEventListener('change', applyFilters);
+
+    // Initialize
+    renderTable(candidates);
+    
+    // Update time
+    const now = new Date();
+    document.getElementById('update-time').textContent = 
+      now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' }) + 
+      ' ' + now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+  </script>
+</body>
+</html>
