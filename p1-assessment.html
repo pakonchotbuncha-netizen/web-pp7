@@ -502,7 +502,7 @@ const ATTITUDE_QUESTIONS = [
     id: 9,
     question: "คุณสร้างบรรยากาศในการทำงานอย่างไร?",
     options: [
-      { text: "ใช้ humor คลายเครียดอย่างเหมาะสม", score: 5 },
+      { text: "ใช้อารมณ์ขันคลายเครียดอย่างเหมาะสม", score: 5 },
       { text: "ทำงานอย่างจริงจังเท่านั้น", score: 3 },
       { text: "ปล่อยให้เป็นไปตามธรรมชาติ", score: 2 },
       { text: "สร้างกิจกรรมสนุกๆ ในทีม", score: 4 }
@@ -787,7 +787,7 @@ function assignTest(candidateId) {
 function generateAISummary() {
   // Mock scores for demonstration
   const scores = {
-    attitude: { score: 38, max: 50, cc: ['CC3: Trust-Based Value', 'CC5: Disciplined Professionalism', 'CC7: Humor & Joy'] },
+    attitude: { score: 38, max: 50, cc: ['CC3: สร้างคุณค่าบนฐานความไว้วางใจ', 'CC5: วิชาชีพและวินัยองค์กร', 'CC7: สร้างบรรยากาศด้วยอารมณ์ขัน'] },
     service: { score: 82, max: 100, note: 'ตอบคำถามงานบริการได้ดี' },
     skill: { score: 75, max: 100, note: 'ผ่านเกณฑ์ทักษะพื้นฐาน' },
     motivation: {
@@ -886,7 +886,7 @@ function generateAISummary() {
         <div class="text-xs text-indigo-700 space-y-1">
           <div>• CC3 (Trust-Based Value) — รับฟังปราศจากอคติ สร้างความเชื่อมั่น ✅</div>
           <div>• CC5 (Disciplined Professionalism) — ใส่ใจคุณภาพ วินัยสูง ✅</div>
-          <div>• CC7 (Humor & Joy) — สร้างบรรยากาศเบิกบานใจ ✅</div>
+          <div>• CC7 (สร้างบรรยากาศด้วยอารมณ์ขัน) — สร้างรอยยิ้มและความเบิกบานใจ ✅</div>
           <div>• EVP Alignment: FUN, PRIDE, LEARNING & GROWTH ✅</div>
         </div>
       </div>
@@ -979,7 +979,7 @@ function submitMotivationTest() {
   
   // CC alignment analysis
   const ccAlignment = [];
-  if (top3.includes(1)) ccAlignment.push('CC7: Humor & Joy — สนุกสนานกับการทำงาน');
+  if (top3.includes(1)) ccAlignment.push('CC7: สร้างบรรยากาศด้วยอารมณ์ขัน — สนุกสนานกับการทำงาน');
   if (top3.includes(2)) ccAlignment.push('CC2: Adaptive Innovation — ตอบโจทย์จุดมุ่งหมาย');
   if (top3.includes(3)) ccAlignment.push('CC5: Disciplined Professionalism — ใช้ความสามารถเต็มที่');
   if (top3.includes(4)) ccAlignment.push('CC4: Consensus Teamwork — หน้าที่ของทุกคน');
