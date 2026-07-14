@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P1 แสวงหา — Candidate Pipeline | Web PP7</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        pp7: {
+          50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',500:'#3b82f6',
+          600:'#2563eb',700:'#1d4ed8',800:'#1e40af',900:'#172554'
+        }
+      }
+    }
+  }
+};
+</script>
+<style>
+  * { font-family: 'Prompt', sans-serif; }
+  body { background: #f1f5f9; color: #1e293b; }
+  .card { background:#fff;border-radius:1rem;box-shadow:0 4px 24px rgba(15,23,42,.07);padding:1.5rem; }
+  .kpi-num { font-size: 2rem; font-weight: 700; line-height: 1.1; }
+  .badge { display:inline-flex;align-items:center;padding:.2rem .6rem;border-radius:9999px;font-size:.72rem;font-weight:500; }
+  .badge-green{background:#dcfce7;color:#166534}
+  .badge-amber{background:#fef3c7;color:#92400e}
+  .badge-red{background:#fee2e2;color:#991b1b}
+  .badge-blue{background:#dbeafe;color:#1e40af}
+  .badge-purple{background:#f3e8ff;color:#6b21a8}
+  .badge-cyan{background:#cffafe;color:#155e75}
+  .badge-gray{background:#f1f5f9;color:#475569}
+  table{width:100%;border-collapse:collapse}
+  th{padding:.7rem 1rem;font-size:.72rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #e2e8f0;background:#f8fafc;cursor:pointer;user-select:none;text-align:left}
+  th:hover{background:#e2e8f0}
+  td{padding:.7rem 1rem;border-bottom:1px solid #f1f5f9;font-size:.85rem}
+  tr:hover td{background:#f8fafc}
+  .btn{padding:.45rem 1rem;border-radius:.5rem;font-size:.8rem;font-weight:500;cursor:pointer;border:none;transition:all .15s}
+  .btn-primary{background:#2563eb;color:#fff}.btn-primary:hover{background:#1d4ed8}
+  .btn-success{background:#10b981;color:#fff}.btn-success:hover{background:#059669}
+  .btn-warning{background:#f59e0b;color:#fff}.btn-warning:hover{background:#d97706}
+  .btn-danger{background:#ef4444;color:#fff}.btn-danger:hover{background:#dc2626}
+  .btn-ghost{background:#fff;border:1px solid #e2e8f0;color:#64748b}.btn-ghost:hover{background:#f8fafc}
+  .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem}
+  .modal-overlay.open{display:flex}
+  .modal{background:#fff;border-radius:1rem;max-width:640px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 25px 60px rgba(15,23,42,.25)}
+  .modal-header{padding:1rem 1.5rem;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between}
+  .modal-body{padding:1.5rem}
+  input,select,textarea{padding:.55rem .75rem;border:1px solid #e2e8f0;border-radius:.5rem;font-size:.875rem;outline:none;transition:border .15s;font-family:'Prompt',sans-serif;width:100%}
+  input:focus,select:focus,textarea:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+  .pipeline-bar{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+  .stage-chip{padding:.3rem .65rem;border-radius:.5rem;font-size:.7rem;font-weight:600;white-space:nowrap}
+  .toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;padding:.85rem 1.25rem;border-radius:.75rem;color:#fff;font-size:.875rem;font-weight:500;transform:translateY(100px);opacity:0;transition:all .3s}
+  .toast.show{transform:translateY(0);opacity:1}
+  .spinner{display:inline-block;width:1rem;height:1rem;border:2px solid rgba(255,255,255,.3);border-radius:50%;border-top-color:#fff;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .fade-in{animation:fadeIn .3s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .source-tag{font-size:.7rem;padding:.15rem .45rem;border-radius:.25rem;background:#f1f5f9;color:#475569}
+  @media(max-width:768px){
+    .kpi-num{font-size:1.4rem}
+    .pipeline-bar{gap:2px}
+    .stage-chip{font-size:.6rem;padding:.2rem .4rem}
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- HEADER -->
+<header class="bg-gradient-to-r from-pp7-700 to-pp7-900 text-white py-4 px-4 shadow-lg">
+  <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+    <div>
+      <div class="flex items-center gap-2">
+        <a href="./index.html" class="text-pp7-200 hover:text-white text-xs">← กลับ</a>
+      </div>
+      <h1 class="text-xl md:text-2xl font-bold tracking-tight mt-1">🔎 P1 — ระบบแสวงหาผู้สมัครงาน</h1>
+      <p class="text-pp7-200 mt-0.5 text-sm">Candidate Pipeline & AI Screening Dashboard</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <!-- Mode Toggle -->
+      <div class="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-xs">
+        <span id="modeLabel" class="font-medium">🟢 Mock Mode</span>
+        <button id="modeToggle" onclick="toggleMode()" class="text-xs px-2 py-0.5 rounded bg-white/20 hover:bg-white/30 transition">
+          Switch
+        </button>
+      </div>
+      <!-- API Config -->
+      <button onclick="openSettings()" class="text-xs px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition">⚙️ API URL</button>
+      <!-- Refresh -->
+      <button onclick="refreshData()" class="text-xs px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition" id="refreshBtn">🔄 โหลดใหม่</button>
+    </div>
+  </div>
+</header>
+
+<!-- SUB NAV -->
+<nav class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+  <div class="max-w-7xl mx-auto flex overflow-x-auto">
+    <button class="tab-active px-4 py-3 text-sm font-medium border-b-2 border-blue-600 text-blue-600" data-subtab="overview" onclick="showSubTab('overview')">📊 ภาพรวม</button>
+    <button class="px-4 py-3 text-sm font-medium text-slate-500 hover:text-blue-600 border-b-2 border-transparent" data-subtab="headcount" onclick="showSubTab('headcount')">📋 Headcount</button>
+    <button class="px-4 py-3 text-sm font-medium text-slate-500 hover:text-blue-600 border-b-2 border-transparent" data-subtab="candidates" onclick="showSubTab('candidates')">👥 ผู้สมัครทั้งหมด</button>
+    <button class="px-4 py-3 text-sm font-medium text-slate-500 hover:text-blue-600 border-b-2 border-transparent" data-subtab="pipeline" onclick="showSubTab('pipeline')">🔀 Pipeline Board</button>
+    <button class="px-4 py-3 text-sm font-medium text-slate-500 hover:text-blue-600 border-b-2 border-transparent" data-subtab="screening" onclick="showSubTab('screening')">🤖 AI Screening</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+  <!-- ============ SUB-TAB: OVERVIEW ============ -->
+  <section id="subtab-overview" class="space-y-6 fade-in">
+    <!-- KPI Row -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="card border-l-4 border-l-blue-500">
+        <div class="text-xs text-slate-400">HC Requests ทั้งหมด</div>
+        <div class="kpi-num text-blue-600" id="kpi-hc-total">—</div>
+        <div class="text-xs text-slate-500 mt-1"><span id="kpi-hc-open">—</span> เปิดรับ</div>
+      </div>
+      <div class="card border-l-4 border-l-emerald-500">
+        <div class="text-xs text-slate-400">ผู้สมัครทั้งหมด</div>
+        <div class="kpi-num text-emerald-600" id="kpi-cand-total">—</div>
+        <div class="text-xs text-emerald-600 mt-1" id="kpi-cand-new">+0 สัปดาห์นี้</div>
+      </div>
+      <div class="card border-l-4 border-l-violet-500">
+        <div class="text-xs text-slate-400">Avg AI Match Score</div>
+        <div class="kpi-num text-violet-600" id="kpi-avg-score">—</div>
+        <div class="text-xs text-slate-500 mt-1">CC Compatibility</div>
+      </div>
+      <div class="card border-l-4 border-l-amber-500">
+        <div class="text-xs text-slate-400">Hired / Rejected</div>
+        <div class="kpi-num text-amber-600" id="kpi-hired">—</div>
+        <div class="text-xs text-slate-500 mt-1">Rejected: <span id="kpi-rejected">—</span></div>
+      </div>
+    </div>
+
+    <!-- Pipeline Visual -->
+    <div class="card">
+      <h3 class="font-semibold text-lg text-pp7-800 mb-4">🔀 Candidate Pipeline — Stage Distribution</h3>
+      <div class="pipeline-bar justify-center gap-3 md:gap-5" id="pipelineBar">
+        <div class="text-center px-2 py-3 bg-slate-50 rounded-lg">
+          <div class="text-2xl font-bold text-blue-600" id="stage-applied">0</div>
+          <div class="text-xs font-medium text-slate-500">Applied</div>
+        </div>
+        <div class="text-slate-300 text-xl">→</div>
+        <div class="text-center px-2 py-3 bg-slate-50 rounded-lg">
+          <div class="text-2xl font-bold text-cyan-600" id="stage-screened">0</div>
+          <div class="text-xs font-medium text-slate-500">Screened</div>
+        </div>
+        <div class="text-slate-300 text-xl">→</div>
+        <div class="text-center px-2 py-3 bg-slate-50 rounded-lg">
+          <div class="text-2xl font-bold text-violet-600" id="stage-interview">0</div>
+          <div class="text-xs font-medium text-slate-500">Interview</div>
+        </div>
+        <div class="text-slate-300 text-xl">→</div>
+        <div class="text-center px-2 py-3 bg-slate-50 rounded-lg">
+          <div class="text-2xl font-bold text-purple-600" id="stage-assessment">0</div>
+          <div class="text-xs font-medium text-slate-500">Assessment</div>
+        </div>
+        <div class="text-slate-300 text-xl">→</div>
+        <div class="text-center px-2 py-3 bg-slate-50 rounded-lg">
+          <div class="text-2xl font-bold text-amber-600" id="stage-offer">0</div>
+          <div class="text-xs font-medium text-slate-500">Offer</div>
+        </div>
+        <div class="text-slate-300 text-xl">→</div>
+        <div class="text-center px-2 py-3 bg-emerald-50 rounded-lg">
+          <div class="text-2xl font-bold text-emerald-600" id="stage-hired">0</div>
+          <div class="text-xs font-medium text-emerald-600">✅ Hired</div>
+        </div>
+        <div class="text-slate-300 text-xl">/</div>
+        <div class="text-center px-2 py-3 bg-red-50 rounded-lg">
+          <div class="text-2xl font-bold text-red-500" id="stage-rejected">0</div>
+          <div class="text-xs font-medium text-red-500">❌ Rejected</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid lg:grid-cols-2 gap-5">
+      <div class="card">
+        <h3 class="font-semibold text-pp7-800 mb-3">📊 ผู้สมัครตามตำแหน่ง</h3>
+        <div style="position:relative;height:260px"><canvas id="chartPosition"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="font-semibold text-pp7-800 mb-3">📈 AI Match Score Distribution</h3>
+        <div style="position:relative;height:260px"><canvas id="chartScore"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SUB-TAB: HEADCOUNT ============ -->
+  <section id="subtab-headcount" class="space-y-4 fade-in" style="display:none">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 class="text-lg font-semibold">📋 Headcount Requests</h2>
+      <button onclick="openCreateHc()" class="btn btn-primary">+ ขอ Headcount ใหม่</button>
+    </div>
+    <div class="card overflow-x-auto">
+      <table>
+        <thead>
+          <tr>
+            <th>HC ID</th><th>ตำแหน่ง</th><th>BU</th><th>Department</th>
+            <th>จำนวน</th><th>Priority</th><th>สถานะ</th><th>วันที่ขอ</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="hcTableBody">
+          <tr><td colspan="9" class="text-center text-slate-400 py-8">กำลังโหลด...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ SUB-TAB: CANDIDATES ============ -->
+  <section id="subtab-candidates" class="space-y-4 fade-in" style="display:none">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 class="text-lg font-semibold">👥 ผู้สมัครทั้งหมด</h2>
+      <div class="flex gap-2">
+        <select id="filterStage" onchange="renderCandidateTable()" class="text-sm" style="width:auto">
+          <option value="">ทุก Stage</option>
+          <option value="applied">Applied</option>
+          <option value="screened">Screened</option>
+          <option value="interview">Interview</option>
+          <option value="assessment">Assessment</option>
+          <option value="offer">Offer</option>
+          <option value="hired">Hired</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <button onclick="openCreateCandidate()" class="btn btn-primary">+ เพิ่มผู้สมัคร</button>
+      </div>
+    </div>
+    <div class="card overflow-x-auto">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>ชื่อ-สกุล</th><th>ตำแหน่ง</th><th>BU</th>
+            <th>Email</th><th>Stage</th><th>AI Score</th><th>วันที่สมัคร</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="candidateTableBody">
+          <tr><td colspan="9" class="text-center text-slate-400 py-8">กำลังโหลด...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ SUB-TAB: PIPELINE BOARD ============ -->
+  <section id="subtab-pipeline" class="space-y-4 fade-in" style="display:none">
+    <h2 class="text-lg font-semibold">🔀 Pipeline Board — Kanban View</h2>
+    <div class="flex flex-wrap gap-2 mb-2">
+      <select id="filterHcPipeline" onchange="renderPipelineBoard()" class="text-sm" style="width:auto">
+        <option value="">ทุก Headcount</option>
+      </select>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3" id="pipelineBoard">
+      <div class="text-center text-slate-400 py-8 col-span-full">กำลังโหลด...</div>
+    </div>
+  </section>
+
+  <!-- ============ SUB-TAB: AI SCREENING ============ -->
+  <section id="subtab-screening" class="space-y-4 fade-in" style="display:none">
+    <h2 class="text-lg font-semibold">🤖 AI Screening Results — CC Match Scores</h2>
+    <div class="card overflow-x-auto">
+      <table>
+        <thead>
+          <tr>
+            <th>ผู้สมัคร</th><th>ตำแหน่ง</th><th>CC1</th><th>CC2</th>
+            <th>CC3</th><th>CC4</th><th>CC5</th><th>รวม</th><th>เฉลี่ย</th><th>ประเมิน</th>
+          </tr>
+        </thead>
+        <tbody id="screeningTableBody">
+          <tr><td colspan="10" class="text-center text-slate-400 py-8">กำลังโหลด...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ MODAL: SETTINGS ============ -->
+<div class="modal-overlay" id="modalSettings">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>⚙️ ตั้งค่า API Endpoint</h3>
+      <button onclick="closeModal('modalSettings')" class="text-2xl text-slate-400 hover:text-slate-700">&times;</button>
+    </div>
+    <div class="modal-body space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">GAS Web App URL</label>
+        <input id="inputApiUrl" placeholder="https://script.google.com/macros/s/XXXXXX/exec" />
+        <p class="text-xs text-slate-400 mt-1">Deployed Google Apps Script Web App URL. ปล่อยว่างเพื่อใช้ Mock Mode</p>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="saveApiUrl()" class="btn btn-primary">💾 บันทึก</button>
+        <button onclick="testApiConnection()" class="btn btn-ghost" id="testBtn">🔌 ทดสอบการเชื่อมต่อ</button>
+        <span id="testResult" class="text-sm self-center"></span>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3 text-xs text-slate-500">
+        <strong>หมายเหตุ:</strong> ระบบรองรับทั้ง Live Mode (เชื่อม GAS API) และ Mock Mode (ข้อมูลตัวอย่าง)
+        <br>GAS Backend code: <code>web-pp7-backend/gas/web-pp7-backend-all.gs</code>
+        <br>Sheet ID: <code>10x3pRnMvdEI8B3ZsMxpT905rMhtJARx_Wtx7ptcbmVU</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: CREATE HEADCOUNT ============ -->
+<div class="modal-overlay" id="modalCreateHc">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>📋 ขอ Headcount ใหม่</h3>
+      <button onclick="closeModal('modalCreateHc')" class="text-2xl text-slate-400 hover:text-slate-700">&times;</button>
+    </div>
+    <div class="modal-body space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">BU / ธุรกิจ</label>
+          <input id="hcBu" placeholder="เช่น Tech, Sales, Operations" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Department</label>
+          <input id="hcDept" placeholder="เช่น Engineering" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Position</label>
+          <input id="hcPosition" placeholder="เช่น Senior Developer" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">จำนวน</label>
+          <input id="hcQty" type="number" min="1" value="1" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Priority</label>
+          <select id="hcPriority">
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Level</label>
+          <input id="hcLevel" placeholder="เช่น Solid, Top" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">เหตุผล / หมายเหตุ</label>
+        <textarea id="hcReason" rows="2" placeholder="เหตุผลที่ต้องการรับเพิ่มเติม"></textarea>
+      </div>
+      <div class="flex gap-2 justify-end">
+        <button onclick="closeModal('modalCreateHc')" class="btn btn-ghost">ยกเลิก</button>
+        <button onclick="submitHeadcount()" class="btn btn-primary" id="btnSubmitHc">💾 บันทึก</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: CREATE CANDIDATE ============ -->
+<div class="modal-overlay" id="modalCreateCand">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>👤 เพิ่มผู้สมัครใหม่</h3>
+      <button onclick="closeModal('modalCreateCand')" class="text-2xl text-slate-400 hover:text-slate-700">&times;</button>
+    </div>
+    <div class="modal-body space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">ชื่อ *</label>
+          <input id="candFirst" placeholder="ชื่อจริง" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">นามสกุล *</label>
+          <input id="candLast" placeholder="นามสกุล" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Email *</label>
+          <input id="candEmail" type="email" placeholder="example@email.com" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">เบอร์โทร</label>
+          <input id="candPhone" placeholder="0X-XXX-XXXX" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">ตำแหน่งที่สมัคร *</label>
+          <input id="candPosition" placeholder="เช่น Senior Developer" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">BU</label>
+          <input id="candBu" placeholder="เช่น Tech" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Headcount ID (ถ้ามี)</label>
+          <select id="candHc"><option value="">— ไม่ระบุ —</option></select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">แหล่งที่มา</label>
+          <select id="candSource">
+            <option value="website">Website</option>
+            <option value="linkedin">LinkedIn</option>
+            <option value="referral">Referral</option>
+            <option value="jobfair">Job Fair</option>
+            <option value="qr_scan">QR Scan</option>
+            <option value="other">อื่น ๆ</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Resume URL</label>
+        <input id="candResume" placeholder="https://drive.google.com/..." />
+      </div>
+      <div class="flex gap-2 justify-end">
+        <button onclick="closeModal('modalCreateCand')" class="btn btn-ghost">ยกเลิก</button>
+        <button onclick="submitCandidate()" class="btn btn-primary" id="btnSubmitCand">💾 บันทึก</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: ADVANCE CANDIDATE ============ -->
+<div class="modal-overlay" id="modalAdvance">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <h3>🔀 เลื่อน Stage ผู้สมัคร</h3>
+      <button onclick="closeModal('modalAdvance')" class="text-2xl text-slate-400 hover:text-slate-700">&times;</button>
+    </div>
+    <div class="modal-body space-y-4">
+      <div class="bg-blue-50 rounded-lg p-3">
+        <div class="text-xs text-blue-600 font-medium">ผู้สมัคร</div>
+        <div class="font-semibold" id="advCandName">—</div>
+        <div class="text-xs text-slate-500 mt-1">Stage ปัจจุบัน: <span class="font-semibold" id="advCurrentStage">—</span></div>
+      </div>
+      <input type="hidden" id="advCandId" />
+      <div>
+        <label class="block text-sm font-medium mb-1">เลื่อนไปที่ Stage</label>
+        <select id="advNextStage"></select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">หมายเหตุ</label>
+        <textarea id="advNotes" rows="2" placeholder="หมายเหตุ (ไม่ต้องก็ได้)"></textarea>
+      </div>
+      <div class="flex gap-2 justify-end">
+        <button onclick="closeModal('modalAdvance')" class="btn btn-ghost">ยกเลิก</button>
+        <button onclick="submitAdvance()" class="btn btn-primary" id="btnAdvance">✅ ยืนยัน</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =========================================================================
+// STATE
+// =========================================================================
+let MODE = 'mock'; // 'mock' or 'live'
+let API_URL = localStorage.getItem('pp7_api_url') || '';
+let headcounts = [];
+let candidates = [];
+let charts = {};
+
+// Stage transition map
+const STAGE_FLOW = {
+  applied: ['screened', 'rejected'],
+  screened: ['interview', 'rejected'],
+  interview: ['assessment', 'rejected'],
+  assessment: ['offer', 'rejected'],
+  offer: ['hired', 'rejected']
+};
+
+const STAGE_COLORS = {
+  applied: 'bg-blue-100 text-blue-700',
+  screened: 'bg-cyan-100 text-cyan-700',
+  interview: 'bg-violet-100 text-violet-700',
+  assessment: 'bg-purple-100 text-purple-700',
+  offer: 'bg-amber-100 text-amber-700',
+  hired: 'bg-emerald-100 text-emerald-700',
+  rejected: 'bg-red-100 text-red-700'
+};
+
+const PRIORITY_COLORS = {
+  urgent: 'badge-red',
+  high: 'badge-amber',
+  medium: 'badge-blue',
+  low: 'badge-gray'
+};
+
+// =========================================================================
+// MOCK DATA
+// =========================================================================
+function generateMockData() {
+  const positions = ['Senior Developer', 'UX Designer', 'Data Analyst', 'HR Manager', 'Sales Lead', 'DevOps Engineer', 'Product Manager'];
+  const bus = ['Tech', 'Sales', 'Operations', 'Finance', 'HR'];
+  const depts = ['Engineering', 'Design', 'Analytics', 'People', 'Revenue'];
+  const sources = ['website', 'linkedin', 'referral', 'jobfair', 'qr_scan'];
+  const firstNames = ['สมชาย', 'สมหญิง', 'ปิยะ', 'นภัส', 'ธนพล', 'กมล', 'วิภา', '_arif', 'สมศักดิ์', 'พิมพ์ใจ', 'สุรชัย', 'ณัฐวุฒิ', 'กนกพรรณ', 'ธนากร', 'ปวีณา'];
+  const lastNames = ['ใจดี', 'สุขสันต์', 'พัฒนา', 'ทองคำ', 'วงศ์สวัสดิ์', 'ศรีสุข', 'มณีรัตน์', 'พรหมมา', 'แสงสว่าง', 'พุ่มไม้'];
+
+  // Generate headcounts
+  headcounts = [];
+  for (let i = 1; i <= 8; i++) {
+    const pIdx = (i - 1) % positions.length;
+    const bIdx = (i - 1) % bus.length;
+    const statuses = ['approved', 'pending', 'approved', 'on_hold', 'approved', 'rejected', 'approved', 'approved'];
+    const priorities = ['high', 'medium', 'urgent', 'low', 'high', 'medium', 'urgent', 'medium'];
+    headcounts.push({
+      hc_id: 'HC-' + String(i).padStart(4, '0'),
+      bu: bus[bIdx],
+      department: depts[bIdx],
+      position: positions[pIdx],
+      quantity: Math.ceil(Math.random() * 3),
+      priority: priorities[i-1],
+      level: ['Solid', 'Top', 'Develop'][i % 3],
+      approval_status: statuses[i-1],
+      reason: 'ต้องการรองรับการขยายทีม Q' + ((i % 4) + 1),
+      request_date: '2026-0' + (Math.min(7, Math.ceil(i/2))) + '-' + String(10 + i).padStart(2,'0'),
+      created_at: '2026-0' + (Math.min(7, Math.ceil(i/2))) + '-01T08:00:00Z'
+    });
+  }
+
+  // Generate candidates
+  candidates = [];
+  const stages = ['applied', 'applied', 'applied', 'screened', 'screened', 'interview', 'interview', 'assessment', 'assessment', 'offer', 'hired', 'hired', 'rejected', 'rejected', 'applied'];
+  for (let i = 1; i <= 15; i++) {
+    const fn = firstNames[i-1] || 'ผู้สมัคร' + i;
+    const ln = lastNames[(i-1) % lastNames.length];
+    const pIdx = (i - 1) % positions.length;
+    const bIdx = (i - 1) % bus.length;
+    const stage = stages[i-1];
+    const cc1 = Math.ceil(Math.random()*5);
+    const cc2 = Math.ceil(Math.random()*5);
+    const cc3 = Math.ceil(Math.random()*5);
+    const cc4 = Math.ceil(Math.random()*5);
+    const cc5 = Math.ceil(Math.random()*5);
+    const total = cc1+cc2+cc3+cc4+cc5;
+    candidates.push({
+      candidate_id: 'C-' + String(i).padStart(4, '0'),
+      hc_id: 'HC-' + String(Math.ceil(i/2)).padStart(4,'0'),
+      first_name: fn,
+      last_name: ln,
+      email: fn.replace(/\s/g,'').toLowerCase() + '@email.com',
+      phone: '0' + (80 + (i%20)) + '-' + String(100 + i).padStart(3,'0') + '-' + String(1000 + i*7).slice(-4),
+      position_applied: positions[pIdx],
+      bu: bus[bIdx],
+      stage: stage,
+      status: stage,
+      source: sources[i % sources.length],
+      resume_url: 'https://drive.google.com/file/d/mock-' + i,
+      cc1_score: cc1, cc2_score: cc2, cc3_score: cc3, cc4_score: cc4, cc5_score: cc5,
+      total_score: total,
+      avg_score: (total / 5).toFixed(2),
+      ai_recommendation: total >= 20 ? 'Strong Match' : total >= 15 ? 'Good Fit' : total >= 10 ? 'Consider' : 'Low Fit',
+      apply_date: '2026-0' + Math.min(7, Math.ceil(i/3)) + '-' + String(5 + (i%20)).padStart(2,'0'),
+      created_at: '2026-0' + Math.min(7, Math.ceil(i/3)) + '-' + String(5 + (i%20)).padStart(2,'0') + 'T09:00:00Z'
+    });
+  }
+}
+
+// =========================================================================
+// API LAYER
+// =========================================================================
+async function apiGet(params) {
+  if (MODE === 'mock') return null;
+  const qs = new URLSearchParams(params).toString();
+  const res = await fetch(API_URL + '?' + qs, { method: 'GET' });
+  if (!res.ok) throw new Error('API error: ' + res.status);
+  return res.json();
+}
+
+async function apiPost(body) {
+  if (MODE === 'mock') return null;
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error('API error: ' + res.status);
+  return res.json();
+}
+
+async function fetchHeadcounts() {
+  if (MODE === 'mock') return;
+  try {
+    const data = await apiGet({ action: 'list', table: 'p1_headcount', sort: 'request_date', order: 'desc' });
+    if (data && data.records) headcounts = data.records;
+  } catch(e) { console.warn('Failed to fetch headcounts:', e); }
+}
+
+async function fetchCandidates() {
+  if (MODE === 'mock') return;
+  try {
+    const data = await apiGet({ action: 'list', table: 'p1_candidates', sort: 'apply_date', order: 'desc' });
+    if (data && data.records) candidates = data.records;
+  } catch(e) { console.warn('Failed to fetch candidates:', e); }
+}
+
+// =========================================================================
+// RENDER
+// =========================================================================
+function renderAll() {
+  renderKPIs();
+  renderPipeline();
+  renderHcTable();
+  renderCandidateTable();
+  renderPipelineBoard();
+  renderScreeningTable();
+  renderCharts();
+  populateHcDropdowns();
+}
+
+function renderKPIs() {
+  document.getElementById('kpi-hc-total').textContent = headcounts.length;
+  document.getElementById('kpi-hc-open').textContent = headcounts.filter(h => h.approval_status === 'approved').length;
+  document.getElementById('kpi-cand-total').textContent = candidates.length;
+
+  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+  const newCands = candidates.filter(c => new Date(c.created_at) >= weekAgo);
+  document.getElementById('kpi-cand-new').textContent = '+' + newCands.length + ' สัปดาห์นี้';
+
+  const scored = candidates.filter(c => c.avg_score && parseFloat(c.avg_score) > 0);
+  const avgScore = scored.length > 0 ? (scored.reduce((s,c) => s + parseFloat(c.avg_score), 0) / scored.length).toFixed(2) : '—';
+  document.getElementById('kpi-avg-score').textContent = avgScore;
+
+  document.getElementById('kpi-hired').textContent = candidates.filter(c => c.stage === 'hired').length;
+  document.getElementById('kpi-rejected').textContent = candidates.filter(c => c.stage === 'rejected').length;
+}
+
+function renderPipeline() {
+  const stages = ['applied', 'screened', 'interview', 'assessment', 'offer', 'hired', 'rejected'];
+  stages.forEach(s => {
+    const el = document.getElementById('stage-' + s);
+    if (el) el.textContent = candidates.filter(c => c.stage === s).length;
+  });
+}
+
+function renderHcTable() {
+  const tbody = document.getElementById('hcTableBody');
+  if (headcounts.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-slate-400 py-8">ยังไม่มีข้อมูล Headcount</td></tr>';
+    return;
+  }
+  tbody.innerHTML = headcounts.map(h => {
+    const pClass = PRIORITY_COLORS[h.priority] || 'badge-gray';
+    const sClass = h.approval_status === 'approved' ? 'badge-green' : h.approval_status === 'rejected' ? 'badge-red' : h.approval_status === 'on_hold' ? 'badge-amber' : 'badge-blue';
+    const sLabel = { approved:'อนุมัติ', pending:'รออนุมัติ', on_hold:'พักไว้', rejected:'ปฏิเสธ' }[h.approval_status] || h.approval_status;
+    return `<tr>
+      <td class="font-mono text-xs">${h.hc_id}</td>
+      <td class="font-medium">${h.position}</td>
+      <td>${h.bu}</td>
+      <td>${h.department}</td>
+      <td class="text-center font-bold">${h.quantity}</td>
+      <td><span class="badge ${pClass}">${(h.priority||'').toUpperCase()}</span></td>
+      <td><span class="badge ${sClass}">${sLabel}</span></td>
+      <td class="text-xs">${h.request_date || '—'}</td>
+      <td><button onclick="viewHcPipeline('${h.hc_id}')" class="text-blue-600 hover:underline text-xs">ดู Pipeline</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderCandidateTable() {
+  const filterStage = document.getElementById('filterStage').value;
+  let list = candidates;
+  if (filterStage) list = list.filter(c => c.stage === filterStage);
+
+  const tbody = document.getElementById('candidateTableBody');
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-slate-400 py-8">ยังไม่มีข้อมูลผู้สมัคร</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(c => {
+    const stageClass = STAGE_COLORS[c.stage] || 'badge-gray';
+    const scoreColor = parseFloat(c.avg_score) >= 4 ? 'text-emerald-600' : parseFloat(c.avg_score) >= 3 ? 'text-amber-600' : 'text-red-500';
+    const fullName = (c.first_name || '') + ' ' + (c.last_name || '');
+    const canAdvance = STAGE_FLOW[c.stage] && STAGE_FLOW[c.stage].length > 0;
+    return `<tr>
+      <td class="font-mono text-xs">${c.candidate_id}</td>
+      <td class="font-medium">${fullName}</td>
+      <td>${c.position_applied || '—'}</td>
+      <td>${c.bu || '—'}</td>
+      <td class="text-xs">${c.email || '—'}</td>
+      <td><span class="badge ${stageClass}">${c.stage}</span></td>
+      <td class="${scoreColor} font-semibold">${c.avg_score || '—'}</td>
+      <td class="text-xs">${c.apply_date || '—'}</td>
+      <td>
+        ${canAdvance ? `<button onclick="openAdvance('${c.candidate_id}')" class="text-blue-600 hover:underline text-xs mr-2">เลื่อน ▶</button>` : ''}
+        <button onclick="viewCandidateDetail('${c.candidate_id}')" class="text-slate-500 hover:underline text-xs">ดู</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderPipelineBoard() {
+  const hcFilter = document.getElementById('filterHcPipeline').value;
+  let list = candidates;
+  if (hcFilter) list = list.filter(c => c.hc_id === hcFilter);
+
+  const stages = ['applied', 'screened', 'interview', 'assessment', 'offer', 'hired', 'rejected'];
+  const stageLabels = {
+    applied: '📥 Applied', screened: '🔍 Screened', interview: '🎤 Interview',
+    assessment: '📝 Assessment', offer: '🤝 Offer', hired: '✅ Hired', rejected: '❌ Rejected'
+  };
+
+  const board = document.getElementById('pipelineBoard');
+  board.innerHTML = stages.map(s => {
+    const items = list.filter(c => c.stage === s);
+    return `<div class="space-y-2">
+      <div class="text-center">
+        <span class="text-sm font-semibold text-slate-600">${stageLabels[s]}</span>
+        <span class="text-xs bg-slate-200 rounded-full px-2 py-0.5 ml-1">${items.length}</span>
+      </div>
+      ${items.map(c => {
+        const fullName = (c.first_name||'') + ' ' + (c.last_name||'');
+        const scoreColor = parseFloat(c.avg_score) >= 4 ? 'border-emerald-300' : parseFloat(c.avg_score) >= 3 ? 'border-amber-300' : 'border-slate-200';
+        return `<div class="bg-white rounded-lg p-2.5 shadow-sm border-l-4 ${scoreColor} cursor-pointer hover:shadow-md transition" onclick="viewCandidateDetail('${c.candidate_id}')">
+          <div class="text-sm font-medium">${fullName}</div>
+          <div class="text-xs text-slate-400 truncate">${c.position_applied || ''}</div>
+          <div class="text-xs mt-1 text-violet-600 font-semibold">AI: ${c.avg_score || '—'}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function renderScreeningTable() {
+  const scored = candidates.filter(c => c.cc1_score || c.total_score);
+  const tbody = document.getElementById('screeningTableBody');
+  if (scored.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" class="text-center text-slate-400 py-8">ยังไม่มีข้อมูล AI Screening</td></tr>';
+    return;
+  }
+  tbody.innerHTML = scored.sort((a,b) => (parseFloat(b.avg_score)||0) - (parseFloat(a.avg_score)||0)).map(c => {
+    const fullName = (c.first_name||'') + ' ' + (c.last_name||'');
+    const rec = c.ai_recommendation || (parseFloat(c.avg_score) >= 4 ? 'Strong Match' : parseFloat(c.avg_score) >= 3 ? 'Good Fit' : 'Consider');
+    const recColor = rec === 'Strong Match' ? 'badge-green' : rec === 'Good Fit' ? 'badge-blue' : rec === 'Consider' ? 'badge-amber' : 'badge-red';
+    const ccCell = (v) => {
+      if (!v) return '<span class="text-slate-300">—</span>';
+      const num = parseInt(v);
+      const color = num >= 4 ? 'text-emerald-600' : num >= 3 ? 'text-amber-600' : 'text-red-500';
+      return `<span class="${color} font-semibold">${num}</span>`;
+    };
+    return `<tr>
+      <td class="font-medium">${fullName}</td>
+      <td class="text-xs">${c.position_applied || '—'}</td>
+      <td class="text-center">${ccCell(c.cc1_score)}</td>
+      <td class="text-center">${ccCell(c.cc2_score)}</td>
+      <td class="text-center">${ccCell(c.cc3_score)}</td>
+      <td class="text-center">${ccCell(c.cc4_score)}</td>
+      <td class="text-center">${ccCell(c.cc5_score)}</td>
+      <td class="text-center font-bold">${c.total_score || '—'}</td>
+      <td class="text-center font-bold text-violet-600">${c.avg_score || '—'}</td>
+      <td><span class="badge ${recColor}">${rec}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderCharts() {
+  // Position chart
+  const posCounts = {};
+  candidates.forEach(c => {
+    const p = c.position_applied || 'Unknown';
+    posCounts[p] = (posCounts[p] || 0) + 1;
+  });
+  const posCtx = document.getElementById('chartPosition');
+  if (charts.position) charts.position.destroy();
+  charts.position = new Chart(posCtx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(posCounts),
+      datasets: [{
+        label: 'จำนวนผู้สมัคร',
+        data: Object.values(posCounts),
+        backgroundColor: ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899'],
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+  });
+
+  // Score distribution
+  const buckets = { '0-1': 0, '1-2': 0, '2-3': 0, '3-4': 0, '4-5': 0 };
+  candidates.forEach(c => {
+    const s = parseFloat(c.avg_score);
+    if (!isNaN(s)) {
+      if (s < 1) buckets['0-1']++;
+      else if (s < 2) buckets['1-2']++;
+      else if (s < 3) buckets['2-3']++;
+      else if (s < 4) buckets['3-4']++;
+      else buckets['4-5']++;
+    }
+  });
+  const scoreCtx = document.getElementById('chartScore');
+  if (charts.score) charts.score.destroy();
+  charts.score = new Chart(scoreCtx, {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(buckets),
+      datasets: [{
+        data: Object.values(buckets),
+        backgroundColor: ['#ef4444','#f59e0b','#eab308','#84cc16','#22c55e'],
+        borderWidth: 2, borderColor: '#fff'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'right' }, title: { display: true, text: 'Avg Score Range' } }
+    }
+  });
+}
+
+function populateHcDropdowns() {
+  const sel = document.getElementById('candHc');
+  sel.innerHTML = '<option value="">— ไม่ระบุ —</option>' +
+    headcounts.map(h => `<option value="${h.hc_id}">${h.hc_id} — ${h.position}</option>`).join('');
+
+  const selP = document.getElementById('filterHcPipeline');
+  selP.innerHTML = '<option value="">ทุก Headcount</option>' +
+    headcounts.map(h => `<option value="${h.hc_id}">${h.hc_id} — ${h.position}</option>`).join('');
+}
+
+// =========================================================================
+// ACTIONS
+// =========================================================================
+function openCreateHc() { openModal('modalCreateHc'); }
+function openCreateCandidate() { openModal('modalCreateCand'); }
+
+async function submitHeadcount() {
+  const data = {
+    bu: document.getElementById('hcBu').value.trim(),
+    department: document.getElementById('hcDept').value.trim(),
+    position: document.getElementById('hcPosition').value.trim(),
+    quantity: parseInt(document.getElementById('hcQty').value) || 1,
+    priority: document.getElementById('hcPriority').value,
+    level: document.getElementById('hcLevel').value.trim(),
+    reason: document.getElementById('hcReason').value.trim()
+  };
+  if (!data.bu || !data.position) { showToast('กรุณากรอก BU และ Position', 'error'); return; }
+
+  const btn = document.getElementById('btnSubmitHc');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> บันทึก...';
+
+  try {
+    if (MODE === 'mock') {
+      data.hc_id = 'HC-' + String(headcounts.length + 1).padStart(4, '0');
+      data.approval_status = 'pending';
+      data.request_date = new Date().toISOString().slice(0,10);
+      headcounts.unshift(data);
+    } else {
+      await apiPost({ action: 'create', table: 'p1_headcount', data });
+      await fetchHeadcounts();
+    }
+    renderAll();
+    closeModal('modalCreateHc');
+    showToast('✅ สร้าง Headcount สำเร็จ');
+  } catch(e) {
+    showToast('❌ เกิดข้อผิดพลาด: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 บันทึก';
+  }
+}
+
+async function submitCandidate() {
+  const data = {
+    first_name: document.getElementById('candFirst').value.trim(),
+    last_name: document.getElementById('candLast').value.trim(),
+    email: document.getElementById('candEmail').value.trim(),
+    phone: document.getElementById('candPhone').value.trim(),
+    position_applied: document.getElementById('candPosition').value.trim(),
+    bu: document.getElementById('candBu').value.trim(),
+    hc_id: document.getElementById('candHc').value,
+    source: document.getElementById('candSource').value,
+    resume_url: document.getElementById('candResume').value.trim()
+  };
+  if (!data.first_name || !data.last_name || !data.email || !data.position_applied) {
+    showToast('กรุณากรอกฟิลด์ที่มี * ให้ครบ', 'error'); return;
+  }
+
+  const btn = document.getElementById('btnSubmitCand');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> บันทึก...';
+
+  try {
+    if (MODE === 'mock') {
+      data.candidate_id = 'C-' + String(candidates.length + 1).padStart(4, '0');
+      data.stage = 'applied';
+      data.status = 'new';
+      data.apply_date = new Date().toISOString().slice(0,10);
+      data.cc1_score = Math.ceil(Math.random()*5);
+      data.cc2_score = Math.ceil(Math.random()*5);
+      data.cc3_score = Math.ceil(Math.random()*5);
+      data.cc4_score = Math.ceil(Math.random()*5);
+      data.cc5_score = Math.ceil(Math.random()*5);
+      data.total_score = (data.cc1_score + data.cc2_score + data.cc3_score + data.cc4_score + data.cc5_score);
+      data.avg_score = (data.total_score / 5).toFixed(2);
+      data.ai_recommendation = data.total_score >= 20 ? 'Strong Match' : data.total_score >= 15 ? 'Good Fit' : data.total_score >= 10 ? 'Consider' : 'Low Fit';
+      candidates.unshift(data);
+    } else {
+      await apiPost({ action: 'create', table: 'p1_candidates', data });
+      await fetchCandidates();
+    }
+    renderAll();
+    closeModal('modalCreateCand');
+    showToast('✅ เพิ่มผู้สมัครสำเร็จ');
+  } catch(e) {
+    showToast('❌ เกิดข้อผิดพลาด: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 บันทึก';
+  }
+}
+
+function openAdvance(candId) {
+  const c = candidates.find(x => x.candidate_id === candId);
+  if (!c) return;
+  document.getElementById('advCandId').value = candId;
+  document.getElementById('advCandName').textContent = (c.first_name||'') + ' ' + (c.last_name||'');
+  document.getElementById('advCurrentStage').textContent = c.stage;
+
+  const nextStages = STAGE_FLOW[c.stage] || [];
+  const sel = document.getElementById('advNextStage');
+  sel.innerHTML = nextStages.map(s => `<option value="${s}">${s}</option>`).join('');
+
+  openModal('modalAdvance');
+}
+
+async function submitAdvance() {
+  const candId = document.getElementById('advCandId').value;
+  const newStage = document.getElementById('advNextStage').value;
+  const notes = document.getElementById('advNotes').value;
+
+  const btn = document.getElementById('btnAdvance');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> กำลังเลื่อน...';
+
+  try {
+    const c = candidates.find(x => x.candidate_id === candId);
+    if (MODE === 'mock' && c) {
+      c.stage = newStage;
+      c.status = newStage;
+    } else {
+      await apiPost({ action: 'update', table: 'p1_candidates', id: candId, data: { stage: newStage, status: newStage } });
+      await fetchCandidates();
+    }
+    renderAll();
+    closeModal('modalAdvance');
+    showToast(`✅ เลื่อน stage เป็น ${newStage} สำเร็จ`);
+  } catch(e) {
+    showToast('❌ เกิดข้อผิดพลาด: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '✅ ยืนยัน';
+  }
+}
+
+function viewCandidateDetail(candId) {
+  const c = candidates.find(x => x.candidate_id === candId);
+  if (!c) return;
+  const fullName = (c.first_name||'') + ' ' + (c.last_name||'');
+  const stageClass = STAGE_COLORS[c.stage] || 'badge-gray';
+  const html = `
+    <div class="space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xl font-bold">${fullName}</h3>
+        <span class="badge ${stageClass}">${c.stage}</span>
+      </div>
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div class="bg-slate-50 p-3 rounded-lg"><span class="text-xs text-slate-400">ID</span><div class="font-mono">${c.candidate_id}</div></div>
+        <div class="bg-slate-50 p-3 rounded-lg"><span class="text-xs text-slate-400">Email</span><div>${c.email||'—'}</div></div>
+        <div class="bg-slate-50 p-3 rounded-lg"><span class="text-xs text-slate-400">ตำแหน่ง</span><div>${c.position_applied||'—'}</div></div>
+        <div class="bg-slate-50 p-3 rounded-lg"><span class="text-xs text-slate-400">BU</span><div>${c.bu||'—'}</div></div>
+        <div class="bg-slate-50 p-3 rounded-lg"><span class="text-xs text-slate-400">HC ID</span><div>${c.hc_id||'—'}</div></div>
+        <div class="bg-slate-50 p-3 rounded-lg"><span class="text-xs text-slate-400">Source</span><div>${c.source||'—'}</div></div>
+      </div>
+      <div class="bg-violet-50 p-3 rounded-lg">
+        <div class="text-xs text-violet-600 font-semibold mb-1">🤖 AI Screening Scores</div>
+        <div class="flex gap-3 text-sm">
+          ${[1,2,3,4,5].map(i => `<div class="text-center"><div class="text-xs text-slate-400">CC${i}</div><div class="font-bold text-lg ${parseInt(c['cc'+i+'_score'])>=4?'text-emerald-600':parseInt(c['cc'+i+'_score'])>=3?'text-amber-600':'text-red-500'}">${c['cc'+i+'_score']||'—'}</div></div>`).join('')}
+          <div class="text-center border-l pl-3"><div class="text-xs text-slate-400">Total</div><div class="font-bold text-lg">${c.total_score||'—'}</div></div>
+          <div class="text-center"><div class="text-xs text-slate-400">Avg</div><div class="font-bold text-lg text-violet-600">${c.avg_score||'—'}</div></div>
+        </div>
+        ${c.ai_recommendation ? `<div class="mt-2 text-xs font-medium text-violet-700">Recommendation: ${c.ai_recommendation}</div>` : ''}
+      </div>
+      ${(STAGE_FLOW[c.stage]||[]).length > 0 ? `
+        <div class="flex gap-2 pt-2">
+          <button onclick="closeModal('modalDetail');openAdvance('${c.candidate_id}')" class="btn btn-primary">🔀 เลื่อน Stage</button>
+          ${STAGE_FLOW[c.stage].includes('rejected') ? `<button onclick="rejectCandidate('${c.candidate_id}')" class="btn btn-danger">❌ Reject</button>` : ''}
+        </div>
+      ` : ''}
+    </div>`;
+
+  // Re-use a dynamic detail modal
+  document.getElementById('modalDetailBody').innerHTML = html;
+  openModal('modalDetail');
+}
+
+function rejectCandidate(candId) {
+  const c = candidates.find(x => x.candidate_id === candId);
+  if (!c) return;
+  if (MODE === 'mock') {
+    c.stage = 'rejected'; c.status = 'rejected';
+    renderAll();
+    closeModal('modalDetail');
+    showToast('❌ Reject ผู้สมัครสำเร็จ');
+  } else {
+    apiPost({ action: 'update', table: 'p1_candidates', id: candId, data: { stage: 'rejected', status: 'rejected' } })
+      .then(() => fetchCandidates().then(() => { renderAll(); closeModal('modalDetail'); showToast('❌ Reject สำเร็จ'); }))
+      .catch(e => showToast('❌ Error: ' + e.message, 'error'));
+  }
+}
+
+function viewHcPipeline(hcId) {
+  document.getElementById('filterHcPipeline').value = hcId;
+  showSubTab('pipeline');
+  renderPipelineBoard();
+}
+
+// =========================================================================
+// UI HELPERS
+// =========================================================================
+function showSubTab(name) {
+  document.querySelectorAll('[id^="subtab-"]').forEach(el => el.style.display = 'none');
+  document.getElementById('subtab-' + name).style.display = '';
+  document.querySelectorAll('nav [data-subtab]').forEach(el => {
+    if (el.dataset.subtab === name) {
+      el.className = 'tab-active px-4 py-3 text-sm font-medium border-b-2 border-blue-600 text-blue-600';
+    } else {
+      el.className = 'px-4 py-3 text-sm font-medium text-slate-500 hover:text-blue-600 border-b-2 border-transparent';
+    }
+  });
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openSettings() {
+  document.getElementById('inputApiUrl').value = API_URL;
+  openModal('modalSettings');
+}
+
+function saveApiUrl() {
+  API_URL = document.getElementById('inputApiUrl').value.trim();
+  localStorage.setItem('pp7_api_url', API_URL);
+  showToast('💾 บันทึก API URL แล้ว');
+  if (API_URL && MODE === 'mock') toggleMode();
+}
+
+async function testApiConnection() {
+  const url = document.getElementById('inputApiUrl').value.trim();
+  const resultEl = document.getElementById('testResult');
+  if (!url) { resultEl.innerHTML = '<span class="text-red-500">กรุณาระบุ URL</span>'; return; }
+  resultEl.innerHTML = '<span class="spinner border-blue-400 border-t-transparent"></span> ทดสอบ...';
+  try {
+    const res = await fetch(url + '?action=ping');
+    const data = await res.json();
+    if (data.status === 'ok') {
+      resultEl.innerHTML = '<span class="text-emerald-600">✅ Connected!</span>';
+    } else {
+      resultEl.innerHTML = '<span class="text-amber-600">⚠️ Response: ' + JSON.stringify(data).slice(0,80) + '</span>';
+    }
+  } catch(e) {
+    resultEl.innerHTML = '<span class="text-red-500">❌ ' + e.message + '</span>';
+  }
+}
+
+function toggleMode() {
+  MODE = MODE === 'mock' ? 'live' : 'mock';
+  const label = document.getElementById('modeLabel');
+  if (MODE === 'live') {
+    if (!API_URL) {
+      showToast('⚠️ กรุณาตั้ง API URL ก่อน — ใช้ Mock Mode ต่อไป', 'warn');
+      MODE = 'mock';
+      return;
+    }
+    label.textContent = '🟢 Live Mode';
+    refreshData();
+  } else {
+    label.textContent = '🟢 Mock Mode';
+    generateMockData();
+    renderAll();
+  }
+}
+
+async function refreshData() {
+  const btn = document.getElementById('refreshBtn');
+  btn.innerHTML = '<span class="spinner border-white border-t-transparent"></span>';
+  btn.disabled = true;
+  try {
+    if (MODE === 'live') {
+      await Promise.all([fetchHeadcounts(), fetchCandidates()]);
+    } else {
+      generateMockData();
+    }
+    renderAll();
+    showToast('🔄 โหลดข้อมูลสำเร็จ');
+  } catch(e) {
+    showToast('❌ โหลดล้มเหลว: ' + e.message, 'error');
+  } finally {
+    btn.innerHTML = '🔄 โหลดใหม่';
+    btn.disabled = false;
+  }
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (type === 'error' ? 'bg-red-600' : type === 'warn' ? 'bg-amber-600' : 'bg-emerald-600');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// =========================================================================
+// INIT
+// =========================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // Inject detail modal HTML dynamically
+  const detailModal = document.createElement('div');
+  detailModal.id = 'modalDetail';
+  detailModal.className = 'modal-overlay';
+  detailModal.innerHTML = `<div class="modal"><div class="modal-header"><h3>📋 รายละเอียดผู้สมัคร</h3><button onclick="closeModal('modalDetail')" class="text-2xl text-slate-400 hover:text-slate-700">&times;</button></div><div class="modal-body" id="modalDetailBody"></div></div>`;
+  document.body.appendChild(detailModal);
+  detailModal.addEventListener('click', e => { if (e.target === detailModal) closeModal('modalDetail'); });
+
+  // Init
+  if (API_URL) {
+    MODE = 'live';
+    document.getElementById('modeLabel').textContent = '🟢 Live Mode';
+  }
+  generateMockData();
+  renderAll();
+});
+</script>
+
+<footer class="text-center py-6 text-xs text-slate-400 border-t mt-8">
+  Web PP7 — P1 แสวงหา Dashboard | Backend: Google Apps Script + Google Sheets<br>
+  <a href="https://web-pp7.pages.dev" class="text-blue-500 hover:underline">web-pp7.pages.dev</a> ·
+  <a href="./index.html" class="text-blue-500 hover:underline">PP7 Main Dashboard</a>
+</footer>
+
+</body>
+</html>

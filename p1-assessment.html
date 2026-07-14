@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P1 Assessment - แบบทดสอบผู้สมัคร</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Noto Sans Thai', sans-serif; }
+    .card-hover { transition: all 0.2s; }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+    .tab-active { border-bottom: 3px solid #6366f1; color: #6366f1; font-weight: 600; }
+    .question-card { background: #f9fafb; border-left: 4px solid #6366f1; padding: 16px; border-radius: 8px; margin: 12px 0; }
+    .option-btn { padding: 10px 16px; border: 2px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+    .option-btn:hover { border-color: #6366f1; background: #eef2ff; }
+    .option-btn.selected { border-color: #6366f1; background: #eef2ff; font-weight: 600; }
+    .progress-bar { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #6366f1, #8b5cf6); transition: width 0.3s; }
+    .team-badge { padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+    .team-cloud { background: #dbeafe; color: #1e40af; }
+    .team-flutter { background: #dcfce7; color: #166534; }
+    .team-sds { background: #fef3c7; color: #92400e; }
+    .team-ai { background: #fce7f3; color: #9d174d; }
+    .team-design { background: #e0e7ff; color: #3730a3; }
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:50; justify-content:center; align-items:center }
+    .modal-overlay.open { display:flex }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<!-- Header -->
+<header class="bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-900 text-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-4">
+    <div class="flex justify-between items-center flex-wrap gap-2">
+      <div>
+        <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
+          📝 P1 Assessment — แบบทดสอบผู้สมัคร
+        </h1>
+        <p class="text-indigo-200 text-xs md:text-sm mt-1">ระบบแบบทดสอบ 3 ส่วน: ทัศนคติ + งานบริการ + ทักษะตามทีม</p>
+      </div>
+      <div class="text-right">
+        <div class="text-xs text-indigo-300">Web PP7</div>
+        <div class="text-sm font-semibold" id="update-time">...</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Tabs -->
+<div class="max-w-7xl mx-auto px-4 pt-4">
+  <div class="flex gap-4 border-b">
+    <button onclick="switchTab('attitude')" id="tab-attitude" class="pb-2 px-4 tab-active">🧠 แบบทดสอบทัศนคติ</button>
+    <button onclick="switchTab('service')" id="tab-service" class="pb-2 px-4 text-gray-500 hover:text-gray-700">💼 แบบทดสอบงานบริการ</button>
+    <button onclick="switchTab('skill')" id="tab-skill" class="pb-2 px-4 text-gray-500 hover:text-gray-700">🛠 แบบทดสอบทักษะ</button>
+    <button onclick="switchTab('hr')" id="tab-hr" class="pb-2 px-4 text-gray-500 hover:text-gray-700">👤 HR จัดการ</button>
+  </div>
+</div>
+
+<!-- Tab Content: Attitude Test -->
+<div id="content-attitude" class="max-w-4xl mx-auto px-4 py-6">
+  <div class="bg-white rounded-xl shadow-lg p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold text-gray-800">🧠 แบบทดสอบทัศนคติ (จากปรัชญา PKG)</h2>
+      <div class="text-sm text-gray-500">10 ข้อ • ~15 นาที</div>
+    </div>
+
+    <!-- Progress -->
+    <div class="mb-6">
+      <div class="flex justify-between text-sm text-gray-600 mb-1">
+        <span>ความคืบหน้า</span>
+        <span id="progress-text">0/10</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Questions -->
+    <div id="attitude-questions"></div>
+
+    <!-- Submit -->
+    <div class="mt-6 flex justify-end">
+      <button onclick="submitAttitudeTest()" id="btn-submit-attitude" class="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 disabled:opacity-50" disabled>ส่งคำตอบ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tab Content: Service Test -->
+<div id="content-service" class="max-w-4xl mx-auto px-4 py-6" style="display:none">
+  <div class="bg-white rounded-xl shadow-lg p-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">💼 แบบทดสอบงานบริการ</h2>
+    
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mb-4">
+      <p class="text-sm text-blue-800">
+        แบบทดสอบนี้ดึงจาก Google Form ของ PKG: <strong>"ข้อสอบทุนองค์กรและการให้บริการลูกค้า"</strong>
+      </p>
+    </div>
+
+    <!-- Embedded Google Form -->
+    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSdExample/viewform?embedded=true" width="100%" height="800" frameborder="0" marginheight="0" marginwidth="0">กำลังโหลด…</iframe>
+    
+    <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+      <p class="text-sm text-yellow-800">
+        <strong>⚠️ หมายเหตุ:</strong> แบบทดสอบนี้เป็น Google Form ตัวอย่าง ต้องแทนที่ด้วย URL จริงของ PKG
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Tab Content: Skill Test -->
+<div id="content-skill" class="max-w-4xl mx-auto px-4 py-6" style="display:none">
+  <div class="bg-white rounded-xl shadow-lg p-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">🛠 แบบทดสอบทักษะตามทีม</h2>
+    
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mb-6">
+      <p class="text-sm text-blue-800">
+        แบบทดสอบทักษะจะแสดงเมื่อ HR เลือกส่งให้ผู้สมัครตามตำแหน่ง
+      </p>
+    </div>
+
+    <!-- Team Selection -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center card-hover">
+        <div class="text-4xl mb-2">☁️</div>
+        <h3 class="font-bold text-gray-800 mb-2">Cloud Infrastructure</h3>
+        <p class="text-sm text-gray-600 mb-3">สร้างระบบ login (Node.js + React + JWT) + Deploy Docker</p>
+        <span class="team-badge team-cloud">ทีม Cloud</span>
+        <button onclick="showSkillTest('cloud')" class="mt-3 block w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">ดูแบบทดสอบ</button>
+      </div>
+
+      <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center card-hover">
+        <div class="text-4xl mb-2">📱</div>
+        <h3 class="font-bold text-gray-800 mb-2">Flutter Mobile</h3>
+        <p class="text-sm text-gray-600 mb-3">สร้าง Shopping App 4 หน้า (Home, Saved, Product, Cart)</p>
+        <span class="team-badge team-flutter">ทีม Flutter</span>
+        <button onclick="showSkillTest('flutter')" class="mt-3 block w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">ดูแบบทดสอบ</button>
+      </div>
+
+      <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center card-hover">
+        <div class="text-4xl mb-2">💻</div>
+        <h3 class="font-bold text-gray-800 mb-2">พัฒนาและสนับสนุนโปรแกรม</h3>
+        <p class="text-sm text-gray-600 mb-3">สร้าง Form ผู้สมัคร + Google Apps Script</p>
+        <span class="team-badge team-sds">ทีม SDS</span>
+        <button onclick="showSkillTest('sds')" class="mt-3 block w-full px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">ดูแบบทดสอบ</button>
+      </div>
+
+      <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center card-hover">
+        <div class="text-4xl mb-2">🤖</div>
+        <h3 class="font-bold text-gray-800 mb-2">AI Engineer</h3>
+        <p class="text-sm text-gray-600 mb-3">เทรน model จาก dataset + RESTful API</p>
+        <span class="team-badge team-ai">ทีม AI</span>
+        <button onclick="showSkillTest('ai')" class="mt-3 block w-full px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700">ดูแบบทดสอบ</button>
+      </div>
+
+      <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center card-hover">
+        <div class="text-4xl mb-2">🎨</div>
+        <h3 class="font-bold text-gray-800 mb-2">Design</h3>
+        <p class="text-sm text-gray-600 mb-3">UX/UI analysis + Wireframe + Prototype</p>
+        <span class="team-badge team-design">ทีม Design</span>
+        <button onclick="showSkillTest('design')" class="mt-3 block w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">ดูแบบทดสอบ</button>
+      </div>
+
+      <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center card-hover">
+        <div class="text-4xl mb-2">🎓</div>
+        <h3 class="font-bold text-gray-800 mb-2">พัฒนาและสนับสนุนโปรแกรม (ฝึกงาน)</h3>
+        <p class="text-sm text-gray-600 mb-3">สร้าง Form ผู้สมัคร + Google Apps Script (ฝึกงาน)</p>
+        <span class="team-badge team-sds">ทีม SDS Intern</span>
+        <button onclick="showSkillTest('sds-intern')" class="mt-3 block w-full px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">ดูแบบทดสอบ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tab Content: HR Management -->
+<div id="content-hr" class="max-w-7xl mx-auto px-4 py-6" style="display:none">
+  <div class="bg-white rounded-xl shadow-lg p-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">👤 HR จัดการแบบทดสอบ</h2>
+    
+    <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg mb-6">
+      <p class="text-sm text-green-800">
+        HR เลือกผู้สมัคร → เลือกแบบทดสอบทักษะตามตำแหน่ง → ส่งแบบทดสอบให้ผู้สมัคร
+      </p>
+    </div>
+
+    <!-- Candidate List -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500">#</th>
+            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500">ผู้สมัคร</th>
+            <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500">ตำแหน่ง</th>
+            <th class="px-3 py-2 text-center text-xs font-semibold text-gray-500">ทัศนคติ</th>
+            <th class="px-3 py-2 text-center text-xs font-semibold text-gray-500">งานบริการ</th>
+            <th class="px-3 py-2 text-center text-xs font-semibold text-gray-500">ทักษะ</th>
+            <th class="px-3 py-2 text-center text-xs font-semibold text-indigo-600">ดำเนินการ</th>
+          </tr>
+        </thead>
+        <tbody id="hr-candidates-table"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Skill Test Modal -->
+<div id="skillModal" class="modal-overlay">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="p-6" id="skillModalContent"></div>
+  </div>
+</div>
+
+<!-- Assign Test Modal -->
+<div id="assignModal" class="modal-overlay">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
+    <div class="p-6">
+      <div class="flex justify-between items-start mb-4">
+        <h3 class="text-lg font-bold text-gray-800">ส่งแบบทดสอบทักษะ</h3>
+        <button onclick="closeAssignModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      </div>
+      <div id="assignModalContent"></div>
+    </div>
+  </div>
+</div>
+
+<footer class="text-center py-4 text-gray-400 text-xs">
+  Web PP7 • P1 Assessment System • Built by KiloClaw 🦾
+</footer>
+
+<script>
+// =====================================================
+// ATTITUDE TEST QUESTIONS (จากปรัชญา PKG)
+// =====================================================
+const ATTITUDE_QUESTIONS = [
+  {
+    id: 1,
+    question: "เมื่อเกิดปัญหากับลูกค้า คุณให้ความสำคัญกับอะไรก่อน?",
+    options: [
+      { text: "การแก้ปัญหาให้เร็วที่สุด", score: 3 },
+      { text: "การรับฟังและเข้าใจความรู้สึกของลูกค้า", score: 5 },
+      { text: "การปกป้องตนเองและองค์กร", score: 1 },
+      { text: "การโอนเรื่องให้คนอื่นจัดการ", score: 2 }
+    ],
+    cc: "CC3"
+  },
+  {
+    id: 2,
+    question: "เมื่อเห็นเพื่อนร่วมงานทำผิดมาตรฐาน คุณจะทำอย่างไร?",
+    options: [
+      { text: "ปล่อยผ่าน เพราะไม่ใช่เรื่องของเรา", score: 1 },
+      { text: "แจ้งเตือนและช่วยแก้ให้ถูกต้อง", score: 5 },
+      { text: "รายงานหัวหน้าทันที", score: 3 },
+      { text: "พูดคุยกับเพื่อนร่วมงานส่วนตัว", score: 4 }
+    ],
+    cc: "CC4"
+  },
+  {
+    id: 3,
+    question: "เมื่อเป้าหมายงานกดดัน คุณเลือกทำอย่างไร?",
+    options: [
+      { text: "เร่งงานอย่างเดียวให้เสร็จ", score: 2 },
+      { text: "รักษาคุณภาพและความพึงพอใจลูกค้าควบคู่กัน", score: 5 },
+      { text: "ขอความช่วยเหลือจากทีม", score: 4 },
+      { text: "ลดมาตรฐานลงเพื่อให้เสร็จทันเวลา", score: 1 }
+    ],
+    cc: "CC5"
+  },
+  {
+    id: 4,
+    question: "เมื่อได้รับ feedback ที่ไม่เห็นด้วย คุณตอบสนองอย่างไร?",
+    options: [
+      { text: "รับฟังและพิจารณาปรับปรุง", score: 5 },
+      { text: "อธิบายเหตุผลเพื่อป้องกันตนเอง", score: 3 },
+      { text: "ไม่ยอมรับเพราะคิดว่าถูกแล้ว", score: 1 },
+      { text: "ขอเวลาทบทวนก่อนตอบ", score: 4 }
+    ],
+    cc: "CC1"
+  },
+  {
+    id: 5,
+    question: "คุณรู้สึกอย่างไรกับการเปลี่ยนแปลงในองค์กร?",
+    options: [
+      { text: "ตื่นเต้นและพร้อมปรับตัว", score: 5 },
+      { text: "กังวลแต่จะพยายาม", score: 3 },
+      { text: "ไม่ชอบเพราะชอบความมั่นคง", score: 1 },
+      { text: "รอดูก่อนว่าคนอื่นทำอย่างไร", score: 2 }
+    ],
+    cc: "CC2"
+  },
+  {
+    id: 6,
+    question: "เมื่อทีมมีปัญหา คุณมักจะ...",
+    options: [
+      { text: "เรียกประชุมเพื่อหาทางออกร่วมกัน", score: 5 },
+      { text: "ทำงานของตัวเองให้ดีที่สุด", score: 3 },
+      { text: "รอให้คนอื่นแก้", score: 1 },
+      { text: "เสนอไอเดียและให้ทีมตัดสินใจ", score: 4 }
+    ],
+    cc: "CC4"
+  },
+  {
+    id: 7,
+    question: "คุณให้ความสำคัญกับอะไรมากที่สุดในงาน?",
+    options: [
+      { text: "คุณภาพของงาน", score: 5 },
+      { text: "ความเร็วในการส่งมอบ", score: 3 },
+      { text: "ความสัมพันธ์กับเพื่อนร่วมงาน", score: 4 },
+      { text: "ผลตอบแทนที่ได้รับ", score: 2 }
+    ],
+    cc: "CC5"
+  },
+  {
+    id: 8,
+    question: "เมื่อต้องเรียนรู้เทคโนโลยีใหม่ คุณรู้สึกอย่างไร?",
+    options: [
+      { text: "ตื่นเต้นและอยากลองทันที", score: 5 },
+      { text: "ยินดีแต่ขอเวลาศึกษา", score: 4 },
+      { text: "กังวลแต่จะพยายาม", score: 3 },
+      { text: "ไม่ชอบเพราะชอบวิธีเดิม", score: 1 }
+    ],
+    cc: "CC6"
+  },
+  {
+    id: 9,
+    question: "คุณสร้างบรรยากาศในการทำงานอย่างไร?",
+    options: [
+      { text: "ใช้ humor คลายเครียดอย่างเหมาะสม", score: 5 },
+      { text: "ทำงานอย่างจริงจังเท่านั้น", score: 3 },
+      { text: "ปล่อยให้เป็นไปตามธรรมชาติ", score: 2 },
+      { text: "สร้างกิจกรรมสนุกๆ ในทีม", score: 4 }
+    ],
+    cc: "CC7"
+  },
+  {
+    id: 10,
+    question: "เมื่อลูกค้าขอสิ่งที่เกินขอบเขตงาน คุณจะทำอย่างไร?",
+    options: [
+      { text: "ปฏิเสธทันทีเพราะไม่อยู่ในขอบเขต", score: 2 },
+      { text: "รับฟังและหาทางช่วยเหลือภายในขอบเขตที่ทำได้", score: 5 },
+      { text: "โอนเรื่องให้คนอื่น", score: 1 },
+      { text: "ปรึกษาหัวหน้าก่อนตัดสินใจ", score: 4 }
+    ],
+    cc: "CC3"
+  }
+];
+
+const SKILL_TESTS = {
+  cloud: {
+    name: "Cloud Infrastructure",
+    icon: "☁️",
+    description: "สร้างระบบ login โดยใช้ Node.js + React.js + JWT",
+    tasks: [
+      "สร้าง project สร้าง folder logintest และใช้คำสั่ง npm init -y",
+      "สร้าง route POST /auth/login",
+      "สร้าง token จาก jwt.sign",
+      "ทดสอบโดยใช้ postman",
+      "สร้าง route POST /protected-route เพื่อตรวจสอบ Token JWT",
+      "สร้างหน้า login จาก react.js เก็บ token เป็น Local Storage",
+      "Deploy บน Docker container และส่งเป็น Docker image"
+    ]
+  },
+  flutter: {
+    name: "Flutter Mobile",
+    icon: "📱",
+    description: "สร้าง Shopping App 4 หน้า",
+    tasks: [
+      "Home Page: แสดงรายการสินค้า 2 คอลัมน์, ปุ่มหัวใจ save/unsave",
+      "Saved Page: แสดงรายการที่ save ไว้",
+      "Product Page: แสดงรายละเอียดสินค้า, ปุ่มเพิ่มลงตะกร้า",
+      "Cart Page: แสดงรายการในตะกร้า, ปรับจำนวน, swipe เพื่อลบ"
+    ]
+  },
+  sds: {
+    name: "พัฒนาและสนับสนุนโปรแกรม",
+    icon: "💻",
+    description: "สร้าง Form ผู้สมัคร + Google Apps Script",
+    tasks: [
+      "สร้างไฟล์ Google Sheet ใน Google Drive",
+      "สร้าง Form กรอกข้อมูลผู้สมัคร (ชื่อ-นามสกุล, ชื่อเล่น, วันเกิด, อายุ, ความสามารถพิเศษ)",
+      "คำนวณอายุอัตโนมัติจากวันเกิด",
+      "เขียน Function Google Apps Script บันทึกข้อมูลลง Sheet"
+    ]
+  },
+  ai: {
+    name: "AI Engineer",
+    icon: "🤖",
+    description: "เทรน model จาก dataset และดึงข้อมูลกลับมาใช้งาน",
+    tasks: [
+      "เลือก dataset จาก roboflow (หมวด Animals)",
+      "เทรน model จาก Google Colab",
+      "ใช้ Predict เพื่อระบุตำแหน่งและวงรูปภาพ",
+      "เขียนไฟล์ python ทดสอบ model",
+      "เขียน RESTful API สำหรับเรียกใช้งาน"
+    ]
+  },
+  design: {
+    name: "Design",
+    icon: "🎨",
+    description: "UX/UI analysis + Wireframe + Prototype",
+    tasks: [
+      "วิเคราะห์ UX: ออกแบบแอปสำหรับชุมชนชนบทที่มีข้อจำกัดด้านอินเทอร์เน็ต",
+      "ออกแบบ UI: Wireframe หน้าลงทะเบียนสำหรับผู้ใช้ที่ไม่เก่งเทคโนโลยี",
+      "สร้าง Prototype 1 ฟังก์ชันการใช้งาน (Figma/Adobe XD)",
+      "อธิบายกระบวนการออกแบบ"
+    ]
+  },
+  "sds-intern": {
+    name: "พัฒนาและสนับสนุนโปรแกรม (ฝึกงาน)",
+    icon: "🎓",
+    description: "สร้าง Form ผู้สมัคร + Google Apps Script (ฝึกงาน)",
+    tasks: [
+      "สร้างไฟล์ Google Sheet ใน Google Drive",
+      "สร้าง Form กรอกข้อมูลผู้สมัคร (ชื่อ-นามสกุล, ชื่อเล่น, วันเกิด, ความสามารถพิเศษ)",
+      "เขียน Function Google Apps Script บันทึกข้อมูลลง Sheet"
+    ]
+  }
+};
+
+// =====================================================
+// MOCK CANDIDATES
+// =====================================================
+const CANDIDATES = [
+  { id: 1, name: "อรุณ เค้าทอง", position: "ช่างยนต์", team: null, attitudeDone: false, serviceDone: false, skillDone: false },
+  { id: 2, name: "อนุวัฒน์ แก้วรอด", position: "ช่างรถเล็ก", team: null, attitudeDone: false, serviceDone: false, skillDone: false },
+  { id: 3, name: "ทรงยุทธ เมฆมี", position: "ทีมสานสัมพันธ์", team: null, attitudeDone: false, serviceDone: false, skillDone: false },
+  { id: 4, name: "รัชดาภรณ์ ขอจัดกลาง", position: "บริการลูกค้า", team: null, attitudeDone: false, serviceDone: false, skillDone: false },
+  { id: 5, name: "ชุติพงศ์ มิ่งมณี", position: "อะไหล่ TIS", team: null, attitudeDone: false, serviceDone: false, skillDone: false }
+];
+
+// =====================================================
+// TAB SWITCHING
+// =====================================================
+function switchTab(tab) {
+  ['attitude', 'service', 'skill', 'hr'].forEach(t => {
+    document.getElementById(`content-${t}`).style.display = t === tab ? 'block' : 'none';
+    document.getElementById(`tab-${t}`).classList.toggle('tab-active', t === tab);
+    document.getElementById(`tab-${t}`).classList.toggle('text-gray-500', t !== tab);
+  });
+}
+
+// =====================================================
+// ATTITUDE TEST
+// =====================================================
+const answers = {};
+
+function renderAttitudeQuestions() {
+  const container = document.getElementById('attitude-questions');
+  container.innerHTML = ATTITUDE_QUESTIONS.map((q, idx) => `
+    <div class="question-card">
+      <div class="flex justify-between items-start mb-3">
+        <div class="font-semibold text-gray-800">ข้อ ${idx + 1}. ${q.question}</div>
+        <span class="text-xs px-2 py-1 bg-indigo-100 text-indigo-700 rounded">${q.cc}</span>
+      </div>
+      <div class="space-y-2">
+        ${q.options.map((opt, optIdx) => `
+          <div class="option-btn" onclick="selectAnswer(${q.id}, ${optIdx}, ${opt.score})">
+            ${opt.text}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectAnswer(qId, optIdx, score) {
+  answers[qId] = { optIdx, score };
+  
+  // Update UI
+  const question = ATTITUDE_QUESTIONS.find(q => q.id === qId);
+  const questionCard = document.querySelectorAll('.question-card')[ATTITUDE_QUESTIONS.indexOf(question)];
+  questionCard.querySelectorAll('.option-btn').forEach((btn, idx) => {
+    btn.classList.toggle('selected', idx === optIdx);
+  });
+  
+  // Update progress
+  const answered = Object.keys(answers).length;
+  document.getElementById('progress-text').textContent = `${answered}/10`;
+  document.getElementById('progress-fill').style.width = `${(answered / 10) * 100}%`;
+  document.getElementById('btn-submit-attitude').disabled = answered < 10;
+}
+
+function submitAttitudeTest() {
+  const totalScore = Object.values(answers).reduce((sum, a) => sum + a.score, 0);
+  const maxScore = 50;
+  const percentage = Math.round((totalScore / maxScore) * 100);
+  
+  alert(`ส่งคำตอบสำเร็จ!\n\nคะแนนทัศนคติ: ${totalScore}/${maxScore} (${percentage}%)\n\nระดับ: ${percentage >= 80 ? 'ดีมาก' : percentage >= 60 ? 'ดี' : 'ต้องปรับปรุง'}`);
+}
+
+// =====================================================
+// SKILL TEST MODAL
+// =====================================================
+function showSkillTest(team) {
+  const test = SKILL_TESTS[team];
+  const modal = document.getElementById('skillModal');
+  const content = document.getElementById('skillModalContent');
+  
+  content.innerHTML = `
+    <div class="flex justify-between items-start mb-4">
+      <div>
+        <h3 class="text-xl font-bold text-gray-800">${test.icon} ${test.name}</h3>
+        <p class="text-gray-600 text-sm mt-1">${test.description}</p>
+      </div>
+      <button onclick="closeSkillModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    </div>
+    
+    <div class="mt-4">
+      <h4 class="font-semibold text-gray-700 mb-3">📋 งานที่ต้องทำ:</h4>
+      <div class="space-y-2">
+        ${test.tasks.map((task, idx) => `
+          <div class="flex items-start gap-2 p-3 bg-gray-50 rounded-lg">
+            <span class="text-indigo-600 font-bold">${idx + 1}.</span>
+            <span class="text-sm text-gray-700">${task}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    
+    <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+      <p class="text-sm text-blue-800">
+        <strong>⏱ เวลา:</strong> 1-3 วัน<br>
+        <strong>📤 ส่งงาน:</strong> ส่ง link หรือไฟล์ผ่านระบบ
+      </p>
+    </div>
+  `;
+  
+  modal.classList.add('open');
+}
+
+function closeSkillModal() {
+  document.getElementById('skillModal').classList.remove('open');
+}
+
+// =====================================================
+// HR MANAGEMENT
+// =====================================================
+function renderHRCandidates() {
+  const tbody = document.getElementById('hr-candidates-table');
+  tbody.innerHTML = CANDIDATES.map((c, idx) => `
+    <tr class="hover:bg-gray-50 border-b border-gray-100">
+      <td class="px-3 py-2 text-gray-400 text-xs">${idx + 1}</td>
+      <td class="px-3 py-2 font-semibold text-gray-800">${c.name}</td>
+      <td class="px-3 py-2 text-xs text-gray-600">${c.position}</td>
+      <td class="px-3 py-2 text-center">${c.attitudeDone ? '✅' : '⏳'}</td>
+      <td class="px-3 py-2 text-center">${c.serviceDone ? '✅' : '⏳'}</td>
+      <td class="px-3 py-2 text-center">${c.team ? `<span class="team-badge team-${c.team}">${c.team}</span>` : '—'}</td>
+      <td class="px-3 py-2 text-center">
+        <button onclick="openAssignModal(${c.id})" class="text-indigo-600 hover:text-indigo-800 text-xs font-semibold hover:underline">ส่งแบบทดสอบ</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openAssignModal(candidateId) {
+  const candidate = CANDIDATES.find(c => c.id === candidateId);
+  const modal = document.getElementById('assignModal');
+  const content = document.getElementById('assignModalContent');
+  
+  content.innerHTML = `
+    <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+      <div class="font-semibold text-gray-800">${candidate.name}</div>
+      <div class="text-sm text-gray-600">ตำแหน่ง: ${candidate.position}</div>
+    </div>
+    
+    <div class="mb-4">
+      <label class="block text-sm font-semibold text-gray-700 mb-2">เลือกแบบทดสอบทักษะ:</label>
+      <select id="team-select" class="w-full px-3 py-2 border rounded-lg">
+        <option value="">-- เลือกทีม --</option>
+        <option value="cloud">☁️ Cloud Infrastructure</option>
+        <option value="flutter">📱 Flutter Mobile</option>
+        <option value="sds">💻 พัฒนาและสนับสนุนโปรแกรม</option>
+        <option value="ai">🤖 AI Engineer</option>
+        <option value="design">🎨 Design</option>
+        <option value="sds-intern">🎓 พัฒนาและสนับสนุนโปรแกรม (ฝึกงาน)</option>
+      </select>
+    </div>
+    
+    <div class="flex gap-2">
+      <button onclick="closeAssignModal()" class="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300">ยกเลิก</button>
+      <button onclick="assignTest(${candidateId})" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700">ส่งแบบทดสอบ</button>
+    </div>
+  `;
+  
+  modal.classList.add('open');
+}
+
+function closeAssignModal() {
+  document.getElementById('assignModal').classList.remove('open');
+}
+
+function assignTest(candidateId) {
+  const team = document.getElementById('team-select').value;
+  if (!team) {
+    alert('กรุณาเลือกทีม');
+    return;
+  }
+  
+  const candidate = CANDIDATES.find(c => c.id === candidateId);
+  candidate.team = team;
+  
+  closeAssignModal();
+  renderHRCandidates();
+  alert(`ส่งแบบทดสอบ ${SKILL_TESTS[team].name} ถึง ${candidate.name} สำเร็จ!`);
+}
+
+// =====================================================
+// INIT
+// =====================================================
+renderAttitudeQuestions();
+renderHRCandidates();
+
+const now = new Date();
+document.getElementById('update-time').textContent = 
+  now.toLocaleDateString('th-TH', { day:'numeric', month:'short', year:'2-digit' }) + ' ' +
+  now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
+</script>
+</body>
+</html>
