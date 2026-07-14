@@ -87,61 +87,18 @@
 </div>
 
 <script>
-const SHEET_ID = '1dH15UxEDyTldPx4lwU5Y6_BQYbTw_gJRMsC4-HCnXR4';
-const SHEET_NAME = 'A1_ข้อมูลผู้สมัครทั้งหมด';
-
 let allApplicants = [];
 
-// ดึงข้อมูลจาก Google Sheets
-async function loadFromGoogleSheets() {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
-  
+// ดึงข้อมูลจากไฟล์ JSON
+async function loadApplicants() {
   try {
-    const response = await fetch(url);
-    const text = await response.text();
+    const response = await fetch('data/waiting-applicants.json');
+    const data = await response.json();
     
-    // Parse JSON from response
-    const json = JSON.parse(text.replace('/*O_o*/\n', '').replace('google.visualization.Query.setResponse(', '').replace(');', ''));
-    
-    const table = json.table;
-    const cols = table.cols;
-    const rows = table.rows;
-    
-    // หา column index
-    const colMap = {};
-    cols.forEach((col, idx) => {
-      const label = col.label || '';
-      if (label.includes('สถานะ')) colMap.status = idx;
-      if (label.includes('ชื่อ[ภาษาไทย]')) colMap.firstName = idx;
-      if (label.includes('นามสกุล')) colMap.lastName = idx;
-      if (label.includes('ชื่อเล่น')) colMap.nickname = idx;
-      if (label.includes('ตำแหน่งงานที่สมัคร1')) colMap.position1 = idx;
-      if (label.includes('เงินเดือน')) colMap.salary = idx;
-    });
-    
-    // Filter ข้อมูล
-    const targetStatuses = ['รอสัมภาษณ์', 'รอคัดเลือกใบสมัคร', 'รอนัดสัมภาษณ์'];
-    
-    allApplicants = [];
-    
-    for (let i = 1; i < rows.length; i++) {
-      const row = rows[i].c;
-      const status = row[colMap.status]?.v || '';
-      
-      if (targetStatuses.includes(status)) {
-        allApplicants.push({
-          status: status,
-          firstName: row[colMap.firstName]?.v || '',
-          lastName: row[colMap.lastName]?.v || '',
-          nickname: row[colMap.nickname]?.v || '',
-          position1: row[colMap.position1]?.v || '',
-          salary: row[colMap.salary]?.v || ''
-        });
-      }
-    }
+    allApplicants = data.applicants;
     
     // อัพเดท UI
-    updateSummary();
+    updateSummary(data);
     renderTable(allApplicants);
     
   } catch (error) {
@@ -152,6 +109,13 @@ async function loadFromGoogleSheets() {
       </td></tr>
     `;
   }
+}
+
+function updateSummary(data) {
+  document.getElementById('total-count').textContent = data.total;
+  document.getElementById('interview-count').textContent = data.summary['รอสัมภาษณ์'];
+  document.getElementById('screening-count').textContent = data.summary['รอคัดเลือกใบสมัคร'];
+  document.getElementById('scheduled-count').textContent = data.summary['รอนัดสัมภาษณ์'];
 }
 
 function updateSummary() {
