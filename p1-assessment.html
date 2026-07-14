@@ -779,58 +779,125 @@ function initMotivationTest() {
 }
 
 function submitMotivationTest() {
-  const intrinsic = [];
-  const extrinsic = [];
-  const redFlags = [];
-  
-  // Statements 1, 2, 3 = Intrinsic motivation
-  // Statement 4 = Work ethic
-  // Statement 5 = Extrinsic motivation
-  // Statement 6 = Red flag
-  
+  const rankings = {};
   Object.entries(motivationAnswers).forEach(([stmt, rank]) => {
-    if (['1', '2', '3'].includes(stmt) && rank <= 3) {
-      intrinsic.push({ stmt, rank });
-    }
-    if (stmt === '5' && rank <= 3) {
-      extrinsic.push({ stmt, rank });
-    }
-    if (stmt === '6' && rank <= 3) {
-      redFlags.push({ stmt, rank });
-    }
+    rankings[rank] = parseInt(stmt);
   });
   
-  let result = '📊 ผลการประเมินแรงจูงใจ 3E3P\n\n';
-  result += 'ลำดับที่คุณเลือก:\n';
-  Object.entries(motivationAnswers).sort((a, b) => a[1] - b[1]).forEach(([stmt, rank]) => {
-    const stmtText = {
-      '1': 'สนุกสนานกับการทำงาน',
-      '2': 'ตอบโจทย์จุดมุ่งหมาย',
-      '3': 'ใช้ความสามารถเต็มประสิทธิภาพ',
-      '4': 'การทำงานคือหน้าที่',
-      '5': 'ค่าตอบแทนเพื่อเลี้ยงครอบครัว',
-      '6': 'ไม่มีแรงจูงใจ'
-    }[stmt];
-    result += `  ${rank}. ${stmtText}\n`;
+  const stmtText = {
+    '1': 'สนุกสนานกับการทำงาน',
+    '2': 'ตอบโจทย์จุดมุ่งหมาย',
+    '3': 'ใช้ความสามารถเต็มประสิทธิภาพ',
+    '4': 'การทำงานคือหน้าที่',
+    '5': 'ค่าตอบแทนเพื่อเลี้ยงครอบครัว',
+    '6': 'ไม่มีแรงจูงใจ'
+  };
+  
+  // Analyze motivation profile
+  const top3 = [rankings[1], rankings[2], rankings[3]];
+  const bottom3 = [rankings[4], rankings[5], rankings[6]];
+  
+  // Check alignment with PKG philosophy
+  let intrinsicScore = 0;
+  let extrinsicScore = 0;
+  let redFlagScore = 0;
+  
+  top3.forEach(stmt => {
+    if (['1', '2', '3'].includes(stmt.toString())) intrinsicScore++;
+    if (stmt === '4') extrinsicScore++;
+    if (stmt === '5') extrinsicScore++;
+    if (stmt === '6') redFlagScore++;
   });
   
-  result += '\n📈 การวิเคราะห์:\n';
-  if (intrinsic.length > 0) {
-    result += `✅ แรงจูงใจภายในสูง (Intrinsic): ${intrinsic.length} ข้อ\n`;
-  }
-  if (extrinsic.length > 0) {
-    result += `💰 แรงจูงใจภายนอก (Extrinsic): ${extrinsic.length} ข้อ\n`;
-  }
-  if (redFlags.length > 0) {
-    result += `⚠️ สัญญาณเตือน (Red Flag): ${redFlags.length} ข้อ\n`;
+  // CC alignment analysis
+  const ccAlignment = [];
+  if (top3.includes(1)) ccAlignment.push('CC7: Humor & Joy — สนุกสนานกับการทำงาน');
+  if (top3.includes(2)) ccAlignment.push('CC2: Adaptive Innovation — ตอบโจทย์จุดมุ่งหมาย');
+  if (top3.includes(3)) ccAlignment.push('CC5: Disciplined Professionalism — ใช้ความสามารถเต็มที่');
+  if (top3.includes(4)) ccAlignment.push('CC4: Consensus Teamwork — หน้าที่ของทุกคน');
+  if (top3.includes(5)) ccAlignment.push('P6: Compensation — เน้นค่าตอบแทน');
+  if (top3.includes(6)) ccAlignment.push('⚠️ ขาดแรงจูงใจ');
+  
+  // EVP alignment
+  const evpAlignment = [];
+  if (top3.includes(1)) evpAlignment.push('FUN — บรรยากาศสนุก');
+  if (top3.includes(2)) evpAlignment.push('PRIDE — ภูมิใจในองค์กร');
+  if (top3.includes(3)) evpAlignment.push('LEARNING & GROWTH — พัฒนาตนเอง');
+  if (top3.includes(5)) evpAlignment.push('SUSTAINABLE PAY — ผลตอบแทน');
+  
+  // Generate result
+  let result = '📊 ผลการวิเคราะห์แรงจูงใจ 3E3P\n\n';
+  result += '🎯 ลำดับความสำคัญ (1-6):\n';
+  for (let i = 1; i <= 6; i++) {
+    result += `  ${i}. ${stmtText[rankings[i]]}\n`;
   }
   
-  if (intrinsic.length >= 2) {
-    result += '\n✨ คุณมีแรงจูงใจภายในสูง สอดคล้องกับ EVP ขององค์กร';
-  } else if (extrinsic.length >= 1) {
-    result += '\n💡 คุณให้ความสำคัญกับค่าตอบแทน ซึ่งเป็นเรื่องปกติ แต่ควรพิจารณาความสอดคล้องกับเป้าหมายองค์กร';
-  } else if (redFlags.length > 0) {
-    result += '\n⚠️ ควรพูดคุยเพิ่มเติมเกี่ยวกับแรงจูงใจในการทำงาน';
+  result += '\n━━━━━━━━━━━━━━━━━━━━\n';
+  result += '🤖 AI ANALYSIS\n';
+  result += '━━━━━━━━━━━━━━━━━━━━\n\n';
+  
+  // Motivation Profile
+  result += '📈 โปรไฟล์แรงจูงใจ:\n';
+  result += `  ✅ แรงจูงใจภายใน (Intrinsic): ${intrinsicScore}/3\n`;
+  result += `  💰 แรงจูงใจภายนอก (Extrinsic): ${extrinsicScore}/3\n`;
+  result += `  ⚠️ สัญญาณเตือน (Red Flag): ${redFlagScore}/3\n\n`;
+  
+  // CC Alignment
+  result += '🧬 ความสอดรับกับ Core Competency:\n';
+  ccAlignment.forEach(cc => {
+    result += `  • ${cc}\n`;
+  });
+  
+  // EVP Alignment
+  result += '\n🌟 ความสอดรับกับ EVP:\n';
+  if (evpAlignment.length > 0) {
+    evpAlignment.forEach(evp => {
+      result += `  • ${evp}\n`;
+    });
+  } else {
+    result += '  • ไม่พบความสอดรับชัดเจนกับ EVP\n';
+  }
+  
+  // Overall Assessment
+  result += '\n━━━━━━━━━━━━━━━━━━━━\n';
+  result += '💡 สรุปผล:\n';
+  result += '━━━━━━━━━━━━━━━━━━━━\n';
+  
+  let recommendation = '';
+  let alignmentLevel = '';
+  
+  if (intrinsicScore >= 2 && redFlagScore === 0) {
+    alignmentLevel = '✅ สอดรับสูง';
+    recommendation = 'ผู้สมัครมีแรงจูงใจภายในสูง สอดคล้องกับปรัชญา PKG แนะนำให้สัมภาษณ์ต่อ';
+  } else if (intrinsicScore >= 1 && extrinsicScore >= 1 && redFlagScore === 0) {
+    alignmentLevel = '🟡 สอดรับปานกลาง';
+    recommendation = 'ผู้สมัครมีแรงจูงใจผสมผสาน ควรสอบถามเพิ่มเติมเรื่องเป้าหมายระยะยาว';
+  } else if (extrinsicScore >= 2) {
+    alignmentLevel = '🟠 สอดรับต่ำ';
+    recommendation = 'ผู้สมัครเน้นแรงจูงใจภายนอก ควรตรวจสอบความมุ่งมั่นและเป้าหมาย';
+  } else if (redFlagScore > 0) {
+    alignmentLevel = '⚠️ สัญญาณเตือน';
+    recommendation = 'พบสัญญาณขาดแรงจูงใจ ควรสัมภาษณ์เชิงลึกก่อนตัดสินใจ';
+  } else {
+    alignmentLevel = '🔵 ต้องวิเคราะห์เพิ่มเติม';
+    recommendation = 'ควรสัมภาษณ์เพิ่มเติมเพื่อเข้าใจแรงจูงใจที่แท้จริง';
+  }
+  
+  result += `  ระดับ: ${alignmentLevel}\n`;
+  result += `  คำแนะนำ: ${recommendation}\n\n`;
+  
+  // Interview Questions Suggestion
+  result += '🎤 คำถามแนะนำสำหรับทีมสัมภาษณ์ P2:\n';
+  if (top3.includes(1) || top3.includes(2) || top3.includes(3)) {
+    result += '  • "อะไรคือสิ่งที่ทำให้คุณรู้สึกเบิกบานใจในการทำงาน?"\n';
+    result += '  • "เป้าหมายระยะยาวของคุณคืออะไร และองค์กรจะช่วยได้อย่างไร?"\n';
+  }
+  if (top3.includes(5)) {
+    result += '  • "นอกจากค่าตอบแทน อะไรอีกที่ทำให้คุณอยากทำงานกับเรา?"\n';
+  }
+  if (top3.includes(6) || redFlagScore > 0) {
+    result += '  • "อะไรคือแรงจูงใจสำคัญที่สุดในการทำงานของคุณ?"\n';
+    result += '  • "คุณเห็นตัวเองทำงานที่นี่ในอีก 2 ปีข้างหน้าอย่างไร?"\n';
   }
   
   alert(result);
