@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ผู้สมัครรอสัมภาษณ์ - P1</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Noto Sans Thai', sans-serif; }
+    .status-badge { padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+    .status-interview { background: #fef3c7; color: #92400e; }
+    .status-screening { background: #dbeafe; color: #1e40af; }
+    .status-scheduled { background: #dcfce7; color: #166534; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<header class="bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-900 text-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-4">
+    <h1 class="text-xl md:text-2xl font-bold">📋 ผู้สมัครรอสัมภาษณ์ P1</h1>
+    <p class="text-indigo-200 text-xs md:text-sm mt-1">ดึงข้อมูลจาก Google Sheets โดยตรง</p>
+  </div>
+</header>
+
+<div class="max-w-7xl mx-auto px-4 py-6">
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-xl shadow-lg p-6">
+      <div class="text-3xl font-bold text-indigo-600" id="total-count">0</div>
+      <div class="text-sm text-gray-600 mt-2">ผู้สมัครทั้งหมด</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-lg p-6">
+      <div class="text-3xl font-bold text-yellow-600" id="interview-count">0</div>
+      <div class="text-sm text-gray-600 mt-2">รอสัมภาษณ์</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-lg p-6">
+      <div class="text-3xl font-bold text-blue-600" id="screening-count">0</div>
+      <div class="text-sm text-gray-600 mt-2">รอคัดเลือกใบสมัคร</div>
+    </div>
+    <div class="bg-white rounded-xl shadow-lg p-6">
+      <div class="text-3xl font-bold text-green-600" id="scheduled-count">0</div>
+      <div class="text-sm text-gray-600 mt-2">รอนัดสัมภาษณ์</div>
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <div class="bg-white rounded-xl shadow-lg p-4 mb-6">
+    <div class="flex flex-wrap gap-4">
+      <div class="flex-1 min-w-[200px]">
+        <label class="block text-sm font-semibold text-gray-700 mb-2">ค้นหา</label>
+        <input type="text" id="search-input" placeholder="ค้นหาชื่อ, ตำแหน่ง..." 
+               class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+      </div>
+      <div class="min-w-[200px]">
+        <label class="block text-sm font-semibold text-gray-700 mb-2">สถานะ</label>
+        <select id="status-filter" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+          <option value="all">ทั้งหมด</option>
+          <option value="รอสัมภาษณ์">รอสัมภาษณ์</option>
+          <option value="รอคัดเลือกใบสมัคร">รอคัดเลือกใบสมัคร</option>
+          <option value="รอนัดสัมภาษณ์">รอนัดสัมภาษณ์</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-gray-50 border-b border-gray-200">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">ลำดับ</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">ชื่อ-นามสกุล</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">ชื่อเล่น</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">ตำแหน่งที่สมัคร</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">เงินเดือน</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody id="applicants-table" class="divide-y divide-gray-200">
+          <tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">กำลังโหลดข้อมูล...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const SHEET_ID = '1dH15UxEDyTldPx4lwU5Y6_BQYbTw_gJRMsC4-HCnXR4';
+const SHEET_NAME = 'A1_ข้อมูลผู้สมัครทั้งหมด';
+
+let allApplicants = [];
+
+// ดึงข้อมูลจาก Google Sheets
+async function loadFromGoogleSheets() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+  
+  try {
+    const response = await fetch(url);
+    const text = await response.text();
+    
+    // Parse JSON from response
+    const json = JSON.parse(text.replace('/*O_o*/\n', '').replace('google.visualization.Query.setResponse(', '').replace(');', ''));
+    
+    const table = json.table;
+    const cols = table.cols;
+    const rows = table.rows;
+    
+    // หา column index
+    const colMap = {};
+    cols.forEach((col, idx) => {
+      const label = col.label || '';
+      if (label.includes('สถานะ')) colMap.status = idx;
+      if (label.includes('ชื่อ[ภาษาไทย]')) colMap.firstName = idx;
+      if (label.includes('นามสกุล')) colMap.lastName = idx;
+      if (label.includes('ชื่อเล่น')) colMap.nickname = idx;
+      if (label.includes('ตำแหน่งงานที่สมัคร1')) colMap.position1 = idx;
+      if (label.includes('เงินเดือน')) colMap.salary = idx;
+    });
+    
+    // Filter ข้อมูล
+    const targetStatuses = ['รอสัมภาษณ์', 'รอคัดเลือกใบสมัคร', 'รอนัดสัมภาษณ์'];
+    
+    allApplicants = [];
+    
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i].c;
+      const status = row[colMap.status]?.v || '';
+      
+      if (targetStatuses.includes(status)) {
+        allApplicants.push({
+          status: status,
+          firstName: row[colMap.firstName]?.v || '',
+          lastName: row[colMap.lastName]?.v || '',
+          nickname: row[colMap.nickname]?.v || '',
+          position1: row[colMap.position1]?.v || '',
+          salary: row[colMap.salary]?.v || ''
+        });
+      }
+    }
+    
+    // อัพเดท UI
+    updateSummary();
+    renderTable(allApplicants);
+    
+  } catch (error) {
+    console.error('Error:', error);
+    document.getElementById('applicants-table').innerHTML = `
+      <tr><td colspan="6" class="px-4 py-8 text-center text-red-600">
+        ❌ ไม่สามารถโหลดข้อมูลได้: ${error.message}
+      </td></tr>
+    `;
+  }
+}
+
+function updateSummary() {
+  const interview = allApplicants.filter(a => a.status === 'รอสัมภาษณ์').length;
+  const screening = allApplicants.filter(a => a.status === 'รอคัดเลือกใบสมัคร').length;
+  const scheduled = allApplicants.filter(a => a.status === 'รอนัดสัมภาษณ์').length;
+  
+  document.getElementById('total-count').textContent = allApplicants.length;
+  document.getElementById('interview-count').textContent = interview;
+  document.getElementById('screening-count').textContent = screening;
+  document.getElementById('scheduled-count').textContent = scheduled;
+}
+
+function renderTable(applicants) {
+  const tbody = document.getElementById('applicants-table');
+  
+  if (applicants.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-gray-500">ไม่พบข้อมูล</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = applicants.slice(0, 100).map((app, idx) => {
+    const fullName = `${app.firstName} ${app.lastName}`.trim();
+    const statusClass = app.status === 'รอสัมภาษณ์' ? 'status-interview' : 
+                       app.status === 'รอคัดเลือกใบสมัคร' ? 'status-screening' : 'status-scheduled';
+    
+    return `
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-3 text-sm text-gray-600">${idx + 1}</td>
+        <td class="px-4 py-3 text-sm font-semibold text-gray-900">${fullName || '-'}</td>
+        <td class="px-4 py-3 text-sm text-gray-700">${app.nickname || '-'}</td>
+        <td class="px-4 py-3 text-sm text-gray-900">${app.position1 || '-'}</td>
+        <td class="px-4 py-3 text-sm text-gray-700">${app.salary || '-'}</td>
+        <td class="px-4 py-3"><span class="status-badge ${statusClass}">${app.status}</span></td>
+      </tr>
+    `;
+  }).join('');
+  
+  if (applicants.length > 100) {
+    tbody.innerHTML += `<tr><td colspan="6" class="px-4 py-3 text-center text-sm text-gray-500">แสดง 100 จาก ${applicants.length} รายการ</td></tr>`;
+  }
+}
+
+// Filter
+document.getElementById('search-input').addEventListener('input', filterData);
+document.getElementById('status-filter').addEventListener('change', filterData);
+
+function filterData() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const status = document.getElementById('status-filter').value;
+  
+  let filtered = allApplicants;
+  
+  if (status !== 'all') {
+    filtered = filtered.filter(a => a.status === status);
+  }
+  
+  if (search) {
+    filtered = filtered.filter(a => {
+      const name = `${a.firstName} ${a.lastName}`.toLowerCase();
+      return name.includes(search) || a.position1.toLowerCase().includes(search);
+    });
+  }
+  
+  renderTable(filtered);
+}
+
+// Init
+loadFromGoogleSheets();
+</script>
+
+</body>
+</html>
