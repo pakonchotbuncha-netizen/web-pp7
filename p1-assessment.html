@@ -326,6 +326,40 @@
       </p>
     </div>
 
+    <!-- AI Summary Section -->
+    <div class="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-lg">
+      <h3 class="font-bold text-indigo-800 mb-3 flex items-center gap-2">
+        <span class="bg-indigo-600 text-white px-2 py-1 rounded text-xs font-bold">🤖 AI</span>
+        AI Summary — สรุปผลแบบทดสอบทั้ง 4 ส่วน
+      </h3>
+      <div class="grid md:grid-cols-4 gap-3 mb-4">
+        <div class="p-3 bg-white rounded-lg border border-indigo-100">
+          <div class="text-xs text-gray-600 mb-1">🧠 ทัศนคติ (CC)</div>
+          <div class="text-2xl font-bold text-indigo-600" id="ai-attitude-score">—</div>
+          <div class="text-xs text-gray-500">คะแนน CC1-CC7</div>
+        </div>
+        <div class="p-3 bg-white rounded-lg border border-green-100">
+          <div class="text-xs text-gray-600 mb-1">💼 งานบริการ</div>
+          <div class="text-2xl font-bold text-green-600" id="ai-service-score">—</div>
+          <div class="text-xs text-gray-500">คะแนนบริการ</div>
+        </div>
+        <div class="p-3 bg-white rounded-lg border border-yellow-100">
+          <div class="text-xs text-gray-600 mb-1">🛠 ทักษะ</div>
+          <div class="text-2xl font-bold text-yellow-600" id="ai-skill-score">—</div>
+          <div class="text-xs text-gray-500">คะแนนทักษะ</div>
+        </div>
+        <div class="p-3 bg-white rounded-lg border border-purple-100">
+          <div class="text-xs text-gray-600 mb-1">🎯 3E3P</div>
+          <div class="text-2xl font-bold text-purple-600" id="ai-motivation-score">—</div>
+          <div class="text-xs text-gray-500">แรงจูงใจ</div>
+        </div>
+      </div>
+      <button onclick="generateAISummary()" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700">
+        🤖 วิเคราะห์สรุปผลทั้งหมด
+      </button>
+      <div id="ai-summary-result" class="mt-4 hidden"></div>
+    </div>
+
     <!-- Candidate List -->
     <div class="overflow-x-auto">
       <table class="w-full text-sm">
@@ -745,6 +779,140 @@ function assignTest(candidateId) {
   closeAssignModal();
   renderHRCandidates();
   alert(`ส่งแบบทดสอบ ${SKILL_TESTS[team].name} ถึง ${candidate.name} สำเร็จ!`);
+}
+
+// =====================================================
+// AI SUMMARY — สรุปผลแบบทดสอบทั้ง 4 ส่วน
+// =====================================================
+function generateAISummary() {
+  // Mock scores for demonstration
+  const scores = {
+    attitude: { score: 38, max: 50, cc: ['CC3: Trust-Based Value', 'CC5: Disciplined Professionalism', 'CC7: Humor & Joy'] },
+    service: { score: 82, max: 100, note: 'ตอบคำถามงานบริการได้ดี' },
+    skill: { score: 75, max: 100, note: 'ผ่านเกณฑ์ทักษะพื้นฐาน' },
+    motivation: {
+      intrinsic: 3, extrinsic: 0, redFlag: 0,
+      topMotivations: ['สนุกสนานกับการทำงาน', 'ตอบโจทย์จุดมุ่งหมาย', 'ใช้ความสามารถเต็มที่'],
+      alignment: 'สูง'
+    }
+  };
+  
+  // Update score cards
+  document.getElementById('ai-attitude-score').textContent = `${scores.attitude.score}/${scores.attitude.max}`;
+  document.getElementById('ai-service-score').textContent = `${scores.service.score}/${scores.service.max}`;
+  document.getElementById('ai-skill-score').textContent = `${scores.skill.score}/${scores.skill.max}`;
+  document.getElementById('ai-motivation-score').textContent = `${scores.motivation.intrinsic}/3`;
+  
+  // Calculate overall
+  const attitudePct = (scores.attitude.score / scores.attitude.max) * 100;
+  const servicePct = (scores.service.score / scores.service.max) * 100;
+  const skillPct = (scores.skill.score / scores.skill.max) * 100;
+  const motivationPct = (scores.motivation.intrinsic / 3) * 100;
+  const overall = Math.round((attitudePct + servicePct + skillPct + motivationPct) / 4);
+  
+  let decision = '';
+  let decisionColor = '';
+  let decisionIcon = '';
+  
+  if (overall >= 80) {
+    decision = 'แนะนำ: ผ่าน → เข้าสัมภาษณ์ P2';
+    decisionColor = 'text-green-700 bg-green-50 border-green-200';
+    decisionIcon = '✅';
+  } else if (overall >= 60) {
+    decision = 'แนะนำ: ผ่านแบบมีเงื่อนไข → สัมภาษณ์ P2 โดยเน้นจุดที่ต้องปรับปรุง';
+    decisionColor = 'text-yellow-700 bg-yellow-50 border-yellow-200';
+    decisionIcon = '🟡';
+  } else {
+    decision = 'แนะนำ: ไม่ผ่าน → รอดำเนินการใหม่';
+    decisionColor = 'text-red-700 bg-red-50 border-red-200';
+    decisionIcon = '❌';
+  }
+  
+  const resultDiv = document.getElementById('ai-summary-result');
+  resultDiv.classList.remove('hidden');
+  resultDiv.innerHTML = `
+    <div class="border-2 border-indigo-200 rounded-lg p-4 bg-white">
+      <h4 class="font-bold text-indigo-800 mb-3 flex items-center gap-2">
+        🤖 AI สรุปผลแบบทดสอบทั้ง 4 ส่วน
+      </h4>
+      
+      <!-- Overall Score -->
+      <div class="text-center mb-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg">
+        <div class="text-4xl font-bold text-indigo-700">${overall}%</div>
+        <div class="text-sm text-gray-600">คะแนนรวมทั้งหมด</div>
+        <div class="mt-2 px-3 py-1 inline-block rounded-full text-sm font-semibold ${decisionColor}">
+          ${decisionIcon} ${decision}
+        </div>
+      </div>
+      
+      <!-- Detail Breakdown -->
+      <div class="space-y-3">
+        <div class="p-3 bg-gray-50 rounded-lg">
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-semibold text-sm">🧠 ทัศนคติ (CC)</span>
+            <span class="text-sm font-bold text-indigo-600">${scores.attitude.score}/${scores.attitude.max} (${Math.round(attitudePct)}%)</span>
+          </div>
+          <div class="text-xs text-gray-600">CC เด่น: ${scores.attitude.cc.join(', ')}</div>
+        </div>
+        
+        <div class="p-3 bg-gray-50 rounded-lg">
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-semibold text-sm">💼 งานบริการ</span>
+            <span class="text-sm font-bold text-green-600">${scores.service.score}/${scores.service.max} (${Math.round(servicePct)}%)</span>
+          </div>
+          <div class="text-xs text-gray-600">${scores.service.note}</div>
+        </div>
+        
+        <div class="p-3 bg-gray-50 rounded-lg">
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-semibold text-sm">🛠 ทักษะ</span>
+            <span class="text-sm font-bold text-yellow-600">${scores.skill.score}/${scores.skill.max} (${Math.round(skillPct)}%)</span>
+          </div>
+          <div class="text-xs text-gray-600">${scores.skill.note}</div>
+        </div>
+        
+        <div class="p-3 bg-gray-50 rounded-lg">
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-semibold text-sm">🎯 แรงจูงใจ 3E3P</span>
+            <span class="text-sm font-bold text-purple-600">${scores.motivation.intrinsic}/3 (${Math.round(motivationPct)}%)</span>
+          </div>
+          <div class="text-xs text-gray-600">แรงจูงใจภายในสูง — ${scores.motivation.topMotivations.join(', ')}</div>
+        </div>
+      </div>
+      
+      <!-- CC Alignment -->
+      <div class="mt-4 p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
+        <h5 class="font-semibold text-indigo-800 text-sm mb-2">🧬 ความสอดรับกับปรัชญา PKG:</h5>
+        <div class="text-xs text-indigo-700 space-y-1">
+          <div>• CC3 (Trust-Based Value) — รับฟังปราศจากอคติ สร้างความเชื่อมั่น ✅</div>
+          <div>• CC5 (Disciplined Professionalism) — ใส่ใจคุณภาพ วินัยสูง ✅</div>
+          <div>• CC7 (Humor & Joy) — สร้างบรรยากาศเบิกบานใจ ✅</div>
+          <div>• EVP Alignment: FUN, PRIDE, LEARNING & GROWTH ✅</div>
+        </div>
+      </div>
+      
+      <!-- Interview Recommendations -->
+      <div class="mt-4 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+        <h5 class="font-semibold text-purple-800 text-sm mb-2">🎤 คำถามแนะนำสำหรับทีมสัมภาษณ์ P2:</h5>
+        <div class="text-xs text-purple-700 space-y-1">
+          <div>1. "เล่าเรื่องการทำงานที่ทำให้คุณรู้สึกภูมิใจที่สุด"</div>
+          <div>2. "คุณจัดการกับความขัดแย้งในทีมอย่างไร?"</div>
+          <div>3. "อะไรคือเป้าหมายระยะยาวของคุณ และองค์กรจะช่วยได้อย่างไร?"</div>
+          <div>4. "คุณเห็นตัวเองทำงานที่นี่ในอีก 3 ปีข้างหน้าอย่างไร?"</div>
+        </div>
+      </div>
+      
+      <!-- Action Buttons -->
+      <div class="mt-4 flex gap-2">
+        <button onclick="alert('ส่งข้อมูลให้ทีมสัมภาษณ์ P2 เรียบร้อย!')" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 text-sm">
+          ✅ ส่งให้ทีม P2
+        </button>
+        <button onclick="alert('บันทึกผลทดสอบแล้ว!')" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 text-sm">
+          💾 บันทึกผล
+        </button>
+      </div>
+    </div>
+  `;
 }
 
 // =====================================================
