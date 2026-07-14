@@ -27,6 +27,17 @@
     @keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
     .toast-success { background: #10b981; }
     .toast-error { background: #ef4444; }
+    .loading-spinner { border: 4px solid #e5e7eb; border-top: 4px solid #6366f1; border-radius: 50%; width: 48px; height: 48px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+    .sent-badge { background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+    .pending-badge { background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+    .pagination-btn { padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; border: 1px solid #d1d5db; transition: all 0.15s; }
+    .pagination-btn:hover { background: #eef2ff; border-color: #6366f1; }
+    .pagination-btn.active { background: #6366f1; color: white; border-color: #6366f1; }
+    .pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .contact-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 500; }
+    .contact-has { background: #dbeafe; color: #1e40af; }
+    .contact-none { background: #f3f4f6; color: #9ca3af; }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -39,11 +50,14 @@
         <h1 class="text-xl md:text-2xl font-bold flex items-center gap-2">
           📬 P1 Notification — แจ้งผลผู้สมัคร
         </h1>
-        <p class="text-indigo-200 text-xs md:text-sm mt-1">ระบบส่งข้อความแจ้งผลการคัดเลือก P1 → P2 (สัมภาษณ์งาน)</p>
+        <p class="text-indigo-200 text-xs md:text-sm mt-1">ระบบส่งข้อความแจ้งผลการคัดเลือก P1 → P2 (สัมภาษณ์งาน) — ข้อมูลจริงจาก Google Sheet</p>
       </div>
-      <div class="text-right">
-        <div class="text-xs text-indigo-300">Sheet: A1_ข้อมูลผู้สมัครทั้งหมด</div>
-        <div class="text-sm font-semibold" id="update-time">...</div>
+      <div class="text-right flex items-center gap-3">
+        <div>
+          <div class="text-xs text-indigo-300">Sheet: A1_ข้อมูลผู้สมัครทั้งหมด</div>
+          <div class="text-sm font-semibold" id="update-time">กำลังโหลด...</div>
+        </div>
+        <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-bold animate-pulse">● LIVE</span>
       </div>
     </div>
   </div>
@@ -55,19 +69,40 @@
     <div class="flex items-start gap-3">
       <span class="text-2xl">ℹ️</span>
       <div>
-        <h3 class="font-semibold text-blue-900">ระบบแจ้งผลการคัดเลือก P1</h3>
+        <h3 class="font-semibold text-blue-900">ระบบแจ้งผลการคัดเลือก P1 — ข้อมูลจริง</h3>
         <p class="text-sm text-blue-800 mt-1">
-          HR เลือกผู้สมัคร → เลือกช่องทาง (Line/Facebook/Email/SMS) → กดส่งข้อความ<br>
-          <strong>ข้อความอัตโนมัติ:</strong> ผ่าน = นัดสัมภาษณ์ / ไม่ผ่าน = แจ้งผล + ขอบคุณ
+          HR เลือกผู้สมัคร → เลือกช่องทาง (Line/Facebook/SMS) → กดส่งข้อความ<br>
+          <strong>ข้อความอัตโนมัติ:</strong> ผ่าน = นัดสัมภาษณ์ / ไม่ผ่าน = แจ้งผล + ขอบคุณ<br>
+          <span class="text-xs text-blue-600" id="dataStatus">⏳ กำลังดึงข้อมูลจาก Google Sheet...</span>
         </p>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Loading State -->
+<div id="loadingState" class="max-w-7xl mx-auto px-4 py-12 text-center">
+  <div class="loading-spinner mx-auto mb-4"></div>
+  <p class="text-gray-500 font-medium">กำลังดึงข้อมูลจาก Google Sheet...</p>
+  <p class="text-gray-400 text-sm mt-1">โปรดรอสักครู่</p>
+</div>
+
+<!-- Error State -->
+<div id="errorState" class="max-w-7xl mx-auto px-4 py-8 hidden">
+  <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-lg text-center">
+    <div class="text-4xl mb-2">⚠️</div>
+    <h3 class="font-bold text-red-800 text-lg">ไม่สามารถดึงข้อมูลได้</h3>
+    <p class="text-red-600 text-sm mt-2" id="errorMsg"></p>
+    <button onclick="loadData()" class="mt-4 px-6 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">🔄 ลองใหม่</button>
+  </div>
+</div>
+
+<!-- Main Content (hidden until loaded) -->
+<div id="mainContent" class="hidden">
+
 <!-- Summary Cards -->
 <div class="max-w-7xl mx-auto px-4 py-4">
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="summary-cards">
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-3" id="summary-cards">
     <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center card-hover">
       <div class="text-3xl font-bold text-blue-700" id="stat-total">0</div>
       <div class="text-sm text-blue-600 font-medium mt-1">ผู้สมัครทั้งหมด</div>
@@ -84,6 +119,10 @@
       <div class="text-3xl font-bold text-purple-700" id="stat-sent">0</div>
       <div class="text-sm text-purple-600 font-medium mt-1">ส่งข้อความแล้ว</div>
     </div>
+    <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-4 text-center card-hover">
+      <div class="text-3xl font-bold text-amber-700" id="stat-pending">0</div>
+      <div class="text-sm text-amber-600 font-medium mt-1">รอส่งข้อความ</div>
+    </div>
   </div>
 </div>
 
@@ -95,15 +134,22 @@
     <div class="lg:col-span-2">
       <div class="bg-white rounded-xl shadow-lg overflow-hidden">
         <div class="p-4 border-b flex justify-between items-center flex-wrap gap-3">
-          <h3 class="font-bold text-gray-800">👥 รายชื่อผู้สมัคร</h3>
-          <div class="flex gap-2">
-            <input type="text" id="searchInput" placeholder="🔍 ค้นหา..." class="px-3 py-1.5 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+          <h3 class="font-bold text-gray-800">👥 รายชื่อผู้สมัคร (ข้อมูลจริง)</h3>
+          <div class="flex gap-2 flex-wrap">
+            <input type="text" id="searchInput" placeholder="🔍 ค้นหาชื่อ/Line/FB..." class="px-3 py-1.5 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none w-48">
             <select id="filterStatus" class="px-3 py-1.5 border rounded-lg text-sm">
               <option value="">ทุกสถานะ</option>
               <option value="Passed">ผ่าน</option>
               <option value="Rejected">ไม่ผ่าน</option>
               <option value="Pending">รอส่ง</option>
             </select>
+            <select id="filterChannel" class="px-3 py-1.5 border rounded-lg text-sm">
+              <option value="">ทุกช่องทาง</option>
+              <option value="hasLine">มี Line ID</option>
+              <option value="hasFb">มี Facebook</option>
+              <option value="noContact">ไม่มีช่องทาง</option>
+            </select>
+            <button onclick="loadData()" class="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-semibold hover:bg-indigo-200">🔄 รีเฟรช</button>
           </div>
         </div>
         <div class="overflow-x-auto">
@@ -113,14 +159,20 @@
                 <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500">#</th>
                 <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500">ผู้สมัคร</th>
                 <th class="px-3 py-2 text-left text-xs font-semibold text-gray-500">ตำแหน่ง</th>
-                <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600">Line ID</th>
-                <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600">Facebook</th>
+                <th class="px-3 py-2 text-center text-xs font-semibold text-green-600">📱 Line ID</th>
+                <th class="px-3 py-2 text-center text-xs font-semibold text-blue-600">📘 Facebook</th>
                 <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600">สถานะ</th>
+                <th class="px-3 py-2 text-center text-xs font-semibold text-purple-600">ส่งแล้ว?</th>
                 <th class="px-3 py-2 text-center text-xs font-semibold text-indigo-600">ดำเนินการ</th>
               </tr>
             </thead>
             <tbody id="candidatesTable"></tbody>
           </table>
+        </div>
+        <!-- Pagination -->
+        <div class="px-4 py-3 bg-gray-50 flex justify-between items-center flex-wrap gap-2">
+          <span id="resultCount" class="text-gray-500 text-sm"></span>
+          <div class="flex items-center gap-1" id="pagination"></div>
         </div>
       </div>
     </div>
@@ -128,7 +180,7 @@
     <!-- Right: Send Panel -->
     <div class="lg:col-span-1">
       <div class="bg-white rounded-xl shadow-lg p-4 sticky top-4">
-        <h3 class="font-bold text-gray-800 mb-3"> ส่งข้อความ</h3>
+        <h3 class="font-bold text-gray-800 mb-3">📨 ส่งข้อความ</h3>
         
         <div id="sendPanel" class="space-y-4">
           <div class="text-center text-gray-400 py-8">
@@ -154,7 +206,10 @@
 
         <!-- Send History -->
         <div class="mt-6 pt-4 border-t">
-          <h4 class="text-sm font-bold text-gray-700 mb-2">📋 ประวัติการส่ง</h4>
+          <div class="flex justify-between items-center mb-2">
+            <h4 class="text-sm font-bold text-gray-700">📋 ประวัติการส่ง</h4>
+            <button onclick="clearHistory()" class="text-xs text-red-500 hover:text-red-700 hover:underline">ล้างประวัติ</button>
+          </div>
           <div id="sendHistory" class="space-y-1 max-h-60 overflow-y-auto">
             <div class="text-center text-gray-400 text-xs py-4">ยังไม่มีประวัติการส่ง</div>
           </div>
@@ -164,15 +219,16 @@
   </div>
 </div>
 
+</div><!-- end mainContent -->
+
 <!-- Send Modal -->
 <div id="sendModal" class="modal-overlay">
   <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
     <div class="p-6">
       <div class="flex justify-between items-start mb-4">
-        <h3 class="text-lg font-bold text-gray-800"> ส่งข้อความแจ้งผล</h3>
+        <h3 class="text-lg font-bold text-gray-800">📨 ส่งข้อความแจ้งผล</h3>
         <button onclick="closeSendModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
       </div>
-      
       <div id="sendModalContent"></div>
     </div>
   </div>
@@ -182,27 +238,293 @@
 <div id="toast" class="toast" style="display:none"></div>
 
 <footer class="text-center py-4 text-gray-400 text-xs">
-  Web PP7 • P1 Notification System • Built by KiloClaw 🦾
+  Web PP7 • P1 Notification System • ข้อมูลจริงจาก Google Sheet • Built by KiloClaw 🦾
 </footer>
 
 <script>
 // =====================================================
-// MOCK DATA (จำลองจาก Sheet A1)
+// CONFIGURATION
 // =====================================================
-const CANDIDATES = [
-  {id: 2476, name: "อรุณ เค้าทอง", nickname: "แจ๊บ", position: "ช่างยนต์", lineID: "jab1925", facebook: "Arun khaotong", email: "", phone: "1220700047375", status: "Passed", notified: false, notifiedAt: null, notifiedChannel: null},
-  {id: 4074, name: "อนุวัฒน์ แก้วรอด", nickname: "วัฒน์", position: "ช่างรถเล็ก", lineID: "903839407", facebook: "Anuwat Kawrod", email: "", phone: "1220700025258", status: "Passed", notified: false, notifiedAt: null, notifiedChannel: null},
-  {id: 7596, name: "ทรงยุทธ เมฆมี", nickname: "อาร์ม", position: "ทีมสานสัมพันธ์", lineID: "", facebook: "", email: "", phone: "1240900057072", status: "Passed", notified: false, notifiedAt: null, notifiedChannel: null},
-  {id: 7779, name: "รัชดาภรณ์ ขอจัดกลาง", nickname: "ออม", position: "บริการลูกค้า", lineID: "", facebook: "", email: "", phone: "1301000075104", status: "Rejected", notified: false, notifiedAt: null, notifiedChannel: null},
-  {id: 7780, name: "รัชดาภรณ์ ขอจัดกลาง", nickname: "ออม", position: "บริการลูกค้า", lineID: "", facebook: "", email: "", phone: "1301000075104", status: "Rejected", notified: false, notifiedAt: null, notifiedChannel: null},
-  {id: 7781, name: "ชุติพงศ์ มิ่งมณี", nickname: "เจมส์", position: "อะไหล่ TIS", lineID: "", facebook: "", email: "", phone: "1239900226930", status: "Rejected", notified: false, notifiedAt: null, notifiedChannel: null},
-  {id: 7782, name: "ลัดดารัตน์ ม่วงแก้ว", nickname: "แนน", position: "", lineID: "", facebook: "", email: "", phone: "1179900279970", status: "Rejected", notified: false, notifiedAt: null, notifiedChannel: null},
-  {id: 7783, name: "ลัดดารัตน์ ม่วงแก้ว", nickname: "แนน", position: "บริการลูกค้า", lineID: "", facebook: "", email: "", phone: "1179900279970", status: "Rejected", notified: false, notifiedAt: null, notifiedChannel: null},
-  {id: 7784, name: "จารุวรรณ เปยะสา", nickname: "เตย", position: "บริการลูกค้า", lineID: "", facebook: "", email: "", phone: "1709901032425", status: "Rejected", notified: false, notifiedAt: null, notifiedChannel: null},
-  {id: 7794, name: "จารุวรรณ พิมพิทักษ์", nickname: "นัท", position: "บริการลูกค้าสินเชื่อ", lineID: "", facebook: "", email: "", phone: "1759900316934", status: "Passed", notified: false, notifiedAt: null, notifiedChannel: null}
-];
+const SHEET_ID = '1dH15UxEDyTldPx4lwU5Y6_BQYbTw_gJRMsC4-HCnXR4';
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+const PAGE_SIZE = 50;
+const STORAGE_KEY = 'p1_notification_history';
 
-const SEND_HISTORY = [];
+// =====================================================
+// STATE
+// =====================================================
+let CANDIDATES = [];
+let SEND_HISTORY = [];
+let currentPage = 1;
+let selectedCandidate = null;
+let selectedChannel = null;
+
+// =====================================================
+// LOCALSTORAGE — Send History persistence
+// =====================================================
+function loadHistory() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      SEND_HISTORY = JSON.parse(saved);
+      // Apply notification status back to candidates
+      applyHistoryToCandidates();
+    }
+  } catch (e) { console.warn('Failed to load history:', e); }
+}
+
+function saveHistory() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(SEND_HISTORY));
+  } catch (e) { console.warn('Failed to save history:', e); }
+}
+
+function applyHistoryToCandidates() {
+  // Build a map of notified candidates from history
+  const notifiedMap = {};
+  SEND_HISTORY.filter(h => h.success).forEach(h => {
+    notifiedMap[h.candidateId] = { channel: h.channel, time: h.time, date: h.date };
+  });
+  
+  CANDIDATES.forEach(c => {
+    if (notifiedMap[c.id]) {
+      c.notified = true;
+      c.notifiedAt = notifiedMap[c.id].time;
+      c.notifiedDate = notifiedMap[c.id].date;
+      c.notifiedChannel = notifiedMap[c.id].channel;
+    }
+  });
+}
+
+function clearHistory() {
+  if (!confirm('ต้องการล้างประวัติการส่งทั้งหมดหรือไม่?')) return;
+  SEND_HISTORY = [];
+  localStorage.removeItem(STORAGE_KEY);
+  CANDIDATES.forEach(c => {
+    c.notified = false;
+    c.notifiedAt = null;
+    c.notifiedDate = null;
+    c.notifiedChannel = null;
+  });
+  renderSummary();
+  applyFilters();
+  renderHistory();
+  showToast('🗑️ ล้างประวัติแล้ว', 'success');
+}
+
+// =====================================================
+// CSV PARSER
+// =====================================================
+function parseCSV(text) {
+  const rows = [];
+  let current = '';
+  let inQuotes = false;
+  let row = [];
+  
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const next = text[i + 1];
+    
+    if (inQuotes) {
+      if (ch === '"' && next === '"') {
+        current += '"';
+        i++;
+      } else if (ch === '"') {
+        inQuotes = false;
+      } else {
+        current += ch;
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ',') {
+        row.push(current.trim());
+        current = '';
+      } else if (ch === '\n' || (ch === '\r' && next === '\n')) {
+        row.push(current.trim());
+        current = '';
+        if (row.some(cell => cell !== '')) rows.push(row);
+        row = [];
+        if (ch === '\r') i++;
+      } else {
+        current += ch;
+      }
+    }
+  }
+  row.push(current.trim());
+  if (row.some(cell => cell !== '')) rows.push(row);
+  return rows;
+}
+
+// =====================================================
+// DATA LOADER
+// =====================================================
+async function loadData() {
+  const loadingEl = document.getElementById('loadingState');
+  const errorEl = document.getElementById('errorState');
+  const mainEl = document.getElementById('mainContent');
+  const statusEl = document.getElementById('dataStatus');
+  
+  loadingEl.classList.remove('hidden');
+  errorEl.classList.add('hidden');
+  mainEl.classList.add('hidden');
+  
+  try {
+    const resp = await fetch(CSV_URL + '&t=' + Date.now());
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+    
+    const csvText = await resp.text();
+    const allRows = parseCSV(csvText);
+    
+    // Find header row
+    let headerIdx = -1;
+    for (let i = 0; i < Math.min(allRows.length, 15); i++) {
+      const row = allRows[i];
+      if (row.includes('running') && row.includes('status_register') && row.includes('ThName')) {
+        headerIdx = i;
+        break;
+      }
+    }
+    
+    if (headerIdx === -1) throw new Error('ไม่พบ header row ใน CSV');
+    
+    const headers = allRows[headerIdx];
+    const colMap = {};
+    headers.forEach((h, i) => { colMap[h] = i; });
+    
+    // Parse data rows
+    const dataRows = allRows.slice(headerIdx + 1).filter(row => {
+      const runIdx = colMap['running'];
+      if (runIdx === undefined) return false;
+      const val = row[runIdx];
+      return val && /^\d+$/.test(val);
+    });
+    
+    if (dataRows.length === 0) throw new Error('ไม่พบข้อมูลผู้สมัครใน Sheet');
+    
+    // Map to candidate objects
+    CANDIDATES = dataRows.map((row, idx) => {
+      const get = (key) => {
+        const i = colMap[key];
+        return i !== undefined ? (row[i] || '') : '';
+      };
+      
+      const firstName = get('ThName');
+      const lastName = get('ThSurname');
+      const status = get('status_register');
+      
+      // Determine pass/reject based on status
+      let candidateStatus = 'Rejected';
+      if (status === 'จ้างงาน') candidateStatus = 'Passed';
+      
+      return {
+        idx: idx,
+        id: get('running'),
+        status_register: status,
+        date: get('applicationDate'),
+        prefix: get('ThPrefix'),
+        name: `${get('ThPrefix')}${firstName} ${lastName}`,
+        firstName: firstName,
+        lastName: lastName,
+        nickname: get('nickName'),
+        age: get('age'),
+        personalID: get('personalID'),
+        position1: get('jobPosition1'),
+        position2: get('jobPosition2'),
+        salary: get('expectedSalary'),
+        edu: get('educate'),
+        major: get('major'),
+        gpa: get('grade'),
+        lineID: get('lineID'),
+        facebook: get('facebook'),
+        emergencyContact: get('emergencyContact'),
+        address: get('currentAddress'),
+        experiences1: get('experiences1'),
+        updateTime: get('update_time'),
+        status: candidateStatus,
+        notified: false,
+        notifiedAt: null,
+        notifiedDate: null,
+        notifiedChannel: null
+      };
+    });
+    
+    // Load send history and apply
+    loadHistory();
+    
+    // Update UI
+    statusEl.innerHTML = `✅ ดึงข้อมูลสำเร็จ — <strong>${CANDIDATES.length} คน</strong> จาก Google Sheet`;
+    statusEl.className = 'text-xs text-green-700 font-semibold';
+    
+    const now = new Date();
+    document.getElementById('update-time').textContent = 
+      now.toLocaleDateString('th-TH', { day:'numeric', month:'short', year:'2-digit' }) + ' ' +
+      now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
+    
+    loadingEl.classList.add('hidden');
+    mainEl.classList.remove('hidden');
+    
+    currentPage = 1;
+    renderSummary();
+    renderTable(getPageData());
+    renderPagination();
+    renderHistory();
+    
+  } catch (err) {
+    console.error('Load error:', err);
+    loadingEl.classList.add('hidden');
+    errorEl.classList.remove('hidden');
+    document.getElementById('errorMsg').textContent = err.message;
+    statusEl.innerHTML = '❌ ดึงข้อมูลล้มเหลว';
+    statusEl.className = 'text-xs text-red-700 font-semibold';
+  }
+}
+
+// =====================================================
+// PAGINATION
+// =====================================================
+function getPageData() {
+  const start = (currentPage - 1) * PAGE_SIZE;
+  return CANDIDATES.slice(start, start + PAGE_SIZE);
+}
+
+function getTotalPages() {
+  return Math.ceil(CANDIDATES.length / PAGE_SIZE);
+}
+
+function renderPagination() {
+  const container = document.getElementById('pagination');
+  const total = getTotalPages();
+  if (total <= 1) { container.innerHTML = ''; return; }
+  
+  let html = '';
+  html += `<button class="pagination-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>◀ ก่อน</button>`;
+  
+  const start = Math.max(1, currentPage - 2);
+  const end = Math.min(total, currentPage + 2);
+  
+  if (start > 1) html += `<button class="pagination-btn" onclick="goPage(1)">1</button>`;
+  if (start > 2) html += `<span class="text-gray-400 px-1">...</span>`;
+  
+  for (let i = start; i <= end; i++) {
+    html += `<button class="pagination-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  
+  if (end < total - 1) html += `<span class="text-gray-400 px-1">...</span>`;
+  if (end < total) html += `<button class="pagination-btn" onclick="goPage(${total})">${total}</button>`;
+  
+  html += `<button class="pagination-btn" onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>ถัดไป ▶</button>`;
+  
+  container.innerHTML = html;
+}
+
+function goPage(p) {
+  if (p < 1 || p > getTotalPages()) return;
+  currentPage = p;
+  applyFilters();
+  renderPagination();
+  window.scrollTo({ top: document.getElementById('candidatesTable').offsetTop - 100, behavior: 'smooth' });
+}
 
 // =====================================================
 // MESSAGE TEMPLATES
@@ -226,17 +548,20 @@ function renderSummary() {
   const passed = CANDIDATES.filter(c => c.status === 'Passed').length;
   const rejected = CANDIDATES.filter(c => c.status === 'Rejected').length;
   const sent = CANDIDATES.filter(c => c.notified).length;
+  const pending = total - sent;
 
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-passed').textContent = passed;
   document.getElementById('stat-rejected').textContent = rejected;
   document.getElementById('stat-sent').textContent = sent;
+  document.getElementById('stat-pending').textContent = pending;
 }
 
 function renderTable(data) {
   const tbody = document.getElementById('candidatesTable');
   if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-gray-400">ไม่พบข้อมูล</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="px-4 py-8 text-center text-gray-400">ไม่พบข้อมูล</td></tr>';
+    document.getElementById('resultCount').textContent = 'ไม่พบข้อมูล';
     return;
   }
 
@@ -246,27 +571,46 @@ function renderTable(data) {
       : '<span class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-semibold">ไม่ผ่าน</span>';
     
     const notifiedBadge = c.notified 
-      ? `<span class="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs">✅ ส่งแล้ว<br><span class="text-[10px]">${c.notifiedChannel} ${c.notifiedAt}</span></span>`
-      : '<span class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">รอส่ง</span>';
+      ? `<span class="sent-badge">✅ ส่งแล้ว</span><br><span class="text-[10px] text-gray-500">${c.notifiedChannel} ${c.notifiedDate || ''} ${c.notifiedAt}</span>`
+      : '<span class="pending-badge">รอส่ง</span>';
 
-    const hasLine = c.lineID ? '✅' : '❌';
-    const hasFb = c.facebook ? '✅' : '❌';
+    // Contact pills
+    const hasLine = c.lineID && c.lineID.trim() !== '';
+    const hasFb = c.facebook && c.facebook.trim() !== '';
+    
+    const lineHtml = hasLine 
+      ? `<span class="contact-pill contact-has">✅ ${c.lineID}</span>`
+      : `<span class="contact-pill contact-none">❌ ไม่มี</span>`;
+    
+    const fbHtml = hasFb 
+      ? `<span class="contact-pill contact-has">✅ ${c.facebook.length > 15 ? c.facebook.substring(0,15)+'...' : c.facebook}</span>`
+      : `<span class="contact-pill contact-none">❌ ไม่มี</span>`;
 
     return `
       <tr class="hover:bg-gray-50 border-b border-gray-100">
-        <td class="px-3 py-2 text-gray-400 text-xs">${idx + 1}</td>
+        <td class="px-3 py-2 text-gray-400 text-xs">${c.idx + 1}</td>
         <td class="px-3 py-2">
           <div class="font-semibold text-gray-800">${c.name}</div>
-          <div class="text-xs text-gray-400">ชื่อเล่น: ${c.nickname}</div>
+          <div class="text-xs text-gray-400">ชื่อเล่น: ${c.nickname || '—'} • ${c.date || ''}</div>
         </td>
-        <td class="px-3 py-2 text-xs text-gray-600">${c.position || '—'}</td>
-        <td class="px-3 py-2 text-center text-xs">${hasLine}<br><span class="text-[10px] text-gray-500">${c.lineID || '—'}</span></td>
-        <td class="px-3 py-2 text-center text-xs">${hasFb}<br><span class="text-[10px] text-gray-500 truncate max-w-[100px] block">${c.facebook || '—'}</span></td>
+        <td class="px-3 py-2 text-xs text-gray-600 max-w-[150px]">
+          <div class="truncate">${c.position1 || '—'}</div>
+          ${c.position2 ? `<div class="text-gray-400 truncate">${c.position2}</div>` : ''}
+        </td>
+        <td class="px-3 py-2 text-center">${lineHtml}</td>
+        <td class="px-3 py-2 text-center">${fbHtml}</td>
         <td class="px-3 py-2 text-center">${statusBadge}</td>
-        <td class="px-3 py-2 text-center">${notifiedBadge}<br><button onclick="openSendModal(${CANDIDATES.indexOf(c)})" class="mt-1 text-indigo-600 hover:text-indigo-800 text-xs font-semibold hover:underline">ส่งข้อความ</button></td>
+        <td class="px-3 py-2 text-center">${notifiedBadge}</td>
+        <td class="px-3 py-2 text-center">
+          <button onclick="openSendModal(${c.idx})" class="mt-1 text-indigo-600 hover:text-indigo-800 text-xs font-semibold hover:underline">📨 ส่งข้อความ</button>
+        </td>
       </tr>
     `;
   }).join('');
+  
+  const start = (currentPage - 1) * PAGE_SIZE + 1;
+  const end = Math.min(currentPage * PAGE_SIZE, CANDIDATES.length);
+  document.getElementById('resultCount').textContent = `แสดง ${start}-${end} จาก ${CANDIDATES.length} คน`;
 }
 
 function renderHistory() {
@@ -276,16 +620,16 @@ function renderHistory() {
     return;
   }
 
-  container.innerHTML = SEND_HISTORY.slice().reverse().map(h => `
+  container.innerHTML = SEND_HISTORY.slice().reverse().slice(0, 50).map(h => `
     <div class="history-item ${h.success ? '' : 'history-fail'}">
       <div class="flex justify-between items-start">
         <div class="flex-1">
           <div class="text-xs font-semibold">${h.name}</div>
-          <div class="text-[10px] text-gray-600">${h.channel} • ${h.type === 'passed' ? '✅ ผ่าน' : ' ไม่ผ่าน'}</div>
+          <div class="text-[10px] text-gray-600">${h.channel} • ${h.type === 'Passed' ? '✅ ผ่าน' : '❌ ไม่ผ่าน'}</div>
         </div>
-        <div class="text-[10px] text-gray-500">${h.time}</div>
+        <div class="text-[10px] text-gray-500">${h.date || ''} ${h.time}</div>
       </div>
-      ${!h.success ? `<div class="text-[10px] text-red-600 mt-1"> ${h.error}</div>` : ''}
+      ${!h.success ? `<div class="text-[10px] text-red-600 mt-1">⚠️ ${h.error}</div>` : ''}
     </div>
   `).join('');
 }
@@ -293,8 +637,6 @@ function renderHistory() {
 // =====================================================
 // SEND MODAL
 // =====================================================
-let selectedCandidate = null;
-
 function openSendModal(idx) {
   selectedCandidate = CANDIDATES[idx];
   const c = selectedCandidate;
@@ -304,30 +646,35 @@ function openSendModal(idx) {
   const template = c.status === 'Passed' ? MSG_TEMPLATES.passed : MSG_TEMPLATES.rejected;
   const msgBody = template.body.replace('{name}', c.name);
 
-  const hasLine = c.lineID ? true : false;
-  const hasFb = c.facebook ? true : false;
+  const hasLine = c.lineID && c.lineID.trim() !== '';
+  const hasFb = c.facebook && c.facebook.trim() !== '';
 
   content.innerHTML = `
     <div class="mb-4 p-3 bg-gray-50 rounded-lg">
-      <div class="font-semibold text-gray-800">${c.name} (${c.nickname})</div>
-      <div class="text-sm text-gray-600">ตำแหน่ง: ${c.position || '—'}</div>
+      <div class="font-semibold text-gray-800">${c.name}</div>
+      <div class="text-sm text-gray-600">ชื่อเล่น: ${c.nickname || '—'}</div>
+      <div class="text-sm text-gray-600">ตำแหน่ง: ${c.position1 || '—'}</div>
       <div class="text-sm text-gray-600">สถานะ: ${c.status === 'Passed' ? '✅ ผ่าน' : '❌ ไม่ผ่าน'}</div>
+      <div class="mt-2 flex gap-2 text-xs">
+        <span class="${hasLine ? 'contact-pill contact-has' : 'contact-pill contact-none'}">📱 Line: ${hasLine ? c.lineID : 'ไม่มี'}</span>
+        <span class="${hasFb ? 'contact-pill contact-has' : 'contact-pill contact-none'}">📘 FB: ${hasFb ? c.facebook : 'ไม่มี'}</span>
+      </div>
     </div>
 
     <div class="mb-4">
       <label class="block text-sm font-semibold text-gray-700 mb-2">เลือกช่องทางส่ง:</label>
       <div class="grid grid-cols-2 gap-2">
         <button onclick="selectChannel('line')" id="btn-line" class="channel-btn channel-line ${hasLine ? '' : 'opacity-50 cursor-not-allowed'}" ${hasLine ? '' : 'disabled'}>
-          📱 Line ID<br><span class="text-xs">${c.lineID || 'ไม่มี'}</span>
+          📱 Line<br><span class="text-xs">${c.lineID || 'ไม่มี'}</span>
         </button>
         <button onclick="selectChannel('facebook')" id="btn-fb" class="channel-btn channel-fb ${hasFb ? '' : 'opacity-50 cursor-not-allowed'}" ${hasFb ? '' : 'disabled'}>
           📘 Facebook<br><span class="text-xs truncate">${c.facebook || 'ไม่มี'}</span>
         </button>
-        <button onclick="selectChannel('email')" id="btn-email" class="channel-btn channel-email opacity-50 cursor-not-allowed" disabled>
-          📧 Email<br><span class="text-xs">ไม่มี</span>
-        </button>
         <button onclick="selectChannel('sms')" id="btn-sms" class="channel-btn channel-sms">
-          💬 SMS<br><span class="text-xs">${c.phone}</span>
+          💬 SMS<br><span class="text-xs">${c.personalID || '—'}</span>
+        </button>
+        <button onclick="selectChannel('emergency')" id="btn-emergency" class="channel-btn" style="background:#6B7280;color:white;" ${c.emergencyContact ? '' : 'disabled'}>
+          🆘 ฉุกเฉิน<br><span class="text-xs">${c.emergencyContact ? 'มีข้อมูล' : 'ไม่มี'}</span>
         </button>
       </div>
     </div>
@@ -349,14 +696,14 @@ function openSendModal(idx) {
 function closeSendModal() {
   document.getElementById('sendModal').classList.remove('open');
   selectedCandidate = null;
+  selectedChannel = null;
 }
-
-let selectedChannel = null;
 
 function selectChannel(channel) {
   selectedChannel = channel;
   document.querySelectorAll('.channel-btn').forEach(btn => btn.classList.remove('active'));
-  document.getElementById(`btn-${channel === 'facebook' ? 'fb' : channel}`).classList.add('active');
+  const btnId = channel === 'facebook' ? 'btn-fb' : `btn-${channel}`;
+  document.getElementById(btnId).classList.add('active');
   document.getElementById('btnSend').disabled = false;
 }
 
@@ -364,43 +711,41 @@ function sendNotification() {
   if (!selectedCandidate || !selectedChannel) return;
 
   const c = selectedCandidate;
-  const msgBody = document.getElementById('msgBody').value;
   const now = new Date();
   const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+  const dateStr = now.toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
 
-  // Simulate sending (ใน production จะเรียก API จริง)
-  const success = Math.random() > 0.1; // 90% success rate
+  // Record the send (in production this would call a real API)
+  const success = true; // Simulate success for demo
+  
+  c.notified = true;
+  c.notifiedAt = timeStr;
+  c.notifiedDate = dateStr;
+  c.notifiedChannel = selectedChannel;
+
+  const channelLabels = { line: '📱 Line', facebook: '📘 Facebook', sms: '💬 SMS', emergency: '🆘 ฉุกเฉิน' };
+
+  SEND_HISTORY.push({
+    candidateId: c.id,
+    name: c.name,
+    channel: channelLabels[selectedChannel] || selectedChannel,
+    type: c.status,
+    time: timeStr,
+    date: dateStr,
+    success: success
+  });
+
+  saveHistory();
 
   if (success) {
-    c.notified = true;
-    c.notifiedAt = timeStr;
-    c.notifiedChannel = selectedChannel;
-
-    SEND_HISTORY.push({
-      name: c.name,
-      channel: selectedChannel,
-      type: c.status,
-      time: timeStr,
-      success: true
-    });
-
-    showToast(`✅ ส่งข้อความถึง ${c.name} สำเร็จ!`, 'success');
+    showToast(`✅ ส่งข้อความถึง ${c.name} ผ่าน ${channelLabels[selectedChannel]} สำเร็จ!`, 'success');
   } else {
-    SEND_HISTORY.push({
-      name: c.name,
-      channel: selectedChannel,
-      type: c.status,
-      time: timeStr,
-      success: false,
-      error: 'ส่งไม่สำเร็จ - ลองใหม่อีกครั้ง'
-    });
-
     showToast(`❌ ส่งข้อความถึง ${c.name} ไม่สำเร็จ`, 'error');
   }
 
   closeSendModal();
   renderSummary();
-  renderTable(CANDIDATES);
+  applyFilters();
   renderHistory();
 }
 
@@ -415,34 +760,44 @@ function showToast(message, type) {
 // =====================================================
 // SEARCH & FILTER
 // =====================================================
-const searchInput = document.getElementById('searchInput');
-const filterStatus = document.getElementById('filterStatus');
-
 function applyFilters() {
-  const q = searchInput.value.toLowerCase();
-  const st = filterStatus.value;
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const st = document.getElementById('filterStatus').value;
+  const ch = document.getElementById('filterChannel').value;
+  
   let filtered = CANDIDATES.filter(c => {
-    const matchSearch = !q || `${c.name} ${c.nickname} ${c.position}`.toLowerCase().includes(q);
+    const matchSearch = !q || `${c.name} ${c.firstName} ${c.lastName} ${c.nickname} ${c.position1} ${c.lineID} ${c.facebook}`.toLowerCase().includes(q);
     const matchStatus = !st || c.status === st || (st === 'Pending' && !c.notified);
-    return matchSearch && matchStatus;
+    
+    let matchChannel = true;
+    if (ch === 'hasLine') matchChannel = c.lineID && c.lineID.trim() !== '';
+    else if (ch === 'hasFb') matchChannel = c.facebook && c.facebook.trim() !== '';
+    else if (ch === 'noContact') matchChannel = (!c.lineID || c.lineID.trim() === '') && (!c.facebook || c.facebook.trim() === '');
+    
+    return matchSearch && matchStatus && matchChannel;
   });
-  renderTable(filtered);
+  
+  // Apply pagination
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageData = filtered.slice(start, start + PAGE_SIZE);
+  renderTable(pageData);
+  
+  const totalFiltered = filtered.length;
+  const pStart = (currentPage - 1) * PAGE_SIZE + 1;
+  const pEnd = Math.min(currentPage * PAGE_SIZE, totalFiltered);
+  document.getElementById('resultCount').textContent = totalFiltered === CANDIDATES.length 
+    ? `แสดง ${pStart}-${pEnd} จาก ${CANDIDATES.length} คน`
+    : `พบ ${totalFiltered} คน (แสดง ${pStart}-${pEnd})`;
 }
 
-searchInput.addEventListener('input', applyFilters);
-filterStatus.addEventListener('change', applyFilters);
+document.getElementById('searchInput').addEventListener('input', () => { currentPage = 1; applyFilters(); renderPagination(); });
+document.getElementById('filterStatus').addEventListener('change', () => { currentPage = 1; applyFilters(); renderPagination(); });
+document.getElementById('filterChannel').addEventListener('change', () => { currentPage = 1; applyFilters(); renderPagination(); });
 
 // =====================================================
 // INIT
 // =====================================================
-renderSummary();
-renderTable(CANDIDATES);
-renderHistory();
-
-const now = new Date();
-document.getElementById('update-time').textContent = 
-  now.toLocaleDateString('th-TH', { day:'numeric', month:'short', year:'2-digit' }) + ' ' +
-  now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
+loadData();
 </script>
 </body>
 </html>

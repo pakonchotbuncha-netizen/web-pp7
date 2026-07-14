@@ -40,6 +40,12 @@
     .override-btn-reject { background:#fee2e2; color:#991b1b; }
     .override-btn-reset { background:#e5e7eb; color:#374151; font-size:10px; }
     .manual-tag { background:#6366f1; color:white; font-size:9px; padding:1px 6px; border-radius:8px; margin-left:4px; }
+    .loading-spinner { border: 4px solid #e5e7eb; border-top: 4px solid #6366f1; border-radius: 50%; width: 48px; height: 48px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+    .pagination-btn { padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; border: 1px solid #d1d5db; transition: all 0.15s; }
+    .pagination-btn:hover { background: #eef2ff; border-color: #6366f1; }
+    .pagination-btn.active { background: #6366f1; color: white; border-color: #6366f1; }
+    .pagination-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -57,9 +63,9 @@
       <div class="text-right flex items-center gap-3">
         <div>
           <div class="text-xs text-indigo-300">ดึงข้อมูลเมื่อ</div>
-          <div class="text-sm font-semibold" id="update-time">...</div>
+          <div class="text-sm font-semibold" id="update-time">กำลังโหลด...</div>
         </div>
-        <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-bold">● LIVE</span>
+        <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-bold animate-pulse">● LIVE</span>
       </div>
     </div>
   </div>
@@ -73,27 +79,49 @@
       <div>
         <h3 class="font-semibold text-green-900">ข้อมูลจริง (Live Data จาก Google Sheet)</h3>
         <p class="text-sm text-green-800 mt-1">
-          ข้อมูลผู้สมัคร 10 คนล่าสุดดึงจาก <strong>Google Sheet A1</strong> โดยตรง
-          ระบบคำนวณ CC1-CC5 Scores จากคุณสมบัติที่สมัคร (ประสบการณ์, การศึกษา, ตำแหน่ง)
+          ดึงข้อมูลผู้สมัครทั้งหมดจาก <strong>Google Sheet A1</strong> ผ่าน CSV export แบบ real-time
+          ระบบคำนวณ CC1-CC7 Scores จากคุณสมบัติจริง (ประสบการณ์, การศึกษา, ตำแหน่ง)
           <br><a href="https://docs.google.com/spreadsheets/d/1yP_l-WmsnlkMDCkZB7ulhe6oS_AAex8iE3LYdPdg-uc/edit?usp=sharing" target="_blank" class="underline font-semibold">📊 ดู Google Sheet PP7 →</a>
         </p>
+        <div class="mt-2 flex items-center gap-2 text-xs">
+          <span id="dataStatus" class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-semibold">⏳ กำลังดึงข้อมูล...</span>
+          <span id="dataCount" class="text-green-700 font-medium hidden"></span>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Loading State -->
+<div id="loadingState" class="max-w-7xl mx-auto px-4 py-12 text-center">
+  <div class="loading-spinner mx-auto mb-4"></div>
+  <p class="text-gray-500 font-medium">กำลังดึงข้อมูลจาก Google Sheet...</p>
+  <p class="text-gray-400 text-sm mt-1">โปรดรอสักครู่</p>
+</div>
+
+<!-- Error State -->
+<div id="errorState" class="max-w-7xl mx-auto px-4 py-8 hidden">
+  <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-lg text-center">
+    <div class="text-4xl mb-2">⚠️</div>
+    <h3 class="font-bold text-red-800 text-lg">ไม่สามารถดึงข้อมูลได้</h3>
+    <p class="text-red-600 text-sm mt-2" id="errorMsg"></p>
+    <button onclick="loadData()" class="mt-4 px-6 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">🔄 ลองใหม่</button>
+  </div>
+</div>
+
+<!-- Main Content (hidden until loaded) -->
+<div id="mainContent" class="hidden">
+
 <!-- Summary Cards -->
 <div class="max-w-7xl mx-auto px-4 py-4">
-  <div class="grid grid-cols-2 md:grid-cols-5 gap-3" id="summary-cards">
-    <!-- rendered by JS -->
-  </div>
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-3" id="summary-cards"></div>
 </div>
 
 <!-- CC Criteria -->
 <div class="max-w-7xl mx-auto px-4 pb-2">
   <div class="bg-white rounded-xl shadow p-4">
-    <h3 class="text-sm font-bold text-gray-700 mb-2">📋 เกณฑ์ AI Screening (CC1-CC5 based on PKG Core Competency)</h3>
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
+    <h3 class="text-sm font-bold text-gray-700 mb-2">📋 เกณฑ์ AI Screening (CC1-CC7 based on PKG Core Competency)</h3>
+    <div class="grid grid-cols-2 md:grid-cols-7 gap-2 text-xs">
       <div class="bg-blue-50 rounded-lg p-2">
         <div class="font-bold text-blue-700">CC1: Servant Leadership</div>
         <div class="text-blue-600">ประสบการณ์ + ภาวะผู้นำ</div>
@@ -130,25 +158,19 @@
 <div class="max-w-7xl mx-auto px-4 py-3">
   <div class="bg-white rounded-xl shadow-lg p-5">
     <h3 class="text-lg font-bold text-gray-800 mb-4">🔄 Data Flow — ข้อมูลไหลไปไหนหลังผ่าน AI Screening?</h3>
-    
     <div class="flex flex-col lg:flex-row items-center gap-3 lg:gap-0">
-      <!-- P1 -->
       <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-xl p-4 text-center w-full lg:w-48 flow-step flow-arrow">
         <div class="text-2xl">📋</div>
         <div class="font-bold text-sm">P1 แสวงหา</div>
         <div class="text-xs opacity-80 mt-1">รับสมัคร → บันทึกข้อมูล</div>
-        <div class="text-xs bg-white/20 rounded mt-2 px-2 py-1">10 คน</div>
+        <div class="text-xs bg-white/20 rounded mt-2 px-2 py-1" id="flow-total">...</div>
       </div>
-      
-      <!-- AI Screening -->
       <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-xl p-4 text-center w-full lg:w-48 flow-step flow-arrow">
         <div class="text-2xl">🤖</div>
         <div class="font-bold text-sm">AI Screening</div>
-        <div class="text-xs opacity-80 mt-1">CC1-CC5 Scoring</div>
+        <div class="text-xs opacity-80 mt-1">CC1-CC7 Scoring</div>
         <div class="text-xs bg-white/20 rounded mt-2 px-2 py-1" id="flow-screened">กำลังคำนวณ...</div>
       </div>
-      
-      <!-- Branches -->
       <div class="flex-1 w-full">
         <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-2 flex items-center gap-3">
           <span class="text-xl">✅</span>
@@ -176,8 +198,6 @@
         </div>
       </div>
     </div>
-    
-    <!-- Full Flow Detail -->
     <div class="mt-4 bg-gray-50 rounded-lg p-4">
       <h4 class="text-sm font-bold text-gray-700 mb-3">📍 Flow แบบเต็มหลังผ่าน AI Screening:</h4>
       <div class="flex flex-wrap items-center gap-1 text-xs">
@@ -224,7 +244,7 @@
   <div class="bg-white rounded-xl shadow-lg overflow-hidden">
     <div class="p-4 border-b flex justify-between items-center flex-wrap gap-3">
       <h3 class="font-bold text-gray-800">👥 ผู้สมัครจริงจาก Google Sheet — พร้อม AI CC Scores</h3>
-      <div class="flex gap-2">
+      <div class="flex gap-2 flex-wrap">
         <input type="text" id="searchInput" placeholder="🔍 ค้นหา..." class="px-3 py-1.5 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
         <select id="filterStatus" class="px-3 py-1.5 border rounded-lg text-sm">
           <option value="">ทุกสถานะ</option>
@@ -232,6 +252,7 @@
           <option value="Hold">รอพิจารณา</option>
           <option value="Rejected">ไม่ผ่าน</option>
         </select>
+        <button onclick="loadData()" class="px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-semibold hover:bg-indigo-200">🔄 รีเฟรช</button>
       </div>
     </div>
     <div class="overflow-x-auto">
@@ -251,16 +272,17 @@
             <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600">รวม</th>
             <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600">AI Rec.</th>
             <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600">สถานะเดิม</th>
-            <th class="px-3 py-2 text-center text-xs font-semibold text-indigo-600">🛠 Override<br><span class="text-[9px] text-gray-400 font-normal">(กดเปลี่ยนได้)</span></th>
+            <th class="px-3 py-2 text-center text-xs font-semibold text-indigo-600">🛠 Override</th>
             <th class="px-3 py-2 text-center text-xs font-semibold text-gray-600">รายละเอียด</th>
           </tr>
         </thead>
         <tbody id="candidatesTable"></tbody>
       </table>
     </div>
-    <div class="px-4 py-3 bg-gray-50 flex justify-between items-center text-sm">
-      <span id="resultCount" class="text-gray-500"></span>
-      <span class="text-xs text-gray-400">Data source: Google Sheet A1 • CC Scores: AI-Calculated</span>
+    <!-- Pagination -->
+    <div class="px-4 py-3 bg-gray-50 flex justify-between items-center flex-wrap gap-2">
+      <span id="resultCount" class="text-gray-500 text-sm"></span>
+      <div class="flex items-center gap-1" id="pagination"></div>
     </div>
   </div>
 </div>
@@ -275,15 +297,18 @@
 <!-- Apps Script Info -->
 <div class="max-w-7xl mx-auto px-4 py-4">
   <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
-    <h3 class="font-bold text-indigo-800 text-sm mb-2">⚙️ ระบบดึงข้อมูลจริง (Google Apps Script)</h3>
+    <h3 class="font-bold text-indigo-800 text-sm mb-2">⚙️ ระบบดึงข้อมูลจริง (Google Sheet CSV Export)</h3>
     <div class="text-xs text-indigo-700 space-y-1">
-      <p>• ระบบนี้พร้อมเชื่อมกับ Google Apps Script เพื่อดึงข้อมูลสดจาก Sheet แบบ real-time</p>
+      <p>• ดึงข้อมูลสดจาก Google Sheet ผ่าน CSV export URL — <strong>ไม่ใช่ mock data</strong></p>
       <p>• CC Scores คำนวณอัตโนมัติจาก: ประสบการณ์, ระดับการศึกษา, GPA, ความตรงกับ JD</p>
       <p>• เมื่อผ่าน AI Screening ข้อมูลจะ Flow ไป P2 → P3 → P4 อัตโนมัติ</p>
-      <p>• Weight: CC1×0.25 + CC2×0.30 + CC3×0.20 + CC4×0.15 + CC5×0.10</p>
+      <p>• Weight: CC1×0.20 + CC2×0.20 + CC3×0.15 + CC4×0.15 + CC5×0.10 + CC6×0.10 + CC7×0.10</p>
+      <p>• แสดง 50 รายการต่อหน้า รองรับข้อมูลหลายพันแถว</p>
     </div>
   </div>
 </div>
+
+</div><!-- end mainContent -->
 
 <footer class="text-center py-4 text-gray-400 text-xs">
   Web PP7 • P1 AI Screening Engine • Built by KiloClaw 🦾
@@ -291,24 +316,237 @@
 
 <script>
 // =====================================================
-// REAL DATA FROM GOOGLE SHEET (A1 ข้อมูลผู้สมัครทั้งหมด)
+// CONFIGURATION
 // =====================================================
-const REAL_APPLICANTS = [
-  {no:1, id:2476, status:"จ้างงาน", date:"26/04/2017", prefix:"นาย", firstName:"อรุณ", lastName:"เค้าทอง", phone:"1220700047375", position1:"สมาชิกที่ปรึกษางานบริการ(ช่างยนต์)", position2:"สมาชิกที่ปรึกษางานบริการ(ช่างยนต์)", salary:"8,001-10,000 บาท", nickname:"แจ๊บ", age:20, address:"108/5", edu:"ปวส.", major:"เทคนิคเครื่องกล", gpa:3.51},
-  {no:2, id:4074, status:"จ้างงาน", date:"07/02/2018", prefix:"นาย", firstName:"อนุวัฒน์", lastName:"แก้วรอด", phone:"1220700025258", position1:"สมาชิกช่างกรุ๊ปรถเล็ก-สาขาสอยดาว", position2:"สมาชิกซ่อมบำรุง", salary:"10,001-12,000 บาท", nickname:"วัฒน์", age:0, address:"115/5หมู่11", edu:"ปวส.", major:"เครื่องกล", gpa:3.36},
-  {no:3, id:7596, status:"จ้างงาน", date:"17/10/2020", prefix:"นาย", firstName:"ทรงยุทธ", lastName:"เมฆมี", phone:"1240900057072", position1:"สมาชิกทีมสานสันพันธ์", position2:"สมาชิกช่างกรุ๊ปรถเล็ก-สาขาสอยดาว", salary:"12,001-15,000 บาท", nickname:"อาร์ม", age:22, address:"444/144", edu:"ปวส.", major:"ช่างยนต์-เทคนิคเครื่องกล", gpa:3.09},
-  {no:4, id:7779, status:"ใบสมัครซ้ำ", date:"04/01/2021", prefix:"นางสาว", firstName:"รัชดาภรณ์", lastName:"ขอจัดกลาง", phone:"1301000075104", position1:"สมาชิกประเมินราคาและบริการลูกค้า", position2:"สมาชิกบริการลูกค้าสินเชื่อ สาขาราชบุรี", salary:"15,000 บาทขึ้นไป", nickname:"ออม", age:32, address:"หมู่บ้านเอื้ออาทรห้วยหมู148/653", edu:"ปริญญาตรี", major:"คอมพิวเตอร์ธุรการ", gpa:2.38},
-  {no:5, id:7780, status:"ปิดใบสมัคร", date:"04/01/2021", prefix:"นางสาว", firstName:"รัชดาภรณ์", lastName:"ขอจัดกลาง", phone:"1301000075104", position1:"สมาชิกประเมินราคาและบริการลูกค้า", position2:"สมาชิกบริการลูกค้าสินเชื่อ สาขาราชบุรี", salary:"15,000 บาทขึ้นไป", nickname:"ออม", age:32, address:"หมู่บ้านเอื้ออาทรห้วยหมู148/653", edu:"ปริญญาตรี", major:"คอมพิวเตอร์ธุรการ", gpa:2.38},
-  {no:6, id:7781, status:"ปิดใบสมัคร", date:"06/01/2021", prefix:"นาย", firstName:"ชุติพงศ์", lastName:"มิ่งมณี", phone:"1239900226930", position1:"สมาชิกอะไหล่ TIS", position2:"สมาชิกอะไหล่ TIS", salary:"10,001-12,000 บาท", nickname:"เจมส์", age:26, address:"105/2 ม.2", edu:"ปวส.", major:"คอมพิวเตอร์ธุรกิจ", gpa:3.09},
-  {no:7, id:7782, status:"ใบสมัครซ้ำ", date:"11/01/2021", prefix:"นางสาว", firstName:"ลัดดารัตน์", lastName:"ม่วงแก้ว", phone:"1179900279970", position1:"", position2:"", salary:"", nickname:"แนน", age:24, address:"", edu:"ปริญญาตรี", major:"คอมพิวเตอร์ศึกษา", gpa:2.59},
-  {no:8, id:7783, status:"ปิดใบสมัคร", date:"11/01/2021", prefix:"นางสาว", firstName:"ลัดดารัตน์", lastName:"ม่วงแก้ว", phone:"1179900279970", position1:"สมาชิกประเมินราคาและบริการลูกค้า", position2:"ผู้รับใช้ทีมบริหารข้อมูลลูกค้า", salary:"10,001-12,000 บาท", nickname:"แนน", age:24, address:"264", edu:"ปริญญาตรี", major:"คอมพิวเตอร์ศึกษา", gpa:2.59},
-  {no:9, id:7784, status:"ปิดใบสมัคร", date:"11/01/2021", prefix:"นางสาว", firstName:"จารุวรรณ", lastName:"เปยะสา", phone:"1709901032425", position1:"สมาชิกประเมินราคาและบริการลูกค้า", position2:"ผู้รับใช้ทีมบริการลูกค้าสินเชื่อ สาขาราชบุรี", salary:"12,001-15,000 บาท", nickname:"เตย", age:25, address:"104/5 ม.8", edu:"ปริญญาตรี", major:"การจัดการคุณภาพ", gpa:2.44},
-  {no:10, id:7794, status:"จ้างงาน", date:"12/01/2021", prefix:"นางสาว", firstName:"จารุวรรณ", lastName:"พิมพิทักษ์", phone:"1759900316934", position1:"สมาชิกบริการลูกค้าสินเชื่อ สาขาราชบุรี", position2:"ผู้รับใช้ทีมการตลาดและบริหารลูกค้า", salary:"12,001-15,000 บาท", nickname:"นัท", age:24, address:"348/188 หมู่ที่8", edu:"ปริญญาตรี", major:"ภาพยนตร์และสื่อดิจิทัล", gpa:3.29}
-];
+const SHEET_ID = '1dH15UxEDyTldPx4lwU5Y6_BQYbTw_gJRMsC4-HCnXR4';
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+const PAGE_SIZE = 50;
+
+// =====================================================
+// STATE
+// =====================================================
+let processedData = [];
+let currentPage = 1;
+let chartInstances = {};
+
+// =====================================================
+// CSV PARSER (handles quoted fields with commas)
+// =====================================================
+function parseCSV(text) {
+  const rows = [];
+  let current = '';
+  let inQuotes = false;
+  let row = [];
+  
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const next = text[i + 1];
+    
+    if (inQuotes) {
+      if (ch === '"' && next === '"') {
+        current += '"';
+        i++; // skip escaped quote
+      } else if (ch === '"') {
+        inQuotes = false;
+      } else {
+        current += ch;
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ',') {
+        row.push(current.trim());
+        current = '';
+      } else if (ch === '\n' || (ch === '\r' && next === '\n')) {
+        row.push(current.trim());
+        current = '';
+        if (row.some(cell => cell !== '')) rows.push(row);
+        row = [];
+        if (ch === '\r') i++; // skip \n after \r
+      } else {
+        current += ch;
+      }
+    }
+  }
+  // Last field/row
+  row.push(current.trim());
+  if (row.some(cell => cell !== '')) rows.push(row);
+  
+  return rows;
+}
+
+// =====================================================
+// DATA LOADER — Fetch real data from Google Sheet
+// =====================================================
+async function loadData() {
+  const loadingEl = document.getElementById('loadingState');
+  const errorEl = document.getElementById('errorState');
+  const mainEl = document.getElementById('mainContent');
+  const statusEl = document.getElementById('dataStatus');
+  
+  loadingEl.classList.remove('hidden');
+  errorEl.classList.add('hidden');
+  mainEl.classList.add('hidden');
+  
+  try {
+    const resp = await fetch(CSV_URL + '&t=' + Date.now()); // cache-bust
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+    
+    const csvText = await resp.text();
+    const allRows = parseCSV(csvText);
+    
+    // Find the header row (contains "running,status_register,applicationDate")
+    let headerIdx = -1;
+    for (let i = 0; i < Math.min(allRows.length, 15); i++) {
+      const row = allRows[i];
+      if (row.includes('running') && row.includes('status_register') && row.includes('ThName')) {
+        headerIdx = i;
+        break;
+      }
+    }
+    
+    if (headerIdx === -1) throw new Error('ไม่พบ header row ใน CSV — โครงสร้าง Sheet อาจเปลี่ยน');
+    
+    const headers = allRows[headerIdx];
+    const colMap = {};
+    headers.forEach((h, i) => { colMap[h] = i; });
+    
+    // Skip type-definition rows and empty rows after header
+    const dataRows = allRows.slice(headerIdx + 1).filter(row => {
+      // Must have a running number (col index 2) that's numeric
+      const runIdx = colMap['running'];
+      if (runIdx === undefined) return false;
+      const val = row[runIdx];
+      return val && /^\d+$/.test(val);
+    });
+    
+    if (dataRows.length === 0) throw new Error('ไม่พบข้อมูลผู้สมัครใน Sheet');
+    
+    // Map to applicant objects
+    const applicants = dataRows.map((row, idx) => {
+      const get = (key) => {
+        const i = colMap[key];
+        return i !== undefined ? (row[i] || '') : '';
+      };
+      return {
+        no: idx + 1,
+        id: get('running'),
+        status: get('status_register'),
+        date: get('applicationDate'),
+        prefix: get('ThPrefix'),
+        firstName: get('ThName'),
+        lastName: get('ThSurname'),
+        phone: get('personalID'),
+        position1: get('jobPosition1'),
+        position2: get('jobPosition2'),
+        salary: get('expectedSalary'),
+        nickname: get('nickName'),
+        age: get('age'),
+        address: get('currentAddress'),
+        edu: get('educate'),
+        major: get('major'),
+        gpa: get('grade'),
+        experiences1: get('experiences1'),
+        experiences2: get('experiences2'),
+        emergencyContact: get('emergencyContact'),
+        dismissEmployee: get('dismissEmployee'),
+        lineID: get('lineID'),
+        facebook: get('facebook'),
+        reasonSelect: get('reason_select'),
+        updateTime: get('update_time'),
+        schoolName: get('schoolName')
+      };
+    });
+    
+    // Calculate CC scores for each applicant
+    processedData = applicants.map(app => {
+      const result = calculateCCScores(app);
+      const scores = result.scores;
+      const reasons = result.reasons;
+      const overall = calcOverall(scores);
+      const rec = getRecommendation(overall);
+      return { ...app, scores, reasons, overall, recommendation: rec };
+    });
+    
+    // Update UI
+    statusEl.className = 'bg-green-100 text-green-800 px-2 py-1 rounded font-semibold';
+    statusEl.textContent = `✅ ดึงข้อมูลสำเร็จ — ${processedData.length} คน`;
+    
+    document.getElementById('dataCount').classList.remove('hidden');
+    document.getElementById('dataCount').textContent = `(${processedData.length} รายการ)`;
+    
+    const now = new Date();
+    document.getElementById('update-time').textContent = 
+      now.toLocaleDateString('th-TH', { day:'numeric', month:'short', year:'2-digit' }) + ' ' +
+      now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
+    
+    loadingEl.classList.add('hidden');
+    mainEl.classList.remove('hidden');
+    
+    currentPage = 1;
+    renderSummary();
+    renderTable(getPageData());
+    renderPagination();
+    renderCharts();
+    
+  } catch (err) {
+    console.error('Load error:', err);
+    loadingEl.classList.add('hidden');
+    errorEl.classList.remove('hidden');
+    document.getElementById('errorMsg').textContent = err.message;
+    statusEl.className = 'bg-red-100 text-red-800 px-2 py-1 rounded font-semibold';
+    statusEl.textContent = '❌ ดึงข้อมูลล้มเหลว';
+  }
+}
+
+// =====================================================
+// PAGINATION
+// =====================================================
+function getPageData() {
+  const start = (currentPage - 1) * PAGE_SIZE;
+  return processedData.slice(start, start + PAGE_SIZE);
+}
+
+function getTotalPages() {
+  return Math.ceil(processedData.length / PAGE_SIZE);
+}
+
+function renderPagination() {
+  const container = document.getElementById('pagination');
+  const total = getTotalPages();
+  if (total <= 1) { container.innerHTML = ''; return; }
+  
+  let html = '';
+  html += `<button class="pagination-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>◀ ก่อน</button>`;
+  
+  const start = Math.max(1, currentPage - 2);
+  const end = Math.min(total, currentPage + 2);
+  
+  if (start > 1) html += `<button class="pagination-btn" onclick="goPage(1)">1</button>`;
+  if (start > 2) html += `<span class="text-gray-400 px-1">...</span>`;
+  
+  for (let i = start; i <= end; i++) {
+    html += `<button class="pagination-btn ${i===currentPage?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  
+  if (end < total - 1) html += `<span class="text-gray-400 px-1">...</span>`;
+  if (end < total) html += `<button class="pagination-btn" onclick="goPage(${total})">${total}</button>`;
+  
+  html += `<button class="pagination-btn" onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>ถัดไป ▶</button>`;
+  
+  container.innerHTML = html;
+}
+
+function goPage(p) {
+  if (p < 1 || p > getTotalPages()) return;
+  currentPage = p;
+  applyFilters();
+  renderPagination();
+  window.scrollTo({ top: document.getElementById('candidatesTable').offsetTop - 100, behavior: 'smooth' });
+}
 
 // =====================================================
 // AI CC SCORE CALCULATION ENGINE
-// คำนวณ CC1-CC7 จากคุณสมบัติจริงของผู้สมัคร + อธิบายเหตุผล
 // =====================================================
 function calculateCCScores(app) {
   const edu = app.edu || '';
@@ -320,11 +558,11 @@ function calculateCCScores(app) {
   const isHighSalary = /15,000|18,000|20|25|30/.test(app.salary || '');
   const isDup = app.status === 'ใบสมัครซ้ำ';
   const isHired = app.status === 'จ้างงาน';
+  const hasExp1 = (app.experiences1 || '').length > 5;
 
-  // เก็บเหตุผลแต่ละ CC
   const reasons = { cc1: [], cc2: [], cc3: [], cc4: [], cc5: [], cc6: [], cc7: [] };
 
-  // CC1: Servant Leadership (ประสบการณ์+leadership) 
+  // CC1: Servant Leadership
   let cc1 = 50;
   reasons.cc1.push('ฐาน 50');
   if (isHired) { cc1 += 25; reasons.cc1.push('✅ เคยได้รับการจ้างงาน (+25)'); }
@@ -332,41 +570,42 @@ function calculateCCScores(app) {
   else if (age > 20) { cc1 += 5; reasons.cc1.push(`⚡ อายุ ${age} ปี วัยทำงานเริ่มต้น (+5)`); }
   if (hasPosition1 && hasPosition2) { cc1 += 10; reasons.cc1.push('✅ สมัครหลายตำแหน่ง แสดงความยืดหยุ่น (+10)'); }
   if (edu.includes('ตรี')) { cc1 += 5; reasons.cc1.push('✅ การศึกษาระดับปริญญาตรี (+5)'); }
+  if (hasExp1) { cc1 += 8; reasons.cc1.push('✅ มีประสบการณ์ทำงาน (+8)'); }
   cc1 = Math.min(cc1, 98);
   cc1 = Math.max(cc1, 35);
 
-  // CC2: Adaptive Innovation (ทักษะ+การเรียนรู้)
+  // CC2: Adaptive Innovation
   let cc2 = 45;
   reasons.cc2.push('ฐาน 45');
   if (isTechMajor) { cc2 += 15; reasons.cc2.push(`✅ สาขา "${app.major}" ตรงสายเทคนิค (+15)`); }
   else { reasons.cc2.push(`⚠️ สาขา "${app.major}" ไม่ตรงสายเทคนิคโดยตรง`); }
-  if (gpa >= 3.5) { cc2 += 20; reasons.cc2.push(`✅ GPA ${gpa} สูงมาก แสดงการเรียนรู้ดี (+20)`); }
+  if (gpa >= 3.5) { cc2 += 20; reasons.cc2.push(`✅ GPA ${gpa} สูงมาก (+20)`); }
   else if (gpa >= 3.0) { cc2 += 12; reasons.cc2.push(`✅ GPA ${gpa} ดี (+12)`); }
   else if (gpa >= 2.5) { cc2 += 6; reasons.cc2.push(`⚡ GPA ${gpa} ปานกลาง (+6)`); }
-  else { reasons.cc2.push(`⚠️ GPA ${gpa} ต่ำกว่าเกณฑ์ (+0)`); }
+  else if (gpa > 0) { reasons.cc2.push(`⚠️ GPA ${gpa} ต่ำกว่าเกณฑ์ (+0)`); }
   if (edu.includes('ตรี')) { cc2 += 8; reasons.cc2.push('✅ ปริญญาตรี (+8)'); }
   else if (edu.includes('ปวส')) { cc2 += 5; reasons.cc2.push('⚡ ปวส. (+5)'); }
   cc2 = Math.min(cc2, 97);
   cc2 = Math.max(cc2, 30);
 
-  // CC3: Trust-Based Value (ทัศนคติ+ความน่าเชื่อถือ)
+  // CC3: Trust-Based Value
   let cc3 = 45;
   reasons.cc3.push('ฐาน 45');
-  if (!isDup) { cc3 += 15; reasons.cc3.push('✅ ไม่ใช่ใบสมัครซ้ำ แสดงความจริงใจ (+15)'); }
+  if (!isDup) { cc3 += 15; reasons.cc3.push('✅ ไม่ใช่ใบสมัครซ้ำ (+15)'); }
   else { reasons.cc3.push('❌ เป็นใบสมัครซ้ำ ลดความน่าเชื่อถือ'); }
-  if (isHired) { cc3 += 20; reasons.cc3.push('✅ เคยได้รับการจ้างงาน = ผ่านการตรวจสอบแล้ว (+20)'); }
+  if (isHired) { cc3 += 20; reasons.cc3.push('✅ เคยได้รับการจ้างงาน (+20)'); }
   if (gpa >= 3.0) { cc3 += 10; reasons.cc3.push(`✅ GPA ${gpa} แสดงความรับผิดชอบ (+10)`); }
   if (hasPosition1) { cc3 += 5; reasons.cc3.push('✅ มีตำแหน่งที่สมัครชัดเจน (+5)'); }
   if (age >= 22) { cc3 += 5; reasons.cc3.push(`✅ อายุ ${age} ปี มีวุฒิภาวะเหมาะสม (+5)`); }
   cc3 = Math.min(cc3, 98);
   cc3 = Math.max(cc3, 25);
 
-  // CC4: Consensus Teamwork (ศักยภาพ+ทำงานทีม)
+  // CC4: Consensus Teamwork
   let cc4 = 45;
   reasons.cc4.push('ฐาน 45');
   if (hasPosition2) { cc4 += 15; reasons.cc4.push('✅ มีตำแหน่งที่ 2 แสดงความพร้อมทำงานหลากหลาย (+15)'); }
-  else { reasons.cc4.push('⚠️ สมัครตำแหน่งเดียว อาจยังไม่ยืดหยุ่น'); }
-  if (isHired) { cc4 += 18; reasons.cc4.push('✅ เคยทำงานในองค์กร = ผ่านการทดสอบ teamwork (+18)'); }
+  else { reasons.cc4.push('⚠️ สมัครตำแหน่งเดียว'); }
+  if (isHired) { cc4 += 18; reasons.cc4.push('✅ เคยทำงานในองค์กร (+18)'); }
   if (gpa >= 3.0) { cc4 += 10; reasons.cc4.push(`✅ GPA ${gpa} แสดงความมุ่งมั่น (+10)`); }
   if (age > 20) { cc4 += 8; reasons.cc4.push(`✅ อายุ ${age} ปี พร้อมทำงานทีม (+8)`); }
   if (edu.includes('ตรี')) { cc4 += 7; reasons.cc4.push('✅ ปริญญาตรี (+7)'); }
@@ -374,20 +613,20 @@ function calculateCCScores(app) {
   cc4 = Math.min(cc4, 98);
   cc4 = Math.max(cc4, 30);
 
-  // CC5: Disciplined Professionalism (วินัย+ความพร้อม)
+  // CC5: Disciplined Professionalism
   let cc5 = 40;
   reasons.cc5.push('ฐาน 40');
   if (gpa >= 3.5) { cc5 += 22; reasons.cc5.push(`✅ GPA ${gpa} สูงมาก = วินัยดีเยี่ยม (+22)`); }
   else if (gpa >= 3.0) { cc5 += 15; reasons.cc5.push(`✅ GPA ${gpa} ดี = มีวินัย (+15)`); }
   else if (gpa >= 2.5) { cc5 += 8; reasons.cc5.push(`⚡ GPA ${gpa} ปานกลาง (+8)`); }
-  else { cc5 += 3; reasons.cc5.push(`⚠️ GPA ${gpa} ต่ำ (+3)`); }
-  if (isHired) { cc5 += 20; reasons.cc5.push('✅ ผ่านการจ้างงาน = มีวินัยทำงาน (+20)'); }
+  else if (gpa > 0) { cc5 += 3; reasons.cc5.push(`⚠️ GPA ${gpa} ต่ำ (+3)`); }
+  if (isHired) { cc5 += 20; reasons.cc5.push('✅ ผ่านการจ้างงาน (+20)'); }
   if (!isDup) { cc5 += 10; reasons.cc5.push('✅ ไม่ใช่ใบสมัครซ้ำ (+10)'); }
-  else { reasons.cc5.push('❌ ใบสมัครซ้ำ ลดความน่าเชื่อถือ'); }
+  else { reasons.cc5.push('❌ ใบสมัครซ้ำ'); }
   cc5 = Math.min(cc5, 97);
   cc5 = Math.max(cc5, 28);
 
-  // CC6: Technology Mastery (ทักษะดิจิทัล+เทคโนโลยี)
+  // CC6: Technology Mastery
   let cc6 = 35;
   reasons.cc6.push('ฐาน 35');
   if (isTechMajor) { cc6 += 25; reasons.cc6.push(`✅ สาขา "${app.major}" ตรงสายเทคโนโลยี (+25)`); }
@@ -395,35 +634,25 @@ function calculateCCScores(app) {
   if (edu.includes('ตรี')) { cc6 += 10; reasons.cc6.push('✅ ปริญญาตรี (+10)'); }
   else if (edu.includes('ปวส')) { cc6 += 5; reasons.cc6.push('⚡ ปวส. (+5)'); }
   if (gpa >= 3.0) { cc6 += 10; reasons.cc6.push(`✅ GPA ${gpa} แสดงการเรียนรู้เทคโนโลยีได้ (+10)`); }
-  if (age < 30) { cc6 += 8; reasons.cc6.push(`✅ อายุ ${age} ปี เป็นคนรุ่นใหม่ คล่องดิจิทัล (+8)`); }
-  else { reasons.cc6.push(`⚡ อายุ ${age} ปี อาจต้องทดสอบทักษะดิจิทัลเพิ่ม`); }
-  if (hasPosition1 && /คอม|tech|IT|digital/i.test(app.position1)) { cc6 += 12; reasons.cc6.push('✅ ตำแหน่งงานเกี่ยวข้องกับเทคโนโลยี (+12)'); }
+  if (age > 0 && age < 30) { cc6 += 8; reasons.cc6.push(`✅ อายุ ${age} ปี คล่องดิจิทัล (+8)`); }
+  if (hasPosition1 && /คอม|tech|IT|digital/i.test(app.position1)) { cc6 += 12; reasons.cc6.push('✅ ตำแหน่งเกี่ยวข้องกับเทคโนโลยี (+12)'); }
   cc6 = Math.min(cc6, 98);
   cc6 = Math.max(cc6, 25);
 
-  // CC7: Humor & Joy (อารมณ์ขัน+บรรยากาศ)
+  // CC7: Humor & Joy
   let cc7 = 40;
   reasons.cc7.push('ฐาน 40');
   if (age >= 25) { cc7 += 10; reasons.cc7.push(`✅ อายุ ${age} ปี มีวุฒิภาวะทางอารมณ์ (+10)`); }
-  else { reasons.cc7.push(`⚡ อายุ ${age} ปี กำลังพัฒนาอารมณ์ขัน`); }
   if (isHired) { cc7 += 15; reasons.cc7.push('✅ เคยทำงานในองค์กร = สร้างบรรยากาศดี (+15)'); }
   if (!isDup) { cc7 += 8; reasons.cc7.push('✅ ไม่ใช่ใบสมัครซ้ำ แสดงความมุ่งมั่น (+8)'); }
-  if (hasPosition2) { cc7 += 7; reasons.cc7.push('✅ สมัครหลายตำแหน่ง = ยืดหยุ่น + สนุกกับงาน (+7)'); }
+  if (hasPosition2) { cc7 += 7; reasons.cc7.push('✅ สมัครหลายตำแหน่ง = ยืดหยุ่น (+7)'); }
   if (gpa >= 2.5 && gpa < 3.5) { cc7 += 5; reasons.cc7.push(`⚡ GPA ${gpa} ปานกลาง อาจเป็นคนสนุก (+5)`); }
   cc7 = Math.min(cc7, 95);
   cc7 = Math.max(cc7, 30);
 
   return {
-    scores: {
-      cc1: Math.round(cc1),
-      cc2: Math.round(cc2),
-      cc3: Math.round(cc3),
-      cc4: Math.round(cc4),
-      cc5: Math.round(cc5),
-      cc6: Math.round(cc6),
-      cc7: Math.round(cc7)
-    },
-    reasons: reasons
+    scores: { cc1: Math.round(cc1), cc2: Math.round(cc2), cc3: Math.round(cc3), cc4: Math.round(cc4), cc5: Math.round(cc5), cc6: Math.round(cc6), cc7: Math.round(cc7) },
+    reasons
   };
 }
 
@@ -437,40 +666,12 @@ function getRecommendation(score) {
   return { text: '❌ ไม่ผ่าน → Talent Pool', cls: 'recommend-reject', type: 'Rejected' };
 }
 
-function scoreClass(s) {
-  if (s >= 80) return 'score-high';
-  if (s >= 65) return 'score-medium';
-  return 'score-low';
-}
-
-function scorePill(s) {
-  return `<span class="score-pill ${scoreClass(s)}">${s}</span>`;
-}
-
+function scoreClass(s) { return s >= 80 ? 'score-high' : s >= 65 ? 'score-medium' : 'score-low'; }
+function scorePill(s) { return `<span class="score-pill ${scoreClass(s)}">${s}</span>`; }
 function statusBadge(status) {
-  const map = {
-    'จ้างงาน': 'badge-hired',
-    'ใบสมัครซ้ำ': 'badge-duplicate',
-    'ปิดใบสมัคร': 'badge-closed'
-  };
+  const map = { 'จ้างงาน': 'badge-hired', 'ใบสมัครซ้ำ': 'badge-duplicate', 'ปิดใบสมัคร': 'badge-closed' };
   return `<span class="status-badge ${map[status] || 'badge-pending'}">${status}</span>`;
 }
-
-// Process data
-const processedData = REAL_APPLICANTS.map(app => {
-  const result = calculateCCScores(app);
-  const scores = result.scores;
-  const reasons = result.reasons;
-  const overall = calcOverall(scores);
-  const rec = getRecommendation(overall);
-  return {
-    ...app,
-    scores,
-    reasons,
-    overall,
-    recommendation: rec
-  };
-});
 
 // =====================================================
 // RENDER SUMMARY CARDS
@@ -491,7 +692,7 @@ function renderSummary() {
     <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center card-hover">
       <div class="text-3xl font-bold text-green-700">${passed}</div>
       <div class="text-sm text-green-600 font-medium mt-1">ผ่าน AI Screen</div>
-      <div class="text-xs text-green-400 mt-1">${Math.round(passed/total*100)}%</div>
+      <div class="text-xs text-green-400 mt-1">${total?Math.round(passed/total*100):0}%</div>
     </div>
     <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 text-center card-hover">
       <div class="text-3xl font-bold text-yellow-700">${hold}</div>
@@ -501,7 +702,7 @@ function renderSummary() {
     <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 text-center card-hover">
       <div class="text-3xl font-bold text-red-700">${rejected}</div>
       <div class="text-sm text-red-600 font-medium mt-1">ไม่ผ่าน</div>
-      <div class="text-xs text-red-400 mt-1">${Math.round(rejected/total*100)}%</div>
+      <div class="text-xs text-red-400 mt-1">${total?Math.round(rejected/total*100):0}%</div>
     </div>
     <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center card-hover">
       <div class="text-3xl font-bold text-purple-700">${avgScore}</div>
@@ -510,7 +711,7 @@ function renderSummary() {
     </div>
   `;
 
-  // Update flow counts
+  document.getElementById('flow-total').textContent = `${total} คน`;
   document.getElementById('flow-screened').textContent = `${total} คนคัดกรองแล้ว`;
   document.getElementById('flow-pass').textContent = `${passed} คน → P2 → P3 → P4 → P5/P6/P7`;
   document.getElementById('flow-hold').textContent = `${hold} คน → P3 (พิจารณาเพิ่ม)`;
@@ -518,13 +719,12 @@ function renderSummary() {
 }
 
 // =====================================================
-// OVERRIDE STATUS (manual change)
+// OVERRIDE STATUS
 // =====================================================
 const overrides = {};
 
-function overrideStatus(idx, newType, fromRowBtn = false) {
+function overrideStatus(idx, newType) {
   overrides[idx] = newType;
-  // Update in-memory data
   const d = processedData[idx];
   d.recommendation.type = newType;
   d.recommendation.text = newType === 'Passed' ? '✅ ผ่าน → ไป P2' : newType === 'Hold' ? '⏳ รอพิจารณา → P3' : '❌ ไม่ผ่าน';
@@ -532,29 +732,21 @@ function overrideStatus(idx, newType, fromRowBtn = false) {
   d.isManualOverride = true;
   renderSummary();
   applyFilters();
-  // Reopen detail modal if it was open
-  if (document.getElementById('detailModal').classList.contains('open')) {
-    showDetail(idx);
-  }
+  if (document.getElementById('detailModal').classList.contains('open')) showDetail(idx);
 }
 
 function resetOverride(idx) {
   delete overrides[idx];
   const d = processedData[idx];
-  // Restore original computed recommendation
-  const origRec = getRecommendation(d.overall);
-  d.recommendation = origRec;
+  d.recommendation = getRecommendation(d.overall);
   d.isManualOverride = false;
   renderSummary();
   applyFilters();
 }
 
 function renderOverrideActions(idx, currentType, isManual) {
-  const btn = (t, color) => `<button class="override-btn override-btn-${color} ${currentType===t?'active':''}" title="${t}" onclick="overrideStatus(${idx},'${t}',true)">${t==='Passed'?'✅':t==='Hold'?'⏳':'❌'}</button>`;
-  let reset = '';
-  if (isManual) {
-    reset = `<button class="override-btn override-btn-reset" title="คืนเป็น AI" onclick="resetOverride(${idx})">⟲</button>`;
-  }
+  const btn = (t, color) => `<button class="override-btn override-btn-${color} ${currentType===t?'active':''}" title="${t}" onclick="overrideStatus(${idx},'${t}')">${t==='Passed'?'✅':t==='Hold'?'⏳':'❌'}</button>`;
+  let reset = isManual ? `<button class="override-btn override-btn-reset" title="คืนเป็น AI" onclick="resetOverride(${idx})">⟲</button>` : '';
   return `<div class="flex items-center gap-1 justify-center flex-wrap">${btn('Passed','pass')}${btn('Hold','hold')}${btn('Rejected','reject')}${reset}</div>`;
 }
 
@@ -564,7 +756,7 @@ function renderOverrideActions(idx, currentType, isManual) {
 function renderTable(data) {
   const tbody = document.getElementById('candidatesTable');
   if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="12" class="px-4 py-8 text-center text-gray-400">ไม่พบข้อมูล</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="15" class="px-4 py-8 text-center text-gray-400">ไม่พบข้อมูล</td></tr>';
     document.getElementById('resultCount').textContent = 'ไม่พบข้อมูล';
     return;
   }
@@ -586,20 +778,17 @@ function renderTable(data) {
       <td class="px-3 py-2 text-center">${scorePill(d.scores.cc5)}</td>
       <td class="px-3 py-2 text-center">${scorePill(d.scores.cc6)}</td>
       <td class="px-3 py-2 text-center">${scorePill(d.scores.cc7)}</td>
-      <td class="px-3 py-2 text-center">
-        <span class="bg-gray-100 rounded-lg px-2 py-1 font-bold text-sm">${d.overall}</span>
-      </td>
+      <td class="px-3 py-2 text-center"><span class="bg-gray-100 rounded-lg px-2 py-1 font-bold text-sm">${d.overall}</span></td>
       <td class="px-3 py-2"><div class="${d.recommendation.cls} rounded px-2 py-1 text-xs font-medium whitespace-nowrap">${d.recommendation.text}</div></td>
       <td class="px-3 py-2 text-center">${statusBadge(d.status)}</td>
-      <td class="px-3 py-2 text-center">
-        ${renderOverrideActions(d.no-1, d.recommendation.type, d.isManualOverride)}
-      </td>
-      <td class="px-3 py-2 text-center">
-        <button onclick="showDetail(${d.no-1})" class="text-indigo-600 hover:text-indigo-800 text-xs font-semibold hover:underline">ดูรายละเอียด</button>
-      </td>
+      <td class="px-3 py-2 text-center">${renderOverrideActions(d.no-1, d.recommendation.type, d.isManualOverride)}</td>
+      <td class="px-3 py-2 text-center"><button onclick="showDetail(${d.no-1})" class="text-indigo-600 hover:text-indigo-800 text-xs font-semibold hover:underline">ดูรายละเอียด</button></td>
     </tr>
   `).join('');
-  document.getElementById('resultCount').textContent = `แสดง ${data.length} จาก ${processedData.length} คน`;
+  
+  const start = (currentPage - 1) * PAGE_SIZE + 1;
+  const end = Math.min(currentPage * PAGE_SIZE, processedData.length);
+  document.getElementById('resultCount').textContent = `แสดง ${start}-${end} จาก ${processedData.length} คน`;
 }
 
 // =====================================================
@@ -624,64 +813,58 @@ function showDetail(idx) {
     </div>
   `).join('');
 
-  // AI Reasoning section
-  const ccReasonLabels = ['CC1: Servant Leadership', 'CC2: Adaptive Innovation', 'CC3: Trust-Based Value', 'CC4: Consensus Teamwork', 'CC5: Disciplined Pro.', 'CC6: Technology Mastery', 'CC7: Humor & Joy'];
   const ccReasonColors = ['border-blue-300 bg-blue-50', 'border-green-300 bg-green-50', 'border-orange-300 bg-orange-50', 'border-purple-300 bg-purple-50', 'border-red-300 bg-red-50', 'border-cyan-300 bg-cyan-50', 'border-pink-300 bg-pink-50'];
   const ccReasonTextColors = ['text-blue-800', 'text-green-800', 'text-orange-800', 'text-purple-800', 'text-red-800', 'text-cyan-800', 'text-pink-800'];
 
   let reasoningHtml = ccKeys.map((k, i) => `
     <div class="border-l-4 ${ccReasonColors[i]} rounded-r-lg p-2 mb-2">
-      <div class="font-bold text-xs ${ccReasonTextColors[i]}">${ccReasonLabels[i]} — <span class="text-base">${d.scores[k]}</span></div>
+      <div class="font-bold text-xs ${ccReasonTextColors[i]}">${ccLabels[i]} — <span class="text-base">${d.scores[k]}</span></div>
       <div class="text-xs text-gray-700 mt-1 space-y-0.5">
         ${d.reasons[k].map(r => `<div>${r}</div>`).join('')}
       </div>
     </div>
   `).join('');
 
-  // Next step flow
   let flowHtml = '';
   if (d.recommendation.type === 'Passed') {
-    flowHtml = `
-      <div class="bg-green-50 rounded-lg p-3 mt-3">
-        <div class="text-sm font-bold text-green-800 mb-2">🔀 ขั้นตอนต่อไป (Data Flow)</div>
-        <div class="flex flex-wrap items-center gap-1 text-xs">
-          <span class="bg-green-500 text-white px-2 py-1 rounded">✅ ผ่าน AI</span>
-          <span class="text-gray-400">→</span>
-          <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">P2 หยั่งประเมิน</span>
-          <span class="text-gray-400">→</span>
-          <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded">P3 จับคู่คนกับงาน</span>
-          <span class="text-gray-400">→</span>
-          <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded">P4 ประเมินผล</span>
-          <span class="text-gray-400">→</span>
-          <span class="bg-teal-100 text-teal-800 px-2 py-1 rounded">P5 พัฒนา</span>
-          <span class="text-gray-400">→</span>
-          <span class="bg-cyan-100 text-cyan-800 px-2 py-1 rounded">P6 ค่าตอบแทน</span>
-          <span class="text-gray-400">→</span>
-          <span class="bg-pink-100 text-pink-800 px-2 py-1 rounded">P7 คุณภาพชีวิต</span>
-        </div>
-      </div>`;
+    flowHtml = `<div class="bg-green-50 rounded-lg p-3 mt-3">
+      <div class="text-sm font-bold text-green-800 mb-2">🔀 ขั้นตอนต่อไป</div>
+      <div class="flex flex-wrap items-center gap-1 text-xs">
+        <span class="bg-green-500 text-white px-2 py-1 rounded">✅ ผ่าน AI</span><span class="text-gray-400">→</span>
+        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">P2 หยั่งประเมิน</span><span class="text-gray-400">→</span>
+        <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded">P3 จับคู่คนกับงาน</span><span class="text-gray-400">→</span>
+        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded">P4 ประเมินผล</span><span class="text-gray-400">→</span>
+        <span class="bg-teal-100 text-teal-800 px-2 py-1 rounded">P5 พัฒนา</span><span class="text-gray-400">→</span>
+        <span class="bg-cyan-100 text-cyan-800 px-2 py-1 rounded">P6 ค่าตอบแทน</span><span class="text-gray-400">→</span>
+        <span class="bg-pink-100 text-pink-800 px-2 py-1 rounded">P7 คุณภาพชีวิต</span>
+      </div></div>`;
   } else if (d.recommendation.type === 'Hold') {
-    flowHtml = `
-      <div class="bg-yellow-50 rounded-lg p-3 mt-3">
-        <div class="text-sm font-bold text-yellow-800 mb-2">🔀 ขั้นตอนต่อไป</div>
-        <div class="flex flex-wrap items-center gap-1 text-xs">
-          <span class="bg-yellow-500 text-white px-2 py-1 rounded">⏳ รอพิจารณา</span>
-          <span class="text-gray-400">→</span>
-          <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded">P3 จับคู่คนกับงาน (สัมภาษณ์เฉพาะจุด)</span>
-        </div>
-      </div>`;
+    flowHtml = `<div class="bg-yellow-50 rounded-lg p-3 mt-3">
+      <div class="text-sm font-bold text-yellow-800 mb-2">🔀 ขั้นตอนต่อไป</div>
+      <div class="flex flex-wrap items-center gap-1 text-xs">
+        <span class="bg-yellow-500 text-white px-2 py-1 rounded">⏳ รอพิจารณา</span><span class="text-gray-400">→</span>
+        <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded">P3 จับคู่คนกับงาน (สัมภาษณ์เฉพาะจุด)</span>
+      </div></div>`;
   } else {
-    flowHtml = `
-      <div class="bg-red-50 rounded-lg p-3 mt-3">
-        <div class="text-sm font-bold text-red-800 mb-2">🔀 ขั้นตอนต่อไป</div>
-        <div class="flex flex-wrap items-center gap-1 text-xs">
-          <span class="bg-red-500 text-white px-2 py-1 rounded">❌ ไม่ผ่าน</span>
-          <span class="text-gray-400">→</span>
-          <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded">🗄 Talent Pool (เก็บข้อมูลพิจารณาใหม่)</span>
-          ${d.status !== 'ใบสมัครซ้ำ' ? '<span class="text-gray-400">→</span><span class="bg-blue-50 text-blue-800 px-2 py-1 rounded">สามารถสมัครใหม่ในตำแหน่งอื่นได้</span>' : ''}
-        </div>
-      </div>`;
+    flowHtml = `<div class="bg-red-50 rounded-lg p-3 mt-3">
+      <div class="text-sm font-bold text-red-800 mb-2">🔀 ขั้นตอนต่อไป</div>
+      <div class="flex flex-wrap items-center gap-1 text-xs">
+        <span class="bg-red-500 text-white px-2 py-1 rounded">❌ ไม่ผ่าน</span><span class="text-gray-400">→</span>
+        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded">🗄 Talent Pool</span>
+      </div></div>`;
   }
+
+  // Contact info section
+  const contactHtml = `
+    <div class="mt-4 bg-gray-50 rounded-lg p-3">
+      <h4 class="text-sm font-bold text-gray-700 mb-2">📞 ข้อมูลติดต่อ</h4>
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div><span class="text-gray-500">Line ID:</span> <strong>${d.lineID || '—'}</strong></div>
+        <div><span class="text-gray-500">Facebook:</span> <strong>${d.facebook || '—'}</strong></div>
+        <div><span class="text-gray-500">เบอร์โทร:</span> <strong>${d.phone || '—'}</strong></div>
+        <div><span class="text-gray-500">ติดต่อฉุกเฉิน:</span> <strong>${d.emergencyContact || '—'}</strong></div>
+      </div>
+    </div>`;
 
   document.getElementById('detailContent').innerHTML = `
     <div class="flex justify-between items-start mb-4">
@@ -691,133 +874,116 @@ function showDetail(idx) {
       </div>
       <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
-
     ${statusBadge(d.status)}
-    
     <div class="mt-4 space-y-2 text-sm">
       <p><span class="text-gray-500">ตำแหน่งที่สมัคร:</span> <strong>${d.position1 || '—'}</strong></p>
       ${d.position2 ? `<p><span class="text-gray-500">ตัวเลือกที่ 2:</span> ${d.position2}</p>` : ''}
       <p><span class="text-gray-500">การศึกษา:</span> ${d.edu} — ${d.major} (GPA: ${d.gpa})</p>
       <p><span class="text-gray-500">เงินเดือนที่คาดหวัง:</span> ${d.salary || '—'}</p>
       <p><span class="text-gray-500">วันสมัคร:</span> ${d.date}</p>
-      <p><span class="text-gray-500">เบอร์โทร:</span> ${d.phone}</p>
+      <p><span class="text-gray-500">โรงเรียน/วิทยาลัย:</span> ${d.schoolName || '—'}</p>
     </div>
-
+    ${contactHtml}
     <div class="mt-5">
       <h4 class="text-sm font-bold text-gray-700 mb-3">🤖 AI CC Scores (Overall: <span class="text-xl font-bold text-indigo-600">${d.overall}</span>)</h4>
       <div class="space-y-2">${barsHtml}</div>
     </div>
-
     <div class="mt-5">
-      <h4 class="text-sm font-bold text-gray-700 mb-3">🧠 AI Reasoning — เหตุผลที่ให้คะแนนแต่ละ CC</h4>
+      <h4 class="text-sm font-bold text-gray-700 mb-3">🧠 AI Reasoning</h4>
       <div class="space-y-1">${reasoningHtml}</div>
     </div>
-
     <div class="mt-4 ${d.recommendation.cls} rounded-lg px-3 py-2">
       <strong>AI Recommendation:</strong> ${d.recommendation.text}
+      ${d.isManualOverride ? '<span class="manual-tag">MANUAL</span>' : ''}
     </div>
-
     ${flowHtml}
   `;
-
   modal.classList.add('open');
 }
 
-function closeModal() {
-  document.getElementById('detailModal').classList.remove('open');
-}
-document.getElementById('detailModal').addEventListener('click', e => {
-  if (e.target === e.currentTarget) closeModal();
-});
+function closeModal() { document.getElementById('detailModal').classList.remove('open'); }
+document.getElementById('detailModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 
 // =====================================================
 // CHARTS
 // =====================================================
 function renderCharts() {
-  // Distribution chart
-  const ccLabels = ['CC1', 'CC2', 'CC3', 'CC4', 'CC5'];
-  const ccKeys = ['cc1', 'cc2', 'cc3', 'cc4', 'cc5'];
+  // Destroy old charts
+  Object.values(chartInstances).forEach(c => c.destroy());
+  chartInstances = {};
+
+  const ccLabels = ['CC1', 'CC2', 'CC3', 'CC4', 'CC5', 'CC6', 'CC7'];
+  const ccKeys = ['cc1', 'cc2', 'cc3', 'cc4', 'cc5', 'cc6', 'cc7'];
   const avgScores = ccKeys.map(k => Math.round(processedData.reduce((s,d) => s + d.scores[k], 0) / processedData.length));
-  
-  new Chart(document.getElementById('ccDistChart'), {
+  const maxScores = ccKeys.map(k => Math.max(...processedData.map(d => d.scores[k])));
+
+  chartInstances.dist = new Chart(document.getElementById('ccDistChart'), {
     type: 'bar',
     data: {
       labels: ccLabels,
       datasets: [{
         label: 'คะแนนเฉลี่ย',
         data: avgScores,
-        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'],
+        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#ec4899'],
         borderRadius: 8
       }, {
         label: 'คะแนนสูงสุด',
-        data: ccKeys.map(k => Math.max(...processedData.map(d => d.scores[k]))),
-        backgroundColor: 'rgba(99,102,241,0.2)',
+        data: maxScores,
+        backgroundColor: 'rgba(99,102,241,0.15)',
         borderColor: '#6366f1',
         borderWidth: 2,
         borderRadius: 8
       }]
     },
-    options: {
-      responsive: true,
-      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
-      scales: { y: { beginAtZero: true, max: 100 } }
-    }
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } }, scales: { y: { beginAtZero: true, max: 100 } } }
   });
 
-  // Pass rate doughnut
   const passed = processedData.filter(d => d.recommendation.type === 'Passed').length;
   const hold = processedData.filter(d => d.recommendation.type === 'Hold').length;
   const rejected = processedData.filter(d => d.recommendation.type === 'Rejected').length;
 
-  new Chart(document.getElementById('passRateChart'), {
+  chartInstances.rate = new Chart(document.getElementById('passRateChart'), {
     type: 'doughnut',
     data: {
       labels: ['ผ่าน → P2', 'รอพิจารณา → P3', 'ไม่ผ่าน → Talent Pool'],
-      datasets: [{
-        data: [passed, hold, rejected],
-        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-        borderWidth: 0
-      }]
+      datasets: [{ data: [passed, hold, rejected], backgroundColor: ['#10b981', '#f59e0b', '#ef4444'], borderWidth: 0 }]
     },
-    options: {
-      responsive: true,
-      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
-      cutout: '65%'
-    }
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } }, cutout: '65%' }
   });
 }
 
 // =====================================================
 // SEARCH & FILTER
 // =====================================================
-const searchInput = document.getElementById('searchInput');
-const filterStatus = document.getElementById('filterStatus');
-
 function applyFilters() {
-  const q = searchInput.value.toLowerCase();
-  const st = filterStatus.value;
+  const q = (document.getElementById('searchInput').value || '').toLowerCase();
+  const st = document.getElementById('filterStatus').value;
   let filtered = processedData.filter(d => {
-    const matchSearch = !q || `${d.firstName} ${d.lastName} ${d.nickname} ${d.position1}`.toLowerCase().includes(q);
+    const matchSearch = !q || `${d.firstName} ${d.lastName} ${d.nickname} ${d.position1} ${d.lineID} ${d.facebook}`.toLowerCase().includes(q);
     const matchStatus = !st || d.recommendation.type === st;
     return matchSearch && matchStatus;
   });
-  renderTable(filtered);
+  
+  // Apply pagination to filtered results
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageData = filtered.slice(start, start + PAGE_SIZE);
+  renderTable(pageData);
+  
+  const totalFiltered = filtered.length;
+  const pStart = (currentPage - 1) * PAGE_SIZE + 1;
+  const pEnd = Math.min(currentPage * PAGE_SIZE, totalFiltered);
+  document.getElementById('resultCount').textContent = totalFiltered === processedData.length 
+    ? `แสดง ${pStart}-${pEnd} จาก ${processedData.length} คน`
+    : `พบ ${totalFiltered} คน (แสดง ${pStart}-${pEnd})`;
 }
 
-searchInput.addEventListener('input', applyFilters);
-filterStatus.addEventListener('change', applyFilters);
+document.getElementById('searchInput').addEventListener('input', () => { currentPage = 1; applyFilters(); renderPagination(); });
+document.getElementById('filterStatus').addEventListener('change', () => { currentPage = 1; applyFilters(); renderPagination(); });
 
 // =====================================================
-// INIT
+// INIT — Load data immediately
 // =====================================================
-renderSummary();
-renderTable(processedData);
-renderCharts();
-
-const now = new Date();
-document.getElementById('update-time').textContent = 
-  now.toLocaleDateString('th-TH', { day:'numeric', month:'short', year:'2-digit' }) + ' ' +
-  now.toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' });
+loadData();
 </script>
 </body>
 </html>
