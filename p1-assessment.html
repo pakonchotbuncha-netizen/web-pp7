@@ -332,6 +332,15 @@
         <span class="bg-indigo-600 text-white px-2 py-1 rounded text-xs font-bold">🤖 AI</span>
         AI Summary — สรุปผลแบบทดสอบทั้ง 4 ส่วน
       </h3>
+      
+      <!-- Select Candidate -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold text-gray-700 mb-2">เลือกผู้สมัคร:</label>
+        <select id="ai-candidate-select" class="w-full px-3 py-2 border rounded-lg" onchange="loadCandidateScores()">
+          <option value="">-- เลือกผู้สมัคร --</option>
+        </select>
+      </div>
+      
       <div class="grid md:grid-cols-4 gap-3 mb-4">
         <div class="p-3 bg-white rounded-lg border border-indigo-100">
           <div class="text-xs text-gray-600 mb-1">🧠 ทัศนคติ (CC)</div>
@@ -784,18 +793,103 @@ function assignTest(candidateId) {
 // =====================================================
 // AI SUMMARY — สรุปผลแบบทดสอบทั้ง 4 ส่วน
 // =====================================================
-function generateAISummary() {
-  // Mock scores for demonstration
-  const scores = {
-    attitude: { score: 38, max: 50, cc: ['CC3: สร้างคุณค่าบนฐานความไว้วางใจ', 'CC5: วิชาชีพและวินัยองค์กร', 'CC7: สร้างบรรยากาศด้วยอารมณ์ขัน'] },
-    service: { score: 82, max: 100, note: 'ตอบคำถามงานบริการได้ดี' },
-    skill: { score: 75, max: 100, note: 'ผ่านเกณฑ์ทักษะพื้นฐาน' },
+const CANDIDATE_SCORES = {
+  1: {
+    name: 'อรุณ เค้าทอง',
+    position: 'ช่างยนต์',
+    attitude: { score: 42, max: 50, cc: ['CC3: สร้างคุณค่าบนฐานความไว้วางใจ', 'CC5: วิชาชีพและวินัยองค์กร', 'CC7: สร้างบรรยากาศด้วยอารมณ์ขัน'] },
+    service: { score: 85, max: 100, note: 'ตอบคำถามงานบริการได้ดี มีทักษะการฟัง' },
+    skill: { score: 78, max: 100, note: 'ผ่านเกณฑ์ทักษะพื้นฐาน มีประสบการณ์相关工作' },
     motivation: {
       intrinsic: 3, extrinsic: 0, redFlag: 0,
       topMotivations: ['สนุกสนานกับการทำงาน', 'ตอบโจทย์จุดมุ่งหมาย', 'ใช้ความสามารถเต็มที่'],
       alignment: 'สูง'
     }
-  };
+  },
+  2: {
+    name: 'อนุวัฒน์ แก้วรอด',
+    position: 'ช่างรถเล็ก',
+    attitude: { score: 38, max: 50, cc: ['CC4: ทำงานทีมด้วยฉันทมติ', 'CC5: วิชาชีพและวินัยองค์กร'] },
+    service: { score: 75, max: 100, note: 'พอใช้ แต่ต้องพัฒนาทักษะการสื่อสาร' },
+    skill: { score: 82, max: 100, note: 'ทักษะช่างดี มีประสบการณ์ 3 ปี' },
+    motivation: {
+      intrinsic: 2, extrinsic: 1, redFlag: 0,
+      topMotivations: ['ใช้ความสามารถเต็มที่', 'ค่าตอบแทนเพื่อเลี้ยงครอบครัว'],
+      alignment: 'ปานกลาง'
+    }
+  },
+  3: {
+    name: 'ทรงยุทธ เมฆมี',
+    position: 'ทีมสานสัมพันธ์',
+    attitude: { score: 45, max: 50, cc: ['CC1: นำผู้รับใช้', 'CC3: สร้างคุณค่าบนฐานความไว้วางใจ', 'CC4: ทำงานทีมด้วยฉันทมติ'] },
+    service: { score: 92, max: 100, note: 'ยอดเยี่ยม มีทักษะการเจรจาและสานสัมพันธ์' },
+    skill: { score: 70, max: 100, note: 'ผ่านเกณฑ์ขั้นต่ำ ต้องพัฒนาทักษะเทคนิค' },
+    motivation: {
+      intrinsic: 3, extrinsic: 0, redFlag: 0,
+      topMotivations: ['สนุกสนานกับการทำงาน', 'ตอบโจทย์จุดมุ่งหมาย', 'ใช้ความสามารถเต็มที่'],
+      alignment: 'สูง'
+    }
+  },
+  4: {
+    name: 'รัชดาภรณ์ ขอจัดกลาง',
+    position: 'บริการลูกค้า',
+    attitude: { score: 40, max: 50, cc: ['CC3: สร้างคุณค่าบนฐานความไว้วางใจ', 'CC7: สร้างบรรยากาศด้วยอารมณ์ขัน'] },
+    service: { score: 88, max: 100, note: 'ดีเยี่ยม มีประสบการณ์บริการลูกค้า 2 ปี' },
+    skill: { score: 75, max: 100, note: 'ผ่านเกณฑ์ทักษะบริการลูกค้า' },
+    motivation: {
+      intrinsic: 2, extrinsic: 1, redFlag: 0,
+      topMotivations: ['ตอบโจทย์จุดมุ่งหมาย', 'ค่าตอบแทนเพื่อเลี้ยงครอบครัว'],
+      alignment: 'ปานกลาง'
+    }
+  },
+  5: {
+    name: 'ชุติพงศ์ มิ่งมณี',
+    position: 'อะไหล่ TIS',
+    attitude: { score: 35, max: 50, cc: ['CC5: วิชาชีพและวินัยองค์กร'] },
+    service: { score: 68, max: 100, note: 'ต้องปรับปรุงทักษะการบริการ' },
+    skill: { score: 85, max: 100, note: 'ทักษะเทคนิคดีมาก มีความรู้เรื่องอะไหล่ดี' },
+    motivation: {
+      intrinsic: 1, extrinsic: 2, redFlag: 0,
+      topMotivations: ['ค่าตอบแทนเพื่อเลี้ยงครอบครัว', 'การทำงานคือหน้าที่'],
+      alignment: 'ต่ำ'
+    }
+  }
+};
+
+function populateCandidateSelect() {
+  const select = document.getElementById('ai-candidate-select');
+  select.innerHTML = '<option value="">-- เลือกผู้สมัคร --</option>';
+  CANDIDATES.forEach(c => {
+    select.innerHTML += `<option value="${c.id}">${c.name} — ${c.position}</option>`;
+  });
+}
+
+function loadCandidateScores() {
+  const candidateId = document.getElementById('ai-candidate-select').value;
+  if (!candidateId) {
+    document.getElementById('ai-attitude-score').textContent = '—';
+    document.getElementById('ai-service-score').textContent = '—';
+    document.getElementById('ai-skill-score').textContent = '—';
+    document.getElementById('ai-motivation-score').textContent = '—';
+    document.getElementById('ai-summary-result').classList.add('hidden');
+    return;
+  }
+  
+  const scores = CANDIDATE_SCORES[candidateId];
+  document.getElementById('ai-attitude-score').textContent = `${scores.attitude.score}/${scores.attitude.max}`;
+  document.getElementById('ai-service-score').textContent = `${scores.service.score}/${scores.service.max}`;
+  document.getElementById('ai-skill-score').textContent = `${scores.skill.score}/${scores.skill.max}`;
+  document.getElementById('ai-motivation-score').textContent = `${scores.motivation.intrinsic}/3`;
+}
+
+function generateAISummary() {
+  const candidateId = document.getElementById('ai-candidate-select').value;
+  if (!candidateId) {
+    alert('กรุณาเลือกผู้สมัครก่อน');
+    return;
+  }
+  
+  const scores = CANDIDATE_SCORES[candidateId];
   
   // Update score cards
   document.getElementById('ai-attitude-score').textContent = `${scores.attitude.score}/${scores.attitude.max}`;
@@ -835,6 +929,12 @@ function generateAISummary() {
       <h4 class="font-bold text-indigo-800 mb-3 flex items-center gap-2">
         🤖 AI สรุปผลแบบทดสอบทั้ง 4 ส่วน
       </h4>
+      
+      <!-- Candidate Name -->
+      <div class="mb-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+        <div class="text-lg font-bold text-indigo-800">👤 ${scores.name}</div>
+        <div class="text-sm text-gray-600">ตำแหน่ง: ${scores.position}</div>
+      </div>
       
       <!-- Overall Score -->
       <div class="text-center mb-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg">
@@ -1077,6 +1177,7 @@ function submitMotivationTest() {
 renderAttitudeQuestions();
 renderHRCandidates();
 initMotivationTest();
+populateCandidateSelect();
 
 const now = new Date();
 document.getElementById('update-time').textContent = 
