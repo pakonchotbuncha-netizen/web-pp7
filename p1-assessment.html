@@ -897,30 +897,187 @@ function generateAISummary() {
   document.getElementById('ai-skill-score').textContent = `${scores.skill.score}/${scores.skill.max}`;
   document.getElementById('ai-motivation-score').textContent = `${scores.motivation.intrinsic}/3`;
   
-  // Calculate overall
-  const attitudePct = (scores.attitude.score / scores.attitude.max) * 100;
-  const servicePct = (scores.service.score / scores.service.max) * 100;
-  const skillPct = (scores.skill.score / scores.skill.max) * 100;
-  const motivationPct = (scores.motivation.intrinsic / 3) * 100;
+  // Generate article-style analysis
+  const attitudePct = Math.round((scores.attitude.score / scores.attitude.max) * 100);
+  const servicePct = Math.round((scores.service.score / scores.service.max) * 100);
+  const skillPct = Math.round((scores.skill.score / scores.skill.max) * 100);
+  const motivationPct = Math.round((scores.motivation.intrinsic / 3) * 100);
   const overall = Math.round((attitudePct + servicePct + skillPct + motivationPct) / 4);
+  
+  // Build article
+  let article = '';
+  
+  // Introduction
+  article += `<div class="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">`;
+  article += `<div class="text-lg font-bold text-indigo-800 mb-1">📊 บทวิเคราะห์ผู้สมัคร: ${scores.name}</div>`;
+  article += `<div class="text-sm text-gray-700">ตำแหน่ง: ${scores.position} | คะแนนรวม: <strong>${overall}%</strong></div>`;
+  article += `</div>`;
+  
+  // Attitude Analysis
+  article += `<div class="mb-3 p-3 bg-gray-50 rounded-lg">`;
+  article += `<h5 class="font-semibold text-indigo-800 mb-2">🧠 1. การวิเคราะห์ทัศนคติ (Core Competency)</h5>`;
+  article += `<p class="text-sm text-gray-700 mb-2">`;
+  article += `ผู้สมัครได้คะแนนทัศนคติ <strong>${scores.attitude.score}/${scores.attitude.max} (${attitudePct}%)</strong> `;
+  if (attitudePct >= 80) {
+    article += `ซึ่งอยู่ในระดับ <strong class="text-green-700">ดีมาก</strong> `;
+  } else if (attitudePct >= 60) {
+    article += `ซึ่งอยู่ในระดับ <strong class="text-yellow-700">ดี</strong> `;
+  } else {
+    article += `ซึ่งอยู่ในระดับ <strong class="text-red-700">ต้องปรับปรุง</strong> `;
+  }
+  article += `โดยมี Core Competency เด่นชัด ได้แก่ `;
+  article += scores.attitude.cc.map(cc => `<strong>${cc}</strong>`).join(', ');
+  article += `</p>`;
+  article += `<p class="text-sm text-gray-700">`;
+  if (scores.attitude.cc.some(cc => cc.includes('CC3'))) {
+    article += `ผู้สมัครแสดงให้เห็นถึงความสามารถในการรับฟังและสร้างความไว้วางใจ ซึ่งเป็นพื้นฐานสำคัญของการทำงานบริการ `;
+  }
+  if (scores.attitude.cc.some(cc => cc.includes('CC7'))) {
+    article += `รวมถึงการสร้างบรรยากาศทำงานด้วยความเบิกบานใจ ซึ่งสอดคล้องกับปรัชญาองค์กร `;
+  }
+  article += `</p></div>`;
+  
+  // Service Analysis
+  article += `<div class="mb-3 p-3 bg-gray-50 rounded-lg">`;
+  article += `<h5 class="font-semibold text-green-800 mb-2">💼 2. การวิเคราะห์ทักษะงานบริการ</h5>`;
+  article += `<p class="text-sm text-gray-700 mb-2">`;
+  article += `คะแนนงานบริการอยู่ที่ <strong>${scores.service.score}/${scores.service.max} (${servicePct}%)</strong> `;
+  if (servicePct >= 85) {
+    article += `ซึ่งอยู่ในระดับ <strong class="text-green-700">ยอดเยี่ยม</strong> `;
+  } else if (servicePct >= 70) {
+    article += `ซึ่งอยู่ในระดับ <strong class="text-yellow-700">ดี</strong> `;
+  } else {
+    article += `ซึ่งอยู่ในระดับ <strong class="text-red-700">ต้องพัฒนา</strong> `;
+  }
+  article += `</p>`;
+  article += `<p class="text-sm text-gray-700">${scores.service.note}</p></div>`;
+  
+  // Skill Analysis
+  article += `<div class="mb-3 p-3 bg-gray-50 rounded-lg">`;
+  article += `<h5 class="font-semibold text-yellow-800 mb-2">🛠 3. การวิเคราะห์ทักษะเฉพาะตำแหน่ง</h5>`;
+  article += `<p class="text-sm text-gray-700 mb-2">`;
+  article += `ผู้สมัครได้คะแนนทักษะ <strong>${scores.skill.score}/${scores.skill.max} (${skillPct}%)</strong> `;
+  if (skillPct >= 80) {
+    article += `แสดงให้เห็นถึง <strong class="text-green-700">ความพร้อมในการทำงาน</strong> `;
+  } else if (skillPct >= 60) {
+    article += `ซึ่ง <strong class="text-yellow-700">ผ่านเกณฑ์ขั้นต่ำ</strong> `;
+  } else {
+    article += `ซึ่ง <strong class="text-red-700">ต้องได้รับการพัฒนาเพิ่มเติม</strong> `;
+  }
+  article += `</p>`;
+  article += `<p class="text-sm text-gray-700">${scores.skill.note}</p></div>`;
+  
+  // Motivation Analysis
+  article += `<div class="mb-3 p-3 bg-gray-50 rounded-lg">`;
+  article += `<h5 class="font-semibold text-purple-800 mb-2">🎯 4. การวิเคราะห์แรงจูงใจ 3E3P</h5>`;
+  article += `<p class="text-sm text-gray-700 mb-2">`;
+  article += `แรงจูงใจภายในอยู่ที่ <strong>${scores.motivation.intrinsic}/3 (${motivationPct}%)</strong> `;
+  if (scores.motivation.intrinsic >= 3) {
+    article += `ซึ่งแสดงให้เห็นถึง <strong class="text-green-700">แรงจูงใจภายในสูงมาก</strong> `;
+    article += `ผู้สมัครให้ความสำคัญกับความสุขในการทำงาน การตอบโจทย์เป้าหมายชีวิต และการใช้ความสามารถเต็มที่ `;
+    article += `ซึ่ง <strong>สอดคล้องกับปรัชญาองค์กรอย่างมาก</strong>`;
+  } else if (scores.motivation.intrinsic >= 2) {
+    article += `ซึ่งอยู่ในระดับ <strong class="text-yellow-700">ปานกลาง</strong> `;
+    article += `ผู้สมัครมีแรงจูงใจผสมผสานระหว่างภายในและภายนอก `;
+    if (scores.motivation.extrinsic > 0) {
+      article += `โดยให้ความสำคัญกับค่าตอบแทนด้วย ซึ่งเป็นเรื่องปกติแต่ควรตรวจสอบความมุ่งมั่นในระยะยาว`;
+    }
+  } else {
+    article += `ซึ่งอยู่ในระดับ <strong class="text-red-700">ต่ำ</strong> `;
+    article += `ผู้สมัครเน้นแรงจูงใจภายนอกเป็นหลัก อาจต้องพิจารณาความมุ่งมั่นและความสอดคล้องกับวัฒนธรรมองค์กร`;
+  }
+  article += `</p>`;
+  article += `<p class="text-sm text-gray-700 mt-2">`;
+  article += `<strong>แรงจูงใจหลัก:</strong> ${scores.motivation.topMotivations.join(', ')}`;
+  article += `</p></div>`;
+  
+  // Overall Conclusion
+  article += `<div class="mb-3 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border-2 border-indigo-200">`;
+  article += `<h5 class="font-bold text-indigo-800 mb-2">💡 5. สรุปผลและการตัดสินใจ</h5>`;
+  article += `<p class="text-sm text-gray-700 mb-3">`;
+  article += `จากคะแนนรวม <strong>${overall}%</strong> `;
   
   let decision = '';
   let decisionColor = '';
   let decisionIcon = '';
+  let reasoning = '';
   
   if (overall >= 80) {
     decision = 'แนะนำ: ผ่าน → เข้าสัมภาษณ์ P2';
     decisionColor = 'text-green-700 bg-green-50 border-green-200';
     decisionIcon = '✅';
+    reasoning = `ผู้สมัครมีคุณสมบัติครบถ้วนทั้งทัศนคติ ทักษะ และแรงจูงใจที่สอดคล้องกับองค์กร `;
+    reasoning += `ควรดำเนินการสัมภาษณ์รอบ P2 เพื่อประเมินเชิงลึกเพิ่มเติม`;
   } else if (overall >= 60) {
     decision = 'แนะนำ: ผ่านแบบมีเงื่อนไข → สัมภาษณ์ P2 โดยเน้นจุดที่ต้องปรับปรุง';
     decisionColor = 'text-yellow-700 bg-yellow-50 border-yellow-200';
     decisionIcon = '🟡';
+    reasoning = `ผู้สมัครมีจุดแข็งชัดเจนในบางด้าน แต่ยังมีจุดที่ต้องพัฒนา `;
+    reasoning += `ควรสัมภาษณ์ P2 โดยเน้นสอบถามจุดอ่อนและเป้าหมายระยะยาว `;
+    
+    // Add specific reasoning based on scores
+    if (servicePct >= 85 && motivationPct < 70) {
+      reasoning += `โดยเฉพาะเรื่องแรงจูงใจในการทำงานว่ามีความมุ่งมั่นระยะยาวเพียงใด`;
+    } else if (attitudePct >= 80 && skillPct < 70) {
+      reasoning += `โดยเฉพาะเรื่องความพร้อมด้านทักษะและแผนการพัฒนาตนเอง`;
+    }
   } else {
     decision = 'แนะนำ: ไม่ผ่าน → รอดำเนินการใหม่';
     decisionColor = 'text-red-700 bg-red-50 border-red-200';
     decisionIcon = '❌';
+    reasoning = `ผู้สมัครมีคะแนนรวมต่ำกว่าเกณฑ์ ควรพิจารณาพัฒนาตนเองหรือรอสมัครใหม่ในอนาคต`;
   }
+  
+  article += reasoning + `</p>`;
+  article += `<div class="mt-3 px-4 py-2 inline-block rounded-lg text-sm font-semibold ${decisionColor}">`;
+  article += `${decisionIcon} ${decision}`;
+  article += `</div></div>`;
+  
+  // Interview Questions
+  article += `<div class="mb-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">`;
+  article += `<h5 class="font-semibold text-purple-800 mb-2">🎤 6. คำถามแนะนำสำหรับทีมสัมภาษณ์ P2</h5>`;
+  article += `<p class="text-xs text-purple-700 mb-2">คำถามเหล่านี้สร้างจากผลทดสอบของผู้สมัครโดยเฉพาะ:</p>`;
+  article += `<div class="text-sm text-purple-800 space-y-2">`;
+  
+  // Generate specific questions based on profile
+  if (servicePct >= 85) {
+    article += `<div class="p-2 bg-white rounded border border-purple-100">`;
+    article += `<strong>1.</strong> "เล่าประสบการณ์การทำงานบริการที่ทำให้คุณภูมิใจที่สุด และคุณเรียนรู้了什么จากประสบการณ์นั้น?"`;
+    article += `</div>`;
+  }
+  if (motivationPct < 70) {
+    article += `<div class="p-2 bg-white rounded border border-purple-100">`;
+    article += `<strong>2.</strong> "นอกจากค่าตอบแทน อะไรอีกที่ทำให้คุณอยากทำงานกับเรา และคุณเห็นตัวเองอยู่ที่นี่ในอีก 3 ปีข้างหน้าอย่างไร?"`;
+    article += `</div>`;
+  }
+  if (attitudePct >= 80) {
+    article += `<div class="p-2 bg-white rounded border border-purple-100">`;
+    article += `<strong>3.</strong> "คุณจัดการกับความขัดแย้งในทีมอย่างไร? ยกตัวอย่างสถานการณ์จริงที่คุณเคยเจอ"`;
+    article += `</div>`;
+  }
+  if (skillPct < 70) {
+    article += `<div class="p-2 bg-white rounded border border-purple-100">`;
+    article += `<strong>4.</strong> "คุณมีแผนพัฒนาทักษะอะไรบ้างเพื่อให้พร้อมทำงานในตำแหน่งนี้?"`;
+    article += `</div>`;
+  }
+  
+  // Add general questions if needed
+  if (article.split('question').length < 4) {
+    article += `<div class="p-2 bg-white rounded border border-purple-100">`;
+    article += `<strong>${article.split('question').length}.</strong> "อะไรคือเป้าหมายระยะยาวของคุณ และองค์กรจะช่วยได้อย่างไร?"`;
+    article += `</div>`;
+  }
+  
+  article += `</div></div>`;
+  
+  // Action Buttons
+  article += `<div class="mt-4 flex gap-2">`;
+  article += `<button onclick="alert('ส่งข้อมูลให้ทีมสัมภาษณ์ P2 เรียบร้อย!')" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 text-sm">`;
+  article += `✅ ส่งให้ทีม P2`;
+  article += `</button>`;
+  article += `<button onclick="alert('บันทึกผลทดสอบแล้ว!')" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 text-sm">`;
+  article += `💾 บันทึกผล`;
+  article += `</button></div>`;
   
   const resultDiv = document.getElementById('ai-summary-result');
   resultDiv.classList.remove('hidden');
@@ -929,88 +1086,7 @@ function generateAISummary() {
       <h4 class="font-bold text-indigo-800 mb-3 flex items-center gap-2">
         🤖 AI สรุปผลแบบทดสอบทั้ง 4 ส่วน
       </h4>
-      
-      <!-- Candidate Name -->
-      <div class="mb-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-        <div class="text-lg font-bold text-indigo-800">👤 ${scores.name}</div>
-        <div class="text-sm text-gray-600">ตำแหน่ง: ${scores.position}</div>
-      </div>
-      
-      <!-- Overall Score -->
-      <div class="text-center mb-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg">
-        <div class="text-4xl font-bold text-indigo-700">${overall}%</div>
-        <div class="text-sm text-gray-600">คะแนนรวมทั้งหมด</div>
-        <div class="mt-2 px-3 py-1 inline-block rounded-full text-sm font-semibold ${decisionColor}">
-          ${decisionIcon} ${decision}
-        </div>
-      </div>
-      
-      <!-- Detail Breakdown -->
-      <div class="space-y-3">
-        <div class="p-3 bg-gray-50 rounded-lg">
-          <div class="flex justify-between items-center mb-1">
-            <span class="font-semibold text-sm">🧠 ทัศนคติ (CC)</span>
-            <span class="text-sm font-bold text-indigo-600">${scores.attitude.score}/${scores.attitude.max} (${Math.round(attitudePct)}%)</span>
-          </div>
-          <div class="text-xs text-gray-600">CC เด่น: ${scores.attitude.cc.join(', ')}</div>
-        </div>
-        
-        <div class="p-3 bg-gray-50 rounded-lg">
-          <div class="flex justify-between items-center mb-1">
-            <span class="font-semibold text-sm">💼 งานบริการ</span>
-            <span class="text-sm font-bold text-green-600">${scores.service.score}/${scores.service.max} (${Math.round(servicePct)}%)</span>
-          </div>
-          <div class="text-xs text-gray-600">${scores.service.note}</div>
-        </div>
-        
-        <div class="p-3 bg-gray-50 rounded-lg">
-          <div class="flex justify-between items-center mb-1">
-            <span class="font-semibold text-sm">🛠 ทักษะ</span>
-            <span class="text-sm font-bold text-yellow-600">${scores.skill.score}/${scores.skill.max} (${Math.round(skillPct)}%)</span>
-          </div>
-          <div class="text-xs text-gray-600">${scores.skill.note}</div>
-        </div>
-        
-        <div class="p-3 bg-gray-50 rounded-lg">
-          <div class="flex justify-between items-center mb-1">
-            <span class="font-semibold text-sm">🎯 แรงจูงใจ 3E3P</span>
-            <span class="text-sm font-bold text-purple-600">${scores.motivation.intrinsic}/3 (${Math.round(motivationPct)}%)</span>
-          </div>
-          <div class="text-xs text-gray-600">แรงจูงใจภายในสูง — ${scores.motivation.topMotivations.join(', ')}</div>
-        </div>
-      </div>
-      
-      <!-- CC Alignment -->
-      <div class="mt-4 p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
-        <h5 class="font-semibold text-indigo-800 text-sm mb-2">🧬 ความสอดรับกับปรัชญา PKG:</h5>
-        <div class="text-xs text-indigo-700 space-y-1">
-          <div>• CC3 (Trust-Based Value) — รับฟังปราศจากอคติ สร้างความเชื่อมั่น ✅</div>
-          <div>• CC5 (Disciplined Professionalism) — ใส่ใจคุณภาพ วินัยสูง ✅</div>
-          <div>• CC7 (สร้างบรรยากาศด้วยอารมณ์ขัน) — สร้างรอยยิ้มและความเบิกบานใจ ✅</div>
-          <div>• EVP Alignment: FUN, PRIDE, LEARNING & GROWTH ✅</div>
-        </div>
-      </div>
-      
-      <!-- Interview Recommendations -->
-      <div class="mt-4 p-3 bg-purple-50 border border-purple-200 rounded-lg">
-        <h5 class="font-semibold text-purple-800 text-sm mb-2">🎤 คำถามแนะนำสำหรับทีมสัมภาษณ์ P2:</h5>
-        <div class="text-xs text-purple-700 space-y-1">
-          <div>1. "เล่าเรื่องการทำงานที่ทำให้คุณรู้สึกภูมิใจที่สุด"</div>
-          <div>2. "คุณจัดการกับความขัดแย้งในทีมอย่างไร?"</div>
-          <div>3. "อะไรคือเป้าหมายระยะยาวของคุณ และองค์กรจะช่วยได้อย่างไร?"</div>
-          <div>4. "คุณเห็นตัวเองทำงานที่นี่ในอีก 3 ปีข้างหน้าอย่างไร?"</div>
-        </div>
-      </div>
-      
-      <!-- Action Buttons -->
-      <div class="mt-4 flex gap-2">
-        <button onclick="alert('ส่งข้อมูลให้ทีมสัมภาษณ์ P2 เรียบร้อย!')" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 text-sm">
-          ✅ ส่งให้ทีม P2
-        </button>
-        <button onclick="alert('บันทึกผลทดสอบแล้ว!')" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 text-sm">
-          💾 บันทึกผล
-        </button>
-      </div>
+      ${article}
     </div>
   `;
 }
