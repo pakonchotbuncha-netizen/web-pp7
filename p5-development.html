@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P5 — พัฒนาบุคลากร | PP7</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Prompt', sans-serif; }
+    body { background: #f1f5f9; color: #1e293b; margin: 0; }
+
+    .sidebar { width: 260px; background: #0f172a; color: #e2e8f0; min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 40; }
+    .sidebar .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.25rem; color: #94a3b8; text-decoration: none; font-size: 0.875rem; border-radius: 0.5rem; margin: 0.15rem 0.75rem; transition: all 0.15s; }
+    .sidebar .nav-link:hover { background: #1e293b; color: #e2e8f0; }
+    .sidebar .nav-link.active { background: #ec4899; color: #fff; font-weight: 500; }
+    .sidebar .nav-section { padding: 0.5rem 1.25rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-top: 0.75rem; }
+    .main-content { margin-left: 260px; padding: 1.5rem; }
+
+    .card { background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(15,23,42,.07); padding: 1.5rem; margin-bottom: 1.5rem; }
+    .stat-card { position: relative; overflow: hidden; }
+    .stat-card::before { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; border-radius: 0 0 0 80px; opacity: 0.1; }
+    .stat-card.pink::before { background: #ec4899; }
+    .stat-card.purple::before { background: #8b5cf6; }
+    .stat-card.blue::before { background: #3b82f6; }
+    .stat-card.green::before { background: #10b981; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 0.7rem 1rem; font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; background: #f8fafc; cursor: pointer; }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.875rem; }
+    tr:hover td { background: #f8fafc; }
+
+    .badge { display: inline-flex; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-pink { background: #fce7f3; color: #9d174d; }
+    .badge-purple { background: #f3e8ff; color: #7c3aed; }
+
+    .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-primary { background: #ec4899; color: #fff; }
+    .btn-primary:hover { background: #db2777; }
+    .btn-outline { background: #fff; border: 1px solid #e2e8f0; color: #64748b; }
+    .btn-outline:hover { background: #f8fafc; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.4); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 1rem; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; }
+    .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.5rem; }
+
+    .form-label { display: block; font-size: 0.8rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem; }
+    .form-input { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; }
+    .form-input:focus { border-color: #ec4899; box-shadow: 0 0 0 3px rgba(236,72,153,.12); }
+    .form-select { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; background: #fff; }
+
+    .tab-nav { display: flex; gap: 0.25rem; border-bottom: 2px solid #e2e8f0; margin-bottom: 1.5rem; }
+    .tab-btn { padding: 0.6rem 1.2rem; font-size: 0.875rem; font-weight: 500; color: #64748b; border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+    .tab-btn:hover { color: #ec4899; }
+    .tab-btn.active { color: #ec4899; border-bottom-color: #ec4899; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .chart-box { position: relative; height: 280px; }
+
+    .progress-bar { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="p-4 border-b border-slate-700">
+      <h1 class="text-lg font-bold">🎓 P5 — พัฒนา</h1>
+      <p class="text-xs text-slate-400 mt-1">People Development</p>
+    </div>
+    <nav class="p-2">
+      <div class="nav-section">📊 Dashboard</div>
+      <a href="#" class="nav-link active" onclick="showTab('overview')">ภาพรวมการพัฒนา</a>
+      
+      <div class="nav-section">📚 หลักสูตรฝึกอบรม</div>
+      <a href="#" class="nav-link" onclick="showTab('courses')">จัดการหลักสูตร</a>
+      <a href="#" class="nav-link" onclick="showTab('training')">การฝึกอบรม</a>
+      
+      <div class="nav-section">👥 กลุ่มพัฒนา</div>
+      <a href="#" class="nav-link" onclick="showTab('groups')">จัดการกลุ่ม</a>
+      <a href="#" class="nav-link" onclick="showTab('mentor')">ระบบพี่เลี้ยง</a>
+      
+      <div class="nav-section">📋 แผนพัฒนา</div>
+      <a href="#" class="nav-link" onclick="showTab('idp')">แผนพัฒนารายบุคคล (IDP)</a>
+      <a href="#" class="nav-link" onclick="showTab('msp')">MSP Points</a>
+      
+      <div class="nav-section">📈 รายงาน</div>
+      <a href="#" class="nav-link" onclick="showTab('reports')">รายงานการพัฒนา</a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-800">🎓 P5 — พัฒนาบุคลากร</h1>
+        <p class="text-sm text-slate-500 mt-1">พัฒนา Core Competency ตามผลประเมิน P4</p>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-outline" onclick="exportData()">📥 ส่งออก</button>
+        <button class="btn btn-primary" onclick="openModal('newCourse')">+ หลักสูตรใหม่</button>
+      </div>
+    </div>
+
+    <!-- Tab: Overview -->
+    <div id="tab-overview" class="tab-content active fade-in">
+      <!-- Stats -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="card stat-card pink">
+          <div class="text-sm text-slate-500">หลักสูตรทั้งหมด</div>
+          <div class="text-3xl font-bold text-pink-600 mt-2">48</div>
+          <div class="text-xs text-slate-400 mt-1">+8 หลักสูตรใหม่ Q2</div>
+        </div>
+        <div class="card stat-card purple">
+          <div class="text-sm text-slate-500">กำลังฝึกอบรม</div>
+          <div class="text-3xl font-bold text-purple-600 mt-2">156</div>
+          <div class="text-xs text-slate-400 mt-1">คน</div>
+        </div>
+        <div class="card stat-card blue">
+          <div class="text-sm text-slate-500">Completion Rate</div>
+          <div class="text-3xl font-bold text-blue-600 mt-2">92%</div>
+          <div class="text-xs text-slate-400 mt-1">+5% จาก Q1</div>
+        </div>
+        <div class="card stat-card green">
+          <div class="text-sm text-slate-500">งบประมาณใช้ไป</div>
+          <div class="text-3xl font-bold text-green-600 mt-2">78%</div>
+          <div class="text-xs text-slate-400 mt-1">฿1.2M / ฿1.5M</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid lg:grid-cols-2 gap-4 mb-6">
+        <div class="card">
+          <h3 class="font-semibold text-slate-800 mb-4">📊 ชั่วโมงฝึกอบรมรายฝ่าย</h3>
+          <div class="chart-box"><canvas id="chartHoursByDept"></canvas></div>
+        </div>
+        <div class="card">
+          <h3 class="font-semibold text-slate-800 mb-4">📈 CC Development Progress</h3>
+          <div class="chart-box"><canvas id="chartCCProgress"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Skill Gap Analysis -->
+      <div class="card">
+        <h3 class="font-semibold text-slate-800 mb-4">🔍 Skill Gap Analysis (จาก P4)</h3>
+        <div class="overflow-x-auto">
+          <table>
+            <thead>
+              <tr>
+                <th>ทักษะ/CC</th>
+                <th>Required</th>
+                <th>Avg Current</th>
+                <th>Gap</th>
+                <th>Priority</th>
+                <th>หลักสูตรแนะนำ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="font-medium">CC2: Adaptive Innovation</td>
+                <td>4.0</td>
+                <td>3.1</td>
+                <td class="text-red-600 font-bold">-0.9</td>
+                <td><span class="badge badge-red">สูงมาก</span></td>
+                <td>Innovation Workshop, Design Thinking</td>
+              </tr>
+              <tr>
+                <td class="font-medium">CC6: Technology Mastery</td>
+                <td>4.0</td>
+                <td>3.3</td>
+                <td class="text-amber-600 font-bold">-0.7</td>
+                <td><span class="badge badge-amber">สูง</span></td>
+                <td>Digital Tools, AI Fundamentals</td>
+              </tr>
+              <tr>
+                <td class="font-medium">CC1: Servant Leadership</td>
+                <td>4.5</td>
+                <td>3.8</td>
+                <td class="text-amber-600 font-bold">-0.7</td>
+                <td><span class="badge badge-amber">สูง</span></td>
+                <td>Leadership Excellence, Coaching</td>
+              </tr>
+              <tr>
+                <td class="font-medium">CC4: Consensus Teamwork</td>
+                <td>4.0</td>
+                <td>3.6</td>
+                <td class="text-blue-600 font-bold">-0.4</td>
+                <td><span class="badge badge-blue">ปานกลาง</span></td>
+                <td>Team Facilitation, Communication</td>
+              </tr>
+              <tr>
+                <td class="font-medium">CC5: Disciplined Professionalism</td>
+                <td>4.0</td>
+                <td>3.7</td>
+                <td class="text-blue-600 font-bold">-0.3</td>
+                <td><span class="badge badge-blue">ปานกลาง</span></td>
+                <td>Professional Ethics, Time Management</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- AI Recommendation -->
+      <div class="card bg-gradient-to-r from-pink-50 to-rose-50 border-2 border-pink-200">
+        <h3 class="font-bold text-pink-800 mb-3 flex items-center gap-2">
+          <span class="bg-pink-600 text-white px-2 py-1 rounded text-xs font-bold">🤖 AI</span>
+          AI Development Recommendation
+        </h3>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <h4 class="font-semibold text-pink-700 text-sm mb-2">📋 กลุ่มเป้าหมายพัฒนาเร่งด่วน</h4>
+            <div class="space-y-2">
+              <div class="p-3 rounded-lg bg-white border border-pink-100">
+                <div class="font-semibold text-sm">กลุ่ม Leadership Track (12 คน)</div>
+                <p class="text-xs text-slate-500 mt-1">CC1 อ่อน < 3.5 — แนะนำ Leadership Workshop + Mentoring 3 เดือน</p>
+              </div>
+              <div class="p-3 rounded-lg bg-white border border-pink-100">
+                <div class="font-semibold text-sm">กลุ่ม Innovation Track (18 คน)</div>
+                <p class="text-xs text-slate-500 mt-1">CC2 อ่อน < 3.0 — แนะนำ Design Thinking + Project-based Learning</p>
+              </div>
+              <div class="p-3 rounded-lg bg-white border border-pink-100">
+                <div class="font-semibold text-sm">กลุ่ม Tech Track (25 คน)</div>
+                <p class="text-xs text-slate-500 mt-1">CC6 อ่อน < 3.5 — แนะนำ Digital Upskilling + Hands-on Lab</p>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 rounded-lg bg-white border border-pink-100">
+            <h4 class="font-semibold text-pink-700 text-sm mb-2">📊 Training ROI Prediction</h4>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between"><span class="text-slate-600">หลักสูตรแนะนำ</span><span class="font-bold">12 หลักสูตร</span></div>
+              <div class="flex justify-between"><span class="text-slate-600">พนักงานกลุ่มเป้าหมาย</span><span class="font-bold">55 คน</span></div>
+              <div class="flex justify-between"><span class="text-slate-600">งบประมาณประมาณการ</span><span class="font-bold">฿280,000</span></div>
+              <div class="flex justify-between"><span class="text-slate-600">ROI คาดการณ์ (1 ปี)</span><span class="font-bold text-green-600">285%</span></div>
+              <hr class="my-2">
+              <div class="p-2 rounded bg-pink-50 text-xs text-pink-700">💡 คำนวณจาก: CC gap × Performance improvement × Retention rate</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Courses -->
+    <div id="tab-courses" class="tab-content fade-in">
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-slate-800">📚 จัดการหลักสูตรฝึกอบรม</h3>
+          <button class="btn btn-primary" onclick="openModal('newCourse')">+ เพิ่มหลักสูตร</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัส</th>
+                <th>ชื่อหลักสูตร</th>
+                <th>ประเภท</th>
+                <th>ชั่วโมง</th>
+                <th>CC ที่พัฒนา</th>
+                <th>สถานะ</th>
+                <th>จัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="coursesTable">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Training -->
+    <div id="tab-training" class="tab-content fade-in">
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-slate-800">🎯 การฝึกอบรม</h3>
+          <button class="btn btn-primary" onclick="openModal('newTraining')">+ เปิดการฝึกอบรม</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัส</th>
+                <th>หลักสูตร</th>
+                <th>รุ่น</th>
+                <th>วันที่</th>
+                <th>ผู้เข้าอบรม</th>
+                <th>วิทยากร</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody id="trainingTable">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Groups -->
+    <div id="tab-groups" class="tab-content fade-in">
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-slate-800">👥 จัดการกลุ่มพัฒนา</h3>
+          <button class="btn btn-primary" onclick="openModal('newGroup')">+ สร้างกลุ่ม</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table>
+            <thead>
+              <tr>
+                <th>รหัสกลุ่ม</th>
+                <th>ชื่อกลุ่ม</th>
+                <th>ประเภท</th>
+                <th>จำนวนสมาชิก</th>
+                <th>CC Focus</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody id="groupsTable">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Mentor -->
+    <div id="tab-mentor" class="tab-content fade-in">
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-slate-800">🤝 ระบบพี่เลี้ยง-น้องเลี้ยง</h3>
+          <button class="btn btn-primary" onclick="openModal('newMentor')">+ จับคู่ใหม่</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table>
+            <thead>
+              <tr>
+                <th>พี่เลี้ยง (Mentor)</th>
+                <th>น้องเลี้ยง (Mentee)</th>
+                <th>CC ที่พัฒนา</th>
+                <th>ระยะเวลา</th>
+                <th>DTA Score</th>
+                <th>สถานะ</th>
+              </tr>
+            </thead>
+            <tbody id="mentorTable">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: IDP -->
+    <div id="tab-idp" class="tab-content fade-in">
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-slate-800">📋 แผนพัฒนารายบุคคล (IDP)</h3>
+          <button class="btn btn-primary" onclick="openModal('newIDP')">+ สร้าง IDP</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table>
+            <thead>
+              <tr>
+                <th>พนักงาน</th>
+                <th>ตำแหน่ง</th>
+                <th>CC ที่ต้องพัฒนา</th>
+                <th>แผนพัฒนา</th>
+                <th>เป้าหมาย</th>
+                <th>Progress</th>
+              </tr>
+            </thead>
+            <tbody id="idpTable">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: MSP -->
+    <div id="tab-msp" class="tab-content fade-in">
+      <div class="card">
+        <h3 class="font-semibold text-slate-800 mb-4">💰 MSP Points System</h3>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="p-4 rounded-lg bg-pink-50 border border-pink-200 text-center">
+            <div class="text-2xl font-bold text-pink-600">1,250</div>
+            <div class="text-xs text-slate-600 mt-1">MSP จ่ายออกไป</div>
+          </div>
+          <div class="p-4 rounded-lg bg-purple-50 border border-purple-200 text-center">
+            <div class="text-2xl font-bold text-purple-600">856</div>
+            <div class="text-xs text-slate-600 mt-1">MSP คงเหลือ</div>
+          </div>
+          <div class="p-4 rounded-lg bg-blue-50 border border-blue-200 text-center">
+            <div class="text-2xl font-bold text-blue-600">45</div>
+            <div class="text-xs text-slate-600 mt-1">คนที่ได้รับ MSP</div>
+          </div>
+          <div class="p-4 rounded-lg bg-green-50 border border-green-200 text-center">
+            <div class="text-2xl font-bold text-green-600">฿125,000</div>
+            <div class="text-xs text-slate-600 mt-1">มูลค่า MSP</div>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table>
+            <thead>
+              <tr>
+                <th>พนักงาน</th>
+                <th>MSP ได้รับ</th>
+                <th>MSP ใช้ไป</th>
+                <th>MSP คงเหลือ</th>
+                <th>วันที่ได้รับ</th>
+                <th>หมดอายุ</th>
+              </tr>
+            </thead>
+            <tbody id="mspTable">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Reports -->
+    <div id="tab-reports" class="tab-content fade-in">
+      <div class="card">
+        <h3 class="font-semibold text-slate-800 mb-4">📈 รายงานการพัฒนา</h3>
+        <div class="grid lg:grid-cols-2 gap-4">
+          <div class="p-4 rounded-lg border border-slate-200">
+            <h4 class="font-semibold text-slate-700 mb-2">📊 รายงานรายเดือน</h4>
+            <p class="text-sm text-slate-500 mb-3">สรุปชั่วโมงฝึกอบรม, Completion Rate, CC Improvement</p>
+            <button class="btn btn-outline">ดาวน์โหลด PDF</button>
+          </div>
+          <div class="p-4 rounded-lg border border-slate-200">
+            <h4 class="font-semibold text-slate-700 mb-2">📋 รายงาน CC Development</h4>
+            <p class="text-sm text-slate-500 mb-3">วิเคราะห์ CC ก่อน-หลังพัฒนา, Gap Analysis</p>
+            <button class="btn btn-outline">ดาวน์โหลด Excel</button>
+          </div>
+          <div class="p-4 rounded-lg border border-slate-200">
+            <h4 class="font-semibold text-slate-700 mb-2">💰 รายงานงบประมาณ</h4>
+            <p class="text-sm text-slate-500 mb-3">สรุปค่าใช้จ่ายฝึกอบรม, ROI Analysis</p>
+            <button class="btn btn-outline">ดาวน์โหลด PDF</button>
+          </div>
+          <div class="p-4 rounded-lg border border-slate-200">
+            <h4 class="font-semibold text-slate-700 mb-2">🎯 รายงาน IDP Progress</h4>
+            <p class="text-sm text-slate-500 mb-3">ความคืบหน้าแผนพัฒนารายบุคคล</p>
+            <button class="btn btn-outline">ดาวน์โหลด Excel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal: New Course -->
+  <div id="modal-newCourse" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="font-bold text-lg">📚 เพิ่มหลักสูตรใหม่</h3>
+        <button onclick="closeModal('newCourse')" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="form-label">รหัสหลักสูตร</label>
+            <input type="text" class="form-input" placeholder="TRN-001">
+          </div>
+          <div>
+            <label class="form-label">ชื่อหลักสูตร</label>
+            <input type="text" class="form-input" placeholder="เช่น Innovation Workshop">
+          </div>
+          <div>
+            <label class="form-label">ประเภท</label>
+            <select class="form-select">
+              <option>Technical</option>
+              <option>Leadership</option>
+              <option>Soft Skills</option>
+              <option>Compliance</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">จำนวนชั่วโมง</label>
+            <input type="number" class="form-input" placeholder="8">
+          </div>
+          <div class="md:col-span-2">
+            <label class="form-label">CC ที่พัฒนา</label>
+            <select class="form-select" multiple>
+              <option>CC1: Servant Leadership</option>
+              <option>CC2: Adaptive Innovation</option>
+              <option>CC3: Trust-Based Value</option>
+              <option>CC4: Consensus Teamwork</option>
+              <option>CC5: Disciplined Professionalism</option>
+              <option>CC6: Technology Mastery</option>
+              <option>CC7: Humor & Joy</option>
+            </select>
+          </div>
+          <div class="md:col-span-2">
+            <label class="form-label">รายละเอียด</label>
+            <textarea class="form-input" rows="3" placeholder="วัตถุประสงค์, เนื้อหา, กลุ่มเป้าหมาย"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('newCourse')">ยกเลิก</button>
+        <button class="btn btn-primary" onclick="saveCourse()">บันทึก</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mock Data
+    const courses = [
+      { id: 'TRN-001', name: 'Innovation Workshop', type: 'Leadership', hours: 16, cc: 'CC2', status: 'active' },
+      { id: 'TRN-002', name: 'Leadership Excellence', type: 'Leadership', hours: 24, cc: 'CC1', status: 'active' },
+      { id: 'TRN-003', name: 'Digital Tools Mastery', type: 'Technical', hours: 12, cc: 'CC6', status: 'active' },
+      { id: 'TRN-004', name: 'Team Facilitation', type: 'Soft Skills', hours: 8, cc: 'CC4', status: 'active' },
+      { id: 'TRN-005', name: 'Design Thinking', type: 'Technical', hours: 16, cc: 'CC2', status: 'upcoming' },
+      { id: 'TRN-006', name: 'Coaching Skills', type: 'Leadership', hours: 20, cc: 'CC1', status: 'upcoming' },
+    ];
+
+    const training = [
+      { id: 'T-001', course: 'Innovation Workshop', batch: 'รุ่น 1', date: '2026-07-15', participants: 18, trainer: 'ดร.สมชาย', status: 'ongoing' },
+      { id: 'T-002', course: 'Leadership Excellence', batch: 'รุ่น 3', date: '2026-07-20', participants: 12, trainer: 'อ.พิมพ์ใจ', status: 'upcoming' },
+      { id: 'T-003', course: 'Digital Tools', batch: 'รุ่น 2', date: '2026-06-28', participants: 25, trainer: 'คุณวิชัย', status: 'completed' },
+    ];
+
+    const groups = [
+      { id: 'GRP-001', name: 'Leadership Track', type: 'Development', members: 12, cc: 'CC1', status: 'active' },
+      { id: 'GRP-002', name: 'Innovation Squad', type: 'Project', members: 18, cc: 'CC2', status: 'active' },
+      { id: 'GRP-003', name: 'Tech Upskill', type: 'Training', members: 25, cc: 'CC6', status: 'active' },
+    ];
+
+    const mentors = [
+      { mentor: 'ดร.สมชาย ใจดี', mentee: 'วรรณ์วิภา จันทร์เพ็ญ', cc: 'CC1, CC2', duration: '6 เดือน', dta: 4.2, status: 'active' },
+      { mentor: 'อ.พิมพ์ใจ รุ่งเรือง', mentee: 'กิตติชัย ศรีจันทร์', cc: 'CC2', duration: '3 เดือน', dta: 3.8, status: 'active' },
+      { mentor: 'คุณวิชัย ทองดี', mentee: 'พิชัย ใจดี', cc: 'CC6', duration: '4 เดือน', dta: 4.5, status: 'active' },
+    ];
+
+    const idps = [
+      { name: 'วรรณ์วิภา จันทร์เพ็ญ', position: 'Senior Officer', cc: 'CC1, CC2', plan: 'Leadership Workshop + Mentoring', target: 'CC1 ≥ 4.0', progress: 65 },
+      { name: 'กิตติชัย ศรีจันทร์', position: 'Supervisor', cc: 'CC2', plan: 'Innovation Workshop + Project', target: 'CC2 ≥ 4.0', progress: 45 },
+      { name: 'วิไลวรรณ แก้วประเสริฐ', position: 'Manager', cc: 'CC6', plan: 'Digital Upskilling', target: 'CC6 ≥ 4.0', progress: 80 },
+    ];
+
+    const msp = [
+      { name: 'สมชาย ใจดี', received: 100, used: 60, balance: 40, date: '2026-01-15', expiry: '2026-12-31' },
+      { name: 'พิมพ์ใจ รุ่งเรือง', received: 80, used: 45, balance: 35, date: '2026-02-01', expiry: '2026-12-31' },
+      { name: 'วิชัย ทองดี', received: 120, used: 80, balance: 40, date: '2026-03-10', expiry: '2026-12-31' },
+    ];
+
+    // Render Tables
+    function renderCourses() {
+      const tbody = document.getElementById('coursesTable');
+      tbody.innerHTML = courses.map(c => `
+        <tr>
+          <td class="font-mono text-xs">${c.id}</td>
+          <td class="font-medium">${c.name}</td>
+          <td><span class="badge badge-blue">${c.type}</span></td>
+          <td>${c.hours} ชม.</td>
+          <td><span class="badge badge-pink">${c.cc}</span></td>
+          <td><span class="badge badge-${c.status === 'active' ? 'green' : 'amber'}">${c.status === 'active' ? 'เปิดรับ' : 'เตรียมเปิด'}</span></td>
+          <td>
+            <button class="text-blue-600 hover:underline text-xs">แก้ไข</button>
+            <button class="text-red-600 hover:underline text-xs ml-2">ลบ</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderTraining() {
+      const tbody = document.getElementById('trainingTable');
+      tbody.innerHTML = training.map(t => `
+        <tr>
+          <td class="font-mono text-xs">${t.id}</td>
+          <td class="font-medium">${t.course}</td>
+          <td>${t.batch}</td>
+          <td>${t.date}</td>
+          <td>${t.participants} คน</td>
+          <td>${t.trainer}</td>
+          <td><span class="badge badge-${t.status === 'completed' ? 'green' : t.status === 'ongoing' ? 'blue' : 'amber'}">${t.status === 'completed' ? 'เสร็จสิ้น' : t.status === 'ongoing' ? 'กำลังดำเนินการ' : 'เตรียมเปิด'}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderGroups() {
+      const tbody = document.getElementById('groupsTable');
+      tbody.innerHTML = groups.map(g => `
+        <tr>
+          <td class="font-mono text-xs">${g.id}</td>
+          <td class="font-medium">${g.name}</td>
+          <td><span class="badge badge-purple">${g.type}</span></td>
+          <td>${g.members} คน</td>
+          <td><span class="badge badge-pink">${g.cc}</span></td>
+          <td><span class="badge badge-green">Active</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderMentors() {
+      const tbody = document.getElementById('mentorTable');
+      tbody.innerHTML = mentors.map(m => `
+        <tr>
+          <td class="font-medium">${m.mentor}</td>
+          <td>${m.mentee}</td>
+          <td><span class="badge badge-pink">${m.cc}</span></td>
+          <td>${m.duration}</td>
+          <td><span class="font-bold text-blue-600">${m.dta}</span></td>
+          <td><span class="badge badge-green">Active</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderIDPs() {
+      const tbody = document.getElementById('idpTable');
+      tbody.innerHTML = idps.map(i => `
+        <tr>
+          <td class="font-medium">${i.name}</td>
+          <td>${i.position}</td>
+          <td><span class="badge badge-pink">${i.cc}</span></td>
+          <td>${i.plan}</td>
+          <td class="text-xs">${i.target}</td>
+          <td>
+            <div class="flex items-center gap-2">
+              <div class="progress-bar flex-1">
+                <div class="progress-fill bg-pink-500" style="width: ${i.progress}%"></div>
+              </div>
+              <span class="text-xs font-bold">${i.progress}%</span>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderMSP() {
+      const tbody = document.getElementById('mspTable');
+      tbody.innerHTML = msp.map(m => `
+        <tr>
+          <td class="font-medium">${m.name}</td>
+          <td class="text-green-600 font-bold">+${m.received}</td>
+          <td class="text-red-600">-${m.used}</td>
+          <td class="font-bold">${m.balance}</td>
+          <td>${m.date}</td>
+          <td>${m.expiry}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Tab Navigation
+    function showTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      document.getElementById('tab-' + tabName).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // Modal
+    function openModal(name) {
+      document.getElementById('modal-' + name).classList.add('open');
+    }
+
+    function closeModal(name) {
+      document.getElementById('modal-' + name).classList.remove('open');
+    }
+
+    function saveCourse() {
+      alert('บันทึกหลักสูตรสำเร็จ!');
+      closeModal('newCourse');
+    }
+
+    function exportData() {
+      alert('ส่งออกข้อมูลสำเร็จ!');
+    }
+
+    // Charts
+    function initCharts() {
+      // Hours by Dept
+      new Chart(document.getElementById('chartHoursByDept'), {
+        type: 'bar',
+        data: {
+          labels: ['HR', 'Finance', 'IT', 'Operations', 'Sales', 'Marketing'],
+          datasets: [{
+            label: 'ชั่วโมงฝึกอบรม',
+            data: [120, 85, 156, 98, 134, 76],
+            backgroundColor: '#ec4899'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      });
+
+      // CC Progress
+      new Chart(document.getElementById('chartCCProgress'), {
+        type: 'radar',
+        data: {
+          labels: ['CC1', 'CC2', 'CC3', 'CC4', 'CC5', 'CC6', 'CC7'],
+          datasets: [
+            {
+              label: 'ก่อนพัฒนา',
+              data: [3.2, 3.1, 3.8, 3.6, 3.7, 3.3, 3.9],
+              borderColor: '#94a3b8',
+              backgroundColor: 'rgba(148,163,184,0.2)'
+            },
+            {
+              label: 'หลังพัฒนา',
+              data: [3.8, 3.6, 4.1, 3.9, 4.0, 3.8, 4.2],
+              borderColor: '#ec4899',
+              backgroundColor: 'rgba(236,72,153,0.2)'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { r: { beginAtZero: true, max: 5 } }
+        }
+      });
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCourses();
+      renderTraining();
+      renderGroups();
+      renderMentors();
+      renderIDPs();
+      renderMSP();
+      initCharts();
+    });
+  </script>
+</body>
+</html>
