@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P4 ประเมินผล — ระบบ PP7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Sarabun', sans-serif; }
+        .gradient-header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%); }
+        .tab-active { border-bottom: 3px solid #4f46e5; color: #4f46e5; font-weight: 600; }
+        .tab-inactive { border-bottom: 3px solid transparent; color: #6b7280; }
+        .tab-inactive:hover { color: #4f46e5; border-bottom-color: #c7d2fe; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06); padding: 1.5rem; }
+        .kpi-card { transition: transform 0.2s; }
+        .kpi-card:hover { transform: translateY(-2px); }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: white; border-radius: 16px; max-width: 700px; width: 90%; max-height: 85vh; overflow-y: auto; padding: 2rem; }
+        .sticky-nav { position: sticky; top: 0; z-index: 40; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .heatmap-cell { width: 40px; height: 40px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; cursor: pointer; transition: transform 0.15s; }
+        .heatmap-cell:hover { transform: scale(1.15); }
+        .timeline-dot { width: 16px; height: 16px; border-radius: 50%; border: 3px solid #4f46e5; background: white; }
+        .timeline-line { width: 3px; background: #c7d2fe; min-height: 40px; }
+        .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 12px; font-weight: 500; }
+        .score-bar { height: 8px; border-radius: 4px; background: #e5e7eb; overflow: hidden; }
+        .score-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+        textarea { resize: vertical; }
+        .flow-arrow { width: 60px; height: 2px; background: linear-gradient(90deg, #4f46e5, #a855f7); position: relative; }
+        .flow-arrow::after { content: '→'; position: absolute; right: -8px; top: -10px; font-size: 20px; color: #7c3aed; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<!-- Header -->
+<header class="gradient-header text-white py-6 px-4 shadow-lg">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold flex items-center gap-3">
+                    <span class="bg-white/20 rounded-lg p-2">📊</span>
+                    P4 — ประเมินผล (Evaluation)
+                </h1>
+                <p class="mt-1 text-indigo-100">ระบบประเมินผลพนักงานแบบ 360° ตาม Competency Compass (CC1-CC7)</p>
+            </div>
+            <div class="text-right text-sm text-indigo-100">
+                <div>รอบประเมิน: Q2/2026</div>
+                <div>อัปเดตล่าสุด: 17 ก.ค. 2569</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Sticky Tab Nav -->
+<nav class="sticky-nav no-print">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="flex gap-1 overflow-x-auto" id="tabNav">
+            <button onclick="switchTab('dashboard')" class="tab-btn px-5 py-3 text-sm whitespace-nowrap tab-active" data-tab="dashboard">📊 Dashboard</button>
+            <button onclick="switchTab('eval360')" class="tab-btn px-5 py-3 text-sm whitespace-nowrap tab-inactive" data-tab="eval360">🔄 ประเมิน 360°</button>
+            <button onclick="switchTab('questionnaire')" class="tab-btn px-5 py-3 text-sm whitespace-nowrap tab-inactive" data-tab="questionnaire">📝 แบบประเมิน</button>
+            <button onclick="switchTab('summary')" class="tab-btn px-5 py-3 text-sm whitespace-nowrap tab-inactive" data-tab="summary">📈 สรุปผล</button>
+            <button onclick="switchTab('history')" class="tab-btn px-5 py-3 text-sm whitespace-nowrap tab-inactive" data-tab="history">📅 ประวัติย้อนหลัง</button>
+            <button onclick="switchTab('dataflow')" class="tab-btn px-5 py-3 text-sm whitespace-nowrap tab-inactive" data-tab="dataflow">🔗 Data Flow</button>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto px-4 py-6">
+
+    <!-- ==================== TAB 1: DASHBOARD ==================== -->
+    <section id="tab-dashboard" class="tab-content">
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="card kpi-card border-l-4 border-l-amber-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">คนรอประเมิน</p>
+                        <p class="text-3xl font-bold text-gray-800">4</p>
+                        <p class="text-xs text-amber-600 mt-1">⚠️ เลยกำหนด 2 คน</p>
+                    </div>
+                    <div class="bg-amber-100 rounded-full p-3"><span class="text-2xl">👤</span></div>
+                </div>
+            </div>
+            <div class="card kpi-card border-l-4 border-l-emerald-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">% เสร็จสมบูรณ์</p>
+                        <p class="text-3xl font-bold text-gray-800">66.7%</p>
+                        <p class="text-xs text-emerald-600 mt-1">✅ 8/12 คน ประเมินเสร็จ</p>
+                    </div>
+                    <div class="bg-emerald-100 rounded-full p-3"><span class="text-2xl">📋</span></div>
+                </div>
+            </div>
+            <div class="card kpi-card border-l-4 border-l-indigo-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">CC Avg ทั้งองค์กร</p>
+                        <p class="text-3xl font-bold text-gray-800">3.72</p>
+                        <p class="text-xs text-indigo-600 mt-1">📈 +0.15 จาก Q1</p>
+                    </div>
+                    <div class="bg-indigo-100 rounded-full p-3"><span class="text-2xl">🎯</span></div>
+                </div>
+            </div>
+            <div class="card kpi-card border-l-4 border-l-rose-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">Gap Alert</p>
+                        <p class="text-3xl font-bold text-gray-800">3</p>
+                        <p class="text-xs text-rose-600 mt-1">🔴 Self-Manager gap > 1.0</p>
+                    </div>
+                    <div class="bg-rose-100 rounded-full p-3"><span class="text-2xl">⚡</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="card">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">🎯 Radar Chart — CC Avg ทั้งองค์กร</h3>
+                <canvas id="radarOrgAvg" height="280"></canvas>
+            </div>
+            <div class="card">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">📊 คะแนนแยก BU</h3>
+                <canvas id="barBU" height="280"></canvas>
+            </div>
+        </div>
+
+        <!-- Trend Line -->
+        <div class="card mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">📈 แนวโน้มคะแนน CC รวม (4 รอบ)</h3>
+            <canvas id="trendLine" height="120"></canvas>
+        </div>
+
+        <!-- Gap Alert Table -->
+        <div class="card">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">⚠️ Gap Alerts — Self vs Manager Score ต่างกัน > 1.0</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="text-left p-3 rounded-tl-lg">พนักงาน</th>
+                            <th class="text-left p-3">BU</th>
+                            <th class="text-center p-3">CC</th>
+                            <th class="text-center p-3">Self</th>
+                            <th class="text-center p-3">Manager</th>
+                            <th class="text-center p-3 rounded-tr-lg">Gap</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gapAlertBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== TAB 2: EVAL 360° ==================== -->
+    <section id="tab-eval360" class="tab-content hidden">
+        <div class="card mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">🔄 ประเมิน 360° — เลือกพนักงาน</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">พนักงาน</label>
+                    <select id="evalEmployee" class="w-full border rounded-lg px-3 py-2 text-sm" onchange="loadEvalForm()">
+                        <option value="">-- เลือกพนักงาน --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">รอบประเมิน</label>
+                    <select class="w-full border rounded-lg px-3 py-2 text-sm">
+                        <option>Q2/2026</option>
+                        <option>Q1/2026</option>
+                        <option>Q4/2025</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">สถานะ</label>
+                    <div class="flex items-center gap-2 mt-2">
+                        <span class="badge bg-amber-100 text-amber-700">⏳ รอประเมิน</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 360 Evaluation Form -->
+        <div id="evalFormContainer" class="hidden">
+            <div class="card mb-4">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="bg-indigo-100 rounded-full w-10 h-10 flex items-center justify-center font-bold text-indigo-600" id="evalAvatar">-</div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800" id="evalName">-</h4>
+                        <p class="text-sm text-gray-500" id="evalInfo">-</p>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600">ให้คะแนน Competency Compass (CC1-CC7) จาก 5 มุมมอง คะแนน 1-5 พร้อมระบุหลักฐาน</p>
+            </div>
+
+            <!-- Perspective Tabs -->
+            <div class="flex gap-2 mb-4 overflow-x-auto">
+                <button onclick="switchPerspective('self')" class="persp-btn px-4 py-2 rounded-lg text-sm font-medium bg-indigo-100 text-indigo-700" data-persp="self">🪞 Self</button>
+                <button onclick="switchPerspective('manager')" class="persp-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600" data-persp="manager">👔 Manager</button>
+                <button onclick="switchPerspective('peer')" class="persp-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600" data-persp="peer">🤝 Peer</button>
+                <button onclick="switchPerspective('subordinate')" class="persp-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600" data-persp="subordinate">👥 Subordinate</button>
+                <button onclick="switchPerspective('customer')" class="persp-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600" data-persp="customer">🏢 Customer</button>
+            </div>
+
+            <!-- CC Scoring Form -->
+            <div id="evalCCForm" class="space-y-4"></div>
+
+            <!-- Save Button -->
+            <div class="mt-6 flex gap-3">
+                <button onclick="saveEvaluation()" class="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition">💾 บันทึกการประเมิน</button>
+                <button onclick="resetEvalForm()" class="bg-gray-200 text-gray-700 px-6 py-2.5 rounded-lg font-medium hover:bg-gray-300 transition">🔄 รีเซ็ต</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== TAB 3: QUESTIONNAIRE ==================== -->
+    <section id="tab-questionnaire" class="tab-content hidden">
+        <div class="card mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">📝 แบบประเมินเชิงประจักษ์ — แยกตาม BU</h3>
+            <div class="flex gap-2 mb-4">
+                <button onclick="switchBU('Technology')" class="bu-btn px-4 py-2 rounded-lg text-sm font-medium bg-indigo-100 text-indigo-700" data-bu="Technology">💻 Technology</button>
+                <button onclick="switchBU('Operations')" class="bu-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600" data-bu="Operations">⚙️ Operations</button>
+                <button onclick="switchBU('HR')" class="bu-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600" data-bu="HR">👥 HR</button>
+                <button onclick="switchBU('Finance')" class="bu-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600" data-bu="Finance">💰 Finance</button>
+            </div>
+            <button onclick="openRubricModal()" class="text-sm text-indigo-600 hover:underline">📖 ดู Scoring Rubric (1-5)</button>
+        </div>
+
+        <div id="questionnaireContent" class="space-y-4"></div>
+    </section>
+
+    <!-- ==================== TAB 4: SUMMARY ==================== -->
+    <section id="tab-summary" class="tab-content hidden">
+        <!-- Summary Table -->
+        <div class="card mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">📈 ตารางคะแนนรวมทุก CC</h3>
+            <div class="flex gap-3 mb-4">
+                <select id="summaryBUFilter" class="border rounded-lg px-3 py-2 text-sm" onchange="renderSummaryTable()">
+                    <option value="all">ทุก BU</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Operations">Operations</option>
+                    <option value="HR">HR</option>
+                    <option value="Finance">Finance</option>
+                </select>
+                <select id="summarySort" class="border rounded-lg px-3 py-2 text-sm" onchange="renderSummaryTable()">
+                    <option value="name">เรียงตามชื่อ</option>
+                    <option value="avg-desc">คะแนนสูง→ต่ำ</option>
+                    <option value="avg-asc">คะแนนต่ำ→สูง</option>
+                </select>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="text-left p-3 rounded-tl-lg">พนักงาน</th>
+                            <th class="text-center p-3">CC1</th>
+                            <th class="text-center p-3">CC2</th>
+                            <th class="text-center p-3">CC3</th>
+                            <th class="text-center p-3">CC4</th>
+                            <th class="text-center p-3">CC5</th>
+                            <th class="text-center p-3">CC6</th>
+                            <th class="text-center p-3">CC7</th>
+                            <th class="text-center p-3 rounded-tr-lg">Avg</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Comparison Radar -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="card">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">🎯 เปรียบเทียบ Radar (เลือก 3 คน)</h3>
+                <div class="flex gap-2 mb-3 flex-wrap">
+                    <select id="compareSelect1" class="border rounded-lg px-2 py-1 text-sm" onchange="updateCompareRadar()"></select>
+                    <select id="compareSelect2" class="border rounded-lg px-2 py-1 text-sm" onchange="updateCompareRadar()"></select>
+                    <select id="compareSelect3" class="border rounded-lg px-2 py-1 text-sm" onchange="updateCompareRadar()"></select>
+                </div>
+                <canvas id="compareRadar" height="280"></canvas>
+            </div>
+
+            <!-- AI Insight Panel -->
+            <div class="card">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">🤖 AI Insight — วิเคราะห์จุดแข็ง/จุดอ่อน</h3>
+                <div id="aiInsightPanel" class="space-y-4">
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-emerald-800 mb-2">💪 จุดแข็งองค์กร</h4>
+                        <ul class="text-sm text-emerald-700 space-y-1">
+                            <li>• CC4 (Teamwork) สูงสุดที่ 4.12 — วัฒนธรรมทีมแข็งแรงแข็งขัน</li>
+                            <li>• CC6 (Technology) เพิ่มขึ้น 0.3 จาก Q1 — ผลจาก Training Program</li>
+                            <li>• BU Technology มี CC2 (Innovation) เด่น — สร้างนวัตกรรม 5 โครงการ</li>
+                        </ul>
+                    </div>
+                    <div class="bg-rose-50 border border-rose-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-rose-800 mb-2">⚠️ จุดอ่อนที่ต้องพัฒนา</h4>
+                        <ul class="text-sm text-rose-700 space-y-1">
+                            <li>• CC1 (Servant Leadership) ต่ำสุดที่ 3.21 — ต้องเร่งพัฒนาผู้นำ</li>
+                            <li>• BU Finance มี CC7 (Humor & Joy) เพียง 2.8 — บรรยากาศทำงานเครียด</li>
+                            <li>• Gap Self-Manager ของ CC3 สูง — perception ไม่ตรงกัน</li>
+                        </ul>
+                    </div>
+                    <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-indigo-800 mb-2">📋 แผนพัฒนาแนะนำ</h4>
+                        <ul class="text-sm text-indigo-700 space-y-1">
+                            <li>• จัด Servant Leadership Workshop สำหรับระดับ TL+ (Q3)</li>
+                            <li>• Team Building + Joy at Work program สำหรับ Finance</li>
+                            <li>• Calibration Session ลด gap Self-Manager ทุก BU</li>
+                            <li>• Mentoring Program จับคู่ CC สูง-ต่ำ ข้าม BU</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== TAB 5: HISTORY ==================== -->
+    <section id="tab-history" class="tab-content hidden">
+        <!-- Timeline -->
+        <div class="card mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">📅 Timeline การประเมิน</h3>
+            <div class="flex items-center gap-4 overflow-x-auto pb-2">
+                <div class="flex flex-col items-center gap-1 min-w-fit">
+                    <div class="w-4 h-4 rounded-full bg-gray-300"></div>
+                    <span class="text-xs text-gray-500">Q3/2025</span>
+                    <span class="text-xs font-medium text-gray-600">3.42</span>
+                </div>
+                <div class="h-0.5 w-16 bg-gray-300"></div>
+                <div class="flex flex-col items-center gap-1 min-w-fit">
+                    <div class="w-4 h-4 rounded-full bg-gray-300"></div>
+                    <span class="text-xs text-gray-500">Q4/2025</span>
+                    <span class="text-xs font-medium text-gray-600">3.55</span>
+                </div>
+                <div class="h-0.5 w-16 bg-gray-300"></div>
+                <div class="flex flex-col items-center gap-1 min-w-fit">
+                    <div class="w-4 h-4 rounded-full bg-gray-300"></div>
+                    <span class="text-xs text-gray-500">Q1/2026</span>
+                    <span class="text-xs font-medium text-gray-600">3.57</span>
+                </div>
+                <div class="h-0.5 w-16 bg-indigo-400"></div>
+                <div class="flex flex-col items-center gap-1 min-w-fit">
+                    <div class="w-5 h-5 rounded-full bg-indigo-600 border-2 border-indigo-300"></div>
+                    <span class="text-xs text-indigo-600 font-semibold">Q2/2026</span>
+                    <span class="text-xs font-bold text-indigo-700">3.72</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Multi-round Comparison -->
+        <div class="card mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">🔄 เปรียบเทียบคะแนนหลายรอบ</h3>
+            <div class="flex gap-3 mb-4">
+                <select id="historyEmployee" class="border rounded-lg px-3 py-2 text-sm" onchange="renderHistoryDetail()">
+                    <option value="all">ทุกคน (Avg)</option>
+                </select>
+            </div>
+            <canvas id="historyChart" height="150"></canvas>
+        </div>
+
+        <!-- Heatmap Grid -->
+        <div class="card">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">🗺️ Heatmap — คะแนน CC × พนักงาน (Q2/2026)</h3>
+            <div class="overflow-x-auto">
+                <div id="heatmapGrid" class="inline-block"></div>
+            </div>
+            <div class="flex items-center gap-2 mt-4 text-xs text-gray-500">
+                <span>ต่ำ</span>
+                <div class="w-6 h-4 rounded bg-red-300"></div>
+                <div class="w-6 h-4 rounded bg-orange-300"></div>
+                <div class="w-6 h-4 rounded bg-yellow-300"></div>
+                <div class="w-6 h-4 rounded bg-lime-300"></div>
+                <div class="w-6 h-4 rounded bg-emerald-400"></div>
+                <span>สูง</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== TAB 6: DATA FLOW ==================== -->
+    <section id="tab-dataflow" class="tab-content hidden">
+        <div class="card mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">🔗 Data Flow — P4 ประเมินผล → ขั้นตอนถัดไป</h3>
+            <div class="flex flex-wrap items-center justify-center gap-4 py-8">
+                <div class="bg-indigo-50 border-2 border-indigo-300 rounded-xl p-4 text-center min-w-[160px]">
+                    <div class="text-3xl mb-2">📊</div>
+                    <div class="font-bold text-indigo-700">P4 ประเมินผล</div>
+                    <div class="text-xs text-indigo-500 mt-1">360° Evaluation<br>CC1-CC7 Scores</div>
+                </div>
+                <div class="flow-arrow"></div>
+                <div class="bg-purple-50 border-2 border-purple-300 rounded-xl p-4 text-center min-w-[160px]">
+                    <div class="text-3xl mb-2">💰</div>
+                    <div class="font-bold text-purple-700">P5 ค่าตอบแทน</div>
+                    <div class="text-xs text-purple-500 mt-1">ปรับเงินเดือน<br>โบนัสตามผลงาน</div>
+                </div>
+                <div class="flow-arrow"></div>
+                <div class="bg-pink-50 border-2 border-pink-300 rounded-xl p-4 text-center min-w-[160px]">
+                    <div class="text-3xl mb-2">🌱</div>
+                    <div class="font-bold text-pink-700">P6 พัฒนา</div>
+                    <div class="text-xs text-pink-500 mt-1">IDP<br>Training Plan</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integration Points -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="card border-t-4 border-t-indigo-400">
+                <h4 class="font-semibold text-gray-800 mb-2">📤 Output → P5</h4>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>• คะแนน CC รวม + แยกมิติ</li>
+                    <li>• Performance Rating (A/B/C/D)</li>
+                    <li>• Gap Analysis Report</li>
+                    <li>• Calibration Results</li>
+                </ul>
+            </div>
+            <div class="card border-t-4 border-t-purple-400">
+                <h4 class="font-semibold text-gray-800 mb-2">📤 Output → P6</h4>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>• จุดอ่อนที่ต้องพัฒนา</li>
+                    <li>• Competency Gap per person</li>
+                    <li>• แนะนำ Training Courses</li>
+                    <li>• Mentoring Pair Suggestions</li>
+                </ul>
+            </div>
+            <div class="card border-t-4 border-t-pink-400">
+                <h4 class="font-semibold text-gray-800 mb-2">📥 Input จาก P1-P3</h4>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>• P1: ข้อมูลพนักงาน (ตำแหน่ง, BU)</li>
+                    <li>• P2: KPI Targets (เกณฑ์ประเมิน)</li>
+                    <li>• P3: Job Competency Mapping</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Export Buttons -->
+        <div class="card">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">📦 Export ข้อมูล</h3>
+            <div class="flex flex-wrap gap-3">
+                <button onclick="exportJSON()" class="bg-emerald-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-emerald-700 transition flex items-center gap-2">
+                    <span>📄</span> Export JSON
+                </button>
+                <button onclick="exportCSV()" class="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition flex items-center gap-2">
+                    <span>📊</span> Export CSV
+                </button>
+                <button onclick="exportPDF()" class="bg-rose-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-rose-700 transition flex items-center gap-2">
+                    <span>📑</span> Export PDF
+                </button>
+            </div>
+            <div id="exportPreview" class="mt-4 hidden">
+                <pre class="bg-gray-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto max-h-64"></pre>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- Scoring Rubric Modal -->
+<div id="rubricModal" class="modal-overlay hidden" onclick="closeRubricModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-800">📖 Scoring Rubric (1-5)</h3>
+            <button onclick="document.getElementById('rubricModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        </div>
+        <div class="space-y-3">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                <span class="font-bold text-red-700">1 — ไม่ผ่านเกณฑ์</span>
+                <p class="text-sm text-red-600 mt-1">ไม่แสดงพฤติกรรมที่คาดหวัง ไม่มีหลักฐานสนับสนุน ต้องปรับปรุงเร่งด่วน</p>
+            </div>
+            <div class="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                <span class="font-bold text-orange-700">2 — ต่ำกว่าเกณฑ์</span>
+                <p class="text-sm text-orange-600 mt-1">แสดงพฤติกรรมบ้างแต่ไม่สม่ำเสมอ หลักฐานน้อย ต้องการการพัฒนาเพิ่มเติม</p>
+            </div>
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <span class="font-bold text-yellow-700">3 — ตามเกณฑ์</span>
+                <p class="text-sm text-yellow-600 mt-1">แสดงพฤติกรรมได้ตามคาดหวัง มีหลักฐานชัดเจน ปฏิบัติสม่ำเสมอ</p>
+            </div>
+            <div class="bg-lime-50 border border-lime-200 rounded-lg p-3">
+                <span class="font-bold text-lime-700">4 — สูงกว่าเกณฑ์</span>
+                <p class="text-sm text-lime-600 mt-1">แสดงพฤติกรรมโดดเด่นเกินคาดหวัง เป็นแบบอย่างให้ผู้อื่น มีผลลัพธ์เชิงประจักษ์</p>
+            </div>
+            <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                <span class="font-bold text-emerald-700">5 — ดีเยี่ยม</span>
+                <p class="text-sm text-emerald-600 mt-1">เป็น Role Model ระดับองค์กร สร้างผลกระทบในวงกว้าง มีนวัตกรรม/แนวทางใหม่</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="fixed bottom-6 right-6 bg-emerald-600 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <span id="toastMsg">บันทึกสำเร็จ!</span>
+</div>
+
+<script>
+// ==================== MOCK DATA ====================
+const CC_NAMES = [
+    'CC1: Servant Leadership',
+    'CC2: Adaptive Innovation',
+    'CC3: Trust-Based Value',
+    'CC4: Consensus Teamwork',
+    'CC5: Disciplined Professionalism',
+    'CC6: Technology Mastery',
+    'CC7: Humor & Joy'
+];
+
+const CC_SHORT = ['CC1','CC2','CC3','CC4','CC5','CC6','CC7'];
+
+const CC_FULL = {
+    'CC1': 'ความเก่งในการนำผู้รับใช้ (Servant Leadership)',
+    'CC2': 'ความเก่งในการปรับตัวและสร้างนวัตกรรม (Adaptive Innovation)',
+    'CC3': 'ความเก่งในการสร้างคุณค่าบนฐานความไว้วางใจ (Trust-Based Value Creation)',
+    'CC4': 'ความเก่งในการทำงานทีมด้วยฉันทมติ (Consensus-Driven Teamwork)',
+    'CC5': 'ความเก่งในวิชาชีพและวินัยองค์กร (Disciplined Professionalism)',
+    'CC6': 'ความเก่งในการใช้เทคโนโลยี (Technology Mastery)',
+    'CC7': 'ความเก่งในการสร้างบรรยากาศด้วยอารมณ์ขัน (Humor & Joy)'
+};
+
+const employees = [
+    { id: 1, name: 'สมชาย ใจดี', bu: 'Technology', position: 'Senior Developer', avatar: '👨‍💻' },
+    { id: 2, name: 'วิภา แสงทอง', bu: 'Technology', position: 'Tech Lead', avatar: '👩‍💻' },
+    { id: 3, name: 'ธนากร รักษ์ดี', bu: 'Technology', position: 'DevOps Engineer', avatar: '🧑‍💻' },
+    { id: 4, name: 'อรุณี สว่างจิต', bu: 'Technology', position: 'QA Lead', avatar: '👩‍🔬' },
+    { id: 5, name: 'พิชัย มั่นคง', bu: 'Operations', position: 'Operations Manager', avatar: '👨‍💼' },
+    { id: 6, name: 'นภัสสร พิมพ์ทอง', bu: 'Operations', position: 'Supply Chain Analyst', avatar: '👩‍💼' },
+    { id: 7, name: 'กิตติ ประเสริฐ', bu: 'Operations', position: 'Logistics Coordinator', avatar: '🧑‍🔧' },
+    { id: 8, name: 'ศิริพร ดีงาม', bu: 'HR', position: 'HR Business Partner', avatar: '👩‍🏫' },
+    { id: 9, name: 'อนุชา สร้างสรรค์', bu: 'HR', position: 'L&D Specialist', avatar: '👨‍🏫' },
+    { id: 10, name: 'มาลี หอมชื่น', bu: 'HR', position: 'Recruitment Lead', avatar: '👩‍💻' },
+    { id: 11, name: 'ณรงค์ วงศ์เศรษฐ์', bu: 'Finance', position: 'Finance Manager', avatar: '👨‍💼' },
+    { id: 12, name: 'พิมพ์ใจ รักษ์สุข', bu: 'Finance', position: 'Accountant', avatar: '👩‍💼' }
+];
+
+// Scores: [CC1, CC2, CC3, CC4, CC5, CC6, CC7]
+const scores = {
+    1: { self: [3.5, 4.2, 3.8, 4.0, 4.1, 4.5, 3.9], manager: [3.0, 4.0, 3.5, 3.8, 4.0, 4.3, 3.5], peer: [3.2, 4.1, 3.6, 4.2, 3.9, 4.4, 3.7], subordinate: [2.8, 3.8, 3.3, 4.0, 3.8, 4.2, 3.6], customer: [3.1, 3.9, 3.5, 3.7, 3.9, 4.1, 3.4], avg: [3.12, 4.00, 3.54, 3.94, 3.94, 4.30, 3.62] },
+    2: { self: [4.0, 4.5, 4.2, 4.3, 4.4, 4.6, 4.0], manager: [3.8, 4.3, 4.0, 4.5, 4.2, 4.5, 3.8], peer: [3.9, 4.4, 4.1, 4.6, 4.3, 4.7, 4.1], subordinate: [3.5, 4.0, 3.8, 4.2, 4.0, 4.3, 3.9], customer: [3.7, 4.1, 3.9, 4.3, 4.1, 4.4, 3.7], avg: [3.78, 4.26, 4.00, 4.38, 4.20, 4.50, 3.90] },
+    3: { self: [3.2, 4.0, 3.5, 3.8, 4.3, 4.8, 3.6], manager: [3.0, 3.8, 3.2, 3.5, 4.1, 4.5, 3.3], peer: [3.1, 3.9, 3.4, 3.7, 4.0, 4.6, 3.5], subordinate: [2.9, 3.6, 3.1, 3.4, 3.9, 4.4, 3.2], customer: [3.0, 3.7, 3.3, 3.6, 4.0, 4.5, 3.4], avg: [3.04, 3.80, 3.30, 3.60, 4.06, 4.56, 3.40] },
+    4: { self: [3.8, 3.5, 4.0, 4.2, 4.5, 3.9, 4.1], manager: [3.5, 3.3, 3.8, 4.0, 4.3, 3.7, 3.9], peer: [3.6, 3.4, 3.9, 4.1, 4.4, 3.8, 4.0], subordinate: [3.3, 3.1, 3.6, 3.8, 4.1, 3.5, 3.7], customer: [3.4, 3.2, 3.7, 3.9, 4.2, 3.6, 3.8], avg: [3.52, 3.30, 3.80, 4.00, 4.30, 3.70, 3.90] },
+    5: { self: [4.2, 3.6, 4.5, 4.0, 3.8, 3.2, 3.5], manager: [4.0, 3.4, 4.3, 4.2, 3.6, 3.0, 3.3], peer: [3.8, 3.5, 4.1, 4.1, 3.7, 3.1, 3.4], subordinate: [3.6, 3.2, 3.9, 3.8, 3.5, 2.8, 3.1], customer: [3.9, 3.3, 4.2, 4.0, 3.6, 3.0, 3.2], avg: [3.90, 3.40, 4.20, 4.02, 3.64, 3.02, 3.30] },
+    6: { self: [3.5, 3.8, 3.6, 4.1, 3.9, 3.5, 3.7], manager: [3.3, 3.6, 3.4, 3.9, 3.7, 3.3, 3.5], peer: [3.4, 3.7, 3.5, 4.0, 3.8, 3.4, 3.6], subordinate: [3.1, 3.4, 3.2, 3.7, 3.5, 3.1, 3.3], customer: [3.2, 3.5, 3.3, 3.8, 3.6, 3.2, 3.4], avg: [3.30, 3.60, 3.40, 3.90, 3.70, 3.30, 3.50] },
+    7: { self: [3.0, 3.2, 3.3, 3.6, 3.5, 3.0, 3.8], manager: [2.8, 3.0, 3.1, 3.4, 3.3, 2.8, 3.5], peer: [2.9, 3.1, 3.2, 3.5, 3.4, 2.9, 3.6], subordinate: [2.6, 2.8, 2.9, 3.2, 3.1, 2.6, 3.3], customer: [2.7, 2.9, 3.0, 3.3, 3.2, 2.7, 3.4], avg: [2.80, 3.00, 3.10, 3.40, 3.30, 2.80, 3.52] },
+    8: { self: [4.3, 3.9, 4.5, 4.6, 4.0, 3.5, 4.4], manager: [4.1, 3.7, 4.3, 4.4, 3.8, 3.3, 4.2], peer: [4.2, 3.8, 4.4, 4.5, 3.9, 3.4, 4.3], subordinate: [3.9, 3.5, 4.1, 4.3, 3.6, 3.1, 4.0], customer: [4.0, 3.6, 4.2, 4.4, 3.7, 3.2, 4.1], avg: [4.10, 3.70, 4.30, 4.44, 3.80, 3.30, 4.20] },
+    9: { self: [3.8, 4.3, 3.7, 4.0, 3.6, 3.8, 4.5], manager: [3.5, 4.1, 3.5, 3.8, 3.4, 3.6, 4.3], peer: [3.6, 4.2, 3.6, 3.9, 3.5, 3.7, 4.4], subordinate: [3.3, 3.9, 3.3, 3.6, 3.2, 3.4, 4.1], customer: [3.4, 4.0, 3.4, 3.7, 3.3, 3.5, 4.2], avg: [3.52, 4.10, 3.50, 3.80, 3.40, 3.60, 4.30] },
+    10: { self: [3.6, 3.4, 4.1, 4.3, 3.8, 3.6, 3.9], manager: [3.4, 3.2, 3.9, 4.1, 3.6, 3.4, 3.7], peer: [3.5, 3.3, 4.0, 4.2, 3.7, 3.5, 3.8], subordinate: [3.2, 3.0, 3.7, 3.9, 3.4, 3.2, 3.5], customer: [3.3, 3.1, 3.8, 4.0, 3.5, 3.3, 3.6], avg: [3.40, 3.20, 3.90, 4.10, 3.60, 3.40, 3.70] },
+    11: { self: [3.9, 3.3, 4.0, 3.7, 4.4, 3.1, 2.8], manager: [3.7, 3.1, 3.8, 3.5, 4.2, 2.9, 2.6], peer: [3.8, 3.2, 3.9, 3.6, 4.3, 3.0, 2.7], subordinate: [3.5, 2.9, 3.6, 3.3, 4.0, 2.7, 2.5], customer: [3.6, 3.0, 3.7, 3.4, 4.1, 2.8, 2.6], avg: [3.70, 3.10, 3.80, 3.50, 4.20, 2.90, 2.64] },
+    12: { self: [3.3, 2.9, 3.5, 3.8, 4.0, 2.8, 3.0], manager: [3.1, 2.7, 3.3, 3.6, 3.8, 2.6, 2.8], peer: [3.2, 2.8, 3.4, 3.7, 3.9, 2.7, 2.9], subordinate: [2.9, 2.5, 3.1, 3.4, 3.6, 2.5, 2.6], customer: [3.0, 2.6, 3.2, 3.5, 3.7, 2.6, 2.7], avg: [3.10, 2.70, 3.30, 3.60, 3.80, 2.64, 2.80] }
+};
+
+// History data (Q3/2025, Q4/2025, Q1/2026, Q2/2026)
+const historyData = {
+    'Q3/2025': { avg: [3.20, 3.45, 3.35, 3.65, 3.60, 3.30, 3.30] },
+    'Q4/2025': { avg: [3.35, 3.58, 3.48, 3.78, 3.72, 3.45, 3.42] },
+    'Q1/2026': { avg: [3.42, 3.70, 3.55, 3.88, 3.85, 3.60, 3.50] },
+    'Q2/2026': { avg: [3.51, 3.75, 3.67, 4.00, 3.89, 3.64, 3.57] }
+};
+
+// Evidence samples
+const evidenceSamples = {
+    'CC1': [
+        'ประชุม 1-on-1 กับลูกทีมทุกสัปดาห์ (Jira: SL-101)',
+        'Mentoring junior 2 คน สำเร็จตามแผน (PKGP-2026-M03)',
+        'รับฟัง feedback และปรับกระบวนการทำงานทีม'
+    ],
+    'CC2': [
+        'เสนอและนำ AI Code Review tool มาใช้ ลด bug 30%',
+        'สร้าง automation script ลด manual work 15 hrs/week',
+        'จัด Hackathon ทีม 2 ครั้ง มี prototype 3 ตัว'
+    ],
+    'CC3': [
+        'NPS Score จาก internal customer 8.5/10',
+        'Stakeholder survey: trust level 92%',
+        'ส่งมอบโครงการตรงเวลา 4/4 โครงการ'
+    ],
+    'CC4': [
+        'Pair programming 20 hrs/month (GitHub contrib log)',
+        'นำ Retrospective meeting ทุก sprint',
+        'Cross-team collaboration: 3 joint projects'
+    ],
+    'CC5': [
+        'Certification: AWS Solutions Architect (2026)',
+        'Zero compliance violations ในรอบ 12 เดือน',
+        'เอกสารครบถ้วน ส่ง report ตรงเวลาทุกครั้ง'
+    ],
+    'CC6': [
+        'นำ CI/CD pipeline มาใช้ ลด deploy time 70%',
+        'สร้าง Dashboard monitoring ด้วย Grafana',
+        'สอน workshop Kubernetes ให้ทีม 3 ครั้ง'
+    ],
+    'CC7': [
+        'จัด Team Lunch ทุกเดือน สร้าง engagement',
+        'Ice-breaking activities ในทุก meeting',
+        'Team satisfaction survey: joy score 4.2/5'
+    ]
+};
+
+// Questionnaire data by BU
+const questionnaires = {
+    'Technology': [
+        { cc: 'CC1', q: 'ผู้นำทีมเปิดโอกาสให้สมาชิกเสนอไอเดียใหม่ ๆ อย่างสม่ำเสมอ', example: 'เช่น การเปิด space ใน Sprint Planning สำหรับ tech proposals' },
+        { cc: 'CC2', q: 'พนักงานสามารถนำเทคโนโลยีใหม่มาประยุกต์ใช้แก้ปัญหาได้จริง', example: 'เช่น การใช้ AI/ML เพื่อ optimize ระบบ, การทำ A/B testing' },
+        { cc: 'CC3', q: 'โค้ดและระบบที่ส่งมอบมีคุณภาพตรงตาม requirement ที่ตกลง', example: 'เช่น Code review pass rate, UAT pass rate, SLA compliance' },
+        { cc: 'CC4', q: 'ทีมทำงานร่วมกันผ่าน Pair Programming / Code Review อย่างสม่ำเสมอ', example: 'เช่น Pair programming hours, PR review turnaround time' },
+        { cc: 'CC5', q: 'พนักงานมี certification ที่เกี่ยวข้องและอัปเดตความรู้เป็นประจำ', example: 'เช่น AWS/GCP certs, การเข้าร่วม tech meetup, blog posts' },
+        { cc: 'CC6', q: 'พนักงานสามารถใช้ tools และ platforms ได้อย่างคล่องแคล่ว', example: 'เช่น CI/CD, containerization, cloud services proficiency' },
+        { cc: 'CC7', q: 'ทีมมีบรรยากาศที่สนุก สร้างสรรค์ กล้าแสดงความคิดเห็น', example: 'เช่น Hackathon participation, team event engagement' }
+    ],
+    'Operations': [
+        { cc: 'CC1', q: 'หัวหน้างานสนับสนุนให้ทีมปรับปรุงกระบวนการทำงานอย่างต่อเนื่อง', example: 'เช่น Kaizen suggestions, process improvement proposals' },
+        { cc: 'CC2', q: 'ทีมสามารถปรับตัวเมื่อมี disruption ใน supply chain ได้อย่างรวดเร็ว', example: 'เช่น Response time to disruptions, alternative sourcing plans' },
+        { cc: 'CC3', q: 'การส่งมอบสินค้า/บริการตรง SLA และลูกค้าพึงพอใจ', example: 'เช่น On-time delivery rate, customer satisfaction scores' },
+        { cc: 'CC4', q: 'ทีมข้ามฝ่ายทำงานร่วมกันได้ดีในการแก้ปัญหา operation', example: 'เช่น Cross-functional issue resolution time' },
+        { cc: 'CC5', q: 'กระบวนการทำงานเป็นไปตาม SOP และมาตรฐานที่กำหนด', example: 'เช่น SOP compliance rate, audit findings' },
+        { cc: 'CC6', q: 'การใช้ระบบ ERP/automation ในการจัดการ operations', example: 'เช่น System utilization rate, automation coverage' },
+        { cc: 'CC7', q: 'ทีมมี morale ดี แม้ในช่วง high-pressure periods', example: 'เช่น Employee engagement scores, absenteeism rate' }
+    ],
+    'HR': [
+        { cc: 'CC1', q: 'HR เป็นที่ปรึกษาเชิงกลยุทธ์ให้ผู้บริหารได้อย่างมีประสิทธิภาพ', example: 'เช่น Strategic HR initiatives, executive feedback scores' },
+        { cc: 'CC2', q: 'HR นำนวัตกรรมใหม่มาใช้ในการบริหารคน (HR Tech, Analytics)', example: 'เช่น People analytics dashboards, AI recruitment tools' },
+        { cc: 'CC3', q: 'พนักงานเชื่อมั่นในความเป็นธรรมของกระบวนการ HR', example: 'เช่น Trust survey scores, grievance resolution time' },
+        { cc: 'CC4', q: 'HR ทำงานร่วมกับ BU อื่น ๆ ได้ดีในการแก้ปัญหาคน', example: 'เช่น HRBP satisfaction scores, collaboration feedback' },
+        { cc: 'CC5', q: 'กระบวนการ HR เป็นไปตามกฎหมายแรงงานและมาตรฐาน', example: 'เช่น Labor law compliance, audit results' },
+        { cc: 'CC6', q: 'การใช้ HRIS และ data analytics ในการตัดสินใจ', example: 'เช่น HRIS adoption rate, data-driven decisions' },
+        { cc: 'CC7', q: 'HR สร้างวัฒนธรรมองค์กรที่สนุกสนานและมีส่วนร่วม', example: 'เช่น Engagement activities, culture survey scores' }
+    ],
+    'Finance': [
+        { cc: 'CC1', q: 'หัวหน้าทีม Finance ให้คำแนะนำเชิงกลยุทธ์กับ BU อื่น', example: 'เช่น Business partnering sessions, budget advisory quality' },
+        { cc: 'CC2', q: 'ทีม Finance นำเครื่องมือวิเคราะห์ใหม่มาใช้ (Predictive, AI)', example: 'เช่น Financial modeling tools, forecasting accuracy improvement' },
+        { cc: 'CC3', q: 'รายงานการเงินมีความถูกต้องและเชื่อถือได้', example: 'เช่น Report accuracy rate, audit adjustments count' },
+        { cc: 'CC4', q: 'Finance ทำงานร่วมกับ BU อื่นในการจัดทำ budget อย่างมีประสิทธิภาพ', example: 'เช่น Budget cycle time, stakeholder satisfaction' },
+        { cc: 'CC5', q: 'การปฏิบัติตามมาตรฐานบัญชีและกฎระเบียบอย่างเคร่งครัด', example: 'เช่น Compliance rate, regulatory findings' },
+        { cc: 'CC6', q: 'การใช้ระบบ ERP และ automation ในงานการเงิน', example: 'เช่น ERP utilization, report automation coverage' },
+        { cc: 'CC7', q: 'ทีม Finance มีบรรยากาศที่ดี สร้าง work-life balance', example: 'เช่น Team satisfaction, overtime hours trend' }
+    ]
+};
+
+// Gap alerts
+const gapAlerts = [
+    { empId: 1, cc: 'CC1', self: 3.5, manager: 3.0, gap: 0.5 },
+    { empId: 3, cc: 'CC6', self: 4.8, manager: 4.5, gap: 0.3 },
+    { empId: 7, cc: 'CC7', self: 3.8, manager: 3.5, gap: 0.3 },
+    { empId: 9, cc: 'CC7', self: 4.5, manager: 4.3, gap: 0.2 },
+    { empId: 11, cc: 'CC1', self: 3.9, manager: 3.7, gap: 0.2 },
+    { empId: 1, cc: 'CC7', self: 3.9, manager: 3.5, gap: 0.4 },
+    { empId: 5, cc: 'CC6', self: 3.2, manager: 3.0, gap: 0.2 },
+    { empId: 2, cc: 'CC1', self: 4.0, manager: 3.8, gap: 0.2 }
+];
+
+// ==================== TAB SWITCHING ====================
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('tab-active');
+        btn.classList.add('tab-inactive');
+    });
+    document.getElementById('tab-' + tabName).classList.remove('hidden');
+    document.querySelector(`[data-tab="${tabName}"]`).classList.remove('tab-inactive');
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('tab-active');
+}
+
+// ==================== DASHBOARD CHARTS ====================
+function initDashboard() {
+    // Calculate org average
+    const orgAvg = [0,0,0,0,0,0,0];
+    employees.forEach(emp => {
+        scores[emp.id].avg.forEach((s, i) => { orgAvg[i] += s; });
+    });
+    orgAvg.forEach((_, i) => { orgAvg[i] = +(orgAvg[i] / employees.length).toFixed(2); });
+
+    // Radar Chart
+    new Chart(document.getElementById('radarOrgAvg'), {
+        type: 'radar',
+        data: {
+            labels: CC_SHORT,
+            datasets: [{
+                label: 'คะแนนเฉลี่ยองค์กร',
+                data: orgAvg,
+                backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                borderColor: '#4f46e5',
+                borderWidth: 2,
+                pointBackgroundColor: '#4f46e5',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                r: { min: 0, max: 5, ticks: { stepSize: 1, font: { family: 'Sarabun' } }, pointLabels: { font: { family: 'Sarabun', size: 11 } } }
+            },
+            plugins: { legend: { labels: { font: { family: 'Sarabun' } } } }
+        }
+    });
+
+    // Bar Chart by BU
+    const bus = ['Technology', 'Operations', 'HR', 'Finance'];
+    const buColors = ['#4f46e5', '#7c3aed', '#a855f7', '#ec4899'];
+    const buDatasets = bus.map((bu, bi) => {
+        const buEmps = employees.filter(e => e.bu === bu);
+        const buAvg = [0,0,0,0,0,0,0];
+        buEmps.forEach(emp => { scores[emp.id].avg.forEach((s, i) => { buAvg[i] += s; }); });
+        buAvg.forEach((_, i) => { buAvg[i] = +(buAvg[i] / buEmps.length).toFixed(2); });
+        return { label: bu, data: buAvg, backgroundColor: buColors[bi] + '99', borderColor: buColors[bi], borderWidth: 1 };
+    });
+
+    new Chart(document.getElementById('barBU'), {
+        type: 'bar',
+        data: { labels: CC_SHORT, datasets: buDatasets },
+        options: {
+            responsive: true,
+            scales: {
+                y: { min: 0, max: 5, ticks: { font: { family: 'Sarabun' } } },
+                x: { ticks: { font: { family: 'Sarabun' } } }
+            },
+            plugins: { legend: { labels: { font: { family: 'Sarabun' } } } }
+        }
+    });
+
+    // Trend Line
+    const quarters = Object.keys(historyData);
+    const trendDatasets = CC_SHORT.map((cc, ci) => ({
+        label: cc,
+        data: quarters.map(q => historyData[q].avg[ci]),
+        borderColor: ['#4f46e5','#7c3aed','#a855f7','#ec4899','#f59e0b','#10b981','#06b6d4'][ci],
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        tension: 0.3,
+        pointRadius: 4
+    }));
+
+    new Chart(document.getElementById('trendLine'), {
+        type: 'line',
+        data: { labels: quarters, datasets: trendDatasets },
+        options: {
+            responsive: true,
+            scales: {
+                y: { min: 2.5, max: 5, ticks: { font: { family: 'Sarabun' } } },
+                x: { ticks: { font: { family: 'Sarabun' } } }
+            },
+            plugins: { legend: { labels: { font: { family: 'Sarabun', size: 11 } } } }
+        }
+    });
+
+    // Gap Alert Table
+    const gapBody = document.getElementById('gapAlertBody');
+    // Filter for gaps > 0.3 (showing significant gaps)
+    const significantGaps = gapAlerts.filter(g => g.gap >= 0.3);
+    gapBody.innerHTML = significantGaps.map(g => {
+        const emp = employees.find(e => e.id === g.empId);
+        return `<tr class="border-t hover:bg-gray-50">
+            <td class="p-3">${emp.avatar} ${emp.name}</td>
+            <td class="p-3"><span class="badge bg-gray-100 text-gray-700">${emp.bu}</span></td>
+            <td class="p-3 text-center font-medium">${g.cc}</td>
+            <td class="p-3 text-center"><span class="text-amber-600 font-semibold">${g.self}</span></td>
+            <td class="p-3 text-center"><span class="text-indigo-600 font-semibold">${g.manager}</span></td>
+            <td class="p-3 text-center"><span class="badge bg-rose-100 text-rose-700">+${g.gap.toFixed(1)}</span></td>
+        </tr>`;
+    }).join('');
+}
+
+// ==================== 360 EVALUATION ====================
+let currentPerspective = 'self';
+
+function initEval360() {
+    const sel = document.getElementById('evalEmployee');
+    employees.forEach(emp => {
+        const opt = document.createElement('option');
+        opt.value = emp.id;
+        opt.textContent = `${emp.avatar} ${emp.name} (${emp.bu})`;
+        sel.appendChild(opt);
+    });
+}
+
+function loadEvalForm() {
+    const empId = parseInt(document.getElementById('evalEmployee').value);
+    if (!empId) { document.getElementById('evalFormContainer').classList.add('hidden'); return; }
+    document.getElementById('evalFormContainer').classList.remove('hidden');
+    const emp = employees.find(e => e.id === empId);
+    document.getElementById('evalAvatar').textContent = emp.avatar;
+    document.getElementById('evalName').textContent = emp.name;
+    document.getElementById('evalInfo').textContent = `${emp.position} | ${emp.bu}`;
+    currentPerspective = 'self';
+    renderEvalCCForm(empId, 'self');
+    updatePerspButtons('self');
+}
+
+function switchPerspective(persp) {
+    currentPerspective = persp;
+    const empId = parseInt(document.getElementById('evalEmployee').value);
+    renderEvalCCForm(empId, persp);
+    updatePerspButtons(persp);
+}
+
+function updatePerspButtons(persp) {
+    document.querySelectorAll('.persp-btn').forEach(btn => {
+        if (btn.dataset.persp === persp) {
+            btn.className = 'persp-btn px-4 py-2 rounded-lg text-sm font-medium bg-indigo-100 text-indigo-700';
+        } else {
+            btn.className = 'persp-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600';
+        }
+    });
+}
+
+function renderEvalCCForm(empId, persp) {
+    const container = document.getElementById('evalCCForm');
+    const empScores = scores[empId][persp];
+    const evidenceList = Object.values(evidenceSamples);
+
+    container.innerHTML = CC_NAMES.map((ccName, i) => {
+        const score = empScores ? empScores[i] : '';
+        const evSample = evidenceSamples[CC_SHORT[i]] ? evidenceSamples[CC_SHORT[i]][0] : '';
+        return `
+        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+            <div class="flex items-center justify-between mb-2">
+                <h4 class="font-semibold text-gray-800 text-sm">${ccName}</h4>
+                <span class="text-xs text-gray-500">${CC_FULL[CC_SHORT[i]].split('(')[1]?.replace(')','') || ''}</span>
+            </div>
+            <div class="flex items-center gap-4 mb-3">
+                <label class="text-sm text-gray-600">คะแนน:</label>
+                <div class="flex gap-1">
+                    ${[1,2,3,4,5].map(n => `
+                        <label class="cursor-pointer">
+                            <input type="radio" name="cc${i}_${persp}" value="${n}" ${score == n ? 'checked' : ''} class="hidden peer">
+                            <div class="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold peer-checked:bg-indigo-600 peer-checked:text-white bg-gray-200 text-gray-600 hover:bg-indigo-100 transition">${n}</div>
+                        </label>
+                    `).join('')}
+                </div>
+                <span class="text-sm font-bold text-indigo-600 ml-2" id="scoreDisplay_${i}_${persp}">${score || '-'}</span>
+            </div>
+            <div>
+                <label class="text-sm text-gray-600 mb-1 block">หลักฐาน (Evidence):</label>
+                <textarea class="w-full border rounded-lg px-3 py-2 text-sm" rows="2" placeholder="ระบุหลักฐานเชิงประจักษ์... เช่น ${evSample}" id="evidence_${i}_${persp}">${evSample}</textarea>
+            </div>
+        </div>`;
+    }).join('');
+
+    // Add score display update listeners
+    CC_SHORT.forEach((_, i) => {
+        document.querySelectorAll(`input[name="cc${i}_${persp}"]`).forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.getElementById(`scoreDisplay_${i}_${persp}`).textContent = this.value;
+            });
+        });
+    });
+}
+
+function saveEvaluation() {
+    showToast('✅ บันทึกการประเมินสำเร็จ!');
+}
+
+function resetEvalForm() {
+    const empId = parseInt(document.getElementById('evalEmployee').value);
+    if (empId) renderEvalCCForm(empId, currentPerspective);
+}
+
+// ==================== QUESTIONNAIRE ====================
+let currentBU = 'Technology';
+
+function switchBU(bu) {
+    currentBU = bu;
+    document.querySelectorAll('.bu-btn').forEach(btn => {
+        if (btn.dataset.bu === bu) {
+            btn.className = 'bu-btn px-4 py-2 rounded-lg text-sm font-medium bg-indigo-100 text-indigo-700';
+        } else {
+            btn.className = 'bu-btn px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600';
+        }
+    });
+    renderQuestionnaire();
+}
+
+function renderQuestionnaire() {
+    const container = document.getElementById('questionnaireContent');
+    const qs = questionnaires[currentBU];
+    container.innerHTML = qs.map((item, idx) => `
+        <div class="card">
+            <div class="flex items-start gap-3">
+                <div class="bg-indigo-100 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold text-indigo-600 shrink-0">${idx + 1}</div>
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="badge bg-purple-100 text-purple-700">${item.cc}</span>
+                        <span class="text-xs text-gray-500">${CC_FULL[item.cc]?.split('(')[0] || ''}</span>
+                    </div>
+                    <p class="text-gray-800 font-medium mb-2">${item.q}</p>
+                    <div class="bg-gray-50 rounded-lg p-3 text-sm text-gray-600">
+                        <span class="font-medium text-gray-700">💡 ตัวอย่างเชิงประจักษ์:</span> ${item.example}
+                    </div>
+                    <div class="mt-3 flex items-center gap-3">
+                        <label class="text-sm text-gray-600">คะแนน:</label>
+                        <div class="flex gap-1">
+                            ${[1,2,3,4,5].map(n => `
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="q${currentBU}${idx}" value="${n}" class="hidden peer">
+                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold peer-checked:bg-indigo-600 peer-checked:text-white bg-gray-200 text-gray-600 hover:bg-indigo-100 transition">${n}</div>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <textarea class="w-full border rounded-lg px-3 py-2 text-sm mt-2" rows="1" placeholder="หมายเหตุ/หลักฐาน..."></textarea>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function openRubricModal() {
+    document.getElementById('rubricModal').classList.remove('hidden');
+}
+
+function closeRubricModal(e) {
+    if (e.target === e.currentTarget) document.getElementById('rubricModal').classList.add('hidden');
+}
+
+// ==================== SUMMARY ====================
+function renderSummaryTable() {
+    const filter = document.getElementById('summaryBUFilter').value;
+    const sort = document.getElementById('summarySort').value;
+    let emps = [...employees];
+    if (filter !== 'all') emps = emps.filter(e => e.bu === filter);
+
+    if (sort === 'avg-desc') {
+        emps.sort((a, b) => {
+            const avgA = scores[a.id].avg.reduce((s, v) => s + v, 0) / 7;
+            const avgB = scores[b.id].avg.reduce((s, v) => s + v, 0) / 7;
+            return avgB - avgA;
+        });
+    } else if (sort === 'avg-asc') {
+        emps.sort((a, b) => {
+            const avgA = scores[a.id].avg.reduce((s, v) => s + v, 0) / 7;
+            const avgB = scores[b.id].avg.reduce((s, v) => s + v, 0) / 7;
+            return avgA - avgB;
+        });
+    }
+
+    const tbody = document.getElementById('summaryTableBody');
+    tbody.innerHTML = emps.map(emp => {
+        const s = scores[emp.id].avg;
+        const avg = (s.reduce((a, b) => a + b, 0) / 7).toFixed(2);
+        const avgColor = avg >= 4.0 ? 'text-emerald-600' : avg >= 3.5 ? 'text-indigo-600' : avg >= 3.0 ? 'text-amber-600' : 'text-rose-600';
+        return `<tr class="border-t hover:bg-gray-50 transition">
+            <td class="p-3">
+                <div class="flex items-center gap-2">
+                    <span>${emp.avatar}</span>
+                    <div>
+                        <div class="font-medium text-gray-800 text-sm">${emp.name}</div>
+                        <div class="text-xs text-gray-500">${emp.bu}</div>
+                    </div>
+                </div>
+            </td>
+            ${s.map(v => `<td class="p-3 text-center"><span class="${v >= 4.0 ? 'text-emerald-600' : v >= 3.5 ? 'text-indigo-600' : v >= 3.0 ? 'text-amber-600' : 'text-rose-600'} font-medium">${v.toFixed(1)}</span></td>`).join('')}
+            <td class="p-3 text-center"><span class="${avgColor} font-bold text-lg">${avg}</span></td>
+        </tr>`;
+    }).join('');
+}
+
+function initCompareRadar() {
+    const sels = [document.getElementById('compareSelect1'), document.getElementById('compareSelect2'), document.getElementById('compareSelect3')];
+    sels.forEach((sel, i) => {
+        sel.innerHTML = '';
+        employees.forEach(emp => {
+            const opt = document.createElement('option');
+            opt.value = emp.id;
+            opt.textContent = `${emp.avatar} ${emp.name}`;
+            if (i === 0 && emp.id === 2) opt.selected = true;
+            if (i === 1 && emp.id === 5) opt.selected = true;
+            if (i === 2 && emp.id === 8) opt.selected = true;
+            sel.appendChild(opt);
+        });
+    });
+    updateCompareRadar();
+}
+
+let compareChart = null;
+function updateCompareRadar() {
+    const ids = [
+        parseInt(document.getElementById('compareSelect1').value),
+        parseInt(document.getElementById('compareSelect2').value),
+        parseInt(document.getElementById('compareSelect3').value)
+    ];
+    const colors = ['#4f46e5', '#ec4899', '#10b981'];
+    const datasets = ids.map((id, i) => {
+        const emp = employees.find(e => e.id === id);
+        return {
+            label: emp.name,
+            data: scores[id].avg,
+            backgroundColor: colors[i] + '20',
+            borderColor: colors[i],
+            borderWidth: 2,
+            pointRadius: 3
+        };
+    });
+
+    if (compareChart) compareChart.destroy();
+    compareChart = new Chart(document.getElementById('compareRadar'), {
+        type: 'radar',
+        data: { labels: CC_SHORT, datasets },
+        options: {
+            responsive: true,
+            scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, font: { family: 'Sarabun' } }, pointLabels: { font: { family: 'Sarabun', size: 11 } } } },
+            plugins: { legend: { labels: { font: { family: 'Sarabun' } } } }
+        }
+    });
+}
+
+// ==================== HISTORY ====================
+function initHistory() {
+    const sel = document.getElementById('historyEmployee');
+    const optAll = document.createElement('option');
+    optAll.value = 'all';
+    optAll.textContent = 'ทุกคน (Avg)';
+    sel.appendChild(optAll);
+    employees.forEach(emp => {
+        const opt = document.createElement('option');
+        opt.value = emp.id;
+        opt.textContent = `${emp.avatar} ${emp.name}`;
+        sel.appendChild(opt);
+    });
+    renderHistoryChart();
+    renderHeatmap();
+}
+
+function renderHistoryDetail() {
+    renderHistoryChart();
+}
+
+let historyChartInstance = null;
+function renderHistoryChart() {
+    const empId = document.getElementById('historyEmployee').value;
+    const quarters = Object.keys(historyData);
+    const colors = ['#4f46e5','#7c3aed','#a855f7','#ec4899','#f59e0b','#10b981','#06b6d4'];
+
+    let datasets;
+    if (empId === 'all') {
+        datasets = CC_SHORT.map((cc, ci) => ({
+            label: cc,
+            data: quarters.map(q => historyData[q].avg[ci]),
+            borderColor: colors[ci],
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            tension: 0.3,
+            pointRadius: 4
+        }));
+    } else {
+        const emp = employees.find(e => e.id === parseInt(empId));
+        // Use avg scores as proxy for history with slight variation
+        datasets = [{
+            label: emp.name + ' (Avg)',
+            data: quarters.map((q, qi) => {
+                const base = scores[emp.id].avg.reduce((a, b) => a + b, 0) / 7;
+                return +(base - 0.3 + qi * 0.1 + Math.random() * 0.1).toFixed(2);
+            }),
+            borderColor: '#4f46e5',
+            backgroundColor: 'rgba(79,70,229,0.1)',
+            borderWidth: 2,
+            tension: 0.3,
+            pointRadius: 5,
+            fill: true
+        }];
+    }
+
+    if (historyChartInstance) historyChartInstance.destroy();
+    historyChartInstance = new Chart(document.getElementById('historyChart'), {
+        type: 'line',
+        data: { labels: quarters, datasets },
+        options: {
+            responsive: true,
+            scales: {
+                y: { min: 2.0, max: 5.0, ticks: { font: { family: 'Sarabun' } } },
+                x: { ticks: { font: { family: 'Sarabun' } } }
+            },
+            plugins: { legend: { labels: { font: { family: 'Sarabun' } } } }
+        }
+    });
+}
+
+function renderHeatmap() {
+    const grid = document.getElementById('heatmapGrid');
+    let html = '<table class="border-collapse"><thead><tr><th class="p-2 text-xs text-gray-500 text-left">พนักงาน</th>';
+    CC_SHORT.forEach(cc => { html += `<th class="p-2 text-xs text-gray-500 text-center">${cc}</th>`; });
+    html += '<th class="p-2 text-xs text-gray-500 text-center">Avg</th></tr></thead><tbody>';
+
+    employees.forEach(emp => {
+        const s = scores[emp.id].avg;
+        const avg = (s.reduce((a, b) => a + b, 0) / 7).toFixed(2);
+        html += `<tr><td class="p-2 text-xs font-medium text-gray-700 whitespace-nowrap">${emp.avatar} ${emp.name.split(' ')[0]}</td>`;
+        s.forEach(v => {
+            const bg = getHeatColor(v);
+            html += `<td class="p-1"><div class="heatmap-cell" style="background:${bg};color:${v >= 3.5 ? 'white' : '#374151'}" title="${emp.name} - ${v.toFixed(1)}">${v.toFixed(1)}</div></td>`;
+        });
+        const avgBg = getHeatColor(parseFloat(avg));
+        html += `<td class="p-1"><div class="heatmap-cell" style="background:${avgBg};color:${avg >= 3.5 ? 'white' : '#374151'};font-weight:700">${avg}</div></td>`;
+        html += '</tr>';
+    });
+    html += '</tbody></table>';
+    grid.innerHTML = html;
+}
+
+function getHeatColor(value) {
+    if (value >= 4.5) return '#059669';
+    if (value >= 4.0) return '#34d399';
+    if (value >= 3.5) return '#a3e635';
+    if (value >= 3.0) return '#fde047';
+    if (value >= 2.5) return '#fb923c';
+    return '#f87171';
+}
+
+// ==================== DATA FLOW / EXPORT ====================
+function exportJSON() {
+    const data = {
+        module: 'P4-Evaluation',
+        period: 'Q2/2026',
+        generated: new Date().toISOString(),
+        employees: employees.map(emp => ({
+            id: emp.id,
+            name: emp.name,
+            bu: emp.bu,
+            position: emp.position,
+            scores: {
+                self: scores[emp.id].self,
+                manager: scores[emp.id].manager,
+                peer: scores[emp.id].peer,
+                subordinate: scores[emp.id].subordinate,
+                customer: scores[emp.id].customer,
+                avg: scores[emp.id].avg
+            }
+        })),
+        orgAverage: employees.reduce((acc, emp) => {
+            scores[emp.id].avg.forEach((s, i) => { acc[i] += s; });
+            return acc;
+        }, [0,0,0,0,0,0,0]).map(v => +(v / employees.length).toFixed(2)),
+        competencyCompass: CC_FULL
+    };
+
+    const json = JSON.stringify(data, null, 2);
+    const preview = document.getElementById('exportPreview');
+    preview.classList.remove('hidden');
+    preview.querySelector('pre').textContent = json.substring(0, 3000) + '\n... (truncated for preview)';
+    downloadFile(json, 'P4-evaluation-Q2-2026.json', 'application/json');
+    showToast('📄 Export JSON สำเร็จ!');
+}
+
+function exportCSV() {
+    let csv = 'ID,Name,BU,Position,' + CC_SHORT.join(',') + ',Avg\n';
+    employees.forEach(emp => {
+        const s = scores[emp.id].avg;
+        const avg = (s.reduce((a, b) => a + b, 0) / 7).toFixed(2);
+        csv += `${emp.id},"${emp.name}",${emp.bu},"${emp.position}",${s.map(v => v.toFixed(2)).join(',')},${avg}\n`;
+    });
+
+    const preview = document.getElementById('exportPreview');
+    preview.classList.remove('hidden');
+    preview.querySelector('pre').textContent = csv;
+    downloadFile(csv, 'P4-evaluation-Q2-2026.csv', 'text/csv');
+    showToast('📊 Export CSV สำเร็จ!');
+}
+
+function exportPDF() {
+    showToast('📑 กำลังเตรียม PDF... (ใช้ browser Print → Save as PDF)');
+    setTimeout(() => window.print(), 500);
+}
+
+function downloadFile(content, filename, type) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ==================== TOAST ====================
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    toast.classList.remove('translate-y-20', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
+    setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+        toast.classList.remove('translate-y-0', 'opacity-100');
+    }, 3000);
+}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+    initDashboard();
+    initEval360();
+    renderQuestionnaire();
+    renderSummaryTable();
+    initCompareRadar();
+    initHistory();
+});
+</script>
+
+</body>
+</html>
