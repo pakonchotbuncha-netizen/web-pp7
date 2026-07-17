@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P3 - จับคู่คนกับงาน | ระบบบริหารบุคลากร PP7 - PKG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Sarabun', sans-serif; }
+        .gradient-header { background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%); }
+        .gradient-text { background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .tab-active { border-bottom: 3px solid #10b981; color: #10b981; font-weight: 600; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .match-score-high { background: linear-gradient(135deg, #10b981, #059669); }
+        .match-score-medium { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .match-score-low { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .drag-over { border: 2px dashed #10b981; background: #f0fdf4; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slide { animation: slideIn 0.3s ease-out; }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="gradient-header text-white shadow-lg">
+        <div class="container mx-auto px-6 py-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold mb-2">🎯 P3 - จับคู่คนกับงาน</h1>
+                    <p class="text-green-50">ประเมินก่อนทำงาน | ระบบบริหารบุคลากร PP7 - PKG</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-green-50">Module P3</div>
+                    <div class="text-2xl font-bold">Matching System</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="bg-white shadow-md sticky top-0 z-40">
+        <div class="container mx-auto px-6">
+            <div class="flex space-x-8">
+                <button onclick="switchTab('dashboard')" id="tab-dashboard" class="py-4 px-2 tab-active transition-all">📊 Dashboard</button>
+                <button onclick="switchTab('candidates')" id="tab-candidates" class="py-4 px-2 text-gray-600 hover:text-green-600 transition-all">👥 ผู้สมัครรอจับคู่</button>
+                <button onclick="switchTab('positions')" id="tab-positions" class="py-4 px-2 text-gray-600 hover:text-green-600 transition-all">💼 ตำแหน่งงานว่าง</button>
+                <button onclick="switchTab('matching')" id="tab-matching" class="py-4 px-2 text-gray-600 hover:text-green-600 transition-all">🎯 AI Matching</button>
+                <button onclick="switchTab('results')" id="tab-results" class="py-4 px-2 text-gray-600 hover:text-green-600 transition-all">✅ ผลการจับคู่</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-6 py-8">
+        <!-- Tab 1: Dashboard -->
+        <div id="content-dashboard" class="tab-content">
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-yellow-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">รอดำเนินการ</p>
+                            <p class="text-3xl font-bold text-yellow-600">10</p>
+                        </div>
+                        <div class="text-4xl">⏳</div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-blue-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">กำลังจับคู่</p>
+                            <p class="text-3xl font-bold text-blue-600">5</p>
+                        </div>
+                        <div class="text-4xl">🔄</div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-green-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">จับคู่สำเร็จ</p>
+                            <p class="text-3xl font-bold text-green-600">5</p>
+                        </div>
+                        <div class="text-4xl">✅</div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-red-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">ไม่เหมาะสม</p>
+                            <p class="text-3xl font-bold text-red-600">1</p>
+                        </div>
+                        <div class="text-4xl">❌</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">📈 Match Rate รายเดือน</h3>
+                    <canvas id="matchRateChart"></canvas>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">🎯 กระจาย CC Score ผู้สมัคร</h3>
+                    <canvas id="ccScatterChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Urgent Actions -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800">⚠️ ต้องดำเนินการเร่งด่วน</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-500">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl">🔥</span>
+                            <div>
+                                <p class="font-semibold text-gray-800">สมชาย ใจดี - Sales Manager</p>
+                                <p class="text-sm text-gray-600">CC Score: 85% | รอจับคู่ 3 วัน</p>
+                            </div>
+                        </div>
+                        <button onclick="switchTab('matching')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">จับคู่เลย</button>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-500">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl">⏰</span>
+                            <div>
+                                <p class="font-semibold text-gray-800">วิภา แสงทอง - HR Specialist</p>
+                                <p class="text-sm text-gray-600">CC Score: 82% | รอจับคู่ 2 วัน</p>
+                            </div>
+                        </div>
+                        <button onclick="switchTab('matching')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">จับคู่เลย</button>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-2xl">📋</span>
+                            <div>
+                                <p class="font-semibold text-gray-800">อนุมัติการจับคู่ 2 รายการ</p>
+                                <p class="text-sm text-gray-600">รอหัวหน้างานอนุมัติ</p>
+                            </div>
+                        </div>
+                        <button onclick="switchTab('results')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">ดูรายละเอียด</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Candidates -->
+        <div id="content-candidates" class="tab-content hidden">
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
+                    <h2 class="text-2xl font-bold text-gray-800">👥 ผู้สมัครรอจับคู่ (10 คน)</h2>
+                    <div class="flex space-x-3">
+                        <select id="filterPosition" onchange="filterCandidates()" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+                            <option value="">ทุกตำแหน่ง</option>
+                            <option value="Sales Manager">Sales Manager</option>
+                            <option value="HR Specialist">HR Specialist</option>
+                            <option value="IT Developer">IT Developer</option>
+                            <option value="Accountant">Accountant</option>
+                            <option value="Production Supervisor">Production Supervisor</option>
+                            <option value="Customer Service Lead">Customer Service Lead</option>
+                        </select>
+                        <select id="filterScore" onchange="filterCandidates()" class="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+                            <option value="">ทุกคะแนน</option>
+                            <option value="high">80% ขึ้นไป</option>
+                            <option value="medium">60-79%</option>
+                            <option value="low">ต่ำกว่า 60%</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gradient-to-r from-green-500 to-blue-500 text-white">
+                            <tr>
+                                <th class="px-4 py-3 text-left rounded-tl-lg">ชื่อ-นามสกุล</th>
+                                <th class="px-4 py-3 text-left">ตำแหน่งที่สมัคร</th>
+                                <th class="px-4 py-3 text-center">CC Score รวม</th>
+                                <th class="px-4 py-3 text-left">จุดแข็ง (CC สูงสุด)</th>
+                                <th class="px-4 py-3 text-left">จุดพัฒนา (CC ต่ำสุด)</th>
+                                <th class="px-4 py-3 text-center rounded-tr-lg">ดำเนินการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="candidatesTableBody">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Positions -->
+        <div id="content-positions" class="tab-content hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">💼 ตำแหน่งงานว่าง (8 ตำแหน่ง)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="positionsGrid">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Tab 4: AI Matching -->
+        <div id="content-matching" class="tab-content hidden">
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">🎯 ระบบจับคู่อัตโนมัติ (AI Matching)</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Select Candidate -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">เลือกผู้สมัคร</label>
+                        <select id="selectCandidate" onchange="performMatching()" class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option value="">-- เลือกผู้สมัคร --</option>
+                        </select>
+                    </div>
+                    <!-- Select Position -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">เลือกตำแหน่ง (ไม่บังคับ)</label>
+                        <select id="selectPosition" onchange="performMatching()" class="w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                            <option value="">-- ให้ AI แนะนำ --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Matching Result -->
+                <div id="matchingResult" class="hidden">
+                    <div class="border-t pt-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">📊 ผลการจับคู่</h3>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                            <!-- Candidate Info -->
+                            <div class="bg-gradient-to-br from-green-50 to-blue-50 rounded-xl p-6 border-2 border-green-200">
+                                <h4 class="font-bold text-lg mb-3 text-green-800">👤 ผู้สมัคร</h4>
+                                <div id="candidateInfo"></div>
+                            </div>
+                            
+                            <!-- Position Info -->
+                            <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 border-2 border-blue-200">
+                                <h4 class="font-bold text-lg mb-3 text-blue-800">💼 ตำแหน่ง</h4>
+                                <div id="positionInfo"></div>
+                            </div>
+                        </div>
+
+                        <!-- Match Score -->
+                        <div class="bg-white border-2 border-green-500 rounded-xl p-6 mb-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-xl font-bold text-gray-800">🎯 Match Score</h4>
+                                <div id="matchScoreBadge" class="text-3xl font-bold"></div>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
+                                <div id="matchScoreBar" class="h-4 rounded-full transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                            <div id="matchReasons" class="space-y-2"></div>
+                        </div>
+
+                        <!-- Side-by-Side Comparison -->
+                        <div class="bg-gray-50 rounded-xl p-6 mb-6">
+                            <h4 class="font-bold text-lg mb-4 text-gray-800">📈 เปรียบเทียบ CC Score</h4>
+                            <canvas id="comparisonChart"></canvas>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="confirmMatch()" class="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold">
+                                ✅ ยืนยันการจับคู่
+                            </button>
+                            <button onclick="changePosition()" class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold">
+                                🔄 เปลี่ยนตำแหน่ง
+                            </button>
+                            <button onclick="rejectMatch()" class="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold">
+                                ❌ เลื่อนออก
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Results -->
+        <div id="content-results" class="tab-content hidden">
+            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
+                    <h2 class="text-2xl font-bold text-gray-800">✅ ผลการจับคู่ทั้งหมด</h2>
+                    <button onclick="exportResults()" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                        📥 Export Excel
+                    </button>
+                </div>
+
+                <!-- Summary Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                    <div class="bg-green-50 rounded-lg p-4 text-center border-2 border-green-200">
+                        <p class="text-2xl font-bold text-green-600">5</p>
+                        <p class="text-sm text-gray-600">จับคู่สำเร็จ</p>
+                    </div>
+                    <div class="bg-yellow-50 rounded-lg p-4 text-center border-2 border-yellow-200">
+                        <p class="text-2xl font-bold text-yellow-600">2</p>
+                        <p class="text-sm text-gray-600">รออนุมัติ</p>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-4 text-center border-2 border-blue-200">
+                        <p class="text-2xl font-bold text-blue-600">0</p>
+                        <p class="text-sm text-gray-600">อนุมัติแล้ว</p>
+                    </div>
+                    <div class="bg-red-50 rounded-lg p-4 text-center border-2 border-red-200">
+                        <p class="text-2xl font-bold text-red-600">1</p>
+                        <p class="text-sm text-gray-600">ปฏิเสธ</p>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-4 text-center border-2 border-purple-200">
+                        <p class="text-2xl font-bold text-purple-600">2</p>
+                        <p class="text-sm text-gray-600">ส่งต่อ BU อื่น</p>
+                    </div>
+                </div>
+
+                <!-- Results Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gradient-to-r from-green-500 to-blue-500 text-white">
+                            <tr>
+                                <th class="px-4 py-3 text-left rounded-tl-lg">ผู้สมัคร</th>
+                                <th class="px-4 py-3 text-left">ตำแหน่ง</th>
+                                <th class="px-4 py-3 text-center">Match Score</th>
+                                <th class="px-4 py-3 text-left">สถานะ</th>
+                                <th class="px-4 py-3 text-left">Timeline</th>
+                                <th class="px-4 py-3 text-center rounded-tr-lg">ดำเนินการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTableBody">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Monthly Summary Chart -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800">📊 สรุปผลการจับคู่รายเดือน</h3>
+                <canvas id="monthlyResultsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Details -->
+    <div id="detailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="gradient-header text-white p-6 rounded-t-xl">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold" id="modalTitle">รายละเอียด</h3>
+                    <button onclick="closeModal()" class="text-white hover:text-gray-200 text-2xl">&times;</button>
+                </div>
+            </div>
+            <div id="modalContent" class="p-6"></div>
+        </div>
+    </div>
+
+    <script>
+        // Mock Data
+        const candidates = [
+            { id: 1, name: 'สมชาย ใจดี', position: 'Sales Manager', ccScores: { CC1: 90, CC2: 75, CC3: 80, CC4: 85, CC5: 70 }, totalScore: 80, status: 'waiting' },
+            { id: 2, name: 'วิภา แสงทอง', position: 'HR Specialist', ccScores: { CC1: 85, CC2: 70, CC3: 90, CC4: 75, CC5: 80 }, totalScore: 80, status: 'waiting' },
+            { id: 3, name: 'ธนพล รักษ์งาน', position: 'IT Developer', ccScores: { CC1: 65, CC2: 95, CC3: 70, CC4: 60, CC5: 90 }, totalScore: 76, status: 'waiting' },
+            { id: 4, name: 'อรุณี สว่างจิต', position: 'Accountant', ccScores: { CC1: 70, CC2: 65, CC3: 85, CC4: 75, CC5: 95 }, totalScore: 78, status: 'waiting' },
+            { id: 5, name: 'พิชัย มั่นคง', position: 'Production Supervisor', ccScores: { CC1: 75, CC2: 70, CC3: 75, CC4: 90, CC5: 85 }, totalScore: 79, status: 'waiting' },
+            { id: 6, name: 'นภัสสร พิมพ์ทอง', position: 'Customer Service Lead', ccScores: { CC1: 88, CC2: 72, CC3: 85, CC4: 80, CC5: 75 }, totalScore: 80, status: 'waiting' },
+            { id: 7, name: 'กิตติ ประเสริฐสุข', position: 'Sales Manager', ccScores: { CC1: 82, CC2: 78, CC3: 75, CC4: 88, CC5: 72 }, totalScore: 79, status: 'waiting' },
+            { id: 8, name: 'สุภาพร ดีงาม', position: 'HR Specialist', ccScores: { CC1: 80, CC2: 68, CC3: 88, CC4: 78, CC5: 82 }, totalScore: 79, status: 'waiting' },
+            { id: 9, name: 'อนุชา เก่งกาจ', position: 'IT Developer', ccScores: { CC1: 60, CC2: 92, CC3: 68, CC4: 65, CC5: 88 }, totalScore: 75, status: 'waiting' },
+            { id: 10, name: 'มนitra รอดพ้น', position: 'Accountant', ccScores: { CC1: 72, CC2: 68, CC3: 82, CC4: 78, CC5: 90 }, totalScore: 78, status: 'waiting' }
+        ];
+
+        const positions = [
+            { id: 1, name: 'Sales Manager', bu: 'Sales & Marketing', level: 'Manager', ccRequired: { CC1: 85, CC2: 75, CC3: 80, CC4: 85, CC5: 70 }, openings: 2, matched: 1 },
+            { id: 2, name: 'HR Specialist', bu: 'Human Resources', level: 'Specialist', ccRequired: { CC1: 80, CC2: 70, CC3: 85, CC4: 75, CC5: 80 }, openings: 1, matched: 0 },
+            { id: 3, name: 'IT Developer', bu: 'Information Technology', level: 'Specialist', ccRequired: { CC1: 65, CC2: 90, CC3: 70, CC4: 65, CC5: 85 }, openings: 3, matched: 1 },
+            { id: 4, name: 'Accountant', bu: 'Finance & Accounting', level: 'Specialist', ccRequired: { CC1: 70, CC2: 65, CC3: 85, CC4: 75, CC5: 90 }, openings: 2, matched: 1 },
+            { id: 5, name: 'Production Supervisor', bu: 'Operations', level: 'Supervisor', ccRequired: { CC1: 75, CC2: 70, CC3: 75, CC4: 85, CC5: 85 }, openings: 2, matched: 1 },
+            { id: 6, name: 'Customer Service Lead', bu: 'Customer Service', level: 'Team Lead', ccRequired: { CC1: 85, CC2: 70, CC3: 85, CC4: 80, CC5: 75 }, openings: 1, matched: 0 },
+            { id: 7, name: 'Marketing Coordinator', bu: 'Sales & Marketing', level: 'Coordinator', ccRequired: { CC1: 75, CC2: 85, CC3: 75, CC4: 80, CC5: 70 }, openings: 2, matched: 1 },
+            { id: 8, name: 'Operations Manager', bu: 'Operations', level: 'Manager', ccRequired: { CC1: 85, CC2: 80, CC3: 80, CC4: 85, CC5: 80 }, openings: 1, matched: 0 }
+        ];
+
+        const matchResults = [
+            { id: 1, candidate: 'สมชาย ใจดี', position: 'Sales Manager', score: 88, status: 'matched', date: '2024-01-15', timeline: 'จับคู่ → รออนุมัติ' },
+            { id: 2, candidate: 'วิภา แสงทอง', position: 'HR Specialist', score: 92, status: 'pending', date: '2024-01-16', timeline: 'จับคู่ → รอหัวหน้าอนุมัติ' },
+            { id: 3, candidate: 'ธนพล รักษ์งาน', position: 'IT Developer', score: 95, status: 'matched', date: '2024-01-14', timeline: 'จับคู่ → อนุมัติ → เริ่มงาน' },
+            { id: 4, candidate: 'อรุณี สว่างจิต', position: 'Accountant', score: 85, status: 'matched', date: '2024-01-13', timeline: 'จับคู่ → อนุมัติ → เริ่มงาน' },
+            { id: 5, candidate: 'พิชัย มั่นคง', position: 'Production Supervisor', score: 90, status: 'pending', date: '2024-01-17', timeline: 'จับคู่ → รอหัวหน้าอนุมัติ' },
+            { id: 6, candidate: 'นภัสสร พิมพ์ทอง', position: 'Customer Service Lead', score: 87, status: 'matched', date: '2024-01-12', timeline: 'จับคู่ → อนุมัติ → เริ่มงาน' },
+            { id: 7, candidate: 'กิตติ ประเสริฐสุข', position: 'Marketing Coordinator', score: 82, status: 'matched', date: '2024-01-11', timeline: 'จับคู่ → อนุมัติ → เริ่มงาน' },
+            { id: 8, candidate: 'สุภาพร ดีงาม', position: 'HR Specialist', score: 78, status: 'rejected', date: '2024-01-10', timeline: 'จับคู่ → ปฏิเสธ' },
+            { id: 9, candidate: 'อนุชา เก่งกาจ', position: 'IT Developer', score: 75, status: 'forwarded', date: '2024-01-09', timeline: 'จับคู่ → ส่งต่อ BU IT' },
+            { id: 10, candidate: 'มนitra รอดพ้น', position: 'Accountant', score: 80, status: 'forwarded', date: '2024-01-08', timeline: 'จับคู่ → ส่งต่อ BU Finance' }
+        ];
+
+        const ccNames = {
+            CC1: 'Servant Leadership',
+            CC2: 'Adaptive Innovation',
+            CC3: 'Trust-Based Value',
+            CC4: 'Consensus Teamwork',
+            CC5: 'Disciplined Professional'
+        };
+
+        // Tab Switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('[id^="tab-"]').forEach(el => {
+                el.classList.remove('tab-active');
+                el.classList.add('text-gray-600');
+            });
+            
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            const tabBtn = document.getElementById(`tab-${tabName}`);
+            tabBtn.classList.add('tab-active');
+            tabBtn.classList.remove('text-gray-600');
+        }
+
+        // Initialize Charts
+        function initCharts() {
+            // Match Rate Chart
+            const matchRateCtx = document.getElementById('matchRateChart').getContext('2d');
+            new Chart(matchRateCtx, {
+                type: 'line',
+                data: {
+                    labels: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.'],
+                    datasets: [{
+                        label: 'Match Rate (%)',
+                        data: [75, 82, 78, 85, 88, 90],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, max: 100 } }
+                }
+            });
+
+            // CC Scatter Chart
+            const scatterCtx = document.getElementById('ccScatterChart').getContext('2d');
+            const scatterData = candidates.map(c => ({
+                x: c.ccScores.CC1,
+                y: c.ccScores.CC2,
+                label: c.name
+            }));
+            new Chart(scatterCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'ผู้สมัคร',
+                        data: scatterData,
+                        backgroundColor: '#0ea5e9',
+                        pointRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { title: { display: true, text: 'CC1: Servant Leadership' }, min: 50, max: 100 },
+                        y: { title: { display: true, text: 'CC2: Adaptive Innovation' }, min: 50, max: 100 }
+                    }
+                }
+            });
+
+            // Monthly Results Chart
+            const monthlyCtx = document.getElementById('monthlyResultsChart').getContext('2d');
+            new Chart(monthlyCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.'],
+                    datasets: [
+                        { label: 'จับคู่สำเร็จ', data: [8, 10, 9, 12, 11, 13], backgroundColor: '#10b981' },
+                        { label: 'รออนุมัติ', data: [3, 2, 4, 3, 2, 2], backgroundColor: '#f59e0b' },
+                        { label: 'ปฏิเสธ', data: [1, 0, 1, 0, 1, 0], backgroundColor: '#ef4444' },
+                        { label: 'ส่งต่อ', data: [2, 1, 2, 1, 2, 1], backgroundColor: '#8b5cf6' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }
+                }
+            });
+        }
+
+        // Populate Candidates Table
+        function populateCandidatesTable() {
+            const tbody = document.getElementById('candidatesTableBody');
+            tbody.innerHTML = candidates.map(c => {
+                const strengths = Object.entries(c.ccScores).sort((a, b) => b[1] - a[1]);
+                const strongest = strengths[0];
+                const weakest = strengths[strengths.length - 1];
+                
+                return `
+                    <tr class="border-b hover:bg-gray-50 transition">
+                        <td class="px-4 py-3 font-semibold">${c.name}</td>
+                        <td class="px-4 py-3">${c.position}</td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="px-3 py-1 rounded-full text-white text-sm font-bold ${c.totalScore >= 80 ? 'bg-green-500' : c.totalScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'}">
+                                ${c.totalScore}%
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="text-green-600 font-semibold">${ccNames[strongest[0]]}</span>
+                            <span class="text-gray-500 text-sm">(${strongest[1]}%)</span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="text-red-600 font-semibold">${ccNames[weakest[0]]}</span>
+                            <span class="text-gray-500 text-sm">(${weakest[1]}%)</span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <button onclick="startMatching(${c.id})" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm">
+                                จับคู่
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Filter Candidates
+        function filterCandidates() {
+            const positionFilter = document.getElementById('filterPosition').value;
+            const scoreFilter = document.getElementById('filterScore').value;
+            
+            let filtered = candidates;
+            if (positionFilter) filtered = filtered.filter(c => c.position === positionFilter);
+            if (scoreFilter === 'high') filtered = filtered.filter(c => c.totalScore >= 80);
+            if (scoreFilter === 'medium') filtered = filtered.filter(c => c.totalScore >= 60 && c.totalScore < 80);
+            if (scoreFilter === 'low') filtered = filtered.filter(c => c.totalScore < 60);
+            
+            const tbody = document.getElementById('candidatesTableBody');
+            tbody.innerHTML = filtered.map(c => {
+                const strengths = Object.entries(c.ccScores).sort((a, b) => b[1] - a[1]);
+                const strongest = strengths[0];
+                const weakest = strengths[strengths.length - 1];
+                
+                return `
+                    <tr class="border-b hover:bg-gray-50 transition">
+                        <td class="px-4 py-3 font-semibold">${c.name}</td>
+                        <td class="px-4 py-3">${c.position}</td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="px-3 py-1 rounded-full text-white text-sm font-bold ${c.totalScore >= 80 ? 'bg-green-500' : c.totalScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'}">
+                                ${c.totalScore}%
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="text-green-600 font-semibold">${ccNames[strongest[0]]}</span>
+                            <span class="text-gray-500 text-sm">(${strongest[1]}%)</span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="text-red-600 font-semibold">${ccNames[weakest[0]]}</span>
+                            <span class="text-gray-500 text-sm">(${weakest[1]}%)</span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <button onclick="startMatching(${c.id})" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm">
+                                จับคู่
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Populate Positions Grid
+        function populatePositionsGrid() {
+            const grid = document.getElementById('positionsGrid');
+            grid.innerHTML = positions.map(p => `
+                <div class="bg-white rounded-xl shadow-md p-6 card-hover border-t-4 border-green-500">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">${p.name}</h3>
+                            <p class="text-sm text-gray-600">${p.bu}</p>
+                        </div>
+                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">${p.level}</span>
+                    </div>
+                    <div class="mb-4">
+                        <canvas id="radar-${p.id}" width="200" height="200"></canvas>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <div>
+                            <span class="text-gray-600">รับ:</span>
+                            <span class="font-bold text-green-600">${p.openings} คน</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Match แล้ว:</span>
+                            <span class="font-bold text-blue-600">${p.matched} คน</span>
+                        </div>
+                    </div>
+                    <button onclick="viewPositionDetail(${p.id})" class="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                        ดูรายละเอียด
+                    </button>
+                </div>
+            `).join('');
+
+            // Draw radar charts
+            positions.forEach(p => {
+                const ctx = document.getElementById(`radar-${p.id}`).getContext('2d');
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: Object.keys(p.ccRequired).map(k => k.replace('CC', 'CC')),
+                        datasets: [{
+                            label: 'CC ที่ต้องการ',
+                            data: Object.values(p.ccRequired),
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                            borderColor: '#10b981',
+                            pointBackgroundColor: '#10b981'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: { stepSize: 20 }
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        // Populate Select Dropdowns
+        function populateSelects() {
+            const candidateSelect = document.getElementById('selectCandidate');
+            candidates.forEach(c => {
+                const option = document.createElement('option');
+                option.value = c.id;
+                option.textContent = `${c.name} - ${c.position} (${c.totalScore}%)`;
+                candidateSelect.appendChild(option);
+            });
+
+            const positionSelect = document.getElementById('selectPosition');
+            positions.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = `${p.name} - ${p.bu}`;
+                positionSelect.appendChild(option);
+            });
+        }
+
+        // Perform Matching
+        function performMatching() {
+            const candidateId = document.getElementById('selectCandidate').value;
+            const positionId = document.getElementById('selectPosition').value;
+            
+            if (!candidateId) {
+                document.getElementById('matchingResult').classList.add('hidden');
+                return;
+            }
+
+            const candidate = candidates.find(c => c.id == candidateId);
+            let position;
+            
+            if (positionId) {
+                position = positions.find(p => p.id == positionId);
+            } else {
+                // AI recommendation - find best match
+                position = findBestMatch(candidate);
+            }
+
+            // Calculate match score
+            const matchScore = calculateMatchScore(candidate, position);
+            
+            // Display results
+            document.getElementById('matchingResult').classList.remove('hidden');
+            
+            // Candidate Info
+            document.getElementById('candidateInfo').innerHTML = `
+                <p class="font-bold text-lg mb-2">${candidate.name}</p>
+                <p class="text-sm text-gray-600 mb-3">ตำแหน่งที่สมัคร: ${candidate.position}</p>
+                <div class="space-y-2">
+                    ${Object.entries(candidate.ccScores).map(([key, value]) => `
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">${ccNames[key]}</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-24 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: ${value}%"></div>
+                                </div>
+                                <span class="text-sm font-bold">${value}%</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Position Info
+            document.getElementById('positionInfo').innerHTML = `
+                <p class="font-bold text-lg mb-2">${position.name}</p>
+                <p class="text-sm text-gray-600 mb-3">${position.bu} | ${position.level}</p>
+                <div class="space-y-2">
+                    ${Object.entries(position.ccRequired).map(([key, value]) => `
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">${ccNames[key]}</span>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-24 bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: ${value}%"></div>
+                                </div>
+                                <span class="text-sm font-bold">${value}%</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Match Score
+            const scoreBadge = document.getElementById('matchScoreBadge');
+            const scoreBar = document.getElementById('matchScoreBar');
+            scoreBadge.textContent = `${matchScore}%`;
+            scoreBar.style.width = `${matchScore}%`;
+            scoreBar.className = `h-4 rounded-full transition-all duration-500 ${matchScore >= 80 ? 'match-score-high' : matchScore >= 60 ? 'match-score-medium' : 'match-score-low'}`;
+
+            // Match Reasons
+            const reasons = generateMatchReasons(candidate, position, matchScore);
+            document.getElementById('matchReasons').innerHTML = reasons.map(r => `
+                <div class="flex items-start space-x-2 p-3 bg-green-50 rounded-lg">
+                    <span class="text-green-600">✓</span>
+                    <p class="text-sm text-gray-700">${r}</p>
+                </div>
+            `).join('');
+
+            // Comparison Chart
+            drawComparisonChart(candidate, position);
+        }
+
+        function findBestMatch(candidate) {
+            let bestPosition = null;
+            let bestScore = 0;
+            
+            positions.forEach(p => {
+                const score = calculateMatchScore(candidate, p);
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestPosition = p;
+                }
+            });
+            
+            return bestPosition;
+        }
+
+        function calculateMatchScore(candidate, position) {
+            let totalDiff = 0;
+            let count = 0;
+            
+            Object.keys(candidate.ccScores).forEach(key => {
+                const candidateScore = candidate.ccScores[key];
+                const requiredScore = position.ccRequired[key];
+                totalDiff += Math.abs(candidateScore - requiredScore);
+                count++;
+            });
+            
+            const avgDiff = totalDiff / count;
+            return Math.max(0, Math.round(100 - avgDiff));
+        }
+
+        function generateMatchReasons(candidate, position, score) {
+            const reasons = [];
+            
+            Object.entries(candidate.ccScores).forEach(([key, value]) => {
+                const required = position.ccRequired[key];
+                if (value >= required) {
+                    reasons.push(`${ccNames[key]} สูง (${value}%) → เหมาะกับข้อกำหนดตำแหน่ง (${required}%)`);
+                }
+            });
+            
+            if (score >= 85) {
+                reasons.push('คะแนนรวมสูงมาก → มีศักยภาพในการเติบโต');
+            }
+            
+            return reasons.slice(0, 4);
+        }
+
+        function drawComparisonChart(candidate, position) {
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+            
+            // Destroy existing chart if any
+            if (window.comparisonChartInstance) {
+                window.comparisonChartInstance.destroy();
+            }
+            
+            window.comparisonChartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: Object.keys(candidate.ccScores).map(k => ccNames[k]),
+                    datasets: [
+                        {
+                            label: 'ผู้สมัคร',
+                            data: Object.values(candidate.ccScores),
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                            borderColor: '#10b981',
+                            pointBackgroundColor: '#10b981'
+                        },
+                        {
+                            label: 'ข้อกำหนดตำแหน่ง',
+                            data: Object.values(position.ccRequired),
+                            backgroundColor: 'rgba(14, 165, 233, 0.2)',
+                            borderColor: '#0ea5e9',
+                            pointBackgroundColor: '#0ea5e9'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { stepSize: 20 }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Populate Results Table
+        function populateResultsTable() {
+            const tbody = document.getElementById('resultsTableBody');
+            tbody.innerHTML = matchResults.map(r => {
+                const statusConfig = {
+                    matched: { text: 'จับคู่สำเร็จ', class: 'bg-green-100 text-green-700' },
+                    pending: { text: 'รออนุมัติ', class: 'bg-yellow-100 text-yellow-700' },
+                    approved: { text: 'อนุมัติแล้ว', class: 'bg-blue-100 text-blue-700' },
+                    rejected: { text: 'ปฏิเสธ', class: 'bg-red-100 text-red-700' },
+                    forwarded: { text: 'ส่งต่อ BU อื่น', class: 'bg-purple-100 text-purple-700' }
+                };
+                
+                const status = statusConfig[r.status];
+                
+                return `
+                    <tr class="border-b hover:bg-gray-50 transition">
+                        <td class="px-4 py-3 font-semibold">${r.candidate}</td>
+                        <td class="px-4 py-3">${r.position}</td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="px-3 py-1 rounded-full text-white text-sm font-bold ${r.score >= 80 ? 'bg-green-500' : r.score >= 60 ? 'bg-yellow-500' : 'bg-red-500'}">
+                                ${r.score}%
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="status-badge ${status.class}">${status.text}</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${r.timeline}</td>
+                        <td class="px-4 py-3 text-center">
+                            <button onclick="viewResultDetail(${r.id})" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm">
+                                ดู
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Action Functions
+        function startMatching(candidateId) {
+            switchTab('matching');
+            document.getElementById('selectCandidate').value = candidateId;
+            performMatching();
+        }
+
+        function confirmMatch() {
+            alert('✅ ยืนยันการจับคู่สำเร็จ!\nระบบจะส่งต่อให้หัวหน้างานอนุมัติต่อไป');
+        }
+
+        function changePosition() {
+            document.getElementById('selectPosition').value = '';
+            performMatching();
+        }
+
+        function rejectMatch() {
+            if (confirm('ต้องการเลื่อนผู้สมัครนี้ออกหรือไม่?')) {
+                alert('❌ เลื่อนผู้สมัครออกแล้ว');
+            }
+        }
+
+        function viewPositionDetail(positionId) {
+            const position = positions.find(p => p.id === positionId);
+            const matchedCandidates = candidates.filter(c => c.position === position.name);
+            
+            document.getElementById('modalTitle').textContent = `💼 ${position.name}`;
+            document.getElementById('modalContent').innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <p class="font-semibold text-gray-700">Business Unit:</p>
+                        <p class="text-gray-600">${position.bu}</p>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-700">ระดับ:</p>
+                        <p class="text-gray-600">${position.level}</p>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-700">จำนวนรับ:</p>
+                        <p class="text-gray-600">${position.openings} คน</p>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-700 mb-2">CC ที่ต้องการ:</p>
+                        <div class="space-y-2">
+                            ${Object.entries(position.ccRequired).map(([key, value]) => `
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm">${ccNames[key]}</span>
+                                    <span class="font-bold">${value}%</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-700 mb-2">ผู้สมัครที่ Match:</p>
+                        ${matchedCandidates.length > 0 ? `
+                            <div class="space-y-2">
+                                ${matchedCandidates.map(c => `
+                                    <div class="p-3 bg-green-50 rounded-lg">
+                                        <p class="font-semibold">${c.name}</p>
+                                        <p class="text-sm text-gray-600">CC Score: ${c.totalScore}%</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p class="text-gray-500">ยังไม่มีผู้สมัครที่ Match</p>'}
+                    </div>
+                </div>
+            `;
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function viewResultDetail(resultId) {
+            const result = matchResults.find(r => r.id === resultId);
+            
+            document.getElementById('modalTitle').textContent = `✅ รายละเอียดผลการจับคู่`;
+            document.getElementById('modalContent').innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <p class="font-semibold text-gray-700">ผู้สมัคร:</p>
+                        <p class="text-gray-600">${result.candidate}</p>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-700">ตำแหน่ง:</p>
+                        <p class="text-gray-600">${result.position}</p>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-700">Match Score:</p>
+                        <p class="text-2xl font-bold text-green-600">${result.score}%</p>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-700">สถานะ:</p>
+                        <p class="text-gray-600">${result.timeline}</p>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-700">วันที่จับคู่:</p>
+                        <p class="text-gray-600">${result.date}</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        function exportResults() {
+            alert('📥 กำลัง Export ผลการจับคู่เป็น Excel...\n(ฟีเจอร์นี้จะเป็น integration กับ Google Sheets)');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            populateCandidatesTable();
+            populatePositionsGrid();
+            populateSelects();
+            populateResultsTable();
+        });
+    </script>
+</body>
+</html>

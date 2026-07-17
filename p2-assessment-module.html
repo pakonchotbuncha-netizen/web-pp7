@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2 - หยิงประเมิน | ระบบบริหารบุคลากร PP7 - PKG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Sarabun', sans-serif; }
+        .gradient-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .gradient-header-dark { background: linear-gradient(135deg, #5a67d8 0%, #6b46a0 100%); }
+        .tab-active { border-bottom: 3px solid #667eea; color: #667eea; font-weight: 600; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .status-pass { background: #d4edda; color: #155724; }
+        .status-fail { background: #f8d7da; color: #721c24; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-progress { background: #cce5ff; color: #004085; }
+        .modal-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+        .cc-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 9999px; }
+        .cc1 { background: #ede9fe; color: #5b21b6; }
+        .cc2 { background: #dbeafe; color: #1e40af; }
+        .cc3 { background: #d1fae5; color: #065f46; }
+        .cc4 { background: #fef3c7; color: #92400e; }
+        .cc5 { background: #fce7f3; color: #9d174d; }
+        .score-bar { height: 8px; border-radius: 4px; background: #e5e7eb; overflow: hidden; }
+        .score-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+        .timer-display { font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .calendar-cell { min-height: 60px; }
+        @keyframes pulse-border { 0%,100% { border-color: #667eea; } 50% { border-color: #764ba2; } }
+        .pulse-border { animation: pulse-border 2s infinite; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .btn-primary:hover { opacity: 0.9; }
+        input, select, textarea { font-family: 'Sarabun', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<!-- Header -->
+<header class="gradient-header text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="bg-white/20 rounded-xl p-2">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold">P2 - หยิงประเมิน</h1>
+                    <p class="text-white/80 text-sm">ระบบบริหารบุคลากร PP7 | PKG Group</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="bg-white/20 px-3 py-1 rounded-full text-sm">ขั้นตอนที่ 2 ของ 7</span>
+                <div class="flex gap-1">
+                    <span class="w-8 h-2 rounded bg-green-400"></span>
+                    <span class="w-8 h-2 rounded bg-white"></span>
+                    <span class="w-8 h-2 rounded bg-white/30"></span>
+                    <span class="w-8 h-2 rounded bg-white/30"></span>
+                    <span class="w-8 h-2 rounded bg-white/30"></span>
+                    <span class="w-8 h-2 rounded bg-white/30"></span>
+                    <span class="w-8 h-2 rounded bg-white/30"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Navigation Tabs -->
+<nav class="bg-white shadow-sm sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="flex overflow-x-auto">
+            <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn px-5 py-3 text-sm whitespace-nowrap tab-active transition-all">📊 Dashboard</button>
+            <button onclick="switchTab('schedule')" id="tab-schedule" class="tab-btn px-5 py-3 text-sm whitespace-nowrap text-gray-500 hover:text-gray-700 transition-all">📅 จัดตารางสัมภาษณ์</button>
+            <button onclick="switchTab('interview')" id="tab-interview" class="tab-btn px-5 py-3 text-sm whitespace-nowrap text-gray-500 hover:text-gray-700 transition-all">📝 แบบสัมภาษณ์</button>
+            <button onclick="switchTab('test')" id="tab-test" class="tab-btn px-5 py-3 text-sm whitespace-nowrap text-gray-500 hover:text-gray-700 transition-all">🧪 แบบทดสอบออนไลน์</button>
+            <button onclick="switchTab('summary')" id="tab-summary" class="tab-btn px-5 py-3 text-sm whitespace-nowrap text-gray-500 hover:text-gray-700 transition-all">📈 สรุปผลประเมิน</button>
+            <button onclick="switchTab('matching')" id="tab-matching" class="tab-btn px-5 py-3 text-sm whitespace-nowrap text-gray-500 hover:text-gray-700 transition-all">🔗 จับคู่คนกับงาน (P3)</button>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto px-4 py-6">
+
+<!-- ==================== TAB 1: DASHBOARD ==================== -->
+<div id="content-dashboard" class="tab-content">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-xl shadow-sm p-5 card-hover border-l-4 border-yellow-400">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">รอประเมิน</p>
+                    <p class="text-3xl font-bold text-yellow-600" id="stat-pending">4</p>
+                </div>
+                <div class="bg-yellow-100 rounded-full p-3">
+                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-5 card-hover border-l-4 border-blue-400">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">กำลังประเมิน</p>
+                    <p class="text-3xl font-bold text-blue-600" id="stat-progress">3</p>
+                </div>
+                <div class="bg-blue-100 rounded-full p-3">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-5 card-hover border-l-4 border-green-400">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">ผ่านแล้ว</p>
+                    <p class="text-3xl font-bold text-green-600" id="stat-pass">2</p>
+                </div>
+                <div class="bg-green-100 rounded-full p-3">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-5 card-hover border-l-4 border-red-400">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-500 text-sm">ไม่ผ่าน</p>
+                    <p class="text-3xl font-bold text-red-600" id="stat-fail">1</p>
+                </div>
+                <div class="bg-red-100 rounded-full p-3">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-xl shadow-sm p-5">
+            <h3 class="font-semibold text-gray-700 mb-4">📊 คะแนนเฉลี่ยแต่ละ CC</h3>
+            <canvas id="radarChart" height="250"></canvas>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-5">
+            <h3 class="font-semibold text-gray-700 mb-4">📈 แนวโน้มการประเมินรายสัปดาห์</h3>
+            <canvas id="lineChart" height="250"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Actions -->
+    <div class="bg-white rounded-xl shadow-sm p-5">
+        <h3 class="font-semibold text-gray-700 mb-4">📋 รายการล่าสุดที่ต้องดำเนินการ</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left">ผู้สมัคร</th>
+                        <th class="px-4 py-3 text-left">ตำแหน่ง</th>
+                        <th class="px-4 py-3 text-left">ขั้นตอน</th>
+                        <th class="px-4 py-3 text-left">วันที่</th>
+                        <th class="px-4 py-3 text-left">สถานะ</th>
+                        <th class="px-4 py-3 text-left">ดำเนินการ</th>
+                    </tr>
+                </thead>
+                <tbody id="recentTable"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TAB 2: SCHEDULE ==================== -->
+<div id="content-schedule" class="tab-content hidden">
+    <div class="flex flex-col lg:flex-row gap-6">
+        <!-- Calendar -->
+        <div class="flex-1">
+            <div class="bg-white rounded-xl shadow-sm p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-semibold text-gray-700">📅 ปฏิทินสัมภาษณ์ - กรกฎาคม 2026</h3>
+                    <div class="flex gap-2">
+                        <button onclick="changeWeek(-1)" class="px-3 py-1 bg-gray-100 rounded-lg hover:bg-gray-200">◀</button>
+                        <span class="px-3 py-1 text-sm font-medium" id="weekLabel">13-19 ก.ค. 2569</span>
+                        <button onclick="changeWeek(1)" class="px-3 py-1 bg-gray-100 rounded-lg hover:bg-gray-200">▶</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="border p-2 w-20">เวลา</th>
+                                <th class="border p-2">จันทร์ 13</th>
+                                <th class="border p-2">อังคาร 14</th>
+                                <th class="border p-2">พุธ 15</th>
+                                <th class="border p-2">พฤหัสบดี 16</th>
+                                <th class="border p-2">ศุกร์ 17</th>
+                            </tr>
+                        </thead>
+                        <tbody id="calendarBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule List -->
+        <div class="lg:w-96">
+            <div class="bg-white rounded-xl shadow-sm p-5 mb-4">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-semibold text-gray-700">📌 นัดสัมภาษณ์</h3>
+                    <button onclick="openModal('scheduleModal')" class="btn-primary text-white px-3 py-1.5 rounded-lg text-sm">+ สร้างนัด</button>
+                </div>
+                <div id="scheduleList" class="space-y-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TAB 3: INTERVIEW ==================== -->
+<div id="content-interview" class="tab-content hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Candidate List -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-xl shadow-sm p-5">
+                <h3 class="font-semibold text-gray-700 mb-4">📋 ผู้สมัครที่ต้องสัมภาษณ์</h3>
+                <div id="interviewCandidateList" class="space-y-2"></div>
+            </div>
+        </div>
+
+        <!-- Interview Form -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-xl shadow-sm p-5" id="interviewFormArea">
+                <div class="text-center text-gray-400 py-16">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    <p class="text-lg">เลือกผู้สมัครทางซ้ายเพื่อเริ่มประเมิน</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TAB 4: ONLINE TEST ==================== -->
+<div id="content-test" class="tab-content hidden">
+    <!-- Test Type Selection -->
+    <div id="testSelection" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div onclick="startTest('skill')" class="bg-white rounded-xl shadow-sm p-6 card-hover cursor-pointer border-2 border-transparent hover:border-blue-400">
+            <div class="text-center">
+                <div class="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <span class="text-3xl">🧠</span>
+                </div>
+                <h4 class="font-semibold text-lg">ทดสอบทักษะ</h4>
+                <p class="text-gray-500 text-sm mt-2">ตามตำแหน่งงาน</p>
+                <p class="text-blue-600 font-medium mt-3">8 คำถาม • 30 นาที</p>
+            </div>
+        </div>
+        <div onclick="startTest('cmc')" class="bg-white rounded-xl shadow-sm p-6 card-hover cursor-pointer border-2 border-transparent hover:border-green-400">
+            <div class="text-center">
+                <div class="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <span class="text-3xl">🏢</span>
+                </div>
+                <h4 class="font-semibold text-lg">ทดสอบ CMC</h4>
+                <p class="text-gray-500 text-sm mt-2">วัฒนธรรมองค์กร</p>
+                <p class="text-green-600 font-medium mt-3">7 คำถาม • 20 นาที</p>
+            </div>
+        </div>
+        <div onclick="startTest('attitude')" class="bg-white rounded-xl shadow-sm p-6 card-hover cursor-pointer border-2 border-transparent hover:border-purple-400">
+            <div class="text-center">
+                <div class="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <span class="text-3xl">💡</span>
+                </div>
+                <h4 class="font-semibold text-lg">ทดสอบทัศนคติ</h4>
+                <p class="text-gray-500 text-sm mt-2">CC1-CC5</p>
+                <p class="text-purple-600 font-medium mt-3">10 คำถาม • 25 นาที</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Area -->
+    <div id="testArea" class="hidden">
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 class="font-semibold text-lg" id="testTitle"></h3>
+                    <p class="text-gray-500 text-sm" id="testDesc"></p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-center">
+                        <p class="text-xs text-gray-500">เวลาที่เหลือ</p>
+                        <p class="timer-display text-red-500" id="testTimer">30:00</p>
+                    </div>
+                    <button onclick="exitTest()" class="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 text-sm">ออก</button>
+                </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="mb-6">
+                <div class="flex justify-between text-sm text-gray-500 mb-1">
+                    <span>ข้อ <span id="currentQ">1</span> / <span id="totalQ">8</span></span>
+                    <span id="progressPercent">12%</span>
+                </div>
+                <div class="score-bar">
+                    <div class="score-fill bg-gradient-to-r from-indigo-500 to-purple-500" id="progressBar" style="width: 12%"></div>
+                </div>
+            </div>
+
+            <!-- Question -->
+            <div id="questionArea" class="mb-6"></div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between">
+                <button onclick="prevQuestion()" id="prevBtn" class="px-5 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50" disabled>← ก่อนหน้า</button>
+                <button onclick="nextQuestion()" id="nextBtn" class="px-5 py-2 btn-primary text-white rounded-lg">ถัดไป →</button>
+                <button onclick="submitTest()" id="submitBtn" class="px-5 py-2 bg-green-600 text-white rounded-lg hidden">✓ ส่งคำตอบ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Result -->
+    <div id="testResult" class="hidden">
+        <div class="bg-white rounded-xl shadow-sm p-6 text-center">
+            <div class="text-6xl mb-4">🎉</div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">ส่งคำตอบเรียบร้อย!</h3>
+            <p class="text-gray-500 mb-6" id="testResultDesc"></p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto mb-6" id="testScoreCards"></div>
+            <button onclick="resetTest()" class="btn-primary text-white px-6 py-2 rounded-lg">กลับหน้าเลือกแบบทดสอบ</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TAB 5: SUMMARY ==================== -->
+<div id="content-summary" class="tab-content hidden">
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+        <div class="flex flex-wrap gap-3 items-center">
+            <span class="font-medium text-gray-700">🔍 กรอง:</span>
+            <select id="filterStatus" onchange="renderSummary()" class="border rounded-lg px-3 py-2 text-sm">
+                <option value="all">ทุกสถานะ</option>
+                <option value="pass">ผ่าน</option>
+                <option value="fail">ไม่ผ่าน</option>
+                <option value="pending">รอพิจารณา</option>
+            </select>
+            <select id="filterPosition" onchange="renderSummary()" class="border rounded-lg px-3 py-2 text-sm">
+                <option value="all">ทุกตำแหน่ง</option>
+            </select>
+            <select id="filterCC" onchange="renderSummary()" class="border rounded-lg px-3 py-2 text-sm">
+                <option value="all">ทุก CC</option>
+                <option value="cc1">CC1 - Servant Leadership</option>
+                <option value="cc2">CC2 - Adaptive Innovation</option>
+                <option value="cc3">CC3 - Trust-Based Value</option>
+                <option value="cc4">CC4 - Consensus Teamwork</option>
+                <option value="cc5">CC5 - Disciplined Professionalism</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Summary Table -->
+    <div class="bg-white rounded-xl shadow-sm p-5 mb-6">
+        <h3 class="font-semibold text-gray-700 mb-4">📊 ตารางสรุปคะแนนผู้สมัคร</h3>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-3 py-3 text-left">#</th>
+                        <th class="px-3 py-3 text-left">ผู้สมัคร</th>
+                        <th class="px-3 py-3 text-left">ตำแหน่ง</th>
+                        <th class="px-3 py-3 text-center">CC1</th>
+                        <th class="px-3 py-3 text-center">CC2</th>
+                        <th class="px-3 py-3 text-center">CC3</th>
+                        <th class="px-3 py-3 text-center">CC4</th>
+                        <th class="px-3 py-3 text-center">CC5</th>
+                        <th class="px-3 py-3 text-center">รวม</th>
+                        <th class="px-3 py-3 text-center">สถานะ</th>
+                        <th class="px-3 py-3 text-left">ดำเนินการ</th>
+                    </tr>
+                </thead>
+                <tbody id="summaryTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Comparison Chart -->
+    <div class="bg-white rounded-xl shadow-sm p-5">
+        <h3 class="font-semibold text-gray-700 mb-4">📊 กราฟเปรียบเทียบผู้สมัคร</h3>
+        <canvas id="comparisonChart" height="300"></canvas>
+    </div>
+</div>
+
+<!-- ==================== TAB 6: P3 MATCHING ==================== -->
+<div id="content-matching" class="tab-content hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Passed Candidates -->
+        <div>
+            <div class="bg-white rounded-xl shadow-sm p-5">
+                <h3 class="font-semibold text-gray-700 mb-4">✅ ผู้สมัครที่ผ่าน P2</h3>
+                <div id="passedCandidates" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- AI Matching -->
+        <div>
+            <div class="bg-white rounded-xl shadow-sm p-5">
+                <h3 class="font-semibold text-gray-700 mb-4">🤖 AI แนะนำตำแหน่งที่เหมาะสม</h3>
+                <div id="aiMatching" class="space-y-3">
+                    <div class="text-center text-gray-400 py-8">
+                        <p>เลือกผู้สมัครทางซ้ายเพื่อดูคำแนะนำ</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Log -->
+    <div class="bg-white rounded-xl shadow-sm p-5 mt-6">
+        <h3 class="font-semibold text-gray-700 mb-4">📜 บันทึกการดำเนินการ</h3>
+        <div id="actionLog" class="space-y-2">
+            <div class="text-center text-gray-400 py-4">
+                <p>ยังไม่มีรายการ</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</main>
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- Schedule Modal -->
+<div id="scheduleModal" class="fixed inset-0 z-50 hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('scheduleModal')"></div>
+    <div class="relative flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative z-10">
+            <div class="gradient-header rounded-t-2xl px-6 py-4 text-white">
+                <h3 class="text-lg font-semibold">📅 สร้างนัดสัมภาษณ์ใหม่</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ผู้สมัคร</label>
+                    <select id="schedCandidate" class="w-full border rounded-lg px-3 py-2 text-sm"></select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">วันที่</label>
+                        <input type="date" id="schedDate" class="w-full border rounded-lg px-3 py-2 text-sm" value="2026-07-17">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">เวลา</label>
+                        <input type="time" id="schedTime" class="w-full border rounded-lg px-3 py-2 text-sm" value="09:00">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ห้องสัมภาษณ์</label>
+                    <select id="schedRoom" class="w-full border rounded-lg px-3 py-2 text-sm">
+                        <option>ห้องประชุม A (ชั้น 3)</option>
+                        <option>ห้องประชุม B (ชั้น 5)</option>
+                        <option>ห้องสัมภาษณ์ Online (Zoom)</option>
+                        <option>ห้อง HR (ชั้น 2)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">กรรมการ (เลือกได้หลายคน)</label>
+                    <div id="schedCommittee" class="space-y-2 max-h-40 overflow-y-auto border rounded-lg p-3"></div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">หมายเหตุ</label>
+                    <textarea id="schedNote" class="w-full border rounded-lg px-3 py-2 text-sm" rows="2" placeholder="หมายเหตุเพิ่มเติม..."></textarea>
+                </div>
+            </div>
+            <div class="px-6 py-4 bg-gray-50 rounded-b-2xl flex justify-end gap-3">
+                <button onclick="closeModal('scheduleModal')" class="px-4 py-2 bg-gray-200 rounded-lg text-sm hover:bg-gray-300">ยกเลิก</button>
+                <button onclick="saveSchedule()" class="px-4 py-2 btn-primary text-white rounded-lg text-sm">บันทึกนัด</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detail Modal -->
+<div id="detailModal" class="fixed inset-0 z-50 hidden">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal('detailModal')"></div>
+    <div class="relative flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative z-10 max-h-[90vh] overflow-y-auto">
+            <div class="gradient-header rounded-t-2xl px-6 py-4 text-white flex justify-between items-center">
+                <h3 class="text-lg font-semibold" id="detailTitle">รายละเอียด</h3>
+                <button onclick="closeModal('detailModal')" class="text-white/80 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="p-6" id="detailContent"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ==================== MOCK DATA ====================
+const ccNames = {
+    cc1: 'CC1: Servant Leadership',
+    cc2: 'CC2: Adaptive Innovation',
+    cc3: 'CC3: Trust-Based Value',
+    cc4: 'CC4: Consensus Teamwork',
+    cc5: 'CC5: Disciplined Professionalism'
+};
+
+const ccShort = {
+    cc1: 'Servant Leadership',
+    cc2: 'Adaptive Innovation',
+    cc3: 'Trust-Based Value',
+    cc4: 'Consensus Teamwork',
+    cc5: 'Disciplined Prof.'
+};
+
+const candidates = [
+    { id: 1, name: 'สมชาย ใจดี', position: 'ผู้จัดการฝ่ายขาย', dept: 'ฝ่ายขาย', status: 'pass', cc: {cc1:4.5,cc2:4.0,cc3:4.2,cc4:3.8,cc5:4.0}, appliedDate: '2026-07-01', avatar: '👨‍💼' },
+    { id: 2, name: 'วิภา แสงทอง', position: 'วิศวกรซอฟต์แวร์', dept: 'ฝ่ายไอที', status: 'pass', cc: {cc1:3.8,cc2:4.5,cc3:4.0,cc4:4.2,cc5:4.3}, appliedDate: '2026-07-02', avatar: '👩‍💻' },
+    { id: 3, name: 'ธนากร รักษ์งาน', position: 'เจ้าหน้าที่ HR', dept: 'ฝ่ายบุคคล', status: 'pending', cc: {cc1:4.0,cc2:3.5,cc3:4.5,cc4:4.0,cc5:3.5}, appliedDate: '2026-07-03', avatar: '👨‍💼' },
+    { id: 4, name: 'อรุณี สว่างจิต', position: 'นักบัญชี', dept: 'ฝ่ายบัญชี', status: 'pending', cc: {cc1:3.5,cc2:3.0,cc3:3.8,cc4:3.5,cc5:4.5}, appliedDate: '2026-07-03', avatar: '👩‍💼' },
+    { id: 5, name: 'พิชิต ชัยชนะ', position: 'ผู้จัดการโครงการ IT', dept: 'ฝ่ายไอที', status: 'progress', cc: {cc1:4.2,cc2:4.0,cc3:3.5,cc4:4.5,cc5:4.0}, appliedDate: '2026-07-04', avatar: '👨‍💻' },
+    { id: 6, name: 'นภัสสร พิมพ์ทอง', position: 'ผู้เชี่ยวชาญ Digital Marketing', dept: 'ฝ่ายการตลาด', status: 'progress', cc: {cc1:3.5,cc2:4.5,cc3:4.0,cc4:3.8,cc5:3.5}, appliedDate: '2026-07-05', avatar: '👩‍💻' },
+    { id: 7, name: 'กิตติ ประเสริฐสุข', position: 'วิศวกรเครื่องกล', dept: 'ฝ่ายผลิต', status: 'progress', cc: {cc1:3.0,cc2:3.5,cc3:3.0,cc4:3.5,cc5:4.0}, appliedDate: '2026-07-05', avatar: '👨‍🔧' },
+    { id: 8, name: 'สุภาพร มั่นคง', position: 'ผู้จัดการฝ่ายขาย', dept: 'ฝ่ายขาย', status: 'pending', cc: {cc1:4.0,cc2:3.8,cc3:4.0,cc4:4.2,cc5:3.8}, appliedDate: '2026-07-06', avatar: '👩‍💼' },
+    { id: 9, name: 'อนุชา ดีพร้อม', position: 'เจ้าหน้าที่ IT Support', dept: 'ฝ่ายไอที', status: 'pending', cc: {cc1:3.0,cc2:3.5,cc3:3.5,cc4:3.0,cc5:3.5}, appliedDate: '2026-07-07', avatar: '👨‍💻' },
+    { id: 10, name: 'มาลี มีสุข', position: 'นักวิเคราะห์การเงิน', dept: 'ฝ่ายการเงิน', status: 'fail', cc: {cc1:2.5,cc2:2.0,cc3:2.5,cc4:2.0,cc5:3.0}, appliedDate: '2026-07-01', avatar: '👩‍💼' }
+];
+
+const interviewers = [
+    { id: 1, name: 'ดร.สมศักดิ์ บริหาร', role: 'VP ฝ่ายบุคคล', dept: 'HR' },
+    { id: 2, name: 'คุณประสิทธิ์ พัฒนา', role: 'Director ฝ่ายเทคนิค', dept: 'IT' },
+    { id: 3, name: 'คุณสมหญิง มีประสบการณ์', role: 'Manager ฝ่ายขาย', dept: 'Sales' },
+    { id: 4, name: 'คุณวิชัย สร้างสรรค์', role: 'Head of Innovation', dept: 'Strategy' },
+    { id: 5, name: 'คุณนิตยา วัฒนธรรม', role: 'CMC Officer', dept: 'HR' }
+];
+
+const positions = [
+    { id: 1, title: 'ผู้จัดการฝ่ายขาย', dept: 'ฝ่ายขาย', level: 'Manager', openings: 2 },
+    { id: 2, title: 'วิศวกรซอฟต์แวร์', dept: 'ฝ่ายไอที', level: 'Senior', openings: 3 },
+    { id: 3, title: 'เจ้าหน้าที่ HR', dept: 'ฝ่ายบุคคล', level: 'Officer', openings: 1 },
+    { id: 4, title: 'นักบัญชี', dept: 'ฝ่ายบัญชี', level: 'Officer', openings: 2 },
+    { id: 5, title: 'ผู้จัดการโครงการ IT', dept: 'ฝ่ายไอที', level: 'Manager', openings: 1 },
+    { id: 6, title: 'ผู้เชี่ยวชาญ Digital Marketing', dept: 'ฝ่ายการตลาด', level: 'Specialist', openings: 1 }
+];
+
+const schedules = [
+    { id: 1, candidateId: 3, date: '2026-07-14', time: '09:00', room: 'ห้องประชุม A (ชั้น 3)', committee: [1,3,5], status: 'scheduled', note: 'สัมภาษณ์รอบแรก' },
+    { id: 2, candidateId: 4, date: '2026-07-14', time: '13:00', room: 'ห้องประชุม B (ชั้น 5)', committee: [1,4], status: 'scheduled', note: '' },
+    { id: 3, candidateId: 5, date: '2026-07-15', time: '10:00', room: 'ห้องสัมภาษณ์ Online (Zoom)', committee: [2,3,5], status: 'scheduled', note: 'สัมภาษณ์ทางไกล' },
+    { id: 4, candidateId: 6, date: '2026-07-16', time: '09:30', room: 'ห้อง HR (ชั้น 2)', committee: [1,4,5], status: 'scheduled', note: '' },
+    { id: 5, candidateId: 7, date: '2026-07-17', time: '14:00', room: 'ห้องประชุม A (ชั้น 3)', committee: [2,3], status: 'scheduled', note: 'สัมภาษณ์เทคนิค' },
+    { id: 6, candidateId: 8, date: '2026-07-17', time: '10:00', room: 'ห้องประชุม B (ชั้น 5)', committee: [1,3,4], status: 'scheduled', note: '' }
+];
+
+const actionLogs = [];
+
+// ==================== TEST DATA ====================
+const testQuestions = {
+    skill: {
+        title: 'แบบทดสอบทักษะ',
+        desc: 'ทดสอบความรู้และทักษะตามตำแหน่งงาน',
+        time: 30,
+        questions: [
+            { q: 'ข้อใดคือหลักการสำคัญของ Agile Methodology?', options: ['Waterfall Development', 'Iterative & Incremental', 'Big Design Up Front', 'Sequential Process'], correct: 1, cc: 'cc2' },
+            { q: 'KPI ทางการเงินข้อใดวัดความสามารถในการทำกำไร?', options: ['Revenue Growth', 'Net Profit Margin', 'Market Share', 'Customer Count'], correct: 1, cc: 'cc5' },
+            { q: 'การสื่อสารที่มีประสิทธิภาพที่สุดในการทำงานทีมคือ?', options: ['ส่งอีเมลเท่านั้น', 'ประชุมทุกวัน', 'Active Listening + Clear Feedback', 'มอบหมายงานผ่านแชท'], correct: 2, cc: 'cc4' },
+            { q: 'Servant Leadership เน้นสิ่งใดเป็นหลัก?', options: ['อำนาจสั่งการ', 'การรับใช้และพัฒนาทีม', 'การแข่งขันภายใน', 'การควบคุมค่าใช้จ่าย'], correct: 1, cc: 'cc1' },
+            { q: 'ข้อใดแสดงถึง Adaptive Innovation?', options: ['ทำตามวิธีเดิมเสมอ', 'ปฏิเสธการเปลี่ยนแปลง', 'ทดลองแนวทางใหม่และเรียนรู้', 'รอคำสั่งจากผู้บริหาร'], correct: 2, cc: 'cc2' },
+            { q: 'Trust-Based Value Creation หมายถึง?', options: ['สร้างกำไรจากความไว้ใจ', 'สร้างคุณค่าโดยมีความไว้วางใจเป็นฐาน', 'ขายสินค้าราคาแพง', 'ลดต้นทุนการผลิต'], correct: 1, cc: 'cc3' },
+            { q: 'Disciplined Professionalism หมายถึง?', options: ['ทำงานหนักโดยไม่หยุด', 'มีวินัยและมาตรฐานวิชาชีพ', 'ทำตามคำสั่งเท่านั้น', 'ทำงานเฉพาะเวลา'], correct: 1, cc: 'cc5' },
+            { q: 'Consensus-Driven Teamwork เน้นสิ่งใด?', options: ['ผู้นำตัดสินใจคนเดียว', 'เสียงข้างมากชนะ', 'หาฉันทามติจากทุกคน', 'หลีกเลี่ยงการตัดสินใจ'], correct: 2, cc: 'cc4' }
+        ]
+    },
+    cmc: {
+        title: 'แบบทดสอบ CMC (วัฒนธรรมองค์กร)',
+        desc: 'วัดความเข้าใจและสอดคล้องกับวัฒนธรรม PKG',
+        time: 20,
+        questions: [
+            { q: 'PKG ให้ความสำคัญกับสิ่งใดเป็นอันดับแรก?', options: ['กำไรสูงสุด', 'ลูกค้าและผู้คน', 'ส่วนแบ่งตลาด', 'เทคโนโลยี'], correct: 1, cc: 'cc3' },
+            { q: 'เมื่อทีมมีความขัดแย้ง คุณควรทำอย่างไรตามวัฒนธรรม PKG?', options: ['หลีกเลี่ยงปัญหา', 'แจ้งหัวหน้าทันที', 'เปิดใจรับฟังและหาฉันทามติ', 'ลาออกจากทีม'], correct: 2, cc: 'cc4' },
+            { q: 'PKG มองเรื่องนวัตกรรมอย่างไร?', options: ['เสี่ยงเกินไป', 'ทำเฉพาะเมื่อจำเป็น', 'เป็นส่วนหนึ่งของ DNA', 'มอบหมายให้ฝ่าย R&D เท่านั้น'], correct: 2, cc: 'cc2' },
+            { q: 'ผู้นำตามแบบ PKG ควรมีลักษณะอย่างไร?', options: ['สั่งการเด็ดขาด', 'รับใช้และพัฒนาทีม', 'ทำงานคนเดียว', 'เน้นผลระยะสั้น'], correct: 1, cc: 'cc1' },
+            { q: 'ความไว้วางใจในองค์กร PKG สร้างจาก?', options: ['สัญญาทางกฎหมาย', 'ความโปร่งใสและสม่ำเสมอ', 'อำนาจบังคับบัญชา', 'ผลตอบแทนสูง'], correct: 1, cc: 'cc3' },
+            { q: 'เมื่อเกิดข้อผิดพลาด คุณควรทำอย่างไร?', options: ['โทษคนอื่น', 'ปิดบัง', 'ยอมรับและเรียนรู้', 'ลาออก'], correct: 2, cc: 'cc5' },
+            { q: 'PKG ต้องการพนักงานที่มีลักษณะใด?', options: ['เชื่อฟังเท่านั้น', 'ท้าทายทุกสิ่ง', 'เติบโตไปพร้อมกับองค์กร', 'ทำงานเฉพาะหน้าที่'], correct: 2, cc: 'cc1' }
+        ]
+    },
+    attitude: {
+        title: 'แบบทดสอบทัศนคติ (CC1-CC5)',
+        desc: 'วัดทัศนคติตาม Core Competency 5 ประการ',
+        time: 25,
+        questions: [
+            { q: 'คุณยินดีที่จะช่วยเหลือเพื่อนร่วมงานแม้ไม่ใช่งานของคุณหรือไม่?', options: ['ไม่ยินดี', 'ยินดีถ้ามีรางวัล', 'ยินดีเสมอ', 'ขึ้นอยู่กับสถานการณ์'], correct: 2, cc: 'cc1' },
+            { q: 'เมื่อได้รับมอบหมายงานที่ไม่เคยทำมาก่อน คุณรู้สึกอย่างไร?', options: ['กลัวล้มเหลว', 'ไม่อยากทำ', 'ตื่นเต้นและพร้อมเรียนรู้', 'ขอให้คนอื่นทำ'], correct: 2, cc: 'cc2' },
+            { q: 'คุณรักษาคำสัญญาที่ให้ไว้กับลูกค้าอย่างไร?', options: ['พยายามทำให้ดีที่สุด', 'ทำเฉพาะที่เป็นไปได้', 'พยายามทุกวิถีทางเพื่อรักษา', 'เปลี่ยนคำสัญญาถ้าจำเป็น'], correct: 2, cc: 'cc3' },
+            { q: 'ในการประชุมทีม คุณมีบทบาทอย่างไร?', options: ['เงียบและฟัง', 'พูดเฉพาะเรื่องที่ตนถูกถาม', 'แสดงความคิดเห็นและรับฟังผู้อื่น', '主导การสนทนา'], correct: 2, cc: 'cc4' },
+            { q: 'คุณจัดการกับงานที่มีเดดไลน์กระชั้นชิดอย่างไร?', options: ['ทำไม่ทันก็ช่าง', 'เครียดมาก', 'วางแผนและจัดลำดับความสำคัญ', 'ขอให้คนอื่นช่วยทำ'], correct: 2, cc: 'cc5' },
+            { q: 'เมื่อทีมประสบความสำเร็จ คุณทำอย่างไร?', options: ['ยกเครดิตให้ตัวเอง', 'แบ่งปันความสำเร็จกับทีม', 'ไม่สนใจ', 'อิจฉา'], correct: 1, cc: 'cc1' },
+            { q: 'คุณมองความล้มเหลวอย่างไร?', options: ['สิ่งเลวร้ายที่ควรหลีกเลี่ยง', 'โอกาสในการเรียนรู้', 'ความผิดของผู้อื่น', 'เหตุผลที่จะยอมแพ้'], correct: 1, cc: 'cc2' },
+            { q: 'คุณสร้างความไว้วางใจกับเพื่อนร่วมงานใหม่อย่างไร?', options: ['รอให้เขามาหา', 'แสดงความจริงใจและสม่ำเสมอ', 'ให้ของขวัญ', 'พูดดีๆ เกี่ยวกับตัวเอง'], correct: 1, cc: 'cc3' },
+            { q: 'เมื่อมีความเห็นต่างในทีม คุณทำอย่างไร?', options: ['ยอมตามทันที', 'ยึดความเห็นตัวเอง', 'เปิดอภิปรายหาทางออกร่วมกัน', 'หลีกเลี่ยงการประชุม'], correct: 2, cc: 'cc4' },
+            { q: 'คุณพัฒนาวิชาชีพของตนเองอย่างไร?', options: ['รอให้บริษัทส่งอบรม', 'เรียนรู้ด้วยตัวเองอย่างสม่ำเสมอ', 'ทำเฉพาะที่ต้องการใช้', 'ไม่พัฒนา'], correct: 1, cc: 'cc5' }
+        ]
+    }
+};
+
+// ==================== STATE ====================
+let currentTab = 'dashboard';
+let currentTest = null;
+let currentQuestion = 0;
+let testAnswers = [];
+let timerInterval = null;
+let testTimeLeft = 0;
+let selectedCandidateForMatching = null;
+
+// ==================== TAB SWITCHING ====================
+function switchTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(el => {
+        el.classList.remove('tab-active');
+        el.classList.add('text-gray-500');
+    });
+    document.getElementById(`content-${tab}`).classList.remove('hidden');
+    const btn = document.getElementById(`tab-${tab}`);
+    btn.classList.add('tab-active');
+    btn.classList.remove('text-gray-500');
+    currentTab = tab;
+
+    if (tab === 'dashboard') initDashboard();
+    if (tab === 'schedule') initSchedule();
+    if (tab === 'interview') initInterview();
+    if (tab === 'summary') initSummary();
+    if (tab === 'matching') initMatching();
+}
+
+// ==================== MODAL ====================
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+// ==================== DASHBOARD ====================
+function initDashboard() {
+    // Update stats
+    const pending = candidates.filter(c => c.status === 'pending').length;
+    const progress = candidates.filter(c => c.status === 'progress').length;
+    const pass = candidates.filter(c => c.status === 'pass').length;
+    const fail = candidates.filter(c => c.status === 'fail').length;
+    document.getElementById('stat-pending').textContent = pending;
+    document.getElementById('stat-progress').textContent = progress;
+    document.getElementById('stat-pass').textContent = pass;
+    document.getElementById('stat-fail').textContent = fail;
+
+    // Radar chart
+    const avgCC = {};
+    ['cc1','cc2','cc3','cc4','cc5'].forEach(cc => {
+        avgCC[cc] = (candidates.reduce((s,c) => s + c.cc[cc], 0) / candidates.length).toFixed(1);
+    });
+
+    if (window.radarChartInstance) window.radarChartInstance.destroy();
+    window.radarChartInstance = new Chart(document.getElementById('radarChart'), {
+        type: 'radar',
+        data: {
+            labels: ['CC1\nServant\nLeadership', 'CC2\nAdaptive\nInnovation', 'CC3\nTrust-Based\nValue', 'CC4\nConsensus\nTeamwork', 'CC5\nDisciplined\nProf.'],
+            datasets: [{
+                label: 'คะแนนเฉลี่ย CC',
+                data: [avgCC.cc1, avgCC.cc2, avgCC.cc3, avgCC.cc4, avgCC.cc5],
+                backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                borderColor: 'rgba(102, 126, 234, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(118, 75, 162, 1)',
+                pointRadius: 5
+            }]
+        },
+        options: {
+            scales: {
+                r: { min: 0, max: 5, ticks: { stepSize: 1, font: { family: 'Sarabun' } }, pointLabels: { font: { family: 'Sarabun', size: 10 } } }
+            },
+            plugins: { legend: { labels: { font: { family: 'Sarabun' } } } }
+        }
+    });
+
+    // Line chart
+    if (window.lineChartInstance) window.lineChartInstance.destroy();
+    window.lineChartInstance = new Chart(document.getElementById('lineChart'), {
+        type: 'line',
+        data: {
+            labels: ['สัปดาห์ 1', 'สัปดาห์ 2', 'สัปดาห์ 3', 'สัปดาห์ 4'],
+            datasets: [
+                { label: 'ประเมินแล้ว', data: [2, 5, 7, 10], borderColor: '#667eea', backgroundColor: 'rgba(102,126,234,0.1)', fill: true, tension: 0.4 },
+                { label: 'นัดสัมภาษณ์', data: [3, 4, 6, 6], borderColor: '#764ba2', backgroundColor: 'rgba(118,75,162,0.1)', fill: true, tension: 0.4 }
+            ]
+        },
+        options: {
+            scales: { y: { beginAtZero: true, ticks: { font: { family: 'Sarabun' } } }, x: { ticks: { font: { family: 'Sarabun' } } } },
+            plugins: { legend: { labels: { font: { family: 'Sarabun' } } } }
+        }
+    });
+
+    // Recent table
+    const tbody = document.getElementById('recentTable');
+    tbody.innerHTML = candidates.slice(0, 6).map(c => {
+        const statusMap = { pending: ['รอประเมิน', 'status-pending'], progress: ['กำลังประเมิน', 'status-progress'], pass: ['ผ่าน', 'status-pass'], fail: ['ไม่ผ่าน', 'status-fail'] };
+        const [label, cls] = statusMap[c.status];
+        return `<tr class="border-b hover:bg-gray-50">
+            <td class="px-4 py-3 font-medium">${c.avatar} ${c.name}</td>
+            <td class="px-4 py-3">${c.position}</td>
+            <td class="px-4 py-3"><span class="cc-badge cc1">สัมภาษณ์</span></td>
+            <td class="px-4 py-3">${c.appliedDate}</td>
+            <td class="px-4 py-3"><span class="px-2 py-1 rounded-full text-xs ${cls}">${label}</span></td>
+            <td class="px-4 py-3"><button onclick="viewCandidateDetail(${c.id})" class="text-indigo-600 hover:underline text-sm">ดูรายละเอียด</button></td>
+        </tr>`;
+    }).join('');
+}
+
+function viewCandidateDetail(id) {
+    const c = candidates.find(x => x.id === id);
+    if (!c) return;
+    const statusMap = { pending: 'รอประเมิน', progress: 'กำลังประเมิน', pass: 'ผ่าน', fail: 'ไม่ผ่าน' };
+    document.getElementById('detailTitle').textContent = `${c.avatar} ${c.name}`;
+    document.getElementById('detailContent').innerHTML = `
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><span class="text-gray-500 text-sm">ตำแหน่ง:</span><p class="font-medium">${c.position}</p></div>
+            <div><span class="text-gray-500 text-sm">แผนก:</span><p class="font-medium">${c.dept}</p></div>
+            <div><span class="text-gray-500 text-sm">วันสมัคร:</span><p class="font-medium">${c.appliedDate}</p></div>
+            <div><span class="text-gray-500 text-sm">สถานะ:</span><p class="font-medium">${statusMap[c.status]}</p></div>
+        </div>
+        <h4 class="font-semibold mb-3">คะแนน Core Competency</h4>
+        ${Object.entries(c.cc).map(([k,v]) => `
+            <div class="mb-3">
+                <div class="flex justify-between text-sm mb-1">
+                    <span>${ccNames[k]}</span>
+                    <span class="font-medium">${v}/5</span>
+                </div>
+                <div class="score-bar"><div class="score-fill ${v >= 4 ? 'bg-green-500' : v >= 3 ? 'bg-yellow-500' : 'bg-red-500'}" style="width:${v*20}%"></div></div>
+            </div>
+        `).join('')}
+        <div class="mt-4 p-3 bg-gray-50 rounded-lg">
+            <p class="text-sm font-medium">คะแนนรวม: <span class="text-lg text-indigo-600">${(Object.values(c.cc).reduce((a,b)=>a+b,0).toFixed(1))}/25</span></p>
+        </div>
+    `;
+    openModal('detailModal');
+}
+
+// ==================== SCHEDULE ====================
+function initSchedule() {
+    renderCalendar();
+    renderScheduleList();
+    populateScheduleForm();
+}
+
+function renderCalendar() {
+    const timeSlots = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00'];
+    const days = [13, 14, 15, 16, 17];
+    const tbody = document.getElementById('calendarBody');
+    tbody.innerHTML = timeSlots.map(time => {
+        const cells = days.map(day => {
+            const matches = schedules.filter(s => {
+                const d = new Date(s.date).getDate();
+                return d === day && s.time === time;
+            });
+            if (matches.length > 0) {
+                return matches.map(m => {
+                    const c = candidates.find(x => x.id === m.candidateId);
+                    return `<td class="border p-1"><div class="bg-indigo-50 border border-indigo-200 rounded p-1 text-xs cursor-pointer hover:bg-indigo-100" onclick="viewCandidateDetail(${c.id})"><span class="font-medium">${c.name}</span><br><span class="text-gray-500">${m.room.split('(')[0]}</span></div></td>`;
+                }).join('');
+            }
+            return '<td class="border p-1 calendar-cell"></td>';
+        }).join('');
+        return `<tr><td class="border p-2 text-xs font-medium text-gray-500">${time}</td>${cells}</tr>`;
+    }).join('');
+}
+
+function renderScheduleList() {
+    const list = document.getElementById('scheduleList');
+    list.innerHTML = schedules.map(s => {
+        const c = candidates.find(x => x.id === s.candidateId);
+        const commNames = s.committee.map(id => interviewers.find(i => i.id === id)?.name.split(' ').slice(-1)[0] || '').join(', ');
+        const statusColors = { scheduled: 'border-blue-300 bg-blue-50', completed: 'border-green-300 bg-green-50', cancelled: 'border-red-300 bg-red-50' };
+        const statusLabels = { scheduled: '📋 นัดแล้ว', completed: '✅เสร็จแล้ว', cancelled: '❌ยกเลิก' };
+        return `<div class="border-l-4 ${statusColors[s.status]} rounded-lg p-3">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="font-medium text-sm">${c.avatar} ${c.name}</p>
+                    <p class="text-xs text-gray-500">${c.position}</p>
+                </div>
+                <span class="text-xs">${statusLabels[s.status]}</span>
+            </div>
+            <div class="mt-2 text-xs text-gray-600">
+                <p>📅 ${s.date} ⏰ ${s.time}</p>
+                <p>📍 ${s.room}</p>
+                <p>👥 กรรมการ: ${commNames}</p>
+            </div>
+            ${s.status === 'scheduled' ? `<div class="mt-2 flex gap-2">
+                <button onclick="updateScheduleStatus(${s.id},'completed')" class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200">✓ เสร็จ</button>
+                <button onclick="updateScheduleStatus(${s.id},'cancelled')" class="text-xs px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200">✕ ยกเลิก</button>
+            </div>` : ''}
+        </div>`;
+    }).join('');
+}
+
+function populateScheduleForm() {
+    const sel = document.getElementById('schedCandidate');
+    sel.innerHTML = candidates.filter(c => c.status !== 'pass' && c.status !== 'fail').map(c =>
+        `<option value="${c.id}">${c.name} - ${c.position}</option>`
+    ).join('');
+
+    const commDiv = document.getElementById('schedCommittee');
+    commDiv.innerHTML = interviewers.map(i =>
+        `<label class="flex items-center gap-2 text-sm">
+            <input type="checkbox" value="${i.id}" class="committee-check rounded">
+            <span>${i.name}</span><span class="text-gray-400 text-xs">(${i.role})</span>
+        </label>`
+    ).join('');
+}
+
+function saveSchedule() {
+    const candidateId = parseInt(document.getElementById('schedCandidate').value);
+    const date = document.getElementById('schedDate').value;
+    const time = document.getElementById('schedTime').value;
+    const room = document.getElementById('schedRoom').value;
+    const note = document.getElementById('schedNote').value;
+    const committee = Array.from(document.querySelectorAll('.committee-check:checked')).map(el => parseInt(el.value));
+
+    if (!date || !time || committee.length === 0) {
+        alert('กรุณากรอกข้อมูลให้ครบ (วันที่, เวลา, กรรมการอย่างน้อย 1 คน)');
+        return;
+    }
+
+    schedules.push({ id: schedules.length + 1, candidateId, date, time, room, committee, status: 'scheduled', note });
+    closeModal('scheduleModal');
+    renderCalendar();
+    renderScheduleList();
+    alert('✅ บันทึกนัดสัมภาษณ์เรียบร้อย');
+}
+
+function updateScheduleStatus(id, status) {
+    const s = schedules.find(x => x.id === id);
+    if (s) { s.status = status; renderScheduleList(); renderCalendar(); }
+}
+
+function changeWeek(dir) {
+    // Simple mock - just show alert
+    alert('ฟีเจอร์เปลี่ยนสัปดาห์ (Mock)');
+}
+
+// ==================== INTERVIEW ====================
+function initInterview() {
+    const list = document.getElementById('interviewCandidateList');
+    const toInterview = candidates.filter(c => c.status === 'pending' || c.status === 'progress');
+    list.innerHTML = toInterview.map(c => `
+        <div onclick="loadInterviewForm(${c.id})" class="p-3 border rounded-lg cursor-pointer hover:bg-indigo-50 hover:border-indigo-300 transition-all">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">${c.avatar}</span>
+                <div>
+                    <p class="font-medium text-sm">${c.name}</p>
+                    <p class="text-xs text-gray-500">${c.position}</p>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function loadInterviewForm(candidateId) {
+    const c = candidates.find(x => x.id === candidateId);
+    if (!c) return;
+
+    const interviewTopics = {
+        'ผู้จัดการฝ่ายขาย': ['ประสบการณ์ด้านการขาย', 'กลยุทธ์การบริหารทีมขาย', 'การตั้งเป้าหมายและ KPI', 'การจัดการข้อร้องเรียนลูกค้า'],
+        'วิศวกรซอฟต์แวร์': ['System Design', 'Coding Challenge', 'Architecture Decision', 'Code Review Experience'],
+        'เจ้าหน้าที่ HR': ['กฎหมายแรงงาน', 'การสรรหาบุคลากร', 'Employee Engagement', 'Conflict Resolution'],
+        'นักบัญชี': ['มาตรฐานบัญชี', 'การปิดงบ', 'ภาษี', 'Audit Experience'],
+        'ผู้จัดการโครงการ IT': ['Project Management Methodology', 'Risk Management', 'Stakeholder Management', 'Budget Control'],
+        'ผู้เชี่ยวชาญ Digital Marketing': ['SEO/SEM Strategy', 'Content Marketing', 'Analytics & KPI', 'Campaign Management'],
+        'วิศวกรเครื่องกล': ['Design Calculation', 'Material Selection', 'Quality Control', 'Safety Standards'],
+        'เจ้าหน้าที่ IT Support': ['Network Troubleshooting', 'Hardware/Software', 'Service Mind', 'Documentation']
+    };
+
+    const topics = interviewTopics[c.position] || ['ประสบการณ์ทำงาน', 'ทักษะที่เกี่ยวข้อง', 'การทำงานเป็นทีม', 'เป้าหมายอาชีพ'];
+
+    const form = document.getElementById('interviewFormArea');
+    form.innerHTML = `
+        <div class="flex items-center gap-4 mb-6 pb-4 border-b">
+            <span class="text-4xl">${c.avatar}</span>
+            <div>
+                <h3 class="text-xl font-bold">${c.name}</h3>
+                <p class="text-gray-500">${c.position} | ${c.dept}</p>
+            </div>
+            <span class="ml-auto px-3 py-1 rounded-full text-sm ${c.status === 'progress' ? 'status-progress' : 'status-pending'}">
+                ${c.status === 'progress' ? 'กำลังสัมภาษณ์' : 'รอสัมภาษณ์'}
+            </span>
+        </div>
+
+        <!-- Suggested Topics -->
+        <div class="mb-6">
+            <h4 class="font-semibold text-gray-700 mb-3">💡 หัวข้อสัมภาษณ์แนะนำ</h4>
+            <div class="flex flex-wrap gap-2">
+                ${topics.map(t => `<span class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-sm">${t}</span>`).join('')}
+            </div>
+        </div>
+
+        <!-- CC Scoring -->
+        <h4 class="font-semibold text-gray-700 mb-3">📝 ให้คะแนน Core Competency (1-5)</h4>
+        <div class="space-y-4 mb-6">
+            ${Object.entries(ccNames).map(([key, name]) => `
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-medium text-sm">${name}</span>
+                        <span class="text-sm text-gray-500" id="scoreLabel-${key}">3/5</span>
+                    </div>
+                    <div class="flex gap-2">
+                        ${[1,2,3,4,5].map(n => `
+                            <button onclick="setCCScore('${key}', ${n})" id="cc-${key}-${n}"
+                                class="flex-1 py-2 rounded-lg border-2 text-sm font-medium transition-all
+                                ${n <= (c.cc[key] || 3) ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-400 hover:border-gray-300'}">
+                                ${n}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+
+        <!-- Comments -->
+        <div class="mb-6">
+            <h4 class="font-semibold text-gray-700 mb-2">💬 ความคิดเห็นของกรรมการ</h4>
+            <textarea id="interviewComment" class="w-full border rounded-lg px-4 py-3 text-sm" rows="4" placeholder="บันทึกจุดแข็ง จุดอ่อน และข้อสังเกต..."></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-3">
+            <button onclick="saveInterview(${c.id}, 'pass')" class="flex-1 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700">✅ ผ่าน - ส่งต่อ P3</button>
+            <button onclick="saveInterview(${c.id}, 'pending')" class="flex-1 py-3 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600">⏳ รอพิจารณา</button>
+            <button onclick="saveInterview(${c.id}, 'fail')" class="flex-1 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700">❌ ไม่ผ่าน</button>
+        </div>
+    `;
+}
+
+let tempScores = {};
+function setCCScore(cc, score) {
+    for (let i = 1; i <= 5; i++) {
+        const btn = document.getElementById(`cc-${cc}-${i}`);
+        if (btn) {
+            if (i <= score) {
+                btn.className = 'flex-1 py-2 rounded-lg border-2 text-sm font-medium transition-all border-indigo-500 bg-indigo-50 text-indigo-700';
+            } else {
+                btn.className = 'flex-1 py-2 rounded-lg border-2 text-sm font-medium transition-all border-gray-200 text-gray-400 hover:border-gray-300';
+            }
+        }
+    }
+    document.getElementById(`scoreLabel-${cc}`).textContent = `${score}/5`;
+    tempScores[cc] = score;
+}
+
+function saveInterview(candidateId, result) {
+    const c = candidates.find(x => x.id === candidateId);
+    if (!c) return;
+
+    // Update scores if changed
+    Object.keys(tempScores).forEach(k => { if (tempScores[k]) c.cc[k] = tempScores[k]; });
+    c.status = result;
+    tempScores = {};
+
+    const comment = document.getElementById('interviewComment')?.value || '';
+    const statusLabels = { pass: 'ผ่าน', fail: 'ไม่ผ่าน', pending: 'รอพิจารณา' };
+
+    // Add to action log
+    actionLogs.unshift({
+        time: new Date().toLocaleString('th-TH'),
+        action: `ประเมินสัมภาษณ์ ${c.name}`,
+        result: statusLabels[result],
+        detail: comment || 'ไม่มีหมายเหตุ'
+    });
+
+    alert(`✅ บันทึกผลสัมภาษณ์ "${c.name}" - สถานะ: ${statusLabels[result]}`);
+    initInterview();
+}
+
+// ==================== ONLINE TEST ====================
+function startTest(type) {
+    currentTest = type;
+    currentQuestion = 0;
+    testAnswers = new Array(testQuestions[type].questions.length).fill(-1);
+    testTimeLeft = testQuestions[type].time * 60;
+
+    document.getElementById('testSelection').classList.add('hidden');
+    document.getElementById('testArea').classList.remove('hidden');
+    document.getElementById('testResult').classList.add('hidden');
+
+    document.getElementById('testTitle').textContent = testQuestions[type].title;
+    document.getElementById('testDesc').textContent = testQuestions[type].desc;
+    document.getElementById('totalQ').textContent = testQuestions[type].questions.length;
+
+    renderQuestion();
+    startTimer();
+}
+
+function renderQuestion() {
+    const q = testQuestions[currentTest].questions[currentQuestion];
+    const area = document.getElementById('questionArea');
+
+    area.innerHTML = `
+        <div class="bg-gray-50 rounded-xl p-6">
+            <div class="flex items-start gap-3 mb-4">
+                <span class="bg-indigo-100 text-indigo-700 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">${currentQuestion + 1}</span>
+                <div>
+                    <p class="font-medium text-lg">${q.q}</p>
+                    <span class="cc-badge ${q.cc} mt-1 inline-block">${ccShort[q.cc]}</span>
+                </div>
+            </div>
+            <div class="space-y-2 ml-11">
+                ${q.options.map((opt, i) => `
+                    <label class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-indigo-50 transition-all ${testAnswers[currentQuestion] === i ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'}">
+                        <input type="radio" name="answer" value="${i}" ${testAnswers[currentQuestion] === i ? 'checked' : ''} onchange="selectAnswer(${i})" class="text-indigo-600">
+                        <span class="text-sm">${opt}</span>
+                    </label>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    document.getElementById('currentQ').textContent = currentQuestion + 1;
+    const pct = Math.round(((currentQuestion + 1) / testQuestions[currentTest].questions.length) * 100);
+    document.getElementById('progressPercent').textContent = pct + '%';
+    document.getElementById('progressBar').style.width = pct + '%';
+
+    document.getElementById('prevBtn').disabled = currentQuestion === 0;
+    const isLast = currentQuestion === testQuestions[currentTest].questions.length - 1;
+    document.getElementById('nextBtn').classList.toggle('hidden', isLast);
+    document.getElementById('submitBtn').classList.toggle('hidden', !isLast);
+}
+
+function selectAnswer(idx) { testAnswers[currentQuestion] = idx; }
+
+function nextQuestion() {
+    if (currentQuestion < testQuestions[currentTest].questions.length - 1) {
+        currentQuestion++;
+        renderQuestion();
+    }
+}
+
+function prevQuestion() {
+    if (currentQuestion > 0) { currentQuestion--; renderQuestion(); }
+}
+
+function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        testTimeLeft--;
+        if (testTimeLeft <= 0) { submitTest(); return; }
+        const m = Math.floor(testTimeLeft / 60);
+        const s = testTimeLeft % 60;
+        document.getElementById('testTimer').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        if (testTimeLeft < 60) document.getElementById('testTimer').classList.add('animate-pulse');
+    }, 1000);
+}
+
+function submitTest() {
+    if (timerInterval) clearInterval(timerInterval);
+    const qs = testQuestions[currentTest].questions;
+    let correct = 0;
+    const ccScores = { cc1:0, cc2:0, cc3:0, cc4:0, cc5:0 };
+    const ccCount = { cc1:0, cc2:0, cc3:0, cc4:0, cc5:0 };
+
+    qs.forEach((q, i) => {
+        if (testAnswers[i] === q.correct) correct++;
+        ccCount[q.cc]++;
+        if (testAnswers[i] === q.correct) ccScores[q.cc]++;
+    });
+
+    const pct = Math.round((correct / qs.length) * 100);
+
+    document.getElementById('testArea').classList.add('hidden');
+    document.getElementById('testResult').classList.remove('hidden');
+    document.getElementById('testResultDesc').textContent = `ตอบถูก ${correct}/${qs.length} ข้อ (${pct}%)`;
+
+    const cards = document.getElementById('testScoreCards');
+    const ccLabels = { cc1:'CC1', cc2:'CC2', cc3:'CC3', cc4:'CC4', cc5:'CC5' };
+    cards.innerHTML = Object.entries(ccScores).filter(([k,v]) => ccCount[k] > 0).map(([k,v]) => {
+        const p = Math.round((v / ccCount[k]) * 100);
+        return `<div class="bg-gray-50 rounded-lg p-4">
+            <p class="text-sm text-gray-500">${ccLabels[k]}</p>
+            <p class="text-2xl font-bold ${p >= 70 ? 'text-green-600' : p >= 50 ? 'text-yellow-600' : 'text-red-600'}">${p}%</p>
+            <p class="text-xs text-gray-400">${v}/${ccCount[k]} ข้อ</p>
+        </div>`;
+    }).join('');
+}
+
+function exitTest() {
+    if (confirm('ต้องการออกจากแบบทดสอบ? คำตอบจะไม่ถูกบันทึก')) {
+        if (timerInterval) clearInterval(timerInterval);
+        resetTest();
+    }
+}
+
+function resetTest() {
+    currentTest = null;
+    document.getElementById('testSelection').classList.remove('hidden');
+    document.getElementById('testArea').classList.add('hidden');
+    document.getElementById('testResult').classList.add('hidden');
+}
+
+// ==================== SUMMARY ====================
+function initSummary() {
+    // Populate position filter
+    const posFilter = document.getElementById('filterPosition');
+    const uniquePos = [...new Set(candidates.map(c => c.position))];
+    posFilter.innerHTML = '<option value="all">ทุกตำแหน่ง</option>' + uniquePos.map(p => `<option value="${p}">${p}</option>`).join('');
+    renderSummary();
+}
+
+function renderSummary() {
+    const statusF = document.getElementById('filterStatus').value;
+    const posF = document.getElementById('filterPosition').value;
+    const ccF = document.getElementById('filterCC').value;
+
+    let filtered = candidates.filter(c => {
+        if (statusF !== 'all' && c.status !== statusF) return false;
+        if (posF !== 'all' && c.position !== posF) return false;
+        if (ccF !== 'all') {
+            const avg = c.cc[ccF];
+            if (avg < 3.0) return false;
+        }
+        return true;
+    });
+
+    const tbody = document.getElementById('summaryTable');
+    tbody.innerHTML = filtered.map((c, i) => {
+        const total = Object.values(c.cc).reduce((a,b) => a+b, 0).toFixed(1);
+        const statusMap = { pending: ['รอพิจารณา', 'status-pending'], progress: ['กำลังประเมิน', 'status-progress'], pass: ['ผ่าน', 'status-pass'], fail: ['ไม่ผ่าน', 'status-fail'] };
+        const [label, cls] = statusMap[c.status];
+        const scoreColor = (v) => v >= 4 ? 'text-green-600 font-bold' : v >= 3 ? 'text-yellow-600' : 'text-red-600 font-bold';
+        return `<tr class="border-b hover:bg-gray-50">
+            <td class="px-3 py-3">${i+1}</td>
+            <td class="px-3 py-3 font-medium">${c.avatar} ${c.name}</td>
+            <td class="px-3 py-3 text-sm">${c.position}</td>
+            <td class="px-3 py-3 text-center ${scoreColor(c.cc.cc1)}">${c.cc.cc1}</td>
+            <td class="px-3 py-3 text-center ${scoreColor(c.cc.cc2)}">${c.cc.cc2}</td>
+            <td class="px-3 py-3 text-center ${scoreColor(c.cc.cc3)}">${c.cc.cc3}</td>
+            <td class="px-3 py-3 text-center ${scoreColor(c.cc.cc4)}">${c.cc.cc4}</td>
+            <td class="px-3 py-3 text-center ${scoreColor(c.cc.cc5)}">${c.cc.cc5}</td>
+            <td class="px-3 py-3 text-center font-bold text-indigo-600">${total}</td>
+            <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs ${cls}">${label}</span></td>
+            <td class="px-3 py-3"><button onclick="viewCandidateDetail(${c.id})" class="text-indigo-600 hover:underline text-sm">ดู</button></td>
+        </tr>`;
+    }).join('');
+
+    // Comparison chart
+    if (window.compChartInstance) window.compChartInstance.destroy();
+    const chartData = filtered.slice(0, 7);
+    window.compChartInstance = new Chart(document.getElementById('comparisonChart'), {
+        type: 'bar',
+        data: {
+            labels: chartData.map(c => c.name.split(' ')[0]),
+            datasets: [
+                { label: 'CC1', data: chartData.map(c => c.cc.cc1), backgroundColor: '#8b5cf6' },
+                { label: 'CC2', data: chartData.map(c => c.cc.cc2), backgroundColor: '#3b82f6' },
+                { label: 'CC3', data: chartData.map(c => c.cc.cc3), backgroundColor: '#10b981' },
+                { label: 'CC4', data: chartData.map(c => c.cc.cc4), backgroundColor: '#f59e0b' },
+                { label: 'CC5', data: chartData.map(c => c.cc.cc5), backgroundColor: '#ec4899' }
+            ]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true, max: 5, ticks: { font: { family: 'Sarabun' } } },
+                x: { ticks: { font: { family: 'Sarabun' } } }
+            },
+            plugins: { legend: { labels: { font: { family: 'Sarabun' } } } }
+        }
+    });
+}
+
+// ==================== P3 MATCHING ====================
+function initMatching() {
+    const passed = candidates.filter(c => c.status === 'pass');
+    const container = document.getElementById('passedCandidates');
+
+    if (passed.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-400 py-8"><p>ยังไม่มีผู้สมัครที่ผ่าน P2</p></div>';
+        return;
+    }
+
+    container.innerHTML = passed.map(c => {
+        const total = Object.values(c.cc).reduce((a,b) => a+b, 0).toFixed(1);
+        return `<div onclick="showAIMatching(${c.id})" class="p-4 border rounded-lg cursor-pointer hover:bg-indigo-50 hover:border-indigo-300 transition-all ${selectedCandidateForMatching === c.id ? 'border-indigo-500 bg-indigo-50' : ''}">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">${c.avatar}</span>
+                <div class="flex-1">
+                    <p class="font-medium">${c.name}</p>
+                    <p class="text-xs text-gray-500">${c.position}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-lg font-bold text-indigo-600">${total}/25</p>
+                    <p class="text-xs text-gray-400">คะแนนรวม</p>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function showAIMatching(candidateId) {
+    selectedCandidateForMatching = candidateId;
+    const c = candidates.find(x => x.id === candidateId);
+    if (!c) return;
+
+    initMatching(); // Re-render to show selection
+
+    // AI matching logic - calculate match scores for each position
+    const matchResults = positions.map(pos => {
+        let score = 50; // base score
+
+        // Position match bonus
+        if (c.position === pos.title) score += 30;
+
+        // CC relevance
+        const avgCC = Object.values(c.cc).reduce((a,b) => a+b, 0) / 5;
+        score += avgCC * 4;
+
+        // Department match
+        if (c.dept === pos.dept) score += 10;
+
+        // Random variation for realism
+        score += Math.floor(Math.random() * 10);
+        score = Math.min(98, Math.max(40, score));
+
+        return { position: pos, score, reasons: generateReasons(c, pos, score) };
+    }).sort((a, b) => b.score - a.score);
+
+    const container = document.getElementById('aiMatching');
+    container.innerHTML = `
+        <div class="mb-4 p-3 bg-indigo-50 rounded-lg">
+            <p class="text-sm font-medium text-indigo-700">🤖 AI วิเคราะห์สำหรับ: ${c.name}</p>
+            <p class="text-xs text-indigo-500">ตำแหน่งปัจจุบัน: ${c.position} | คะแนนรวม: ${Object.values(c.cc).reduce((a,b)=>a+b,0).toFixed(1)}/25</p>
+        </div>
+        ${matchResults.map((m, i) => `
+            <div class="border rounded-lg p-4 ${i === 0 ? 'border-green-300 bg-green-50' : ''}">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <p class="font-medium">${i === 0 ? '🏆 ' : ''}${m.position.title}</p>
+                        <p class="text-xs text-gray-500">${m.position.dept} | ${m.position.level}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xl font-bold ${m.score >= 80 ? 'text-green-600' : m.score >= 60 ? 'text-yellow-600' : 'text-red-600'}">${m.score}%</p>
+                        <p class="text-xs text-gray-400">Match Score</p>
+                    </div>
+                </div>
+                <div class="score-bar mb-2">
+                    <div class="score-fill ${m.score >= 80 ? 'bg-green-500' : m.score >= 60 ? 'bg-yellow-500' : 'bg-red-500'}" style="width:${m.score}%"></div>
+                </div>
+                <div class="text-xs text-gray-600 space-y-1">
+                    ${m.reasons.map(r => `<p>• ${r}</p>`).join('')}
+                </div>
+                ${i === 0 ? `<div class="mt-3 flex gap-2">
+                    <button onclick="forwardToP3(${c.id}, '${m.position.title}')" class="px-3 py-1.5 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700">ส่งต่อ P3 →</button>
+                    <button onclick="forwardToBU(${c.id})" class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200">ส่งต่อ BU อื่น</button>
+                    <button onclick="rejectCandidate(${c.id})" class="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-sm hover:bg-red-200">ไม่ผ่าน</button>
+                </div>` : ''}
+            </div>
+        `).join('')}
+    `;
+}
+
+function generateReasons(candidate, position, score) {
+    const reasons = [];
+    if (candidate.position === position.title) reasons.push('ตำแหน่งที่สมัครตรงกับตำแหน่งว่าง');
+    if (candidate.dept === position.dept) reasons.push('อยู่ในแผนกเดียวกัน');
+    const avgCC = Object.values(candidate.cc).reduce((a,b) => a+b, 0) / 5;
+    if (avgCC >= 4) reasons.push('คะแนน CC สูงกว่าเกณฑ์ (เฉลี่ย ≥ 4.0)');
+    else if (avgCC >= 3) reasons.push('คะแนน CC อยู่ในระดับปานกลาง');
+    else reasons.push('คะแนน CC ต่ำกว่าเกณฑ์ ควรพิจารณาเพิ่มเติม');
+
+    const bestCC = Object.entries(candidate.cc).sort((a,b) => b[1] - a[1])[0];
+    reasons.push(`จุดแข็ง: ${ccShort[bestCC[0]]} (${bestCC[1]}/5)`);
+
+    if (score >= 80) reasons.push('AI ประเมินว่าเหมาะสมมาก');
+    else if (score >= 60) reasons.push('AI ประเมินว่าพอเหมาะ ควรสัมภาษณ์เพิ่มเติม');
+    else reasons.push('AI ประเมินว่าไม่เหมาะเท่าตำแหน่งอื่น');
+
+    return reasons;
+}
+
+function forwardToP3(candidateId, positionTitle) {
+    const c = candidates.find(x => x.id === candidateId);
+    if (!c) return;
+
+    actionLogs.unshift({
+        time: new Date().toLocaleString('th-TH'),
+        action: `ส่งต่อ P3: ${c.name}`,
+        result: 'ส่งต่อ',
+        detail: `ตำแหน่ง: ${positionTitle}`
+    });
+
+    renderActionLog();
+    alert(`✅ ส่งต่อ "${c.name}" ไปยัง P3 (จับคู่คนกับงาน) เรียบร้อย\nตำแหน่ง: ${positionTitle}`);
+}
+
+function forwardToBU(candidateId) {
+    const c = candidates.find(x => x.id === candidateId);
+    if (!c) return;
+    const bu = prompt('ระบุ BU ที่ต้องการส่งต่อ:', 'BU Digital');
+    if (!bu) return;
+
+    actionLogs.unshift({
+        time: new Date().toLocaleString('th-TH'),
+        action: `ส่งต่อ BU อื่น: ${c.name}`,
+        result: 'ส่งต่อ BU',
+        detail: `BU: ${bu}`
+    });
+
+    renderActionLog();
+    alert(`✅ ส่งต่อ "${c.name}" ไปยัง ${bu} เรียบร้อย`);
+}
+
+function rejectCandidate(candidateId) {
+    const c = candidates.find(x => x.id === candidateId);
+    if (!c) return;
+    const reason = prompt('เหตุผลการไม่ผ่าน:', 'คุณสมบัติไม่ตรงกับความต้องการ');
+    if (reason === null) return;
+
+    c.status = 'fail';
+    actionLogs.unshift({
+        time: new Date().toLocaleString('th-TH'),
+        action: `ไม่ผ่าน: ${c.name}`,
+        result: 'ไม่ผ่าน',
+        detail: reason
+    });
+
+    renderActionLog();
+    initMatching();
+    alert(`❌ "${c.name}" ไม่ผ่าน - ปิดใบสมัครอัตโนมัติ`);
+}
+
+function renderActionLog() {
+    const container = document.getElementById('actionLog');
+    if (actionLogs.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-400 py-4"><p>ยังไม่มีรายการ</p></div>';
+        return;
+    }
+    container.innerHTML = actionLogs.map(log => `
+        <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg text-sm">
+            <span class="text-gray-400 text-xs whitespace-nowrap">${log.time}</span>
+            <span class="font-medium flex-1">${log.action}</span>
+            <span class="px-2 py-0.5 rounded text-xs ${log.result === 'ส่งต่อ' ? 'bg-green-100 text-green-700' : log.result === 'ส่งต่อ BU' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}">${log.result}</span>
+        </div>
+    `).join('');
+}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+    initDashboard();
+});
+</script>
+
+</body>
+</html>
