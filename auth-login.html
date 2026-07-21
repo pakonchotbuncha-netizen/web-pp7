@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web PP7 — เข้าสู่ระบบ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Prompt', sans-serif; }
+    body { background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%); min-height: 100vh; }
+    .login-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-radius: 1.5rem; box-shadow: 0 25px 60px rgba(0,0,0,0.3); }
+    .input-field { transition: all 0.2s; }
+    .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+    .btn-login { background: linear-gradient(135deg, #2563eb, #1d4ed8); transition: all 0.2s; }
+    .btn-login:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(37,99,235,0.4); }
+    .btn-login:active { transform: translateY(0); }
+    .shake { animation: shake 0.5s; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+    .fade-in { animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .role-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.5rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 500; }
+  </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-card w-full max-w-md p-8 fade-in">
+    <div class="text-center mb-6">
+      <div class="text-4xl mb-2">🏢</div>
+      <h1 class="text-xl font-bold text-gray-800">ระบบบริหารบุคลากร PP7</h1>
+      <p class="text-sm text-gray-500 mt-1">PKG Group — Thailand | Laos | Cambodia</p>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginForm">
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">ID สมาชิก</label>
+        <input type="text" id="loginId" placeholder="เช่น PKG001, HR001, EMP001"
+          class="input-field w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
+        <div class="relative">
+          <input type="password" id="loginPassword" placeholder="••••••••"
+            class="input-field w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none pr-10">
+          <button onclick="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+            <span id="eyeIcon">👁️</span>
+          </button>
+        </div>
+      </div>
+      <div id="loginError" class="hidden mb-3 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"></div>
+      <div id="lockWarning" class="hidden mb-3 p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-sm"></div>
+      <button onclick="doLogin()" class="btn-login w-full py-3 text-white font-semibold rounded-xl text-sm">
+        เข้าสู่ระบบ
+      </button>
+      <div class="flex justify-between mt-4 text-sm">
+        <a href="#" onclick="showForgotPassword()" class="text-blue-600 hover:underline">ลืมรหัสผ่าน?</a>
+        <a href="#" onclick="showExternalApply()" class="text-amber-600 hover:underline">สมัครงาน / หน่วยงานภายนอก</a>
+      </div>
+    </div>
+
+    <!-- Forgot Password Form -->
+    <div id="forgotForm" class="hidden">
+      <h3 class="font-semibold text-gray-800 mb-3">🔑 ลืมรหัสผ่าน</h3>
+      <p class="text-sm text-gray-500 mb-4">กรอก ID สมาชิก และ email ที่ลงทะเบียน ระบบจะส่ง OTP ไปยืนยัน</p>
+      <div class="mb-3">
+        <label class="block text-sm font-medium text-gray-700 mb-1">ID สมาชิก</label>
+        <input type="text" id="forgotId" placeholder="เช่น EMP001"
+          class="input-field w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <input type="email" id="forgotEmail" placeholder="your@email.com"
+          class="input-field w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none">
+      </div>
+      <div id="otpSection" class="hidden mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">OTP (6 หลัก)</label>
+        <input type="text" id="otpInput" maxlength="6" placeholder="------"
+          class="input-field w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none text-center text-2xl tracking-widest">
+        <p class="text-xs text-gray-400 mt-1">OTP หมดอายุใน <span id="otpTimer">10:00</span></p>
+      </div>
+      <div id="newPwSection" class="hidden mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่านใหม่</label>
+        <input type="password" id="newPassword" placeholder="••••••••"
+          class="input-field w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none">
+        <div id="pwStrength" class="mt-1 text-xs"></div>
+      </div>
+      <div id="forgotMsg" class="hidden mb-3 p-3 rounded-xl text-sm"></div>
+      <button onclick="handleForgotPassword()" id="forgotBtn" class="btn-login w-full py-3 text-white font-semibold rounded-xl text-sm">
+        ส่ง OTP
+      </button>
+      <button onclick="showLoginForm()" class="w-full mt-2 py-2 text-gray-500 text-sm hover:text-gray-700">
+        ← กลับไปหน้า Login
+      </button>
+    </div>
+
+    <!-- External Apply -->
+    <div id="externalForm" class="hidden">
+      <h3 class="font-semibold text-gray-800 mb-3">🌐 เข้าระบบสำหรับบุคคลภายนอก</h3>
+      <p class="text-sm text-gray-500 mb-4">สำหรับผู้สมัครงาน หรือหน่วยงานภาครัฐที่ลงทะเบียนแล้ว</p>
+      <div class="mb-3">
+        <label class="block text-sm font-medium text-gray-700 mb-1">ID ผู้ใช้งานภายนอก</label>
+        <input type="text" id="extId" placeholder="เช่น EXT-APP-001"
+          class="input-field w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none">
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
+        <input type="password" id="extPassword" placeholder="••••••••"
+          class="input-field w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none">
+      </div>
+      <button onclick="doExternalLogin()" class="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl text-sm transition">
+        เข้าสู่ระบบภายนอก
+      </button>
+      <div class="mt-3 p-3 bg-amber-50 rounded-xl text-xs text-amber-700">
+        💡 ยังไม่มีบัญชี? <a href="#" class="underline font-medium">สมัครงานที่นี่</a> | <a href="#" class="underline font-medium">ลงทะเบียนหน่วยงาน</a>
+      </div>
+      <button onclick="showLoginForm()" class="w-full mt-2 py-2 text-gray-500 text-sm hover:text-gray-700">
+        ← กลับไปหน้า Login
+      </button>
+    </div>
+
+    <!-- Demo credentials -->
+    <div class="mt-6 p-3 bg-gray-50 rounded-xl">
+      <p class="text-xs font-medium text-gray-500 mb-2">🧪 ทดสอบ (Demo)</p>
+      <div class="grid grid-cols-2 gap-1 text-xs text-gray-500">
+        <span>PKG001 — admin</span><span>pass1234</span>
+        <span>HR001 — operator</span><span>pass1234</span>
+        <span>BMC001 — bmc</span><span>pass1234</span>
+        <span>EMP001 — user</span><span>pass1234</span>
+        <span>EXT-APP-001 — external</span><span>pass1234</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth-config.js"></script>
+  <script>
+    // Demo passwords (in production: server-side hash)
+    const DEMO_PASSWORDS = {};
+    MOCK_USERS.forEach(u => { DEMO_PASSWORDS[u.employee_id] = simpleHash('pass1234'); });
+
+    // State
+    let loginAttempts = {};
+    let lockedAccounts = {};
+    let currentOtp = null;
+    let otpExpiry = null;
+    let forgotStep = 'request'; // request → verify → reset
+
+    function togglePassword() {
+      const pw = document.getElementById('loginPassword');
+      const icon = document.getElementById('eyeIcon');
+      if (pw.type === 'password') { pw.type = 'text'; icon.textContent = '🙈'; }
+      else { pw.type = 'password'; icon.textContent = '👁️'; }
+    }
+
+    function showLoginForm() {
+      document.getElementById('loginForm').classList.remove('hidden');
+      document.getElementById('forgotForm').classList.add('hidden');
+      document.getElementById('externalForm').classList.add('hidden');
+      resetForgotForm();
+    }
+
+    function showForgotPassword() {
+      document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('forgotForm').classList.remove('hidden');
+      document.getElementById('externalForm').classList.add('hidden');
+    }
+
+    function showExternalApply() {
+      document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('forgotForm').classList.add('hidden');
+      document.getElementById('externalForm').classList.remove('hidden');
+    }
+
+    function resetForgotForm() {
+      forgotStep = 'request';
+      document.getElementById('otpSection').classList.add('hidden');
+      document.getElementById('newPwSection').classList.add('hidden');
+      document.getElementById('forgotMsg').classList.add('hidden');
+      document.getElementById('forgotBtn').textContent = 'ส่ง OTP';
+      document.getElementById('forgotId').value = '';
+      document.getElementById('forgotEmail').value = '';
+    }
+
+    function doLogin() {
+      const id = document.getElementById('loginId').value.trim().toUpperCase();
+      const pw = document.getElementById('loginPassword').value;
+      const errEl = document.getElementById('loginError');
+      const lockEl = document.getElementById('lockWarning');
+      errEl.classList.add('hidden');
+      lockEl.classList.add('hidden');
+
+      // Check lock
+      if (lockedAccounts[id] && Date.now() < lockedAccounts[id]) {
+        const remain = Math.ceil((lockedAccounts[id] - Date.now()) / 60000);
+        lockEl.textContent = `🔒 บัญชีถูกล็อก กรุณารอ ${remain} นาที`;
+        lockEl.classList.remove('hidden');
+        return;
+      }
+
+      // Find user
+      const user = MOCK_USERS.find(u => u.employee_id === id);
+      if (!user) {
+        errEl.textContent = '❌ ไม่พบ ID นี้ในระบบ';
+        errEl.classList.remove('hidden');
+        document.getElementById('loginScreen').classList.add('shake');
+        setTimeout(() => document.getElementById('loginScreen').classList.remove('shake'), 500);
+        return;
+      }
+
+      if (user.status === 'resigned') {
+        errEl.textContent = '❌ บัญชีนี้ถูกปิดแล้ว (ลาออก)';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      if (user.status === 'suspended') {
+        errEl.textContent = '❌ บัญชีนี้ถูกระงับชั่วคราว กรุณาติดต่อ HR';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      // Check password
+      if (simpleHash(pw) !== DEMO_PASSWORDS[id]) {
+        loginAttempts[id] = (loginAttempts[id] || 0) + 1;
+        const remaining = AUTH_CONFIG.login.maxAttempts - loginAttempts[id];
+
+        if (loginAttempts[id] >= AUTH_CONFIG.login.maxAttempts) {
+          lockedAccounts[id] = Date.now() + AUTH_CONFIG.login.lockDuration;
+          lockEl.textContent = `🔒 บัญชีถูกล็อก 30 นาที (login ผิด ${AUTH_CONFIG.login.maxAttempts} ครั้ง)`;
+          lockEl.classList.remove('hidden');
+          loginAttempts[id] = 0;
+        } else {
+          errEl.textContent = `❌ รหัสผ่านไม่ถูกต้อง (เหลือ ${remaining} ครั้งก่อนล็อก)`;
+          errEl.classList.remove('hidden');
+        }
+
+        // Log failed attempt
+        logAccess(id, 'login', 'failed_wrong_password');
+        document.getElementById('loginScreen').classList.add('shake');
+        setTimeout(() => document.getElementById('loginScreen').classList.remove('shake'), 500);
+        return;
+      }
+
+      // Success
+      loginAttempts[id] = 0;
+      logAccess(id, 'login', 'success');
+      
+      // Store session
+      const session = {
+        employee_id: user.employee_id,
+        name: user.name,
+        role: user.role,
+        department: user.department,
+        token: generateId('sess_'),
+        expires: Date.now() + AUTH_CONFIG.sessionTimeout[user.role]
+      };
+      localStorage.setItem('pp7_session', JSON.stringify(session));
+
+      // Redirect to main app
+      window.location.href = 'auth-admin-panel.html';
+    }
+
+    function doExternalLogin() {
+      const id = document.getElementById('extId').value.trim().toUpperCase();
+      const pw = document.getElementById('extPassword').value;
+
+      const user = MOCK_USERS.find(u => u.employee_id === id && u.role === 'external');
+      if (!user) {
+        alert('❌ ไม่พบ ID ผู้ใช้งานภายนอกนี้');
+        return;
+      }
+      if (simpleHash(pw) !== DEMO_PASSWORDS[id]) {
+        alert('❌ รหัสผ่านไม่ถูกต้อง');
+        logAccess(id, 'login', 'failed_wrong_password');
+        return;
+      }
+
+      logAccess(id, 'login', 'success');
+      const session = {
+        employee_id: user.employee_id,
+        name: user.name,
+        role: 'external',
+        department: user.department,
+        token: generateId('sess_'),
+        expires: Date.now() + AUTH_CONFIG.sessionTimeout.external
+      };
+      localStorage.setItem('pp7_session', JSON.stringify(session));
+      window.location.href = 'auth-admin-panel.html';
+    }
+
+    function handleForgotPassword() {
+      const msgEl = document.getElementById('forgotMsg');
+
+      if (forgotStep === 'request') {
+        const id = document.getElementById('forgotId').value.trim().toUpperCase();
+        const email = document.getElementById('forgotEmail').value.trim();
+        const user = MOCK_USERS.find(u => u.employee_id === id);
+
+        if (!user || user.email.toLowerCase() !== email.toLowerCase()) {
+          msgEl.className = 'mb-3 p-3 rounded-xl text-sm bg-red-50 border border-red-200 text-red-600';
+          msgEl.textContent = '❌ ไม่พบ ID หรือ email ตรงในระบบ';
+          msgEl.classList.remove('hidden');
+          return;
+        }
+
+        // Generate OTP
+        currentOtp = generateOtp();
+        otpExpiry = Date.now() + AUTH_CONFIG.otp.expiryMs;
+        logAccess(id, 'request_reset', 'otp_sent');
+
+        msgEl.className = 'mb-3 p-3 rounded-xl text-sm bg-green-50 border border-green-200 text-green-700';
+        msgEl.innerHTML = `✅ ส่ง OTP ไปที่ ${email} แล้ว<br><span class="text-xs text-gray-500">(Demo: OTP คือ <strong>${currentOtp}</strong>)</span>`;
+        msgEl.classList.remove('hidden');
+
+        document.getElementById('otpSection').classList.remove('hidden');
+        document.getElementById('forgotBtn').textContent = 'ยืนยัน OTP';
+        forgotStep = 'verify';
+        startOtpTimer();
+
+      } else if (forgotStep === 'verify') {
+        const input = document.getElementById('otpInput').value.trim();
+        if (input !== currentOtp) {
+          msgEl.className = 'mb-3 p-3 rounded-xl text-sm bg-red-50 border border-red-200 text-red-600';
+          msgEl.textContent = '❌ OTP ไม่ถูกต้อง';
+          msgEl.classList.remove('hidden');
+          return;
+        }
+        if (Date.now() > otpExpiry) {
+          msgEl.className = 'mb-3 p-3 rounded-xl text-sm bg-red-50 border border-red-200 text-red-600';
+          msgEl.textContent = '❌ OTP หมดอายุแล้ว กรุณาขอใหม่';
+          msgEl.classList.remove('hidden');
+          return;
+        }
+
+        msgEl.className = 'mb-3 p-3 rounded-xl text-sm bg-green-50 border border-green-200 text-green-700';
+        msgEl.textContent = '✅ OTP ถูกต้อง กรุณาตั้งรหัสผ่านใหม่';
+        msgEl.classList.remove('hidden');
+
+        document.getElementById('newPwSection').classList.remove('hidden');
+        document.getElementById('forgotBtn').textContent = 'ตั้งรหัสผ่านใหม่';
+        forgotStep = 'reset';
+
+      } else if (forgotStep === 'reset') {
+        const newPw = document.getElementById('newPassword').value;
+        const validation = validatePassword(newPw);
+        if (!validation.valid) {
+          msgEl.className = 'mb-3 p-3 rounded-xl text-sm bg-red-50 border border-red-200 text-red-600';
+          msgEl.innerHTML = '❌ ' + validation.errors.join('<br>');
+          msgEl.classList.remove('hidden');
+          return;
+        }
+
+        const id = document.getElementById('forgotId').value.trim().toUpperCase();
+        DEMO_PASSWORDS[id] = simpleHash(newPw);
+        logAccess(id, 'reset_password', 'completed');
+
+        msgEl.className = 'mb-3 p-3 rounded-xl text-sm bg-green-50 border border-green-200 text-green-700';
+        msgEl.textContent = '✅ ตั้งรหัสผ่านใหม่สำเร็จ! กลับไปหน้า Login';
+        msgEl.classList.remove('hidden');
+        document.getElementById('forgotBtn').textContent = 'กลับไป Login';
+        document.getElementById('forgotBtn').onclick = showLoginForm;
+        forgotStep = 'done';
+      }
+    }
+
+    function startOtpTimer() {
+      const timerEl = document.getElementById('otpTimer');
+      const interval = setInterval(() => {
+        const remain = Math.max(0, otpExpiry - Date.now());
+        const min = Math.floor(remain / 60000);
+        const sec = Math.floor((remain % 60000) / 1000);
+        timerEl.textContent = `${min}:${sec.toString().padStart(2, '0')}`;
+        if (remain <= 0) clearInterval(interval);
+      }, 1000);
+    }
+
+    // Access logging
+    function logAccess(employeeId, action, result) {
+      const logs = JSON.parse(localStorage.getItem('pp7_access_logs') || '[]');
+      logs.push({
+        log_id: generateId('L'),
+        employee_id: employeeId,
+        action: action,
+        ip: '192.168.1.' + Math.floor(Math.random() * 255),
+        device: navigator.userAgent.split(' ').pop(),
+        timestamp: new Date().toISOString(),
+        result: result
+      });
+      // Keep last 500
+      if (logs.length > 500) logs.splice(0, logs.length - 500);
+      localStorage.setItem('pp7_access_logs', JSON.stringify(logs));
+    }
+
+    // Enter key login
+    document.getElementById('loginPassword').addEventListener('keypress', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+    document.getElementById('loginId').addEventListener('keypress', e => {
+      if (e.key === 'Enter') document.getElementById('loginPassword').focus();
+    });
+  </script>
+</body>
+</html>

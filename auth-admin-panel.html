@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web PP7 — จัดการผู้ใช้งาน</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Prompt', sans-serif; }
+    body { background: #f1f5f9; }
+    .card { background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(15,23,42,.07); padding: 1.5rem; }
+    .tab-btn { padding: 0.6rem 1rem; font-weight: 500; cursor: pointer; border: none; background: transparent; color: #64748b; border-radius: 0.5rem; transition: all 0.15s; font-size: 0.85rem; }
+    .tab-btn:hover { color: #2563eb; background: #eff6ff; }
+    .tab-btn.active { color: #2563eb; background: #dbeafe; }
+    .badge { display: inline-flex; align-items: center; padding: 0.15rem 0.5rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 500; }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-red { background: #fee2e2; color: #991b1b; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-purple { background: #f3e8ff; color: #6b21a8; }
+    .badge-gray { background: #f1f5f9; color: #475569; }
+    table { width: 100%; border-collapse: collapse; }
+    th { padding: 0.6rem 0.8rem; font-size: 0.7rem; font-weight: 600; color: #64748b; text-transform: uppercase; text-align: left; border-bottom: 2px solid #e2e8f0; }
+    td { padding: 0.6rem 0.8rem; border-bottom: 1px solid #f1f5f9; font-size: 0.8rem; }
+    tr:hover td { background: #f8fafc; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.4); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 1rem; max-width: 560px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(15,23,42,.2); }
+    .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
+    .modal-body { padding: 1.5rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 500; color: #374151; margin-bottom: 0.25rem; }
+    .form-group input, .form-group select { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.85rem; outline: none; transition: border 0.15s; }
+    .form-group input:focus, .form-group select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.1); }
+    .btn { padding: 0.45rem 1rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-success { background: #10b981; color: #fff; }
+    .btn-success:hover { background: #059669; }
+    .btn-outline { background: #fff; border: 1px solid #e2e8f0; color: #64748b; }
+    .btn-outline:hover { background: #f8fafc; }
+    .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.7rem; }
+    .stat-card { text-align: center; padding: 1rem; }
+    .stat-num { font-size: 1.8rem; font-weight: 700; line-height: 1; }
+    .stat-label { font-size: 0.7rem; color: #64748b; margin-top: 0.25rem; }
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .action-btn { padding: 0.25rem 0.4rem; border-radius: 0.3rem; border: none; cursor: pointer; font-size: 0.75rem; transition: all 0.1s; }
+    .action-btn:hover { transform: scale(1.1); }
+    .search-input { padding: 0.5rem 0.75rem 0.5rem 2rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.8rem; outline: none; width: 250px; }
+    .search-input:focus { border-color: #3b82f6; }
+    .role-selector { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .role-option { padding: 0.4rem 0.8rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; cursor: pointer; font-size: 0.75rem; transition: all 0.15s; }
+    .role-option:hover { border-color: #3b82f6; }
+    .role-option.selected { border-color: #2563eb; background: #eff6ff; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Top Bar -->
+  <div class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-30">
+    <div class="flex items-center gap-3">
+      <span class="text-xl">🏢</span>
+      <div>
+        <h1 class="text-sm font-bold text-gray-800">Web PP7 — จัดการผู้ใช้งาน</h1>
+        <p class="text-xs text-gray-500">RBAC & Access Management</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <div id="currentUser" class="text-right">
+        <div class="text-sm font-medium text-gray-800">-</div>
+        <div id="currentRole" class="text-xs text-gray-500">-</div>
+      </div>
+      <button onclick="logout()" class="btn btn-outline btn-sm">🚪 ออก</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="bg-white border-b border-gray-200 px-6 py-2 flex gap-2 overflow-x-auto">
+    <button class="tab-btn active" onclick="switchTab('users')">👥 จัดการผู้ใช้</button>
+    <button class="tab-btn" onclick="switchTab('logs')">📋 Access Logs</button>
+    <button class="tab-btn" onclick="switchTab('stats')">📊 สถิติ</button>
+    <button class="tab-btn" onclick="switchTab('matrix')">🔐 Access Matrix</button>
+  </div>
+
+  <div class="p-6 max-w-7xl mx-auto">
+
+    <!-- Tab: Users Management -->
+    <div id="tab-users" class="tab-content fade-in">
+      <!-- Stats Row -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <div class="card stat-card">
+          <div class="stat-num text-blue-600" id="statTotal">0</div>
+          <div class="stat-label">ผู้ใช้ทั้งหมด</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-num text-green-600" id="statActive">0</div>
+          <div class="stat-label">🟢 ใช้งาน</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-num text-red-600" id="statResigned">0</div>
+          <div class="stat-label">🔴 ลาออก</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-num text-amber-600" id="statLocked">0</div>
+          <div class="stat-label">🔒 ล็อก</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-num text-purple-600" id="statExternal">0</div>
+          <div class="stat-label">🌐 ภายนอก</div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="card mb-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <div class="relative">
+              <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+              <input type="text" id="searchUser" placeholder="ค้นหา ID, ชื่อ, email..." class="search-input" oninput="renderUsers()">
+            </div>
+            <select id="filterRole" class="btn btn-outline btn-sm" onchange="renderUsers()">
+              <option value="">ทุก Role</option>
+              <option value="admin">👑 Admin</option>
+              <option value="operator">⚙️ Operator</option>
+              <option value="bmc">📊 BMC</option>
+              <option value="user">👤 User</option>
+              <option value="external">🌐 External</option>
+            </select>
+            <select id="filterStatus" class="btn btn-outline btn-sm" onchange="renderUsers()">
+              <option value="">ทุกสถานะ</option>
+              <option value="active">🟢 ใช้งาน</option>
+              <option value="resigned">🔴 ลาออก</option>
+              <option value="suspended">🟡 ระงับ</option>
+              <option value="locked">🔒 ล็อก</option>
+            </select>
+          </div>
+          <button onclick="showAddUser()" class="btn btn-primary">+ เพิ่มผู้ใช้ใหม่</button>
+        </div>
+      </div>
+
+      <!-- Users Table -->
+      <div class="card overflow-x-auto">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>ชื่อ</th>
+              <th>Role</th>
+              <th>แผนก</th>
+              <th>สถานะ</th>
+              <th>Login ล่าสุด</th>
+              <th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: Access Logs -->
+    <div id="tab-logs" class="tab-content hidden fade-in">
+      <div class="card mb-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h3 class="font-semibold text-gray-800">📋 บันทึกการเข้าถึง</h3>
+          <div class="flex items-center gap-2">
+            <input type="text" id="searchLog" placeholder="ค้นหา ID..." class="search-input" oninput="renderLogs()">
+            <select id="filterLogAction" class="btn btn-outline btn-sm" onchange="renderLogs()">
+              <option value="">ทุก Action</option>
+              <option value="login">Login</option>
+              <option value="logout">Logout</option>
+              <option value="request_reset">ขอ Reset PW</option>
+              <option value="reset_password">Reset PW สำเร็จ</option>
+              <option value="role_change">เปลี่ยน Role</option>
+              <option value="user_created">สร้าง User</option>
+              <option value="user_resigned">ลาออก</option>
+            </select>
+            <button onclick="exportLogs()" class="btn btn-outline btn-sm">📥 Export</button>
+          </div>
+        </div>
+      </div>
+      <div class="card overflow-x-auto">
+        <table>
+          <thead>
+            <tr>
+              <th>เวลา</th>
+              <th>ID</th>
+              <th>Action</th>
+              <th>IP</th>
+              <th>Device</th>
+              <th>ผล</th>
+            </tr>
+          </thead>
+          <tbody id="logsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: Stats -->
+    <div id="tab-stats" class="tab-content hidden fade-in">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="card">
+          <h3 class="font-semibold text-gray-800 mb-4">📈 Login ย้อนหลัง 7 วัน</h3>
+          <canvas id="loginChart" height="250"></canvas>
+        </div>
+        <div class="card">
+          <h3 class="font-semibold text-gray-800 mb-4">🎯 สัดส่วน Role</h3>
+          <canvas id="roleChart" height="250"></canvas>
+        </div>
+        <div class="card">
+          <h3 class="font-semibold text-gray-800 mb-4">⚠️ เหตุการณ์ความปลอดภัย</h3>
+          <div id="securityEvents" class="space-y-2"></div>
+        </div>
+        <div class="card">
+          <h3 class="font-semibold text-gray-800 mb-4">🕐 Activity สรุป</h3>
+          <div id="activitySummary" class="space-y-3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: Access Matrix -->
+    <div id="tab-matrix" class="tab-content hidden fade-in">
+      <div class="card">
+        <h3 class="font-semibold text-gray-800 mb-4">🔐 Access Matrix — สิทธิ์การเข้าถึงแต่ละ Module</h3>
+        <div class="overflow-x-auto">
+          <table id="matrixTable">
+            <thead>
+              <tr>
+                <th>Module</th>
+                <th class="text-center">👑 Admin</th>
+                <th class="text-center">⚙️ Operator</th>
+                <th class="text-center">📊 BMC</th>
+                <th class="text-center">👤 User</th>
+                <th class="text-center">🌐 External</th>
+              </tr>
+            </thead>
+            <tbody id="matrixTableBody"></tbody>
+          </table>
+        </div>
+        <div class="mt-4 flex gap-4 text-xs text-gray-500">
+          <span>✅ = อ่าน+เขียน</span>
+          <span>👁 = อ่านอย่างเดียว</span>
+          <span>📝 = สมัคร/ส่งข้อมูล</span>
+          <span>👤 = ข้อมูลตัวเอง</span>
+          <span>❌ = ไม่มีสิทธิ์</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Add/Edit User -->
+  <div id="userModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">เพิ่มผู้ใช้ใหม่</h3>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>ID สมาชิก *</label>
+          <input type="text" id="modalEmpId" placeholder="เช่น EMP004">
+        </div>
+        <div class="form-group">
+          <label>ชื่อ-นามสกุล *</label>
+          <input type="text" id="modalName" placeholder="ชื่อ นามสกุล">
+        </div>
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" id="modalEmail" placeholder="email@pkg.co.th">
+        </div>
+        <div class="form-group">
+          <label>โทรศัพท์</label>
+          <input type="tel" id="modalPhone" placeholder="08x-xxx-xxxx">
+        </div>
+        <div class="form-group">
+          <label>แผนก</label>
+          <input type="text" id="modalDept" placeholder="เช่น HR, Production">
+        </div>
+        <div class="form-group">
+          <label>Role (ระดับสิทธิ์) *</label>
+          <div class="role-selector" id="roleSelector">
+            <div class="role-option" data-role="admin" onclick="selectRole('admin')">👑 Admin</div>
+            <div class="role-option" data-role="operator" onclick="selectRole('operator')">⚙️ Operator</div>
+            <div class="role-option" data-role="bmc" onclick="selectRole('bmc')">📊 BMC</div>
+            <div class="role-option" data-role="user" onclick="selectRole('user')">👤 User</div>
+            <div class="role-option" data-role="external" onclick="selectRole('external')">🌐 External</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>สถานะ</label>
+          <select id="modalStatus">
+            <option value="active">🟢 ใช้งาน</option>
+            <option value="suspended">🟡 ระงับ</option>
+            <option value="resigned">🔴 ลาออก</option>
+          </select>
+        </div>
+        <div id="modalPwGroup" class="form-group">
+          <label>รหัสผ่านเริ่มต้น *</label>
+          <input type="text" id="modalPassword" value="Pp7@2026" placeholder="รหัสผ่านเริ่มต้น">
+          <p class="text-xs text-gray-400 mt-1">ผู้ใช้ต้องเปลี่ยนรหัสผ่านครั้งแรกที่ login</p>
+        </div>
+        <div class="flex justify-end gap-2 mt-6">
+          <button onclick="closeModal()" class="btn btn-outline">ยกเลิก</button>
+          <button onclick="saveUser()" class="btn btn-primary">💾 บันทึก</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: User Detail -->
+  <div id="detailModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>📋 รายละเอียดผู้ใช้</h3>
+        <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+      </div>
+      <div class="modal-body" id="detailContent"></div>
+    </div>
+  </div>
+
+  <script src="auth-config.js"></script>
+  <script>
+    let users = [];
+    let selectedRole = '';
+    let editingUserId = null;
+    let currentSession = null;
+
+    // Init
+    function init() {
+      // Check session
+      const sess = JSON.parse(localStorage.getItem('pp7_session') || 'null');
+      if (!sess || sess.role !== 'admin') {
+        alert('⛔ ต้อง login เป็น Admin เท่านั้น');
+        window.location.href = 'auth-login.html';
+        return;
+      }
+      currentSession = sess;
+      document.getElementById('currentUser').querySelector('div').textContent = sess.name;
+      document.getElementById('currentRole').textContent = ROLES[sess.role]?.icon + ' ' + ROLES[sess.role]?.name;
+
+      // Load users
+      const saved = localStorage.getItem('pp7_users');
+      if (saved) {
+        users = JSON.parse(saved);
+      } else {
+        users = JSON.parse(JSON.stringify(MOCK_USERS));
+        // Add password hash for each
+        users.forEach(u => { u.password_hash = simpleHash('pass1234'); u.force_change_pw = true; });
+        saveUsers();
+      }
+
+      renderUsers();
+      renderLogs();
+      renderMatrix();
+      renderStats();
+    }
+
+    function saveUsers() {
+      localStorage.setItem('pp7_users', JSON.stringify(users));
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.remove('hidden');
+      event.target.classList.add('active');
+      if (tab === 'stats') renderStats();
+      if (tab === 'logs') renderLogs();
+    }
+
+    // Render Users Table
+    function renderUsers() {
+      const search = document.getElementById('searchUser').value.toLowerCase();
+      const roleFilter = document.getElementById('filterRole').value;
+      const statusFilter = document.getElementById('filterStatus').value;
+
+      let filtered = users.filter(u => {
+        const matchSearch = !search || u.employee_id.toLowerCase().includes(search) || u.name.toLowerCase().includes(search) || (u.email || '').toLowerCase().includes(search);
+        const matchRole = !roleFilter || u.role === roleFilter;
+        const matchStatus = !statusFilter || u.status === statusFilter;
+        return matchSearch && matchRole && matchStatus;
+      });
+
+      // Update stats
+      document.getElementById('statTotal').textContent = users.length;
+      document.getElementById('statActive').textContent = users.filter(u => u.status === 'active').length;
+      document.getElementById('statResigned').textContent = users.filter(u => u.status === 'resigned').length;
+      document.getElementById('statLocked').textContent = users.filter(u => u.status === 'locked').length;
+      document.getElementById('statExternal').textContent = users.filter(u => u.role === 'external').length;
+
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = filtered.map(u => {
+        const role = ROLES[u.role];
+        const status = USER_STATUS[u.status];
+        return `<tr>
+          <td><span class="font-mono text-xs font-medium">${u.employee_id}</span></td>
+          <td>${u.name}</td>
+          <td><span class="badge" style="background:${role?.color}20;color:${role?.color}">${role?.icon} ${role?.name}</span></td>
+          <td>${u.department || '-'}</td>
+          <td><span class="badge badge-${u.status === 'active' ? 'green' : u.status === 'resigned' ? 'red' : u.status === 'locked' ? 'red' : 'amber'}">${status?.icon || ''} ${status?.label || u.status}</span></td>
+          <td class="text-xs text-gray-500">${u.last_login || '-'}</td>
+          <td>
+            <div class="flex gap-1">
+              <button onclick="viewUser('${u.employee_id}')" class="action-btn bg-blue-50 text-blue-600" title="ดู">👁</button>
+              <button onclick="editUser('${u.employee_id}')" class="action-btn bg-amber-50 text-amber-600" title="แก้ไข">✏️</button>
+              ${u.status === 'active' ? `<button onclick="suspendUser('${u.employee_id}')" class="action-btn bg-gray-50 text-gray-600" title="ระงับ">🚫</button>` : ''}
+              ${u.status !== 'active' ? `<button onclick="activateUser('${u.employee_id}')" class="action-btn bg-green-50 text-green-600" title="เปิดใช้">✅</button>` : ''}
+              <button onclick="resetPassword('${u.employee_id}')" class="action-btn bg-purple-50 text-purple-600" title="Reset PW">🔑</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    // Render Access Logs
+    function renderLogs() {
+      const logs = JSON.parse(localStorage.getItem('pp7_access_logs') || '[]');
+      const search = document.getElementById('searchLog').value.toLowerCase();
+      const actionFilter = document.getElementById('filterLogAction').value;
+
+      let filtered = logs.filter(l => {
+        const matchSearch = !search || l.employee_id.toLowerCase().includes(search);
+        const matchAction = !actionFilter || l.action === actionFilter;
+        return matchSearch && matchAction;
+      }).reverse().slice(0, 100);
+
+      const tbody = document.getElementById('logsTableBody');
+      tbody.innerHTML = filtered.map(l => {
+        const isSuccess = l.result === 'success' || l.result === 'completed';
+        return `<tr>
+          <td class="text-xs text-gray-500 whitespace-nowrap">${new Date(l.timestamp).toLocaleString('th-TH')}</td>
+          <td class="font-mono text-xs">${l.employee_id}</td>
+          <td><span class="badge badge-blue">${l.action}</span></td>
+          <td class="text-xs text-gray-500">${l.ip || '-'}</td>
+          <td class="text-xs text-gray-500 truncate max-w-[120px]">${l.device || '-'}</td>
+          <td><span class="badge badge-${isSuccess ? 'green' : 'red'}">${isSuccess ? '✅' : '❌'} ${l.result}</span></td>
+        </tr>`;
+      }).join('');
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-400 py-8">ยังไม่มีบันทึก</td></tr>';
+      }
+    }
+
+    // Render Access Matrix
+    function renderMatrix() {
+      const tbody = document.getElementById('matrixTableBody');
+      const moduleNames = {
+        dashboard: '📊 Dashboard',
+        user_management: '👥 จัดการ Users',
+        access_logs: '📋 Access Logs',
+        P1_recruit: '🔍 P1 แสวงหา',
+        P2_assess: '📝 P2 หยั่งประเมิน',
+        P3_match: '🎯 P3 จับคู่',
+        P4_evaluate: '📈 P4 ประเมินผล',
+        P5_develop: '📚 P5 พัฒนา',
+        P6_compensate: '💰 P6 ค่าตอบแทน',
+        P7_wellbeing: '❤️ P7 คุณภาพชีวิต',
+        reports: '📑 รายงาน',
+        settings: '⚙️ ตั้งค่าระบบ'
+      };
+
+      const accessIcons = {
+        'w': '<span class="text-green-600 font-bold">✅</span>',
+        'r': '<span class="text-blue-600">👁</span>',
+        'self': '<span class="text-amber-600">👤</span>',
+        'apply': '<span class="text-purple-600">📝</span>',
+        'none': '<span class="text-gray-300">❌</span>'
+      };
+
+      tbody.innerHTML = Object.entries(ACCESS_MATRIX).map(([mod, roles]) => {
+        return `<tr>
+          <td class="font-medium">${moduleNames[mod] || mod}</td>
+          <td class="text-center">${accessIcons[roles.admin] || '❌'}</td>
+          <td class="text-center">${accessIcons[roles.operator] || '❌'}</td>
+          <td class="text-center">${accessIcons[roles.bmc] || '❌'}</td>
+          <td class="text-center">${accessIcons[roles.user] || '❌'}</td>
+          <td class="text-center">${accessIcons[roles.external] || '❌'}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    // Render Stats
+    function renderStats() {
+      const logs = JSON.parse(localStorage.getItem('pp7_access_logs') || '[]');
+      
+      // Login chart
+      const ctx1 = document.getElementById('loginChart');
+      if (ctx1._chart) ctx1._chart.destroy();
+      const days = [];
+      const successData = [];
+      const failData = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        const ds = d.toISOString().split('T')[0];
+        days.push(d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' }));
+        successData.push(logs.filter(l => l.action === 'login' && l.result === 'success' && l.timestamp.startsWith(ds)).length);
+        failData.push(logs.filter(l => l.action === 'login' && l.result !== 'success' && l.timestamp.startsWith(ds)).length);
+      }
+      ctx1._chart = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: days,
+          datasets: [
+            { label: 'สำเร็จ', data: successData, backgroundColor: '#10b981' },
+            { label: 'ผิดพลาด', data: failData, backgroundColor: '#ef4444' }
+          ]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } }
+      });
+
+      // Role chart
+      const ctx2 = document.getElementById('roleChart');
+      if (ctx2._chart) ctx2._chart.destroy();
+      const roleCounts = {};
+      users.forEach(u => { roleCounts[u.role] = (roleCounts[u.role] || 0) + 1; });
+      ctx2._chart = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(roleCounts).map(r => ROLES[r]?.icon + ' ' + ROLES[r]?.name),
+          datasets: [{ data: Object.values(roleCounts), backgroundColor: Object.keys(roleCounts).map(r => ROLES[r]?.color) }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+      });
+
+      // Security events
+      const secEl = document.getElementById('securityEvents');
+      const failedLogins = logs.filter(l => l.result.includes('failed'));
+      const resets = logs.filter(l => l.action.includes('reset'));
+      const locks = logs.filter(l => l.result === 'account_locked');
+      secEl.innerHTML = `
+        <div class="flex justify-between items-center p-2 bg-red-50 rounded-lg">
+          <span class="text-sm">❌ Login ผิดพลาด (7 วัน)</span>
+          <span class="font-bold text-red-600">${failedLogins.length} ครั้ง</span>
+        </div>
+        <div class="flex justify-between items-center p-2 bg-amber-50 rounded-lg">
+          <span class="text-sm">🔑 Reset Password</span>
+          <span class="font-bold text-amber-600">${resets.length} ครั้ง</span>
+        </div>
+        <div class="flex justify-between items-center p-2 bg-purple-50 rounded-lg">
+          <span class="text-sm">🔒 Account Locked</span>
+          <span class="font-bold text-purple-600">${locks.length} ครั้ง</span>
+        </div>
+      `;
+
+      // Activity summary
+      const sumEl = document.getElementById('activitySummary');
+      const today = new Date().toISOString().split('T')[0];
+      const todayLogins = logs.filter(l => l.action === 'login' && l.timestamp.startsWith(today)).length;
+      const activeUsers = new Set(logs.filter(l => l.timestamp.startsWith(today)).map(l => l.employee_id)).size;
+      sumEl.innerHTML = `
+        <div class="flex justify-between items-center p-2 bg-blue-50 rounded-lg">
+          <span class="text-sm">📅 Login วันนี้</span>
+          <span class="font-bold text-blue-600">${todayLogins} ครั้ง</span>
+        </div>
+        <div class="flex justify-between items-center p-2 bg-green-50 rounded-lg">
+          <span class="text-sm">👥 ผู้ใช้ active วันนี้</span>
+          <span class="font-bold text-green-600">${activeUsers} คน</span>
+        </div>
+        <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+          <span class="text-sm">📋 Total logs</span>
+          <span class="font-bold text-gray-600">${logs.length} รายการ</span>
+        </div>
+      `;
+    }
+
+    // User actions
+    function showAddUser() {
+      editingUserId = null;
+      document.getElementById('modalTitle').textContent = '➕ เพิ่มผู้ใช้ใหม่';
+      document.getElementById('modalEmpId').value = '';
+      document.getElementById('modalEmpId').disabled = false;
+      document.getElementById('modalName').value = '';
+      document.getElementById('modalEmail').value = '';
+      document.getElementById('modalPhone').value = '';
+      document.getElementById('modalDept').value = '';
+      document.getElementById('modalStatus').value = 'active';
+      document.getElementById('modalPassword').value = 'Pp7@2026';
+      document.getElementById('modalPwGroup').classList.remove('hidden');
+      selectedRole = '';
+      document.querySelectorAll('.role-option').forEach(el => el.classList.remove('selected'));
+      document.getElementById('userModal').classList.add('open');
+    }
+
+    function editUser(id) {
+      const user = users.find(u => u.employee_id === id);
+      if (!user) return;
+      editingUserId = id;
+      document.getElementById('modalTitle').textContent = '✏️ แก้ไขผู้ใช้: ' + id;
+      document.getElementById('modalEmpId').value = user.employee_id;
+      document.getElementById('modalEmpId').disabled = true;
+      document.getElementById('modalName').value = user.name;
+      document.getElementById('modalEmail').value = user.email || '';
+      document.getElementById('modalPhone').value = user.phone || '';
+      document.getElementById('modalDept').value = user.department || '';
+      document.getElementById('modalStatus').value = user.status;
+      document.getElementById('modalPwGroup').classList.add('hidden');
+      selectedRole = user.role;
+      document.querySelectorAll('.role-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.role === user.role);
+      });
+      document.getElementById('userModal').classList.add('open');
+    }
+
+    function selectRole(role) {
+      selectedRole = role;
+      document.querySelectorAll('.role-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.role === role);
+      });
+    }
+
+    function saveUser() {
+      const id = document.getElementById('modalEmpId').value.trim().toUpperCase();
+      const name = document.getElementById('modalName').value.trim();
+      const email = document.getElementById('modalEmail').value.trim();
+      const phone = document.getElementById('modalPhone').value.trim();
+      const dept = document.getElementById('modalDept').value.trim();
+      const status = document.getElementById('modalStatus').value;
+
+      if (!id || !name || !email || !selectedRole) {
+        alert('❌ กรุณากรอกข้อมูลให้ครบ (ID, ชื่อ, Email, Role)');
+        return;
+      }
+
+      if (editingUserId) {
+        // Edit existing
+        const user = users.find(u => u.employee_id === editingUserId);
+        const oldRole = user.role;
+        user.name = name;
+        user.email = email;
+        user.phone = phone;
+        user.department = dept;
+        user.role = selectedRole;
+        user.status = status;
+        user.updated = new Date().toISOString();
+
+        // Log role change
+        if (oldRole !== selectedRole) {
+          logAction(editingUserId, 'role_change', `changed ${oldRole} → ${selectedRole}`, 'success');
+        }
+        logAction(editingUserId, 'user_updated', `by ${currentSession.employee_id}`, 'success');
+      } else {
+        // Add new
+        if (users.find(u => u.employee_id === id)) {
+          alert('❌ ID นี้มีอยู่แล้วในระบบ');
+          return;
+        }
+        const newUser = {
+          employee_id: id,
+          name, email, phone,
+          role: selectedRole,
+          department: dept,
+          status,
+          password_hash: simpleHash(document.getElementById('modalPassword').value || 'Pp7@2026'),
+          force_change_pw: true,
+          created: new Date().toISOString(),
+          updated: new Date().toISOString(),
+          last_login: '-'
+        };
+        users.push(newUser);
+        logAction(id, 'user_created', `by ${currentSession.employee_id}`, 'success');
+      }
+
+      saveUsers();
+      renderUsers();
+      closeModal();
+    }
+
+    function suspendUser(id) {
+      if (!confirm(`ระงับบัญชี ${id}?`)) return;
+      const user = users.find(u => u.employee_id === id);
+      user.status = 'suspended';
+      user.updated = new Date().toISOString();
+      saveUsers();
+      renderUsers();
+      logAction(id, 'user_suspended', `by ${currentSession.employee_id}`, 'success');
+    }
+
+    function activateUser(id) {
+      const user = users.find(u => u.employee_id === id);
+      user.status = 'active';
+      user.updated = new Date().toISOString();
+      saveUsers();
+      renderUsers();
+      logAction(id, 'user_activated', `by ${currentSession.employee_id}`, 'success');
+    }
+
+    function resetPassword(id) {
+      const newPw = prompt(`ตั้งรหัสผ่านใหม่สำหรับ ${id}:`, 'Pp7@2026');
+      if (!newPw) return;
+      const validation = validatePassword(newPw);
+      if (!validation.valid) {
+        alert('❌ ' + validation.errors.join('\n'));
+        return;
+      }
+      const user = users.find(u => u.employee_id === id);
+      user.password_hash = simpleHash(newPw);
+      user.force_change_pw = true;
+      user.updated = new Date().toISOString();
+      saveUsers();
+      logAction(id, 'admin_reset_password', `by ${currentSession.employee_id}`, 'success');
+      alert('✅ ตั้งรหัสผ่านใหม่สำเร็จ (ผู้ใช้ต้องเปลี่ยนตอน login ครั้งแรก)');
+    }
+
+    function viewUser(id) {
+      const user = users.find(u => u.employee_id === id);
+      if (!user) return;
+      const role = ROLES[user.role];
+      const status = USER_STATUS[user.status];
+      const modules = getAccessibleModules(user.role);
+
+      document.getElementById('detailContent').innerHTML = `
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div class="p-3 bg-gray-50 rounded-lg">
+            <div class="text-xs text-gray-500">ID</div>
+            <div class="font-mono font-bold">${user.employee_id}</div>
+          </div>
+          <div class="p-3 bg-gray-50 rounded-lg">
+            <div class="text-xs text-gray-500">ชื่อ</div>
+            <div class="font-bold">${user.name}</div>
+          </div>
+          <div class="p-3 bg-gray-50 rounded-lg">
+            <div class="text-xs text-gray-500">Role</div>
+            <div><span class="badge" style="background:${role?.color}20;color:${role?.color}">${role?.icon} ${role?.name}</span></div>
+          </div>
+          <div class="p-3 bg-gray-50 rounded-lg">
+            <div class="text-xs text-gray-500">สถานะ</div>
+            <div>${status?.icon} ${status?.label}</div>
+          </div>
+          <div class="p-3 bg-gray-50 rounded-lg">
+            <div class="text-xs text-gray-500">Email</div>
+            <div class="text-sm">${user.email || '-'}</div>
+          </div>
+          <div class="p-3 bg-gray-50 rounded-lg">
+            <div class="text-xs text-gray-500">แผนก</div>
+            <div>${user.department || '-'}</div>
+          </div>
+        </div>
+        <div class="mb-4">
+          <h4 class="font-medium text-sm text-gray-700 mb-2">🔐 สิทธิ์ที่เข้าถึงได้</h4>
+          <div class="flex flex-wrap gap-1">
+            ${modules.map(m => `<span class="badge badge-blue">${m.module} (${m.access})</span>`).join('')}
+          </div>
+        </div>
+        <div class="text-xs text-gray-400">
+          สร้าง: ${user.created || '-'} | อัปเดต: ${user.updated || '-'} | Login ล่าสุด: ${user.last_login || '-'}
+        </div>
+      `;
+      document.getElementById('detailModal').classList.add('open');
+    }
+
+    function closeModal() { document.getElementById('userModal').classList.remove('open'); }
+    function closeDetailModal() { document.getElementById('detailModal').classList.remove('open'); }
+
+    function logout() {
+      logAction(currentSession.employee_id, 'logout', 'manual', 'success');
+      localStorage.removeItem('pp7_session');
+      window.location.href = 'auth-login.html';
+    }
+
+    function logAction(employeeId, action, result, status) {
+      const logs = JSON.parse(localStorage.getItem('pp7_access_logs') || '[]');
+      logs.push({
+        log_id: generateId('L'),
+        employee_id: employeeId,
+        action, result,
+        ip: '192.168.1.' + Math.floor(Math.random() * 255),
+        device: navigator.userAgent.split(' ').pop(),
+        timestamp: new Date().toISOString()
+      });
+      if (logs.length > 500) logs.splice(0, logs.length - 500);
+      localStorage.setItem('pp7_access_logs', JSON.stringify(logs));
+    }
+
+    function exportLogs() {
+      const logs = JSON.parse(localStorage.getItem('pp7_access_logs') || '[]');
+      const csv = 'log_id,employee_id,action,ip,device,timestamp,result\n' +
+        logs.map(l => `${l.log_id},${l.employee_id},${l.action},${l.ip},${l.device},${l.timestamp},${l.result}`).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `pp7_access_logs_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+    }
+
+    // Start
+    init();
+  </script>
+</body>
+</html>
