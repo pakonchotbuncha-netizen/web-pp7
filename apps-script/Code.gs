@@ -15,7 +15,8 @@ const SHEET_NAMES = {
   users: 'users',
   access_logs: 'access_logs',
   password_recovery: 'password_recovery',
-  sessions: 'sessions'
+  sessions: 'sessions',
+  registrations: 'registrations' // สำหรับลงทะเบียนภายนอก
 };
 
 // ===== MAIN ROUTER =====
@@ -58,6 +59,21 @@ function doGet(e) {
       case 'get_stats':
         result = handleGetStats(e.parameter);
         break;
+      case 'register_applicant':
+        result = handleRegisterApplicant(e.parameter);
+        break;
+      case 'register_organization':
+        result = handleRegisterOrganization(e.parameter);
+        break;
+      case 'get_pending_registrations':
+        result = handleGetPendingRegistrations(e.parameter);
+        break;
+      case 'approve_registration':
+        result = handleApproveRegistration(e.parameter);
+        break;
+      case 'reject_registration':
+        result = handleRejectRegistration(e.parameter);
+        break;
       default:
         result = { success: false, error: 'Unknown action' };
     }
@@ -94,6 +110,18 @@ function doPost(e) {
         break;
       case 'reset_password':
         result = handleResetPassword(params);
+        break;
+      case 'register_applicant':
+        result = handleRegisterApplicant(params);
+        break;
+      case 'register_organization':
+        result = handleRegisterOrganization(params);
+        break;
+      case 'approve_registration':
+        result = handleApproveRegistration(params);
+        break;
+      case 'reject_registration':
+        result = handleRejectRegistration(params);
         break;
       default:
         result = { success: false, error: 'Unknown action' };
@@ -574,6 +602,9 @@ function getSheet(name) {
       case 'sessions':
         sheet.appendRow(['session_id', 'employee_id', 'token', 'expires', 'last_active', 'status']);
         break;
+      case 'registrations':
+        sheet.appendRow(['reg_id', 'type', 'name', 'email', 'phone', 'position', 'organization', 'message', 'otp_code', 'otp_expires', 'status', 'password_hash', 'created', 'reviewed_by', 'reviewed_at', 'notes']);
+        break;
     }
   }
   return sheet;
@@ -638,6 +669,248 @@ function logAccess(employee_id, action, result) {
   }
 }
 
+// ===== REGISTRATION HANDLERS =====
+
+function handleRegisterApplicant(params) {
+  const { name, email, phone, position, password } = params;
+  if (!name || !email || !phone || !position) {
+    return { success: false, error: 'กรุณากรอกข้อมูลให้ครบ' };
+  }
+  
+  // Validate email
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { success: false, error: 'Email ไม่ถูกต้อง' };
+  }
+  
+  // Check duplicate email
+  const usersSheet = getSheet(SHEET_NAMES.users);
+  const usersData = usersSheet.getDataRange().getValues();
+  const userHeaders = usersData[0];
+  const emailIdx = userHeaders.indexOf('email');
+  for (let i = 1; i < usersData.length; i++) {
+    if (usersData[i][emailIdx] === email) {
+      return { success: false, error: 'Email นี้ถูกใช้แล้วในระบบ' };
+    }
+  }
+  
+  // Check pending registrations
+  const regSheet = getSheet(SHEET_NAMES.registrations);
+  const regData = regSheet.getDataRange().getValues();
+  const regHeaders = regData[0];
+  for (let i = 1; i < regData.length; i++) {
+    if (regData[i][regHeaders.indexOf('email')] === email && 
+        regData[i][regHeaders.indexOf('status')] === 'pending') {
+      return { success: false, error: 'มีคำขอลงทะเบียนรอตรวจสอบอยู่แล้ว' };
+    }
+  }
+  
+  // Generate OTP for email verification
+  const otp = generateOtp();
+  const otpExpires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+  
+  // Save registration
+  regSheet.appendRow([
+    generateId('REG-APP-'),
+    'applicant',
+    name,
+    email,
+    phone,
+    position,
+    '', // organization
+    params.message || '',
+    otp,
+    otpExpires,
+    'pending',
+    password ? simpleHash(password) : '',
+    new Date().toISOString(),
+    '', // reviewed_by
+    '', // reviewed_at
+    '' // notes
+  ]);
+  
+  // TODO: Send OTP via email
+  // GmailApp.sendEmail(email, 'Web PP7 - ยืนยันการลงทะเบียน', `รหัส OTP: ${otp}\nหมดอายุใน 10 นาที`);
+  
+  return { 
+    success: true, 
+    message: 'ลงทะเบียนสำเร็จ กรุณาตรวจสอบ email เพื่อยืนยัน',
+    otp: otp, // Remove in production
+    reg_id: regSheet.getRange(regSheet.getLastRow(), 1).getValue()
+  };
+}
+
+function handleRegisterOrganization(params) {
+  const { name, email, phone, organization, message } = params;
+  if (!name || !email || !phone || !organization) {
+    return { success: false, error: 'กรุณากรอกข้อมูลให้ครบ' };
+  }
+  
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { success: false, error: 'Email ไม่ถูกต้อง' };
+  }
+  
+  // Check duplicate
+  const usersSheet = getSheet(SHEET_NAMES.users);
+  const usersData = usersSheet.getDataRange().getValues();
+  const userHeaders = usersData[0];
+  for (let i = 1; i < usersData.length; i++) {
+    if (usersData[i][userHeaders.indexOf('email')] === email) {
+      return { success: false, error: 'Email นี้ถูกใช้แล้วในระบบ' };
+    }
+  }
+  
+  const otp = generateOtp();
+  const otpExpires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+  
+  const regSheet = getSheet(SHEET_NAMES.registrations);
+  regSheet.appendRow([
+    generateId('REG-GOV-'),
+    'organization',
+    name,
+    email,
+    phone,
+    '', // position
+    organization,
+    message || '',
+    otp,
+    otpExpires,
+    'pending',
+    '', // password set later
+    new Date().toISOString(),
+    '', '', ''
+  ]);
+  
+  return { 
+    success: true, 
+    message: 'ลงทะเบียนสำเร็จ กรุณาตรวจสอบ email เพื่อยืนยัน',
+    otp: otp,
+    reg_id: regSheet.getRange(regSheet.getLastRow(), 1).getValue()
+  };
+}
+
+function handleGetPendingRegistrations(params) {
+  const { type, status } = params || {};
+  const sheet = getSheet(SHEET_NAMES.registrations);
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  
+  let registrations = [];
+  for (let i = 1; i < data.length; i++) {
+    const reg = rowToObject(data, headers, i);
+    delete reg.otp_code; // Don't expose OTP
+    delete reg.password_hash;
+    
+    if (type && reg.type !== type) continue;
+    if (status && reg.status !== status) continue;
+    registrations.push(reg);
+  }
+  
+  return { success: true, registrations };
+}
+
+function handleApproveRegistration(params) {
+  const { reg_id, approved_by, notes } = params;
+  if (!reg_id) {
+    return { success: false, error: 'กรุณาระบุ reg_id' };
+  }
+  
+  const regSheet = getSheet(SHEET_NAMES.registrations);
+  const regData = regSheet.getDataRange().getValues();
+  const regHeaders = regData[0];
+  const regIdIdx = regHeaders.indexOf('reg_id');
+  
+  let regRow = -1;
+  for (let i = 1; i < regData.length; i++) {
+    if (regData[i][regIdIdx] === reg_id) {
+      regRow = i;
+      break;
+    }
+  }
+  
+  if (regRow === -1) {
+    return { success: false, error: 'ไม่พบคำขอนี้' };
+  }
+  
+  const reg = rowToObject(regData, regHeaders, regRow);
+  
+  if (reg.status !== 'pending') {
+    return { success: false, error: 'คำขอนี้ถูกประมวลผลแล้ว' };
+  }
+  
+  // Generate employee_id
+  const prefix = reg.type === 'applicant' ? 'EXT-APP-' : 'EXT-GOV-';
+  const usersSheet = getSheet(SHEET_NAMES.users);
+  const usersData = usersSheet.getDataRange().getValues();
+  let maxNum = 0;
+  const userHeaders = usersData[0];
+  for (let i = 1; i < usersData.length; i++) {
+    const uid = usersData[i][userHeaders.indexOf('employee_id')];
+    if (uid && uid.startsWith(prefix)) {
+      const num = parseInt(uid.replace(prefix, '')) || 0;
+      if (num > maxNum) maxNum = num;
+    }
+  }
+  const newId = prefix + String(maxNum + 1).padStart(3, '0');
+  
+  // Create user account
+  const password = reg.password_hash || simpleHash('Pp7@2026');
+  usersSheet.appendRow([
+    newId,
+    reg.name,
+    reg.email,
+    reg.phone,
+    reg.organization || '-',
+    'external',
+    'active',
+    password,
+    'TRUE', // force_change_pw
+    0, '',
+    new Date().toISOString(),
+    new Date().toISOString(),
+    ''
+  ]);
+  
+  // Update registration status
+  regSheet.getRange(regRow + 1, regHeaders.indexOf('status') + 1).setValue('approved');
+  regSheet.getRange(regRow + 1, regHeaders.indexOf('reviewed_by') + 1).setValue(approved_by || 'admin');
+  regSheet.getRange(regRow + 1, regHeaders.indexOf('reviewed_at') + 1).setValue(new Date().toISOString());
+  if (notes) regSheet.getRange(regRow + 1, regHeaders.indexOf('notes') + 1).setValue(notes);
+  
+  logAccess(newId, 'registration_approved', `by ${approved_by || 'admin'}`);
+  
+  return { 
+    success: true, 
+    message: `อนุมัติสำเร็จ — ID: ${newId}`,
+    employee_id: newId
+  };
+}
+
+function handleRejectRegistration(params) {
+  const { reg_id, rejected_by, notes } = params;
+  if (!reg_id) {
+    return { success: false, error: 'กรุณาระบุ reg_id' };
+  }
+  
+  const regSheet = getSheet(SHEET_NAMES.registrations);
+  const regData = regSheet.getDataRange().getValues();
+  const regHeaders = regData[0];
+  const regIdIdx = regHeaders.indexOf('reg_id');
+  
+  for (let i = 1; i < regData.length; i++) {
+    if (regData[i][regIdIdx] === reg_id) {
+      regSheet.getRange(i + 1, regHeaders.indexOf('status') + 1).setValue('rejected');
+      regSheet.getRange(i + 1, regHeaders.indexOf('reviewed_by') + 1).setValue(rejected_by || 'admin');
+      regSheet.getRange(i + 1, regHeaders.indexOf('reviewed_at') + 1).setValue(new Date().toISOString());
+      if (notes) regSheet.getRange(i + 1, regHeaders.indexOf('notes') + 1).setValue(notes);
+      
+      logAccess(reg_id, 'registration_rejected', `by ${rejected_by || 'admin'}`);
+      return { success: true, message: 'ปฏิเสธคำขอแล้ว' };
+    }
+  }
+  
+  return { success: false, error: 'ไม่พบคำขอนี้' };
+}
+
 // ===== SETUP FUNCTION =====
 function setup() {
   // Run this once to create all sheets with headers
@@ -645,6 +918,7 @@ function setup() {
   getSheet(SHEET_NAMES.access_logs);
   getSheet(SHEET_NAMES.password_recovery);
   getSheet(SHEET_NAMES.sessions);
+  getSheet(SHEET_NAMES.registrations);
   
   // Add demo users
   const sheet = getSheet(SHEET_NAMES.users);

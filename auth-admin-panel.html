@@ -82,6 +82,7 @@
   <!-- Tabs -->
   <div class="bg-white border-b border-gray-200 px-6 py-2 flex gap-2 overflow-x-auto">
     <button class="tab-btn active" onclick="switchTab('users')">👥 จัดการผู้ใช้</button>
+    <button class="tab-btn" onclick="switchTab('registrations')">📝 ขอลงทะเบียน</button>
     <button class="tab-btn" onclick="switchTab('logs')">📋 Access Logs</button>
     <button class="tab-btn" onclick="switchTab('stats')">📊 สถิติ</button>
     <button class="tab-btn" onclick="switchTab('matrix')">🔐 Access Matrix</button>
@@ -158,6 +159,46 @@
             </tr>
           </thead>
           <tbody id="usersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: Registrations -->
+    <div id="tab-registrations" class="tab-content hidden fade-in">
+      <div class="card mb-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h3 class="font-semibold text-gray-800">📝 คำขอลงทะเบียนจากบุคคลภายนอก</h3>
+          <div class="flex items-center gap-2">
+            <select id="filterRegType" class="btn btn-outline btn-sm" onchange="renderRegistrations()">
+              <option value="">ทุกประเภท</option>
+              <option value="applicant">ผู้สมัครงาน</option>
+              <option value="organization">หน่วยงานภายนอก</option>
+            </select>
+            <select id="filterRegStatus" class="btn btn-outline btn-sm" onchange="renderRegistrations()">
+              <option value="">ทุกสถานะ</option>
+              <option value="pending">รอตรวจสอบ</option>
+              <option value="approved">อนุมัติแล้ว</option>
+              <option value="rejected">ปฏิเสธแล้ว</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="card overflow-x-auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Registration ID</th>
+              <th>ประเภท</th>
+              <th>ชื่อ</th>
+              <th>Email</th>
+              <th>เบอร์โทร</th>
+              <th>ตำแหน่ง/หน่วยงาน</th>
+              <th>วันที่สมัคร</th>
+              <th>สถานะ</th>
+              <th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody id="registrationsTableBody"></tbody>
         </table>
       </div>
     </div>
@@ -323,6 +364,7 @@
   </div>
 
   <script src="auth-config.js"></script>
+  <script src="auth-config-api.js"></script>
   <script>
     let users = [];
     let selectedRole = '';
@@ -370,6 +412,66 @@
       event.target.classList.add('active');
       if (tab === 'stats') renderStats();
       if (tab === 'logs') renderLogs();
+      if (tab === 'registrations') renderRegistrations();
+    }
+
+    // Render Registrations
+    async function renderRegistrations() {
+      const typeFilter = document.getElementById('filterRegType').value;
+      const statusFilter = document.getElementById('filterRegStatus').value;
+      
+      const result = await getPendingRegistrations({ type: typeFilter, status: statusFilter });
+      const tbody = document.getElementById('registrationsTableBody');
+      
+      if (!result.success || !result.registrations || result.registrations.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-400 py-8">ไม่มีคำขอลงทะเบียน</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = result.registrations.map(r => {
+        const statusBadge = r.status === 'pending' ? 'badge-amber' : r.status === 'approved' ? 'badge-green' : 'badge-red';
+        const statusText = r.status === 'pending' ? 'รอตรวจสอบ' : r.status === 'approved' ? 'อนุมัติแล้ว' : 'ปฏิเสธแล้ว';
+        return `<tr>
+          <td class="font-mono text-xs">${r.reg_id}</td>
+          <td><span class="badge badge-${r.type === 'applicant' ? 'blue' : 'purple'}">${r.type === 'applicant' ? 'ผู้สมัคร' : 'หน่วยงาน'}</span></td>
+          <td>${r.name}</td>
+          <td>${r.email}</td>
+          <td>${r.phone}</td>
+          <td>${r.position || r.organization || '-'}</td>
+          <td class="text-xs">${new Date(r.created).toLocaleString('th-TH')}</td>
+          <td><span class="badge ${statusBadge}">${statusText}</span></td>
+          <td>
+            ${r.status === 'pending' ? `
+              <button onclick="approveRegistration('${r.reg_id}')" class="action-btn bg-green-50 text-green-600" title="อนุมัติ">✓</button>
+              <button onclick="rejectRegistration('${r.reg_id}')" class="action-btn bg-red-50 text-red-600" title="ปฏิเสธ">✗</button>
+            ` : '-'}
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function approveRegistration(reg_id) {
+      if (!confirm('อนุมัติคำขอนี้?')) return;
+      const result = await window.approveRegistration(reg_id, currentSession.employee_id, 'Approved by admin');
+      if (result.success) {
+        alert('✓ อนุมัติสำเร็จ\nEmployee ID: ' + result.employee_id);
+        renderRegistrations();
+        renderUsers();
+      } else {
+        alert('❌ เกิดข้อผิดพลาด: ' + result.error);
+      }
+    }
+
+    async function rejectRegistration(reg_id) {
+      const reason = prompt('เหตุผลที่ปฏิเสธ (ไม่บังคับ):');
+      if (reason === null) return;
+      const result = await window.rejectRegistration(reg_id, currentSession.employee_id, reason || 'Rejected by admin');
+      if (result.success) {
+        alert('✓ ปฏิเสธคำขอแล้ว');
+        renderRegistrations();
+      } else {
+        alert('❌ เกิดข้อผิดพลาด: ' + result.error);
+      }
     }
 
     // Render Users Table

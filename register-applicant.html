@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web PP7 — ลงทะเบียนผู้สมัครงาน</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Prompt', sans-serif; }
+    body { background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%); min-height: 100vh; }
+    .register-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); border-radius: 1.5rem; box-shadow: 0 25px 60px rgba(0,0,0,0.3); }
+    .input-field { transition: all 0.2s; }
+    .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+    .btn-register { background: linear-gradient(135deg, #10b981, #059669); transition: all 0.2s; }
+    .btn-register:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(16,185,129,0.4); }
+    .fade-in { animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+    .step-indicator { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .step { width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; }
+    .step.active { background: #10b981; color: white; }
+    .step.completed { background: #059669; color: white; }
+    .step.inactive { background: #e2e8f0; color: #94a3b8; }
+  </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+  <div class="register-card w-full max-w-lg p-8 fade-in">
+    <div class="text-center mb-6">
+      <div class="text-4xl mb-2">🌐</div>
+      <h1 class="text-xl font-bold text-gray-800">ลงทะเบียนผู้สมัครงาน</h1>
+      <p class="text-sm text-gray-500 mt-1">PKG Group — ระบบบริหารบุคลากร PP7</p>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+      <div class="step active" id="step1">1</div>
+      <div class="step inactive" id="step2">2</div>
+      <div class="step inactive" id="step3">3</div>
+    </div>
+
+    <!-- Step 1: ข้อมูลส่วนตัว -->
+    <div id="formStep1">
+      <h3 class="font-semibold text-gray-800 mb-4">📋 ข้อมูลส่วนตัว</h3>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อ-นามสกุล *</label>
+        <input type="text" id="regName" placeholder="เช่น สมชาย ใจดี"
+          class="input-field w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none">
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+        <input type="email" id="regEmail" placeholder="your@email.com"
+          class="input-field w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none">
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์ *</label>
+        <input type="tel" id="regPhone" placeholder="08x-xxx-xxxx"
+          class="input-field w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none">
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">ตำแหน่งที่สมัคร *</label>
+        <select id="regPosition" class="input-field w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none">
+          <option value="">-- เลือกตำแหน่ง --</option>
+          <option value="เจ้าหน้าที่ HR">เจ้าหน้าที่ HR</option>
+          <option value="นักพัฒนาซอฟต์แวร์">นักพัฒนาซอฟต์แวร์</option>
+          <option value="วิศวกรการผลิต">วิศวกรการผลิต</option>
+          <option value="เจ้าหน้าที่บัญชี">เจ้าหน้าที่บัญชี</option>
+          <option value="เจ้าหน้าที่ขาย">เจ้าหน้าที่ขาย</option>
+          <option value="อื่นๆ">อื่นๆ</option>
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">ข้อความเพิ่มเติม (ถ้ามี)</label>
+        <textarea id="regMessage" rows="3" placeholder="ข้อมูลเพิ่มเติมเกี่ยวกับตัวคุณ..."
+          class="input-field w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none resize-none"></textarea>
+      </div>
+
+      <div id="errorMsg1" class="hidden mb-3 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"></div>
+
+      <button onclick="goToStep2()" class="btn-register w-full py-3 text-white font-semibold rounded-xl text-sm">
+        ถัดไป →
+      </button>
+
+      <div class="text-center mt-4">
+        <a href="auth-login.html" class="text-sm text-blue-600 hover:underline">← กลับไปหน้า Login</a>
+      </div>
+    </div>
+
+    <!-- Step 2: ตั้งรหัสผ่าน -->
+    <div id="formStep2" class="hidden">
+      <h3 class="font-semibold text-gray-800 mb-4">🔐 ตั้งรหัสผ่าน</h3>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน *</label>
+        <input type="password" id="regPassword" placeholder="••••••••"
+          class="input-field w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none">
+        <div id="pwStrength" class="mt-1 text-xs"></div>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">ยืนยันรหัสผ่าน *</label>
+        <input type="password" id="regConfirmPassword" placeholder="••••••••"
+          class="input-field w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none">
+      </div>
+
+      <div class="p-3 bg-blue-50 rounded-xl mb-4">
+        <p class="text-xs text-blue-700 font-medium mb-1">💡 ข้อกำหนดรหัสผ่าน:</p>
+        <ul class="text-xs text-blue-600 space-y-0.5">
+          <li>• ขั้นต่ำ 8 ตัวอักษร</li>
+          <li>• มีตัวพิมพ์ใหญ่ 1 ตัว</li>
+          <li>• มีตัวพิมพ์เล็ก 1 ตัว</li>
+          <li>• มีตัวเลข 1 ตัว</li>
+        </ul>
+      </div>
+
+      <div id="errorMsg2" class="hidden mb-3 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"></div>
+
+      <div class="flex gap-2">
+        <button onclick="goToStep1()" class="flex-1 py-3 bg-gray-200 text-gray-700 font-semibold rounded-xl text-sm hover:bg-gray-300 transition">
+          ← ย้อนกลับ
+        </button>
+        <button onclick="goToStep3()" class="flex-1 btn-register py-3 text-white font-semibold rounded-xl text-sm">
+          ถัดไป →
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: ยืนยัน OTP -->
+    <div id="formStep3" class="hidden">
+      <h3 class="font-semibold text-gray-800 mb-4">✅ ยืนยัน Email</h3>
+
+      <div class="p-4 bg-green-50 border border-green-200 rounded-xl mb-4">
+        <p class="text-sm text-green-700">
+          📧 ส่งรหัส OTP ไปที่ <strong id="displayEmail"></strong> แล้ว
+        </p>
+        <p class="text-xs text-green-600 mt-1">(ตรวจสอบใน inbox หรือ spam folder)</p>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">รหัส OTP (6 หลัก) *</label>
+        <input type="text" id="regOtp" maxlength="6" placeholder="------"
+          class="input-field w-full px-4 py-3 border border-gray-200 rounded-xl text-sm outline-none text-center text-2xl tracking-widest">
+        <p class="text-xs text-gray-400 mt-1">OTP หมดอายุใน <span id="otpTimer">10:00</span></p>
+      </div>
+
+      <div id="errorMsg3" class="hidden mb-3 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm"></div>
+      <div id="successMsg" class="hidden mb-3 p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm"></div>
+
+      <button onclick="submitRegistration()" id="submitBtn" class="btn-register w-full py-3 text-white font-semibold rounded-xl text-sm">
+        ยืนยันและลงทะเบียน
+      </button>
+
+      <div class="flex justify-between mt-4">
+        <button onclick="goToStep2()" class="text-sm text-gray-500 hover:text-gray-700">← ย้อนกลับ</button>
+        <button onclick="resendOtp()" class="text-sm text-blue-600 hover:underline">ส่ง OTP ใหม่</button>
+      </div>
+    </div>
+
+    <!-- Success Screen -->
+    <div id="successScreen" class="hidden text-center">
+      <div class="text-6xl mb-4">🎉</div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">ลงทะเบียนสำเร็จ!</h3>
+      <p class="text-sm text-gray-600 mb-6">
+        คำขอของคุณถูกส่งไปยัง HR แล้ว<br>
+        เจ้าหน้าที่จะตรวจสอบและอนุมัติภายใน 1-2 วันทำการ
+      </p>
+      <div class="p-4 bg-blue-50 rounded-xl mb-6">
+        <p class="text-sm text-blue-700">
+          📧 เราจะส่ง email แจ้งผลการอนุมัติไปที่<br>
+          <strong id="finalEmail"></strong>
+        </p>
+      </div>
+      <a href="auth-login.html" class="btn-register inline-block px-8 py-3 text-white font-semibold rounded-xl text-sm">
+        กลับไปหน้า Login
+      </a>
+    </div>
+  </div>
+
+  <script src="auth-config-api.js"></script>
+  <script>
+    let currentStep = 1;
+    let otpExpiry = null;
+    let registrationData = {};
+
+    // Password strength indicator
+    document.getElementById('regPassword').addEventListener('input', function(e) {
+      const pw = e.target.value;
+      const strengthEl = document.getElementById('pwStrength');
+      const validation = validatePassword(pw);
+      
+      if (pw.length === 0) {
+        strengthEl.innerHTML = '';
+      } else if (validation.valid) {
+        strengthEl.innerHTML = '<span class="text-green-600">✅ รหัสผ่านแข็งแรง</span>';
+      } else {
+        strengthEl.innerHTML = '<span class="text-red-600">❌ ' + validation.errors[0] + '</span>';
+      }
+    });
+
+    function goToStep1() {
+      document.getElementById('formStep1').classList.remove('hidden');
+      document.getElementById('formStep2').classList.add('hidden');
+      document.getElementById('formStep3').classList.add('hidden');
+      document.getElementById('step1').className = 'step active';
+      document.getElementById('step2').className = 'step inactive';
+      document.getElementById('step3').className = 'step inactive';
+      currentStep = 1;
+    }
+
+    function goToStep2() {
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+      const position = document.getElementById('regPosition').value;
+      const errEl = document.getElementById('errorMsg1');
+
+      if (!name || !email || !phone || !position) {
+        errEl.textContent = '❌ กรุณากรอกข้อมูลให้ครบ';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errEl.textContent = '❌ Email ไม่ถูกต้อง';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      errEl.classList.add('hidden');
+      registrationData = { name, email, phone, position, message: document.getElementById('regMessage').value };
+
+      document.getElementById('formStep1').classList.add('hidden');
+      document.getElementById('formStep2').classList.remove('hidden');
+      document.getElementById('formStep3').classList.add('hidden');
+      document.getElementById('step1').className = 'step completed';
+      document.getElementById('step2').className = 'step active';
+      document.getElementById('step3').className = 'step inactive';
+      currentStep = 2;
+    }
+
+    function goToStep3() {
+      const pw = document.getElementById('regPassword').value;
+      const confirmPw = document.getElementById('regConfirmPassword').value;
+      const errEl = document.getElementById('errorMsg2');
+
+      const validation = validatePassword(pw);
+      if (!validation.valid) {
+        errEl.innerHTML = '❌ ' + validation.errors.join('<br>');
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      if (pw !== confirmPw) {
+        errEl.textContent = '❌ รหัสผ่านไม่ตรงกัน';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      errEl.classList.add('hidden');
+      registrationData.password = pw;
+
+      // Call API to register
+      registerApplicant();
+    }
+
+    async function registerApplicant() {
+      const result = await apiPost('register_applicant', registrationData);
+      
+      if (!result.success) {
+        document.getElementById('formStep2').classList.add('hidden');
+        document.getElementById('formStep1').classList.remove('hidden');
+        document.getElementById('errorMsg1').textContent = '❌ ' + result.error;
+        document.getElementById('errorMsg1').classList.remove('hidden');
+        currentStep = 1;
+        return;
+      }
+
+      // Show OTP step
+      document.getElementById('formStep2').classList.add('hidden');
+      document.getElementById('formStep3').classList.remove('hidden');
+      document.getElementById('step2').className = 'step completed';
+      document.getElementById('step3').className = 'step active';
+      document.getElementById('displayEmail').textContent = registrationData.email;
+      currentStep = 3;
+
+      // Show demo OTP (remove in production)
+      if (result.otp) {
+        alert('(Demo) OTP: ' + result.otp);
+      }
+
+      // Start timer
+      otpExpiry = Date.now() + 10 * 60 * 1000;
+      startOtpTimer();
+    }
+
+    async function submitRegistration() {
+      const otp = document.getElementById('regOtp').value.trim();
+      const errEl = document.getElementById('errorMsg3');
+      const successEl = document.getElementById('successMsg');
+
+      if (!otp || otp.length !== 6) {
+        errEl.textContent = '❌ กรุณากรอก OTP 6 หลัก';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      if (Date.now() > otpExpiry) {
+        errEl.textContent = '❌ OTP หมดอายุแล้ว กรุณาขอใหม่';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      // Verify OTP
+      const verifyResult = await apiCall('verify_otp', { 
+        employee_id: registrationData.email, 
+        otp 
+      });
+
+      if (!verifyResult.success) {
+        errEl.textContent = '❌ ' + verifyResult.error;
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      // Success
+      errEl.classList.add('hidden');
+      successEl.textContent = '✅ ยืนยัน OTP สำเร็จ!';
+      successEl.classList.remove('hidden');
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('submitBtn').textContent = 'กำลังบันทึก...';
+
+      // Show success screen
+      setTimeout(() => {
+        document.getElementById('formStep3').classList.add('hidden');
+        document.getElementById('successScreen').classList.remove('hidden');
+        document.getElementById('finalEmail').textContent = registrationData.email;
+      }, 1000);
+    }
+
+    function startOtpTimer() {
+      const timerEl = document.getElementById('otpTimer');
+      const interval = setInterval(() => {
+        const remain = Math.max(0, otpExpiry - Date.now());
+        const min = Math.floor(remain / 60000);
+        const sec = Math.floor((remain % 60000) / 1000);
+        timerEl.textContent = `${min}:${sec.toString().padStart(2, '0')}`;
+        if (remain <= 0) clearInterval(interval);
+      }, 1000);
+    }
+
+    async function resendOtp() {
+      const result = await apiPost('register_applicant', registrationData);
+      if (result.success && result.otp) {
+        alert('(Demo) OTP ใหม่: ' + result.otp);
+        otpExpiry = Date.now() + 10 * 60 * 1000;
+      }
+    }
+  </script>
+</body>
+</html>

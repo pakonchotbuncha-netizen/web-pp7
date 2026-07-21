@@ -232,3 +232,24 @@ function validatePassword(password) {
   if (!/[0-9]/.test(password)) errors.push('ต้องมีตัวเลขอย่างน้อย 1 ตัว');
   return { valid: errors.length === 0, errors };
 }
+
+// ===== REGISTRATION FUNCTIONS =====
+async function registerApplicant(data) {
+  return await apiPost('register_applicant', data);
+}
+
+async function registerOrganization(data) {
+  return await apiPost('register_organization', data);
+}
+
+async function getPendingRegistrations(filters = {}) {
+  return await apiCall('get_pending_registrations', filters);
+}
+
+async function approveRegistration(reg_id, approved_by, notes) {
+  return await apiPost('approve_registration', { reg_id, approved_by, notes });
+}
+
+async function rejectRegistration(reg_id, rejected_by, notes) {
+  return await apiPost('reject_registration', { reg_id, rejected_by, notes });
+}
