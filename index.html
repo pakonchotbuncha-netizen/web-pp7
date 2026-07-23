@@ -473,6 +473,29 @@
                 experience: document.getElementById('app-experience').value || '0',
                 experienceDetail: document.getElementById('app-experience-detail').value
             };
+            
+            // บันทึกข้อมูลผู้สมัครลง localStorage
+            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const newApp = {
+                id: 'APP-' + Date.now().toString().slice(-6),
+                firstName: applicantData.firstname,
+                lastName: applicantData.lastname,
+                phone: applicantData.phone,
+                email: applicantData.email,
+                position: selectedPosition.title,
+                department: selectedPosition.department,
+                branch: selectedPosition.location,
+                status: 'new',
+                appliedAt: new Date().toISOString(),
+                education: applicantData.education,
+                major: applicantData.major,
+                skills: applicantData.skills,
+                experience: applicantData.experience
+            };
+            applications.push(newApp);
+            localStorage.setItem('pkg_applications', JSON.stringify(applications));
+            console.log('✅ บันทึกใบสมัครแล้ว:', newApp);
+            
             aiResult = analyzeApplication(applicantData, selectedPosition);
             currentStep = 'result';
             renderAIResult();
