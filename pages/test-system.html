@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ทดสอบระบบ - PKG Recruitment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Prompt', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .view-active { background: #667eea; color: white; }
+        .view-inactive { background: #f3f4f6; color: #6b7280; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="gradient-bg text-white py-6">
+        <div class="max-w-7xl mx-auto px-4">
+            <h1 class="text-3xl font-bold mb-2"> ทดสอบระบบ PKG Recruitment</h1>
+            <p class="opacity-90">ทดสอบได้ทั้ง 2 มุมมองในหน้าเดียว พร้อมข้อมูลตัวอย่าง</p>
+        </div>
+    </div>
+
+    <!-- View Switcher -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <div class="bg-white rounded-xl shadow-lg p-4 mb-6">
+            <div class="flex space-x-4">
+                <button onclick="switchView('applicant')" id="view-applicant" class="view-active flex-1 py-3 rounded-lg font-semibold">
+                    <i class="fas fa-user mr-2"></i>มุมมองผู้สมัคร
+                </button>
+                <button onclick="switchView('hr')" id="view-hr" class="view-inactive flex-1 py-3 rounded-lg font-semibold">
+                    <i class="fas fa-user-tie mr-2"></i>มุมมอง HR
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+            <div class="flex items-start">
+                <i class="fas fa-info-circle text-yellow-600 mr-2 mt-1"></i>
+                <div class="text-sm text-yellow-700">
+                    <p class="font-semibold mb-2"> คำแนะนำการทดสอบ:</p>
+                    <ol class="list-decimal list-inside space-y-1">
+                        <li>เริ่มจากมุมมองผู้สมัคร → ลงทะเบียน → สมัครงาน → ทำแบบทดสอบ</li>
+                        <li>สลับไปมุมมอง HR → คัดกรอง → ส่งแบบทดสอบ → นัดสัมภาษณ์</li>
+                        <li>สลับกลับผู้สมัคร → ดูสถานะ → ทำแบบทดสอบ</li>
+                        <li>สลับไป HR → ดูผล → สรุปผล → นัดเริ่มงาน</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div id="content-area">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+    <script>
+        let currentView = 'applicant';
+        let currentUser = null;
+
+        // ===== INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeDemoData();
+            switchView('applicant');
+        });
+
+        // ===== INITIALIZE DEMO DATA =====
+        function initializeDemoData() {
+            // Create demo HR account
+            const users = JSON.parse(localStorage.getItem('pkg_users') || '[]');
+            if (!users.find(u => u.phone === '0812345678')) {
+                users.push({
+                    id: 'HR-DEMO',
+                    phone: '0812345678',
+                    password: btoa('hr1234'),
+                    name: 'HR Manager',
+                    email: 'hr@pkg.com',
+                    role: 'hr',
+                    createdAt: new Date().toISOString(),
+                    status: 'active'
+                });
+                localStorage.setItem('pkg_users', JSON.stringify(users));
+            }
+
+            // Create demo applicant
+            if (!users.find(u => u.phone === '0898765432')) {
+                users.push({
+                    id: 'APP-DEMO',
+                    phone: '0898765432',
+                    password: btoa('app1234'),
+                    name: 'นายสมชาย ใจดี',
+                    email: 'somchai@test.com',
+                    role: 'applicant',
+                    createdAt: new Date().toISOString(),
+                    status: 'active'
+                });
+                localStorage.setItem('pkg_users', JSON.stringify(users));
+            }
+
+            // Create demo positions
+            const positions = JSON.parse(localStorage.getItem('pkg_positions') || '[]');
+            if (positions.length === 0) {
+                positions.push(
+                    {
+                        id: 'POS-001',
+                        title: 'นักพัฒนาซอฟต์แวร์',
+                        department: 'IT',
+                        level: 'junior',
+                        type: 'fulltime',
+                        salary: '25,000 - 40,000 บาท',
+                        location: 'กรุงเทพฯ',
+                        quota: 3
+                    },
+                    {
+                        id: 'POS-002',
+                        title: 'เจ้าหน้าที่ HR',
+                        department: 'HR',
+                        level: 'junior',
+                        type: 'fulltime',
+                        salary: '20,000 - 30,000 บาท',
+                        location: 'กรุงเทพฯ',
+                        quota: 2
+                    }
+                );
+                localStorage.setItem('pkg_positions', JSON.stringify(positions));
+            }
+
+            // Create demo application
+            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            if (applications.length === 0) {
+                applications.push({
+                    id: 'APP-DEMO-001',
+                    userId: 'APP-DEMO',
+                    positionId: 'POS-001',
+                    positionTitle: 'นักพัฒนาซอฟต์แวร์',
+                    department: 'IT',
+                    status: 'new',
+                    appliedAt: new Date().toISOString(),
+                    personalData: {
+                        prefix: 'นาย',
+                        firstName: 'สมชาย',
+                        lastName: 'ใจดี',
+                        phone: '0898765432',
+                        email: 'somchai@test.com'
+                    },
+                    education: {
+                        level: 'ปริญญาตรี',
+                        institution: 'มหาวิทยาลัย ABC',
+                        major: 'วิทยาการคอมพิวเตอร์',
+                        gpa: '3.50'
+                    },
+                    experience: {
+                        years: '1',
+                        history: 'พัฒนาเว็บแอปพลิเคชัน 1 ปี',
+                        skills: 'JavaScript, React, Node.js'
+                    }
+                });
+                localStorage.setItem('pkg_applications', JSON.stringify(applications));
+            }
+        }
+
+        // ===== SWITCH VIEW =====
+        function switchView(view) {
+            currentView = view;
+            
+            document.getElementById('view-applicant').className = view === 'applicant' ? 'view-active flex-1 py-3 rounded-lg font-semibold' : 'view-inactive flex-1 py-3 rounded-lg font-semibold';
+            document.getElementById('view-hr').className = view === 'hr' ? 'view-active flex-1 py-3 rounded-lg font-semibold' : 'view-inactive flex-1 py-3 rounded-lg font-semibold';
+            
+            if (view === 'applicant') {
+                renderApplicantView();
+            } else {
+                renderHRView();
+            }
+        }
+
+        // ===== RENDER APPLICANT VIEW =====
+        function renderApplicantView() {
+            const content = document.getElementById('content-area');
+            content.innerHTML = `
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-user text-purple-600 mr-2"></i>มุมมองผู้สมัคร
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <!-- Login Section -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-700 mb-3">1. เข้าสู่ระบบ</h3>
+                            <div class="grid grid-cols-2 gap-4 mb-3">
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">เบอร์โทร</label>
+                                    <input type="text" id="demo-phone" value="0898765432" class="w-full px-3 py-2 border rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">รหัสผ่าน</label>
+                                    <input type="password" id="demo-password" value="app1234" class="w-full px-3 py-2 border rounded-lg">
+                                </div>
+                            </div>
+                            <button onclick="demoLogin()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
+                                <i class="fas fa-sign-in-alt mr-1"></i>เข้าสู่ระบบ
+                            </button>
+                        </div>
+
+                        <!-- Dashboard Preview -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-700 mb-3">2. Dashboard ผู้สมัคร</h3>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <p class="text-sm text-gray-600 mb-2">หลังจากเข้าสู่ระบบ จะเห็น:</p>
+                                <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                                    <li>สถิติใบสมัคร</li>
+                                    <li>รายการใบสมัคร + สถานะ</li>
+                                    <li>การแจ้งเตือน</li>
+                                    <li>ปุ่มทำแบบทดสอบ (ถ้ามี)</li>
+                                </ul>
+                            </div>
+                            <button onclick="showApplicantDashboard()" class="mt-3 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                                <i class="fas fa-eye mr-1"></i>ดู Dashboard ตัวอย่าง
+                            </button>
+                        </div>
+
+                        <!-- Application Flow -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-700 mb-3">3. ขั้นตอนการสมัคร</h3>
+                            <div class="space-y-2">
+                                <div class="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                                    <i class="fas fa-check-circle text-green-600"></i>
+                                    <span class="text-sm">ดูตำแหน่งงาน → เลือกตำแหน่ง → กดสมัคร</span>
+                                </div>
+                                <div class="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                                    <i class="fas fa-check-circle text-green-600"></i>
+                                    <span class="text-sm">กรอกใบสมัคร 4 ขั้นตอน</span>
+                                </div>
+                                <div class="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                                    <i class="fas fa-check-circle text-green-600"></i>
+                                    <span class="text-sm">รอ HR คัดกรองและส่งแบบทดสอบ</span>
+                                </div>
+                                <div class="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                                    <i class="fas fa-hourglass-half text-blue-600"></i>
+                                    <span class="text-sm">ทำแบบทดสอบ 4 ชุด</span>
+                                </div>
+                                <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                    <i class="fas fa-circle text-gray-400"></i>
+                                    <span class="text-sm">รอผลสัมภาษณ์</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Links -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-700 mb-3">4. ลิงก์ด่วน</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <a href="positions.html" target="_blank" class="block bg-purple-100 text-purple-700 p-3 rounded-lg hover:bg-purple-200 text-center">
+                                    <i class="fas fa-briefcase mr-1"></i>ดูตำแหน่งงาน
+                                </a>
+                                <a href="application.html" target="_blank" class="block bg-blue-100 text-blue-700 p-3 rounded-lg hover:bg-blue-200 text-center">
+                                    <i class="fas fa-file-alt mr-1"></i>กรอกใบสมัคร
+                                </a>
+                                <a href="test.html" target="_blank" class="block bg-green-100 text-green-700 p-3 rounded-lg hover:bg-green-200 text-center">
+                                    <i class="fas fa-tasks mr-1"></i>ทำแบบทดสอบ
+                                </a>
+                                <a href="applicant-dashboard.html" target="_blank" class="block bg-orange-100 text-orange-700 p-3 rounded-lg hover:bg-orange-200 text-center">
+                                    <i class="fas fa-tachometer-alt mr-1"></i>Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ===== RENDER HR VIEW =====
+        function renderHRView() {
+            const content = document.getElementById('content-area');
+            content.innerHTML = `
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-user-tie text-purple-600 mr-2"></i>มุมมอง HR
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <!-- Login Section -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-700 mb-3">1. เข้าสู่ระบบ HR</h3>
+                            <div class="grid grid-cols-2 gap-4 mb-3">
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">เบอร์โทร</label>
+                                    <input type="text" id="hr-phone" value="0812345678" class="w-full px-3 py-2 border rounded-lg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">รหัสผ่าน</label>
+                                    <input type="password" id="hr-password" value="hr1234" class="w-full px-3 py-2 border rounded-lg">
+                                </div>
+                            </div>
+                            <button onclick="demoHRLogin()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                                <i class="fas fa-sign-in-alt mr-1"></i>เข้าสู่ระบบ HR
+                            </button>
+                        </div>
+
+                        <!-- HR Dashboard Preview -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-700 mb-3">2. HR Dashboard (6 Tabs)</h3>
+                            <div class="grid grid-cols-3 gap-3 mb-4">
+                                <div class="bg-blue-50 p-3 rounded-lg text-center">
+                                    <i class="fas fa-users text-2xl text-blue-600 mb-1"></i>
+                                    <p class="text-xs text-gray-600">ผู้สมัคร</p>
+                                </div>
+                                <div class="bg-purple-50 p-3 rounded-lg text-center">
+                                    <i class="fas fa-tasks text-2xl text-purple-600 mb-1"></i>
+                                    <p class="text-xs text-gray-600">แบบทดสอบ</p>
+                                </div>
+                                <div class="bg-orange-50 p-3 rounded-lg text-center">
+                                    <i class="fas fa-calendar-check text-2xl text-orange-600 mb-1"></i>
+                                    <p class="text-xs text-gray-600">นัดสัมภาษณ์</p>
+                                </div>
+                                <div class="bg-yellow-50 p-3 rounded-lg text-center">
+                                    <i class="fas fa-star text-2xl text-yellow-600 mb-1"></i>
+                                    <p class="text-xs text-gray-600">สัมภาษณ์</p>
+                                </div>
+                                <div class="bg-green-50 p-3 rounded-lg text-center">
+                                    <i class="fas fa-award text-2xl text-green-600 mb-1"></i>
+                                    <p class="text-xs text-gray-600">สรุปผล</p>
+                                </div>
+                                <div class="bg-indigo-50 p-3 rounded-lg text-center">
+                                    <i class="fas fa-handshake text-2xl text-indigo-600 mb-1"></i>
+                                    <p class="text-xs text-gray-600">เริ่มงาน</p>
+                                </div>
+                            </div>
+                            <button onclick="showHRDashboard()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                                <i class="fas fa-eye mr-1"></i>ดู HR Dashboard ตัวอย่าง
+                            </button>
+                        </div>
+
+                        <!-- HR Workflow -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-700 mb-3">3. ขั้นตอนการทำงานของ HR</h3>
+                            <div class="space-y-2">
+                                <div class="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                                    <i class="fas fa-check-circle text-green-600"></i>
+                                    <span class="text-sm">ดูผู้สมัครใหม่ → คัดกรอง</span>
+                                </div>
+                                <div class="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                                    <i class="fas fa-check-circle text-green-600"></i>
+                                    <span class="text-sm">ส่งแบบทดสอบให้ผู้สมัคร</span>
+                                </div>
+                                <div class="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                                    <i class="fas fa-hourglass-half text-blue-600"></i>
+                                    <span class="text-sm">ดูผลแบบทดสอบ → เลือกผู้ผ่าน</span>
+                                </div>
+                                <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                    <i class="fas fa-circle text-gray-400"></i>
+                                    <span class="text-sm">นัดสัมภาษณ์ → สรุปผล → นัดเริ่มงาน</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Demo Actions -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-700 mb-3">4. ทดสอบการทำงาน</h3>
+                            <div class="space-y-3">
+                                <button onclick="demoScreenApplicant()" class="w-full bg-purple-600 text-white px-4 py-3 rounded-lg hover:bg-purple-700 text-left">
+                                    <i class="fas fa-check mr-2"></i>คัดกรองผู้สมัครตัวอย่าง
+                                </button>
+                                <button onclick="demoSendTest()" class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 text-left">
+                                    <i class="fas fa-paper-plane mr-2"></i>ส่งแบบทดสอบให้ผู้สมัคร
+                                </button>
+                                <button onclick="demoScheduleInterview()" class="w-full bg-orange-600 text-white px-4 py-3 rounded-lg hover:bg-orange-700 text-left">
+                                    <i class="fas fa-calendar-check mr-2"></i>นัดสัมภาษณ์
+                                </button>
+                                <button onclick="demoFinalizeResult()" class="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 text-left">
+                                    <i class="fas fa-award mr-2"></i>สรุปผล (ผ่าน)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Quick Links -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-700 mb-3">5. ลิงก์ด่วน</h3>
+                            <a href="hr-dashboard.html" target="_blank" class="block bg-green-100 text-green-700 p-3 rounded-lg hover:bg-green-200 text-center">
+                                <i class="fas fa-tachometer-alt mr-1"></i>เปิด HR Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ===== DEMO FUNCTIONS =====
+        function demoLogin() {
+            const phone = document.getElementById('demo-phone').value;
+            const password = document.getElementById('demo-password').value;
+            
+            const users = JSON.parse(localStorage.getItem('pkg_users') || '[]');
+            const user = users.find(u => u.phone === phone && u.password === btoa(password));
+            
+            if (user) {
+                currentUser = user;
+                localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(user));
+                alert(`เข้าสู่ระบบสำเร็จ!\n\nชื่อ: ${user.name}\nบทบาท: ${user.role === 'applicant' ? 'ผู้สมัคร' : 'HR'}`);
+                showApplicantDashboard();
+            } else {
+                alert('เบอร์โทรหรือรหัสผ่านไม่ถูกต้อง');
+            }
+        }
+
+        function demoHRLogin() {
+            const phone = document.getElementById('hr-phone').value;
+            const password = document.getElementById('hr-password').value;
+            
+            const users = JSON.parse(localStorage.getItem('pkg_users') || '[]');
+            const user = users.find(u => u.phone === phone && u.password === btoa(password));
+            
+            if (user && user.role === 'hr') {
+                currentUser = user;
+                localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(user));
+                alert(`เข้าสู่ระบบ HR สำเร็จ!\n\nชื่อ: ${user.name}\nบทบาท: HR Manager`);
+                showHRDashboard();
+            } else {
+                alert('เบอร์โทรหรือรหัสผ่านไม่ถูกต้อง หรือไม่มีสิทธิ์ HR');
+            }
+        }
+
+        function showApplicantDashboard() {
+            window.open('applicant-dashboard.html', '_blank');
+        }
+
+        function showHRDashboard() {
+            window.open('hr-dashboard.html', '_blank');
+        }
+
+        function demoScreenApplicant() {
+            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const app = applications.find(a => a.userId === 'APP-DEMO');
+            
+            if (app) {
+                app.status = 'screened';
+                localStorage.setItem('pkg_applications', JSON.stringify(applications));
+                alert('✅ คัดกรองผู้สมัครตัวอย่างแล้ว!\n\nสถานะ: คัดกรองแล้ว');
+            }
+        }
+
+        function demoSendTest() {
+            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const app = applications.find(a => a.userId === 'APP-DEMO');
+            
+            if (app) {
+                app.status = 'test_sent';
+                localStorage.setItem('pkg_applications', JSON.stringify(applications));
+                alert('✅ ส่งแบบทดสอบให้ผู้สมัครตัวอย่างแล้ว!\n\nสถานะ: ส่งแบบทดสอบแล้ว');
+            }
+        }
+
+        function demoScheduleInterview() {
+            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const app = applications.find(a => a.userId === 'APP-DEMO');
+            
+            if (app) {
+                app.status = 'interview_scheduled';
+                app.interviewDate = '25/07/2569';
+                app.interviewTime = '10:00 น.';
+                localStorage.setItem('pkg_applications', JSON.stringify(applications));
+                alert('✅ นัดสัมภาษณ์ผู้สมัครตัวอย่างแล้ว!\n\nวันที่: 25/07/2569\nเวลา: 10:00 น.');
+            }
+        }
+
+        function demoFinalizeResult() {
+            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const app = applications.find(a => a.userId === 'APP-DEMO');
+            
+            if (app) {
+                app.status = 'hired';
+                app.startDate = '01/08/2569';
+                localStorage.setItem('pkg_applications', JSON.stringify(applications));
+                alert('✅ สรุปผล: ผ่าน!\n\nนัดเริ่มงาน: 01/08/2569');
+            }
+        }
+    </script>
+</body>
+</html>
