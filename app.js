@@ -26,9 +26,9 @@ function checkLoginStatus() {
             currentUser = JSON.parse(stored);
             // Redirect to dashboard if logged in
             if (currentUser.role === 'applicant') {
-                window.location.href = 'pages/applicant-dashboard.html';
+                window.location.href = 'applicant-dashboard.html';
             } else if (currentUser.role === 'hr') {
-                window.location.href = 'pages/hr-dashboard.html';
+                window.location.href = 'hr-dashboard.html';
             }
         } catch (e) {
             localStorage.removeItem(CONFIG.STORAGE_KEY);
@@ -147,7 +147,7 @@ async function handleRegister(event) {
     
     // Redirect to applicant dashboard
     setTimeout(() => {
-        window.location.href = 'pages/applicant-dashboard.html';
+        window.location.href = 'applicant-dashboard.html';
     }, 1000);
 }
 
@@ -180,9 +180,9 @@ async function handleLogin(event) {
     // Redirect based on role
     setTimeout(() => {
         if (user.role === 'applicant') {
-            window.location.href = 'pages/applicant-dashboard.html';
+            window.location.href = 'applicant-dashboard.html';
         } else if (user.role === 'hr') {
-            window.location.href = 'pages/hr-dashboard.html';
+            window.location.href = 'hr-dashboard.html';
         }
     }, 1000);
 }
