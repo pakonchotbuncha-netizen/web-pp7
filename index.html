@@ -334,12 +334,32 @@
         let currentApplicantId = null;
 
         // ===== INITIALIZATION =====
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeDemoData();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initializeData();
             switchView('applicant');
         });
 
-        function initializeDemoData() {
+        async function initializeData() {
+            // โหลดข้อมูลตั้งต้นจาก JSON
+            try {
+                const response = await fetch('applicant-data.json');
+                const initialData = await response.json();
+                
+                // เก็บข้อมูลตั้งต้นใน localStorage (ถ้ายังไม่มี)
+                if (!localStorage.getItem('pkg_initial_loaded')) {
+                    localStorage.setItem('pkg_initial_applicants', JSON.stringify(initialData.initialApplicants));
+                    localStorage.setItem('pkg_positions', JSON.stringify(initialData.positions));
+                    localStorage.setItem('pkg_banks', JSON.stringify(initialData.banks));
+                    localStorage.setItem('pkg_hospitals', JSON.stringify(initialData.hospitals));
+                    localStorage.setItem('pkg_reject_reasons', JSON.stringify(initialData.rejectReasons));
+                    localStorage.setItem('pkg_interview_times', JSON.stringify(initialData.interviewTimes));
+                    localStorage.setItem('pkg_initial_loaded', 'true');
+                }
+            } catch (error) {
+                console.error('Error loading initial data:', error);
+            }
+            
+            // โหลดข้อมูลผู้ใช้ demo
             const users = JSON.parse(localStorage.getItem('pkg_users') || '[]');
             if (!users.find(u => u.phone === '0812345678')) {
                 users.push({ id: 'HR-DEMO', phone: '0812345678', password: btoa('hr1234'), name: 'HR Manager', email: 'hr@pkg.com', role: 'hr', status: 'active' });
@@ -348,6 +368,13 @@
                 users.push({ id: 'APP-DEMO', phone: '0898765432', password: btoa('app1234'), name: 'นายสมชาย ใจดี', email: 'somchai@test.com', role: 'applicant', status: 'active' });
             }
             localStorage.setItem('pkg_users', JSON.stringify(users));
+        }
+        
+        // ฟังก์ชันดึงข้อมูลผู้สมัครทั้งหมด (ข้อมูลตั้งต้น + ข้อมูลใหม่)
+        function getAllApplicants() {
+            const initial = JSON.parse(localStorage.getItem('pkg_initial_applicants') || '[]');
+            const newApps = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            return [...initial, ...newApps];
         }
 
         // ===== SWITCH VIEW =====
@@ -731,7 +758,7 @@
         // ===== APPLICANT DASHBOARD =====
         function renderApplicantDashboard() {
             const content = document.getElementById('content-area');
-            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const applications = getAllApplicants();
             const myApps = applications.filter(a => a.id === currentApplicantId);
             
             if (myApps.length === 0) {
@@ -841,6 +868,16 @@
                         </div>
                     ` : ''}
                     
+                    ${app.rejectReason ? `
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">ผลการคัดเลือก</h3>
+                            <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg">
+                                <p class="font-semibold text-red-800">❌ ไม่ผ่านการคัดเลือก</p>
+                                <p class="text-sm text-red-700">เหตุผล: ${app.rejectReason}</p>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
                     <div class="flex space-x-4">
                         <button onclick="renderPositionsList()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition"><i class="fas fa-briefcase mr-2"></i>สมัครตำแหน่งอื่น</button>
                         <button onclick="switchView('hr')" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition"><i class="fas fa-user-tie mr-2"></i>ดูมุมมอง HR</button>
@@ -865,7 +902,7 @@
         // ===== RENDER HR VIEW =====
         function renderHRView() {
             const content = document.getElementById('content-area');
-            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const applications = getAllApplicants(); // ดึงข้อมูลทั้งหมด (ตั้งต้น + ใหม่)
             
             content.innerHTML = `
                 <div class="bg-white rounded-xl shadow-lg p-6">
@@ -880,7 +917,7 @@
                         <div class="bg-green-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-green-600">${applications.filter(a => a.status === 'hired').length}</p><p class="text-xs text-gray-600">จ้างงาน</p></div>
                     </div>
 
-                    <h3 class="text-lg font-semibold text-gray-700 mb-4">📋 รายการผู้สมัคร</h3>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">📋 รายการผู้สมัครทั้งหมด (${applications.length} คน)</h3>
                     <div class="space-y-4">
                         ${applications.map(app => `
                             <div class="border border-gray-200 rounded-lg p-4">
@@ -888,7 +925,7 @@
                                     <div>
                                         <h4 class="font-bold text-gray-800">${app.firstName} ${app.lastName}</h4>
                                         <p class="text-sm text-gray-600">${app.position} | ${app.department} | ${app.branch}</p>
-                                        <p class="text-xs text-gray-500">📞 ${app.phone} | ✉️ ${app.email}</p>
+                                        ${app.phone ? `<p class="text-xs text-gray-500">📞 ${app.phone} | ✉️ ${app.email || '-'}</p>` : ''}
                                     </div>
                                     <span class="px-3 py-1 ${getStatusBadgeClass(app.status)} rounded-full text-sm font-semibold">${getStatusText(app.status)}</span>
                                 </div>
@@ -911,8 +948,14 @@
                                     </div>
                                 ` : ''}
                                 
+                                ${app.rejectReason ? `
+                                    <div class="mb-3 p-3 bg-red-50 rounded-lg">
+                                        <p class="text-sm text-red-800">❌ เหตุผลไม่ผ่าน: ${app.rejectReason}</p>
+                                    </div>
+                                ` : ''}
+                                
                                 <div class="flex flex-wrap gap-2">
-                                    ${app.status === 'new' ? `<button onclick="screenApplicant('${app.id}')" class="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">✅ คัดกรอง</button>` : ''}
+                                    ${app.status === 'new' || app.status === 'pending' ? `<button onclick="screenApplicant('${app.id}')" class="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">✅ คัดกรอง</button>` : ''}
                                     ${app.status === 'test_done' ? `<button onclick="screenApplicant('${app.id}')" class="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">✅ คัดกรอง</button>` : ''}
                                     ${app.status === 'screened' ? `<button onclick="scheduleInterview('${app.id}')" class="px-3 py-1 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm">📅 นัดสัมภาษณ์</button>` : ''}
                                     ${app.status === 'interview_scheduled' ? `<button onclick="markInterviewed('${app.id}')" class="px-3 py-1 bg-pink-600 text-white rounded-lg hover:bg-pink-700 text-sm">💬 สัมภาษณ์แล้ว</button>` : ''}
@@ -954,19 +997,19 @@
         }
 
         function screenApplicant(appId) {
-            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const applications = getAllApplicants();
             const app = applications.find(a => a.id === appId);
             if (app) {
                 app.status = 'screened';
                 app.history.push({ action: 'คัดกรอง', timestamp: new Date().toISOString(), note: 'HR คัดกรองผ่าน' });
-                localStorage.setItem('pkg_applications', JSON.stringify(applications));
+                saveApplicantData(app);
                 alert('✅ คัดกรองผู้สมัครแล้ว!');
                 renderHRView();
             }
         }
 
         function scheduleInterview(appId) {
-            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const applications = getAllApplicants();
             const app = applications.find(a => a.id === appId);
             if (app) {
                 const date = prompt('วันที่สัมภาษณ์ (เช่น 25/07/2569):', '25/07/2569');
@@ -976,7 +1019,7 @@
                     app.interviewDate = date;
                     app.interviewTime = time;
                     app.history.push({ action: 'นัดสัมภาษณ์', timestamp: new Date().toISOString(), note: `วันที่ ${date} เวลา ${time}` });
-                    localStorage.setItem('pkg_applications', JSON.stringify(applications));
+                    saveApplicantData(app);
                     alert(`✅ นัดสัมภาษณ์แล้ว!\n\nวันที่: ${date}\nเวลา: ${time}`);
                     renderHRView();
                 }
@@ -984,31 +1027,31 @@
         }
 
         function markInterviewed(appId) {
-            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const applications = getAllApplicants();
             const app = applications.find(a => a.id === appId);
             if (app) {
                 app.status = 'interviewed';
                 app.history.push({ action: 'สัมภาษณ์', timestamp: new Date().toISOString(), note: 'สัมภาษณ์เสร็จสิ้น' });
-                localStorage.setItem('pkg_applications', JSON.stringify(applications));
+                saveApplicantData(app);
                 alert('✅ บันทึกว่าสัมภาษณ์แล้ว!');
                 renderHRView();
             }
         }
 
         function finalizeResult(appId) {
-            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const applications = getAllApplicants();
             const app = applications.find(a => a.id === appId);
             if (app) {
                 app.status = 'hired';
                 app.history.push({ action: 'สรุปผล', timestamp: new Date().toISOString(), note: 'ผ่านคัดเลือก' });
-                localStorage.setItem('pkg_applications', JSON.stringify(applications));
+                saveApplicantData(app);
                 alert('✅ สรุปผล: ผ่าน!');
                 renderHRView();
             }
         }
 
         function onboard(appId) {
-            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const applications = getAllApplicants();
             const app = applications.find(a => a.id === appId);
             if (app) {
                 const startDate = prompt('วันเริ่มงาน (เช่น 01/08/2569):', '01/08/2569');
@@ -1016,33 +1059,56 @@
                     app.status = 'onboarded';
                     app.startDate = startDate;
                     app.history.push({ action: 'นัดเริ่มงาน', timestamp: new Date().toISOString(), note: `วันเริ่มงาน: ${startDate}` });
-                    localStorage.setItem('pkg_applications', JSON.stringify(applications));
+                    saveApplicantData(app);
                     alert(`✅ นัดเริ่มงานแล้ว!\n\nวันเริ่มงาน: ${startDate}`);
                     renderHRView();
                 }
             }
         }
 
+        function saveApplicantData(app) {
+            // ตรวจสอบว่าเป็นข้อมูลตั้งต้นหรือข้อมูลใหม่
+            const initial = JSON.parse(localStorage.getItem('pkg_initial_applicants') || '[]');
+            const newApps = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            
+            const initialIndex = initial.findIndex(a => a.id === app.id);
+            if (initialIndex !== -1) {
+                // เป็นข้อมูลตั้งต้น
+                initial[initialIndex] = app;
+                localStorage.setItem('pkg_initial_applicants', JSON.stringify(initial));
+            } else {
+                // เป็นข้อมูลใหม่
+                const newIndex = newApps.findIndex(a => a.id === app.id);
+                if (newIndex !== -1) {
+                    newApps[newIndex] = app;
+                } else {
+                    newApps.push(app);
+                }
+                localStorage.setItem('pkg_applications', JSON.stringify(newApps));
+            }
+        }
+
         function viewApplicantDetail(appId) {
-            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const applications = getAllApplicants();
             const app = applications.find(a => a.id === appId);
             if (app) {
                 let detail = `📋 รายละเอียดผู้สมัคร\n\n`;
                 detail += `รหัส: ${app.id}\n`;
                 detail += `ชื่อ: ${app.firstName} ${app.lastName}\n`;
-                detail += `เบอร์: ${app.phone}\n`;
-                detail += `Email: ${app.email}\n`;
+                if (app.phone) detail += `เบอร์: ${app.phone}\n`;
+                if (app.email) detail += `Email: ${app.email}\n`;
                 detail += `ตำแหน่ง: ${app.position}\n`;
                 detail += `แผนก: ${app.department}\n`;
                 detail += `สาขา: ${app.branch}\n`;
-                detail += `วุฒิ: ${app.education}\n`;
-                detail += `สาขาวิชา: ${app.major}\n`;
-                detail += `ทักษะ: ${app.skills}\n`;
-                detail += `ประสบการณ์: ${app.experience} ปี\n`;
+                if (app.education) detail += `วุฒิ: ${app.education}\n`;
+                if (app.major) detail += `สาขาวิชา: ${app.major}\n`;
+                if (app.skills) detail += `ทักษะ: ${app.skills}\n`;
+                if (app.experience) detail += `ประสบการณ์: ${app.experience} ปี\n`;
                 if (app.aiScore) detail += `\n🤖 คะแนน AI: ${app.aiScore}/100\n`;
                 if (app.testScores) detail += `\n📋 คะแนนแบบทดสอบ:\n  ทัศนคติ: ${app.testScores.attitude}\n  ทักษะ: ${app.testScores.skill}\n  CC: ${app.testScores.cc}\n  3E3P: ${app.testScores.e3p}\n  รวม: ${app.testScores.overall}\n`;
                 if (app.interviewDate) detail += `\n📅 นัดสัมภาษณ์: ${app.interviewDate} ${app.interviewTime}\n`;
                 if (app.startDate) detail += `\n🎉 วันเริ่มงาน: ${app.startDate}\n`;
+                if (app.rejectReason) detail += `\n❌ เหตุผลไม่ผ่าน: ${app.rejectReason}\n`;
                 detail += `\n📜 ประวัติ:\n`;
                 app.history.forEach(h => {
                     detail += `  - ${h.action}: ${new Date(h.timestamp).toLocaleString('th-TH')} (${h.note})\n`;
