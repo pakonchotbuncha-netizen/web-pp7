@@ -5178,24 +5178,32 @@ function applyLogin(session){
   document.getElementById('logoutBtn').style.display = 'inline-block';
 }
 
-// Check session on page load
+// Check session on page load — Guest access: show dashboard immediately
 (function(){
   try {
     var saved = JSON.parse(localStorage.getItem('pakorn_session'));
     if(saved && saved.user && USERS[saved.user]){
       applyLogin(saved);
     } else {
-      /* Lock content behind login */
-      document.getElementById('app-wrapper') && document.getElementById('app-wrapper').classList.add('content-blur');
-      document.getElementById('loginUser').focus();
+      // Guest mode: hide login, show dashboard directly
+      document.getElementById('loginOverlay').classList.add('hidden');
+      document.getElementById('app-wrapper') && document.getElementById('app-wrapper').classList.remove('content-blur');
+      var ub = document.getElementById('userName');
+      if(ub) ub.textContent = 'ผู้เยี่ยมชม';
     }
   } catch(e){
-    document.getElementById('app-wrapper') && document.getElementById('app-wrapper').classList.add('content-blur');
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('app-wrapper') && document.getElementById('app-wrapper').classList.remove('content-blur');
   }
-  showTab('executive');
+  // Check hash for tab navigation
+  var hashMatch = window.location.hash.match(/^#tab=(.+)$/);
+  if(hashMatch){
+    showTab(hashMatch[1]);
+  } else {
+    showTab('executive');
+  }
   initDashboardData();
   checkAlerts();
-  initDashboardData();
 })();
 </script>
 </body>
