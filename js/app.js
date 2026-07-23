@@ -196,6 +196,44 @@ function logout() {
     }
 }
 
+// ===== CREATE HR ACCOUNT =====
+function createHR() {
+    const phone = prompt('กรอกเบอร์โทร HR:');
+    if (!phone) return;
+    
+    const password = prompt('กรอกรหัสผ่าน:');
+    if (!password) return;
+    
+    const name = prompt('กรอกชื่อ-นามสกุล:');
+    if (!name) return;
+    
+    const email = prompt('กรอก Email:');
+    if (!email) return;
+    
+    const users = JSON.parse(localStorage.getItem('pkg_users') || '[]');
+    
+    if (users.find(u => u.phone === phone)) {
+        alert('เบอร์โทรศัพท์นี้ถูกลงทะเบียนแล้ว');
+        return;
+    }
+    
+    const newHR = {
+        id: 'HR-' + Date.now(),
+        phone: phone,
+        password: btoa(password),
+        name: name,
+        email: email,
+        role: 'hr',
+        createdAt: new Date().toISOString(),
+        status: 'active'
+    };
+    
+    users.push(newHR);
+    localStorage.setItem('pkg_users', JSON.stringify(users));
+    
+    alert(`สร้างบัญชี HR สำเร็จ!\n\nเบอร์: ${phone}\nรหัสผ่าน: ${password}\n\nกรุณาเข้าสู่ระบบเพื่อใช้งาน HR Dashboard`);
+}
+
 // ===== NAVIGATION =====
 function showPositions() {
     window.location.href = 'pages/positions.html';
