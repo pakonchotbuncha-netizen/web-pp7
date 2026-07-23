@@ -2438,6 +2438,123 @@ window.RESIGNATION_PIPELINE = {
     </div>
   </div>
 
+  <!-- ==================== ฟอร์มสมัครงาน ==================== -->
+  <div class="mt-10 pt-8 border-t-4 border-green-300">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold">📝</span>
+      <h2 class="text-2xl font-bold text-pp7-800">ฟอร์มสมัครงาน</h2>
+      <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs">กรอกข้อมูลสมัครงานออนไลน์</span>
+    </div>
+
+    <div class="card bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+      <h3 class="font-bold text-pp7-800 mb-4 text-lg">📋 ใบสมัครงาน PKG</h3>
+      <form id="applicationForm" onsubmit="submitApplication(event)" class="space-y-6">
+        <!-- ข้อมูลส่วนตัว -->
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">ชื่อ <span class="text-red-500">*</span></label>
+            <input type="text" name="firstName" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="กรอกชื่อ">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">นามสกุล <span class="text-red-500">*</span></label>
+            <input type="text" name="lastName" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="กรอกนามสกุล">
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">เบอร์โทรศัพท์ <span class="text-red-500">*</span></label>
+            <input type="tel" name="phone" required pattern="[0-9]{9,10}" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="0812345678">
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-2">อีเมล <span class="text-red-500">*</span></label>
+            <input type="email" name="email" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="example@email.com">
+          </div>
+        </div>
+
+        <!-- ตำแหน่งที่สมัคร -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">ตำแหน่งที่สมัคร <span class="text-red-500">*</span></label>
+          <select name="position" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+            <option value="">-- เลือกตำแหน่ง --</option>
+            <option value="feel well">feel well</option>
+            <option value="ช่าง O/H">ช่าง O/H</option>
+            <option value="ช่างกรุ๊ปรถเล็ก">ช่างกรุ๊ปรถเล็ก</option>
+            <option value="ช่างประดับยนต์">ช่างประดับยนต์</option>
+            <option value="ช่างยนต์">ช่างยนต์</option>
+            <option value="ช่างยนต์ สปป.ลาว">ช่างยนต์ สปป.ลาว</option>
+            <option value="ช่างรถใหญ่">ช่างรถใหญ่</option>
+            <option value="ช่างวิศวกรรมเทคนิค">ช่างวิศวกรรมเทคนิค</option>
+            <option value="ช่างเทคนิคคอมพิวเตอร์">ช่างเทคนิคคอมพิวเตอร์</option>
+            <option value="ที่ปรึกษางานขาย">ที่ปรึกษางานขาย</option>
+          </select>
+        </div>
+
+        <!-- สาขาที่ต้องการทำงาน -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">สาขาที่ต้องการทำงาน <span class="text-red-500">*</span></label>
+          <select name="branch" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+            <option value="">-- เลือกสาขา --</option>
+            <option value="กาญจนบุรี">กาญจนบุรี</option>
+            <option value="จันทบุรี">จันทบุรี</option>
+            <option value="ฉะเชิงเทรา">ฉะเชิงเทรา</option>
+            <option value="ชลบุรี">ชลบุรี</option>
+            <option value="ตราด">ตราด</option>
+            <option value="นครนายก">นครนายก</option>
+            <option value="นครปฐม">นครปฐม</option>
+            <option value="นครราชสีมา">นครราชสีมา</option>
+            <option value="นนทบุรี">นนทบุรี</option>
+            <option value="บุรีรัมย์">บุรีรัมย์</option>
+            <option value="ปราจีนบุรี">ปราจีนบุรี</option>
+            <option value="บึงกาฬ">บึงกาฬ</option>
+            <option value="มุกดาหาร">มุกดาหาร</option>
+            <option value="ระยอง">ระยอง</option>
+            <option value="ราชบุรี">ราชบุรี</option>
+            <option value="ลพบุรี">ลพบุรี</option>
+            <option value="สกลนคร">สกลนคร</option>
+            <option value="สระแก้ว">สระแก้ว</option>
+            <option value="สระบุรี">สระบุรี</option>
+            <option value="หนองคาย">หนองคาย</option>
+            <option value="อื่นๆ">อื่นๆ</option>
+          </select>
+        </div>
+
+        <!-- ประสบการณ์ -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">ประสบการณ์ทำงาน (ปี)</label>
+          <input type="number" name="experience" min="0" max="50" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" placeholder="0">
+        </div>
+
+        <!-- อัพโหลด Resume -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">อัพโหลด Resume (PDF, DOC, DOCX)</label>
+          <input type="file" name="resume" accept=".pdf,.doc,.docx" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+          <p class="text-xs text-slate-500 mt-1">ขนาดไฟล์ไม่เกิน 5MB</p>
+        </div>
+
+        <!-- ปุ่มส่งใบสมัคร -->
+        <div class="flex gap-4">
+          <button type="submit" class="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold py-3 px-6 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg">
+            📤 ส่งใบสมัคร
+          </button>
+          <button type="reset" class="px-6 py-3 bg-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-300 transition-all">
+            🔄 ล้างข้อมูล
+          </button>
+        </div>
+      </form>
+
+      <!-- ผลลัพธ์การส่งใบสมัคร -->
+      <div id="applicationResult" class="hidden mt-6 p-4 rounded-lg bg-green-100 border-2 border-green-300">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-2xl">✅</span>
+          <h4 class="font-bold text-green-800">ส่งใบสมัครสำเร็จ!</h4>
+        </div>
+        <p class="text-sm text-green-700">ขอบคุณที่สนใจร่วมงานกับ PKG Group เราจะติดต่อกลับภายใน 3-5 วันทำการ</p>
+        <div id="applicationDetails" class="mt-4 p-3 rounded bg-white border border-green-200 text-sm"></div>
+      </div>
+    </div>
+  </div>
+
 </section>
 
 <!-- ==================== TAB: P1 ASSESSMENT ==================== -->
@@ -5082,6 +5199,42 @@ function renderRecruitInsights(){
       <div class="detail-item"><div class="label">พบใน employee</div><div class="value" style="color:#8b5cf6">${metrics.matchedEmployment}</div></div>
     `;
   }
+}
+
+function submitApplication(e){
+  e.preventDefault();
+  var form = e.target;
+  var data = new FormData(form);
+  var app = {
+    id: 'APP-' + Date.now().toString().slice(-6),
+    firstName: data.get('firstName'),
+    lastName: data.get('lastName'),
+    phone: data.get('phone'),
+    email: data.get('email'),
+    position: data.get('position'),
+    branch: data.get('branch'),
+    experience: data.get('experience') || '0',
+    status: 'รอคัดกรอง',
+    date: new Date().toLocaleDateString('th-TH')
+  };
+  // Show result
+  document.getElementById('applicationResult').classList.remove('hidden');
+  document.getElementById('applicationDetails').innerHTML = 
+    '<strong>รหัสใบสมัคร:</strong> ' + app.id + '<br>' +
+    '<strong>ชื่อ:</strong> ' + app.firstName + ' ' + app.lastName + '<br>' +
+    '<strong>ตำแหน่ง:</strong> ' + app.position + '<br>' +
+    '<strong>สาขา:</strong> ' + app.branch + '<br>' +
+    '<strong>สถานะ:</strong> ' + app.status + '<br>' +
+    '<strong>วันที่สมัคร:</strong> ' + app.date;
+  // Save to localStorage
+  try {
+    var apps = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+    apps.push(app);
+    localStorage.setItem('pkg_applications', JSON.stringify(apps));
+  } catch(e){}
+  // Scroll to result
+  document.getElementById('applicationResult').scrollIntoView({behavior:'smooth',block:'center'});
+  form.reset();
 }
 
 function initDashboardData(){
