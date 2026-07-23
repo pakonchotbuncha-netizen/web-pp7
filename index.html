@@ -2189,6 +2189,230 @@ window.RESIGNATION_PIPELINE = {
       </div>
   </div>
 </section>
+
+  <!-- ==================== BCT PPP7 V.2 — กระบวนการสรรหาครบถ้วน ==================== -->
+  <div class="mt-10 pt-8 border-t-4 border-indigo-300">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="bg-indigo-600 text-white px-3 py-1 rounded-full text-sm font-bold">📋</span>
+      <h2 class="text-2xl font-bold text-pp7-800">กระบวนการสรรหาบุคลากร (BCT PPP7 V.2)</h2>
+      <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs">Flow 10 ขั้นตอน</span>
+    </div>
+
+    <!-- Flow Diagram 10 ขั้นตอน -->
+    <div class="card bg-gradient-to-r from-indigo-50 to-blue-50 border-indigo-200">
+      <h3 class="font-bold text-pp7-800 mb-4 text-lg">🔄 Flow การสรรหา — 10 ขั้นตอน</h3>
+      <div class="grid md:grid-cols-5 gap-3 text-sm">
+        <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-indigo-500">
+          <div class="text-2xl mb-1">📝</div>
+          <div class="font-semibold text-indigo-700">1. ขออัตรากำลัง</div>
+          <div class="text-xs text-slate-600 mt-1">BU คีย์คำขอ</div>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-blue-500">
+          <div class="text-2xl mb-1">🗄️</div>
+          <div class="font-semibold text-blue-700">2. ฐานข้อมูล</div>
+          <div class="text-xs text-slate-600 mt-1">บริษัท/สาขา/ทีม/บทบาท</div>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-emerald-500">
+          <div class="text-2xl mb-1">📢</div>
+          <div class="font-semibold text-emerald-700">3. เปิดรับ</div>
+          <div class="text-xs text-slate-600 mt-1">ประกาศตำแหน่ง</div>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-amber-500">
+          <div class="text-2xl mb-1">📥</div>
+          <div class="font-semibold text-amber-700">4. ใบสมัคร</div>
+          <div class="text-xs text-slate-600 mt-1">รับใบสมัคร PKG</div>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-purple-500">
+          <div class="text-2xl mb-1">🎯</div>
+          <div class="font-semibold text-purple-700">5. คัดเลือก</div>
+          <div class="text-xs text-slate-600 mt-1">ผ่าน/ไม่ผ่าน</div>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-pink-500">
+          <div class="text-2xl mb-1">📅</div>
+          <div class="font-semibold text-pink-700">6. นัดสัมภาษณ์</div>
+          <div class="text-xs text-slate-600 mt-1">ตอบรับ/ปฏิเสธ</div>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-red-500">
+          <div class="text-2xl mb-1">💬</div>
+          <div class="font-semibold text-red-700">7. สัมภาษณ์</div>
+          <div class="text-xs text-slate-600 mt-1">ผ่าน/ไม่ผ่าน/สำรอง</div>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-teal-500">
+          <div class="text-2xl mb-1">🔍</div>
+          <div class="font-semibold text-teal-700">8. ตรวจสอบประวัติ</div>
+          <div class="text-xs text-slate-600 mt-1">ผ่าน/รอตรวจสุขภาพ</div>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-orange-500">
+          <div class="text-2xl mb-1">🤝</div>
+          <div class="font-semibold text-orange-700">9. นัดเริ่มงาน</div>
+          <div class="text-xs text-slate-600 mt-1">ตกลง/ปฏิเสธ</div>
+        </div>
+        <div class="text-center p-3 rounded-lg bg-white shadow-sm border-t-4 border-green-500">
+          <div class="text-2xl mb-1">✅</div>
+          <div class="font-semibold text-green-700">10. เข้าระบบ</div>
+          <div class="text-xs text-slate-600 mt-1">ส่งต่อ P4 PAO</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Master Data: เหตุผลไม่ผ่าน/ปฏิเสธ -->
+    <div class="grid lg:grid-cols-2 gap-6 mt-6">
+      <div class="card">
+        <h3 class="font-bold text-pp7-800 mb-3 flex items-center gap-2">
+          <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">เหตุผลไม่ผ่าน</span>
+          คัดเลือกใบสมัคร
+        </h3>
+        <ul class="space-y-2 text-sm text-slate-700">
+          <li class="p-2 rounded bg-red-50 border border-red-100">❌ คุณสมบัติไม่ตรงกับตำแหน่งงาน</li>
+          <li class="p-2 rounded bg-red-50 border border-red-100">❌ ไม่มีตำแหน่งงานว่าง</li>
+          <li class="p-2 rounded bg-red-50 border border-red-100">❌ ไม่มีหลักฐานการสมัครงาน</li>
+          <li class="p-2 rounded bg-red-50 border border-red-100">❌ บุคลิกไม่น่าไว้ใจ</li>
+          <li class="p-2 rounded bg-red-50 border border-red-100">❌ ได้งานแล้ว</li>
+          <li class="p-2 rounded bg-red-50 border border-red-100">❌ เปลี่ยนใจไม่ลาออกจากที่ทำงานเดิม</li>
+          <li class="p-2 rounded bg-red-50 border border-red-100">❌ ศึกษาต่อ</li>
+          <li class="p-2 rounded bg-red-50 border border-red-100">❌ มีปัญหาส่วนตัว</li>
+          <li class="p-2 rounded bg-red-50 border border-red-100">❌ สละสิทธิ์</li>
+          <li class="p-2 rounded bg-red-50 border border-red-100">❌ ติดธุระกระทันหัน</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3 class="font-bold text-pp7-800 mb-3 flex items-center gap-2">
+          <span class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs">เหตุผลปฏิเสธ</span>
+          นัดสัมภาษณ์
+        </h3>
+        <ul class="space-y-2 text-sm text-slate-700">
+          <li class="p-2 rounded bg-amber-50 border border-amber-100">📞 ติดต่อไม่ได้</li>
+          <li class="p-2 rounded bg-amber-50 border border-amber-100">💼 ได้งานแล้ว</li>
+          <li class="p-2 rounded bg-amber-50 border border-amber-100">🔄 เปลี่ยนใจไม่ลาออกจากที่ทำงานเดิม</li>
+          <li class="p-2 rounded bg-amber-50 border border-amber-100">📚 ศึกษาต่อ</li>
+          <li class="p-2 rounded bg-amber-50 border border-amber-100">🏠 มีปัญหาส่วนตัว</li>
+          <li class="p-2 rounded bg-amber-50 border border-amber-100">✋ สละสิทธิ์</li>
+          <li class="p-2 rounded bg-amber-50 border border-amber-100">🤒 ป่วย</li>
+          <li class="p-2 rounded bg-amber-50 border border-amber-100">⏰ ติดธุระกระทันหัน</li>
+          <li class="p-2 rounded bg-amber-50 border border-amber-100">🏢 ไปสัมภาษณ์งานที่อื่น/รองานอื่น</li>
+          <li class="p-2 rounded bg-amber-50 border border-amber-100">📵 ไม่โทรแจ้ง</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Master Data: เหตุผลปฏิเสธเข้างาน + ไม่มาเริ่มงาน -->
+    <div class="grid lg:grid-cols-2 gap-6 mt-6">
+      <div class="card">
+        <h3 class="font-bold text-pp7-800 mb-3 flex items-center gap-2">
+          <span class="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs">เหตุผลปฏิเสธ</span>
+          เข้างาน
+        </h3>
+        <ul class="space-y-2 text-sm text-slate-700">
+          <li class="p-2 rounded bg-orange-50 border border-orange-100">👤 ไม่มีคนค้ำ/เงินค้ำ</li>
+          <li class="p-2 rounded bg-orange-50 border border-orange-100">🏠 ไม่มีที่พัก</li>
+          <li class="p-2 rounded bg-orange-50 border border-orange-100">🚗 ที่ทำงานไกล</li>
+          <li class="p-2 rounded bg-orange-50 border border-orange-100">😐 ไม่ชอบลักษณะงาน</li>
+          <li class="p-2 rounded bg-orange-50 border border-orange-100">💰 ค่าตอบแทนน้อย</li>
+          <li class="p-2 rounded bg-orange-50 border border-orange-100">💼 ได้งานแล้ว</li>
+          <li class="p-2 rounded bg-orange-50 border border-orange-100">🏪 ทำธุรกิจส่วนตัว</li>
+          <li class="p-2 rounded bg-orange-50 border border-orange-100">📋 ตำแหน่งไม่ตรงกับคุณสมบัติผู้สมัคร</li>
+          <li class="p-2 rounded bg-orange-50 border border-orange-100">🚫 ไม่สะดวกมาฝึกงาน/ช่วยงาน</li>
+          <li class="p-2 rounded bg-orange-50 border border-orange-100">🌍 ทำงานสาขาอื่น</li>
+          <li class="p-2 rounded bg-orange-50 border border-orange-100">✈️ ไม่สะดวกเดินทางบ่อย</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3 class="font-bold text-pp7-800 mb-3 flex items-center gap-2">
+          <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs">ตำแหน่งงาน</span>
+          ที่เปิดรับ
+        </h3>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <div class="p-2 rounded bg-purple-50 border border-purple-100">🛠️ feel well</div>
+          <div class="p-2 rounded bg-purple-50 border border-purple-100">🔧 ช่าง O/H</div>
+          <div class="p-2 rounded bg-purple-50 border border-purple-100">🚗 ช่างกรุ๊ปรถเล็ก</div>
+          <div class="p-2 rounded bg-purple-50 border border-purple-100">✨ ช่างประดับยนต์</div>
+          <div class="p-2 rounded bg-purple-50 border border-purple-100">🔩 ช่างยนต์</div>
+          <div class="p-2 rounded bg-purple-50 border border-purple-100">🇱🇦 ช่างยนต์ สปป.ลาว</div>
+          <div class="p-2 rounded bg-purple-50 border border-purple-100">🚛 ช่างรถใหญ่</div>
+          <div class="p-2 rounded bg-purple-50 border border-purple-100">⚙️ ช่างวิศวกรรมเทคนิค</div>
+          <div class="p-2 rounded bg-purple-50 border border-purple-100">💻 ช่างเทคนิคคอมพิวเตอร์</div>
+          <div class="p-2 rounded bg-purple-50 border border-purple-100">💼 ที่ปรึกษางานขาย</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ข้อมูลธนาคาร + โรงพยาบาลประกันสังคม -->
+    <div class="grid lg:grid-cols-2 gap-6 mt-6">
+      <div class="card">
+        <h3 class="font-bold text-pp7-800 mb-3 flex items-center gap-2">
+          <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">ธนาคาร</span>
+          สำหรับโอนเงินเดือน
+        </h3>
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div class="p-4 rounded-lg bg-green-50 border-2 border-green-200">
+            <div class="text-3xl mb-2">🏦</div>
+            <div class="font-bold text-green-800">KBank</div>
+            <div class="text-xs text-slate-600 mt-1">กสิกรไทย</div>
+          </div>
+          <div class="p-4 rounded-lg bg-green-50 border-2 border-green-200">
+            <div class="text-3xl mb-2">🏦</div>
+            <div class="font-bold text-green-800">ACLEDA</div>
+            <div class="text-xs text-slate-600 mt-1">กัมพูชา</div>
+          </div>
+          <div class="p-4 rounded-lg bg-green-50 border-2 border-green-200">
+            <div class="text-3xl mb-2">🏦</div>
+            <div class="font-bold text-green-800">BCEL</div>
+            <div class="text-xs text-slate-600 mt-1">ลาว</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="font-bold text-pp7-800 mb-3 flex items-center gap-2">
+          <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">โรงพยาบาล</span>
+          ประกันสังคม (ตัวอย่าง)
+        </h3>
+        <div class="space-y-2 text-sm text-slate-700 max-h-64 overflow-y-auto">
+          <div class="p-2 rounded bg-blue-50 border border-blue-100">🏥 กาญจนบุรี → รพ.ค่ายสุรสีห์, รพ.พหลพลพยุหเสนา, รพ.มะการักษ์</div>
+          <div class="p-2 rounded bg-blue-50 border border-blue-100">🏥 จันทบุรี → รพ.พระปกเกล้า</div>
+          <div class="p-2 rounded bg-blue-50 border border-blue-100">🏥 ฉะเชิงเทรา → รพ.พุทธโสธร, รพ.เกษมราษฎร์, จุฬารัตน์ 11</div>
+          <div class="p-2 rounded bg-blue-50 border border-blue-100">🏥 ชลบุรี → รพ.ชลบุรี, รพ.บางละมุง, รพ.พนัสนิคม, รพ.สมเด็จพระนางเจ้าสิริกิติ์</div>
+          <div class="p-2 rounded bg-blue-50 border border-blue-100">🏥 นครปฐม → รพ.จันทรุเบกษา, รพ.นครปฐม, รพ.เมตตาประชารักษ์</div>
+          <div class="p-2 rounded bg-blue-50 border border-blue-100">🏥 นครราชสีมา → รพ.ค่ายสุรนารี, รพ.มหาราชนครราชสีมา, รพ.ปากช่องนานา</div>
+          <div class="p-2 rounded bg-blue-50 border border-blue-100">🏥 นนทบุรี → รพ.พระนั่งเกล้า, รพ.กรุงไทย, รพ.วิภารามปากเกร็ด</div>
+          <div class="p-2 rounded bg-blue-50 border border-blue-100">🏥 ระยอง → รพ.ระยอง, รพ.มงกุฎระยอง, รพ.จุฬารัตน์ระยอง</div>
+          <div class="p-2 rounded bg-blue-50 border border-blue-100">🏥 ราชบุรี → รพ.ดำเนินสะดวก, รพ.บ้านโป่ง, รพ.โพธาราม, รพ.ราชบุรี</div>
+          <div class="p-2 rounded bg-blue-50 border border-blue-100">🏥 สระบุรี → รพ.พระพุทธบาท, รพ.สระบุรี, รพ.เกษมราษฎร์ สระบุรี</div>
+          <div class="text-xs text-slate-500 italic mt-2">... และอีก 30+ จังหวัด</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- สถิติ Funnel -->
+    <div class="card mt-6 bg-gradient-to-r from-emerald-50 to-teal-50 border-emerald-200">
+      <h3 class="font-bold text-pp7-800 mb-4 text-lg">📊 สถิติ Funnel การสรรหา</h3>
+      <div class="grid md:grid-cols-4 gap-4">
+        <div class="text-center p-4 rounded-lg bg-white shadow-sm">
+          <div class="text-3xl font-bold text-emerald-600">12.4%</div>
+          <div class="text-sm text-slate-600 mt-2">Conversion Rate</div>
+          <div class="text-xs text-slate-500">ใบสมัคร → เข้างาน</div>
+        </div>
+        <div class="text-center p-4 rounded-lg bg-white shadow-sm">
+          <div class="text-3xl font-bold text-blue-600">18</div>
+          <div class="text-sm text-slate-600 mt-2">Avg Time-to-Hire</div>
+          <div class="text-xs text-slate-500">วัน (เฉลี่ย)</div>
+        </div>
+        <div class="text-center p-4 rounded-lg bg-white shadow-sm">
+          <div class="text-3xl font-bold text-purple-600">82.4%</div>
+          <div class="text-sm text-slate-600 mt-2">Offer Accept Rate</div>
+          <div class="text-xs text-slate-500">ตกลงเข้างาน</div>
+        </div>
+        <div class="text-center p-4 rounded-lg bg-white shadow-sm">
+          <div class="text-3xl font-bold text-amber-600">94%</div>
+          <div class="text-sm text-slate-600 mt-2">Background Check Pass</div>
+          <div class="text-xs text-slate-500">ตรวจสอบประวัติผ่าน</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </section>
 
 <!-- ==================== TAB: P1 ASSESSMENT ==================== -->
