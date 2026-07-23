@@ -18,7 +18,7 @@
     <!-- Header -->
     <div class="gradient-bg text-white py-6">
         <div class="max-w-7xl mx-auto px-4">
-            <h1 class="text-3xl font-bold mb-2"> ทดสอบระบบ PKG Recruitment</h1>
+            <h1 class="text-3xl font-bold mb-2">🧪 ทดสอบระบบ PKG Recruitment</h1>
             <p class="opacity-90">ทดสอบได้ทั้ง 2 มุมมองในหน้าเดียว พร้อมข้อมูลตัวอย่าง</p>
         </div>
     </div>
@@ -41,7 +41,7 @@
             <div class="flex items-start">
                 <i class="fas fa-info-circle text-yellow-600 mr-2 mt-1"></i>
                 <div class="text-sm text-yellow-700">
-                    <p class="font-semibold mb-2"> คำแนะนำการทดสอบ:</p>
+                    <p class="font-semibold mb-2">📋 คำแนะนำการทดสอบ:</p>
                     <ol class="list-decimal list-inside space-y-1">
                         <li>เริ่มจากมุมมองผู้สมัคร → ลงทะเบียน → สมัครงาน → ทำแบบทดสอบ</li>
                         <li>สลับไปมุมมอง HR → คัดกรอง → ส่งแบบทดสอบ → นัดสัมภาษณ์</li>
@@ -58,7 +58,6 @@
         </div>
     </div>
 
-    <script src="../js/app.js"></script>
     <script>
         let currentView = 'applicant';
         let currentUser = null;
@@ -399,7 +398,7 @@
             
             if (user) {
                 currentUser = user;
-                localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(user));
+                localStorage.setItem('pkg_recruitment_user', JSON.stringify(user));
                 alert(`เข้าสู่ระบบสำเร็จ!\n\nชื่อ: ${user.name}\nบทบาท: ${user.role === 'applicant' ? 'ผู้สมัคร' : 'HR'}`);
                 showApplicantDashboard();
             } else {
@@ -416,7 +415,7 @@
             
             if (user && user.role === 'hr') {
                 currentUser = user;
-                localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(user));
+                localStorage.setItem('pkg_recruitment_user', JSON.stringify(user));
                 alert(`เข้าสู่ระบบ HR สำเร็จ!\n\nชื่อ: ${user.name}\nบทบาท: HR Manager`);
                 showHRDashboard();
             } else {
