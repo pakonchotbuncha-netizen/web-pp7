@@ -1815,27 +1815,52 @@ window.RESIGNATION_PIPELINE = {
       ระบบแสวงหาบุคลากร — เข้าถึงระบบย่อย
     </h3>
     <div class="grid md:grid-cols-3 gap-4">
-      <a href="p1-ai-screening-live.html" target="_blank" class="block p-4 rounded-lg bg-white border-2 border-indigo-200 hover:border-indigo-400 hover:shadow-lg transition-all">
+      <button onclick="document.getElementById('iframe-ai-screening').classList.toggle('hidden')" class="block p-4 rounded-lg bg-white border-2 border-indigo-200 hover:border-indigo-400 hover:shadow-lg transition-all cursor-pointer">
         <div class="text-3xl mb-2">🤖</div>
         <div class="font-bold text-indigo-800 mb-1">AI Screening</div>
         <div class="text-xs text-gray-600">คัดกรองผู้สมัครอัตโนมัติด้วย CC1-CC7 + Explainable AI</div>
-        <div class="mt-2 text-xs text-indigo-600 font-semibold">เปิดหน้า →</div>
-      </a>
-      <a href="p1-notification.html" target="_blank" class="block p-4 rounded-lg bg-white border-2 border-green-200 hover:border-green-400 hover:shadow-lg transition-all">
+        <div class="mt-2 text-xs text-indigo-600 font-semibold">คลิกเพื่อเปิด/ปิด →</div>
+      </button>
+      <button onclick="document.getElementById('iframe-notification').classList.toggle('hidden')" class="block p-4 rounded-lg bg-white border-2 border-green-200 hover:border-green-400 hover:shadow-lg transition-all cursor-pointer">
         <div class="text-3xl mb-2">📬</div>
         <div class="font-bold text-green-800 mb-1">Notification</div>
         <div class="text-xs text-gray-600">แจ้งผลผู้สมัครผ่าน Line/Facebook/SMS</div>
-        <div class="mt-2 text-xs text-green-600 font-semibold">เปิดหน้า →</div>
-      </a>
-      <a href="p1-assessment.html" target="_blank" class="block p-4 rounded-lg bg-white border-2 border-orange-200 hover:border-orange-400 hover:shadow-lg transition-all">
+        <div class="mt-2 text-xs text-green-600 font-semibold">คลิกเพื่อเปิด/ปิด →</div>
+      </button>
+      <button onclick="document.getElementById('iframe-assessment').classList.toggle('hidden')" class="block p-4 rounded-lg bg-white border-2 border-orange-200 hover:border-orange-400 hover:shadow-lg transition-all cursor-pointer">
         <div class="text-3xl mb-2">📝</div>
         <div class="font-bold text-orange-800 mb-1">Assessment</div>
         <div class="text-xs text-gray-600">แบบทดสอบ 3 ส่วน: ทัศนคติ + งานบริการ + ทักษะ</div>
-        <div class="mt-2 text-xs text-orange-600 font-semibold">เปิดหน้า →</div>
-      </a>
+        <div class="mt-2 text-xs text-orange-600 font-semibold">คลิกเพื่อเปิด/ปิด →</div>
+      </button>
     </div>
     <div class="mt-4 p-3 rounded-lg bg-purple-100 text-xs text-purple-800">
-      <strong>📊 Flow:</strong> ผู้สมัคร → AI CC Scoring → แบบทดสอบทัศนคติ → แบบทดสอบทักษะ → 🤖 AI วิเคราะห์ + 👤 มนุษย์ตัดสินใจ → ✅ ผ่าน/❌ ไม่ผ่าน
+      <strong> Flow:</strong> ผู้สมัคร → AI CC Scoring → แบบทดสอบทัศนคติ → แบบทดสอบทักษะ →  AI วิเคราะห์ + 👤 มนุษย์ตัดสินใจ → ✅ ผ่าน/❌ ไม่ผ่าน
+    </div>
+
+    <!-- Inline iframes (hidden by default) -->
+    <div id="iframe-ai-screening" class="hidden mt-6">
+      <div class="flex justify-between items-center mb-2">
+        <h4 class="font-bold text-indigo-800">🤖 AI Screening — คัดกรองผู้สมัครอัตโนมัติ</h4>
+        <button onclick="document.getElementById('iframe-ai-screening').classList.add('hidden')" class="text-sm text-red-600 hover:text-red-800">✕ ปิด</button>
+      </div>
+      <iframe src="p1-ai-screening-live.html" width="100%" height="800" frameborder="0" style="border: 1px solid #e5e7eb; border-radius: 8px;"></iframe>
+    </div>
+
+    <div id="iframe-notification" class="hidden mt-6">
+      <div class="flex justify-between items-center mb-2">
+        <h4 class="font-bold text-green-800">📬 Notification — แจ้งผลผู้สมัคร</h4>
+        <button onclick="document.getElementById('iframe-notification').classList.add('hidden')" class="text-sm text-red-600 hover:text-red-800">✕ ปิด</button>
+      </div>
+      <iframe src="p1-notification.html" width="100%" height="800" frameborder="0" style="border: 1px solid #e5e7eb; border-radius: 8px;"></iframe>
+    </div>
+
+    <div id="iframe-assessment" class="hidden mt-6">
+      <div class="flex justify-between items-center mb-2">
+        <h4 class="font-bold text-orange-800">📝 Assessment — แบบทดสอบผู้สมัคร</h4>
+        <button onclick="document.getElementById('iframe-assessment').classList.add('hidden')" class="text-sm text-red-600 hover:text-red-800">✕ ปิด</button>
+      </div>
+      <iframe src="p1-assessment.html" width="100%" height="800" frameborder="0" style="border: 1px solid #e5e7eb; border-radius: 8px;"></iframe>
     </div>
   </div>
 
