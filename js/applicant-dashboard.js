@@ -14,7 +14,7 @@ function checkAuth() {
     const stored = localStorage.getItem(CONFIG.STORAGE_KEY);
     if (!stored) {
         alert('กรุณาเข้าสู่ระบบ');
-        window.location.href = '../index.html';
+        window.location.href = 'index.html';
         return;
     }
     
@@ -22,12 +22,12 @@ function checkAuth() {
         currentUser = JSON.parse(stored);
         if (currentUser.role !== 'applicant') {
             alert('ไม่มีสิทธิ์เข้าถึงหน้านี้');
-            window.location.href = '../index.html';
+            window.location.href = 'index.html';
             return;
         }
     } catch (e) {
         localStorage.removeItem(CONFIG.STORAGE_KEY);
-        window.location.href = '../index.html';
+        window.location.href = 'index.html';
     }
 }
 

@@ -192,7 +192,7 @@ function logout() {
     if (confirm('ต้องการออกจากระบบหรือไม่?')) {
         localStorage.removeItem(CONFIG.STORAGE_KEY);
         currentUser = null;
-        window.location.href = '../index.html';
+        window.location.href = 'index.html';
     }
 }
 
