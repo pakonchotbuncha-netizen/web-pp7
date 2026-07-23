@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตำแหน่งงาน - PKG Recruitment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Prompt', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="../index.html" class="flex items-center">
+                        <i class="fas fa-building text-purple-600 text-2xl mr-3"></i>
+                        <span class="font-bold text-xl text-gray-800">PKG Recruitment</span>
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="../index.html" class="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-home mr-1"></i>หน้าแรก
+                    </a>
+                    <button onclick="showLogin()" class="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sign-in-alt mr-1"></i>เข้าสู่ระบบ
+                    </button>
+                    <button onclick="showRegister()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                        <i class="fas fa-user-plus mr-1"></i>ลงทะเบียน
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="gradient-bg text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-4xl font-bold mb-4">ตำแหน่งงานที่เปิดรับ</h1>
+            <p class="text-lg opacity-90">ค้นหาตำแหน่งงานที่เหมาะกับคุณ</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ค้นหา</label>
+                    <input type="text" id="searchInput" placeholder="ชื่อตำแหน่ง, แผนก..." 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">แผนก</label>
+                    <select id="departmentFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600">
+                        <option value="">ทุกแผนก</option>
+                        <option value="IT">เทคโนโลยีสารสนเทศ</option>
+                        <option value="HR">ทรัพยากรบุคคล</option>
+                        <option value="Finance">การเงิน</option>
+                        <option value="Sales">การขาย</option>
+                        <option value="Marketing">การตลาด</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ระดับ</label>
+                    <select id="levelFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600">
+                        <option value="">ทุกระดับ</option>
+                        <option value="entry">ระดับเริ่มต้น</option>
+                        <option value="junior">ระดับจูเนียร์</option>
+                        <option value="senior">ระดับอาวุโส</option>
+                        <option value="manager">ระดับผู้จัดการ</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ประเภท</label>
+                    <select id="typeFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600">
+                        <option value="">ทุกประเภท</option>
+                        <option value="fulltime">เต็มเวลา</option>
+                        <option value="parttime">พาร์ทไทม์</option>
+                        <option value="contract">สัญญาจ้าง</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button onclick="resetFilters()" class="text-gray-600 hover:text-gray-800 mr-4">
+                    <i class="fas fa-redo mr-1"></i>รีเซ็ต
+                </button>
+                <button onclick="applyFilters()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">
+                    <i class="fas fa-search mr-1"></i>ค้นหา
+                </button>
+            </div>
+        </div>
+
+        <!-- Positions Grid -->
+        <div id="positionsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Positions will be loaded here -->
+        </div>
+
+        <!-- No Results -->
+        <div id="noResults" class="hidden text-center py-12">
+            <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+            <p class="text-gray-500 text-lg">ไม่พบตำแหน่งงานที่ตรงกับเงื่อนไข</p>
+        </div>
+    </div>
+
+    <!-- Position Detail Modal -->
+    <div id="positionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
+                <h2 id="modalTitle" class="text-2xl font-bold"></h2>
+                <button onclick="closePositionModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div id="modalContent" class="p-6">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+    <script src="../js/positions.js"></script>
+</body>
+</html>
