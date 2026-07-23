@@ -23,9 +23,88 @@
         .status-item.current::before { background: #3b82f6; animation: pulse 2s infinite; }
         .status-item.pending::before { background: #e5e7eb; }
         @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); } 50% { box-shadow: 0 0 0 0.5rem rgba(59, 130, 246, 0); } }
+        
+        /* Sidebar Styles */
+        .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 260px; background: linear-gradient(180deg, #0f172a 0%, #1e3a5f 100%); color: #fff; z-index: 50; overflow-y: auto; transition: transform .3s; box-shadow: 4px 0 20px rgba(15,23,42,.1); }
+        .sidebar-header { padding: 1.25rem 1rem; border-bottom: 1px solid rgba(255,255,255,.1); }
+        .sidebar-header h2 { font-size: 1rem; font-weight: 700; color: #fff; margin: 0; }
+        .sidebar-header p { font-size: .7rem; color: #94a3b8; margin-top: .25rem; }
+        .sidebar-section { padding: .75rem 0; }
+        .sidebar-section-title { padding: .5rem 1rem; font-size: .65rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .05em; }
+        .nav-item { display: flex; align-items: center; gap: .75rem; padding: .65rem 1rem; color: #cbd5e1; font-size: .85rem; cursor: pointer; border: none; background: none; width: 100%; text-align: left; transition: all .15s; font-family: 'Prompt', sans-serif; border-left: 3px solid transparent; }
+        .nav-item:hover { background: rgba(255,255,255,.05); color: #fff; }
+        .nav-item.active { background: rgba(59,130,246,.15); color: #60a5fa; border-left-color: #3b82f6; }
+        .nav-item-icon { font-size: 1.1rem; width: 1.5rem; text-align: center; }
+        .main-content { margin-left: 260px; min-height: 100vh; background: #f1f5f9; }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+        }
+        .mobile-menu-btn { display: none; position: fixed; top: 1rem; left: 1rem; z-index: 60; background: #3b82f6; color: white; border: none; border-radius: 0.5rem; padding: 0.5rem 0.75rem; cursor: pointer; }
+        @media (max-width: 768px) { .mobile-menu-btn { display: block; } }
     </style>
 </head>
 <body class="bg-gray-50">
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h2>📊 PP7 System</h2>
+            <p>ระบบบริหารบุคลากร</p>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">📋 Core PP7</div>
+            <button class="nav-item active" data-tab="landing" onclick="showTab('landing')">
+                <span class="nav-item-icon">🏠</span>หน้าหลัก
+            </button>
+            <button class="nav-item" data-tab="recruit" onclick="showTab('recruit')">
+                <span class="nav-item-icon">🔎</span>P1 แสวงหา
+            </button>
+            <button class="nav-item" data-tab="assess" onclick="showTab('assess')">
+                <span class="nav-item-icon">🧭</span>P2 หยั่งประเมิน
+            </button>
+            <button class="nav-item" data-tab="match" onclick="showTab('match')">
+                <span class="nav-item-icon">🤝</span>P3 จับคู่คนกับงาน
+            </button>
+            <button class="nav-item" data-tab="performance" onclick="showTab('performance')">
+                <span class="nav-item-icon">📈</span>P4 ประเมินผล
+            </button>
+            <button class="nav-item" data-tab="develop" onclick="showTab('develop')">
+                <span class="nav-item-icon">🎓</span>P5 พัฒนา
+            </button>
+            <button class="nav-item" data-tab="welfare" onclick="showTab('welfare')">
+                <span class="nav-item-icon">💰</span>P6 ค่าตอบแทน
+            </button>
+            <button class="nav-item" data-tab="quality" onclick="showTab('quality')">
+                <span class="nav-item-icon">🌿</span>P7 คุณภาพชีวิต
+            </button>
+        </div>
+        
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">📚 เอกสารอ้างอิง</div>
+            <button class="nav-item" data-tab="labor-law" onclick="showTab('labor-law')">
+                <span class="nav-item-icon">⚖️</span>กฎหมายแรงงาน
+            </button>
+            <button class="nav-item" data-tab="pkg-rules" onclick="showTab('pkg-rules')">
+                <span class="nav-item-icon">📘</span>ระเบียบบริษัท
+            </button>
+            <button class="nav-item" data-tab="research" onclick="showTab('research')">
+                <span class="nav-item-icon">🔬</span>วิจัย
+            </button>
+            <button class="nav-item" data-tab="executive" onclick="showTab('executive')">
+                <span class="nav-item-icon">📌</span>บทสรุปผู้บริหาร
+            </button>
+        </div>
+    </aside>
+    <!-- Main Content -->
+    <div class="main-content">
+
+    <!-- Tab: Landing (หน้าหลัก) -->
+    <div id="tab-landing">
     <!-- Navigation -->
     <nav class="bg-white shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -228,6 +307,249 @@
             <p class="text-sm opacity-75">© 2026 PKG Group. All rights reserved.</p>
         </div>
     </footer>
+
+    </div><!-- /tab-landing -->
+
+    <!-- Tab: P1 แสวงหา (Recruitment) -->
+    <div id="tab-recruit" class="hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">🔎</div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3">P1 — แสวงหา</h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">ค้นหาและดึงดูดสมาชิกที่มี Core Competency (CC) ตรงกับความต้องการขององค์กร ผ่านระบบรับสมัครงานออนไลน์ที่ทันสมัย</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="flex items-center justify-center gap-3 mb-6">
+                    <span class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 rounded-full font-semibold"><i class="fas fa-check-circle mr-2"></i>ระบบรับสมัครงานพร้อมใช้งาน</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-blue-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">📝</div><h3 class="font-bold text-gray-800 mb-1">สมัครงานออนไลน์</h3><p class="text-sm text-gray-600">ระบบ 4 ขั้นตอน AI คัดกรองอัจฉริยะ</p></div>
+                    <div class="bg-indigo-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">🎯</div><h3 class="font-bold text-gray-800 mb-1">AI Match</h3><p class="text-sm text-gray-600">วิเคราะห์ความเหมาะสมอัตโนมัติ</p></div>
+                    <div class="bg-purple-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">📊</div><h3 class="font-bold text-gray-800 mb-1">Dashboard</h3><p class="text-sm text-gray-600">ติดตามสถานะ Funnel แบบ Real-time</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: P2 หยั่งประเมิน -->
+    <div id="tab-assess" class="hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">🧭</div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3">P2 — หยั่งประเมิน</h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">ประเมินศักยภาพก่อนรบ — วัด CC 7 ด้าน ทัศนคติ ทักษะ และ 3E3P เพื่อเตรียมคนให้พร้อมก่อนเริ่มงาน</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="flex items-center justify-center gap-3 mb-6">
+                    <span class="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-full font-semibold"><i class="fas fa-tools mr-2"></i>กำลังพัฒนา</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-purple-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">😊</div><h3 class="font-bold text-gray-800 mb-1">ทัศนคติ</h3><p class="text-sm text-gray-600">ประเมิน Mindset</p></div>
+                    <div class="bg-blue-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">🔧</div><h3 class="font-bold text-gray-800 mb-1">ทักษะ</h3><p class="text-sm text-gray-600">วัด Skill Level</p></div>
+                    <div class="bg-yellow-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">⭐</div><h3 class="font-bold text-gray-800 mb-1">CC 7 ด้าน</h3><p class="text-sm text-gray-600">ทุนองค์กร</p></div>
+                    <div class="bg-green-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">📈</div><h3 class="font-bold text-gray-800 mb-1">3E3P</h3><p class="text-sm text-gray-600">Engagement, Empowerment</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: P3 จับคู่คนกับงาน -->
+    <div id="tab-match" class="hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">🤝</div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3">P3 — จับคู่คนกับงาน</h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">ประเมินก่อนทำงาน — จับคู่คนกับตำแหน่งที่เหมาะสมที่สุด ตาม CC ทักษะ และทัศนคติ</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="flex items-center justify-center gap-3 mb-6">
+                    <span class="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-full font-semibold"><i class="fas fa-tools mr-2"></i>กำลังพัฒนา</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-emerald-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">🎯</div><h3 class="font-bold text-gray-800 mb-1">Smart Matching</h3><p class="text-sm text-gray-600">จับคู่อัจฉริยะตาม CC</p></div>
+                    <div class="bg-teal-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">📋</div><h3 class="font-bold text-gray-800 mb-1">Job Profile</h3><p class="text-sm text-gray-600">โปรไฟล์ตำแหน่งงาน</p></div>
+                    <div class="bg-cyan-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">🔄</div><h3 class="font-bold text-gray-800 mb-1">Re-assign</h3><p class="text-sm text-gray-600">ย้าย/ปรับตำแหน่งอัตโนมัติ</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: P4 ประเมินผล -->
+    <div id="tab-performance" class="hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">📈</div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3">P4 — ประเมินผล</h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">ประเมินหลังรบ + เครดิตประจำปี 360 องศา — วัดผลงานจริง เปรียบเทียบกับเป้าหมาย</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="flex items-center justify-center gap-3 mb-6">
+                    <span class="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-full font-semibold"><i class="fas fa-tools mr-2"></i>กำลังพัฒนา</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-rose-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">🎯</div><h3 class="font-bold text-gray-800 mb-1">KPI Tracking</h3><p class="text-sm text-gray-600">ติดตามผลตามเป้าหมาย</p></div>
+                    <div class="bg-pink-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">🔄</div><h3 class="font-bold text-gray-800 mb-1">360° Review</h3><p class="text-sm text-gray-600">ประเมินรอบด้าน</p></div>
+                    <div class="bg-red-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">🏆</div><h3 class="font-bold text-gray-800 mb-1">Annual Credit</h3><p class="text-sm text-gray-600">เครดิตประจำปี</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: P5 พัฒนา -->
+    <div id="tab-develop" class="hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">🎓</div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3">P5 — พัฒนา</h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">พัฒนาตาม CC — สร้างแผนพัฒนาบุคลากรเฉพาะบุคคล ตามจุดแข็งและจุดที่ต้องปรับปรุง</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="flex items-center justify-center gap-3 mb-6">
+                    <span class="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-full font-semibold"><i class="fas fa-tools mr-2"></i>กำลังพัฒนา</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-violet-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">📚</div><h3 class="font-bold text-gray-800 mb-1">Learning Path</h3><p class="text-sm text-gray-600">เส้นทางการเรียนรู้</p></div>
+                    <div class="bg-fuchsia-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">🎯</div><h3 class="font-bold text-gray-800 mb-1">IDP</h3><p class="text-sm text-gray-600">แผนพัฒนารายบุคคล</p></div>
+                    <div class="bg-purple-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">📊</div><h3 class="font-bold text-gray-800 mb-1">Growth Track</h3><p class="text-sm text-gray-600">ติดตามการเติบโต</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: P6 ค่าตอบแทน -->
+    <div id="tab-welfare" class="hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">💰</div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3">P6 — ค่าตอบแทน</h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">ตอบแทนตาม CC — ระบบค่าตอบแทนที่เป็นธรรม สอดคล้องกับศักยภาพและผลงาน</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="flex items-center justify-center gap-3 mb-6">
+                    <span class="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-full font-semibold"><i class="fas fa-tools mr-2"></i>กำลังพัฒนา</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-emerald-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">💵</div><h3 class="font-bold text-gray-800 mb-1">Salary Structure</h3><p class="text-sm text-gray-600">โครงสร้างเงินเดือนตาม CC</p></div>
+                    <div class="bg-green-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">🎁</div><h3 class="font-bold text-gray-800 mb-1">Bonus</h3><p class="text-sm text-gray-600">โบนัสตามผลงาน</p></div>
+                    <div class="bg-teal-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">📊</div><h3 class="font-bold text-gray-800 mb-1">Benefits</h3><p class="text-sm text-gray-600">สวัสดิการครบวงจร</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: P7 คุณภาพชีวิต -->
+    <div id="tab-quality" class="hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">🌿</div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3">P7 — คุณภาพชีวิต</h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">5 องค์ประกอบ: Health, Wealth, Well-being, Time, Fun — ดูแลคุณภาพชีวิตสมาชิกแบบองค์รวม</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="flex items-center justify-center gap-3 mb-6">
+                    <span class="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-full font-semibold"><i class="fas fa-tools mr-2"></i>กำลังพัฒนา</span>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <div class="bg-red-50 p-5 rounded-lg text-center border-t-4 border-red-400"><div class="text-3xl mb-2">❤️</div><h3 class="font-bold text-gray-800 text-sm">Health</h3><p class="text-xs text-gray-600 mt-1">สุขภาพกายใจ</p></div>
+                    <div class="bg-yellow-50 p-5 rounded-lg text-center border-t-4 border-yellow-400"><div class="text-3xl mb-2">💎</div><h3 class="font-bold text-gray-800 text-sm">Wealth</h3><p class="text-xs text-gray-600 mt-1">ความมั่งคั่ง</p></div>
+                    <div class="bg-green-50 p-5 rounded-lg text-center border-t-4 border-green-400"><div class="text-3xl mb-2">🧘</div><h3 class="font-bold text-gray-800 text-sm">Well-being</h3><p class="text-xs text-gray-600 mt-1">ความสุข</p></div>
+                    <div class="bg-blue-50 p-5 rounded-lg text-center border-t-4 border-blue-400"><div class="text-3xl mb-2">⏰</div><h3 class="font-bold text-gray-800 text-sm">Time</h3><p class="text-xs text-gray-600 mt-1">เวลาคุณภาพ</p></div>
+                    <div class="bg-pink-50 p-5 rounded-lg text-center border-t-4 border-pink-400"><div class="text-3xl mb-2">🎉</div><h3 class="font-bold text-gray-800 text-sm">Fun</h3><p class="text-xs text-gray-600 mt-1">ความสนุก</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: กฎหมายแรงงาน -->
+    <div id="tab-labor-law" class="hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">⚖️</div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3">กฎหมายแรงงาน</h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">ข้อมูลอ้างอิงกฎหมายแรงงาน — พ.ร.บ. คุ้มครองแรงงาน, ประกันสังคม, สวัสดิการตามกฎหมาย</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="flex items-center justify-center gap-3 mb-6">
+                    <span class="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-full font-semibold"><i class="fas fa-tools mr-2"></i>กำลังพัฒนา</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-slate-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">📜</div><h3 class="font-bold text-gray-800 mb-1">พ.ร.บ. คุ้มครองแรงงาน</h3><p class="text-sm text-gray-600">สิทธิลูกจ้าง นายจ้าง</p></div>
+                    <div class="bg-slate-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">🏥</div><h3 class="font-bold text-gray-800 mb-1">ประกันสังคม</h3><p class="text-sm text-gray-600">สิทธิประโยชน์ประกันสังคม</p></div>
+                    <div class="bg-slate-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">📋</div><h3 class="font-bold text-gray-800 mb-1">ข้อกฎหมายที่เกี่ยวข้อง</h3><p class="text-sm text-gray-600">ภาษี, สวัสดิการ, ความปลอดภัย</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: ระเบียบบริษัท -->
+    <div id="tab-pkg-rules" class="hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">📘</div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3">ระเบียบบริษัท PKG</h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">ข้อมูลอ้างอิงระเบียบภายในองค์กร — ข้อบังคับการทำงาน วินัย โทษทางวินัย และสวัสดิการบริษัท</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="flex items-center justify-center gap-3 mb-6">
+                    <span class="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-full font-semibold"><i class="fas fa-tools mr-2"></i>กำลังพัฒนา</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-blue-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">📖</div><h3 class="font-bold text-gray-800 mb-1">ข้อบังคับทำงาน</h3><p class="text-sm text-gray-600">เวลาทำงาน ลา หยุด</p></div>
+                    <div class="bg-indigo-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">⚠️</div><h3 class="font-bold text-gray-800 mb-1">วินัยและโทษ</h3><p class="text-sm text-gray-600">มาตรการทางวินัย</p></div>
+                    <div class="bg-violet-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">🎁</div><h3 class="font-bold text-gray-800 mb-1">สวัสดิการ PKG</h3><p class="text-sm text-gray-600">สิทธิประโยชน์เพิ่มเติม</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: วิจัย -->
+    <div id="tab-research" class="hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">🔬</div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3">วิจัย PP7</h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">งานวิจัยและองค์ความรู้เกี่ยวกับระบบ PP7 — การศึกษา ทดลอง และพัฒนาโมเดลบริหารบุคลากร</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="flex items-center justify-center gap-3 mb-6">
+                    <span class="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-full font-semibold"><i class="fas fa-tools mr-2"></i>กำลังพัฒนา</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-cyan-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">📄</div><h3 class="font-bold text-gray-800 mb-1">งานวิจัย</h3><p class="text-sm text-gray-600">เอกสารวิจัย PP7</p></div>
+                    <div class="bg-sky-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">📊</div><h3 class="font-bold text-gray-800 mb-1">ข้อมูลสถิติ</h3><p class="text-sm text-gray-600">ผลการวิเคราะห์ข้อมูล</p></div>
+                    <div class="bg-blue-50 p-6 rounded-lg text-center"><div class="text-3xl mb-2">💡</div><h3 class="font-bold text-gray-800 mb-1">Best Practices</h3><p class="text-sm text-gray-600">แนวทางปฏิบัติที่ดี</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: บทสรุปผู้บริหาร -->
+    <div id="tab-executive" class="hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">📌</div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-3">บทสรุปผู้บริหาร</h1>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">Dashboard ผู้บริหาร — ภาพรวมระบบ PP7 ทั้งหมด แบบ Real-time</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="flex items-center justify-center gap-3 mb-6">
+                    <span class="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-full font-semibold"><i class="fas fa-tools mr-2"></i>กำลังพัฒนา</span>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-5 rounded-lg text-center"><div class="text-3xl font-bold">P1</div><p class="text-sm opacity-90 mt-1">แสวงหา</p></div>
+                    <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-5 rounded-lg text-center"><div class="text-3xl font-bold">P2</div><p class="text-sm opacity-90 mt-1">หยั่งประเมิน</p></div>
+                    <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-5 rounded-lg text-center"><div class="text-3xl font-bold">P3</div><p class="text-sm opacity-90 mt-1">จับคู่</p></div>
+                    <div class="bg-gradient-to-br from-rose-500 to-rose-600 text-white p-5 rounded-lg text-center"><div class="text-3xl font-bold">P4</div><p class="text-sm opacity-90 mt-1">ประเมินผล</p></div>
+                    <div class="bg-gradient-to-br from-violet-500 to-violet-600 text-white p-5 rounded-lg text-center"><div class="text-3xl font-bold">P5</div><p class="text-sm opacity-90 mt-1">พัฒนา</p></div>
+                    <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-white p-5 rounded-lg text-center"><div class="text-3xl font-bold">P6</div><p class="text-sm opacity-90 mt-1">ค่าตอบแทน</p></div>
+                    <div class="bg-gradient-to-br from-green-500 to-green-600 text-white p-5 rounded-lg text-center"><div class="text-3xl font-bold">P7</div><p class="text-sm opacity-90 mt-1">คุณภาพชีวิต</p></div>
+                    <div class="bg-gradient-to-br from-slate-700 to-slate-800 text-white p-5 rounded-lg text-center"><div class="text-3xl font-bold">📊</div><p class="text-sm opacity-90 mt-1">ภาพรวม</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div><!-- /main-content -->
 
     <!-- Login Modal -->
     <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -1115,6 +1437,33 @@
                 });
                 alert(detail);
             }
+        }
+
+        // ===== TAB SWITCHING =====
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('[id^="tab-"]');
+            tabs.forEach(tab => tab.classList.add('hidden'));
+            
+            // Show selected tab
+            const targetTab = document.getElementById('tab-' + tabName);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+            }
+            
+            // Update sidebar active state
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('data-tab') === tabName) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Close mobile sidebar
+            document.getElementById('sidebar').classList.remove('open');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // ===== MODAL FUNCTIONS =====
