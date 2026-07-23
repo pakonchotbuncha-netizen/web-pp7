@@ -12,6 +12,8 @@
         .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         .view-active { background: #667eea; color: white; }
         .view-inactive { background: #f3f4f6; color: #6b7280; }
+        .position-card { transition: all 0.3s ease; }
+        .position-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -42,6 +44,71 @@
 
     <script>
         let currentView = 'applicant';
+        let currentStep = 'positions'; // positions, application, result
+
+        // ===== DEMO DATA =====
+        const POSITIONS = [
+            {
+                id: 'POS-001',
+                title: 'นักพัฒนาซอฟต์แวร์',
+                department: 'IT',
+                level: 'Junior',
+                salary: '25,000 - 40,000 บาท',
+                location: 'กรุงเทพฯ',
+                requirements: {
+                    education: 'ปริญญาตรี',
+                    major: 'วิทยาการคอมพิวเตอร์, วิศวกรรมซอฟต์แวร์',
+                    skills: ['JavaScript', 'React', 'Node.js'],
+                    experience: '0-2 ปี'
+                },
+                description: 'พัฒนาและบำรุงรักษาระบบเว็บแอปพลิเคชัน'
+            },
+            {
+                id: 'POS-002',
+                title: 'เจ้าหน้าที่ HR',
+                department: 'HR',
+                level: 'Junior',
+                salary: '20,000 - 30,000 บาท',
+                location: 'กรุงเทพฯ',
+                requirements: {
+                    education: 'ปริญญาตรี',
+                    major: 'การบริหารทรัพยากรบุคคล, จิตวิทยา',
+                    skills: ['Microsoft Office', 'การสื่อสาร', 'การทำงานเป็นทีม'],
+                    experience: '0-1 ปี'
+                },
+                description: 'ดูแลกระบวนการสรรหาและคัดเลือกบุคลากร'
+            },
+            {
+                id: 'POS-003',
+                title: 'นักวิเคราะห์ข้อมูล',
+                department: 'IT',
+                level: 'Junior',
+                salary: '30,000 - 45,000 บาท',
+                location: 'กรุงเทพฯ',
+                requirements: {
+                    education: 'ปริญญาตรี',
+                    major: 'วิทยาการคอมพิวเตอร์, สถิติ, คณิตศาสตร์',
+                    skills: ['Python', 'SQL', 'Data Visualization'],
+                    experience: '0-2 ปี'
+                },
+                description: 'วิเคราะห์ข้อมูลและสร้างรายงานเชิงธุรกิจ'
+            },
+            {
+                id: 'POS-004',
+                title: 'พนักงานขาย',
+                department: 'Sales',
+                level: 'Entry',
+                salary: '15,000 - 25,000 บาท + ค่าคอมมิชชั่น',
+                location: 'กรุงเทพฯ',
+                requirements: {
+                    education: 'ปวส. ขึ้นไป',
+                    major: 'ไม่จำกัดสาขา',
+                    skills: ['การสื่อสาร', 'การเจรจา', 'Microsoft Office'],
+                    experience: 'ไม่จำเป็นต้องมีประสบการณ์'
+                },
+                description: 'นำเสนอและขายผลิตภัณฑ์ให้กับลูกค้า'
+            }
+        ];
 
         // ===== INITIALIZATION =====
         document.addEventListener('DOMContentLoaded', () => {
@@ -77,30 +144,12 @@
                 });
             }
             localStorage.setItem('pkg_users', JSON.stringify(users));
-
-            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
-            if (applications.length === 0) {
-                applications.push({
-                    id: 'APP-DEMO-001',
-                    userId: 'APP-DEMO',
-                    positionTitle: 'นักพัฒนาซอฟต์แวร์',
-                    department: 'IT',
-                    status: 'new',
-                    appliedAt: new Date().toISOString(),
-                    personalData: {
-                        firstName: 'สมชาย',
-                        lastName: 'ใจดี',
-                        phone: '0898765432',
-                        email: 'somchai@test.com'
-                    }
-                });
-                localStorage.setItem('pkg_applications', JSON.stringify(applications));
-            }
         }
 
         // ===== SWITCH VIEW =====
         function switchView(view) {
             currentView = view;
+            currentStep = 'positions';
             document.getElementById('view-applicant').className = view === 'applicant' ? 'view-active flex-1 py-3 rounded-lg font-semibold' : 'view-inactive flex-1 py-3 rounded-lg font-semibold';
             document.getElementById('view-hr').className = view === 'hr' ? 'view-active flex-1 py-3 rounded-lg font-semibold' : 'view-inactive flex-1 py-3 rounded-lg font-semibold';
             
@@ -114,93 +163,474 @@
         // ===== RENDER APPLICANT VIEW =====
         function renderApplicantView() {
             const content = document.getElementById('content-area');
-            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
-            const userApps = applications.filter(a => a.userId === 'APP-DEMO');
             
+            if (currentStep === 'positions') {
+                renderPositionsList();
+            } else if (currentStep === 'application') {
+                renderApplicationForm();
+            } else if (currentStep === 'result') {
+                renderAIResult();
+            }
+        }
+
+        // ===== STEP 1: POSITIONS LIST =====
+        function renderPositionsList() {
+            const content = document.getElementById('content-area');
             content.innerHTML = `
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">
-                        <i class="fas fa-user text-purple-600 mr-2"></i>มุมมองผู้สมัคร
+                        <i class="fas fa-briefcase text-purple-600 mr-2"></i>ตำแหน่งงานที่เปิดรับ
                     </h2>
                     
-                    <div class="space-y-6">
-                        <!-- Login Section -->
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <h3 class="font-semibold text-gray-700 mb-3">1. เข้าสู่ระบบ (ข้อมูลตัวอย่าง)</h3>
-                            <div class="grid grid-cols-2 gap-4 mb-3">
-                                <div>
-                                    <label class="block text-sm text-gray-600 mb-1">เบอร์โทร</label>
-                                    <input type="text" id="demo-phone" value="0898765432" class="w-full px-3 py-2 border rounded-lg">
-                                </div>
-                                <div>
-                                    <label class="block text-sm text-gray-600 mb-1">รหัสผ่าน</label>
-                                    <input type="password" id="demo-password" value="app1234" class="w-full px-3 py-2 border rounded-lg">
-                                </div>
-                            </div>
-                            <button onclick="demoLogin()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700">
-                                <i class="fas fa-sign-in-alt mr-1"></i>เข้าสู่ระบบ
-                            </button>
-                        </div>
-
-                        <!-- Dashboard Preview -->
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <h3 class="font-semibold text-gray-700 mb-3">2. Dashboard ผู้สมัคร (จำลอง)</h3>
-                            <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 rounded-lg mb-4">
-                                <h4 class="text-xl font-bold mb-2">สวัสดี, นายสมชาย ใจดี!</h4>
-                                <p class="opacity-90">ยินดีต้อนรับสู่ระบบรับสมัครงาน PKG Group</p>
-                            </div>
-                            
-                            <div class="grid grid-cols-4 gap-4 mb-4">
-                                <div class="bg-blue-50 p-4 rounded-lg text-center">
-                                    <p class="text-2xl font-bold text-blue-600">${userApps.length}</p>
-                                    <p class="text-xs text-gray-600">ใบสมัครทั้งหมด</p>
-                                </div>
-                                <div class="bg-orange-50 p-4 rounded-lg text-center">
-                                    <p class="text-2xl font-bold text-orange-600">${userApps.filter(a => a.status === 'new').length}</p>
-                                    <p class="text-xs text-gray-600">กำลังดำเนินการ</p>
-                                </div>
-                                <div class="bg-purple-50 p-4 rounded-lg text-center">
-                                    <p class="text-2xl font-bold text-purple-600">0</p>
-                                    <p class="text-xs text-gray-600">แบบทดสอบ</p>
-                                </div>
-                                <div class="bg-red-50 p-4 rounded-lg text-center">
-                                    <p class="text-2xl font-bold text-red-600">0</p>
-                                    <p class="text-xs text-gray-600">การแจ้งเตือน</p>
-                                </div>
-                            </div>
-
-                            <h4 class="font-semibold text-gray-700 mb-3">📋 ใบสมัครของฉัน</h4>
-                            ${userApps.map(app => `
-                                <div class="border border-gray-200 rounded-lg p-4 mb-3">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <div>
-                                            <h5 class="font-semibold">${app.positionTitle}</h5>
-                                            <p class="text-sm text-gray-500">สมัครเมื่อ: ${new Date(app.appliedAt).toLocaleDateString('th-TH')}</p>
-                                        </div>
-                                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">${getStatusText(app.status)}</span>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        ${POSITIONS.map(pos => `
+                            <div class="position-card border-2 border-gray-200 rounded-xl p-6 cursor-pointer hover:border-purple-600" onclick="selectPosition('${pos.id}')">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-800 mb-2">${pos.title}</h3>
+                                        <p class="text-sm text-gray-600 mb-1">
+                                            <i class="fas fa-building mr-1"></i>${pos.department}
+                                        </p>
+                                        <p class="text-sm text-gray-600 mb-1">
+                                            <i class="fas fa-chart-line mr-1"></i>${pos.level}
+                                        </p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-lg font-bold text-purple-600">${pos.salary}</p>
+                                        <p class="text-xs text-gray-500">${pos.location}</p>
                                     </div>
                                 </div>
-                            `).join('')}
-                        </div>
-
-                        <!-- Demo Actions -->
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <h3 class="font-semibold text-gray-700 mb-3">3. ทดสอบการทำงาน</h3>
-                            <div class="space-y-3">
-                                <button onclick="demoApplyJob()" class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 text-left">
-                                    <i class="fas fa-briefcase mr-2"></i>สมัครงานใหม่
-                                </button>
-                                <button onclick="demoTakeTest()" class="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 text-left">
-                                    <i class="fas fa-tasks mr-2"></i>ทำแบบทดสอบ
-                                </button>
-                                <button onclick="demoCheckStatus()" class="w-full bg-orange-600 text-white px-4 py-3 rounded-lg hover:bg-orange-700 text-left">
-                                    <i class="fas fa-info-circle mr-2"></i>ตรวจสอบสถานะ
+                                <p class="text-sm text-gray-700 mb-4">${pos.description}</p>
+                                <div class="border-t pt-4">
+                                    <p class="text-xs font-semibold text-gray-600 mb-2">คุณสมบัติ:</p>
+                                    <ul class="text-xs text-gray-600 space-y-1">
+                                        <li><i class="fas fa-graduation-cap mr-1"></i>${pos.requirements.education} - ${pos.requirements.major}</li>
+                                        <li><i class="fas fa-tools mr-1"></i>${pos.requirements.skills.join(', ')}</li>
+                                        <li><i class="fas fa-clock mr-1"></i>ประสบการณ์: ${pos.requirements.experience}</li>
+                                    </ul>
+                                </div>
+                                <button class="mt-4 w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition">
+                                    <i class="fas fa-paper-plane mr-2"></i>สมัครงาน
                                 </button>
                             </div>
-                        </div>
+                        `).join('')}
                     </div>
                 </div>
             `;
+        }
+
+        // ===== SELECT POSITION =====
+        function selectPosition(positionId) {
+            const position = POSITIONS.find(p => p.id === positionId);
+            if (position) {
+                window.selectedPosition = position;
+                currentStep = 'application';
+                renderApplicationForm();
+            }
+        }
+
+        // ===== STEP 2: APPLICATION FORM =====
+        function renderApplicationForm() {
+            const content = document.getElementById('content-area');
+            const pos = window.selectedPosition;
+            
+            content.innerHTML = `
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <button onclick="backToPositions()" class="mb-4 text-purple-600 hover:text-purple-800">
+                        <i class="fas fa-arrow-left mr-2"></i>กลับหน้าตำแหน่งงาน
+                    </button>
+                    
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                        <i class="fas fa-file-alt text-purple-600 mr-2"></i>ใบสมัครงาน
+                    </h2>
+                    <p class="text-gray-600 mb-6">ตำแหน่ง: <strong>${pos.title}</strong></p>
+                    
+                    <form onsubmit="submitApplication(event)">
+                        <!-- ข้อมูลส่วนตัว -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">
+                                <i class="fas fa-user mr-2"></i>ข้อมูลส่วนตัว
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ <span class="text-red-500">*</span></label>
+                                    <input type="text" id="app-firstname" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600" placeholder="สมชาย">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">นามสกุล <span class="text-red-500">*</span></label>
+                                    <input type="text" id="app-lastname" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600" placeholder="ใจดี">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทร <span class="text-red-500">*</span></label>
+                                    <input type="tel" id="app-phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600" placeholder="0812345678">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email <span class="text-red-500">*</span></label>
+                                    <input type="email" id="app-email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600" placeholder="example@email.com">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- การศึกษา -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">
+                                <i class="fas fa-graduation-cap mr-2"></i>การศึกษา
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">วุฒิการศึกษา <span class="text-red-500">*</span></label>
+                                    <select id="app-education" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600">
+                                        <option value="">-- เลือก --</option>
+                                        <option value="มัธยมศึกษา">มัธยมศึกษา</option>
+                                        <option value="ปวส.">ปวส.</option>
+                                        <option value="ปริญญาตรี">ปริญญาตรี</option>
+                                        <option value="ปริญญาโท">ปริญญาโท</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">สาขาวิชา <span class="text-red-500">*</span></label>
+                                    <input type="text" id="app-major" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600" placeholder="วิทยาการคอมพิวเตอร์">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">GPA</label>
+                                    <input type="number" step="0.01" min="0" max="4" id="app-gpa" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600" placeholder="3.50">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">สถาบัน</label>
+                                    <input type="text" id="app-institution" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600" placeholder="มหาวิทยาลัย ABC">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ทักษะ -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">
+                                <i class="fas fa-tools mr-2"></i>ทักษะ
+                            </h3>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">ทักษะที่เกี่ยวข้องกับตำแหน่ง <span class="text-red-500">*</span></label>
+                                <textarea id="app-skills" required rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600" placeholder="เช่น JavaScript, React, Node.js"></textarea>
+                                <p class="text-xs text-gray-500 mt-1">ตำแหน่งนี้ต้องการ: ${pos.requirements.skills.join(', ')}</p>
+                            </div>
+                        </div>
+
+                        <!-- ประสบการณ์ -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">
+                                <i class="fas fa-briefcase mr-2"></i>ประสบการณ์ทำงาน
+                            </h3>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">ประสบการณ์ (ปี)</label>
+                                <input type="number" min="0" id="app-experience" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600" placeholder="0">
+                                <p class="text-xs text-gray-500 mt-1">ตำแหน่งนี้ต้องการ: ${pos.requirements.experience}</p>
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">รายละเอียดประสบการณ์</label>
+                                <textarea id="app-experience-detail" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600" placeholder="อธิบายประสบการณ์ทำงานที่ผ่านมา"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="flex space-x-4">
+                            <button type="button" onclick="backToPositions()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition">
+                                <i class="fas fa-arrow-left mr-2"></i>ย้อนกลับ
+                            </button>
+                            <button type="submit" class="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold">
+                                <i class="fas fa-paper-plane mr-2"></i>ส่งใบสมัคร
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            `;
+        }
+
+        // ===== BACK TO POSITIONS =====
+        function backToPositions() {
+            currentStep = 'positions';
+            renderPositionsList();
+        }
+
+        // ===== SUBMIT APPLICATION =====
+        function submitApplication(event) {
+            event.preventDefault();
+            
+            const pos = window.selectedPosition;
+            const formData = {
+                firstname: document.getElementById('app-firstname').value,
+                lastname: document.getElementById('app-lastname').value,
+                phone: document.getElementById('app-phone').value,
+                email: document.getElementById('app-email').value,
+                education: document.getElementById('app-education').value,
+                major: document.getElementById('app-major').value,
+                gpa: document.getElementById('app-gpa').value,
+                institution: document.getElementById('app-institution').value,
+                skills: document.getElementById('app-skills').value,
+                experience: document.getElementById('app-experience').value || '0',
+                experienceDetail: document.getElementById('app-experience-detail').value
+            };
+            
+            // AI Analysis
+            const analysis = analyzeApplication(formData, pos);
+            window.analysisResult = analysis;
+            window.applicantData = formData;
+            
+            currentStep = 'result';
+            renderAIResult();
+        }
+
+        // ===== AI ANALYSIS =====
+        function analyzeApplication(formData, position) {
+            let score = 0;
+            let reasons = [];
+            let suggestions = [];
+            
+            // Check education level
+            const educationLevels = {
+                'มัธยมศึกษา': 1,
+                'ปวส.': 2,
+                'ปริญญาตรี': 3,
+                'ปริญญาโท': 4
+            };
+            
+            const requiredLevel = position.requirements.education === 'ปวส. ขึ้นไป' ? 2 : 3;
+            const applicantLevel = educationLevels[formData.education] || 0;
+            
+            if (applicantLevel >= requiredLevel) {
+                score += 30;
+                reasons.push('✅ วุฒิการศึกษาตรงกับข้อกำหนด');
+            } else {
+                reasons.push('❌ วุฒิการศึกษาไม่ตรงกับข้อกำหนด');
+                suggestions.push('ต้องการวุฒิ ' + position.requirements.education);
+            }
+            
+            // Check major
+            const majorKeywords = position.requirements.major.toLowerCase().split(',').map(m => m.trim());
+            const applicantMajor = formData.major.toLowerCase();
+            const majorMatch = majorKeywords.some(keyword => applicantMajor.includes(keyword) || keyword.includes(applicantMajor));
+            
+            if (majorMatch || position.requirements.major.includes('ไม่จำกัด')) {
+                score += 25;
+                reasons.push('✅ สาขาวิชาตรงกับข้อกำหนด');
+            } else {
+                reasons.push('⚠️ สาขาวิชาไม่ตรงกับข้อกำหนดโดยตรง แต่สามารถพิจารณาได้');
+                suggestions.push('สาขาที่ต้องการ: ' + position.requirements.major);
+            }
+            
+            // Check skills
+            const requiredSkills = position.requirements.skills.map(s => s.toLowerCase());
+            const applicantSkills = formData.skills.toLowerCase().split(',').map(s => s.trim());
+            const skillMatch = requiredSkills.filter(skill => applicantSkills.some(appSkill => appSkill.includes(skill)));
+            
+            if (skillMatch.length >= requiredSkills.length * 0.7) {
+                score += 25;
+                reasons.push('✅ มีทักษะที่ตรงกับข้อกำหนด (' + skillMatch.length + '/' + requiredSkills.length + ')');
+            } else if (skillMatch.length > 0) {
+                score += 15;
+                reasons.push('⚠️ มีทักษะบางส่วนที่ตรงกับข้อกำหนด (' + skillMatch.length + '/' + requiredSkills.length + ')');
+                suggestions.push('ทักษะที่ต้องการ: ' + position.requirements.skills.join(', '));
+            } else {
+                reasons.push('❌ ไม่มีทักษะที่ตรงกับข้อกำหนด');
+                suggestions.push('ทักษะที่ต้องการ: ' + position.requirements.skills.join(', '));
+            }
+            
+            // Check experience
+            const expMatch = position.requirements.experience.includes('ไม่จำเป็น') || 
+                            parseInt(formData.experience) >= parseInt(position.requirements.experience);
+            
+            if (expMatch) {
+                score += 20;
+                reasons.push('✅ มีประสบการณ์เพียงพอ');
+            } else {
+                score += 10;
+                reasons.push('⚠️ ประสบการณ์น้อยกว่าที่ต้องการ แต่สามารถพัฒนาได้');
+                suggestions.push('ประสบการณ์ที่ต้องการ: ' + position.requirements.experience);
+            }
+            
+            // Determine if suitable
+            const isSuitable = score >= 70;
+            
+            // Find alternative positions if not suitable
+            let alternatives = [];
+            if (!isSuitable) {
+                alternatives = POSITIONS.filter(p => p.id !== position.id).map(p => {
+                    const altScore = calculateAlternativeScore(formData, p);
+                    return { ...p, matchScore: altScore };
+                }).sort((a, b) => b.matchScore - a.matchScore).slice(0, 3);
+            }
+            
+            return {
+                score: score,
+                isSuitable: isSuitable,
+                reasons: reasons,
+                suggestions: suggestions,
+                alternatives: alternatives
+            };
+        }
+
+        // ===== CALCULATE ALTERNATIVE SCORE =====
+        function calculateAlternativeScore(formData, position) {
+            let score = 0;
+            
+            const educationLevels = {
+                'มัธยมศึกษา': 1,
+                'ปวส.': 2,
+                'ปริญญาตรี': 3,
+                'ปริญญาโท': 4
+            };
+            
+            const requiredLevel = position.requirements.education === 'ปวส. ขึ้นไป' ? 2 : 3;
+            const applicantLevel = educationLevels[formData.education] || 0;
+            
+            if (applicantLevel >= requiredLevel) score += 30;
+            
+            const majorKeywords = position.requirements.major.toLowerCase().split(',').map(m => m.trim());
+            const applicantMajor = formData.major.toLowerCase();
+            if (majorKeywords.some(keyword => applicantMajor.includes(keyword)) || position.requirements.major.includes('ไม่จำกัด')) {
+                score += 25;
+            }
+            
+            const requiredSkills = position.requirements.skills.map(s => s.toLowerCase());
+            const applicantSkills = formData.skills.toLowerCase().split(',').map(s => s.trim());
+            const skillMatch = requiredSkills.filter(skill => applicantSkills.some(appSkill => appSkill.includes(skill)));
+            score += (skillMatch.length / requiredSkills.length) * 25;
+            
+            if (position.requirements.experience.includes('ไม่จำเป็น') || parseInt(formData.experience) >= parseInt(position.requirements.experience)) {
+                score += 20;
+            }
+            
+            return Math.round(score);
+        }
+
+        // ===== STEP 3: AI RESULT =====
+        function renderAIResult() {
+            const content = document.getElementById('content-area');
+            const pos = window.selectedPosition;
+            const analysis = window.analysisResult;
+            const formData = window.applicantData;
+            
+            content.innerHTML = `
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <button onclick="backToPositions()" class="mb-4 text-purple-600 hover:text-purple-800">
+                        <i class="fas fa-arrow-left mr-2"></i>กลับหน้าตำแหน่งงาน
+                    </button>
+                    
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                        <i class="fas fa-robot text-purple-600 mr-2"></i>ผลการวิเคราะห์จาก AI
+                    </h2>
+                    <p class="text-gray-600 mb-6">ตำแหน่ง: <strong>${pos.title}</strong></p>
+                    
+                    <!-- Score Card -->
+                    <div class="bg-gradient-to-r ${analysis.isSuitable ? 'from-green-500 to-green-600' : 'from-orange-500 to-orange-600'} text-white p-6 rounded-xl mb-6">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm opacity-90 mb-1">คะแนนความเหมาะสม</p>
+                                <p class="text-5xl font-bold mb-2">${analysis.score}/100</p>
+                                <p class="text-lg font-semibold">
+                                    ${analysis.isSuitable ? '✅ เหมาะสมกับตำแหน่งนี้' : '⚠️ ยังไม่เหมาะสมกับตำแหน่งนี้'}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <i class="fas ${analysis.isSuitable ? 'fa-check-circle' : 'fa-exclamation-triangle'} text-6xl opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Details -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">
+                            <i class="fas fa-list-check mr-2"></i>รายละเอียดการวิเคราะห์
+                        </h3>
+                        <div class="space-y-2">
+                            ${analysis.reasons.map(reason => `
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-sm">${reason}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    ${analysis.suggestions.length > 0 ? `
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">
+                                <i class="fas fa-lightbulb mr-2"></i>ข้อเสนอแนะ
+                            </h3>
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
+                                <ul class="text-sm text-yellow-800 space-y-1">
+                                    ${analysis.suggestions.map(suggestion => `
+                                        <li><i class="fas fa-arrow-right mr-2"></i>${suggestion}</li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${!analysis.isSuitable && analysis.alternatives.length > 0 ? `
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">
+                                <i class="fas fa-briefcase mr-2"></i>ตำแหน่งงานอื่นที่แนะนำ
+                            </h3>
+                            <p class="text-sm text-gray-600 mb-4">จากคุณสมบัติของคุณ AI แนะนำตำแหน่งงานเหล่านี้:</p>
+                            <div class="space-y-4">
+                                ${analysis.alternatives.map(alt => `
+                                    <div class="border-2 border-gray-200 rounded-xl p-4 hover:border-purple-600 transition">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <div>
+                                                <h4 class="font-bold text-gray-800">${alt.title}</h4>
+                                                <p class="text-sm text-gray-600">${alt.department} | ${alt.level}</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-2xl font-bold text-purple-600">${alt.matchScore}%</p>
+                                                <p class="text-xs text-gray-500">ความเหมาะสม</p>
+                                            </div>
+                                        </div>
+                                        <p class="text-sm text-gray-700 mb-3">${alt.description}</p>
+                                        <div class="flex space-x-2">
+                                            <button onclick="selectPosition('${alt.id}')" class="flex-1 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition text-sm">
+                                                <i class="fas fa-paper-plane mr-1"></i>สมัครตำแหน่งนี้
+                                            </button>
+                                            <button onclick="viewPositionDetail('${alt.id}')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm">
+                                                <i class="fas fa-eye mr-1"></i>ดูรายละเอียด
+                                            </button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${analysis.isSuitable ? `
+                        <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded-lg mb-6">
+                            <div class="flex items-start">
+                                <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
+                                <div>
+                                    <p class="font-semibold text-green-800 mb-1">ยินดีด้วย!</p>
+                                    <p class="text-sm text-green-700">คุณสมบัติของคุณเหมาะสมกับตำแหน่งนี้ HR จะติดต่อกลับภายใน 3 วันทำการ</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="backToPositions()" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold">
+                            <i class="fas fa-arrow-left mr-2"></i>กลับหน้าตำแหน่งงาน
+                        </button>
+                    ` : `
+                        <div class="flex space-x-4">
+                            <button onclick="backToPositions()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition">
+                                <i class="fas fa-arrow-left mr-2"></i>กลับหน้าตำแหน่งงาน
+                            </button>
+                            <button onclick="switchView('hr')" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition">
+                                <i class="fas fa-user-tie mr-2"></i>ดูมุมมอง HR
+                            </button>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        // ===== VIEW POSITION DETAIL =====
+        function viewPositionDetail(positionId) {
+            const position = POSITIONS.find(p => p.id === positionId);
+            if (position) {
+                alert(`รายละเอียดตำแหน่ง: ${position.title}\n\nแผนก: ${position.department}\nระดับ: ${position.level}\nเงินเดือน: ${position.salary}\nสถานที่: ${position.location}\n\n${position.description}`);
+            }
         }
 
         // ===== RENDER HR VIEW =====
@@ -302,20 +732,6 @@
         }
 
         // ===== DEMO FUNCTIONS =====
-        function demoLogin() {
-            const phone = document.getElementById('demo-phone').value;
-            const password = document.getElementById('demo-password').value;
-            
-            const users = JSON.parse(localStorage.getItem('pkg_users') || '[]');
-            const user = users.find(u => u.phone === phone && u.password === btoa(password));
-            
-            if (user) {
-                alert(`✅ เข้าสู่ระบบสำเร็จ!\n\nชื่อ: ${user.name}\nบทบาท: ${user.role === 'applicant' ? 'ผู้สมัคร' : 'HR'}`);
-            } else {
-                alert('❌ เบอร์โทรหรือรหัสผ่านไม่ถูกต้อง');
-            }
-        }
-
         function demoHRLogin() {
             const phone = document.getElementById('hr-phone').value;
             const password = document.getElementById('hr-password').value;
@@ -327,22 +743,6 @@
                 alert(`✅ เข้าสู่ระบบ HR สำเร็จ!\n\nชื่อ: ${user.name}\nบทบาท: HR Manager`);
             } else {
                 alert('❌ เบอร์โทรหรือรหัสผ่านไม่ถูกต้อง หรือไม่มีสิทธิ์ HR');
-            }
-        }
-
-        function demoApplyJob() {
-            alert('✅ สมัครงานสำเร็จ!\n\nตำแหน่ง: นักพัฒนาซอฟต์แวร์\nสถานะ: ใบสมัครใหม่');
-        }
-
-        function demoTakeTest() {
-            alert('✅ เริ่มทำแบบทดสอบ!\n\nแบบทดสอบ 4 ชุด:\n1. ทัศนคติ (15 ข้อ)\n2. ทักษะ (15 ข้อ)\n3. CC 7 ด้าน (20 ข้อ)\n4. 3E3P (15 ข้อ)\n\nเวลาทั้งหมด: 45 นาที');
-        }
-
-        function demoCheckStatus() {
-            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
-            const app = applications.find(a => a.userId === 'APP-DEMO');
-            if (app) {
-                alert(`📋 สถานะใบสมัคร:\n\nตำแหน่ง: ${app.positionTitle}\nสถานะ: ${getStatusText(app.status)}\nสมัครเมื่อ: ${new Date(app.appliedAt).toLocaleDateString('th-TH')}`);
             }
         }
 
@@ -408,21 +808,6 @@
             } else {
                 alert('❌ กรุณาสรุปผลก่อน');
             }
-        }
-
-        function getStatusText(status) {
-            const statuses = {
-                'new': 'ใบสมัครใหม่',
-                'screened': 'คัดกรองแล้ว',
-                'test_sent': 'ส่งแบบทดสอบแล้ว',
-                'test_done': 'ทำแบบทดสอบเสร็จ',
-                'interview_scheduled': 'นัดสัมภาษณ์',
-                'interview_confirmed': 'ยืนยันการสัมภาษณ์',
-                'interviewed': 'สัมภาษณ์แล้ว',
-                'hired': 'จ้างงาน',
-                'rejected': 'ไม่ผ่าน'
-            };
-            return statuses[status] || status;
         }
     </script>
 </body>
