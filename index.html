@@ -12,9 +12,17 @@
         .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         .card-hover { transition: all 0.3s ease; }
         .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-        .option-card { transition: all 0.2s ease; }
-        .option-card:hover { transform: translateX(5px); }
+        .option-card { transition: all 0.2s ease; cursor: pointer; }
+        .option-card:hover { transform: translateX(5px); background: #f3f4f6; }
         .option-card.selected { background: #667eea; color: white; border-color: #667eea; }
+        .status-timeline { position: relative; padding-left: 2rem; }
+        .status-timeline::before { content: ''; position: absolute; left: 0.75rem; top: 0; bottom: 0; width: 2px; background: #e5e7eb; }
+        .status-item { position: relative; padding-bottom: 1.5rem; }
+        .status-item::before { content: ''; position: absolute; left: -1.5rem; top: 0.25rem; width: 1rem; height: 1rem; border-radius: 50%; background: #e5e7eb; border: 2px solid white; }
+        .status-item.completed::before { background: #10b981; }
+        .status-item.current::before { background: #3b82f6; animation: pulse 2s infinite; }
+        .status-item.pending::before { background: #e5e7eb; }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); } 50% { box-shadow: 0 0 0 0.5rem rgba(59, 130, 246, 0); } }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -297,16 +305,20 @@
         const TESTS = {
             attitude: { title: 'ทัศนคติ', icon: 'fa-smile', time: 20, questions: [
                 { id: 'att1', text: 'เมื่อเผชิญกับปัญหาในการทำงาน คุณมักจะ...', options: ['หลีกเลี่ยงและรอให้คนอื่นแก้', 'รู้สึกท้อแท้และยอมแพ้', 'พยายามแก้ด้วยตัวเองก่อน', 'ขอความช่วยเหลือจากทีม', 'วิเคราะห์ปัญหาและหาทางแก้ไขอย่างเป็นระบบ'] },
-                { id: 'att2', text: 'คุณรู้สึกอย่างไรเมื่อได้รับคำวิจารณ์เชิงลบ?', options: ['โกรธและปฏิเสธ', 'เสียใจและท้อแท้', 'ยอมรับแต่ไม่เปลี่ยนแปลง', 'นำมาพิจารณาและปรับปรุง', 'ขอบคุณและนำไปพัฒนาทันที'] }
+                { id: 'att2', text: 'คุณรู้สึกอย่างไรเมื่อได้รับคำวิจารณ์เชิงลบ?', options: ['โกรธและปฏิเสธ', 'เสียใจและท้อแท้', 'ยอมรับแต่ไม่เปลี่ยนแปลง', 'นำมาพิจารณาและปรับปรุง', 'ขอบคุณและนำไปพัฒนาทันที'] },
+                { id: 'att3', text: 'เมื่อต้องทำงานภายใต้ความกดดัน คุณ...', options: ['ทำงานไม่ได้เลย', 'รู้สึกเครียดมาก', 'พยายามทำให้เสร็จ', 'จัดลำดับความสำคัญและทำงานต่อ', 'ใช้ความกดดันเป็นแรงจูงใจ'] }
             ]},
             skill: { title: 'ทักษะ', icon: 'fa-tools', time: 30, questions: [
-                { id: 'skill1', text: 'คุณสามารถใช้ Microsoft Office ได้ในระดับใด?', options: ['ไม่สามารถใช้ได้เลย', 'พื้นฐาน', 'ปานกลาง', 'ขั้นสูง', 'เชี่ยวชาญ'] }
+                { id: 'skill1', text: 'คุณสามารถใช้ Microsoft Office ได้ในระดับใด?', options: ['ไม่สามารถใช้ได้เลย', 'พื้นฐาน', 'ปานกลาง', 'ขั้นสูง', 'เชี่ยวชาญ'] },
+                { id: 'skill2', text: 'คุณมีความสามารถในการใช้ภาษาอังกฤษในระดับใด?', options: ['ไม่สามารถใช้ได้เลย', 'พื้นฐาน', 'ปานกลาง', 'ดี', 'เชี่ยวชาญ'] }
             ]},
             cc: { title: 'ทุนองค์กร (CC 7 ด้าน)', icon: 'fa-star', time: 25, questions: [
-                { id: 'cc1', text: 'CC1: คุณเคยเป็นผู้นำทีมหรือไม่?', options: ['ไม่เคย', 'เคยแต่ไม่ประสบความสำเร็จ', 'เคยและทำได้ดี', 'เป็นผู้นำที่สร้างทีมที่แข็งแกร่ง', 'เป็นผู้นำที่สร้างแรงบันดาลใจ'] }
+                { id: 'cc1', text: 'CC1: คุณเคยเป็นผู้นำทีมหรือไม่?', options: ['ไม่เคย', 'เคยแต่ไม่ประสบความสำเร็จ', 'เคยและทำได้ดี', 'เป็นผู้นำที่สร้างทีมที่แข็งแกร่ง', 'เป็นผู้นำที่สร้างแรงบันดาลใจ'] },
+                { id: 'cc2', text: 'CC2: คุณเคยสร้างนวัตกรรมหรือปรับปรุงกระบวนการทำงานหรือไม่?', options: ['ไม่เคย', 'คิดแต่ไม่ได้ทำ', 'ทำบ้าง', 'ทำบ่อย', 'ทำทุกครั้งที่มีโอกาส'] }
             ]},
             e3p: { title: '3E3P', icon: 'fa-chart-line', time: 15, questions: [
-                { id: 'e1', text: '3E-Engagement: คุณรู้สึกผูกพันกับองค์กรก่อนหน้าอย่างไร?', options: ['ไม่รู้สึก', 'ทำงานตามหน้าที่', 'รู้สึกดี', 'ผูกพันมาก', 'พร้อมทุ่มเท'] }
+                { id: 'e1', text: '3E-Engagement: คุณรู้สึกผูกพันกับองค์กรก่อนหน้าอย่างไร?', options: ['ไม่รู้สึก', 'ทำงานตามหน้าที่', 'รู้สึกดี', 'ผูกพันมาก', 'พร้อมทุ่มเท'] },
+                { id: 'e2', text: '3E-Empowerment: คุณกล้าตัดสินใจในงานที่ได้รับมอบหมายหรือไม่?', options: ['ไม่กล้า', 'รอคำสั่ง', 'ตัดสินใจเล็กน้อย', 'กล้าตัดสินใจ', 'กล้าและรับผิดชอบ'] }
             ]}
         };
 
@@ -319,6 +331,7 @@
         let currentTest = 'attitude';
         let currentQuestion = 0;
         let testAnswers = { attitude: {}, skill: {}, cc: {}, e3p: {} };
+        let currentApplicantId = null;
 
         // ===== INITIALIZATION =====
         document.addEventListener('DOMContentLoaded', () => {
@@ -359,6 +372,7 @@
             else if (currentStep === 'result') renderAIResult();
             else if (currentStep === 'test') renderTestView();
             else if (currentStep === 'testResult') renderTestResult();
+            else if (currentStep === 'dashboard') renderApplicantDashboard();
         }
 
         // ===== STEP 1: POSITIONS LIST =====
@@ -476,8 +490,9 @@
             
             // บันทึกข้อมูลผู้สมัครลง localStorage
             const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            currentApplicantId = 'APP-' + Date.now().toString().slice(-6);
             const newApp = {
-                id: 'APP-' + Date.now().toString().slice(-6),
+                id: currentApplicantId,
                 firstName: applicantData.firstname,
                 lastName: applicantData.lastname,
                 phone: applicantData.phone,
@@ -490,13 +505,21 @@
                 education: applicantData.education,
                 major: applicantData.major,
                 skills: applicantData.skills,
-                experience: applicantData.experience
+                experience: applicantData.experience,
+                testScores: null,
+                aiScore: null,
+                interviewDate: null,
+                interviewTime: null,
+                startDate: null,
+                history: [{ action: 'สมัครงาน', timestamp: new Date().toISOString(), note: 'ส่งใบสมัครสำเร็จ' }]
             };
             applications.push(newApp);
             localStorage.setItem('pkg_applications', JSON.stringify(applications));
-            console.log('✅ บันทึกใบสมัครแล้ว:', newApp);
             
             aiResult = analyzeApplication(applicantData, selectedPosition);
+            newApp.aiScore = aiResult.score;
+            localStorage.setItem('pkg_applications', JSON.stringify(applications));
+            
             currentStep = 'result';
             renderAIResult();
         }
@@ -538,7 +561,6 @@
             const content = document.getElementById('content-area');
             content.innerHTML = `
                 <div class="bg-white rounded-xl shadow-lg p-6">
-                    <button onclick="backToPositions()" class="mb-4 text-purple-600 hover:text-purple-800"><i class="fas fa-arrow-left mr-2"></i>กลับหน้าตำแหน่งงาน</button>
                     <h2 class="text-2xl font-bold text-gray-800 mb-2"><i class="fas fa-robot text-purple-600 mr-2"></i>ผลการวิเคราะห์จาก AI</h2>
                     <p class="text-gray-600 mb-6">ตำแหน่ง: <strong>${selectedPosition.title}</strong></p>
                     
@@ -562,9 +584,9 @@
 
                     ${aiResult.isSuitable ? `
                         <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded-lg mb-6">
-                            <div class="flex items-start"><div class="text-green-600 mr-2 mt-1">✅</div><div><p class="font-semibold text-green-800 mb-1">ยินดีด้วย! คุณสมบัติของคุณเหมาะสมกับตำแหน่งนี้</p><p class="text-sm text-green-700">ขั้นตอนถัดไป: HR จะติดต่อกลับภายใน 3-5 วันทำการ</p></div></div>
+                            <div class="flex items-start"><div class="text-green-600 mr-2 mt-1">✅</div><div><p class="font-semibold text-green-800 mb-1">ยินดีด้วย! คุณสมบัติของคุณเหมาะสมกับตำแหน่งนี้</p><p class="text-sm text-green-700">ขั้นตอนถัดไป: ทำแบบทดสอบ 4 ชุด เพื่อประเมินศักยภาพ</p></div></div>
                         </div>
-                        <button onclick="backToPositions()" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold">🏠 กลับหน้าตำแหน่งงาน</button>
+                        <button onclick="startTest()" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold"><i class="fas fa-tasks mr-2"></i>เริ่มทำแบบทดสอบ</button>
                     ` : `
                         <div class="flex space-x-4">
                             <button onclick="backToPositions()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition">← เลือกตำแหน่งอื่น</button>
@@ -575,116 +597,466 @@
             `;
         }
 
-        // ===== RENDER HR VIEW =====
-        function renderHRView() {
+        // ===== STEP 4: TEST =====
+        function startTest() {
+            currentStep = 'test';
+            currentTest = 'attitude';
+            currentQuestion = 0;
+            testAnswers = { attitude: {}, skill: {}, cc: {}, e3p: {} };
+            renderTestView();
+        }
+
+        function renderTestView() {
             const content = document.getElementById('content-area');
-            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const test = TESTS[currentTest];
+            const question = test.questions[currentQuestion];
+            const totalQuestions = Object.values(TESTS).reduce((sum, t) => sum + t.questions.length, 0);
+            const answeredQuestions = Object.values(testAnswers).reduce((sum, t) => sum + Object.keys(t).length, 0);
+            const progress = (answeredQuestions / totalQuestions) * 100;
+            
             content.innerHTML = `
                 <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fas fa-user-tie text-purple-600 mr-2"></i>มุมมอง HR</h2>
-                    <div class="space-y-6">
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <h3 class="font-semibold text-gray-700 mb-3">📊 HR Dashboard</h3>
-                            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
-                                <div class="bg-blue-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-gray-800">${applications.length}</p><p class="text-xs text-gray-600">ผู้สมัครทั้งหมด</p></div>
-                                <div class="bg-blue-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-blue-600">${applications.filter(a => a.status === 'new').length}</p><p class="text-xs text-gray-600">ใหม่</p></div>
-                                <div class="bg-purple-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-purple-600">${applications.filter(a => a.status === 'screened').length}</p><p class="text-xs text-gray-600">คัดกรองแล้ว</p></div>
-                                <div class="bg-orange-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-orange-600">${applications.filter(a => a.status === 'interview_scheduled').length}</p><p class="text-xs text-gray-600">กำลังสัมภาษณ์</p></div>
-                                <div class="bg-green-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-green-600">${applications.filter(a => a.status === 'hired').length}</p><p class="text-xs text-gray-600">จ้างงาน</p></div>
-                            </div>
-                        </div>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800"><i class="fas fa-tasks text-purple-600 mr-2"></i>แบบทดสอบ</h2>
+                        <div class="text-sm text-gray-600">ความคืบหน้า: ${Math.round(progress)}%</div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3 mb-6"><div class="bg-purple-600 h-3 rounded-full" style="width: ${progress}%"></div></div>
+                    
+                    <div class="flex space-x-2 mb-6">
+                        ${Object.keys(TESTS).map(key => `
+                            <button onclick="switchTest('${key}')" class="flex-1 py-2 rounded-lg text-sm font-semibold ${key === currentTest ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-700'}">
+                                <i class="fas ${TESTS[key].icon} mr-1"></i>${TESTS[key].title}
+                            </button>
+                        `).join('')}
+                    </div>
 
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <h3 class="font-semibold text-gray-700 mb-3">📋 ผู้สมัครใหม่</h3>
-                            ${applications.filter(a => a.status === 'new').map(app => `
-                                <div class="border border-gray-200 rounded-lg p-4 mb-3">
-                                    <div class="flex justify-between items-start mb-2">
-                                        <div><h5 class="font-semibold">${app.firstName} ${app.lastName}</h5><p class="text-sm text-gray-500">${app.position} | ${app.branch}</p></div>
-                                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">ใหม่</span>
-                                    </div>
-                                    <div class="flex space-x-2">
-                                        <button onclick="demoScreenApplicant('${app.id}')" class="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">✅ คัดกรอง</button>
-                                        <button onclick="demoScheduleInterview('${app.id}')" class="px-3 py-1 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm">📅 นัดสัมภาษณ์</button>
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">${test.title} - ข้อ ${currentQuestion + 1}/${test.questions.length}</h3>
+                            <span class="text-sm text-gray-500">เวลา: ${test.time} นาที</span>
+                        </div>
+                        <div class="bg-purple-50 border-l-4 border-purple-600 p-4 rounded-lg mb-6">
+                            <p class="text-gray-800 font-medium">${question.text}</p>
+                        </div>
+                        <div class="space-y-3">
+                            ${question.options.map((opt, idx) => `
+                                <div class="option-card border-2 border-gray-200 rounded-lg p-4 ${testAnswers[currentTest][question.id] === idx + 1 ? 'selected' : ''}" onclick="selectAnswer('${currentTest}', '${question.id}', ${idx + 1})">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full border-2 ${testAnswers[currentTest][question.id] === idx + 1 ? 'bg-white text-purple-600' : 'border-gray-300'} flex items-center justify-center font-semibold mr-3">${String.fromCharCode(65 + idx)}</div>
+                                        <span class="flex-1">${opt}</span>
                                     </div>
                                 </div>
-                            `).join('') || '<p class="text-gray-500 text-center py-4">ยังไม่มีผู้สมัครใหม่</p>'}
+                            `).join('')}
                         </div>
+                    </div>
 
-                        <div class="border border-gray-200 rounded-lg p-4">
-                            <h3 class="font-semibold text-gray-700 mb-3">🔧 ทดสอบการทำงาน</h3>
-                            <div class="space-y-3">
-                                <button onclick="demoFinalizeResult()" class="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 text-left">🏆 สรุปผล (ผ่าน)</button>
-                                <button onclick="demoOnboard()" class="w-full bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 text-left">🤝 นัดเริ่มงาน</button>
-                            </div>
-                        </div>
+                    <div class="flex justify-between">
+                        <button onclick="prevQuestion()" ${currentTest === 'attitude' && currentQuestion === 0 ? 'disabled' : ''} class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition disabled:opacity-50"><i class="fas fa-arrow-left mr-2"></i>ก่อนหน้า</button>
+                        ${currentTest === 'e3p' && currentQuestion === test.questions.length - 1 ? `<button onclick="submitTest()" class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition font-semibold"><i class="fas fa-check-circle mr-2"></i>ส่งคำตอบ</button>` : `<button onclick="nextQuestion()" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition">ถัดไป<i class="fas fa-arrow-right ml-2"></i></button>`}
                     </div>
                 </div>
             `;
         }
 
-        function demoScreenApplicant(appId) {
+        function switchTest(test) { currentTest = test; currentQuestion = 0; renderTestView(); }
+        function selectAnswer(test, questionId, value) { testAnswers[test][questionId] = value; renderTestView(); }
+        function nextQuestion() { const test = TESTS[currentTest]; if (currentQuestion < test.questions.length - 1) currentQuestion++; else { const tests = Object.keys(TESTS); const idx = tests.indexOf(currentTest); if (idx < tests.length - 1) { currentTest = tests[idx + 1]; currentQuestion = 0; } } renderTestView(); }
+        function prevQuestion() { if (currentQuestion > 0) currentQuestion--; else { const tests = Object.keys(TESTS); const idx = tests.indexOf(currentTest); if (idx > 0) { currentTest = tests[idx - 1]; currentQuestion = TESTS[currentTest].questions.length - 1; } } renderTestView(); }
+
+        function submitTest() {
+            const totalQuestions = Object.values(TESTS).reduce((sum, t) => sum + t.questions.length, 0);
+            const answeredQuestions = Object.values(testAnswers).reduce((sum, t) => sum + Object.keys(t).length, 0);
+            if (answeredQuestions < totalQuestions) { if (!confirm(`คุณยังไม่ได้ตอบคำถาม ${totalQuestions - answeredQuestions} ข้อ ต้องการส่งคำตอบหรือไม่?`)) return; }
+            else { if (!confirm('ต้องการส่งคำตอบหรือไม่?')) return; }
+            
+            const scores = calculateTestScores();
+            
+            // บันทึกคะแนนลง localStorage
+            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const app = applications.find(a => a.id === currentApplicantId);
+            if (app) {
+                app.testScores = scores;
+                app.status = 'test_done';
+                app.history.push({ action: 'ทำแบบทดสอบ', timestamp: new Date().toISOString(), note: `คะแนนรวม: ${scores.overall}` });
+                localStorage.setItem('pkg_applications', JSON.stringify(applications));
+            }
+            
+            currentStep = 'testResult';
+            renderTestResult(scores);
+        }
+
+        function calculateTestScores() {
+            const scores = {};
+            Object.keys(TESTS).forEach(key => {
+                const total = Object.values(testAnswers[key]).reduce((sum, v) => sum + v, 0);
+                const max = TESTS[key].questions.length * 5;
+                scores[key] = Math.round((total / max) * 100);
+            });
+            scores.overall = Math.round((scores.attitude + scores.skill + scores.cc + scores.e3p) / 4);
+            return scores;
+        }
+
+        function renderTestResult(scores) {
+            const content = document.getElementById('content-area');
+            content.innerHTML = `
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="text-center py-12">
+                        <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"><i class="fas fa-check-circle text-green-600 text-4xl"></i></div>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">ส่งแบบทดสอบสำเร็จ!</h2>
+                        <p class="text-gray-600 mb-8">ขอบคุณที่ทำแบบทดสอบครบทั้ง 4 ชุด</p>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                            <div class="bg-purple-50 p-4 rounded-lg"><i class="fas fa-smile text-2xl text-purple-600 mb-2"></i><p class="text-sm text-gray-600">ทัศนคติ</p><p class="text-2xl font-bold text-purple-600">${scores.attitude}</p></div>
+                            <div class="bg-blue-50 p-4 rounded-lg"><i class="fas fa-tools text-2xl text-blue-600 mb-2"></i><p class="text-sm text-gray-600">ทักษะ</p><p class="text-2xl font-bold text-blue-600">${scores.skill}</p></div>
+                            <div class="bg-yellow-50 p-4 rounded-lg"><i class="fas fa-star text-2xl text-yellow-600 mb-2"></i><p class="text-sm text-gray-600">CC 7 ด้าน</p><p class="text-2xl font-bold text-yellow-600">${scores.cc}</p></div>
+                            <div class="bg-green-50 p-4 rounded-lg"><i class="fas fa-chart-line text-2xl text-green-600 mb-2"></i><p class="text-sm text-gray-600">3E3P</p><p class="text-2xl font-bold text-green-600">${scores.e3p}</p></div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 rounded-lg mb-8">
+                            <p class="text-lg font-semibold mb-2">คะแนนรวม</p>
+                            <p class="text-5xl font-bold">${scores.overall}</p>
+                            <p class="text-sm opacity-90 mt-2">จาก 100 คะแนน</p>
+                        </div>
+                        
+                        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 text-left mb-8">
+                            <div class="flex items-start"><i class="fas fa-info-circle text-blue-600 mr-2 mt-1"></i><div class="text-sm text-blue-700"><p class="font-semibold mb-2">ขั้นตอนถัดไป:</p><ol class="list-decimal list-inside space-y-1"><li>HR จะประเมินผลแบบทดสอบของคุณ</li><li>หากผ่านเกณฑ์ คุณจะได้รับการนัดสัมภาษณ์</li><li>ติดตามสถานะได้ที่หน้า Dashboard</li></ol></div></div>
+                        </div>
+                        
+                        <button onclick="renderApplicantDashboard()" class="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition font-semibold"><i class="fas fa-tachometer-alt mr-2"></i>ดูสถานะใบสมัคร</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ===== APPLICANT DASHBOARD =====
+        function renderApplicantDashboard() {
+            const content = document.getElementById('content-area');
+            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const myApps = applications.filter(a => a.id === currentApplicantId);
+            
+            if (myApps.length === 0) {
+                content.innerHTML = `<div class="bg-white rounded-xl shadow-lg p-6 text-center"><p class="text-gray-500">ยังไม่มีใบสมัคร</p><button onclick="renderPositionsList()" class="mt-4 bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">สมัครงาน</button></div>`;
+                return;
+            }
+            
+            const app = myApps[0];
+            const statusSteps = [
+                { key: 'new', label: 'ส่งใบสมัคร', icon: '📝' },
+                { key: 'test_done', label: 'ทำแบบทดสอบ', icon: '📋' },
+                { key: 'screened', label: 'HR คัดกรอง', icon: '🎯' },
+                { key: 'interview_scheduled', label: 'นัดสัมภาษณ์', icon: '📅' },
+                { key: 'interviewed', label: 'สัมภาษณ์แล้ว', icon: '💬' },
+                { key: 'hired', label: 'ผ่านคัดเลือก', icon: '✅' },
+                { key: 'onboarded', label: 'เริ่มงาน', icon: '🎉' }
+            ];
+            
+            const currentStepIndex = statusSteps.findIndex(s => s.key === app.status);
+            
+            content.innerHTML = `
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fas fa-tachometer-alt text-purple-600 mr-2"></i>สถานะใบสมัครของฉัน</h2>
+                    
+                    <div class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 rounded-xl mb-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm opacity-90 mb-1">รหัสใบสมัคร</p>
+                                <p class="text-2xl font-bold mb-2">${app.id}</p>
+                                <p class="text-lg">${app.position} - ${app.department}</p>
+                                <p class="text-sm opacity-90">${app.branch}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm opacity-90">สมัครเมื่อ</p>
+                                <p class="text-sm">${new Date(app.appliedAt).toLocaleDateString('th-TH')}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">สถานะการดำเนินการ</h3>
+                        <div class="status-timeline">
+                            ${statusSteps.map((step, idx) => {
+                                let statusClass = 'pending';
+                                if (idx < currentStepIndex) statusClass = 'completed';
+                                else if (idx === currentStepIndex) statusClass = 'current';
+                                
+                                return `
+                                    <div class="status-item ${statusClass}">
+                                        <div class="flex items-start">
+                                            <div class="flex-1">
+                                                <p class="font-semibold text-gray-800">${step.icon} ${step.label}</p>
+                                                ${idx <= currentStepIndex ? `<p class="text-sm text-gray-600">${getStepDescription(step.key, app)}</p>` : ''}
+                                            </div>
+                                            ${idx < currentStepIndex ? '<i class="fas fa-check-circle text-green-600"></i>' : ''}
+                                            ${idx === currentStepIndex ? '<i class="fas fa-spinner fa-spin text-blue-600"></i>' : ''}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                    
+                    ${app.aiScore ? `
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">คะแนน AI</h3>
+                            <div class="bg-gradient-to-r from-purple-500 to-indigo-500 text-white p-4 rounded-lg">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <p class="text-sm opacity-90">คะแนนความเหมาะสม</p>
+                                        <p class="text-3xl font-bold">${app.aiScore}/100</p>
+                                    </div>
+                                    <i class="fas fa-robot text-4xl opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${app.testScores ? `
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">คะแนนแบบทดสอบ</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="bg-purple-50 p-4 rounded-lg text-center"><p class="text-sm text-gray-600">ทัศนคติ</p><p class="text-2xl font-bold text-purple-600">${app.testScores.attitude}</p></div>
+                                <div class="bg-blue-50 p-4 rounded-lg text-center"><p class="text-sm text-gray-600">ทักษะ</p><p class="text-2xl font-bold text-blue-600">${app.testScores.skill}</p></div>
+                                <div class="bg-yellow-50 p-4 rounded-lg text-center"><p class="text-sm text-gray-600">CC 7 ด้าน</p><p class="text-2xl font-bold text-yellow-600">${app.testScores.cc}</p></div>
+                                <div class="bg-green-50 p-4 rounded-lg text-center"><p class="text-sm text-gray-600">3E3P</p><p class="text-2xl font-bold text-green-600">${app.testScores.e3p}</p></div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${app.interviewDate ? `
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">นัดสัมภาษณ์</h3>
+                            <div class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-lg">
+                                <p class="font-semibold text-orange-800">📅 วันที่: ${app.interviewDate}</p>
+                                <p class="text-sm text-orange-700">⏰ เวลา: ${app.interviewTime}</p>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${app.startDate ? `
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-700 mb-4">วันเริ่มงาน</h3>
+                            <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded-lg">
+                                <p class="font-semibold text-green-800">🎉 วันเริ่มงาน: ${app.startDate}</p>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="flex space-x-4">
+                        <button onclick="renderPositionsList()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition"><i class="fas fa-briefcase mr-2"></i>สมัครตำแหน่งอื่น</button>
+                        <button onclick="switchView('hr')" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition"><i class="fas fa-user-tie mr-2"></i>ดูมุมมอง HR</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getStepDescription(stepKey, app) {
+            const descriptions = {
+                'new': `ส่งใบสมัครเมื่อ ${new Date(app.appliedAt).toLocaleDateString('th-TH')}`,
+                'test_done': `ทำแบบทดสอบเสร็จสิ้น คะแนนรวม: ${app.testScores?.overall || '-'}`,
+                'screened': 'HR คัดกรองผ่าน กำลังรอนัดสัมภาษณ์',
+                'interview_scheduled': `นัดสัมภาษณ์วันที่ ${app.interviewDate} เวลา ${app.interviewTime}`,
+                'interviewed': 'สัมภาษณ์เสร็จสิ้น รอผลการคัดเลือก',
+                'hired': 'ผ่านคัดเลือก ยินดีด้วย!',
+                'onboarded': `เริ่มงานวันที่ ${app.startDate}`
+            };
+            return descriptions[stepKey] || '';
+        }
+
+        // ===== RENDER HR VIEW =====
+        function renderHRView() {
+            const content = document.getElementById('content-area');
+            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            
+            content.innerHTML = `
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fas fa-user-tie text-purple-600 mr-2"></i>มุมมอง HR - Dashboard</h2>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+                        <div class="bg-blue-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-gray-800">${applications.length}</p><p class="text-xs text-gray-600">ทั้งหมด</p></div>
+                        <div class="bg-blue-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-blue-600">${applications.filter(a => a.status === 'new').length}</p><p class="text-xs text-gray-600">ใหม่</p></div>
+                        <div class="bg-purple-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-purple-600">${applications.filter(a => a.status === 'test_done').length}</p><p class="text-xs text-gray-600">ทำแบบทดสอบแล้ว</p></div>
+                        <div class="bg-orange-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-orange-600">${applications.filter(a => a.status === 'screened').length}</p><p class="text-xs text-gray-600">คัดกรองแล้ว</p></div>
+                        <div class="bg-pink-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-pink-600">${applications.filter(a => a.status === 'interview_scheduled').length}</p><p class="text-xs text-gray-600">นัดสัมภาษณ์</p></div>
+                        <div class="bg-green-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-green-600">${applications.filter(a => a.status === 'hired').length}</p><p class="text-xs text-gray-600">จ้างงาน</p></div>
+                    </div>
+
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">📋 รายการผู้สมัคร</h3>
+                    <div class="space-y-4">
+                        ${applications.map(app => `
+                            <div class="border border-gray-200 rounded-lg p-4">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <h4 class="font-bold text-gray-800">${app.firstName} ${app.lastName}</h4>
+                                        <p class="text-sm text-gray-600">${app.position} | ${app.department} | ${app.branch}</p>
+                                        <p class="text-xs text-gray-500">📞 ${app.phone} | ✉️ ${app.email}</p>
+                                    </div>
+                                    <span class="px-3 py-1 ${getStatusBadgeClass(app.status)} rounded-full text-sm font-semibold">${getStatusText(app.status)}</span>
+                                </div>
+                                
+                                ${app.aiScore ? `
+                                    <div class="mb-3 p-3 bg-purple-50 rounded-lg">
+                                        <p class="text-sm font-semibold text-purple-800 mb-1">🤖 คะแนน AI: ${app.aiScore}/100</p>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-purple-600 h-2 rounded-full" style="width: ${app.aiScore}%"></div>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                
+                                ${app.testScores ? `
+                                    <div class="mb-3 grid grid-cols-4 gap-2 text-center">
+                                        <div class="bg-purple-50 p-2 rounded"><p class="text-xs text-gray-600">ทัศนคติ</p><p class="font-bold text-purple-600">${app.testScores.attitude}</p></div>
+                                        <div class="bg-blue-50 p-2 rounded"><p class="text-xs text-gray-600">ทักษะ</p><p class="font-bold text-blue-600">${app.testScores.skill}</p></div>
+                                        <div class="bg-yellow-50 p-2 rounded"><p class="text-xs text-gray-600">CC</p><p class="font-bold text-yellow-600">${app.testScores.cc}</p></div>
+                                        <div class="bg-green-50 p-2 rounded"><p class="text-xs text-gray-600">3E3P</p><p class="font-bold text-green-600">${app.testScores.e3p}</p></div>
+                                    </div>
+                                ` : ''}
+                                
+                                <div class="flex flex-wrap gap-2">
+                                    ${app.status === 'new' ? `<button onclick="screenApplicant('${app.id}')" class="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">✅ คัดกรอง</button>` : ''}
+                                    ${app.status === 'test_done' ? `<button onclick="screenApplicant('${app.id}')" class="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">✅ คัดกรอง</button>` : ''}
+                                    ${app.status === 'screened' ? `<button onclick="scheduleInterview('${app.id}')" class="px-3 py-1 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm">📅 นัดสัมภาษณ์</button>` : ''}
+                                    ${app.status === 'interview_scheduled' ? `<button onclick="markInterviewed('${app.id}')" class="px-3 py-1 bg-pink-600 text-white rounded-lg hover:bg-pink-700 text-sm">💬 สัมภาษณ์แล้ว</button>` : ''}
+                                    ${app.status === 'interviewed' ? `<button onclick="finalizeResult('${app.id}')" class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">🏆 สรุปผล (ผ่าน)</button>` : ''}
+                                    ${app.status === 'hired' ? `<button onclick="onboard('${app.id}')" class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm">🤝 นัดเริ่มงาน</button>` : ''}
+                                    <button onclick="viewApplicantDetail('${app.id}')" class="px-3 py-1 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">👁️ ดูรายละเอียด</button>
+                                </div>
+                            </div>
+                        `).join('') || '<p class="text-gray-500 text-center py-8">ยังไม่มีผู้สมัคร</p>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function getStatusBadgeClass(status) {
+            const classes = {
+                'new': 'bg-blue-100 text-blue-800',
+                'test_done': 'bg-purple-100 text-purple-800',
+                'screened': 'bg-orange-100 text-orange-800',
+                'interview_scheduled': 'bg-pink-100 text-pink-800',
+                'interviewed': 'bg-yellow-100 text-yellow-800',
+                'hired': 'bg-green-100 text-green-800',
+                'onboarded': 'bg-indigo-100 text-indigo-800'
+            };
+            return classes[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                'new': 'ใหม่',
+                'test_done': 'ทำแบบทดสอบแล้ว',
+                'screened': 'คัดกรองแล้ว',
+                'interview_scheduled': 'นัดสัมภาษณ์',
+                'interviewed': 'สัมภาษณ์แล้ว',
+                'hired': 'ผ่านคัดเลือก',
+                'onboarded': 'เริ่มงาน'
+            };
+            return texts[status] || status;
+        }
+
+        function screenApplicant(appId) {
             const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
             const app = applications.find(a => a.id === appId);
             if (app) {
                 app.status = 'screened';
+                app.history.push({ action: 'คัดกรอง', timestamp: new Date().toISOString(), note: 'HR คัดกรองผ่าน' });
                 localStorage.setItem('pkg_applications', JSON.stringify(applications));
                 alert('✅ คัดกรองผู้สมัครแล้ว!');
                 renderHRView();
             }
         }
 
-        function demoScheduleInterview(appId) {
+        function scheduleInterview(appId) {
             const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
             const app = applications.find(a => a.id === appId);
             if (app) {
-                app.status = 'interview_scheduled';
-                app.interviewDate = '25/07/2569';
-                app.interviewTime = '10:00 น.';
+                const date = prompt('วันที่สัมภาษณ์ (เช่น 25/07/2569):', '25/07/2569');
+                const time = prompt('เวลาสัมภาษณ์ (เช่น 10:00 น.):', '10:00 น.');
+                if (date && time) {
+                    app.status = 'interview_scheduled';
+                    app.interviewDate = date;
+                    app.interviewTime = time;
+                    app.history.push({ action: 'นัดสัมภาษณ์', timestamp: new Date().toISOString(), note: `วันที่ ${date} เวลา ${time}` });
+                    localStorage.setItem('pkg_applications', JSON.stringify(applications));
+                    alert(`✅ นัดสัมภาษณ์แล้ว!\n\nวันที่: ${date}\nเวลา: ${time}`);
+                    renderHRView();
+                }
+            }
+        }
+
+        function markInterviewed(appId) {
+            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const app = applications.find(a => a.id === appId);
+            if (app) {
+                app.status = 'interviewed';
+                app.history.push({ action: 'สัมภาษณ์', timestamp: new Date().toISOString(), note: 'สัมภาษณ์เสร็จสิ้น' });
                 localStorage.setItem('pkg_applications', JSON.stringify(applications));
-                alert('✅ นัดสัมภาษณ์แล้ว!\n\nวันที่: 25/07/2569\nเวลา: 10:00 น.');
+                alert('✅ บันทึกว่าสัมภาษณ์แล้ว!');
                 renderHRView();
             }
         }
 
-        function demoFinalizeResult() {
+        function finalizeResult(appId) {
             const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
-            const app = applications.find(a => a.status === 'interview_scheduled');
+            const app = applications.find(a => a.id === appId);
             if (app) {
                 app.status = 'hired';
+                app.history.push({ action: 'สรุปผล', timestamp: new Date().toISOString(), note: 'ผ่านคัดเลือก' });
                 localStorage.setItem('pkg_applications', JSON.stringify(applications));
                 alert('✅ สรุปผล: ผ่าน!');
                 renderHRView();
-            } else {
-                alert('❌ ไม่มีผู้สมัครที่พร้อมสรุปผล');
             }
         }
 
-        function demoOnboard() {
+        function onboard(appId) {
             const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
-            const app = applications.find(a => a.status === 'hired');
+            const app = applications.find(a => a.id === appId);
             if (app) {
-                app.startDate = '01/08/2569';
-                localStorage.setItem('pkg_applications', JSON.stringify(applications));
-                alert('✅ นัดเริ่มงานแล้ว!\n\nวันเริ่มงาน: 01/08/2569');
-                renderHRView();
-            } else {
-                alert('❌ กรุณาสรุปผลก่อน');
+                const startDate = prompt('วันเริ่มงาน (เช่น 01/08/2569):', '01/08/2569');
+                if (startDate) {
+                    app.status = 'onboarded';
+                    app.startDate = startDate;
+                    app.history.push({ action: 'นัดเริ่มงาน', timestamp: new Date().toISOString(), note: `วันเริ่มงาน: ${startDate}` });
+                    localStorage.setItem('pkg_applications', JSON.stringify(applications));
+                    alert(`✅ นัดเริ่มงานแล้ว!\n\nวันเริ่มงาน: ${startDate}`);
+                    renderHRView();
+                }
+            }
+        }
+
+        function viewApplicantDetail(appId) {
+            const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
+            const app = applications.find(a => a.id === appId);
+            if (app) {
+                let detail = `📋 รายละเอียดผู้สมัคร\n\n`;
+                detail += `รหัส: ${app.id}\n`;
+                detail += `ชื่อ: ${app.firstName} ${app.lastName}\n`;
+                detail += `เบอร์: ${app.phone}\n`;
+                detail += `Email: ${app.email}\n`;
+                detail += `ตำแหน่ง: ${app.position}\n`;
+                detail += `แผนก: ${app.department}\n`;
+                detail += `สาขา: ${app.branch}\n`;
+                detail += `วุฒิ: ${app.education}\n`;
+                detail += `สาขาวิชา: ${app.major}\n`;
+                detail += `ทักษะ: ${app.skills}\n`;
+                detail += `ประสบการณ์: ${app.experience} ปี\n`;
+                if (app.aiScore) detail += `\n🤖 คะแนน AI: ${app.aiScore}/100\n`;
+                if (app.testScores) detail += `\n📋 คะแนนแบบทดสอบ:\n  ทัศนคติ: ${app.testScores.attitude}\n  ทักษะ: ${app.testScores.skill}\n  CC: ${app.testScores.cc}\n  3E3P: ${app.testScores.e3p}\n  รวม: ${app.testScores.overall}\n`;
+                if (app.interviewDate) detail += `\n📅 นัดสัมภาษณ์: ${app.interviewDate} ${app.interviewTime}\n`;
+                if (app.startDate) detail += `\n🎉 วันเริ่มงาน: ${app.startDate}\n`;
+                detail += `\n📜 ประวัติ:\n`;
+                app.history.forEach(h => {
+                    detail += `  - ${h.action}: ${new Date(h.timestamp).toLocaleString('th-TH')} (${h.note})\n`;
+                });
+                alert(detail);
             }
         }
 
         // ===== MODAL FUNCTIONS =====
-        function showLogin() {
-            document.getElementById('loginModal').classList.remove('hidden');
-        }
-        function hideLogin() {
-            document.getElementById('loginModal').classList.add('hidden');
-        }
-        function showRegister() {
-            document.getElementById('registerModal').classList.remove('hidden');
-        }
-        function hideRegister() {
-            document.getElementById('registerModal').classList.add('hidden');
-        }
+        function showLogin() { document.getElementById('loginModal').classList.remove('hidden'); }
+        function hideLogin() { document.getElementById('loginModal').classList.add('hidden'); }
+        function showRegister() { document.getElementById('registerModal').classList.remove('hidden'); }
+        function hideRegister() { document.getElementById('registerModal').classList.add('hidden'); }
+        
         function handleLogin(event) {
             event.preventDefault();
             const phone = document.getElementById('loginPhone').value;
@@ -697,12 +1069,15 @@
                 hideLogin();
                 if (user.role === 'hr') {
                     switchView('hr');
+                } else {
+                    renderApplicantDashboard();
                 }
                 document.getElementById('recruit-system').scrollIntoView({behavior:'smooth'});
             } else {
                 alert('❌ เบอร์โทรหรือรหัสผ่านไม่ถูกต้อง');
             }
         }
+        
         function handleRegister(event) {
             event.preventDefault();
             const name = document.getElementById('regName').value;
@@ -716,9 +1091,7 @@
             }
             const newUser = {
                 id: 'APP-' + Date.now().toString().slice(-6),
-                name,
-                phone,
-                email,
+                name, phone, email,
                 password: btoa(password),
                 role: 'applicant',
                 status: 'active',
