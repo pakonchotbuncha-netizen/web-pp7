@@ -1077,6 +1077,8 @@
                 { key: 'screened', label: 'HR คัดกรอง', icon: '🎯' },
                 { key: 'interview_scheduled', label: 'นัดสัมภาษณ์', icon: '📅' },
                 { key: 'interviewed', label: 'สัมภาษณ์แล้ว', icon: '💬' },
+                { key: 'assessed', label: 'ประเมิน CC (P2)', icon: '🧭' },
+                { key: 'matched', label: 'จับคู่คนกับงาน (P3)', icon: '🤝' },
                 { key: 'hired', label: 'ผ่านคัดเลือก', icon: '✅' },
                 { key: 'onboarded', label: 'เริ่มงาน', icon: '🎉' }
             ];
@@ -1196,7 +1198,9 @@
                 'test_done': `ทำแบบทดสอบเสร็จสิ้น คะแนนรวม: ${app.testScores?.overall || '-'}`,
                 'screened': 'HR คัดกรองผ่าน กำลังรอนัดสัมภาษณ์',
                 'interview_scheduled': `นัดสัมภาษณ์วันที่ ${app.interviewDate} เวลา ${app.interviewTime}`,
-                'interviewed': 'สัมภาษณ์เสร็จสิ้น รอผลการคัดเลือก',
+                'interviewed': `สัมภาษณ์เสร็จสิ้น ${app.interviewNotes ? '- ' + app.interviewNotes : ''}`,
+                'assessed': `ประเมิน CC เสร็จสิ้น คะแนน CC: ${app.ccScore || '-'}`,
+                'matched': `จับคู่กับตำแหน่ง ${app.matchedPosition || 'รอจับคู่'}`,
                 'hired': 'ผ่านคัดเลือก ยินดีด้วย!',
                 'onboarded': `เริ่มงานวันที่ ${app.startDate}`
             };
@@ -1334,11 +1338,16 @@
             const applications = getAllApplicants();
             const app = applications.find(a => a.id === appId);
             if (app) {
-                app.status = 'interviewed';
-                app.history.push({ action: 'สัมภาษณ์', timestamp: new Date().toISOString(), note: 'สัมภาษณ์เสร็จสิ้น' });
-                saveApplicantData(app);
-                alert('✅ บันทึกว่าสัมภาษณ์แล้ว!');
-                renderHRView();
+                // แสดงฟอร์มสัมภาษณ์
+                const interviewNotes = prompt('บันทึกผลการสัมภาษณ์ (เช่น ผ่าน/ไม่ผ่าน/สำรอง):', 'ผ่าน - มีศักยภาพดี');
+                if (interviewNotes !== null) {
+                    app.status = 'interviewed';
+                    app.interviewNotes = interviewNotes;
+                    app.history.push({ action: 'สัมภาษณ์', timestamp: new Date().toISOString(), note: interviewNotes });
+                    saveApplicantData(app);
+                    alert('✅ บันทึกผลการสัมภาษณ์แล้ว!\n\n' + interviewNotes);
+                    renderHRView();
+                }
             }
         }
 
