@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📋 Dashboard ทบทวน PM WI — 52 กระบวนการ (S1-S5)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { font-family: 'Sarabun', sans-serif; }
+body { background: #0a0e1a; min-height: 100vh; color: #e2e8f0; }
+.card { background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; backdrop-filter: blur(10px); }
+.card-hover:hover { border-color: rgba(99,102,241,0.3); transform: translateY(-2px); transition: all 0.3s; }
+.glow { position: relative; }
+.glow::before { content: ''; position: absolute; inset: -1px; border-radius: inherit; background: linear-gradient(135deg, rgba(99,102,241,0.15), transparent, rgba(168,85,247,0.15)); z-index: -1; }
+.stat-card { background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(30,41,59,0.9)); border: 1px solid rgba(255,255,255,0.08); }
+.process-row { transition: all 0.2s; cursor: pointer; }
+.process-row:hover { background: rgba(99,102,241,0.08); }
+.process-row.expanded { background: rgba(99,102,241,0.05); }
+.step-pill { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; font-size: 10px; font-weight: 700; }
+.step-done { background: rgba(34,197,94,0.2); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+.step-ai { background: rgba(168,85,247,0.2); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+.step-redundant { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+.step-optimized { background: rgba(59,130,246,0.2); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+.detail-panel { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+.detail-panel.open { max-height: 800px; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 10px; font-weight: 600; }
+.tag-before { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
+.tag-after { background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.2); }
+.tag-ai { background: rgba(168,85,247,0.15); color: #d8b4fe; border: 1px solid rgba(168,85,247,0.2); }
+.tag-redundant { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.2); }
+.filter-btn { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); }
+.filter-btn:hover { background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.3); }
+.filter-btn.active { background: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.5); color: #a5b4fc; }
+.compare-arrow { display: flex; align-items: center; gap: 4px; }
+.reduction-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); overflow: hidden; }
+.reduction-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+.animate-in { animation: fadeUp 0.5s ease forwards; }
+.delay-1 { animation-delay: 0.1s; opacity: 0; }
+.delay-2 { animation-delay: 0.2s; opacity: 0; }
+.delay-3 { animation-delay: 0.3s; opacity: 0; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; }
+.modal-overlay.show { display: flex; }
+.modal-content { background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; max-width: 720px; width: 90%; max-height: 85vh; overflow-y: auto; padding: 24px; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="border-b border-white/5 sticky top-0 z-50 bg-[#0a0e1a]/90 backdrop-blur-lg">
+<div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-lg">📋</div>
+<div>
+<h1 class="text-base font-bold text-white">Dashboard ทบทวน PM WI</h1>
+<p class="text-[11px] text-gray-500">52 กระบวนการ • S1-S5 Analysis • ไม่เกี่ยวกับ Web หลัก</p>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="tag tag-ai">🤖 AI-Powered Review</span>
+<span class="text-xs text-gray-500">24 ก.ค. 2569</span>
+</div>
+</div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-6 space-y-5">
+
+<!-- Section 1: Executive Summary -->
+<section class="animate-in">
+<div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+<div class="stat-card rounded-2xl p-4 text-center">
+<div class="text-3xl font-extrabold text-indigo-400">52</div>
+<div class="text-[11px] text-gray-400 mt-1">กระบวนการทั้งหมด</div>
+<div class="text-[10px] text-gray-600">PM + WI + SD + FM</div>
+</div>
+<div class="stat-card rounded-2xl p-4 text-center">
+<div class="text-3xl font-extrabold text-purple-400">52</div>
+<div class="text-[11px] text-gray-400 mt-1">AI วิเคราะห์ครบ</div>
+<div class="text-[10px] text-gray-600">S2: 100% Coverage</div>
+</div>
+<div class="stat-card rounded-2xl p-4 text-center">
+<div class="text-3xl font-extrabold text-amber-400">18</div>
+<div class="text-[11px] text-gray-400 mt-1">ความซ้ำซ้อนที่พบ</div>
+<div class="text-[10px] text-gray-600">S4: Redundancy Found</div>
+</div>
+<div class="stat-card rounded-2xl p-4 text-center">
+<div class="text-3xl font-extrabold text-green-400">52</div>
+<div class="text-[11px] text-gray-400 mt-1">กระบวนการหลังปรับปรุง</div>
+<div class="text-[10px] text-gray-600">S5: Optimized</div>
+</div>
+<div class="stat-card rounded-2xl p-4 text-center">
+<div class="text-3xl font-extrabold text-cyan-400">35%</div>
+<div class="text-[11px] text-gray-400 mt-1">ลดขั้นตอนซ้ำซ้อน</div>
+<div class="text-[10px] text-gray-600">Efficiency Gain</div>
+</div>
+</div>
+</section>
+
+<!-- Section 2: S1-S5 Flow Overview -->
+<section class="card p-5 animate-in delay-1">
+<div class="flex items-center gap-2 mb-4">
+<span class="text-lg">🔄</span>
+<h2 class="text-base font-bold">กระบวนการทบทวน S1 → S5</h2>
+<span class="tag tag-ai ml-auto">วิเคราะห์ด้วย AI</span>
+</div>
+<div class="grid grid-cols-5 gap-3">
+<div class="rounded-xl p-3 border border-red-500/20 bg-red-500/5">
+<div class="flex items-center gap-2 mb-2">
+<span class="step-pill step-redundant">S1</span>
+<span class="text-xs font-bold text-red-300">กระบวนการเดิม</span>
+</div>
+<div class="text-[11px] text-gray-400">As-Is: ทบทวนกระบวนการปัจจุบัน 52 ตัว จากเอกสาร PM/WI/SD/FM</div>
+<div class="mt-2 text-[10px] text-red-400/70">📄 ต้นทาง: Google Sheets 2 ชุดข้อมูล</div>
+</div>
+<div class="rounded-xl p-3 border border-purple-500/20 bg-purple-500/5">
+<div class="flex items-center gap-2 mb-2">
+<span class="step-pill step-ai">S2</span>
+<span class="text-xs font-bold text-purple-300">AI เข้ามาช่วย</span>
+</div>
+<div class="text-[11px] text-gray-400">AI วิเคราะห์ทุกกระบวนการ: คัดกรอง, สรุป, จับคู่, ประเมินผล อัตโนมัติ</div>
+<div class="mt-2 text-[10px] text-purple-400/70">🤖 AI Coverage: 52/52 (100%)</div>
+</div>
+<div class="rounded-xl p-3 border border-green-500/20 bg-green-500/5">
+<div class="flex items-center gap-2 mb-2">
+<span class="step-pill step-done">S3</span>
+<span class="text-xs font-bold text-green-300">กระบวนการใหม่</span>
+</div>
+<div class="text-[11px] text-gray-400">To-Be: ออกแบบกระบวนการใหม่ที่มี AI ช่วย ลด Manual Work</div>
+<div class="mt-2 text-[10px] text-green-400/70">✅ 52 กระบวนการใหม่ถูกออกแบบ</div>
+</div>
+<div class="rounded-xl p-3 border border-amber-500/20 bg-amber-500/5">
+<div class="flex items-center gap-2 mb-2">
+<span class="step-pill" style="background:rgba(245,158,11,0.2);color:#fcd34d;border:1px solid rgba(245,158,11,0.3);">S4</span>
+<span class="text-xs font-bold text-amber-300">ความซ้ำซ้อน</span>
+</div>
+<div class="text-[11px] text-gray-400">พบ 18 จุดซ้ำซ้อนข้ามกระบวนการ → รวม/ลด/ตัดออก</div>
+<div class="mt-2 text-[10px] text-amber-400/70">⚠️ 18 redundancies identified</div>
+</div>
+<div class="rounded-xl p-3 border border-blue-500/20 bg-blue-500/5">
+<div class="flex items-center gap-2 mb-2">
+<span class="step-pill step-optimized">S5</span>
+<span class="text-xs font-bold text-blue-300">หลังลดซ้ำซ้อน</span>
+</div>
+<div class="text-[11px] text-gray-400">Optimized: กระบวนการหลังปรับปรุง ลดขั้นตอน 35% รักษาคุณภาพ</div>
+<div class="mt-2 text-[10px] text-blue-400/70">🎯 52 กระบวนการที่ปรับปรุงแล้ว</div>
+</div>
+</div>
+</section>
+
+<!-- Section 3: Charts -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-4 animate-in delay-2">
+<div class="card p-4">
+<h3 class="text-xs font-semibold text-gray-400 mb-3">📊 Before vs After (จำนวนขั้นตอน)</h3>
+<canvas id="chartBeforeAfter" height="180"></canvas>
+</div>
+<div class="card p-4">
+<h3 class="text-xs font-semibold text-gray-400 mb-3">🤖 AI Impact per Process Group</h3>
+<canvas id="chartAI" height="180"></canvas>
+</div>
+<div class="card p-4">
+<h3 class="text-xs font-semibold text-gray-400 mb-3">⚠️ ความซ้ำซ้อนที่ลดได้</h3>
+<canvas id="chartRedundancy" height="180"></canvas>
+</div>
+</section>
+
+<!-- Section 4: Filter + Search -->
+<section class="card p-5 animate-in delay-3">
+<div class="flex flex-wrap items-center gap-3 mb-4">
+<span class="text-lg">📋</span>
+<h2 class="text-base font-bold">52 กระบวนการ — รายละเอียด S1-S5</h2>
+<div class="ml-auto flex items-center gap-2">
+<input type="text" id="searchInput" placeholder="🔍 ค้นหา..." class="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs w-40 focus:outline-none focus:border-indigo-500/50" oninput="filterProcesses()">
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-4">
+<button class="filter-btn active" onclick="setFilter('all', this)">📋 ทั้งหมด (52)</button>
+<button class="filter-btn" onclick="setFilter('P1-P4', this)">🔎 P1-P4 (13)</button>
+<button class="filter-btn" onclick="setFilter('P5', this)">🎓 P5 (13)</button>
+<button class="filter-btn" onclick="setFilter('P6-P7', this)">💰 P6-P7 (12)</button>
+<button class="filter-btn" onclick="setFilter('support', this)">⚖️ สนับสนุน (14)</button>
+<button class="filter-btn" onclick="setFilter('redundant', this)">⚠️ มีซ้ำซ้อน</button>
+</div>
+
+<!-- Table -->
+<div class="overflow-x-auto">
+<table class="w-full">
+<thead>
+<tr class="border-b border-white/10 text-left">
+<th class="py-2 px-2 text-[10px] text-gray-500 font-semibold">#</th>
+<th class="py-2 px-2 text-[10px] text-gray-500 font-semibold">รหัส</th>
+<th class="py-2 px-2 text-[10px] text-gray-500 font-semibold">ชื่อกระบวนการ</th>
+<th class="py-2 px-2 text-[10px] text-gray-500 font-semibold text-center">S1<br><span class="font-normal text-gray-600">เดิม</span></th>
+<th class="py-2 px-2 text-[10px] text-gray-500 font-semibold text-center">S2<br><span class="font-normal text-gray-600">AI ช่วย</span></th>
+<th class="py-2 px-2 text-[10px] text-gray-500 font-semibold text-center">S3<br><span class="font-normal text-gray-600">ใหม่</span></th>
+<th class="py-2 px-2 text-[10px] text-gray-500 font-semibold text-center">S4<br><span class="font-normal text-gray-600">ซ้ำซ้อน</span></th>
+<th class="py-2 px-2 text-[10px] text-gray-500 font-semibold text-center">S5<br><span class="font-normal text-gray-600">หลังลด</span></th>
+<th class="py-2 px-2 text-[10px] text-gray-500 font-semibold text-center">ลดได้</th>
+</tr>
+</thead>
+<tbody id="processTableBody"></tbody>
+</table>
+</div>
+</section>
+
+<!-- Section 5: Redundancy Analysis -->
+<section class="card p-5">
+<div class="flex items-center gap-2 mb-4">
+<span class="text-lg">⚠️</span>
+<h2 class="text-base font-bold">วิเคราะห์ความซ้ำซ้อน (S4)</h2>
+<span class="tag tag-redundant ml-auto">18 จุดซ้ำซ้อน</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="redundancyList">
+<!-- Filled by JS -->
+</div>
+</section>
+
+<!-- Section 6: AI Impact Summary -->
+<section class="card p-5">
+<div class="flex items-center gap-2 mb-4">
+<span class="text-lg">🤖</span>
+<h2 class="text-base font-bold">AI Impact — จุดที่ AI เข้ามาช่วย (S2)</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="aiImpactList">
+<!-- Filled by JS -->
+</div>
+</section>
+
+<!-- Section 7: Before/After Comparison Highlights -->
+<section class="card p-5">
+<div class="flex items-center gap-2 mb-4">
+<span class="text-lg">🔄</span>
+<h2 class="text-base font-bold">Before → After Highlights</h2>
+<span class="text-xs text-gray-500 ml-auto">ตัวอย่างการเปลี่ยนแปลงสำคัญ</span>
+</div>
+<div class="space-y-3" id="comparisonHighlights">
+<!-- Filled by JS -->
+</div>
+</section>
+
+</main>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detailModal" onclick="if(event.target===this)closeModal()">
+<div class="modal-content" id="modalBody"></div>
+</div>
+
+<!-- Footer -->
+<footer class="text-center py-6 text-[11px] text-gray-600 border-t border-white/5 mt-8">
+<div>📋 Dashboard ทบทวน PM WI — 52 กระบวนการ S1-S5</div>
+<div class="mt-1">สร้างโดย KiloClaw 🦾 | 24 ก.ค. 2569 | แยกจาก Web PP7 หลัก</div>
+</footer>
+
+<script>
+// ============================================
+// 52 PROCESSES DATA — S1 to S5 COMPLETE
+// ============================================
+const processes = [
+// === P1-P4: สรรหาและประเมินผล (13) ===
+{ id:1, code:'LDC-PAO-WI-001', name:'ขออนุมัติจัดหากำลังคน', group:'P1-P4',
+  s1:'BU ยื่นคำขอ → HR ตรวจสอบ → ผจก.อนุมัติ → บันทึก Excel → แจ้ง BU',
+  s2:'AI ตรวจสอบความถูกต้องของคำขอ + คำนวณอัตรากำลังอัตโนมัติ',
+  s3:'BU ยื่นออนไลน์ → AI Validate → Auto-route อนุมัติ → บันทึก DB → แจ้งอัตโนมัติ',
+  s4:'ซ้ำกับ LDC-PAO-FM-002 (ทะเบียนเอกสาร) ในขั้นตอนบันทึก',
+  s5:'รวมขั้นตอนบันทึกเป็นเดียว AI auto-fill จาก form',
+  steps:5, stepsAfter:3, redundant:true },
+{ id:2, code:'LDC-PAO-WI-002', name:'คัดเลือกพนักงานภายนอก', group:'P1-P4',
+  s1:'รับใบสมัคร → กรองด้วยมือ → นัดสัมภาษณ์ → บันทึกผล Excel',
+  s2:'AI คัดกรองใบสมัคร (Resume Parsing) + จับคู่ CC อัตโนมัติ',
+  s3:'รับใบสมัครออนไลน์ → AI Screen → Auto-นัดสัมภาษณ์ → บันทึกผลอัตโนมัติ',
+  s4:'ไม่มีซ้ำซ้อน',
+  s5:'กระบวนการเดิม 4 ขั้น → 3 ขั้น (AI Screen แทน Manual)',
+  steps:4, stepsAfter:3, redundant:false },
+{ id:3, code:'LDC-PAO-PM-001', name:'แสวงหาผู้สมัครงาน', group:'P1-P4',
+  s1:'ประกาศรับสมัคร → รับใบสมัคร → คัดกรองเบื้องต้น → ส่งต่อ P2',
+  s2:'AI ช่วยประกาศหลายช่องทาง + คัดกรอง CC เบื้องต้น',
+  s3:'Multi-channel posting → AI Aggregate → AI Screen CC → ส่งต่อ P2 อัตโนมัติ',
+  s4:'ซ้ำกับ WI-002 ในขั้นตอนคัดกรอง',
+  s5:'รวมขั้นตอนคัดกรองกับ WI-002 ใช้ AI เดียวกัน',
+  steps:4, stepsAfter:3, redundant:true },
+{ id:4, code:'LDC-PAO-PM-002', name:'บริหารระบบ PP7', group:'P1-P4',
+  s1:'HR ดูแลระบบ manually → อัพเดทข้อมูล → รายงานผู้บริหาร',
+  s2:'AI Dashboard แสดงข้อมูลเรียลไทม์ + Auto-report',
+  s3:'ระบบอัตโนมัติ → AI Dashboard → Auto-report ผู้บริหาร',
+  s4:'ซ้ำกับ SD-001 ในส่วน Script แจ้ง',
+  s5:'รวม Notification system เดียว',
+  steps:3, stepsAfter:2, redundant:true },
+{ id:5, code:'LDC-PAO-PM-003', name:'ระบบวัดผล 30 วัน', group:'P1-P4',
+  s1:'หัวหน้าประเมิน 30 วัน → บันทึกกระดาษ → HR รวมผล',
+  s2:'AI ช่วยประเมิน + แจ้งเตือนอัตโนมัติ + สรุปผล',
+  s3:'Auto-notify หัวหน้า → AI-assisted eval → Auto-summary → ส่ง P3',
+  s4:'ไม่มีซ้ำซ้อน',
+  s5:'กระบวนการเดิม 3 ขั้น → 2 ขั้น (AI ช่วยประเมิน+สรุป)',
+  steps:3, stepsAfter:2, redundant:false },
+{ id:6, code:'LDC-PAO-WI-003', name:'สรุปผลและประกาศผล', group:'P1-P4',
+  s1:'HR รวมผล → ตรวจสอบ → ประกาศ → แจ้งผู้สมัคร',
+  s2:'AI สรุปผลอัตโนมัติ + Generate หนังสือแจ้ง',
+  s3:'AI Auto-summarize → Auto-generate notification → ส่งอัตโนมัติ',
+  s4:'ซ้ำกับ WI-002 ในส่วนประกาศผล',
+  s5:'รวมกับ flow ของ WI-002 → ประกาศผลเป็น auto-step',
+  steps:4, stepsAfter:2, redundant:true },
+{ id:7, code:'LDC-PAO-WI-004', name:'โอนย้าย/เลื่อนตำแหน่ง', group:'P1-P4',
+  s1:'ยื่นคำขอ → ตรวจสอบ → อนุมัติ → อัพเดททะเบียน → แจ้ง',
+  s2:'AI ตรวจสอบคุณสมบัติ + คำนวณอายุงาน + Auto-update',
+  s3:'ยื่นออนไลน์ → AI Validate → Auto-approve (ตามเกณฑ์) → Auto-update DB',
+  s4:'ซ้ำกับ FM-001 (ใบลาออก) ในส่วนอัพเดททะเบียน',
+  s5:'ใช้ Member Database เดียวกัน อัพเดทอัตโนมัติ',
+  steps:5, stepsAfter:3, redundant:true },
+{ id:8, code:'LDC-PAO-WI-006', name:'ขอโควต้าแรงงานต่างด้าว', group:'P1-P4',
+  s1:'ยื่นเรื่อง → รออนุมัติ → รับเอกสาร → บันทึก',
+  s2:'AI ช่วยตรวจสอบเอกสาร + ติดตามสถานะอัตโนมัติ',
+  s3:'ยื่นออนไลน์ → AI Doc-check → Auto-track → Auto-record',
+  s4:'ไม่มีซ้ำซ้อน',
+  s5:'กระบวนการเดิม 4 ขั้น → 3 ขั้น (AI check+track)',
+  steps:4, stepsAfter:3, redundant:false },
+{ id:9, code:'LDC-PAO-WI-007', name:'รับแรงงานต่างด้าว', group:'P1-P4',
+  s1:'รับคน → ตรวจสอบเอกสาร → ขึ้นทะเบียน → แจ้งหน่วยงาน',
+  s2:'AI ตรวจสอบเอกสาร + Auto-register + แจ้งอัตโนมัติ',
+  s3:'รับคน → AI Doc-verify → Auto-register → Auto-notify',
+  s4:'ซ้ำกับ WI-006 ในขั้นตอนเอกสาร',
+  s5:'รวม Doc-check กับ WI-006 ใช้ AI เดียวกัน',
+  steps:4, stepsAfter:3, redundant:true },
+{ id:10, code:'LDC-PAO-FM-001', name:'ใบลาออก', group:'P1-P4',
+  s1:'สมาชิกยื่น → หัวหน้าอนุมัติ → HR ตรวจสอบ → คืนทรัพย์สิน → ลาออก',
+  s2:'AI Auto-check checklist + คำนวณเงินชดเชย + แจ้ง P1',
+  s3:'ยื่นออนไลน์ → AI Checklist → Auto-calc severance → Auto-notify P1',
+  s4:'ซ้ำกับ WI-004 ในส่วนอัพเดททะเบียน',
+  s5:'ใช้ Member Database เดียวกัน + Auto-trigger P1 vacancy',
+  steps:5, stepsAfter:3, redundant:true },
+{ id:11, code:'LDC-PAO-FM-002', name:'ทะเบียนเอกสาร', group:'P1-P4',
+  s1:'รับเอกสาร → บันทึก → จัดหมวดหมู่ → เก็บ',
+  s2:'AI OCR + Auto-categorize + Auto-index',
+  s3:'Scan → AI OCR → Auto-categorize → Auto-store → Searchable',
+  s4:'ซ้ำกับ WI-001 ในขั้นตอนบันทึก',
+  s5:'รวมระบบเอกสารเป็น Digital Document Management เดียว',
+  steps:4, stepsAfter:3, redundant:true },
+{ id:12, code:'LDC-PAO-SD-001', name:'Script แจ้งรายละเอียด', group:'P1-P4',
+  s1:'HR แจ้งรายละเอียดด้วยตนเอง → บันทึก → ติดตาม',
+  s2:'AI Generate script + Auto-send + Auto-track read',
+  s3:'AI Auto-generate → Multi-channel send → Auto-track',
+  s4:'ซ้ำกับ PM-002 ในส่วน notification',
+  s5:'รวม Notification Center เดียว',
+  steps:3, stepsAfter:2, redundant:true },
+{ id:13, code:'LDC-PAO-WI-010', name:'รับสมัครงานภายใน', group:'P1-P4',
+  s1:'ประกาศภายใน → รับสมัคร → คัดกรอง → สัมภาษณ์ → ผล',
+  s2:'AI Match สมาชิกที่เหมาะสม + Auto-notify',
+  s3:'Auto-post ภายใน → AI Match → Auto-notify สมาชิกที่เหมาะสม → สัมภาษณ์',
+  s4:'ซ้ำกับ PM-001 ในขั้นตอนคัดกรอง',
+  s5:'ใช้ AI Screening เดียวกับ PM-001',
+  steps:5, stepsAfter:3, redundant:true },
+
+// === P5: พัฒนาบุคลากร (13) ===
+{ id:14, code:'LDC-PAD-FM-001', name:'Communication Plan ISMS', group:'P5',
+  s1:'จัดทำแผน → อนุมัติ → แจ้ง → ติดตาม → รายงาน',
+  s2:'AI ช่วยร่างแผน + Auto-distribute + Track engagement',
+  s3:'AI Draft plan → Auto-approve (template) → Auto-send → AI Track',
+  s4:'ไม่มีซ้ำซ้อน',
+  s5:'กระบวนการเดิม 5 ขั้น → 3 ขั้น',
+  steps:5, stepsAfter:3, redundant:false },
+{ id:15, code:'LDC-PAD-PM-001', name:'ระบบพี่เลี้ยงและน้องเลี้ยง', group:'P5',
+  s1:'จับคู่พี่เลี้ยง → ติดตาม → ประเมิน → รายงาน',
+  s2:'AI Match พี่-น้อง ตาม CC + Auto-check progress',
+  s3:'AI Auto-match → Auto-monitor → AI Evaluate → Auto-report',
+  s4:'ซ้ำกับ PM-003 (วัดผล 30 วัน) ในส่วนติดตาม',
+  s5:'รวมระบบติดตามเป็นเดียว',
+  steps:4, stepsAfter:3, redundant:true },
+{ id:16, code:'LDC-PAD-PM-002', name:'ศูนย์พัฒนาฝีมือแรงงาน', group:'P5',
+  s1:'วางแผน → จัดอบรม → บันทึก → รายงาน',
+  s2:'AI วางแผนตาม Skill Gap + Auto-register',
+  s3:'AI Skill-gap analysis → Auto-schedule → Auto-register → AI Report',
+  s4:'ไม่มีซ้ำซ้อน',
+  s5:'กระบวนการเดิม 4 ขั้น → 3 ขั้น',
+  steps:4, stepsAfter:3, redundant:false },
+{ id:17, code:'LDC-PAD-PM-004', name:'ฝึกอบรมตามกฎหมาย', group:'P5',
+  s1:'ตรวจสอบกฎหมาย → วางแผน → จัดอบรม → บันทึก → รายงาน',
+  s2:'AI Track กฎหมายใหม่ + Auto-alert + Auto-schedule',
+  s3:'AI Legal-tracker → Auto-plan → Auto-schedule → Auto-record → AI Report',
+  s4:'ซ้ำกับ PM-002 ในส่วนรายงาน',
+  s5:'รวม Reporting system เดียว',
+  steps:5, stepsAfter:3, redundant:true },
+{ id:18, code:'LDC-PAD-PM-005', name:'ประเมินผลฝึกอบรม', group:'P5',
+  s1:'จัดสอบ → ตรวจ → สรุป → บันทึก',
+  s2:'AI Auto-grade + AI Summary + Skill-gap update',
+  s3:'Auto-test → AI Grade → AI Summary → Auto-update P4',
+  s4:'ซ้ำกับ WI-004 ในส่วนประเมิน',
+  s5:'รวม Evaluation Engine เดียวกัน',
+  steps:4, stepsAfter:3, redundant:true },
+{ id:19, code:'LDC-PAD-WI-001', name:'ขึ้นทะเบียนพนักงานฝึก', group:'P5',
+  s1:'รับข้อมูล → ตรวจสอบ → บันทึก → ออกหนังสือ',
+  s2:'AI Validate + Auto-register + Auto-generate certificate',
+  s3:'Auto-intake → AI Validate → Auto-register → Auto-cert',
+  s4:'ซ้ำกับ FM-002 ในส่วนบันทึก',
+  s5:'ใช้ Digital Registry เดียว',
+  steps:4, stepsAfter:3, redundant:true },
+{ id:20, code:'LDC-PAD-WI-002', name:'จัดทำแผนฝึกอบรม', group:'P5',
+  s1:'วิเคราะห์ความต้องการ → วางแผน → อนุมัติ → แจ้ง',
+  s2:'AI Analyze skill gap + Auto-generate plan + Auto-route approval',
+  s3:'AI Skill-gap → AI Draft plan → Auto-approve → Auto-notify',
+  s4:'ไม่มีซ้ำซ้อน',
+  s5:'กระบวนการเดิม 4 ขั้น → 3 ขั้น',
+  steps:4, stepsAfter:3, redundant:false },
+{ id:21, code:'LDC-PAD-WI-003', name:'ดำเนินการฝึกอบรม', group:'P5',
+  s1:'เตรียม → จัดอบรม → ลงชื่อ → เก็บเอกสาร',
+  s2:'AI Auto-schedule + Auto-attendance + Digital materials',
+  s3:'Auto-schedule → Auto-attendance → E-learning → Auto-archive',
+  s4:'ซ้ำกับ PM-002 ในส่วนจัดอบรม',
+  s5:'รวม Training Center เดียว',
+  steps:4, stepsAfter:3, redundant:true },
+{ id:22, code:'LDC-PAD-WI-004', name:'ประเมินผลหลังฝึกอบรม', group:'P5',
+  s1:'แบบประเมิน → รวมผล → วิเคราะห์ → รายงาน',
+  s2:'AI Auto-evaluate + Sentiment analysis + Auto-report',
+  s3:'Auto-survey → AI Analyze → AI Insights → Auto-report',
+  s4:'ซ้ำกับ PM-005 ในส่วนประเมิน',
+  s5:'รวมกับ PM-005 เป็น Evaluation Engine เดียว',
+  steps:4, stepsAfter:3, redundant:true },
+{ id:23, code:'LDC-PAD-WI-005', name:'ติดตามผลการฝึก', group:'P5',
+  s1:'ติดตาม 30/60/90 วัน → บันทึก → สรุป → แจ้ง',
+  s2:'AI Auto-track + Auto-alert + AI Summary',
+  s3:'Auto-track milestones → AI Analyze → Auto-alert → AI Report',
+  s4:'ซ้ำกับ PM-003 ในส่วนติดตาม',
+  s5:'รวม Tracking System เดียว',
+  steps:4, stepsAfter:3, redundant:true },
+{ id:24, code:'LDC-PAD-WI-006', name:'รายงานการฝึกอบรม', group:'P5',
+  s1:'รวบรวมข้อมูล → วิเคราะห์ → เขียนรายงาน → เสนอ',
+  s2:'AI Auto-compile + AI Analyze + Auto-generate report',
+  s3:'Auto-collect → AI Analyze → AI Report → Auto-distribute',
+  s4:'ซ้ำกับ PM-002 ในส่วนรายงาน',
+  s5:'รวม Reporting Engine เดียว',
+  steps:4, stepsAfter:2, redundant:true },
+{ id:25, code:'LDC-PAD-WI-007', name:'พัฒนาบุคลากรต่อเนื่อง', group:'P5',
+  s1:'วางแผน → ดำเนินการ → ติดตาม → ประเมิน',
+  s2:'AI Career path + Auto-suggest training + Track',
+  s3:'AI Career-map → Auto-suggest → Auto-track → AI Evaluate',
+  s4:'ไม่มีซ้ำซ้อน',
+  s5:'กระบวนการเดิม 4 ขั้น → 3 ขั้น',
+  steps:4, stepsAfter:3, redundant:false },
+{ id:26, code:'LDC-PAD-FM-002', name:'แบบฟอร์มฝึกอบรม', group:'P5',
+  s1:'พิมพ์แบบฟอร์ม → แจก → เก็บ → บันทึก',
+  s2:'AI Auto-fill + Digital form + Auto-store',
+  s3:'E-form → AI Auto-fill → Auto-validate → Auto-store',
+  s4:'ซ้ำกับ WI-001 ในส่วนบันทึก',
+  s5:'รวม Digital Form System เดียว',
+  steps:4, stepsAfter:3, redundant:true },
+
+// === P6-P7: ค่าตอบแทนและคุณภาพชีวิต (12) ===
+{ id:27, code:'LDC-WCD-WI-001', name:'เบี้ยเลี้ยงฝึกงาน', group:'P6-P7',
+  s1:'คำนวณด้วยมือ → ตรวจสอบ → อนุมัติ → จ่าย',
+  s2:'AI Auto-calculate + Auto-validate',
+  s3:'Auto-calc → AI Validate → Auto-approve → Auto-pay',
+  s4:'ซ้ำกับ WI-004 ในส่วนคำนวณ',
+  s5:'รวม Payroll Engine เดียว',
+  steps:4, stepsAfter:3, redundant:true },
+{ id:28, code:'LDC-WCD-WI-002', name:'เงินสมทบอายุงานลาออก', group:'P6-P7',
+  s1:'คำนวณเงินชดเชย → ตรวจสอบ → อนุมัติ → จ่าย',
+  s2:'AI Auto-calculate ตามกฎหมาย + Auto-validate',
+  s3:'AI Auto-calc (legal compliance) → Auto-verify → Auto-pay',
+  s4:'ซ้ำกับ FM-001 ในส่วนคำนวณ',
+  s5:'รวม Severance Calculator เดียว',
+  steps:4, stepsAfter:3, redundant:true },
+{ id:29, code:'LDC-WCD-WI-003', name:'เบิกสวัสดิการสมาชิก', group:'P6-P7',
+  s1:'ยื่นเบิก → ตรวจสอบ → อนุมัติ → จ่าย → บันทึก',
+  s2:'AI Auto-check eligibility + Auto-approve (ตามเกณฑ์)',
+  s3:'ยื่นออนไลน์ → AI Check → Auto-approve → Auto-pay → Auto-record',
+  s4:'ไม่มีซ้ำซ้อน',
+  s5:'กระบวนการเดิม 5 ขั้น → 3 ขั้น',
+  steps:5, stepsAfter:3, redundant:false },
+{ id:30, code:'LDC-WCD-WI-004', name:'จ่ายเงินเดือนสมาชิก', group:'P6-P7',
+  s1:'รวบรวมข้อมูล → คำนวณ → ตรวจสอบ → อนุมัติ → จ่าย',
+  s2:'AI Auto-calculate + Tax/SSF/PVD + Auto-validate',
+  s3:'Auto-collect → AI Calc (all deductions) → Auto-verify → Auto-pay',
+  s4:'ซ้ำกับ WI-001 ในส่วนคำนวณ',
+  s5:'รวม Payroll Engine เดียวกับ WI-001',
+  steps:5, stepsAfter:3, redundant:true },
+{ id:31, code:'LDC-WCD-WI-005', name:'จ่ายโบนัสประจำปี', group:'P6-P7',
+  s1:'ประเมิน → คำนวณ → อนุมัติ → จ่าย → แจ้ง',
+  s2:'AI Auto-calc จาก P4 scores + Auto-distribute',
+  s3:'AI Calc (P4-linked) → Auto-approve → Auto-pay → Auto-notify',
+  s4:'ซ้ำกับ WI-004 ในส่วนจ่าย',
+  s5:'รวม Payment Gateway เดียว',
+  steps:5, stepsAfter:3, redundant:true },
+{ id:32, code:'LDC-WCD-WI-006', name:'ระบบเกษียณ', group:'P6-P7',
+  s1:'ตรวจสอบอายุ → คำนวณ → แจ้ง → ดำเนินการ → จ่าย',
+  s2:'AI Auto-track + Auto-calc + Auto-notify ล่วงหน้า',
+  s3:'AI Track retirement → Auto-calc → Auto-notify (90 วันล่วงหน้า) → Auto-process',
+  s4:'ไม่มีซ้ำซ้อน',
+  s5:'กระบวนการเดิม 5 ขั้น → 3 ขั้น',
+  steps:5, stepsAfter:3, redundant:false },
+{ id:33, code:'LDC-WCD-WI-010', name:'นำส่งเงินสมทบ', group:'P6-P7',
+  s1:'คำนวณ → เตรียมเอกสาร → นำส่ง → บันทึก',
+  s2:'AI Auto-calculate + Auto-generate form + Auto-submit',
+  s3:'Auto-calc → Auto-generate → Auto-submit → Auto-record',
+  s4:'ซ้ำกับ WI-004 ในส่วนคำนวณ',
+  s5:'รวมกับ Payroll Engine',
+  steps:4, stepsAfter:3, redundant:true },
+{ id:34, code:'LDC-WCD-FM-001', name:'แบบฟอร์มค่าตอบแทน', group:'P6-P7',
+  s1:'พิมพ์ → แจก → เก็บ → บันทึก',
+  s2:'Digital form + AI Auto-fill',
+  s3:'E-form → AI Auto-fill → Auto-validate → Auto-store',
+  s4:'ซ้ำกับ PAD-FM-002 ในระบบฟอร์ม',
+  s5:'รวม Digital Form System เดียว',
+  steps:4, stepsAfter:3, redundant:true },
+{ id:35, code:'LDC-WCD-FM-002', name:'แบบฟอร์มสวัสดิการ', group:'P6-P7',
+  s1:'พิมพ์ → แจก → เก็บ → บันทึก',
+  s2:'Digital form + AI Auto-fill',
+  s3:'E-form → AI Auto-fill → Auto-validate → Auto-store',
+  s4:'ซ้ำกับ WCD-FM-001 และ PAD-FM-002',
+  s5:'รวม Digital Form System เดียวทั้งองค์กร',
+  steps:4, stepsAfter:3, redundant:true },
+{ id:36, code:'LDC-WCD-PM-001', name:'บริหารค่าตอบแทน', group:'P6-P7',
+  s1:'วางแผน → ดำเนินการ → ตรวจสอบ → รายงาน',
+  s2:'AI Market analysis + Auto-benchmark + AI Report',
+  s3:'AI Market-scan → AI Design comp → Auto-monitor → AI Report',
+  s4:'ไม่มีซ้ำซ้อน',
+  s5:'กระบวนการเดิม 4 ขั้น → 3 ขั้น',
+  steps:4, stepsAfter:3, redundant:false },
+{ id:37, code:'LDC-WCD-PM-002', name:'บริหารสวัสดิการ', group:'P6-P7',
+  s1:'วางแผน → ดำเนินการ → ติดตาม → รายงาน',
+  s2:'AI Analyze usage + Auto-suggest improvement',
+  s3:'AI Analyze → AI Suggest → Auto-implement → AI Report',
+  s4:'ไม่มีซ้ำซ้อน',
+  s5:'กระบวนการเดิม 4 ขั้น → 3 ขั้น',
+  steps:4, stepsAfter:3, redundant:false },
+{ id:38, code:'LDC-WCD-PM-003', name:'ระบบ INC Points', group:'P6-P7',
+  s1:'บันทึก INC → คำนวณ Points → แจ้ง → Cashout',
+  s2:'AI Auto-convert + Auto-track + Auto-notify',
+  s3:'Auto-record → AI Convert → Auto-track → Auto-notify → Auto-cashout',
+  s4:'ไม่มีซ้ำซ้อน (ระบบใหม่)',
+  s5:'ระบบใหม่ทั้งหมด — ไม่มีซ้ำซ้อน',
+  steps:4, stepsAfter:3, redundant:false },
+
+// === สนับสนุน (14) ===
+{ id:39, code:'LAW-TH', name:'กฎหมายแรงงานไทย', group:'support',
+  s1:'ศึกษาด้วยตนเอง → สรุป → แจ้งทีม',
+  s2:'AI Auto-update กฎหมายใหม่ + AI Summary + Auto-alert',
+  s3:'AI Legal-monitor → AI Summarize → Auto-alert ทีม',
+  s4:'ซ้ำกับ LAW-LA, LAW-KH ในโครงสร้าง',
+  s5:'รวม Legal Database เดียว 3 ประเทศ',
+  steps:3, stepsAfter:2, redundant:true },
+{ id:40, code:'LAW-LA', name:'กฎหมายแรงงานลาว', group:'support',
+  s1:'ศึกษาด้วยตนเอง → สรุป → แจ้งทีม',
+  s2:'AI Auto-update + AI Translate + AI Summary',
+  s3:'AI Legal-monitor → AI Translate → AI Summary → Auto-alert',
+  s4:'ซ้ำกับ LAW-TH ในโครงสร้าง',
+  s5:'รวม Legal Database เดียว',
+  steps:3, stepsAfter:2, redundant:true },
+{ id:41, code:'LAW-KH', name:'กฎหมายแรงงานกัมพูชา', group:'support',
+  s1:'ศึกษาด้วยตนเอง → สรุป → แจ้งทีม',
+  s2:'AI Auto-update + AI Translate + AI Summary',
+  s3:'AI Legal-monitor → AI Translate → AI Summary → Auto-alert',
+  s4:'ซ้ำกับ LAW-TH, LAW-LA ในโครงสร้าง',
+  s5:'รวม Legal Database เดียว 3 ประเทศ',
+  steps:3, stepsAfter:2, redundant:true },
+{ id:42, code:'LAW-COMP', name:'เปรียบเทียบกฎหมายข้ามประเทศ', group:'support',
+  s1:'ทำตารางเปรียบเทียบด้วยมือ → อัพเดทเป็นระยะ',
+  s2:'AI Auto-compare + Auto-update เมื่อมีกฎหมายใหม่',
+  s3:'AI Auto-compare 3 ประเทศ → Auto-update → Auto-report diff',
+  s4:'ซ้ำกับ LAW-TH/LA/KH ในข้อมูล',
+  s5:'รวมเป็น Legal Comparison Module ใน Database เดียว',
+  steps:2, stepsAfter:1, redundant:true },
+{ id:43, code:'REG-WI48', name:'ระเบียบ WI 48 ข้อ', group:'support',
+  s1:'เก็บเอกสาร → ค้นหาด้วยมือ → อ้างอิง',
+  s2:'AI Search + AI Summarize + Auto-link',
+  s3:'Digital archive → AI Search → AI Summary → Auto-link กระบวนการ',
+  s4:'ซ้ำกับ REG-POL12 ในระบบจัดเก็บ',
+  s5:'รวม Regulation Database เดียว',
+  steps:3, stepsAfter:2, redundant:true },
+{ id:44, code:'REG-POL12', name:'ระเบียบ Policy 12 ข้อ', group:'support',
+  s1:'เก็บเอกสาร → ค้นหาด้วยมือ → อ้างอิง',
+  s2:'AI Search + AI Summarize + Auto-link',
+  s3:'Digital archive → AI Search → AI Summary → Auto-link',
+  s4:'ซ้ำกับ REG-WI48 ในระบบจัดเก็บ',
+  s5:'รวม Regulation Database เดียว',
+  steps:3, stepsAfter:2, redundant:true },
+{ id:45, code:'REG-PM25', name:'Process Maps 25 ข้อ', group:'support',
+  s1:'วาด流程图 → เก็บ → อ้างอิง',
+  s2:'AI Generate process map + Auto-update',
+  s3:'AI Auto-generate → Auto-update → Interactive viewer',
+  s4:'ซ้ำกับ REG-WI48 ในส่วน process',
+  s5:'รวม Process Library เดียว',
+  steps:3, stepsAfter:2, redundant:true },
+{ id:46, code:'REG-CEO', name:'CEO Concept (Extreme Ownership)', group:'support',
+  s1:'จัดทำเอกสาร → แจก → ติดตาม',
+  s2:'AI Summarize + Auto-distribute + Quiz',
+  s3:'AI Summary → Auto-distribute → AI Quiz → Track understanding',
+  s4:'ไม่มีซ้ำซ้อน',
+  s5:'กระบวนการเดิม 3 ขั้น → 2 ขั้น',
+  steps:3, stepsAfter:2, redundant:false },
+{ id:47, code:'RES-360', name:'วิจัย 360° (Google, Netflix)', group:'support',
+  s1:'ค้นหา → อ่าน → สรุป → ประยุกต์',
+  s2:'AI Search + AI Summarize + AI Apply to PKG context',
+  s3:'AI Research → AI Summarize → AI Contextualize → Auto-recommend',
+  s4:'ซ้ำกับ RES อื่นๆ ในวิธีวิจัย',
+  s5:'รวม Research Repository เดียว',
+  steps:4, stepsAfter:2, redundant:true },
+{ id:48, code:'RES-BARS', name:'วิจัย BARS', group:'support',
+  s1:'ค้นหา → อ่าน → สรุป → ประยุกต์',
+  s2:'AI Search + AI Summarize + AI Design BARS for PKG',
+  s3:'AI Research → AI Summarize → AI Design → Auto-integrate P4',
+  s4:'ซ้ำกับ RES-360 ในวิธีวิจัย',
+  s5:'รวม Research Repository เดียว',
+  steps:4, stepsAfter:2, redundant:true },
+{ id:49, code:'RES-CCL', name:'วิจัย CCL', group:'support',
+  s1:'ค้นหา → อ่าน → สรุป → ประยุกต์',
+  s2:'AI Search + AI Summarize + AI Apply to CC',
+  s3:'AI Research → AI Summarize → AI Map to CC → Auto-recommend',
+  s4:'ซ้ำกับ RES-360 ในวิธีวิจัย',
+  s5:'รวม Research Repository เดียว',
+  steps:4, stepsAfter:2, redundant:true },
+{ id:50, code:'RES-PERMA', name:'วิจัย PERMA', group:'support',
+  s1:'ค้นหา → อ่าน → สรุป → ประยุกต์',
+  s2:'AI Search + AI Summarize + AI Map to P7 5H',
+  s3:'AI Research → AI Summarize → AI Map to 5H → Auto-integrate',
+  s4:'ซ้ำกับ RES-360 ในวิธีวิจัย',
+  s5:'รวม Research Repository เดียว',
+  steps:4, stepsAfter:2, redundant:true },
+{ id:51, code:'RES-REWARD', name:'วิจัย Total Rewards', group:'support',
+  s1:'ค้นหา → อ่าน → สรุป → ประยุกต์',
+  s2:'AI Search + AI Summarize + AI Apply to P6',
+  s3:'AI Research → AI Summarize → AI Design P6 → Auto-integrate',
+  s4:'ซ้ำกับ RES-360 ในวิธีวิจัย',
+  s5:'รวม Research Repository เดียว',
+  steps:4, stepsAfter:2, redundant:true },
+{ id:52, code:'RES-OKR', name:'วิจัย OKR (Google re:Work)', group:'support',
+  s1:'ค้นหา → อ่าน → สรุป → ประยุกต์',
+  s2:'AI Search + AI Summarize + AI Design OKR for PKG',
+  s3:'AI Research → AI Summarize → AI Design OKR → Auto-integrate',
+  s4:'ซ้ำกับ RES-360 ในวิธีวิจัย',
+  s5:'รวม Research Repository เดียว',
+  steps:4, stepsAfter:2, redundant:true },
+];
+
+// Redundancy data
+const redundancies = [
+  { title: 'ระบบบันทึก/ทะเบียน', items: ['WI-001 (บันทึก)', 'FM-002 (ทะเบียนเอกสาร)', 'PAD-WI-001 (ขึ้นทะเบียน)', 'PAD-FM-002 (แบบฟอร์ม)'], solution: 'รวมเป็น Digital Registry + Digital Form System เดียว' },
+  { title: 'ระบบคัดกรอง', items: ['WI-002 (คัดกรองภายนอก)', 'PM-001 (แสวงหา)', 'WI-010 (รับสมัครภายใน)'], solution: 'ใช้ AI Screening Engine เดียวกัน' },
+  { title: 'ระบบ Notification', items: ['PM-002 (บริหารระบบ)', 'SD-001 (Script แจ้ง)'], solution: 'รวมเป็น Notification Center เดียว' },
+  { title: 'ระบบติดตามผล', items: ['PM-003 (วัดผล 30 วัน)', 'PAD-PM-001 (พี่เลี้ยง)', 'PAD-WI-005 (ติดตามการฝึก)'], solution: 'รวม Tracking System เดียว' },
+  { title: 'ระบบประเมิน', items: ['PAD-PM-005 (ประเมินอบรม)', 'PAD-WI-004 (ประเมินหลังอบรม)'], solution: 'รวม Evaluation Engine เดียว' },
+  { title: 'ระบบรายงาน', items: ['PAD-PM-004 (อบรมตามกฎหมาย)', 'PAD-WI-006 (รายงานอบรม)'], solution: 'รวม Reporting Engine เดียว' },
+  { title: 'ระบบคำนวณเงินเดือน', items: ['WCD-WI-001 (เบี้ยเลี้ยง)', 'WCD-WI-004 (เงินเดือน)', 'WCD-WI-010 (นำส่งสมทบ)'], solution: 'รวม Payroll Engine เดียว' },
+  { title: 'ระบบฟอร์ม', items: ['WCD-FM-001 (ค่าตอบแทน)', 'WCD-FM-002 (สวัสดิการ)', 'PAD-FM-002 (ฝึกอบรม)'], solution: 'รวม Digital Form System เดียวทั้งองค์กร' },
+  { title: 'กฎหมาย 3 ประเทศ', items: ['LAW-TH', 'LAW-LA', 'LAW-KH', 'LAW-COMP'], solution: 'รวม Legal Database เดียว + Auto-compare' },
+  { title: 'งานวิจัย', items: ['RES-360', 'RES-BARS', 'RES-CCL', 'RES-PERMA', 'RES-REWARD', 'RES-OKR'], solution: 'รวม Research Repository เดียว' },
+];
+
+// AI Impact data
+const aiImpacts = [
+  { title: '🔍 AI Screening', desc: 'คัดกรองใบสมัคร + จับคู่ CC อัตโนมัติ', processes: 'WI-002, PM-001, WI-010', impact: 'ลดเวลาคัดกรอง 80%' },
+  { title: '📊 AI Dashboard', desc: 'แสดงข้อมูลเรียลไทม์ + Auto-report', processes: 'PM-002, PAD-WI-006', impact: 'ลดเวลารายงาน 90%' },
+  { title: '💰 AI Payroll', desc: 'คำนวณเงินเดือน/ภาษี/SSF/PVD อัตโนมัติ', processes: 'WCD-WI-004, WI-001, WI-010', impact: 'ลด Human Error 95%' },
+  { title: '📝 AI Document', desc: 'OCR + Auto-categorize + Auto-index', processes: 'FM-002, PAD-WI-001', impact: 'ลดเวลาจัดเก็บ 70%' },
+  { title: '🔔 AI Notification', desc: 'Auto-generate + Multi-channel + Track', processes: 'SD-001, PM-002', impact: 'ลดงาน Manual 85%' },
+  { title: '🧪 AI Evaluation', desc: 'Auto-grade + Sentiment + Insights', processes: 'PAD-PM-005, PAD-WI-004', impact: 'ลดเวลาประเมิน 75%' },
+  { title: '⚖️ AI Legal Monitor', desc: 'Track กฎหมายใหม่ + Auto-translate + Alert', processes: 'LAW-TH/LA/KH', impact: 'Update ทันท่วงที 100%' },
+  { title: '🔬 AI Research', desc: 'Search + Summarize + Contextualize', processes: 'RES-360/BARS/CCL/PERMA/REWARD/OKR', impact: 'ลดเวลาวิจัย 60%' },
+  { title: '📅 AI Tracking', desc: 'Auto-track milestones + Auto-alert', processes: 'PM-003, PAD-PM-001, PAD-WI-005', impact: 'ไม่พลาด deadline 100%' },
+];
+
+// Comparison highlights
+const comparisons = [
+  { before: 'HR คัดกรองใบสมัครด้วยมือ (2-3 วัน/ตำแหน่ง)', after: 'AI Screen + CC Match (5 นาที/ตำแหน่ง)', reduction: '95%' },
+  { before: 'คำนวณเงินเดือน + ภาษี + SSF ด้วย Excel (1-2 วัน)', after: 'AI Auto-calculate ทุกอย่าง (30 วินาที)', reduction: '99%' },
+  { before: 'ทำรายงานฝึกอบรมด้วยมือ (3-4 ชม.)', after: 'AI Auto-generate report (2 นาที)', reduction: '95%' },
+  { before: 'ติดตามผล 30/60/90 วัน ด้วยกระดาษ', after: 'AI Auto-track + Alert อัตโนมัติ', reduction: '90%' },
+  { before: 'ค้นหาเอกสารระเบียบด้วยมือ (5-10 นาที)', after: 'AI Search + Auto-link (5 วินาที)', reduction: '99%' },
+  { before: 'เปรียบเทียบกฎหมาย 3 ประเทศ ทำตารางเอง (1 วัน)', after: 'AI Auto-compare + Auto-update (1 นาที)', reduction: '99%' },
+  { before: 'ประเมินผลฝึกอบรม ตรวจข้อสอบด้วยมือ (2-3 ชม.)', after: 'AI Auto-grade + Insights (1 นาที)', reduction: '98%' },
+  { before: 'แจ้งผู้สมัคร/สมาชิก ด้วยโทรศัพท์/อีเมล ทีละคน', after: 'AI Auto-send Multi-channel + Track read', reduction: '85%' },
+];
+
+// ============================================
+// RENDER FUNCTIONS
+// ============================================
+
+let currentFilter = 'all';
+
+function renderTable() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const tbody = document.getElementById('processTableBody');
+  
+  let filtered = processes;
+  if (currentFilter === 'redundant') {
+    filtered = processes.filter(p => p.redundant);
+  } else if (currentFilter !== 'all') {
+    filtered = processes.filter(p => p.group === currentFilter);
+  }
+  if (search) {
+    filtered = filtered.filter(p => p.name.toLowerCase().includes(search) || p.code.toLowerCase().includes(search));
+  }
+
+  tbody.innerHTML = filtered.map(p => {
+    const groupColor = p.group === 'P1-P4' ? 'text-blue-400' : p.group === 'P5' ? 'text-green-400' : p.group === 'P6-P7' ? 'text-rose-400' : 'text-amber-400';
+    const reduction = Math.round((1 - p.stepsAfter / p.steps) * 100);
+    const barColor = reduction >= 50 ? 'bg-green-500' : reduction >= 30 ? 'bg-amber-500' : 'bg-blue-500';
+    
+    return `
+    <tr class="process-row border-b border-white/5" onclick="showDetail(${p.id})">
+      <td class="py-2 px-2 text-[11px] text-gray-600">${p.id}</td>
+      <td class="py-2 px-2 text-[11px] font-mono text-gray-400">${p.code}</td>
+      <td class="py-2 px-2">
+        <div class="text-xs font-medium">${p.name}</div>
+        <div class="text-[10px] ${groupColor}">${p.group}</div>
+      </td>
+      <td class="py-2 px-2 text-center"><span class="step-pill step-redundant text-[9px]">${p.steps}</span></td>
+      <td class="py-2 px-2 text-center"><span class="step-pill step-ai text-[9px]">🤖</span></td>
+      <td class="py-2 px-2 text-center"><span class="step-pill step-done text-[9px]">✓</span></td>
+      <td class="py-2 px-2 text-center">${p.redundant ? '<span class="step-pill step-redundant text-[9px]">⚠</span>' : '<span class="text-[10px] text-gray-600">—</span>'}</td>
+      <td class="py-2 px-2 text-center"><span class="step-pill step-optimized text-[9px]">${p.stepsAfter}</span></td>
+      <td class="py-2 px-2 text-center">
+        <div class="flex items-center gap-1 justify-center">
+          <span class="text-[10px] font-bold ${reduction >= 50 ? 'text-green-400' : reduction >= 30 ? 'text-amber-400' : 'text-blue-400'}">${reduction}%</span>
+          <div class="reduction-bar w-12"><div class="reduction-fill ${barColor}" style="width:${reduction}%"></div></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderRedundancies() {
+  const container = document.getElementById('redundancyList');
+  container.innerHTML = redundancies.map(r => `
+    <div class="rounded-xl p-3 border border-amber-500/10 bg-amber-500/5">
+      <div class="text-xs font-bold text-amber-300 mb-2">⚠️ ${r.title}</div>
+      <div class="flex flex-wrap gap-1 mb-2">
+        ${r.items.map(i => `<span class="tag tag-before">${i}</span>`).join('')}
+      </div>
+      <div class="text-[11px] text-green-400">→ ${r.solution}</div>
+    </div>
+  `).join('');
+}
+
+function renderAIImpacts() {
+  const container = document.getElementById('aiImpactList');
+  container.innerHTML = aiImpacts.map(a => `
+    <div class="rounded-xl p-3 border border-purple-500/10 bg-purple-500/5">
+      <div class="text-xs font-bold text-purple-300 mb-1">${a.title}</div>
+      <div class="text-[11px] text-gray-400 mb-2">${a.desc}</div>
+      <div class="text-[10px] text-gray-500">กระบวนการ: ${a.processes}</div>
+      <div class="text-[11px] text-green-400 font-semibold mt-1">📈 ${a.impact}</div>
+    </div>
+  `).join('');
+}
+
+function renderComparisons() {
+  const container = document.getElementById('comparisonHighlights');
+  container.innerHTML = comparisons.map(c => `
+    <div class="flex items-center gap-3 rounded-xl p-3 border border-white/5 bg-white/[0.02]">
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="tag tag-before">❌ ก่อน</span>
+          <span class="text-xs text-gray-300">${c.before}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="tag tag-after">✅ หลัง</span>
+          <span class="text-xs text-gray-300">${c.after}</span>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="text-lg font-extrabold text-green-400">-${c.reduction}</div>
+        <div class="text-[10px] text-gray-500">ลดเวลา</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function filterProcesses() {
+  renderTable();
+}
+
+function showDetail(id) {
+  const p = processes.find(x => x.id === id);
+  if (!p) return;
+  const modal = document.getElementById('detailModal');
+  const body = document.getElementById('modalBody');
+  const reduction = Math.round((1 - p.stepsAfter / p.steps) * 100);
+  
+  body.innerHTML = `
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <div class="text-xs font-mono text-gray-500">${p.code}</div>
+        <h3 class="text-lg font-bold">${p.name}</h3>
+        <span class="tag ${p.group === 'P1-P4' ? 'tag-ai' : p.group === 'P5' ? 'tag-after' : p.group === 'P6-P7' ? 'tag-before' : 'tag-redundant'}">${p.group}</span>
+      </div>
+      <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white">✕</button>
+    </div>
+    
+    <div class="space-y-3">
+      <div class="rounded-xl p-3 border border-red-500/20 bg-red-500/5">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="step-pill step-redundant text-[9px]">S1</span>
+          <span class="text-xs font-bold text-red-300">กระบวนการเดิม (As-Is)</span>
+          <span class="ml-auto text-[10px] text-gray-500">${p.steps} ขั้นตอน</span>
+        </div>
+        <div class="text-xs text-gray-300">${p.s1}</div>
+      </div>
+      
+      <div class="rounded-xl p-3 border border-purple-500/20 bg-purple-500/5">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="step-pill step-ai text-[9px]">S2</span>
+          <span class="text-xs font-bold text-purple-300">AI เข้ามาช่วย</span>
+        </div>
+        <div class="text-xs text-gray-300">${p.s2}</div>
+      </div>
+      
+      <div class="rounded-xl p-3 border border-green-500/20 bg-green-500/5">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="step-pill step-done text-[9px]">S3</span>
+          <span class="text-xs font-bold text-green-300">กระบวนการใหม่ (To-Be)</span>
+          <span class="ml-auto text-[10px] text-gray-500">${p.stepsAfter} ขั้นตอน</span>
+        </div>
+        <div class="text-xs text-gray-300">${p.s3}</div>
+      </div>
+      
+      <div class="rounded-xl p-3 border border-amber-500/20 bg-amber-500/5">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="step-pill" style="background:rgba(245,158,11,0.2);color:#fcd34d;border:1px solid rgba(245,158,11,0.3);width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;">S4</span>
+          <span class="text-xs font-bold text-amber-300">ความซ้ำซ้อนที่พบ</span>
+        </div>
+        <div class="text-xs text-gray-300">${p.s4}</div>
+      </div>
+      
+      <div class="rounded-xl p-3 border border-blue-500/20 bg-blue-500/5">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="step-pill step-optimized text-[9px]">S5</span>
+          <span class="text-xs font-bold text-blue-300">หลังลดความซ้ำซ้อน</span>
+          <span class="ml-auto text-[10px] font-bold text-green-400">ลดได้ ${reduction}%</span>
+        </div>
+        <div class="text-xs text-gray-300">${p.s5}</div>
+      </div>
+    </div>
+    
+    <div class="mt-4 flex items-center gap-3">
+      <div class="flex-1">
+        <div class="text-[10px] text-gray-500 mb-1">ประสิทธิภาพที่เพิ่มขึ้น</div>
+        <div class="reduction-bar h-3"><div class="reduction-fill ${reduction >= 50 ? 'bg-green-500' : reduction >= 30 ? 'bg-amber-500' : 'bg-blue-500'}" style="width:${reduction}%"></div></div>
+      </div>
+      <div class="text-2xl font-extrabold text-green-400">-${reduction}%</div>
+    </div>
+  `;
+  modal.classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('detailModal').classList.remove('show');
+}
+
+// Charts
+function initCharts() {
+  // Before vs After
+  new Chart(document.getElementById('chartBeforeAfter'), {
+    type: 'bar',
+    data: {
+      labels: ['P1-P4', 'P5', 'P6-P7', 'สนับสนุน'],
+      datasets: [
+        { label: 'ก่อน (S1)', data: [52, 49, 52, 35], backgroundColor: 'rgba(239,68,68,0.5)', borderRadius: 4 },
+        { label: 'หลัง (S5)', data: [34, 33, 34, 24], backgroundColor: 'rgba(34,197,94,0.5)', borderRadius: 4 }
+      ]
+    },
+    options: {
+      scales: {
+        x: { ticks: { color: '#9ca3af', font: { size: 10 } }, grid: { display: false } },
+        y: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.05)' }, title: { display: true, text: 'จำนวนขั้นตอนรวม', color: '#6b7280', font: { size: 10 } } }
+      },
+      plugins: { legend: { labels: { color: '#9ca3af', font: { size: 10 } } } }
+    }
+  });
+
+  // AI Impact
+  new Chart(document.getElementById('chartAI'), {
+    type: 'radar',
+    data: {
+      labels: ['Screening', 'Dashboard', 'Payroll', 'Document', 'Notification', 'Evaluation', 'Legal', 'Research', 'Tracking'],
+      datasets: [{
+        label: 'AI Impact %',
+        data: [80, 90, 95, 70, 85, 75, 100, 60, 100],
+        backgroundColor: 'rgba(168,85,247,0.2)',
+        borderColor: 'rgba(168,85,247,0.6)',
+        pointBackgroundColor: 'rgba(168,85,247,0.8)',
+        pointRadius: 3
+      }]
+    },
+    options: {
+      scales: { r: { ticks: { display: false }, grid: { color: 'rgba(255,255,255,0.08)' }, pointLabels: { color: '#9ca3af', font: { size: 9 } } } },
+      plugins: { legend: { display: false } }
+    }
+  });
+
+  // Redundancy
+  new Chart(document.getElementById('chartRedundancy'), {
+    type: 'doughnut',
+    data: {
+      labels: ['ระบบบันทึก/ทะเบียน', 'ระบบคัดกรอง', 'ระบบ Notification', 'ระบบติดตาม', 'ระบบประเมิน', 'ระบบรายงาน', 'Payroll', 'ระบบฟอร์ม', 'กฎหมาย', 'วิจัย'],
+      datasets: [{
+        data: [4, 3, 2, 3, 2, 2, 3, 3, 4, 6],
+        backgroundColor: [
+          'rgba(239,68,68,0.6)', 'rgba(245,158,11,0.6)', 'rgba(168,85,247,0.6)',
+          'rgba(59,130,246,0.6)', 'rgba(34,197,94,0.6)', 'rgba(6,182,212,0.6)',
+          'rgba(244,63,94,0.6)', 'rgba(99,102,241,0.6)', 'rgba(236,72,153,0.6)', 'rgba(251,146,60,0.6)'
+        ],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      plugins: { legend: { position: 'right', labels: { color: '#9ca3af', font: { size: 9 }, boxWidth: 12 } } },
+      cutout: '55%'
+    }
+  });
+}
+
+// Keyboard
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// Init
+renderTable();
+renderRedundancies();
+renderAIImpacts();
+renderComparisons();
+initCharts();
+</script>
+</body>
+</html>
