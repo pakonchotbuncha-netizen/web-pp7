@@ -261,6 +261,7 @@ body { background: #0a0e1a; min-height: 100vh; color: #e2e8f0; }
 <button class="filter-btn" onclick="setHRFilter('P5', this)">🎓 P5 พัฒนา (13)</button>
 <button class="filter-btn" onclick="setHRFilter('P6-P7', this)">💰 P6-P7 ค่าตอบแทน (12)</button>
 <button class="filter-btn" onclick="setHRFilter('support', this)">⚖️ สนับสนุน (14)</button>
+<button class="filter-btn" onclick="setHRFilter('s4-only', this)" style="background: rgba(245,158,11,0.2); border-color: rgba(245,158,11,0.5);">⚠️ เฉพาะ S4 (18)</button>
 </div>
 
 <!-- HR Process Cards -->
@@ -969,15 +970,22 @@ function setHRFilter(filter, btn) {
     b.style.borderColor = '';
   });
   btn.classList.add('active');
-  btn.style.background = 'rgba(34,197,94,0.2)';
-  btn.style.borderColor = 'rgba(34,197,94,0.5)';
+  if (filter === 's4-only') {
+    btn.style.background = 'rgba(245,158,11,0.2)';
+    btn.style.borderColor = 'rgba(245,158,11,0.5)';
+  } else {
+    btn.style.background = 'rgba(34,197,94,0.2)';
+    btn.style.borderColor = 'rgba(34,197,94,0.5)';
+  }
   renderHRProcessCards();
 }
 
 function renderHRProcessCards() {
   const container = document.getElementById('hrProcessCards');
   let filtered = processes;
-  if (currentHRFilter !== 'all') {
+  if (currentHRFilter === 's4-only') {
+    filtered = processes.filter(p => p.redundant === true);
+  } else if (currentHRFilter !== 'all') {
     filtered = processes.filter(p => p.group === currentHRFilter);
   }
   
