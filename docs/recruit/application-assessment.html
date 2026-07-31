@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P1 แสวงหา — ใบสมัคร + แบบทดสอบ + AI Analysis | Web PP7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Prompt', sans-serif; }
+        .step-active { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+        .step-done { background: #10b981; color: white; }
+        .step-pending { background: #e5e7eb; color: #6b7280; }
+        .card-hover { transition: all 0.3s; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.12); }
+        .score-ring { position: relative; width: 120px; height: 120px; }
+        .progress-bar { transition: width 1s ease-in-out; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .glass { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<!-- Header -->
+<header class="gradient-bg text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold">🎯 P1 แสวงหา — ระบบรับสมัครงาน</h1>
+                <p class="text-blue-100 text-sm">ใบสมัคร + แบบทดสอบ + AI Analysis | PKG Group</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="switchView('applicant')" id="btn-applicant" class="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 text-sm font-medium">👤 มุมผู้สมัคร</button>
+                <button onclick="switchView('hr')" id="btn-hr" class="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 text-sm font-medium">🏢 มุม HR</button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Progress Steps -->
+<div class="max-w-7xl mx-auto px-4 py-4">
+    <div class="flex items-center justify-between bg-white rounded-xl p-4 shadow">
+        <div class="flex items-center gap-2" id="step-1">
+            <div class="w-10 h-10 rounded-full step-active flex items-center justify-center font-bold">1</div>
+            <span class="text-sm font-medium hidden md:block">กรอกใบสมัคร</span>
+        </div>
+        <div class="flex-1 h-1 bg-gray-200 mx-2"><div class="h-1 bg-blue-500 progress-bar" style="width: 0%"></div></div>
+        <div class="flex items-center gap-2" id="step-2">
+            <div class="w-10 h-10 rounded-full step-pending flex items-center justify-center font-bold">2</div>
+            <span class="text-sm font-medium hidden md:block">แบบทดสอบ</span>
+        </div>
+        <div class="flex-1 h-1 bg-gray-200 mx-2"><div class="h-1 bg-blue-500 progress-bar" style="width: 0%"></div></div>
+        <div class="flex items-center gap-2" id="step-3">
+            <div class="w-10 h-10 rounded-full step-pending flex items-center justify-center font-bold">3</div>
+            <span class="text-sm font-medium hidden md:block">AI วิเคราะห์</span>
+        </div>
+        <div class="flex-1 h-1 bg-gray-200 mx-2"><div class="h-1 bg-blue-500 progress-bar" style="width: 0%"></div></div>
+        <div class="flex items-center gap-2" id="step-4">
+            <div class="w-10 h-10 rounded-full step-pending flex items-center justify-center font-bold">4</div>
+            <span class="text-sm font-medium hidden md:block">ผลการพิจารณา</span>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="max-w-7xl mx-auto px-4 pb-8">
+
+    <!-- ==================== APPLICANT VIEW ==================== -->
+    <div id="applicant-view">
+
+        <!-- Step 1: Application Form -->
+        <div id="form-section" class="fade-in">
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">📝 ใบสมัครงาน — ตำแหน่ง <span id="position-name" class="text-blue-600">Software Developer</span></h2>
+
+                <!-- Part 1: Personal Info -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-blue-600 mb-3 flex items-center gap-2">
+                        <span class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm">1</span>
+                        ข้อมูลส่วนตัว
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อ-นามสกุล *</label>
+                            <input type="text" id="full-name" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="กรอกชื่อ-นามสกุล">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">วันที่เกิด *</label>
+                            <input type="date" id="birth-date" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์ *</label>
+                            <input type="tel" id="phone" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="08X-XXX-XXXX">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">อีเมล *</label>
+                            <input type="email" id="email" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="example@email.com">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ที่อยู่ปัจจุบัน *</label>
+                            <textarea id="address" rows="2" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="บ้านเลขที่ ซอย ถนน แขวง/ตำบล เขต/อำเภอ จังหวัด รหัสไปรษณีย์"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">LINE ID</label>
+                            <input type="text" id="line-id" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="@line_id">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">สถานะทางทหาร (ชาย)</label>
+                            <select id="military" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">-- เลือก --</option>
+                                <option>เกณฑ์ทหารแล้ว</option>
+                                <option>สละสิทธิ์</option>
+                                <option>ยังไม่ได้เกณฑ์</option>
+                                <option>ไม่適用</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Part 2: Education -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-blue-600 mb-3 flex items-center gap-2">
+                        <span class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm">2</span>
+                        การศึกษา
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ระดับการศึกษาสูงสุด *</label>
+                            <select id="edu-level" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">-- เลือก --</option>
+                                <option>มัธยมศึกษา</option>
+                                <option>ปวช.</option>
+                                <option>ปวส.</option>
+                                <option>ปริญญาตรี</option>
+                                <option>ปริญญาโท</option>
+                                <option>ปริญญาเอก</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">สถาบัน *</label>
+                            <input type="text" id="institution" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="ชื่อสถาบัน">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">สาขาวิชา *</label>
+                            <input type="text" id="major" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="เช่น วิทยาการคอมพิวเตอร์">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">GPA</label>
+                            <input type="number" id="gpa" step="0.01" min="0" max="4" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="3.50">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ปีที่จบ</label>
+                            <input type="number" id="grad-year" min="1990" max="2030" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="2569">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Part 3: Work Experience -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-blue-600 mb-3 flex items-center gap-2">
+                        <span class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm">3</span>
+                        ประสบการณ์ทำงาน
+                    </h3>
+                    <div id="work-experience-list">
+                        <div class="work-exp-item border rounded-lg p-4 mb-3 bg-gray-50">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อบริษัท</label>
+                                    <input type="text" class="work-company w-full px-3 py-2 border rounded-lg" placeholder="บริษัท ABC">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">ตำแหน่ง</label>
+                                    <input type="text" class="work-position w-full px-3 py-2 border rounded-lg" placeholder="Developer">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">ระยะเวลา (ปี)</label>
+                                    <input type="text" class="work-duration w-full px-3 py-2 border rounded-lg" placeholder="2 ปี">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="addWorkExperience()" class="text-blue-600 text-sm font-medium hover:underline">+ เพิ่มประสบการณ์ทำงาน</button>
+                </div>
+
+                <!-- Part 4: Skills & Documents -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-blue-600 mb-3 flex items-center gap-2">
+                        <span class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm">4</span>
+                        ทักษะและเอกสาร
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ทักษะ (แยกด้วยเครื่องหมาย ,)</label>
+                            <input type="text" id="skills" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="JavaScript, Python, SQL, Communication">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ใบรับรอง/ใบอนุญาต</label>
+                            <input type="text" id="certificates" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="AWS Certified, TOEIC 850">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">เงินเดือนที่ต้องการ (บาท)</label>
+                            <input type="number" id="expected-salary" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="30000">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">วันที่สามารถเริ่มงานได้</label>
+                            <input type="date" id="start-date" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">อัปโหลด Resume (PDF)</label>
+                            <input type="file" id="resume-file" accept=".pdf,.doc,.docx" class="w-full px-3 py-2 border rounded-lg">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Consent -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                    <label class="flex items-start gap-2">
+                        <input type="checkbox" id="consent" class="mt-1">
+                        <span class="text-sm text-gray-700">
+                            ข้าพเจ้ายินยอมให้ PKG Group เก็บและใช้ข้อมูลส่วนบุคคลเพื่อการคัดเลือกพนักงาน 
+                            ตาม <a href="#" class="text-blue-600 underline">นโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA)</a>
+                        </span>
+                    </label>
+                </div>
+
+                <button onclick="submitApplication()" class="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+                    ✅ ส่งใบสมัครและเริ่มทำแบบทดสอบ
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Assessment Tests -->
+        <div id="test-section" class="hidden fade-in">
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">📋 แบบทดสอบ — <span id="test-title">ทัศนคติ</span></h2>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm text-gray-500">ข้อ <span id="current-q">1</span>/<span id="total-q">30</span></span>
+                        <div class="bg-red-100 text-red-700 px-3 py-1 rounded-full font-mono font-bold" id="timer">30:00</div>
+                    </div>
+                </div>
+
+                <!-- Test Tabs -->
+                <div class="flex gap-2 mb-4 overflow-x-auto">
+                    <button onclick="switchTest('attitude')" id="tab-attitude" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm whitespace-nowrap">🧠 ทัศนคติ (30 ข้อ)</button>
+                    <button onclick="switchTest('skill')" id="tab-skill" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm whitespace-nowrap">💻 ทักษะ (40 ข้อ)</button>
+                    <button onclick="switchTest('cc')" id="tab-cc" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm whitespace-nowrap">⭐ CC 7 ด้าน (70 ข้อ)</button>
+                    <button onclick="switchTest('e3p')" id="tab-e3p" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm whitespace-nowrap">🔥 3E3P (30 ข้อ)</button>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+                    <div class="bg-blue-600 h-2 rounded-full progress-bar" id="test-progress" style="width: 0%"></div>
+                </div>
+
+                <!-- Question Area -->
+                <div id="question-area" class="bg-gray-50 rounded-lg p-6 mb-4">
+                    <p class="text-lg font-medium text-gray-800 mb-4" id="question-text">
+                        คุณยินดีที่จะทำงานเพิ่มเติมเมื่อทีมต้องการความช่วยเหลือ แม้ว่าจะนอกเวลาทำงานหรือไม่?
+                    </p>
+                    <div class="space-y-2" id="answer-options">
+                        <label class="flex items-center gap-3 p-3 bg-white rounded-lg border hover:border-blue-500 cursor-pointer">
+                            <input type="radio" name="answer" value="5" class="text-blue-600">
+                            <span>เห็นด้วยอย่างยิ่ง</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-white rounded-lg border hover:border-blue-500 cursor-pointer">
+                            <input type="radio" name="answer" value="4" class="text-blue-600">
+                            <span>เห็นด้วย</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-white rounded-lg border hover:border-blue-500 cursor-pointer">
+                            <input type="radio" name="answer" value="3" class="text-blue-600">
+                            <span>เฉยๆ</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-white rounded-lg border hover:border-blue-500 cursor-pointer">
+                            <input type="radio" name="answer" value="2" class="text-blue-600">
+                            <span>ไม่เห็นด้วย</span>
+                        </label>
+                        <label class="flex items-center gap-3 p-3 bg-white rounded-lg border hover:border-blue-500 cursor-pointer">
+                            <input type="radio" name="answer" value="1" class="text-blue-600">
+                            <span>ไม่เห็นด้วยอย่างยิ่ง</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex justify-between">
+                    <button onclick="prevQuestion()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300" id="btn-prev" disabled>← ก่อนหน้า</button>
+                    <button onclick="nextQuestion()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" id="btn-next">ถัดไป →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: AI Analysis (Waiting) -->
+        <div id="analysis-waiting" class="hidden fade-in">
+            <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                <div class="w-20 h-20 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span class="text-4xl pulse">🤖</span>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">AI กำลังวิเคราะห์คุณสมบัติของคุณ...</h2>
+                <p class="text-gray-500 mb-4">ระบบกำลังประมวลผลแบบทดสอบทั้ง 4 ชุด และเปรียบเทียบกับความต้องการของตำแหน่ง</p>
+                <div class="w-64 mx-auto bg-gray-200 rounded-full h-3">
+                    <div class="bg-blue-600 h-3 rounded-full progress-bar" id="analysis-progress" style="width: 0%"></div>
+                </div>
+                <p class="text-sm text-gray-400 mt-2" id="analysis-status">กำลังเริ่มต้น...</p>
+            </div>
+        </div>
+
+        <!-- Step 4: Results -->
+        <div id="result-section" class="hidden fade-in">
+            <!-- Overall Score -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">📊 ผลการวิเคราะห์จาก AI</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
+                        <div class="text-4xl font-bold text-green-600" id="overall-score">85</div>
+                        <div class="text-sm text-gray-600">คะแนนรวม</div>
+                        <div class="text-xs text-green-500 font-medium mt-1">ผ่านเกณฑ์</div>
+                    </div>
+                    <div class="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+                        <div class="text-4xl font-bold text-blue-600" id="attitude-score">82</div>
+                        <div class="text-sm text-gray-600">ทัศนคติ</div>
+                        <div class="text-xs text-blue-500 font-medium mt-1">ดี</div>
+                    </div>
+                    <div class="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
+                        <div class="text-4xl font-bold text-purple-600" id="skill-score">88</div>
+                        <div class="text-sm text-gray-600">ทักษะ</div>
+                        <div class="text-xs text-purple-500 font-medium mt-1">ดีมาก</div>
+                    </div>
+                    <div class="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl">
+                        <div class="text-4xl font-bold text-orange-600" id="cc-score">79</div>
+                        <div class="text-sm text-gray-600">CC Match</div>
+                        <div class="text-xs text-orange-500 font-medium mt-1">ดี</div>
+                    </div>
+                </div>
+
+                <!-- CC Radar Chart -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-3">⭐ Core Competency 7 ด้าน</h3>
+                        <canvas id="cc-radar-chart" height="250"></canvas>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-700 mb-3">📈 คะแนนแต่ละด้าน</h3>
+                        <div class="space-y-2" id="cc-scores-list">
+                            <!-- Generated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Recommendation -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">🤖 บทวิเคราะห์ AI</h2>
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-2xl">✅</span>
+                        <span class="font-bold text-green-700 text-lg">คำแนะนำ: ผ่าน — ควรนัดสัมภาษณ์</span>
+                    </div>
+                    <p class="text-green-600 text-sm">ผู้สมัครมีคะแนนรวมสูงกว่าเกณฑ์ (85/100) และมี CC Match ในระดับดี</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-blue-700 mb-2">💪 จุดแข็ง</h4>
+                        <ul class="space-y-1 text-sm text-blue-600" id="strengths-list">
+                            <li>• ทักษะด้าน Technical แข็งแกร่ง (88%)</li>
+                            <li>• CC2 Adaptive Innovation สูง (90%)</li>
+                            <li>• CC6 Technology Mastery เด่น (92%)</li>
+                            <li>• ประสบการณ์ตรงกับตำแหน่ง</li>
+                        </ul>
+                    </div>
+                    <div class="bg-yellow-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-yellow-700 mb-2">⚠️ จุดที่ต้องพิจารณา</h4>
+                        <ul class="space-y-1 text-sm text-yellow-600" id="concerns-list">
+                            <li>• CC4 Consensus Teamwork ปานกลาง (72%)</li>
+                            <li>• ประสบการณ์การทำงาน 1 ปี (อาจน้อย)</li>
+                            <li>• 3E3P Engagement ต่ำกว่าเกณฑ์เล็กน้อย</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-purple-50 rounded-lg p-4">
+                    <h4 class="font-semibold text-purple-700 mb-2">🎯 คำถามที่แนะนำสำหรับสัมภาษณ์</h4>
+                    <ul class="space-y-1 text-sm text-purple-600" id="suggested-questions">
+                        <li>1. เล่าประสบการณ์การทำงานเป็นทีมที่ซับซ้อน — วัด CC4</li>
+                        <li>2. คุณจัดการกับความขัดแย้งในทีมอย่างไร? — วัด CC4</li>
+                        <li>3. อธิบายโปรเจกต์ที่ภูมิใจที่สุด — วัดทักษะจริง</li>
+                        <li>4. คุณปรับตัวกับการเปลี่ยนแปลงอย่างไร? — วัด CC2</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Status Timeline -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">📅 สถานะการสมัคร</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white">✓</div>
+                        <div>
+                            <p class="font-medium">ส่งใบสมัคร</p>
+                            <p class="text-sm text-gray-500">31 ก.ค. 2569, 09:30</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white">✓</div>
+                        <div>
+                            <p class="font-medium">ทำแบบทดสอบครบ 4 ชุด</p>
+                            <p class="text-sm text-gray-500">31 ก.ค. 2569, 11:15</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white">✓</div>
+                        <div>
+                            <p class="font-medium">AI วิเคราะห์เสร็จสิ้น</p>
+                            <p class="text-sm text-gray-500">31 ก.ค. 2569, 11:16</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white pulse">⏳</div>
+                        <div>
+                            <p class="font-medium text-yellow-700">รอ HR พิจารณา</p>
+                            <p class="text-sm text-gray-500">กำลังดำเนินการ...</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 opacity-40">
+                        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white">○</div>
+                        <div>
+                            <p class="font-medium">นัดสัมภาษณ์</p>
+                            <p class="text-sm text-gray-500">รอพิจารณา</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== HR VIEW ==================== -->
+    <div id="hr-view" class="hidden">
+        <!-- HR Dashboard -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow p-4 card-hover">
+                <div class="text-3xl font-bold text-blue-600">156</div>
+                <div class="text-sm text-gray-500">ผู้สมัครทั้งหมด</div>
+            </div>
+            <div class="bg-white rounded-xl shadow p-4 card-hover">
+                <div class="text-3xl font-bold text-yellow-600">42</div>
+                <div class="text-sm text-gray-500">รอพิจารณา</div>
+            </div>
+            <div class="bg-white rounded-xl shadow p-4 card-hover">
+                <div class="text-3xl font-bold text-green-600">28</div>
+                <div class="text-sm text-gray-500">ผ่าน → นัดสัมภาษณ์</div>
+            </div>
+            <div class="bg-white rounded-xl shadow p-4 card-hover">
+                <div class="text-3xl font-bold text-red-600">12</div>
+                <div class="text-sm text-gray-500">สัมภาษณ์สัปดาห์นี้</div>
+            </div>
+        </div>
+
+        <!-- Candidate List -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-800">👥 รายชื่อผู้สมัคร — ตำแหน่ง Software Developer</h2>
+                <div class="flex gap-2">
+                    <select class="px-3 py-2 border rounded-lg text-sm">
+                        <option>ทุกสถานะ</option>
+                        <option>รอทำแบบทดสอบ</option>
+                        <option>รอพิจารณา</option>
+                        <option>ผ่าน — นัดสัมภาษณ์</option>
+                        <option>ไม่ผ่าน</option>
+                    </select>
+                    <select class="px-3 py-2 border rounded-lg text-sm">
+                        <option>เรียงตาม: คะแนน AI</option>
+                        <option>เรียงตาม: วันที่สมัคร</option>
+                        <option>เรียงตาม: ชื่อ</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left">#</th>
+                            <th class="px-4 py-3 text-left">ชื่อ</th>
+                            <th class="px-4 py-3 text-center">ทัศนคติ</th>
+                            <th class="px-4 py-3 text-center">ทักษะ</th>
+                            <th class="px-4 py-3 text-center">CC</th>
+                            <th class="px-4 py-3 text-center">3E3P</th>
+                            <th class="px-4 py-3 text-center">คะแนนรวม</th>
+                            <th class="px-4 py-3 text-center">AI แนะนำ</th>
+                            <th class="px-4 py-3 text-center">สถานะ</th>
+                            <th class="px-4 py-3 text-center">การกระทำ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="candidate-table">
+                        <!-- Generated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Candidate Detail Modal -->
+        <div id="candidate-detail" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold" id="detail-name">ชื่อผู้สมัคร</h2>
+                    <button onclick="closeDetail()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                </div>
+                <div id="detail-content">
+                    <!-- Filled by JS -->
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button onclick="hrDecision('interview')" class="flex-1 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700">✅ นัดสัมภาษณ์</button>
+                    <button onclick="hrDecision('review')" class="flex-1 py-3 bg-yellow-500 text-white rounded-lg font-semibold hover:bg-yellow-600">⏳ พิจารณาเพิ่ม</button>
+                    <button onclick="hrDecision('reject')" class="flex-1 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700">❌ ไม่ผ่าน</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== State =====
+let currentStep = 1;
+let currentTest = 'attitude';
+let currentQuestion = 1;
+let answers = { attitude: [], skill: [], cc: [], e3p: [] };
+let timerInterval;
+
+// ===== Sample Data =====
+const candidates = [
+    { id: 1, name: 'สมชาย ใจดี', attitude: 82, skill: 88, cc: 79, e3p: 75, overall: 85, recommendation: 'ผ่าน', status: 'รอพิจารณา' },
+    { id: 2, name: 'สมหญิง รักงาน', attitude: 90, skill: 75, cc: 85, e3p: 80, overall: 83, recommendation: 'ผ่าน', status: 'นัดสัมภาษณ์แล้ว' },
+    { id: 3, name: 'ประยุทธ์ มุ่งมั่น', attitude: 65, skill: 92, cc: 60, e3p: 55, overall: 68, recommendation: 'พิจารณา', status: 'รอพิจารณา' },
+    { id: 4, name: 'วิภา สดใส', attitude: 88, skill: 70, cc: 90, e3p: 85, overall: 84, recommendation: 'ผ่าน', status: 'นัดสัมภาษณ์แล้ว' },
+    { id: 5, name: 'ธนพล สร้างสรรค์', attitude: 55, skill: 60, cc: 50, e3p: 45, overall: 52, recommendation: 'ไม่ผ่าน', status: 'ไม่ผ่าน' },
+    { id: 6, name: 'อรุณี พัฒนา', attitude: 78, skill: 85, cc: 82, e3p: 77, overall: 81, recommendation: 'ผ่าน', status: 'รอพิจารณา' },
+];
+
+const ccLabels = ['CC1 Servant Leadership', 'CC2 Adaptive Innovation', 'CC3 Trust-Based Value', 'CC4 Consensus Teamwork', 'CC5 Disciplined Prof.', 'CC6 Technology Mastery', 'CC7 Humor & Joy'];
+const ccScores = [80, 90, 75, 72, 85, 92, 68];
+
+// ===== View Switch =====
+function switchView(view) {
+    document.getElementById('applicant-view').classList.toggle('hidden', view !== 'applicant');
+    document.getElementById('hr-view').classList.toggle('hidden', view !== 'hr');
+    document.getElementById('btn-applicant').classList.toggle('bg-white/40', view === 'applicant');
+    document.getElementById('btn-hr').classList.toggle('bg-white/40', view === 'hr');
+    if (view === 'hr') renderCandidateTable();
+}
+
+// ===== Application Form =====
+function submitApplication() {
+    const name = document.getElementById('full-name').value;
+    const consent = document.getElementById('consent').checked;
+    if (!name) { alert('กรุณากรอกชื่อ-นามสกุล'); return; }
+    if (!consent) { alert('กรุณายินยอม PDPA ก่อนส่งใบสมัคร'); return; }
+    
+    currentStep = 2;
+    updateSteps();
+    document.getElementById('form-section').classList.add('hidden');
+    document.getElementById('test-section').classList.remove('hidden');
+    startTimer(30);
+}
+
+function addWorkExperience() {
+    const container = document.getElementById('work-experience-list');
+    const div = document.createElement('div');
+    div.className = 'work-exp-item border rounded-lg p-4 mb-3 bg-gray-50';
+    div.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">ชื่อบริษัท</label><input type="text" class="work-company w-full px-3 py-2 border rounded-lg"></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">ตำแหน่ง</label><input type="text" class="work-position w-full px-3 py-2 border rounded-lg"></div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">ระยะเวลา (ปี)</label><input type="text" class="work-duration w-full px-3 py-2 border rounded-lg"></div>
+        </div>`;
+    container.appendChild(div);
+}
+
+// ===== Test Engine =====
+const testConfig = {
+    attitude: { total: 30, time: 30, title: 'ทัศนคติ' },
+    skill: { total: 40, time: 60, title: 'ทักษะ' },
+    cc: { total: 70, time: 45, title: 'CC 7 ด้าน' },
+    e3p: { total: 30, time: 20, title: '3E3P' }
+};
+
+function switchTest(test) {
+    currentTest = test;
+    currentQuestion = 1;
+    document.querySelectorAll('[id^="tab-"]').forEach(t => { t.className = 'px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm whitespace-nowrap'; });
+    document.getElementById('tab-' + test).className = 'px-4 py-2 bg-blue-600 text-white rounded-lg text-sm whitespace-nowrap';
+    document.getElementById('test-title').textContent = testConfig[test].title;
+    document.getElementById('total-q').textContent = testConfig[test].total;
+    updateQuestion();
+    startTimer(testConfig[test].time);
+}
+
+function startTimer(minutes) {
+    clearInterval(timerInterval);
+    let seconds = minutes * 60;
+    timerInterval = setInterval(() => {
+        seconds--;
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        document.getElementById('timer').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        if (seconds <= 0) { clearInterval(timerInterval); autoSubmitTest(); }
+    }, 1000);
+}
+
+function updateQuestion() {
+    document.getElementById('current-q').textContent = currentQuestion;
+    const total = testConfig[currentTest].total;
+    document.getElementById('test-progress').style.width = ((currentQuestion / total) * 100) + '%';
+    document.getElementById('btn-prev').disabled = currentQuestion === 1;
+    document.getElementById('btn-next').textContent = currentQuestion === total ? 'ส่งชุดนี้ ✓' : 'ถัดไป →';
+}
+
+function nextQuestion() {
+    const total = testConfig[currentTest].total;
+    if (currentQuestion < total) {
+        currentQuestion++;
+        updateQuestion();
+    } else {
+        autoSubmitTest();
+    }
+}
+
+function prevQuestion() {
+    if (currentQuestion > 1) { currentQuestion--; updateQuestion(); }
+}
+
+function autoSubmitTest() {
+    clearInterval(timerInterval);
+    const tests = ['attitude', 'skill', 'cc', 'e3p'];
+    const idx = tests.indexOf(currentTest);
+    if (idx < 3) {
+        switchTest(tests[idx + 1]);
+    } else {
+        showAnalysis();
+    }
+}
+
+// ===== AI Analysis =====
+function showAnalysis() {
+    currentStep = 3;
+    updateSteps();
+    document.getElementById('test-section').classList.add('hidden');
+    document.getElementById('analysis-waiting').classList.remove('hidden');
+    
+    const statuses = ['กำลังอ่านคำตอบแบบทดสอบ...', 'วิเคราะห์ทัศนคติ...', 'ประเมินทักษะ...', 'วัด CC 7 ด้าน...', 'วิเคราะห์ 3E3P...', 'เปรียบเทียบตำแหน่งงาน...', 'สร้างคำแนะนำ...', 'เสร็จสิ้น!'];
+    let step = 0;
+    const interval = setInterval(() => {
+        step++;
+        document.getElementById('analysis-progress').style.width = ((step / statuses.length) * 100) + '%';
+        document.getElementById('analysis-status').textContent = statuses[Math.min(step, statuses.length - 1)];
+        if (step >= statuses.length) {
+            clearInterval(interval);
+            setTimeout(showResults, 500);
+        }
+    }, 600);
+}
+
+function showResults() {
+    currentStep = 4;
+    updateSteps();
+    document.getElementById('analysis-waiting').classList.add('hidden');
+    document.getElementById('result-section').classList.remove('hidden');
+    renderCCChart();
+    renderCCScores();
+}
+
+function renderCCChart() {
+    const ctx = document.getElementById('cc-radar-chart').getContext('2d');
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ccLabels,
+            datasets: [{
+                label: 'คะแนน CC',
+                data: ccScores,
+                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                borderColor: 'rgba(59, 130, 246, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(59, 130, 246, 1)'
+            }, {
+                label: 'เกณฑ์ขั้นต่ำ',
+                data: [70, 70, 70, 70, 70, 70, 70],
+                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                borderColor: 'rgba(239, 68, 68, 0.5)',
+                borderWidth: 1,
+                borderDash: [5, 5],
+                pointRadius: 0
+            }]
+        },
+        options: {
+            scales: { r: { min: 0, max: 100, ticks: { stepSize: 20 } } },
+            responsive: true
+        }
+    });
+}
+
+function renderCCScores() {
+    const container = document.getElementById('cc-scores-list');
+    container.innerHTML = ccLabels.map((label, i) => {
+        const score = ccScores[i];
+        const color = score >= 80 ? 'green' : score >= 70 ? 'yellow' : 'red';
+        return `
+            <div class="flex items-center gap-3">
+                <span class="text-xs w-40 truncate">${label}</span>
+                <div class="flex-1 bg-gray-200 rounded-full h-3">
+                    <div class="bg-${color}-500 h-3 rounded-full progress-bar" style="width: ${score}%"></div>
+                </div>
+                <span class="text-sm font-bold text-${color}-600 w-10 text-right">${score}</span>
+            </div>`;
+    }).join('');
+}
+
+// ===== HR Functions =====
+function renderCandidateTable() {
+    const tbody = document.getElementById('candidate-table');
+    tbody.innerHTML = candidates.map((c, i) => {
+        const recColor = c.recommendation === 'ผ่าน' ? 'green' : c.recommendation === 'พิจารณา' ? 'yellow' : 'red';
+        const statusColor = c.status.includes('นัด') ? 'green' : c.status.includes('ไม่') ? 'red' : 'yellow';
+        return `
+            <tr class="border-b hover:bg-gray-50 cursor-pointer" onclick="showDetail(${c.id})">
+                <td class="px-4 py-3">${i + 1}</td>
+                <td class="px-4 py-3 font-medium">${c.name}</td>
+                <td class="px-4 py-3 text-center">${c.attitude}</td>
+                <td class="px-4 py-3 text-center">${c.skill}</td>
+                <td class="px-4 py-3 text-center">${c.cc}</td>
+                <td class="px-4 py-3 text-center">${c.e3p}</td>
+                <td class="px-4 py-3 text-center font-bold">${c.overall}</td>
+                <td class="px-4 py-3 text-center"><span class="px-2 py-1 bg-${recColor}-100 text-${recColor}-700 rounded-full text-xs">${c.recommendation}</span></td>
+                <td class="px-4 py-3 text-center"><span class="px-2 py-1 bg-${statusColor}-100 text-${statusColor}-700 rounded-full text-xs">${c.status}</span></td>
+                <td class="px-4 py-3 text-center">
+                    <button onclick="event.stopPropagation(); showDetail(${c.id})" class="text-blue-600 hover:underline text-xs">ดูรายละเอียด</button>
+                </td>
+            </tr>`;
+    }).join('');
+}
+
+function showDetail(id) {
+    const c = candidates.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('detail-name').textContent = `📋 ${c.name}`;
+    document.getElementById('detail-content').innerHTML = `
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <div class="bg-blue-50 rounded-lg p-3 text-center"><div class="text-2xl font-bold text-blue-600">${c.attitude}</div><div class="text-xs text-gray-500">ทัศนคติ</div></div>
+            <div class="bg-purple-50 rounded-lg p-3 text-center"><div class="text-2xl font-bold text-purple-600">${c.skill}</div><div class="text-xs text-gray-500">ทักษะ</div></div>
+            <div class="bg-orange-50 rounded-lg p-3 text-center"><div class="text-2xl font-bold text-orange-600">${c.cc}</div><div class="text-xs text-gray-500">CC Match</div></div>
+            <div class="bg-green-50 rounded-lg p-3 text-center"><div class="text-2xl font-bold text-green-600">${c.overall}</div><div class="text-xs text-gray-500">คะแนนรวม</div></div>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+            <h4 class="font-semibold mb-2">💪 จุดแข็ง</h4>
+            <ul class="text-sm space-y-1"><li>• ทักษะด้านเทคนิคแข็งแกร่ง</li><li>• ทัศนคติเชิงบวก</li><li>• CC ด้านนวัตกรรมสูง</li></ul>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+            <h4 class="font-semibold mb-2">⚠️ จุดที่ต้องพิจารณา</h4>
+            <ul class="text-sm space-y-1"><li>• CC4 Teamwork ปานกลาง</li><li>• ประสบการณ์อาจไม่เพียงพอ</li></ul>
+        </div>`;
+    document.getElementById('candidate-detail').classList.remove('hidden');
+}
+
+function closeDetail() { document.getElementById('candidate-detail').classList.add('hidden'); }
+function hrDecision(decision) {
+    const msg = decision === 'interview' ? 'นัดสัมภาษณ์' : decision === 'review' ? 'พิจารณาเพิ่มเติม' : 'ไม่ผ่าน';
+    alert(`บันทึกการตัดสินใจ: ${msg}`);
+    closeDetail();
+}
+
+// ===== Steps =====
+function updateSteps() {
+    for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById('step-' + i);
+        const circle = el.querySelector('div');
+        const bar = el.nextElementSibling;
+        circle.className = `w-10 h-10 rounded-full flex items-center justify-center font-bold ${i < currentStep ? 'step-done' : i === currentStep ? 'step-active' : 'step-pending'}`;
+        if (bar && bar.querySelector('.progress-bar')) bar.querySelector('.progress-bar').style.width = i < currentStep ? '100%' : '0%';
+    }
+}
+
+// Init
+renderCandidateTable();
+</script>
+</body>
+</html>
