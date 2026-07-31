@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P1-P3 Process Flow Designer — Web PP7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .step-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .step-card.active {
+            border: 3px solid #3b82f6;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        }
+        .flow-line {
+            position: relative;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        }
+        .flow-line::before {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 12px solid #8b5cf6;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-in-progress { background: #dbeafe; color: #1e40af; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .field-group {
+            border-left: 3px solid #3b82f6;
+            padding-left: 16px;
+            margin-bottom: 12px;
+        }
+        .validation-rule {
+            background: #fef3c7;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin: 4px 0;
+        }
+        .api-endpoint {
+            background: #f3f4f6;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 13px;
+            margin: 4px 0;
+        }
+        .api-method {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        .api-get { background: #10b981; color: white; }
+        .api-post { background: #3b82f6; color: white; }
+        .api-put { background: #f59e0b; color: white; }
+        .api-delete { background: #ef4444; color: white; }
+        .schema-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .schema-table th {
+            background: #3b82f6;
+            color: white;
+            padding: 8px;
+            text-align: left;
+        }
+        .schema-table td {
+            border: 1px solid #e5e7eb;
+            padding: 8px;
+        }
+        .schema-table tr:nth-child(even) {
+            background: #f9fafb;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            border: none;
+            background: #f3f4f6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-button.active {
+            background: #3b82f6;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 shadow-lg">
+        <div class="container mx-auto">
+            <h1 class="text-3xl font-bold mb-2">
+                <i class="fas fa-project-diagram"></i> P1-P3 Process Flow Designer
+            </h1>
+            <p class="text-blue-100">ระบบรับสมัครงาน — Web PP7 (PKG Group)</p>
+            <div class="mt-4 flex gap-4 text-sm">
+                <div><i class="fas fa-code"></i> สำหรับทีมพัฒนา</div>
+                <div><i class="fas fa-database"></i> Database Schema</div>
+                <div><i class="fas fa-plug"></i> API Endpoints</div>
+                <div><i class="fas fa-check-circle"></i> Validation Rules</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Process Flow Diagram -->
+    <div class="container mx-auto p-6">
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">
+                <i class="fas fa-route"></i> กระบวนการทั้งหมด (10 Steps)
+            </h2>
+            
+            <!-- Flow Visualization -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                <!-- P1: แสวงหา -->
+                <div class="text-center">
+                    <div class="bg-green-100 border-2 border-green-500 rounded-lg p-3 mb-2">
+                        <div class="text-green-700 font-bold text-sm">P1: แสวงหา</div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="step-card bg-white border-2 border-gray-300 rounded-lg p-3 text-sm" data-step="1">
+                            <div class="font-bold text-blue-600">Step 1</div>
+                            <div class="text-xs">ขออัตรากำลังคน</div>
+                        </div>
+                        <div class="text-center text-gray-400">↓</div>
+                        <div class="step-card bg-white border-2 border-gray-300 rounded-lg p-3 text-sm" data-step="2">
+                            <div class="font-bold text-blue-600">Step 2</div>
+                            <div class="text-xs">เปิดรับสมัคร</div>
+                        </div>
+                        <div class="text-center text-gray-400">↓</div>
+                        <div class="step-card bg-white border-2 border-gray-300 rounded-lg p-3 text-sm" data-step="3">
+                            <div class="font-bold text-blue-600">Step 3</div>
+                            <div class="text-xs">กรอกใบสมัคร</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Arrow -->
+                <div class="flex items-center justify-center">
+                    <i class="fas fa-arrow-right text-4xl text-gray-400"></i>
+                </div>
+
+                <!-- P2: หยั่งประเมิน -->
+                <div class="text-center">
+                    <div class="bg-yellow-100 border-2 border-yellow-500 rounded-lg p-3 mb-2">
+                        <div class="text-yellow-700 font-bold text-sm">P2: หยั่งประเมิน</div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="step-card bg-white border-2 border-gray-300 rounded-lg p-3 text-sm" data-step="4">
+                            <div class="font-bold text-blue-600">Step 4</div>
+                            <div class="text-xs">แบบทดสอบ 4 ชุด</div>
+                        </div>
+                        <div class="text-center text-gray-400">↓</div>
+                        <div class="step-card bg-white border-2 border-gray-300 rounded-lg p-3 text-sm" data-step="5">
+                            <div class="font-bold text-blue-600">Step 5</div>
+                            <div class="text-xs">AI วิเคราะห์</div>
+                        </div>
+                        <div class="text-center text-gray-400">↓</div>
+                        <div class="step-card bg-white border-2 border-gray-300 rounded-lg p-3 text-sm" data-step="6">
+                            <div class="font-bold text-blue-600">Step 6</div>
+                            <div class="text-xs">คัดกรอง</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Arrow -->
+                <div class="flex items-center justify-center">
+                    <i class="fas fa-arrow-right text-4xl text-gray-400"></i>
+                </div>
+
+                <!-- P2 (ต่อ) + P3 -->
+                <div class="text-center">
+                    <div class="bg-red-100 border-2 border-red-500 rounded-lg p-3 mb-2">
+                        <div class="text-red-700 font-bold text-sm">P2-P3: สัมภาษณ์-จับคู่</div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="step-card bg-white border-2 border-gray-300 rounded-lg p-3 text-sm" data-step="7">
+                            <div class="font-bold text-blue-600">Step 7</div>
+                            <div class="text-xs">นัดสัมภาษณ์</div>
+                        </div>
+                        <div class="text-center text-gray-400">↓</div>
+                        <div class="step-card bg-white border-2 border-gray-300 rounded-lg p-3 text-sm" data-step="8">
+                            <div class="font-bold text-blue-600">Step 8</div>
+                            <div class="text-xs">สัมภาษณ์</div>
+                        </div>
+                        <div class="text-center text-gray-400">↓</div>
+                        <div class="step-card bg-white border-2 border-gray-300 rounded-lg p-3 text-sm" data-step="9">
+                            <div class="font-bold text-blue-600">Step 9</div>
+                            <div class="text-xs">สรุปผล</div>
+                        </div>
+                        <div class="text-center text-gray-400">↓</div>
+                        <div class="step-card bg-white border-2 border-gray-300 rounded-lg p-3 text-sm" data-step="10">
+                            <div class="font-bold text-blue-600">Step 10</div>
+                            <div class="text-xs">ตัดสินใจ</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step Details -->
+        <div id="step-details" class="bg-white rounded-lg shadow-md p-6">
+            <div class="text-center text-gray-500 py-12">
+                <i class="fas fa-mouse-pointer text-4xl mb-4"></i>
+                <p>คลิกที่ Step ด้านบนเพื่อดูรายละเอียด</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Process Data
+        const processSteps = {
+            1: {
+                title: "Step 1: ขออัตรากำลังคน (Headcount Request)",
+                phase: "P1: แสวงหา",
+                description: "BU/Department ยื่นคำขออัตรากำลังคนใหม่ พร้อมระบุคุณสมบัติและงบประมาณ",
+                actor: "BU Manager / HR Manager",
+                status: "pending",
+                form: {
+                    sections: [
+                        {
+                            title: "ข้อมูลคำขอ",
+                            fields: [
+                                { name: "bu_name", label: "BU/Department", type: "select", required: true, options: ["IT", "HR", "Finance", "Marketing", "Operations", "Production"] },
+                                { name: "position", label: "ตำแหน่งที่ต้องการ", type: "text", required: true, placeholder: "เช่น Software Developer" },
+                                { name: "quantity", label: "จำนวนอัตรา", type: "number", required: true, min: 1 },
+                                { name: "urgency", label: "ระดับความด่วน", type: "select", required: true, options: ["ปกติ", "ด่วน", "ด่วนมาก"] }
+                            ]
+                        },
+                        {
+                            title: "คุณสมบัติที่ต้องการ",
+                            fields: [
+                                { name: "required_skills", label: "ทักษะที่ต้องการ", type: "textarea", required: true, placeholder: "เช่น JavaScript, React, Node.js (แยกด้วย comma)" },
+                                { name: "required_cc", label: "Core Competency ที่ต้องการ", type: "checkbox", required: true, options: ["CC1: Servant Leadership", "CC2: Adaptive Innovation", "CC3: Trust-Based", "CC4: Consensus Teamwork", "CC5: Disciplined", "CC6: Technology", "CC7: Humor & Joy"] },
+                                { name: "experience_years", label: "ประสบการณ์ (ปี)", type: "number", required: true, min: 0 },
+                                { name: "education_level", label: "ระดับการศึกษา", type: "select", required: true, options: ["ม.6", "ปวช", "ปวส", "ปริญญาตรี", "ปริญญาโท", "ปริญญาเอก"] }
+                            ]
+                        },
+                        {
+                            title: "งบประมาณ",
+                            fields: [
+                                { name: "salary_min", label: "เงินเดือนขั้นต่ำ (บาท)", type: "number", required: true, min: 0 },
+                                { name: "salary_max", label: "เงินเดือนสูงสุด (บาท)", type: "number", required: true, min: 0 },
+                                { name: "budget_approved", label: "ได้รับการอนุมัติงบประมาณแล้ว", type: "radio", required: true, options: ["ใช่", "ไม่"] }
+                            ]
+                        }
+                    ]
+                },
+                validation: [
+                    "salary_max ต้องมากกว่า salary_min",
+                    "required_skills ต้องมีอย่างน้อย 1 ทักษะ",
+                    "required_cc ต้องเลือกอย่างน้อย 2 ข้อ",
+                    "ถ้า budget_approved = 'ไม่' ต้องมีเอกสารแนบ"
+                ],
+                statusFlow: [
+                    { from: "draft", to: "submitted", action: "ส่งคำขอ" },
+                    { from: "submitted", to: "approved", action: "อนุมัติ (HR Manager)" },
+                    { from: "submitted", to: "rejected", action: "ปฏิเสธ (HR Manager)" },
+                    { from: "approved", to: "posted", action: "เปิดรับสมัคร (auto)" }
+                ],
+                schema: {
+                    table: "P1_Headcount",
+                    fields: [
+                        { name: "id", type: "INT", pk: true, auto: true },
+                        { name: "bu_name", type: "VARCHAR(100)", nullable: false },
+                        { name: "position", type: "VARCHAR(200)", nullable: false },
+                        { name: "quantity", type: "INT", nullable: false },
+                        { name: "required_skills", type: "TEXT", nullable: false },
+                        { name: "required_cc", type: "JSON", nullable: false },
+                        { name: "experience_years", type: "INT", nullable: false },
+                        { name: "education_level", type: "VARCHAR(50)", nullable: false },
+                        { name: "salary_min", type: "DECIMAL(10,2)", nullable: false },
+                        { name: "salary_max", type: "DECIMAL(10,2)", nullable: false },
+                        { name: "urgency", type: "ENUM('ปกติ','ด่วน','ด่วนมาก')", nullable: false },
+                        { name: "status", type: "ENUM('draft','submitted','approved','rejected','posted')", nullable: false, default: "draft" },
+                        { name: "request_date", type: "DATETIME", nullable: false },
+                        { name: "approved_by", type: "INT", nullable: true, fk: "Users.id" },
+                        { name: "approved_date", type: "DATETIME", nullable: true }
+                    ]
+                },
+                api: [
+                    { method: "POST", endpoint: "/api/p1/headcount", description: "สร้างคำขออัตรากำลังคนใหม่" },
+                    { method: "GET", endpoint: "/api/p1/headcount/:id", description: "ดูรายละเอียดคำขอ" },
+                    { method: "PUT", endpoint: "/api/p1/headcount/:id", description: "แก้ไขคำขอ (status=draft เท่านั้น)" },
+                    { method: "POST", endpoint: "/api/p1/headcount/:id/submit", description: "ส่งคำขอ (draft → submitted)" },
+                    { method: "POST", endpoint: "/api/p1/headcount/:id/approve", description: "อนุมัติคำขอ (submitted → approved)" },
+                    { method: "POST", endpoint: "/api/p1/headcount/:id/reject", description: "ปฏิเสธคำขอ (submitted → rejected)" }
+                ],
+                uiNotes: [
+                    "ใช้ Multi-step form (3 steps): ข้อมูลคำขอ → คุณสมบัติ → งบประมาณ",
+                    "แสดง Progress bar ด้านบน",
+                    "Auto-save ทุก 30 วินาที (status=draft)",
+                    "มีปุ่ม 'บันทึกฉบับร่าง' และ 'ส่งคำขอ'",
+                    "แสดง Approval Flow diagram ด้านข้าง"
+                ]
+            },
+            2: {
+                title: "Step 2: เปิดรับสมัคร (Job Posting)",
+                phase: "P1: แสวงหา",
+                description: "สร้างประกาศตำแหน่งงาน พร้อมรายละเอียด คุณสมบัติ และสวัสดิการ",
+                actor: "HR Manager",
+                status: "pending",
+                form: {
+                    sections: [
+                        {
+                            title: "ข้อมูลตำแหน่ง",
+                            fields: [
+                                { name: "headcount_id", label: "คำขออัตรากำลัง", type: "select", required: true, options: ["(ดึงจาก P1_Headcount ที่ status=approved)"] },
+                                { name: "title", label: "ชื่อตำแหน่ง", type: "text", required: true },
+                                { name: "job_type", label: "ประเภทงาน", type: "select", required: true, options: ["Full-time", "Part-time", "Contract", "Internship"] },
+                                { name: "work_location", label: "สถานที่ทำงาน", type: "select", required: true, options: ["สำนักงานใหญ่ (กรุงเทพฯ)", "สาขาเชียงใหม่", "สาขาขอนแก่น", "โรงงาน (นครราชสีมา)"] }
+                            ]
+                        },
+                        {
+                            title: "รายละเอียดงาน",
+                            fields: [
+                                { name: "description", label: "รายละเอียดงาน (Job Description)", type: "textarea", required: true, rows: 6 },
+                                { name: "responsibilities", label: "หน้าที่ความรับผิดชอบ", type: "textarea", required: true, rows: 5, placeholder: "1. ...\n2. ...\n3. ..." },
+                                { name: "qualifications", label: "คุณสมบัติ", type: "textarea", required: true, rows: 5 }
+                            ]
+                        },
+                        {
+                            title: "สวัสดิการและช่องทาง",
+                            fields: [
+                                { name: "benefits", label: "สวัสดิการ", type: "textarea", required: true, rows: 4, placeholder: "1. ประกันสุขภาพ\n2. โบนัส\n3. WFH" },
+                                { name: "channels", label: "ช่องทางการรับสมัคร", type: "checkbox", required: true, options: ["เว็บไซต์บริษัท", "LinkedIn", "JobThai", "JobBKK", "Facebook"] },
+                                { name: "close_date", label: "วันปิดรับสมัคร", type: "date", required: true }
+                            ]
+                        }
+                    ]
+                },
+                validation: [
+                    "close_date ต้องมากกว่าวันนี้",
+                    "description ต้องมีอย่างน้อย 100 ตัวอักษร",
+                    "channels ต้องเลือกอย่างน้อย 1 ช่องทาง",
+                    "headcount_id ต้องเป็น approved เท่านั้น"
+                ],
+                statusFlow: [
+                    { from: "draft", to: "published", action: "เผยแพร่" },
+                    { from: "published", to: "closed", action: "ปิดรับสมัคร" },
+                    { from: "published", to: "cancelled", action: "ยกเลิก" }
+                ],
+                schema: {
+                    table: "P1_JobPosting",
+                    fields: [
+                        { name: "id", type: "INT", pk: true, auto: true },
+                        { name: "headcount_id", type: "INT", nullable: false, fk: "P1_Headcount.id" },
+                        { name: "title", type: "VARCHAR(200)", nullable: false },
+                        { name: "job_type", type: "ENUM('Full-time','Part-time','Contract','Internship')", nullable: false },
+                        { name: "work_location", type: "VARCHAR(200)", nullable: false },
+                        { name: "description", type: "TEXT", nullable: false },
+                        { name: "responsibilities", type: "TEXT", nullable: false },
+                        { name: "qualifications", type: "TEXT", nullable: false },
+                        { name: "benefits", type: "TEXT", nullable: false },
+                        { name: "channels", type: "JSON", nullable: false },
+                        { name: "apply_url", type: "VARCHAR(500)", nullable: true },
+                        { name: "qr_code", type: "VARCHAR(500)", nullable: true },
+                        { name: "post_date", type: "DATE", nullable: false },
+                        { name: "close_date", type: "DATE", nullable: false },
+                        { name: "status", type: "ENUM('draft','published','closed','cancelled')", nullable: false, default: "draft" },
+                        { name: "view_count", type: "INT", nullable: false, default: 0 },
+                        { name: "apply_count", type: "INT", nullable: false, default: 0 }
+                    ]
+                },
+                api: [
+                    { method: "POST", endpoint: "/api/p1/job-posting", description: "สร้างประกาศตำแหน่งงานใหม่" },
+                    { method: "GET", endpoint: "/api/p1/job-posting/:id", description: "ดูรายละเอียดประกาศ" },
+                    { method: "PUT", endpoint: "/api/p1/job-posting/:id", description: "แก้ไขประกาศ (status=draft เท่านั้น)" },
+                    { method: "POST", endpoint: "/api/p1/job-posting/:id/publish", description: "เผยแพร่ประกาศ" },
+                    { method: "POST", endpoint: "/api/p1/job-posting/:id/close", description: "ปิดรับสมัคร" },
+                    { method: "GET", endpoint: "/api/p1/job-posting/public", description: "ดึงประกาศทั้งหมด (public)" }
+                ],
+                uiNotes: [
+                    "ใช้ Rich Text Editor สำหรับ description/responsibilities",
+                    "Preview หน้าประกาศก่อนเผยแพร่",
+                    "Auto-generate QR Code และ Apply URL",
+                    "แสดงสถิติ view_count และ apply_count แบบ real-time"
+                ]
+            },
+            3: {
+                title: "Step 3: ผู้สมัครกรอกใบสมัคร (Application Form)",
+                phase: "P1: แสวงหา",
+                description: "ผู้สมัครกรอกข้อมูลส่วนตัว การศึกษา ประสบการณ์ และอัปโหลดเอกสาร",
+                actor: "ผู้สมัคร (Candidate)",
+                status: "pending",
+                form: {
+                    sections: [
+                        {
+                            title: "ข้อมูลส่วนตัว",
+                            fields: [
+                                { name: "full_name", label: "ชื่อ-นามสกุล", type: "text", required: true },
+                                { name: "birth_date", label: "วันที่เกิด", type: "date", required: true },
+                                { name: "phone", label: "เบอร์โทรศัพท์", type: "tel", required: true, pattern: "^0[0-9]{9}$" },
+                                { name: "email", label: "อีเมล", type: "email", required: true },
+                                { name: "address", label: "ที่อยู่ปัจจุบัน", type: "textarea", required: true, rows: 3 },
+                                { name: "line_id", label: "LINE ID", type: "text", required: false },
+                                { name: "military_status", label: "สถานะทางทหาร (ชาย)", type: "select", required: false, options: ["ผ่านเกณฑ์ทหาร", "ยังไม่ได้เกณฑ์", "ยกเว้น", "ไม่เกี่ยวข้อง"] }
+                            ]
+                        },
+                        {
+                            title: "การศึกษา",
+                            fields: [
+                                { name: "education_level", label: "ระดับการศึกษาสูงสุด", type: "select", required: true, options: ["ม.6", "ปวช", "ปวส", "ปริญญาตรี", "ปริญญาโท", "ปริญญาเอก"] },
+                                { name: "institution", label: "สถาบัน", type: "text", required: true },
+                                { name: "major", label: "สาขาวิชา", type: "text", required: true },
+                                { name: "gpa", label: "GPA", type: "number", required: false, step: 0.01, min: 0, max: 4 },
+                                { name: "graduation_year", label: "ปีที่จบ", type: "number", required: false, min: 1950, max: 2099 }
+                            ]
+                        },
+                        {
+                            title: "ประสบการณ์ทำงาน",
+                            fields: [
+                                { name: "work_experience", label: "ประสบการณ์ทำงาน", type: "array", required: false, fields: [
+                                    { name: "company", label: "ชื่อบริษัท", type: "text" },
+                                    { name: "position", label: "ตำแหน่ง", type: "text" },
+                                    { name: "duration", label: "ระยะเวลา (ปี)", type: "number", step: 0.5 }
+                                ]}
+                            ]
+                        },
+                        {
+                            title: "ทักษะและเอกสาร",
+                            fields: [
+                                { name: "skills", label: "ทักษะ", type: "textarea", required: false, placeholder: "เช่น JavaScript, Python, Excel (แยกด้วย comma)" },
+                                { name: "certificates", label: "ใบรับรอง/ใบอนุญาต", type: "textarea", required: false },
+                                { name: "resume_file", label: "Resume (PDF)", type: "file", required: true, accept: ".pdf", maxSize: "5MB" },
+                                { name: "transcript_file", label: "Transcript (PDF)", type: "file", required: true, accept: ".pdf", maxSize: "5MB" },
+                                { name: "certificate_files", label: "ใบรับรองอื่นๆ (PDF)", type: "file", required: false, accept: ".pdf", maxSize: "10MB", multiple: true }
+                            ]
+                        }
+                    ]
+                },
+                validation: [
+                    "phone ต้องเป็นเบอร์มือถือไทย (10 หลัก ขึ้นต้นด้วย 0)",
+                    "email ต้องเป็นรูปแบบที่ถูกต้อง",
+                    "gpa ต้องอยู่ระหว่าง 0-4",
+                    "resume_file ต้องเป็น PDF ขนาดไม่เกิน 5MB",
+                    "transcript_file ต้องเป็น PDF ขนาดไม่เกิน 5MB"
+                ],
+                statusFlow: [
+                    { from: "draft", to: "submitted", action: "ส่งใบสมัคร" },
+                    { from: "submitted", to: "awaiting_test", action: "รอทำแบบทดสอบ (auto)" }
+                ],
+                schema: {
+                    table: "P1_Candidates",
+                    fields: [
+                        { name: "id", type: "INT", pk: true, auto: true },
+                        { name: "application_id", type: "VARCHAR(50)", nullable: false, unique: true },
+                        { name: "job_posting_id", type: "INT", nullable: false, fk: "P1_JobPosting.id" },
+                        { name: "full_name", type: "VARCHAR(200)", nullable: false },
+                        { name: "birth_date", type: "DATE", nullable: false },
+                        { name: "phone", type: "VARCHAR(20)", nullable: false },
+                        { name: "email", type: "VARCHAR(200)", nullable: false },
+                        { name: "address", type: "TEXT", nullable: false },
+                        { name: "line_id", type: "VARCHAR(100)", nullable: true },
+                        { name: "military_status", type: "VARCHAR(50)", nullable: true },
+                        { name: "education_level", type: "VARCHAR(50)", nullable: false },
+                        { name: "institution", type: "VARCHAR(200)", nullable: false },
+                        { name: "major", type: "VARCHAR(200)", nullable: false },
+                        { name: "gpa", type: "DECIMAL(3,2)", nullable: true },
+                        { name: "graduation_year", type: "INT", nullable: true },
+                        { name: "work_experience", type: "JSON", nullable: true },
+                        { name: "skills", type: "TEXT", nullable: true },
+                        { name: "certificates", type: "TEXT", nullable: true },
+                        { name: "resume_url", type: "VARCHAR(500)", nullable: false },
+                        { name: "transcript_url", type: "VARCHAR(500)", nullable: false },
+                        { name: "certificate_urls", type: "JSON", nullable: true },
+                        { name: "apply_date", type: "DATETIME", nullable: false },
+                        { name: "status", type: "ENUM('draft','submitted','awaiting_test','testing','tested','screening','interview','offered','hired','rejected')", nullable: false, default: "draft" },
+                        { name: "source", type: "VARCHAR(100)", nullable: true }
+                    ]
+                },
+                api: [
+                    { method: "POST", endpoint: "/api/p1/candidates", description: "สร้างใบสมัครใหม่" },
+                    { method: "GET", endpoint: "/api/p1/candidates/:application_id", description: "ดูรายละเอียดใบสมัคร" },
+                    { method: "PUT", endpoint: "/api/p1/candidates/:application_id", description: "แก้ไขใบสมัคร (status=draft เท่านั้น)" },
+                    { method: "POST", endpoint: "/api/p1/candidates/:application_id/submit", description: "ส่งใบสมัคร" },
+                    { method: "POST", endpoint: "/api/p1/candidates/:application_id/upload", description: "อัปโหลดเอกสาร" }
+                ],
+                uiNotes: [
+                    "ใช้ Multi-step form (4 steps): ข้อมูลส่วนตัว → การศึกษา → ประสบการณ์ → ทักษะ/เอกสาร",
+                    "แสดง Progress bar ด้านบน",
+                    "Auto-save ทุก 30 วินาที (status=draft)",
+                    "File upload with progress bar และ drag-and-drop",
+                    "Validate phone number แบบ real-time",
+                    "แสดง Application ID หลังส่งใบสมัครสำเร็จ"
+                ]
+            },
+            4: {
+                title: "Step 4: ทำแบบทดสอบ 4 ชุด (Assessment Tests)",
+                phase: "P2: หยั่งประเมิน",
+                description: "ผู้สมัครทำแบบทดสอบ 4 ชุด: ทัศนคติ, ทักษะ, CC 7 ด้าน, 3E3P",
+                actor: "ผู้สมัคร (Candidate)",
+                status: "pending",
+                form: {
+                    sections: [
+                        {
+                            title: "แบบทดสอบที่ 1: ทัศนคติ (Attitude Test)",
+                            fields: [
+                                { name: "attitude_test", label: "จำนวนข้อ", type: "static", value: "30 ข้อ" },
+                                { name: "attitude_time", label: "เวลา", type: "static", value: "30 นาที" },
+                                { name: "attitude_measure", label: "วัด", type: "static", value: "Growth Mindset, Service Mind, Teamwork, Integrity" }
+                            ]
+                        },
+                        {
+                            title: "แบบทดสอบที่ 2: ทักษะ (Skill Test)",
+                            fields: [
+                                { name: "skill_test", label: "จำนวนข้อ", type: "static", value: "40 ข้อ (ปรับตามตำแหน่ง)" },
+                                { name: "skill_time", label: "เวลา", type: "static", value: "60 นาที" },
+                                { name: "skill_measure", label: "วัด", type: "static", value: "Technical Skills, Problem Solving, Communication" }
+                            ]
+                        },
+                        {
+                            title: "แบบทดสอบที่ 3: Core Competency 7 ด้าน (CC Test)",
+                            fields: [
+                                { name: "cc_test", label: "จำนวนข้อ", type: "static", value: "70 ข้อ (10 ข้อ/CC)" },
+                                { name: "cc_time", label: "เวลา", type: "static", value: "45 นาที" },
+                                { name: "cc_measure", label: "วัด", type: "static", value: "CC1-CC7 (Servant Leadership, Adaptive Innovation, Trust-Based, Consensus Teamwork, Disciplined, Technology, Humor & Joy)" }
+                            ]
+                        },
+                        {
+                            title: "แบบทดสอบที่ 4: 3E3P",
+                            fields: [
+                                { name: "e3p_test", label: "จำนวนข้อ", type: "static", value: "30 ข้อ" },
+                                { name: "e3p_time", label: "เวลา", type: "static", value: "20 นาที" },
+                                { name: "e3p_measure", label: "วัด", type: "static", value: "3E (Engagement, Empowerment, Enablement) + 3P (Purpose, Passion, Pride)" }
+                            ]
+                        }
+                    ]
+                },
+                validation: [
+                    "ต้องทำแบบทดสอบตามลำดับ (1 → 2 → 3 → 4)",
+                    "ไม่สามารถย้อนกลับข้อก่อนหน้าได้ (ป้องกันการโกง)",
+                    "Auto-submit เมื่อหมดเวลา",
+                    "ต้องทำครบทั้ง 4 ชุด จึงจะถือว่าเสร็จสิ้น"
+                ],
+                statusFlow: [
+                    { from: "awaiting_test", to: "testing", action: "เริ่มทำแบบทดสอบ" },
+                    { from: "testing", to: "tested", action: "ส่งแบบทดสอบครบ 4 ชุด (auto)" }
+                ],
+                schema: {
+                    table: "P2_Assessments",
+                    fields: [
+                        { name: "id", type: "INT", pk: true, auto: true },
+                        { name: "candidate_id", type: "INT", nullable: false, fk: "P1_Candidates.id" },
+                        { name: "test_type", type: "ENUM('attitude','skill','cc','e3p')", nullable: false },
+                        { name: "test_date", type: "DATE", nullable: false },
+                        { name: "start_time", type: "DATETIME", nullable: false },
+                        { name: "end_time", type: "DATETIME", nullable: true },
+                        { name: "total_questions", type: "INT", nullable: false },
+                        { name: "correct_answers", type: "INT", nullable: true },
+                        { name: "score", type: "DECIMAL(5,2)", nullable: true },
+                        { name: "cc1_score", type: "DECIMAL(5,2)", nullable: true },
+                        { name: "cc2_score", type: "DECIMAL(5,2)", nullable: true },
+                        { name: "cc3_score", type: "DECIMAL(5,2)", nullable: true },
+                        { name: "cc4_score", type: "DECIMAL(5,2)", nullable: true },
+                        { name: "cc5_score", type: "DECIMAL(5,2)", nullable: true },
+                        { name: "cc6_score", type: "DECIMAL(5,2)", nullable: true },
+                        { name: "cc7_score", type: "DECIMAL(5,2)", nullable: true },
+                        { name: "attitude_score", type: "DECIMAL(5,2)", nullable: true },
+                        { name: "skill_score", type: "DECIMAL(5,2)", nullable: true },
+                        { name: "e3p_score", type: "DECIMAL(5,2)", nullable: true },
+                        { name: "status", type: "ENUM('not_started','in_progress','completed','timed_out')", nullable: false, default: "not_started" },
+                        { name: "ai_analysis", type: "JSON", nullable: true }
+                    ]
+                },
+                api: [
+                    { method: "GET", endpoint: "/api/p2/assessments/:candidate_id", description: "ดูสถานะแบบทดสอบทั้งหมด" },
+                    { method: "POST", endpoint: "/api/p2/assessments/:candidate_id/start/:test_type", description: "เริ่มทำแบบทดสอบ" },
+                    { method: "POST", endpoint: "/api/p2/assessments/:candidate_id/submit/:test_type", description: "ส่งคำตอบ" },
+                    { method: "POST", endpoint: "/api/p2/assessments/:candidate_id/timeout/:test_type", description: "หมดเวลา (auto-submit)" }
+                ],
+                uiNotes: [
+                    "แสดง Timer แบบ real-time (นับถอยหลัง)",
+                    "แสดง Progress indicator (ข้อที่/ทั้งหมด)",
+                    "ปุ่ม 'ส่งคำตอบ' และ 'ข้อถัดไป'",
+                    "แสดง Warning เมื่อเหลือเวลา < 5 นาที",
+                    "Auto-submit เมื่อหมดเวลา พร้อมแจ้งเตือน",
+                    "Disable right-click และ copy-paste (ป้องกันการโกง)",
+                    "แสดงสรุปคะแนนหลังทำครบทุกชุด"
+                ]
+            },
+            5: {
+                title: "Step 5: AI วิเคราะห์คุณสมบัติ (AI Analysis)",
+                phase: "P2: หยั่งประเมิน",
+                description: "AI วิเคราะห์คะแนนแบบทดสอบ + ข้อมูลใบสมัคร + Job Requirements",
+                actor: "System (AI)",
+                status: "pending",
+                form: {
+                    sections: [
+                        {
+                            title: "Input: ข้อมูลที่ใช้วิเคราะห์",
+                            fields: [
+                                { name: "candidate_data", label: "ข้อมูลใบสมัคร", type: "static", value: "P1_Candidates" },
+                                { name: "assessment_scores", label: "คะแนนแบบทดสอบ 4 ชุด", type: "static", value: "P2_Assessments" },
+                                { name: "job_requirements", label: "ข้อกำหนดตำแหน่ง", type: "static", value: "P1_JobPosting + P1_Headcount" }
+                            ]
+                        },
+                        {
+                            title: "Output: ผลวิเคราะห์",
+                            fields: [
+                                { name: "overall_score", label: "คะแนนรวม (0-100)", type: "static", value: "weighted_average(attitude=0.2, skill=0.3, cc=0.3, e3p=0.2)" },
+                                { name: "cc_match", label: "CC Match Score (0-100)", type: "static", value: "calculate_cc_alignment(candidate_cc, job_required_cc)" },
+                                { name: "skill_gap", label: "Skill Gap Analysis", type: "static", value: "identify_skill_gaps(candidate_skills, job_required_skills)" },
+                                { name: "recommendation", label: "คำแนะนำ", type: "static", value: "'ผ่าน' / 'พิจารณา' / 'ไม่ผ่าน'" },
+                                { name: "strengths", label: "จุดแข็ง", type: "static", value: "Array of strengths" },
+                                { name: "concerns", label: "จุดที่ต้องพิจารณา", type: "static", value: "Array of concerns" },
+                                { name: "suggested_questions", label: "คำถามสัมภาษณ์ที่แนะนำ", type: "static", value: "Array of questions" }
+                            ]
+                        }
+                    ]
+                },
+                validation: [
+                    "ต้องทำแบบทดสอบครบ 4 ชุด ก่อนเริ่ม AI Analysis",
+                    "AI Analysis ใช้เวลา 10-30 วินาที",
+                    "ผลลัพธ์ต้องเก็บไว้ในฐานข้อมูล"
+                ],
+                statusFlow: [
+                    { from: "tested", to: "analyzing", action: "เริ่มวิเคราะห์ (auto)" },
+                    { from: "analyzing", to: "analyzed", action: "วิเคราะห์เสร็จ (auto)" }
+                ],
+                schema: {
+                    table: "P2_AIAnalysis",
+                    fields: [
+                        { name: "id", type: "INT", pk: true, auto: true },
+                        { name: "candidate_id", type: "INT", nullable: false, fk: "P1_Candidates.id" },
+                        { name: "overall_score", type: "DECIMAL(5,2)", nullable: false },
+                        { name: "cc_match_score", type: "DECIMAL(5,2)", nullable: false },
+                        { name: "skill_gap_analysis", type: "JSON", nullable: false },
+                        { name: "recommendation", type: "ENUM('ผ่าน','พิจารณา','ไม่ผ่าน')", nullable: false },
+                        { name: "strengths_json", type: "JSON", nullable: false },
+                        { name: "concerns_json", type: "JSON", nullable: false },
+                        { name: "suggested_questions_json", type: "JSON", nullable: false },
+                        { name: "analysis_date", type: "DATETIME", nullable: false },
+                        { name: "ai_model_version", type: "VARCHAR(50)", nullable: false }
+                    ]
+                },
+                api: [
+                    { method: "POST", endpoint: "/api/p2/ai-analysis/:candidate_id", description: "เริ่ม AI Analysis" },
+                    { method: "GET", endpoint: "/api/p2/ai-analysis/:candidate_id", description: "ดูผล AI Analysis" }
+                ],
+                uiNotes: [
+                    "แสดง Loading animation ขณะวิเคราะห์ (10-30 วินาที)",
+                    "แสดง Progress bar พร้อมข้อความ 'กำลังวิเคราะห์...'",
+                    "หลังวิเคราะห์เสร็จ แสดงผลแบบ Card",
+                    "ใช้ Color coding: เขียว=ผ่าน, เหลือง=พิจารณา, แดง=ไม่ผ่าน",
+                    "แสดง Radar chart สำหรับ CC 7 ด้าน",
+                    "แสดง Bar chart สำหรับ Skill Gap"
+                ]
+            },
+            6: {
+                title: "Step 6: คัดกรองผู้สมัคร (Screening)",
+                phase: "P2: หยั่งประเมิน",
+                description: "HR คัดกรองผู้สมัครตามเกณฑ์ที่กำหนด",
+                actor: "HR Manager",
+                status: "pending",
+                form: {
+                    sections: [
+                        {
+                            title: "เกณฑ์การคัดกรอง (Thresholds)",
+                            fields: [
+                                { name: "min_overall_score", label: "คะแนนรวมขั้นต่ำ", type: "number", required: true, default: 70, min: 0, max: 100 },
+                                { name: "min_cc_match", label: "CC Match ขั้นต่ำ", type: "number", required: true, default: 75, min: 0, max: 100 },
+                                { name: "max_skill_gap", label: "Skill Gap สูงสุด (จำนวน)", type: "number", required: true, default: 3, min: 0 }
+                            ]
+                        },
+                        {
+                            title: "ผลการคัดกรอง",
+                            fields: [
+                                { name: "screening_result", label: "ผล", type: "radio", required: true, options: ["ผ่าน", "พิจารณาเพิ่มเติม", "ไม่ผ่าน"] },
+                                { name: "hr_notes", label: "หมายเหตุ HR", type: "textarea", required: false, rows: 4 },
+                                { name: "decision", label: "การตัดสินใจ", type: "radio", required: true, options: ["นัดสัมภาษณ์", "รอ", "ปฏิเสธ"] }
+                            ]
+                        }
+                    ]
+                },
+                validation: [
+                    "screening_result ต้องสอดคล้องกับคะแนน",
+                    "ถ้า screening_result = 'ผ่าน' ต้อง decision = 'นัดสัมภาษณ์'",
+                    "ถ้า screening_result = 'ไม่ผ่าน' ต้อง decision = 'ปฏิเสธ'"
+                ],
+                statusFlow: [
+                    { from: "analyzed", to: "screening", action: "เริ่มคัดกรอง" },
+                    { from: "screening", to: "passed", action: "ผ่าน → นัดสัมภาษณ์" },
+                    { from: "screening", to: "considered", action: "พิจารณาเพิ่มเติม → รอ" },
+                    { from: "screening", to: "rejected", action: "ไม่ผ่าน → ปฏิเสธ" }
+                ],
+                schema: {
+                    table: "P2_Screening",
+                    fields: [
+                        { name: "id", type: "INT", pk: true, auto: true },
+                        { name: "candidate_id", type: "INT", nullable: false, fk: "P1_Candidates.id" },
+                        { name: "screening_date", type: "DATETIME", nullable: false },
+                        { name: "screener_id", type: "INT", nullable: false, fk: "Users.id" },
+                        { name: "overall_score", type: "DECIMAL(5,2)", nullable: false },
+                        { name: "cc_match_score", type: "DECIMAL(5,2)", nullable: false },
+                        { name: "skill_gap_count", type: "INT", nullable: false },
+                        { name: "screening_result", type: "ENUM('ผ่าน','พิจารณาเพิ่มเติม','ไม่ผ่าน')", nullable: false },
+                        { name: "hr_notes", type: "TEXT", nullable: true },
+                        { name: "decision", type: "ENUM('นัดสัมภาษณ์','รอ','ปฏิเสธ')", nullable: false },
+                        { name: "decision_date", type: "DATETIME", nullable: false }
+                    ]
+                },
+                api: [
+                    { method: "GET", endpoint: "/api/p2/screening/:candidate_id", description: "ดูสถานะการคัดกรอง" },
+                    { method: "POST", endpoint: "/api/p2/screening/:candidate_id", description: "บันทึกผลการคัดกรอง" }
+                ],
+                uiNotes: [
+                    "แสดง AI Analysis Result ด้านบน",
+                    "แสดง Thresholds ที่กำหนด",
+                    "ใช้ Color coding: เขียว=ผ่าน, เหลือง=พิจารณา, แดง=ไม่ผ่าน",
+                    "มีปุ่ม 'นัดสัมภาษณ์', 'รอ', 'ปฏิเสธ'",
+                    "แสดง Confirmation dialog ก่อนตัดสินใจ"
+                ]
+            },
+            7: {
+                title: "Step 7: นัดสัมภาษณ์ (Interview Scheduling)",
+                phase: "P2: หยั่งประเมิน",
+                description: "นัดหมายผู้สัมภาษณ์ เวลา และสถานที่",
+                actor: "HR Manager",
+                status: "pending",
+                form: {
+                    sections: [
+                        {
+                            title: "ข้อมูลการนัดสัมภาษณ์",
+                            fields: [
+                                { name: "candidate_id", label: "ผู้สมัคร", type: "select", required: true, options: ["(ดึงจาก P1_Candidates ที่ status=passed)"] },
+                                { name: "interview_date", label: "วันที่สัมภาษณ์", type: "date", required: true },
+                                { name: "start_time", label: "เวลาเริ่ม", type: "time", required: true },
+                                { name: "end_time", label: "เวลาสิ้นสุด", type: "time", required: true },
+                                { name: "interview_type", label: "รูปแบบ", type: "select", required: true, options: ["Online (Video Call)", "Onsite (ที่บริษัท)"] }
+                            ]
+                        },
+                        {
+                            title: "ผู้สัมภาษณ์",
+                            fields: [
+                                { name: "interviewers", label: "ผู้สัมภาษณ์", type: "checkbox", required: true, options: ["HR Manager", "BU Manager", "Team Lead", "Senior Developer"] }
+                            ]
+                        },
+                        {
+                            title: "สถานที่/ลิงก์",
+                            fields: [
+                                { name: "location", label: "สถานที่ (Onsite)", type: "text", required: false, placeholder: "เช่น ห้องประชุม A" },
+                                { name: "meeting_link", label: "ลิงก์ประชุม (Online)", type: "url", required: false, placeholder: "https://meet.google.com/..." }
+                            ]
+                        }
+                    ]
+                },
+                validation: [
+                    "interview_date ต้องมากกว่าวันนี้",
+                    "end_time ต้องมากกว่า start_time",
+                    "ถ้า interview_type = 'Online' ต้องมี meeting_link",
+                    "ถ้า interview_type = 'Onsite' ต้องมี location",
+                    "interviewers ต้องเลือกอย่างน้อย 1 คน"
+                ],
+                statusFlow: [
+                    { from: "passed", to: "scheduled", action: "นัดสัมภาษณ์" },
+                    { from: "scheduled", to: "confirmed", action: "ผู้สมัครยืนยัน" },
+                    { from: "scheduled", to: "rescheduled", action: "เลื่อนนัด" },
+                    { from: "scheduled", to: "cancelled", action: "ยกเลิก" }
+                ],
+                schema: {
+                    table: "P2_InterviewSchedule",
+                    fields: [
+                        { name: "id", type: "INT", pk: true, auto: true },
+                        { name: "candidate_id", type: "INT", nullable: false, fk: "P1_Candidates.id" },
+                        { name: "interview_date", type: "DATE", nullable: false },
+                        { name: "start_time", type: "TIME", nullable: false },
+                        { name: "end_time", type: "TIME", nullable: false },
+                        { name: "interviewer_ids", type: "JSON", nullable: false },
+                        { name: "interview_type", type: "ENUM('Online','Onsite')", nullable: false },
+                        { name: "location", type: "VARCHAR(200)", nullable: true },
+                        { name: "meeting_link", type: "VARCHAR(500)", nullable: true },
+                        { name: "status", type: "ENUM('scheduled','confirmed','rescheduled','cancelled','completed')", nullable: false, default: "scheduled" },
+                        { name: "reminder_sent", type: "BOOLEAN", nullable: false, default: false },
+                        { name: "reschedule_count", type: "INT", nullable: false, default: 0 }
+                    ]
+                },
+                api: [
+                    { method: "POST", endpoint: "/api/p2/interview-schedule", description: "สร้างนัดสัมภาษณ์ใหม่" },
+                    { method: "GET", endpoint: "/api/p2/interview-schedule/:id", description: "ดูรายละเอียดนัดสัมภาษณ์" },
+                    { method: "PUT", endpoint: "/api/p2/interview-schedule/:id", description: "แก้ไขนัดสัมภาษณ์" },
+                    { method: "POST", endpoint: "/api/p2/interview-schedule/:id/confirm", description: "ผู้สมัครยืนยัน" },
+                    { method: "POST", endpoint: "/api/p2/interview-schedule/:id/reschedule", description: "เลื่อนนัด" },
+                    { method: "POST", endpoint: "/api/p2/interview-schedule/:id/cancel", description: "ยกเลิก" }
+                ],
+                uiNotes: [
+                    "ใช้ Calendar View สำหรับเลือกวัน",
+                    "แสดง Available time slots",
+                    "Auto-send Notification (Email + SMS + Telegram)",
+                    "แสดง Calendar invitation (ICS file)",
+                    "มีปุ่ม 'นัดสัมภาษณ์' และ 'ส่งการแจ้งเตือน'"
+                ]
+            },
+            8: {
+                title: "Step 8: สัมภาษณ์ (Interview Execution)",
+                phase: "P2: หยั่งประเมิน",
+                description: "ผู้สัมภาษณ์กรอกฟอร์มประเมินตาม CC 7 ด้าน และทักษะ",
+                actor: "ผู้สัมภาษณ์ (Interviewer)",
+                status: "pending",
+                form: {
+                    sections: [
+                        {
+                            title: "ส่วนที่ 1: ข้อมูลทั่วไป",
+                            fields: [
+                                { name: "candidate_name", label: "ชื่อผู้สมัคร", type: "static", value: "(auto)" },
+                                { name: "position", label: "ตำแหน่งที่สมัคร", type: "static", value: "(auto)" },
+                                { name: "interview_date", label: "วันที่สัมภาษณ์", type: "static", value: "(auto)" },
+                                { name: "interviewer_name", label: "ผู้สัมภาษณ์", type: "static", value: "(auto)" }
+                            ]
+                        },
+                        {
+                            title: "ส่วนที่ 2: ประเมินตาม CC 7 ด้าน (1-5 คะแนน)",
+                            fields: [
+                                { name: "cc1_score", label: "CC1: Servant Leadership", type: "range", required: true, min: 1, max: 5 },
+                                { name: "cc2_score", label: "CC2: Adaptive Innovation", type: "range", required: true, min: 1, max: 5 },
+                                { name: "cc3_score", label: "CC3: Trust-Based Value Creation", type: "range", required: true, min: 1, max: 5 },
+                                { name: "cc4_score", label: "CC4: Consensus-Driven Teamwork", type: "range", required: true, min: 1, max: 5 },
+                                { name: "cc5_score", label: "CC5: Disciplined Professionalism", type: "range", required: true, min: 1, max: 5 },
+                                { name: "cc6_score", label: "CC6: Technology Mastery", type: "range", required: true, min: 1, max: 5 },
+                                { name: "cc7_score", label: "CC7: Humor & Joy", type: "range", required: true, min: 1, max: 5 }
+                            ]
+                        },
+                        {
+                            title: "ส่วนที่ 3: ประเมินทักษะ (1-5 คะแนน)",
+                            fields: [
+                                { name: "technical_score", label: "Technical Skills", type: "range", required: true, min: 1, max: 5 },
+                                { name: "communication_score", label: "Communication Skills", type: "range", required: true, min: 1, max: 5 },
+                                { name: "problem_solving_score", label: "Problem Solving", type: "range", required: true, min: 1, max: 5 },
+                                { name: "teamwork_score", label: "Teamwork", type: "range", required: true, min: 1, max: 5 }
+                            ]
+                        },
+                        {
+                            title: "ส่วนที่ 4: คำถามพฤติกรรม (Behavioral Questions)",
+                            fields: [
+                                { name: "q_teamwork", label: "เล่าประสบการณ์การทำงานเป็นทีม", type: "textarea", required: true, rows: 3 },
+                                { name: "q_problem", label: "เล่าประสบการณ์การแก้ปัญหาที่ยาก", type: "textarea", required: true, rows: 3 },
+                                { name: "q_change", label: "เล่าประสบการณ์การปรับตัวกับการเปลี่ยนแปลง", type: "textarea", required: true, rows: 3 },
+                                { name: "q_service", label: "เล่าประสบการณ์การให้บริการลูกค้า", type: "textarea", required: true, rows: 3 }
+                            ]
+                        },
+                        {
+                            title: "ส่วนที่ 5: คำถามตามตำแหน่ง",
+                            fields: [
+                                { name: "position_questions_notes", label: "บันทึกคำตอบ", type: "textarea", required: true, rows: 5, placeholder: "(ปรับตามตำแหน่งที่สมัคร)" }
+                            ]
+                        },
+                        {
+                            title: "ส่วนที่ 6: ทัศนคติและวัฒนธรรม",
+                            fields: [
+                                { name: "culture_understanding", label: "ความเข้าใจในค่านิยมองค์กร (1-5)", type: "range", required: true, min: 1, max: 5 },
+                                { name: "motivation", label: "แรงจูงใจในการทำงาน", type: "textarea", required: true, rows: 2 },
+                                { name: "career_goal", label: "เป้าหมายอาชีพ", type: "textarea", required: true, rows: 2 }
+                            ]
+                        },
+                        {
+                            title: "ส่วนที่ 7: สรุปผลการสัมภาษณ์",
+                            fields: [
+                                { name: "strengths", label: "จุดแข็ง", type: "textarea", required: true, rows: 3 },
+                                { name: "concerns", label: "จุดที่ต้องพัฒนา", type: "textarea", required: true, rows: 3 },
+                                { name: "position_fit_score", label: "ความเหมาะสมกับตำแหน่ง (1-10)", type: "range", required: true, min: 1, max: 10 },
+                                { name: "culture_fit_score", label: "ความเหมาะสมกับวัฒนธรรมองค์กร (1-10)", type: "range", required: true, min: 1, max: 10 },
+                                { name: "recommendation", label: "คำแนะนำ", type: "radio", required: true, options: ["รับ", "ไม่รับ", "พิจารณาเพิ่มเติม"] },
+                                { name: "final_notes", label: "ความคิดเห็นเพิ่มเติม", type: "textarea", required: false, rows: 3 }
+                            ]
+                        }
+                    ]
+                },
+                validation: [
+                    "ทุก field ที่ required ต้องกรอก",
+                    "cc1_score ถึง cc7_score ต้องอยู่ระหว่าง 1-5",
+                    "position_fit_score และ culture_fit_score ต้องอยู่ระหว่าง 1-10",
+                    "recommendation ต้องเลือก"
+                ],
+                statusFlow: [
+                    { from: "confirmed", to: "in_progress", action: "เริ่มสัมภาษณ์" },
+                    { from: "in_progress", to: "completed", action: "ส่งฟอร์มสัมภาษณ์" }
+                ],
+                schema: {
+                    table: "P2_Interviews",
+                    fields: [
+                        { name: "id", type: "INT", pk: true, auto: true },
+                        { name: "candidate_id", type: "INT", nullable: false, fk: "P1_Candidates.id" },
+                        { name: "interview_schedule_id", type: "INT", nullable: false, fk: "P2_InterviewSchedule.id" },
+                        { name: "interviewer_id", type: "INT", nullable: false, fk: "Users.id" },
+                        { name: "cc1_score", type: "INT", nullable: false },
+                        { name: "cc2_score", type: "INT", nullable: false },
+                        { name: "cc3_score", type: "INT", nullable: false },
+                        { name: "cc4_score", type: "INT", nullable: false },
+                        { name: "cc5_score", type: "INT", nullable: false },
+                        { name: "cc6_score", type: "INT", nullable: false },
+                        { name: "cc7_score", type: "INT", nullable: false },
+                        { name: "technical_score", type: "INT", nullable: false },
+                        { name: "communication_score", type: "INT", nullable: false },
+                        { name: "problem_solving_score", type: "INT", nullable: false },
+                        { name: "teamwork_score", type: "INT", nullable: false },
+                        { name: "behavioral_notes", type: "JSON", nullable: false },
+                        { name: "position_questions_notes", type: "TEXT", nullable: false },
+                        { name: "culture_understanding", type: "INT", nullable: false },
+                        { name: "motivation", type: "TEXT", nullable: false },
+                        { name: "career_goal", type: "TEXT", nullable: false },
+                        { name: "strengths", type: "TEXT", nullable: false },
+                        { name: "concerns", type: "TEXT", nullable: false },
+                        { name: "position_fit_score", type: "INT", nullable: false },
+                        { name: "culture_fit_score", type: "INT", nullable: false },
+                        { name: "recommendation", type: "ENUM('รับ','ไม่รับ','พิจารณาเพิ่มเติม')", nullable: false },
+                        { name: "final_notes", type: "TEXT", nullable: true },
+                        { name: "interview_status", type: "ENUM('in_progress','completed')", nullable: false, default: "in_progress" }
+                    ]
+                },
+                api: [
+                    { method: "POST", endpoint: "/api/p2/interviews", description: "สร้างฟอร์มสัมภาษณ์ใหม่" },
+                    { method: "GET", endpoint: "/api/p2/interviews/:id", description: "ดูรายละเอียดฟอร์มสัมภาษณ์" },
+                    { method: "PUT", endpoint: "/api/p2/interviews/:id", description: "แก้ไขฟอร์มสัมภาษณ์" },
+                    { method: "POST", endpoint: "/api/p2/interviews/:id/submit", description: "ส่งฟอร์มสัมภาษณ์" }
+                ],
+                uiNotes: [
+                    "ใช้ Range slider สำหรับคะแนน (1-5, 1-10)",
+                    "แสดง Real-time average ด้านบน",
+                    "Auto-save ทุก 30 วินาที",
+                    "แสดง Progress bar (ส่วนที่ 1-7)",
+                    "มีปุ่ม 'บันทึกฉบับร่าง' และ 'ส่งฟอร์ม'"
+                ]
+            },
+            9: {
+                title: "Step 9: สรุปผลการสัมภาษณ์ (Interview Summary)",
+                phase: "P2: หยั่งประเมิน",
+                description: "สรุปผลจากผู้สัมภาษณ์ทุกคน + คะแนนแบบทดสอบ + AI Analysis",
+                actor: "HR Manager",
+                status: "pending",
+                form: {
+                    sections: [
+                        {
+                            title: "ข้อมูลผู้สมัคร",
+                            fields: [
+                                { name: "candidate_name", label: "ชื่อ", type: "static", value: "(auto)" },
+                                { name: "position", label: "ตำแหน่ง", type: "static", value: "(auto)" },
+                                { name: "interview_date", label: "วันที่สัมภาษณ์", type: "static", value: "(auto)" },
+                                { name: "interviewers", label: "ผู้สัมภาษณ์", type: "static", value: "(auto)" }
+                            ]
+                        },
+                        {
+                            title: "คะแนนรวม",
+                            fields: [
+                                { name: "test_score_avg", label: "แบบทดสอบ (เฉลี่ย)", type: "static", value: "(auto-calculate)" },
+                                { name: "interview_cc_avg", label: "สัมภาษณ์ CC (เฉลี่ย)", type: "static", value: "(auto-calculate)" },
+                                { name: "interview_skill_avg", label: "สัมภาษณ์ ทักษะ (เฉลี่ย)", type: "static", value: "(auto-calculate)" },
+                                { name: "overall_score", label: "Overall Score", type: "static", value: "(auto-calculate)" }
+                            ]
+                        },
+                        {
+                            title: "จุดแข็งและจุดที่ต้องพิจารณา",
+                            fields: [
+                                { name: "strengths", label: "จุดแข็ง", type: "textarea", required: true, rows: 4 },
+                                { name: "concerns", label: "จุดที่ต้องพิจารณา", type: "textarea", required: true, rows: 4 }
+                            ]
+                        },
+                        {
+                            title: "ความเหมาะสม",
+                            fields: [
+                                { name: "position_fit_score", label: "กับตำแหน่ง (1-10)", type: "range", required: true, min: 1, max: 10 },
+                                { name: "culture_fit_score", label: "กับวัฒนธรรมองค์กร (1-10)", type: "range", required: true, min: 1, max: 10 }
+                            ]
+                        },
+                        {
+                            title: "คำแนะนำ",
+                            fields: [
+                                { name: "recommendation", label: "คำแนะนำ", type: "radio", required: true, options: ["✅ รับเข้าทำงาน", "⚠️ พิจารณาเพิ่มเติม", "❌ ไม่รับ"] },
+                                { name: "final_decision", label: "การตัดสินใจสุดท้าย", type: "radio", required: true, options: ["รับ", "ไม่รับ", "พิจารณาเพิ่มเติม"] },
+                                { name: "interviewer_comments", label: "ความคิดเห็นจากผู้สัมภาษณ์", type: "textarea", required: false, rows: 4 }
+                            ]
+                        }
+                    ]
+                },
+                validation: [
+                    "strengths และ concerns ต้องกรอก",
+                    "position_fit_score และ culture_fit_score ต้องอยู่ระหว่าง 1-10",
+                    "recommendation และ final_decision ต้องเลือก"
+                ],
+                statusFlow: [
+                    { from: "completed", to: "summarized", action: "สรุปผล" },
+                    { from: "summarized", to: "decided", action: "ตัดสินใจ" }
+                ],
+                schema: {
+                    table: "P2_InterviewSummary",
+                    fields: [
+                        { name: "id", type: "INT", pk: true, auto: true },
+                        { name: "candidate_id", type: "INT", nullable: false, fk: "P1_Candidates.id" },
+                        { name: "summary_date", type: "DATETIME", nullable: false },
+                        { name: "test_score_avg", type: "DECIMAL(5,2)", nullable: false },
+                        { name: "interview_cc_avg", type: "DECIMAL(5,2)", nullable: false },
+                        { name: "interview_skill_avg", type: "DECIMAL(5,2)", nullable: false },
+                        { name: "overall_score", type: "DECIMAL(5,2)", nullable: false },
+                        { name: "strengths_json", type: "JSON", nullable: false },
+                        { name: "concerns_json", type: "JSON", nullable: false },
+                        { name: "position_fit_score", type: "INT", nullable: false },
+                        { name: "culture_fit_score", type: "INT", nullable: false },
+                        { name: "recommendation", type: "ENUM('รับ','ไม่รับ','พิจารณาเพิ่มเติม')", nullable: false },
+                        { name: "interviewer_comments", type: "TEXT", nullable: true },
+                        { name: "final_decision", type: "ENUM('รับ','ไม่รับ','พิจารณาเพิ่มเติม')", nullable: false },
+                        { name: "decided_by", type: "INT", nullable: false, fk: "Users.id" },
+                        { name: "decided_date", type: "DATETIME", nullable: false }
+                    ]
+                },
+                api: [
+                    { method: "POST", endpoint: "/api/p2/interview-summary/:candidate_id", description: "สร้างสรุปผลการสัมภาษณ์" },
+                    { method: "GET", endpoint: "/api/p2/interview-summary/:candidate_id", description: "ดูสรุปผลการสัมภาษณ์" },
+                    { method: "POST", endpoint: "/api/p2/interview-summary/:candidate_id/decide", description: "ตัดสินใจสุดท้าย" }
+                ],
+                uiNotes: [
+                    "แสดง Summary Report แบบ Card",
+                    "ใช้ Chart.js สำหรับ Radar chart (CC 7 ด้าน)",
+                    "แสดง Comparison chart (ผู้สมัครหลายคน)",
+                    "มีปุ่ม 'รับ', 'ไม่รับ', 'พิจารณาเพิ่มเติม'",
+                    "แสดง Confirmation dialog ก่อนตัดสินใจ",
+                    "Generate PDF Report"
+                ]
+            },
+            10: {
+                title: "Step 10: ตัดสินใจรับ/ไม่รับ (Hiring Decision)",
+                phase: "P3: จับคู่คนกับงาน",
+                description: "ตัดสินใจสุดท้าย ส่ง Offer Letter และนัดเริ่มงาน",
+                actor: "HR Manager / Director",
+                status: "pending",
+                form: {
+                    sections: [
+                        {
+                            title: "ข้อมูลผู้สมัคร",
+                            fields: [
+                                { name: "candidate_name", label: "ชื่อ", type: "static", value: "(auto)" },
+                                { name: "position", label: "ตำแหน่ง", type: "static", value: "(auto)" },
+                                { name: "overall_score", label: "คะแนนรวม", type: "static", value: "(auto)" }
+                            ]
+                        },
+                        {
+                            title: "ข้อเสนอ",
+                            fields: [
+                                { name: "offer_position", label: "ตำแหน่ง", type: "text", required: true },
+                                { name: "offer_salary", label: "เงินเดือน (บาท)", type: "number", required: true, min: 0 },
+                                { name: "offer_benefits", label: "สวัสดิการ", type: "textarea", required: true, rows: 4 },
+                                { name: "offer_start_date", label: "วันเริ่มงาน", type: "date", required: true },
+                                { name: "offer_reporting_to", label: "รายงานต่อ", type: "text", required: true }
+                            ]
+                        },
+                        {
+                            title: "การตัดสินใจ",
+                            fields: [
+                                { name: "decision", label: "การตัดสินใจ", type: "radio", required: true, options: ["✅ รับเข้าทำงาน", "❌ ไม่รับ"] },
+                                { name: "rejected_reason", label: "เหตุผลที่ไม่รับ (ถ้ามี)", type: "textarea", required: false, rows: 3 },
+                                { name: "offer_expiry_date", label: "วันหมดอายุ Offer", type: "date", required: true }
+                            ]
+                        }
+                    ]
+                },
+                validation: [
+                    "offer_salary ต้องอยู่ในช่วง salary_min - salary_max (จาก Headcount Request)",
+                    "offer_start_date ต้องมากกว่าวันนี้",
+                    "offer_expiry_date ต้องมากกว่า offer_start_date",
+                    "ถ้า decision = 'ไม่รับ' ต้องมี rejected_reason"
+                ],
+                statusFlow: [
+                    { from: "decided", to: "offered", action: "ส่ง Offer Letter" },
+                    { from: "offered", to: "accepted", action: "ผู้สมัครตอบรับ" },
+                    { from: "offered", to: "rejected", action: "ผู้สมัครปฏิเสธ" },
+                    { from: "offered", to: "expired", action: "Offer หมดอายุ" }
+                ],
+                schema: {
+                    table: "P3_JobOffer",
+                    fields: [
+                        { name: "id", type: "INT", pk: true, auto: true },
+                        { name: "candidate_id", type: "INT", nullable: false, fk: "P1_Candidates.id" },
+                        { name: "interview_summary_id", type: "INT", nullable: false, fk: "P2_InterviewSummary.id" },
+                        { name: "offer_date", type: "DATETIME", nullable: false },
+                        { name: "offer_position", type: "VARCHAR(200)", nullable: false },
+                        { name: "offer_salary", type: "DECIMAL(10,2)", nullable: false },
+                        { name: "offer_benefits", type: "TEXT", nullable: false },
+                        { name: "offer_start_date", type: "DATE", nullable: false },
+                        { name: "offer_reporting_to", type: "VARCHAR(200)", nullable: false },
+                        { name: "offer_status", type: "ENUM('offered','accepted','rejected','expired')", nullable: false, default: "offered" },
+                        { name: "accepted_date", type: "DATETIME", nullable: true },
+                        { name: "rejected_reason", type: "TEXT", nullable: true },
+                        { name: "expiry_date", type: "DATE", nullable: false }
+                    ]
+                },
+                api: [
+                    { method: "POST", endpoint: "/api/p3/job-offer", description: "สร้าง Offer Letter" },
+                    { method: "GET", endpoint: "/api/p3/job-offer/:id", description: "ดูรายละเอียด Offer" },
+                    { method: "POST", endpoint: "/api/p3/job-offer/:id/send", description: "ส่ง Offer Letter" },
+                    { method: "POST", endpoint: "/api/p3/job-offer/:id/accept", description: "ผู้สมัครตอบรับ" },
+                    { method: "POST", endpoint: "/api/p3/job-offer/:id/reject", description: "ผู้สมัครปฏิเสธ" }
+                ],
+                uiNotes: [
+                    "แสดง Offer Summary ก่อนส่ง",
+                    "Generate PDF Offer Letter",
+                    "Auto-send Email + SMS + Telegram",
+                    "แสดง Countdown timer (วันหมดอายุ Offer)",
+                    "มีปุ่ม 'ส่ง Offer', 'ตอบรับ', 'ปฏิเสธ'"
+                ]
+            }
+        };
+
+        // Render Step Details
+        function renderStepDetails(stepNumber) {
+            const step = processSteps[stepNumber];
+            if (!step) return;
+
+            const container = document.getElementById('step-details');
+            
+            let html = `
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-2xl font-bold">${step.title}</h2>
+                        <span class="status-badge status-${step.status}">${step.status}</span>
+                    </div>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+                        <p class="text-blue-700">${step.description}</p>
+                        <p class="text-blue-600 text-sm mt-2"><strong>ผู้กระทำ:</strong> ${step.actor}</p>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="mb-6">
+                    <div class="flex border-b">
+                        <button class="tab-button active" data-tab="form">ฟอร์ม</button>
+                        <button class="tab-button" data-tab="validation">Validation</button>
+                        <button class="tab-button" data-tab="status">Status Flow</button>
+                        <button class="tab-button" data-tab="schema">Database Schema</button>
+                        <button class="tab-button" data-tab="api">API Endpoints</button>
+                        <button class="tab-button" data-tab="ui">UI/UX Notes</button>
+                    </div>
+                </div>
+
+                <!-- Tab: Form -->
+                <div class="tab-content active" data-tab="form">
+                    <h3 class="text-xl font-bold mb-4">ฟอร์มที่ต้องกรอก</h3>
+            `;
+
+            step.form.sections.forEach(section => {
+                html += `
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold mb-3 text-blue-600">${section.title}</h4>
+                        <div class="space-y-3">
+                `;
+                section.fields.forEach(field => {
+                    html += `
+                        <div class="field-group">
+                            <div class="font-semibold">${field.label} ${field.required ? '<span class="text-red-500">*</span>' : ''}</div>
+                            <div class="text-sm text-gray-600">
+                                ประเภท: <code class="bg-gray-100 px-2 py-1 rounded">${field.type}</code>
+                                ${field.options ? `| ตัวเลือก: ${field.options.join(', ')}` : ''}
+                                ${field.placeholder ? `| Placeholder: "${field.placeholder}"` : ''}
+                                ${field.min !== undefined ? `| Min: ${field.min}` : ''}
+                                ${field.max !== undefined ? `| Max: ${field.max}` : ''}
+                                ${field.rows ? `| Rows: ${field.rows}` : ''}
+                                ${field.value ? `| ค่า: ${field.value}` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                </div>
+
+                <!-- Tab: Validation -->
+                <div class="tab-content" data-tab="validation">
+                    <h3 class="text-xl font-bold mb-4">Validation Rules</h3>
+                    <div class="space-y-2">
+            `;
+            step.validation.forEach(rule => {
+                html += `<div class="validation-rule"><i class="fas fa-check-circle text-yellow-600"></i> ${rule}</div>`;
+            });
+            html += `
+                    </div>
+                </div>
+
+                <!-- Tab: Status Flow -->
+                <div class="tab-content" data-tab="status">
+                    <h3 class="text-xl font-bold mb-4">Status Flow</h3>
+                    <div class="space-y-3">
+            `;
+            step.statusFlow.forEach(flow => {
+                html += `
+                    <div class="bg-gray-50 p-3 rounded">
+                        <div class="flex items-center">
+                            <span class="status-badge status-pending">${flow.from}</span>
+                            <i class="fas fa-arrow-right mx-3 text-gray-400"></i>
+                            <span class="status-badge status-completed">${flow.to}</span>
+                        </div>
+                        <div class="text-sm text-gray-600 mt-2">
+                            <strong>Action:</strong> ${flow.action}
+                        </div>
+                    </div>
+                `;
+            });
+            html += `
+                    </div>
+                </div>
+
+                <!-- Tab: Schema -->
+                <div class="tab-content" data-tab="schema">
+                    <h3 class="text-xl font-bold mb-4">Database Schema: ${step.schema.table}</h3>
+                    <table class="schema-table">
+                        <thead>
+                            <tr>
+                                <th>Field Name</th>
+                                <th>Type</th>
+                                <th>Nullable</th>
+                                <th>Key</th>
+                                <th>Default</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            step.schema.fields.forEach(field => {
+                html += `
+                    <tr>
+                        <td><code>${field.name}</code></td>
+                        <td>${field.type}</td>
+                        <td>${field.nullable ? 'YES' : 'NO'}</td>
+                        <td>
+                            ${field.pk ? '<span class="text-blue-600 font-bold">PK</span>' : ''}
+                            ${field.fk ? `<span class="text-green-600 font-bold">FK → ${field.fk}</span>` : ''}
+                            ${field.unique ? '<span class="text-purple-600 font-bold">UNIQUE</span>' : ''}
+                        </td>
+                        <td>${field.default || '-'}</td>
+                    </tr>
+                `;
+            });
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tab: API -->
+                <div class="tab-content" data-tab="api">
+                    <h3 class="text-xl font-bold mb-4">API Endpoints</h3>
+                    <div class="space-y-2">
+            `;
+            step.api.forEach(endpoint => {
+                const methodClass = endpoint.method.toLowerCase();
+                html += `
+                    <div class="api-endpoint">
+                        <span class="api-method api-${methodClass}">${endpoint.method}</span>
+                        <code>${endpoint.endpoint}</code>
+                        <div class="text-sm text-gray-600 mt-1">${endpoint.description}</div>
+                    </div>
+                `;
+            });
+            html += `
+                    </div>
+                </div>
+
+                <!-- Tab: UI -->
+                <div class="tab-content" data-tab="ui">
+                    <h3 class="text-xl font-bold mb-4">UI/UX Notes</h3>
+                    <div class="space-y-2">
+            `;
+            step.uiNotes.forEach(note => {
+                html += `<div class="bg-blue-50 border-l-4 border-blue-500 p-3"><i class="fas fa-lightbulb text-blue-600"></i> ${note}</div>`;
+            });
+            html += `
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+
+            // Tab switching
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabName = button.dataset.tab;
+                    
+                    // Remove active from all buttons and contents
+                    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Add active to clicked button and corresponding content
+                    button.classList.add('active');
+                    document.querySelector(`.tab-content[data-tab="${tabName}"]`).classList.add('active');
+                });
+            });
+        }
+
+        // Step card click handler
+        document.querySelectorAll('.step-card').forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove active from all cards
+                document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+                
+                // Add active to clicked card
+                card.classList.add('active');
+                
+                // Render step details
+                const stepNumber = card.dataset.step;
+                renderStepDetails(stepNumber);
+            });
+        });
+    </script>
+</body>
+</html>
