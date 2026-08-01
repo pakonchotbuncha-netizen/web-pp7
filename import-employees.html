@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Employees - Web PP7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; }
+        .drop-zone {
+            border: 3px dashed #cbd5e0;
+            transition: all 0.3s;
+        }
+        .drop-zone.dragover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .country-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .country-th { background: #fee2e2; color: #991b1b; }
+        .country-la { background: #dbeafe; color: #1e40af; }
+        .country-kh { background: #d1fae5; color: #065f46; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                📥 นำเข้าข้อมูลพนักงาน
+            </h1>
+            <p class="text-gray-600">Import ข้อมูลสมาชิกจาก 3 ประเทศ: ไทย 🇹🇭 / ลาว 🇱🇦 / กัมพูชา 🇰🇭</p>
+        </div>
+
+        <!-- Step 1: Upload File -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <span class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-2 text-sm">1</span>
+                อัพโหลดไฟล์ Excel/CSV
+            </h2>
+            
+            <div id="dropZone" class="drop-zone rounded-lg p-12 text-center cursor-pointer">
+                <svg class="mx-auto mb-4 w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                <p class="text-lg text-gray-600 mb-2">ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</p>
+                <p class="text-sm text-gray-500">รองรับ: .xlsx, .xls, .csv (สูงสุด 10 MB)</p>
+                <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" class="hidden">
+            </div>
+
+            <div id="fileInfo" class="hidden mt-4 p-4 bg-blue-50 rounded-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="font-semibold text-blue-900" id="fileName"></p>
+                        <p class="text-sm text-blue-700" id="fileSize"></p>
+                    </div>
+                    <button onclick="clearFile()" class="text-red-600 hover:text-red-800">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Field Mapping -->
+        <div id="mappingSection" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <span class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-2 text-sm">2</span>
+                จับคู่ฟิลด์ข้อมูล
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ฟิลด์ในระบบ</label>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">คอลัมน์ในไฟล์</label>
+                </div>
+
+                <!-- Required Fields -->
+                <div class="space-y-3">
+                    <div class="flex items-center">
+                        <span class="text-red-500 mr-1">*</span>
+                        <span class="font-medium">รหัสพนักงาน</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-red-500 mr-1">*</span>
+                        <span class="font-medium">ชื่อ-นามสกุล</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-red-500 mr-1">*</span>
+                        <span class="font-medium">ประเทศ</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-red-500 mr-1">*</span>
+                        <span class="font-medium">แผนก</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-red-500 mr-1">*</span>
+                        <span class="font-medium">ตำแหน่ง</span>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <select id="map_employee_id" class="w-full border rounded px-3 py-2">
+                        <option value="">-- เลือกคอลัมน์ --</option>
+                    </select>
+                    <select id="map_full_name" class="w-full border rounded px-3 py-2">
+                        <option value="">-- เลือกคอลัมน์ --</option>
+                    </select>
+                    <select id="map_country" class="w-full border rounded px-3 py-2">
+                        <option value="">-- เลือกคอลัมน์ --</option>
+                    </select>
+                    <select id="map_department" class="w-full border rounded px-3 py-2">
+                        <option value="">-- เลือกคอลัมน์ --</option>
+                    </select>
+                    <select id="map_position" class="w-full border rounded px-3 py-2">
+                        <option value="">-- เลือกคอลัมน์ --</option>
+                    </select>
+                </div>
+
+                <!-- Optional Fields -->
+                <div class="space-y-3 pt-4 border-t">
+                    <div class="text-sm font-medium text-gray-500">ฟิลด์ทางเลือก:</div>
+                    <div>Email</div>
+                    <div>เบอร์โทร</div>
+                    <div>วันที่เข้าทำงาน</div>
+                    <div>สถานะ</div>
+                </div>
+
+                <div class="space-y-3 pt-4 border-t">
+                    <div class="text-sm font-medium text-gray-500">&nbsp;</div>
+                    <select id="map_email" class="w-full border rounded px-3 py-2">
+                        <option value="">-- เลือกคอลัมน์ --</option>
+                    </select>
+                    <select id="map_phone" class="w-full border rounded px-3 py-2">
+                        <option value="">-- เลือกคอลัมน์ --</option>
+                    </select>
+                    <select id="map_start_date" class="w-full border rounded px-3 py-2">
+                        <option value="">-- เลือกคอลัมน์ --</option>
+                    </select>
+                    <select id="map_status" class="w-full border rounded px-3 py-2">
+                        <option value="">-- เลือกคอลัมน์ --</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="validateMapping()" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
+                ตรวจสอบและแสดงตัวอย่าง
+            </button>
+        </div>
+
+        <!-- Step 3: Preview & Import -->
+        <div id="previewSection" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <span class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-2 text-sm">3</span>
+                ตัวอย่างข้อมูลและยืนยันการนำเข้า
+            </h2>
+
+            <!-- Summary Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <p class="text-sm text-blue-700">จำนวนทั้งหมด</p>
+                    <p class="text-2xl font-bold text-blue-900" id="totalCount">0</p>
+                </div>
+                <div class="bg-red-50 rounded-lg p-4">
+                    <p class="text-sm text-red-700">🇹🇭 ไทย</p>
+                    <p class="text-2xl font-bold text-red-900" id="thCount">0</p>
+                </div>
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <p class="text-sm text-blue-700">🇱🇦 ลาว</p>
+                    <p class="text-2xl font-bold text-blue-900" id="laCount">0</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4">
+                    <p class="text-sm text-green-700">🇰🇭 กัมพูชา</p>
+                    <p class="text-2xl font-bold text-green-900" id="khCount">0</p>
+                </div>
+            </div>
+
+            <!-- Preview Table -->
+            <div class="overflow-x-auto mb-6">
+                <table class="min-w-full bg-white border">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-sm font-semibold">รหัส</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold">ชื่อ-นามสกุล</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold">ประเทศ</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold">แผนก</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold">ตำแหน่ง</th>
+                            <th class="px-4 py-2 text-left text-sm font-semibold">สถานะ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="previewTable">
+                        <!-- Preview rows will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="previewNote" class="text-sm text-gray-600 mb-4">
+                แสดง 10 แถวแรกจากทั้งหมด <span id="totalPreview">0</span> แถว
+            </div>
+
+            <!-- Validation Errors -->
+            <div id="validationErrors" class="hidden mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <h3 class="font-semibold text-red-900 mb-2">⚠️ พบข้อผิดพลาด:</h3>
+                <ul id="errorList" class="list-disc list-inside text-sm text-red-800"></ul>
+            </div>
+
+            <!-- Import Button -->
+            <div class="flex gap-4">
+                <button onclick="importData()" id="importBtn" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 font-semibold">
+                    ✅ นำเข้าข้อมูลทั้งหมด
+                </button>
+                <button onclick="downloadTemplate()" class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600">
+                    📥 ดาวน์โหลด Template
+                </button>
+            </div>
+        </div>
+
+        <!-- Import Progress -->
+        <div id="progressSection" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
+            <h2 class="text-xl font-semibold mb-4">กำลังนำเข้าข้อมูล...</h2>
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
+                <div id="progressBar" class="bg-blue-500 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <p id="progressText" class="text-gray-600">กำลังประมวลผล...</p>
+        </div>
+
+        <!-- Success Message -->
+        <div id="successSection" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
+            <div class="text-center">
+                <svg class="mx-auto mb-4 w-20 h-20 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h2 class="text-2xl font-bold text-green-900 mb-2">นำเข้าข้อมูลสำเร็จ!</h2>
+                <p class="text-gray-600 mb-4">นำเข้าพนักงานทั้งหมด <span id="successCount" class="font-bold text-green-700">0</span> คน</p>
+                <button onclick="location.reload()" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
+                    นำเข้าข้อมูลใหม่
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="import-employees.js"></script>
+</body>
+</html>

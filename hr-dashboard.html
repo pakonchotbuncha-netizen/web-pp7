@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard - PKG Recruitment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Prompt', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .tab-active { background: #667eea; color: white; }
+        .tab-inactive { background: #f3f4f6; color: #6b7280; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-building text-purple-600 text-2xl mr-3"></i>
+                    <span class="font-bold text-xl text-gray-800">PKG HR Dashboard</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="showNotifications()" class="relative text-gray-700 hover:text-purple-600">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">5</span>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white font-semibold">HR</div>
+                        <span class="text-gray-700 font-medium">HR Manager</span>
+                    </div>
+                    <button onclick="logout()" class="text-gray-700 hover:text-red-600">
+                        <i class="fas fa-sign-out-alt mr-1"></i>ออก
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Tabs -->
+    <div class="bg-white border-b">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex space-x-4 py-3">
+                <button onclick="switchTab('applicants')" id="tab-applicants" class="tab-active px-4 py-2 rounded-lg font-medium">
+                    <i class="fas fa-users mr-2"></i>ผู้สมัคร
+                </button>
+                <button onclick="switchTab('tests')" id="tab-tests" class="tab-inactive px-4 py-2 rounded-lg font-medium">
+                    <i class="fas fa-tasks mr-2"></i>แบบทดสอบ
+                </button>
+                <button onclick="switchTab('interviews')" id="tab-interviews" class="tab-inactive px-4 py-2 rounded-lg font-medium">
+                    <i class="fas fa-calendar-check mr-2"></i>นัดสัมภาษณ์
+                </button>
+                <button onclick="switchTab('scoring')" id="tab-scoring" class="tab-inactive px-4 py-2 rounded-lg font-medium">
+                    <i class="fas fa-star mr-2"></i>สัมภาษณ์
+                </button>
+                <button onclick="switchTab('results')" id="tab-results" class="tab-inactive px-4 py-2 rounded-lg font-medium">
+                    <i class="fas fa-award mr-2"></i>สรุปผล
+                </button>
+                <button onclick="switchTab('onboarding')" id="tab-onboarding" class="tab-inactive px-4 py-2 rounded-lg font-medium">
+                    <i class="fas fa-handshake mr-2"></i>เริ่มงาน
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">ผู้สมัครทั้งหมด</p>
+                        <p class="text-3xl font-bold text-gray-800" id="stat-total">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-users text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">ใหม่</p>
+                        <p class="text-3xl font-bold text-blue-600" id="stat-new">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-file-alt text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">ทำแบบทดสอบแล้ว</p>
+                        <p class="text-3xl font-bold text-purple-600" id="stat-tested">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-check-circle text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">กำลังสัมภาษณ์</p>
+                        <p class="text-3xl font-bold text-orange-600" id="stat-interview">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-calendar-check text-orange-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">จ้างงาน</p>
+                        <p class="text-3xl font-bold text-green-600" id="stat-hired">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-handshake text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tab-content">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
+                <h2 id="modal-title" class="text-2xl font-bold"></h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div id="modal-content" class="p-6"></div>
+        </div>
+    </div>
+
+    <script src="./app.js"></script>
+    <script src="./hr-dashboard.js"></script>
+</body>
+</html>

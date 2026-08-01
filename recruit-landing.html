@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PKG Recruitment - ระบบรับสมัครงาน</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Prompt', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fas fa-building text-purple-600 text-2xl mr-3"></i>
+                    <span class="font-bold text-xl text-gray-800">PKG Recruitment</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="showLogin()" class="text-gray-700 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sign-in-alt mr-1"></i>เข้าสู่ระบบ
+                    </button>
+                    <button onclick="showRegister()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                        <i class="fas fa-user-plus mr-1"></i>ลงทะเบียน
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="gradient-bg text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-5xl font-bold mb-4">ร่วมงานกับ PKG Group</h1>
+            <p class="text-xl opacity-90 mb-8">ระบบรับสมัครงานออนไลน์ที่ทันสมัย ง่าย และรวดเร็ว</p>
+            <div class="flex justify-center space-x-4">
+                <button onclick="window.location.href='positions.html'" class="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+                    <i class="fas fa-briefcase mr-2"></i>ดูตำแหน่งงาน
+                </button>
+                <button onclick="showRegister()" class="bg-purple-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-purple-800 transition">
+                    <i class="fas fa-rocket mr-2"></i>เริ่มสมัครงาน
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">ทำไมต้องสมัครกับเรา?</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white p-8 rounded-xl shadow-lg card-hover">
+                <div class="text-4xl text-purple-600 mb-4">🎯</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">AI คัดกรองอัจฉริยะ</h3>
+                <p class="text-gray-600">ระบบ AI วิเคราะห์ความเหมาะสมของคุณกับตำแหน่งงานโดยอัตโนมัติ</p>
+            </div>
+            <div class="bg-white p-8 rounded-xl shadow-lg card-hover">
+                <div class="text-4xl text-blue-600 mb-4">⚡</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">รวดเร็วและง่ายดาย</h3>
+                <p class="text-gray-600">สมัครงานออนไลน์ได้ตลอด 24 ชม. ไม่ต้องเดินทางมาสมัครด้วยตนเอง</p>
+            </div>
+            <div class="bg-white p-8 rounded-xl shadow-lg card-hover">
+                <div class="text-4xl text-green-600 mb-4">📊</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">ติดตามสถานะได้</h3>
+                <p class="text-gray-600">ตรวจสอบสถานะใบสมัครและผลการคัดเลือกได้ผ่าน Dashboard</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Steps Section -->
+    <div class="bg-gray-100 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">ขั้นตอนการสมัคร</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">1</div>
+                    <h3 class="font-bold text-gray-800 mb-2">ลงทะเบียน</h3>
+                    <p class="text-gray-600 text-sm">สร้างบัญชีผู้สมัคร</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">2</div>
+                    <h3 class="font-bold text-gray-800 mb-2">เลือกตำแหน่ง</h3>
+                    <p class="text-gray-600 text-sm">ดูตำแหน่งที่เปิดรับ</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">3</div>
+                    <h3 class="font-bold text-gray-800 mb-2">กรอกใบสมัคร</h3>
+                    <p class="text-gray-600 text-sm">กรอกข้อมูล 4 ขั้นตอน</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">4</div>
+                    <h3 class="font-bold text-gray-800 mb-2">รอผลการคัดเลือก</h3>
+                    <p class="text-gray-600 text-sm">ติดตามสถานะใน Dashboard</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">เข้าสู่ระบบ</h2>
+                <button onclick="hideLogin()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form onsubmit="handleLogin(event)">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                    <input type="tel" id="loginPhone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">รหัสผ่าน</label>
+                    <input type="password" id="loginPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600">
+                </div>
+                <button type="submit" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold">
+                    เข้าสู่ระบบ
+                </button>
+            </form>
+            <div class="text-center mt-4">
+                <p class="text-sm text-gray-600">ยังไม่มีบัญชี? <button onclick="hideLogin(); showRegister()" class="text-purple-600 hover:underline">ลงทะเบียน</button></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-8 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">ลงทะเบียนผู้สมัคร</h2>
+                <button onclick="hideRegister()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form onsubmit="handleRegister(event)">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ-นามสกุล</label>
+                    <input type="text" id="regName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์</label>
+                    <input type="tel" id="regPhone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input type="email" id="regEmail" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">รหัสผ่าน</label>
+                    <input type="password" id="regPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600">
+                </div>
+                <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold">
+                    ลงทะเบียน
+                </button>
+            </form>
+            <div class="text-center mt-4">
+                <p class="text-sm text-gray-600">มีบัญชีแล้ว? <button onclick="hideRegister(); showLogin()" class="text-purple-600 hover:underline">เข้าสู่ระบบ</button></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showLogin() {
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+        function hideLogin() {
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+        function showRegister() {
+            document.getElementById('registerModal').classList.remove('hidden');
+        }
+        function hideRegister() {
+            document.getElementById('registerModal').classList.add('hidden');
+        }
+        function handleLogin(event) {
+            event.preventDefault();
+            const phone = document.getElementById('loginPhone').value;
+            const password = document.getElementById('loginPassword').value;
+            const users = JSON.parse(localStorage.getItem('pkg_users') || '[]');
+            const user = users.find(u => u.phone === phone && u.password === btoa(password));
+            if (user) {
+                localStorage.setItem('pkg_current_user', JSON.stringify(user));
+                if (user.role === 'hr') {
+                    window.location.href = 'hr-dashboard.html';
+                } else {
+                    window.location.href = 'applicant-dashboard.html';
+                }
+            } else {
+                alert('❌ เบอร์โทรหรือรหัสผ่านไม่ถูกต้อง');
+            }
+        }
+        function handleRegister(event) {
+            event.preventDefault();
+            const name = document.getElementById('regName').value;
+            const phone = document.getElementById('regPhone').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const users = JSON.parse(localStorage.getItem('pkg_users') || '[]');
+            if (users.find(u => u.phone === phone)) {
+                alert('❌ เบอร์โทรนี้ถูกใช้แล้ว');
+                return;
+            }
+            const newUser = {
+                id: 'APP-' + Date.now().toString().slice(-6),
+                name,
+                phone,
+                email,
+                password: btoa(password),
+                role: 'applicant',
+                status: 'active',
+                createdAt: new Date().toISOString()
+            };
+            users.push(newUser);
+            localStorage.setItem('pkg_users', JSON.stringify(users));
+            alert('✅ ลงทะเบียนสำเร็จ! กรุณาเข้าสู่ระบบ');
+            hideRegister();
+            showLogin();
+        }
+    </script>
+</body>
+</html>
