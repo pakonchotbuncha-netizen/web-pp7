@@ -100,7 +100,7 @@ tailwind.config = {
 <nav class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
   <div class="max-w-7xl mx-auto flex overflow-x-auto">
     <button class="tab-active px-4 py-3 text-sm font-medium border-b-2 border-blue-600 text-blue-600" data-subtab="overview" onclick="showSubTab('overview')">📊 ภาพรวม</button>
-    <button class="px-4 py-3 text-sm font-medium text-slate-500 hover:text-blue-600 border-b-2 border-transparent" data-subtab="headcount" onclick="showSubTab('headcount')">📋 Headcount</button>
+    <button class="px-4 py-3 text-sm font-medium text-slate-500 hover:text-blue-600 border-b-2 border-transparent" data-subtab="headcount" onclick="showSubTab('headcount')">📋 ขออัตรากำลังคน</button>
     <button class="px-4 py-3 text-sm font-medium text-slate-500 hover:text-blue-600 border-b-2 border-transparent" data-subtab="candidates" onclick="showSubTab('candidates')">👥 ผู้สมัครทั้งหมด</button>
     <button class="px-4 py-3 text-sm font-medium text-slate-500 hover:text-blue-600 border-b-2 border-transparent" data-subtab="pipeline" onclick="showSubTab('pipeline')">🔀 Pipeline Board</button>
     <button class="px-4 py-3 text-sm font-medium text-slate-500 hover:text-blue-600 border-b-2 border-transparent" data-subtab="screening" onclick="showSubTab('screening')">🤖 AI Screening</button>
@@ -193,8 +193,8 @@ tailwind.config = {
   <!-- ============ SUB-TAB: HEADCOUNT ============ -->
   <section id="subtab-headcount" class="space-y-4 fade-in" style="display:none">
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <h2 class="text-lg font-semibold">📋 Headcount Requests</h2>
-      <button onclick="openCreateHc()" class="btn btn-primary">+ ขอ Headcount ใหม่</button>
+      <h2 class="text-lg font-semibold">📋 ขออัตรากำลังคน</h2>
+      <button onclick="openCreateHc()" class="btn btn-primary">+ ขออัตรากำลังคนใหม่</button>
     </div>
     <div class="card overflow-x-auto">
       <table>
@@ -249,7 +249,7 @@ tailwind.config = {
     <h2 class="text-lg font-semibold">🔀 Pipeline Board — Kanban View</h2>
     <div class="flex flex-wrap gap-2 mb-2">
       <select id="filterHcPipeline" onchange="renderPipelineBoard()" class="text-sm" style="width:auto">
-        <option value="">ทุก Headcount</option>
+        <option value="">ทุกคำขอ</option>
       </select>
     </div>
     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3" id="pipelineBoard">
@@ -308,7 +308,7 @@ tailwind.config = {
 <div class="modal-overlay" id="modalCreateHc">
   <div class="modal">
     <div class="modal-header">
-      <h3>📋 ขอ Headcount ใหม่</h3>
+      <h3>📋 ขออัตรากำลังคนใหม่</h3>
       <button onclick="closeModal('modalCreateHc')" class="text-2xl text-slate-400 hover:text-slate-700">&times;</button>
     </div>
     <div class="modal-body space-y-4">
@@ -389,7 +389,7 @@ tailwind.config = {
           <input id="candBu" placeholder="เช่น Tech" />
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">Headcount ID (ถ้ามี)</label>
+          <label class="block text-sm font-medium mb-1">รหัสคำขอ (ถ้ามี)</label>
           <select id="candHc"><option value="">— ไม่ระบุ —</option></select>
         </div>
         <div>
@@ -636,7 +636,7 @@ function renderPipeline() {
 function renderHcTable() {
   const tbody = document.getElementById('hcTableBody');
   if (headcounts.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-slate-400 py-8">ยังไม่มีข้อมูล Headcount</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-slate-400 py-8">ยังไม่มีข้อมูลขออัตรากำลังคน</td></tr>';
     return;
   }
   tbody.innerHTML = headcounts.map(h => {
