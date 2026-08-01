@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P1-P3 Process Flow Designer v2 — Web PP7 Developer Documentation</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script>
+tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif']},colors:{brand:{50:'#eef2ff',100:'#e0e7ff',200:'#c7d2fe',500:'#6366f1',600:'#4f46e5',700:'#4338ca',800:'#3730a3',900:'#312e81'},surface:{50:'#f8fafc',100:'#f1f5f9',200:'#e2e8f0',300:'#cbd5e1',700:'#334155',800:'#1e293b',900:'#0f172a'}}}}}
+</script>
+<style>
+*{font-family:'Inter',sans-serif}
+body{background:#f8fafc;color:#1e293b;transition:all .3s}
+body.dark{background:#0f172a;color:#e2e8f0}
+.dark .card{background:#1e293b;border-color:#334155}
+.dark .sidebar{background:#1e293b;border-color:#334155}
+.dark .topbar{background:#1e293b;border-color:#334155}
+.dark input,.dark select,.dark textarea{background:#0f172a;border-color:#334155;color:#e2e8f0}
+.dark pre{background:#0f172a!important}
+.dark code{color:#93c5fd}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:.75rem;transition:all .3s}
+.sidebar{width:280px;background:#fff;border-right:1px solid #e2e8f0;position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:40;transition:transform .3s}
+.sidebar.collapsed{transform:translateX(-280px)}
+.topbar{position:fixed;top:0;left:280px;right:0;height:60px;background:#fff;border-bottom:1px solid #e2e8f0;z-index:30;display:flex;align-items:center;padding:0 1.5rem;transition:left .3s}
+.sidebar.collapsed~.topbar{left:0}
+.main-content{margin-left:280px;padding-top:60px;transition:margin-left .3s}
+.sidebar.collapsed~.main-content{margin-left:0}
+.step-nav-item{padding:.6rem 1rem;border-radius:.5rem;cursor:pointer;transition:all .2s;font-size:.85rem;display:flex;align-items:center;gap:.5rem}
+.step-nav-item:hover{background:#f1f5f9}
+.step-nav-item.active{background:#eef2ff;color:#4f46e5;font-weight:600}
+.dark .step-nav-item:hover{background:#334155}
+.dark .step-nav-item.active{background:#312e81;color:#a5b4fc}
+.badge{display:inline-flex;align-items:center;padding:.15rem .5rem;border-radius:9999px;font-size:.7rem;font-weight:600}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.badge-green{background:#dcfce7;color:#166534}
+.badge-amber{background:#fef3c7;color:#92400e}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-purple{background:#f3e8ff;color:#6b21a8}
+.badge-cyan{background:#cffafe;color:#155e75}
+.dark .badge-blue{background:#1e3a5f;color:#93c5fd}
+.dark .badge-green{background:#14532d;color:#86efac}
+.dark .badge-amber{background:#451a03;color:#fcd34d}
+.dark .badge-red{background:#450a0a;color:#fca5a5}
+pre{background:#f8fafc;border:1px solid #e2e8f0;border-radius:.5rem;padding:1rem;overflow-x:auto;font-size:.8rem;line-height:1.6}
+code{font-family:'JetBrains Mono',monospace;font-size:.8rem}
+.copy-btn{position:absolute;top:.5rem;right:.5rem;padding:.25rem .5rem;border-radius:.375rem;font-size:.7rem;background:#e2e8f0;border:none;cursor:pointer;opacity:0;transition:opacity .2s}
+pre:hover .copy-btn{opacity:1}
+.copy-btn:hover{background:#cbd5e1}
+.tab-btn{padding:.5rem 1rem;font-size:.8rem;font-weight:500;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;color:#64748b}
+.tab-btn:hover{color:#4f46e5}
+.tab-btn.active{color:#4f46e5;border-color:#4f46e5}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.state-node{fill:#fff;stroke:#4f46e5;stroke-width:2;rx:8}
+.state-node-active{fill:#eef2ff;stroke:#4f46e5;stroke-width:2;rx:8}
+.state-arrow{fill:none;stroke:#64748b;stroke-width:1.5;marker-end:url(#arrowhead)}
+.kpi-card{text-align:center;padding:1.5rem}
+.kpi-value{font-size:2rem;font-weight:800;background:linear-gradient(135deg,#4f46e5,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.schema-table{width:100%;border-collapse:collapse;font-size:.8rem}
+.schema-table th{background:#f1f5f9;padding:.5rem .75rem;text-align:left;font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:#64748b;border-bottom:2px solid #e2e8f0}
+.schema-table td{padding:.5rem .75rem;border-bottom:1px solid #f1f5f9}
+.schema-table tr:hover td{background:#f8fafc}
+.dark .schema-table th{background:#334155;color:#94a3b8;border-color:#475569}
+.dark .schema-table td{border-color:#334155}
+.dark .schema-table tr:hover td{background:#1e293b}
+.api-method{display:inline-block;padding:.15rem .4rem;border-radius:.25rem;font-size:.7rem;font-weight:700;font-family:monospace}
+.api-get{background:#dcfce7;color:#166534}
+.api-post{background:#dbeafe;color:#1e40af}
+.api-put{background:#fef3c7;color:#92400e}
+.api-delete{background:#fee2e2;color:#991b1b}
+.checklist-item{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;font-size:.85rem}
+.checklist-item input[type=checkbox]{width:1rem;height:1rem;accent-color:#4f46e5}
+.wireframe{background:#f8fafc;border:2px dashed #cbd5e1;border-radius:.75rem;padding:1.5rem}
+.wireframe-box{background:#fff;border:1px solid #e2e8f0;border-radius:.5rem;padding:.75rem}
+.wireframe-input{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:.375rem;padding:.4rem .6rem;height:2rem}
+@media print{
+.sidebar,.topbar,.no-print{display:none!important}
+.main-content{margin-left:0!important;padding-top:0!important}
+.card{break-inside:avoid;box-shadow:none!important;border:1px solid #e2e8f0!important}
+}
+@media(max-width:1024px){
+.sidebar{transform:translateX(-280px)}
+.sidebar.open{transform:translateX(0)}
+.topbar{left:0}
+.main-content{margin-left:0}
+}
+.fade-in{animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.search-highlight{background:#fef08a;padding:0 2px;border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+<div class="p-4 border-b border-slate-200">
+<div class="flex items-center gap-2 mb-1">
+<div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-white text-sm font-bold">PP7</div>
+<div>
+<div class="font-bold text-sm">Process Flow Designer</div>
+<div class="text-xs text-slate-500">v2.0 — Developer Docs</div>
+</div>
+</div>
+</div>
+
+<nav class="p-3 space-y-1">
+<div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-2 mb-2">Overview</div>
+<div class="step-nav-item active" onclick="showSection('dashboard')">
+<i class="fas fa-chart-pie w-5 text-center"></i> Dashboard
+</div>
+<div class="step-nav-item" onclick="showSection('erd')">
+<i class="fas fa-project-diagram w-5 text-center"></i> ERD Diagram
+</div>
+<div class="step-nav-item" onclick="showSection('roadmap')">
+<i class="fas fa-map w-5 text-center"></i> Roadmap
+</div>
+
+<div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-2 mt-4 mb-2">P1 — แสวงหา</div>
+<div class="step-nav-item" onclick="showStep(1)"><span class="w-5 h-5 rounded bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold">1</span> ขออัตรากำลัง</div>
+<div class="step-nav-item" onclick="showStep(2)"><span class="w-5 h-5 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold">2</span> เปิดรับสมัคร</div>
+<div class="step-nav-item" onclick="showStep(3)"><span class="w-5 h-5 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">3</span> กรอกใบสมัคร</div>
+
+<div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-2 mt-4 mb-2">P2 — หยั่งประเมิน</div>
+<div class="step-nav-item" onclick="showStep(4)"><span class="w-5 h-5 rounded bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold">4</span> แบบทดสอบ 4 ชุด</div>
+<div class="step-nav-item" onclick="showStep(5)"><span class="w-5 h-5 rounded bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold">5</span> AI วิเคราะห์</div>
+<div class="step-nav-item" onclick="showStep(6)"><span class="w-5 h-5 rounded bg-pink-100 text-pink-700 flex items-center justify-center text-xs font-bold">6</span> คัดกรอง</div>
+<div class="step-nav-item" onclick="showStep(7)"><span class="w-5 h-5 rounded bg-red-100 text-red-700 flex items-center justify-center text-xs font-bold">7</span> นัดสัมภาษณ์</div>
+<div class="step-nav-item" onclick="showStep(8)"><span class="w-5 h-5 rounded bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-bold">8</span> สัมภาษณ์</div>
+<div class="step-nav-item" onclick="showStep(9)"><span class="w-5 h-5 rounded bg-orange-100 text-orange-700 flex items-center justify-center text-xs font-bold">9</span> สรุปผล</div>
+
+<div class="text-xs font-semibold text-slate-400 uppercase tracking-wider px-2 mt-4 mb-2">P3 — จับคู่</div>
+<div class="step-nav-item" onclick="showStep(10)"><span class="w-5 h-5 rounded bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold">10</span> ตัดสินใจรับ</div>
+</nav>
+</aside>
+
+<!-- TOPBAR -->
+<div class="topbar" id="topbar">
+<button onclick="toggleSidebar()" class="mr-3 p-2 rounded hover:bg-slate-100 no-print">
+<i class="fas fa-bars text-slate-600"></i>
+</button>
+<div class="flex-1 relative no-print">
+<input type="text" id="searchInput" placeholder="ค้นหา step, field, API..." class="w-full max-w-md pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg" oninput="handleSearch(this.value)">
+<i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+</div>
+<div class="flex items-center gap-2 no-print">
+<select id="filterPhase" onchange="applyFilters()" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5">
+<option value="all">ทุก Phase</option>
+<option value="P1">P1 แสวงหา</option>
+<option value="P2">P2 ประเมิน</option>
+<option value="P3">P3 จับคู่</option>
+</select>
+<select id="filterRole" onchange="applyFilters()" class="text-xs border border-slate-200 rounded-lg px-2 py-1.5">
+<option value="all">ทุก Role</option>
+<option value="candidate">ผู้สมัคร</option>
+<option value="hr">HR</option>
+<option value="interviewer">ผู้สัมภาษณ์</option>
+<option value="director">Director</option>
+<option value="system">System</option>
+</select>
+<button onclick="toggleDark()" class="p-2 rounded-lg hover:bg-slate-100" title="Dark Mode">
+<i class="fas fa-moon text-slate-600" id="darkIcon"></i>
+</button>
+<button onclick="exportJSON()" class="p-2 rounded-lg hover:bg-slate-100" title="Export JSON">
+<i class="fas fa-download text-slate-600"></i>
+</button>
+<button onclick="window.print()" class="p-2 rounded-lg hover:bg-slate-100" title="Print">
+<i class="fas fa-print text-slate-600"></i>
+</button>
+</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main class="main-content" id="mainContent">
+
+<!-- DASHBOARD SECTION -->
+<section id="section-dashboard" class="p-6 fade-in">
+<div class="mb-6">
+<h1 class="text-2xl font-bold">Dashboard Overview</h1>
+<p class="text-sm text-slate-500 mt-1">ภาพรวมกระบวนการ P1-P3 — ระบบสรรหาบุคลากร Web PP7</p>
+</div>
+
+<!-- KPI Cards -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+<div class="card kpi-card"><div class="kpi-value">12.4%</div><div class="text-xs text-slate-500 mt-1">Conversion Rate</div></div>
+<div class="card kpi-card"><div class="kpi-value">18 วัน</div><div class="text-xs text-slate-500 mt-1">Avg Time-to-Hire</div></div>
+<div class="card kpi-card"><div class="kpi-value">82.4%</div><div class="text-xs text-slate-500 mt-1">Offer Accept Rate</div></div>
+<div class="card kpi-card"><div class="kpi-value">94%</div><div class="text-xs text-slate-500 mt-1">Background Check Pass</div></div>
+</div>
+
+<!-- Funnel Chart -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+<div class="card p-6">
+<h3 class="font-bold text-sm mb-4"><i class="fas fa-filter mr-2 text-indigo-500"></i>Conversion Funnel</h3>
+<canvas id="funnelChart" height="250"></canvas>
+</div>
+<div class="card p-6">
+<h3 class="font-bold text-sm mb-4"><i class="fas fa-clock mr-2 text-indigo-500"></i>Timeline per Step (วัน)</h3>
+<canvas id="timelineChart" height="250"></canvas>
+</div>
+</div>
+
+<!-- Swimlane Diagram -->
+<div class="card p-6 mb-6">
+<h3 class="font-bold text-sm mb-4"><i class="fas fa-stream mr-2 text-indigo-500"></i>Swimlane Process Flow</h3>
+<div class="overflow-x-auto">
+<svg viewBox="0 0 1100 420" class="w-full min-w-[800px]" style="max-height:420px">
+<!-- Lane labels -->
+<rect x="0" y="0" width="100" height="80" fill="#eef2ff" stroke="#c7d2fe" rx="4"/>
+<text x="50" y="44" text-anchor="middle" font-size="11" font-weight="600" fill="#4338ca">ผู้สมัคร</text>
+<rect x="0" y="84" width="100" height="80" fill="#f0fdf4" stroke="#bbf7d0" rx="4"/>
+<text x="50" y="128" text-anchor="middle" font-size="11" font-weight="600" fill="#166534">HR</text>
+<rect x="0" y="168" width="100" height="80" fill="#fefce8" stroke="#fef08a" rx="4"/>
+<text x="50" y="212" text-anchor="middle" font-size="11" font-weight="600" fill="#854d0e">ผู้สัมภาษณ์</text>
+<rect x="0" y="252" width="100" height="80" fill="#fdf2f8" stroke="#fbcfe8" rx="4"/>
+<text x="50" y="296" text-anchor="middle" font-size="11" font-weight="600" fill="#9d174d">Director</text>
+<rect x="0" y="336" width="100" height="80" fill="#f5f3ff" stroke="#ddd6fe" rx="4"/>
+<text x="50" y="380" text-anchor="middle" font-size="11" font-weight="600" fill="#5b21b6">System (AI)</text>
+
+<!-- Step boxes -->
+<rect x="120" y="10" width="100" height="50" rx="8" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5"/>
+<text x="170" y="32" text-anchor="middle" font-size="9" font-weight="600" fill="#4338ca">S1</text>
+<text x="170" y="46" text-anchor="middle" font-size="8" fill="#6366f1">ขออัตรา</text>
+
+<rect x="240" y="94" width="100" height="50" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+<text x="290" y="116" text-anchor="middle" font-size="9" font-weight="600" fill="#166534">S2</text>
+<text x="290" y="130" text-anchor="middle" font-size="8" fill="#22c55e">เปิดรับสมัคร</text>
+
+<rect x="360" y="10" width="100" height="50" rx="8" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5"/>
+<text x="410" y="32" text-anchor="middle" font-size="9" font-weight="600" fill="#4338ca">S3</text>
+<text x="410" y="46" text-anchor="middle" font-size="8" fill="#6366f1">กรอกใบสมัคร</text>
+
+<rect x="480" y="10" width="100" height="50" rx="8" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5"/>
+<text x="530" y="32" text-anchor="middle" font-size="9" font-weight="600" fill="#4338ca">S4</text>
+<text x="530" y="46" text-anchor="middle" font-size="8" fill="#6366f1">แบบทดสอบ</text>
+
+<rect x="600" y="346" width="100" height="50" rx="8" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.5"/>
+<text x="650" y="368" text-anchor="middle" font-size="9" font-weight="600" fill="#5b21b6">S5</text>
+<text x="650" y="382" text-anchor="middle" font-size="8" fill="#8b5cf6">AI วิเคราะห์</text>
+
+<rect x="720" y="94" width="100" height="50" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+<text x="770" y="116" text-anchor="middle" font-size="9" font-weight="600" fill="#166534">S6</text>
+<text x="770" y="130" text-anchor="middle" font-size="8" fill="#22c55e">คัดกรอง</text>
+
+<rect x="840" y="94" width="100" height="50" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+<text x="890" y="116" text-anchor="middle" font-size="9" font-weight="600" fill="#166534">S7</text>
+<text x="890" y="130" text-anchor="middle" font-size="8" fill="#22c55e">นัดสัมภาษณ์</text>
+
+<rect x="840" y="178" width="100" height="50" rx="8" fill="#fefce8" stroke="#eab308" stroke-width="1.5"/>
+<text x="890" y="200" text-anchor="middle" font-size="9" font-weight="600" fill="#854d0e">S8</text>
+<text x="890" y="214" text-anchor="middle" font-size="8" fill="#eab308">สัมภาษณ์</text>
+
+<rect x="960" y="94" width="100" height="50" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+<text x="1010" y="116" text-anchor="middle" font-size="9" font-weight="600" fill="#166534">S9</text>
+<text x="1010" y="130" text-anchor="middle" font-size="8" fill="#22c55e">สรุปผล</text>
+
+<rect x="960" y="262" width="100" height="50" rx="8" fill="#fdf2f8" stroke="#ec4899" stroke-width="1.5"/>
+<text x="1010" y="284" text-anchor="middle" font-size="9" font-weight="600" fill="#9d174d">S10</text>
+<text x="1010" y="298" text-anchor="middle" font-size="8" fill="#ec4899">ตัดสินใจ</text>
+
+<!-- Arrows -->
+<defs><marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#94a3b8"/></marker></defs>
+<line x1="220" y1="35" x2="240" y2="110" class="state-arrow"/>
+<line x1="340" y1="110" x2="360" y2="35" class="state-arrow"/>
+<line x1="460" y1="35" x2="480" y2="35" class="state-arrow"/>
+<line x1="580" y1="35" x2="600" y2="355" class="state-arrow"/>
+<line x1="700" y1="360" x2="720" y2="120" class="state-arrow"/>
+<line x1="820" y1="119" x2="840" y2="119" class="state-arrow"/>
+<line x1="890" y1="144" x2="890" y2="178" class="state-arrow"/>
+<line x1="940" y1="200" x2="960" y2="119" class="state-arrow"/>
+<line x1="1010" y1="144" x2="1010" y2="262" class="state-arrow"/>
+</svg>
+</div>
+</div>
+
+<!-- Data Flow -->
+<div class="card p-6">
+<h3 class="font-bold text-sm mb-4"><i class="fas fa-database mr-2 text-indigo-500"></i>Data Flow: P1 → P2 → P3 → P4</h3>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+<div class="border-2 border-indigo-200 rounded-lg p-4">
+<div class="font-bold text-indigo-700 text-sm mb-2">P1 — แสวงหา</div>
+<div class="text-xs space-y-1 text-slate-600">
+<div>📋 Headcount Request</div>
+<div>📢 Job Posting</div>
+<div>📥 Candidate Application</div>
+</div>
+<div class="mt-3 text-xs font-mono bg-indigo-50 p-2 rounded">→ P1_Candidates</div>
+</div>
+<div class="border-2 border-amber-200 rounded-lg p-4">
+<div class="font-bold text-amber-700 text-sm mb-2">P2 — หยั่งประเมิน</div>
+<div class="text-xs space-y-1 text-slate-600">
+<div>📝 Assessment Tests</div>
+<div>🤖 AI Analysis</div>
+<div>🔍 Screening</div>
+<div>💬 Interview</div>
+</div>
+<div class="mt-3 text-xs font-mono bg-amber-50 p-2 rounded">→ P2_InterviewSummary</div>
+</div>
+<div class="border-2 border-green-200 rounded-lg p-4">
+<div class="font-bold text-green-700 text-sm mb-2">P3 — จับคู่</div>
+<div class="text-xs space-y-1 text-slate-600">
+<div>🎯 Position Matching</div>
+<div>📄 Job Offer</div>
+<div>🔎 Background Check</div>
+<div>🏠 Onboarding</div>
+</div>
+<div class="mt-3 text-xs font-mono bg-green-50 p-2 rounded">→ P3_JobOffer</div>
+</div>
+<div class="border-2 border-purple-200 rounded-lg p-4">
+<div class="font-bold text-purple-700 text-sm mb-2">P4 — ประเมินผล</div>
+<div class="text-xs space-y-1 text-slate-600">
+<div>📊 Performance Review</div>
+<div>🏆 Annual Credit</div>
+<div>📈 360° Feedback</div>
+</div>
+<div class="mt-3 text-xs font-mono bg-purple-50 p-2 rounded">← P3_Onboarding</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- ERD SECTION -->
+<section id="section-erd" class="p-6 fade-in" style="display:none">
+<h1 class="text-2xl font-bold mb-2">Entity Relationship Diagram</h1>
+<p class="text-sm text-slate-500 mb-6">ความสัมพันธ์ของตารางข้อมูลทั้งหมด</p>
+<div class="card p-6 overflow-x-auto">
+<svg viewBox="0 0 900 600" class="w-full min-w-[700px]">
+<!-- P1 Tables -->
+<rect x="20" y="20" width="200" height="120" rx="6" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5"/>
+<text x="120" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="#4338ca">P1_Headcount</text>
+<text x="30" y="60" font-size="9" fill="#64748b">PK id</text>
+<text x="30" y="74" font-size="9" fill="#64748b">bu_name, position, quantity</text>
+<text x="30" y="88" font-size="9" fill="#64748b">salary_min, salary_max</text>
+<text x="30" y="102" font-size="9" fill="#64748b">status, urgency</text>
+<text x="30" y="116" font-size="9" fill="#64748b">approved_by → Users.id</text>
+
+<rect x="20" y="170" width="200" height="120" rx="6" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5"/>
+<text x="120" y="192" text-anchor="middle" font-size="11" font-weight="700" fill="#4338ca">P1_JobPosting</text>
+<text x="30" y="210" font-size="9" fill="#64748b">PK id</text>
+<text x="30" y="224" font-size="9" fill="#64748b">FK headcount_id → P1_Headcount</text>
+<text x="30" y="238" font-size="9" fill="#64748b">title, description</text>
+<text x="30" y="252" font-size="9" fill="#64748b">status, post_date, close_date</text>
+<text x="30" y="266" font-size="9" fill="#64748b">view_count, apply_count</text>
+
+<rect x="20" y="320" width="200" height="140" rx="6" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5"/>
+<text x="120" y="342" text-anchor="middle" font-size="11" font-weight="700" fill="#4338ca">P1_Candidates</text>
+<text x="30" y="360" font-size="9" fill="#64748b">PK id, application_id</text>
+<text x="30" y="374" font-size="9" fill="#64748b">FK job_posting_id</text>
+<text x="30" y="388" font-size="9" fill="#64748b">full_name, email, phone</text>
+<text x="30" y="402" font-size="9" fill="#64748b">education, skills, experience</text>
+<text x="30" y="416" font-size="9" fill="#64748b">resume_url, transcript_url</text>
+<text x="30" y="430" font-size="9" fill="#64748b">status, apply_date, source</text>
+
+<!-- P2 Tables -->
+<rect x="300" y="20" width="200" height="140" rx="6" fill="#fefce8" stroke="#eab308" stroke-width="1.5"/>
+<text x="400" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="#854d0e">P2_Assessments</text>
+<text x="310" y="60" font-size="9" fill="#64748b">PK id</text>
+<text x="310" y="74" font-size="9" fill="#64748b">FK candidate_id → P1_Candidates</text>
+<text x="310" y="88" font-size="9" fill="#64748b">test_type (attitude/skill/cc/e3p)</text>
+<text x="310" y="102" font-size="9" fill="#64748b">score, cc1-cc7 scores</text>
+<text x="310" y="116" font-size="9" fill="#64748b">start_time, end_time</text>
+<text x="310" y="130" font-size="9" fill="#64748b">status, ai_analysis</text>
+
+<rect x="300" y="190" width="200" height="120" rx="6" fill="#fefce8" stroke="#eab308" stroke-width="1.5"/>
+<text x="400" y="212" text-anchor="middle" font-size="11" font-weight="700" fill="#854d0e">P2_AIAnalysis</text>
+<text x="310" y="230" font-size="9" fill="#64748b">PK id</text>
+<text x="310" y="244" font-size="9" fill="#64748b">FK candidate_id</text>
+<text x="310" y="258" font-size="9" fill="#64748b">overall_score, cc_match_score</text>
+<text x="310" y="272" font-size="9" fill="#64748b">recommendation, strengths</text>
+<text x="310" y="286" font-size="9" fill="#64748b">concerns, suggested_questions</text>
+
+<rect x="300" y="340" width="200" height="100" rx="6" fill="#fefce8" stroke="#eab308" stroke-width="1.5"/>
+<text x="400" y="362" text-anchor="middle" font-size="11" font-weight="700" fill="#854d0e">P2_Screening</text>
+<text x="310" y="380" font-size="9" fill="#64748b">PK id, FK candidate_id</text>
+<text x="310" y="394" font-size="9" fill="#64748b">screening_result, decision</text>
+<text x="310" y="408" font-size="9" fill="#64748b">hr_notes, screener_id</text>
+
+<rect x="300" y="470" width="200" height="110" rx="6" fill="#fefce8" stroke="#eab308" stroke-width="1.5"/>
+<text x="400" y="492" text-anchor="middle" font-size="11" font-weight="700" fill="#854d0e">P2_Interviews</text>
+<text x="310" y="510" font-size="9" fill="#64748b">PK id, FK candidate_id</text>
+<text x="310" y="524" font-size="9" fill="#64748b">cc1-cc7, technical, comms</text>
+<text x="310" y="538" font-size="9" fill="#64748b">position_fit, culture_fit</text>
+<text x="310" y="552" font-size="9" fill="#64748b">recommendation, strengths</text>
+
+<!-- P3 Tables -->
+<rect x="580" y="20" width="200" height="100" rx="6" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+<text x="680" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="#166534">P3_Matching</text>
+<text x="590" y="60" font-size="9" fill="#64748b">PK id, FK candidate_id, job_id</text>
+<text x="590" y="74" font-size="9" fill="#64748b">match_score, skills/cc/experience</text>
+<text x="590" y="88" font-size="9" fill="#64748b">recommendation</text>
+
+<rect x="580" y="150" width="200" height="120" rx="6" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+<text x="680" y="172" text-anchor="middle" font-size="11" font-weight="700" fill="#166534">P3_JobOffer</text>
+<text x="590" y="190" font-size="9" fill="#64748b">PK id, FK candidate_id</text>
+<text x="590" y="204" font-size="9" fill="#64748b">position, salary, benefits</text>
+<text x="590" y="218" font-size="9" fill="#64748b">start_date, reporting_to</text>
+<text x="590" y="232" font-size="9" fill="#64748b">offer_status, expiry_date</text>
+
+<rect x="580" y="300" width="200" height="100" rx="6" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+<text x="680" y="322" text-anchor="middle" font-size="11" font-weight="700" fill="#166534">P3_BackgroundCheck</text>
+<text x="590" y="340" font-size="9" fill="#64748b">PK id, FK candidate_id</text>
+<text x="590" y="354" font-size="9" fill="#64748b">education/employment verified</text>
+<text x="590" y="368" font-size="9" fill="#64748b">overall_status, notes</text>
+
+<rect x="580" y="430" width="200" height="100" rx="6" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+<text x="680" y="452" text-anchor="middle" font-size="11" font-weight="700" fill="#166534">P3_Onboarding</text>
+<text x="590" y="470" font-size="9" fill="#64748b">PK id, FK candidate_id</text>
+<text x="590" y="484" font-size="9" fill="#64748b">start_date, orientation_date</text>
+<text x="590" y="498" font-size="9" fill="#64748b">documents, training_schedule</text>
+
+<!-- Relationship lines -->
+<line x1="220" y1="80" x2="300" y2="80" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4"/>
+<line x1="220" y1="230" x2="220" y2="320" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4"/>
+<line x1="220" y1="390" x2="300" y2="90" stroke="#6366f1" stroke-width="1.5"/>
+<line x1="500" y1="90" x2="580" y2="60" stroke="#eab308" stroke-width="1.5"/>
+<line x1="500" y1="240" x2="580" y2="200" stroke="#22c55e" stroke-width="1.5"/>
+<line x1="500" y1="390" x2="580" y2="340" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4"/>
+<line x1="500" y1="520" x2="580" y2="470" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4"/>
+</svg>
+</div>
+</div>
+</section>
+
+<!-- ROADMAP SECTION -->
+<section id="section-roadmap" class="p-6 fade-in" style="display:none">
+<h1 class="text-2xl font-bold mb-2">Development Roadmap</h1>
+<p class="text-sm text-slate-500 mb-6">แผนการพัฒนา Web PP7 — ระบบสรรหาบุคลากร</p>
+<div class="space-y-4">
+<div class="card p-5 border-l-4 border-l-indigo-500">
+<div class="flex items-center gap-3 mb-2">
+<span class="badge badge-blue">Phase 1</span>
+<span class="font-bold text-sm">Database & Backend</span>
+<span class="text-xs text-slate-500">มิ.ย. 2569</span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+<div class="checklist-item"><input type="checkbox" checked disabled> Schema ทั้งหมด</div>
+<div class="checklist-item"><input type="checkbox" checked disabled> API Endpoints</div>
+<div class="checklist-item"><input type="checkbox" disabled> AI Analysis Logic</div>
+<div class="checklist-item"><input type="checkbox" disabled> Screening Logic</div>
+</div>
+</div>
+<div class="card p-5 border-l-4 border-l-emerald-500">
+<div class="flex items-center gap-3 mb-2">
+<span class="badge badge-green">Phase 2</span>
+<span class="font-bold text-sm">Frontend</span>
+<span class="text-xs text-slate-500">ก.ค. 2569</span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+<div class="checklist-item"><input type="checkbox" disabled> Landing Page</div>
+<div class="checklist-item"><input type="checkbox" disabled> Application Form</div>
+<div class="checklist-item"><input type="checkbox" disabled> Assessment Tests</div>
+<div class="checklist-item"><input type="checkbox" disabled> HR Dashboard</div>
+<div class="checklist-item"><input type="checkbox" disabled> Interview Form</div>
+<div class="checklist-item"><input type="checkbox" disabled> Interview Summary</div>
+</div>
+</div>
+<div class="card p-5 border-l-4 border-l-amber-500">
+<div class="flex items-center gap-3 mb-2">
+<span class="badge badge-amber">Phase 3</span>
+<span class="font-bold text-sm">Integration</span>
+<span class="text-xs text-slate-500">ส.ค. 2569</span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+<div class="checklist-item"><input type="checkbox" disabled> Google Sheets</div>
+<div class="checklist-item"><input type="checkbox" disabled> Email Notification</div>
+<div class="checklist-item"><input type="checkbox" disabled> Telegram Bot</div>
+<div class="checklist-item"><input type="checkbox" disabled> Calendar Sync</div>
+</div>
+</div>
+<div class="card p-5 border-l-4 border-l-purple-500">
+<div class="flex items-center gap-3 mb-2">
+<span class="badge badge-purple">Phase 4</span>
+<span class="font-bold text-sm">Testing & Deploy</span>
+<span class="text-xs text-slate-500">ก.ย.–ต.ค. 2569</span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+<div class="checklist-item"><input type="checkbox" disabled> Unit Testing</div>
+<div class="checklist-item"><input type="checkbox" disabled> UAT</div>
+<div class="checklist-item"><input type="checkbox" disabled> Deploy Production</div>
+<div class="checklist-item"><input type="checkbox" disabled> Training</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- STEP DETAIL SECTIONS (1-10) -->
+<div id="step-container"></div>
+
+</main>
+
+<script>
+// ===== PROCESS DATA =====
+const steps = {
+1:{phase:"P1",title:"ขออัตรากำลังคน (Headcount Request)",desc:"BU/Department ยื่นคำขออัตรากำลังคนใหม่",actor:"BU Manager → HR Manager → Director",sla:"3 วันทำการ",kpi:"Approval Rate ≥ 90%",roles:["hr","director"],
+form:[
+{section:"ข้อมูลคำขอ",fields:[
+{n:"bu_name",l:"BU/Department",t:"select",req:true,o:["IT","HR","Finance","Marketing","Operations","Production"]},
+{n:"position",l:"ตำแหน่ง",t:"text",req:true},
+{n:"quantity",l:"จำนวนอัตรา",t:"number",req:true,min:1},
+{n:"urgency",l:"ระดับความด่วน",t:"select",req:true,o:["ปกติ","ด่วน","ด่วนมาก"]}
+]},
+{section:"คุณสมบัติ",fields:[
+{n:"required_skills",l:"ทักษะที่ต้องการ",t:"textarea",req:true},
+{n:"required_cc",l:"Core Competency",t:"checkbox",req:true,o:["CC1: Servant Leadership","CC2: Adaptive Innovation","CC3: Trust-Based","CC4: Consensus Teamwork","CC5: Disciplined","CC6: Technology","CC7: Humor & Joy"]},
+{n:"experience_years",l:"ประสบการณ์ (ปี)",t:"number",req:true,min:0},
+{n:"education_level",l:"ระดับการศึกษา",t:"select",req:true,o:["ม.6","ปวช","ปวส","ปริญญาตรี","ปริญญาโท","ปริญญาเอก"]},
+{n:"salary_min",l:"เงินเดือนขั้นต่ำ",t:"number",req:true},
+{n:"salary_max",l:"เงินเดือนสูงสุด",t:"number",req:true}
+]}
+],
+validation:["salary_max > salary_min","required_cc เลือก ≥ 2","budget_approved='ไม่' ต้องมีเอกสารแนบ"],
+states:["draft","submitted","approved","rejected","posted"],
+transitions:[["draft","submitted","ส่งคำขอ"],["submitted","approved","อนุมัติ"],["submitted","rejected","ปฏิเสธ"],["approved","posted","เปิดรับสมัคร(auto)"]],
+schema:{table:"P1_Headcount",fields:[
+{n:"id",t:"INT",pk:1},{n:"bu_name",t:"VARCHAR(100)",nn:1},{n:"position",t:"VARCHAR(200)",nn:1},{n:"quantity",t:"INT",nn:1},
+{n:"required_skills",t:"TEXT",nn:1},{n:"required_cc",t:"JSON",nn:1},{n:"experience_years",t:"INT",nn:1},
+{n:"salary_min",t:"DECIMAL(10,2)",nn:1},{n:"salary_max",t:"DECIMAL(10,2)",nn:1},{n:"urgency",t:"ENUM",nn:1},
+{n:"status",t:"ENUM",nn:1,def:"draft"},{n:"request_date",t:"DATETIME",nn:1},{n:"approved_by",t:"INT",fk:"Users.id"}
+]},
+api:[
+{m:"POST",e:"/api/p1/headcount",d:"สร้างคำขอใหม่"},
+{m:"GET",e:"/api/p1/headcount/:id",d:"ดูรายละเอียด"},
+{m:"PUT",e:"/api/p1/headcount/:id",d:"แก้ไข (draft เท่านั้น)"},
+{m:"POST",e:"/api/p1/headcount/:id/submit",d:"ส่งคำขอ"},
+{m:"POST",e:"/api/p1/headcount/:id/approve",d:"อนุมัติ"}
+],
+logic:`function submitHeadcount(id) {
+  const hc = db.query("SELECT * FROM P1_Headcount WHERE id=?", id);
+  if (hc.status !== 'draft') throw new Error("แก้ไขไม่ได้ — ส่งแล้ว");
+  if (hc.salary_max <= hc.salary_min) throw new Error("salary_max ต้อง > salary_min");
+  db.update("P1_Headcount", id, { status: 'submitted' });
+  notify("hr_manager", "มีคำขออัตรากำลังใหม่: " + hc.position);
+}`,
+checklist:["สร้างฟอร์ม Multi-step (3 steps)","สร้าง API CRUD + submit/approve","สร้างตาราง P1_Headcount","สร้าง Validation rules","สร้าง Notification system","Unit test: approval flow"]
+},
+2:{phase:"P1",title:"เปิดรับสมัคร (Job Posting)",desc:"สร้างประกาศตำแหน่งงาน พร้อมรายละเอียดและสวัสดิการ",actor:"HR Manager",sla:"1 วันทำการ",kpi:"Time-to-Post ≤ 1 วัน",roles:["hr"],
+form:[
+{section:"ข้อมูลตำแหน่ง",fields:[
+{n:"headcount_id",l:"คำขออัตรากำลัง",t:"select",req:true,o:["(ดึงจาก P1_Headcount approved)"]},
+{n:"title",l:"ชื่อตำแหน่ง",t:"text",req:true},
+{n:"job_type",l:"ประเภทงาน",t:"select",req:true,o:["Full-time","Part-time","Contract","Internship"]},
+{n:"work_location",l:"สถานที่ทำงาน",t:"select",req:true,o:["สำนักงานใหญ่","สาขาเชียงใหม่","โรงงาน นครราชสีมา"]}
+]},
+{section:"รายละเอียด",fields:[
+{n:"description",l:"Job Description",t:"textarea",req:true},
+{n:"qualifications",l:"คุณสมบัติ",t:"textarea",req:true},
+{n:"benefits",l:"สวัสดิการ",t:"textarea",req:true},
+{n:"channels",l:"ช่องทางรับสมัคร",t:"checkbox",req:true,o:["เว็บไซต์","LinkedIn","JobThai","Facebook"]},
+{n:"close_date",l:"วันปิดรับสมัคร",t:"date",req:true}
+]}
+],
+validation:["close_date > วันนี้","description ≥ 100 ตัวอักษร","channels ≥ 1"],
+states:["draft","published","closed","cancelled"],
+transitions:[["draft","published","เผยแพร่"],["published","closed","ปิดรับสมัคร"],["published","cancelled","ยกเลิก"]],
+schema:{table:"P1_JobPosting",fields:[
+{n:"id",t:"INT",pk:1},{n:"headcount_id",t:"INT",nn:1,fk:"P1_Headcount.id"},{n:"title",t:"VARCHAR(200)",nn:1},
+{n:"job_type",t:"ENUM",nn:1},{n:"description",t:"TEXT",nn:1},{n:"qualifications",t:"TEXT",nn:1},
+{n:"benefits",t:"TEXT",nn:1},{n:"channels",t:"JSON",nn:1},{n:"post_date",t:"DATE",nn:1},
+{n:"close_date",t:"DATE",nn:1},{n:"status",t:"ENUM",nn:1,def:"draft"},{n:"view_count",t:"INT",def:"0"},{n:"apply_count",t:"INT",def:"0"}
+]},
+api:[
+{m:"POST",e:"/api/p1/job-posting",d:"สร้างประกาศใหม่"},
+{m:"GET",e:"/api/p1/job-posting/:id",d:"ดูรายละเอียด"},
+{m:"POST",e:"/api/p1/job-posting/:id/publish",d:"เผยแพร่"},
+{m:"GET",e:"/api/p1/job-posting/public",d:"รายการประกาศ (public)"}
+],
+logic:`function publishJob(id) {
+  const jp = db.query("SELECT * FROM P1_JobPosting WHERE id=?", id);
+  const hc = db.query("SELECT * FROM P1_Headcount WHERE id=?", jp.headcount_id);
+  if (hc.status !== 'approved') throw new Error("Headcount ยังไม่อนุมัติ");
+  jp.apply_url = generateApplyURL(jp.id);
+  jp.qr_code = generateQR(jp.apply_url);
+  db.update("P1_JobPosting", id, { status: 'published', apply_url: jp.apply_url });
+  postToChannels(jp.channels, jp);
+}`,
+checklist:["Rich Text Editor สำหรับ description","Preview ก่อนเผยแพร่","Auto-generate QR Code","สถิติ view/apply count"]
+},
+3:{phase:"P1",title:"กรอกใบสมัคร (Application Form)",desc:"ผู้สมัครกรอกข้อมูลส่วนตัว การศึกษา ประสบการณ์ และอัปโหลดเอกสาร",actor:"ผู้สมัคร (Candidate)",sla:"15 นาที",kpi:"Completion Rate ≥ 80%",roles:["candidate"],
+form:[
+{section:"ข้อมูลส่วนตัว",fields:[
+{n:"full_name",l:"ชื่อ-นามสกุล",t:"text",req:true},
+{n:"birth_date",l:"วันที่เกิด",t:"date",req:true},
+{n:"phone",l:"เบอร์โทร",t:"tel",req:true,pattern:"^0[0-9]{9}$"},
+{n:"email",l:"อีเมล",t:"email",req:true},
+{n:"address",l:"ที่อยู่",t:"textarea",req:true},
+{n:"line_id",l:"LINE ID",t:"text",req:false}
+]},
+{section:"การศึกษา",fields:[
+{n:"education_level",l:"ระดับการศึกษา",t:"select",req:true,o:["ม.6","ปวช","ปวส","ปริญญาตรี","ปริญญาโท","ปริญญาเอก"]},
+{n:"institution",l:"สถาบัน",t:"text",req:true},
+{n:"major",l:"สาขาวิชา",t:"text",req:true},
+{n:"gpa",l:"GPA",t:"number",req:false,min:0,max:4}
+]},
+{section:"ทักษะและเอกสาร",fields:[
+{n:"skills",l:"ทักษะ",t:"textarea",req:false},
+{n:"resume_file",l:"Resume (PDF)",t:"file",req:true,accept:".pdf",max:"5MB"},
+{n:"transcript_file",l:"Transcript (PDF)",t:"file",req:true,accept:".pdf",max:"5MB"}
+]}
+],
+validation:["phone: เบอร์ไทย 10 หลัก","email: รูปแบบถูกต้อง","gpa: 0-4","ไฟล์ PDF ≤ 5MB"],
+states:["draft","submitted","awaiting_test"],
+transitions:[["draft","submitted","ส่งใบสมัคร"],["submitted","awaiting_test","รอทำแบบทดสอบ(auto)"]],
+schema:{table:"P1_Candidates",fields:[
+{n:"id",t:"INT",pk:1},{n:"application_id",t:"VARCHAR(50)",nn:1,unique:1},{n:"job_posting_id",t:"INT",nn:1,fk:"P1_JobPosting.id"},
+{n:"full_name",t:"VARCHAR(200)",nn:1},{n:"birth_date",t:"DATE",nn:1},{n:"phone",t:"VARCHAR(20)",nn:1},
+{n:"email",t:"VARCHAR(200)",nn:1},{n:"education_level",t:"VARCHAR(50)",nn:1},{n:"institution",t:"VARCHAR(200)",nn:1},
+{n:"major",t:"VARCHAR(200)",nn:1},{n:"gpa",t:"DECIMAL(3,2)"},{n:"work_experience",t:"JSON"},
+{n:"skills",t:"TEXT"},{n:"resume_url",t:"VARCHAR(500)",nn:1},{n:"transcript_url",t:"VARCHAR(500)",nn:1},
+{n:"apply_date",t:"DATETIME",nn:1},{n:"status",t:"ENUM",nn:1,def:"draft"},{n:"source",t:"VARCHAR(100)"}
+]},
+api:[
+{m:"POST",e:"/api/p1/candidates",d:"สร้างใบสมัคร"},
+{m:"GET",e:"/api/p1/candidates/:app_id",d:"ดูใบสมัคร"},
+{m:"POST",e:"/api/p1/candidates/:app_id/submit",d:"ส่งใบสมัคร"},
+{m:"POST",e:"/api/p1/candidates/:app_id/upload",d:"อัปโหลดเอกสาร"}
+],
+logic:`function submitApplication(appId) {
+  const c = db.query("SELECT * FROM P1_Candidates WHERE application_id=?", appId);
+  if (!c.resume_url || !c.transcript_url) throw new Error("ต้องอัปโหลดเอกสารครบ");
+  db.update("P1_Candidates", appId, { status: 'awaiting_test' });
+  sendNotification(c.email, "ใบสมัครของท่านได้รับการบันทึกแล้ว กรุณาทำแบบทดสอบ");
+}`,
+checklist:["Multi-step form (4 steps)","File upload with progress","Auto-save","Validate phone/email","แสดง Application ID"]
+},
+4:{phase:"P2",title:"แบบทดสอบ 4 ชุด (Assessment Tests)",desc:"ผู้สมัครทำแบบทดสอบ: ทัศนคติ 30 ข้อ, ทักษะ 40 ข้อ, CC 70 ข้อ, 3E3P 30 ข้อ",actor:"ผู้สมัคร (Candidate)",sla:"155 นาที (รวม)",kpi:"Completion Rate ≥ 70%",roles:["candidate","system"],
+form:[
+{section:"แบบทดสอบ",fields:[
+{n:"attitude",l:"1. ทัศนคติ (Attitude)",t:"info",v:"30 ข้อ | 30 นาที | Growth Mindset, Service Mind, Teamwork, Integrity"},
+{n:"skill",l:"2. ทักษะ (Skill)",t:"info",v:"40 ข้อ | 60 นาที | Technical, Problem Solving, Communication"},
+{n:"cc",l:"3. Core Competency 7 ด้าน",t:"info",v:"70 ข้อ (10 ข้อ/CC) | 45 นาที | CC1-CC7"},
+{n:"e3p",l:"4. 3E3P",t:"info",v:"30 ข้อ | 20 นาที | Engagement, Empowerment, Enablement, Purpose, Passion, Pride"}
+]}
+],
+validation:["ทำตามลำดับ 1→2→3→4","ย้อนกลับไม่ได้","Auto-submit เมื่อหมดเวลา","ต้องทำครบ 4 ชุด"],
+states:["awaiting_test","testing","tested"],
+transitions:[["awaiting_test","testing","เริ่มทำ"],["testing","tested","ส่งครบ 4 ชุด(auto)"]],
+schema:{table:"P2_Assessments",fields:[
+{n:"id",t:"INT",pk:1},{n:"candidate_id",t:"INT",nn:1,fk:"P1_Candidates.id"},{n:"test_type",t:"ENUM(attitude,skill,cc,e3p)",nn:1},
+{n:"test_date",t:"DATE",nn:1},{n:"start_time",t:"DATETIME",nn:1},{n:"end_time",t:"DATETIME"},
+{n:"total_questions",t:"INT",nn:1},{n:"score",t:"DECIMAL(5,2)"},
+{n:"cc1_score",t:"DECIMAL(5,2)"},{n:"cc2_score",t:"DECIMAL(5,2)"},{n:"cc3_score",t:"DECIMAL(5,2)"},
+{n:"cc4_score",t:"DECIMAL(5,2)"},{n:"cc5_score",t:"DECIMAL(5,2)"},{n:"cc6_score",t:"DECIMAL(5,2)"},{n:"cc7_score",t:"DECIMAL(5,2)"},
+{n:"status",t:"ENUM",nn:1,def:"not_started"}
+]},
+api:[
+{m:"GET",e:"/api/p2/assessments/:cid",d:"ดูสถานะแบบทดสอบ"},
+{m:"POST",e:"/api/p2/assessments/:cid/start/:type",d:"เริ่มทำแบบทดสอบ"},
+{m:"POST",e:"/api/p2/assessments/:cid/submit/:type",d:"ส่งคำตอบ"}
+],
+logic:`function calculateScore(candidateId) {
+  const tests = db.query("SELECT * FROM P2_Assessments WHERE candidate_id=?", candidateId);
+  const attitude = tests.find(t=>t.test_type==='attitude')?.score || 0;
+  const skill = tests.find(t=>t.test_type==='skill')?.score || 0;
+  const cc = tests.find(t=>t.test_type==='cc')?.score || 0;
+  const e3p = tests.find(t=>t.test_type==='e3p')?.score || 0;
+  return { attitude, skill, cc, e3p,
+    overall: attitude*0.2 + skill*0.3 + cc*0.3 + e3p*0.2 };
+}`,
+checklist:["Timer countdown","Progress indicator","Auto-submit on timeout","Disable back navigation","แสดงสรุปคะแนน"]
+},
+5:{phase:"P2",title:"AI วิเคราะห์คุณสมบัติ (AI Analysis)",desc:"AI วิเคราะห์คะแนนแบบทดสอบ + ข้อมูลใบสมัคร + Job Requirements",actor:"System (AI)",sla:"30 วินาที",kpi:"Accuracy ≥ 85%",roles:["system"],
+form:[
+{section:"Input → Output",fields:[
+{n:"input",l:"ข้อมูลเข้า",t:"info",v:"คะแนนแบบทดสอบ 4 ชุด + ใบสมัคร + Job Requirements"},
+{n:"output1",l:"Overall Score",t:"info",v:"weighted_average(attitude=0.2, skill=0.3, cc=0.3, e3p=0.2)"},
+{n:"output2",l:"CC Match Score",t:"info",v:"alignment(candidate_cc, job_required_cc)"},
+{n:"output3",l:"Skill Gap",t:"info",v:"identify_gaps(candidate_skills, job_required_skills)"},
+{n:"output4",l:"Recommendation",t:"info",v:"'ผ่าน' (≥70) / 'พิจารณา' (60-69) / 'ไม่ผ่าน' (<60)"},
+{n:"output5",l:"Suggested Questions",t:"info",v:"คำถามสัมภาษณ์ที่แนะนำตามจุดอ่อน"}
+]}
+],
+validation:["ต้องทำแบบทดสอบครบ 4 ชุด","ใช้เวลา 10-30 วินาที","ผลลัพธ์เก็บใน DB"],
+states:["tested","analyzing","analyzed"],
+transitions:[["tested","analyzing","เริ่มวิเคราะห์(auto)"],["analyzing","analyzed","วิเคราะห์เสร็จ(auto)"]],
+schema:{table:"P2_AIAnalysis",fields:[
+{n:"id",t:"INT",pk:1},{n:"candidate_id",t:"INT",nn:1,fk:"P1_Candidates.id"},
+{n:"overall_score",t:"DECIMAL(5,2)",nn:1},{n:"cc_match_score",t:"DECIMAL(5,2)",nn:1},
+{n:"skill_gap_analysis",t:"JSON",nn:1},{n:"recommendation",t:"ENUM(ผ่าน,พิจารณา,ไม่ผ่าน)",nn:1},
+{n:"strengths_json",t:"JSON",nn:1},{n:"concerns_json",t:"JSON",nn:1},
+{n:"suggested_questions_json",t:"JSON",nn:1},{n:"analysis_date",t:"DATETIME",nn:1},{n:"ai_model_version",t:"VARCHAR(50)",nn:1}
+]},
+api:[
+{m:"POST",e:"/api/p2/ai-analysis/:cid",d:"เริ่มวิเคราะห์"},
+{m:"GET",e:"/api/p2/ai-analysis/:cid",d:"ดูผลวิเคราะห์"}
+],
+logic:`async function runAIAnalysis(candidateId) {
+  const candidate = await db.getCandidate(candidateId);
+  const scores = await calculateScore(candidateId);
+  const jobReq = await db.getJobRequirements(candidate.job_posting_id);
+  
+  const overall = scores.attitude*0.2 + scores.skill*0.3 + scores.cc*0.3 + scores.e3p*0.2;
+  const ccMatch = calculateCCAlignment(scores.cc_scores, jobReq.required_cc);
+  const skillGap = identifySkillGaps(candidate.skills, jobReq.required_skills);
+  
+  const recommendation = overall >= 70 ? 'ผ่าน' : overall >= 60 ? 'พิจารณา' : 'ไม่ผ่าน';
+  
+  await db.insert("P2_AIAnalysis", {
+    candidate_id: candidateId, overall_score: overall,
+    cc_match_score: ccMatch, recommendation,
+    strengths: generateStrengths(scores, ccMatch),
+    concerns: generateConcerns(skillGap),
+    suggested_questions: generateQuestions(skillGap, scores)
+  });
+}`,
+checklist:["Loading animation (10-30s)","Radar chart CC 7 ด้าน","Bar chart Skill Gap","Color coding ผลลัพธ์","Cache ผลวิเคราะห์"]
+},
+6:{phase:"P2",title:"คัดกรองผู้สมัคร (Screening)",desc:"HR คัดกรองผู้สมัครตามเกณฑ์ที่กำหนด",actor:"HR Manager",sla:"1 วันทำการ",kpi:"Screening Accuracy ≥ 90%",roles:["hr"],
+form:[
+{section:"เกณฑ์ + ผล",fields:[
+{n:"min_overall",l:"คะแนนรวมขั้นต่ำ",t:"number",req:true,def:70},
+{n:"min_cc",l:"CC Match ขั้นต่ำ",t:"number",req:true,def:75},
+{n:"max_gap",l:"Skill Gap สูงสุด",t:"number",req:true,def:3},
+{n:"result",l:"ผลการคัดกรอง",t:"radio",req:true,o:["ผ่าน","พิจารณาเพิ่มเติม","ไม่ผ่าน"]},
+{n:"decision",l:"การตัดสินใจ",t:"radio",req:true,o:["นัดสัมภาษณ์","รอ","ปฏิเสธ"]},
+{n:"notes",l:"หมายเหตุ HR",t:"textarea",req:false}
+]}
+],
+validation:["result='ผ่าน' → decision='นัดสัมภาษณ์'","result='ไม่ผ่าน' → decision='ปฏิเสธ'","overall ≥ min_overall"],
+states:["analyzed","screening","passed","considered","rejected"],
+transitions:[["analyzed","screening","เริ่มคัดกรอง"],["screening","passed","ผ่าน→นัดสัมภาษณ์"],["screening","considered","พิจารณา→รอ"],["screening","rejected","ไม่ผ่าน→ปฏิเสธ"]],
+schema:{table:"P2_Screening",fields:[
+{n:"id",t:"INT",pk:1},{n:"candidate_id",t:"INT",nn:1,fk:"P1_Candidates.id"},
+{n:"screening_date",t:"DATETIME",nn:1},{n:"screener_id",t:"INT",nn:1,fk:"Users.id"},
+{n:"overall_score",t:"DECIMAL(5,2)",nn:1},{n:"cc_match_score",t:"DECIMAL(5,2)",nn:1},
+{n:"skill_gap_count",t:"INT",nn:1},{n:"screening_result",t:"ENUM",nn:1},
+{n:"hr_notes",t:"TEXT"},{n:"decision",t:"ENUM",nn:1},{n:"decision_date",t:"DATETIME",nn:1}
+]},
+api:[
+{m:"POST",e:"/api/p2/screening/:cid",d:"บันทึกผลคัดกรอง"},
+{m:"GET",e:"/api/p2/screening/:cid",d:"ดูผลคัดกรอง"}
+],
+logic:`function screenCandidate(candidateId, thresholds) {
+  const ai = db.getAIAnalysis(candidateId);
+  let result, decision;
+  if (ai.overall_score >= thresholds.min_overall && ai.cc_match >= thresholds.min_cc && ai.skill_gap_count <= thresholds.max_gap) {
+    result = 'ผ่าน'; decision = 'นัดสัมภาษณ์';
+  } else if (ai.overall_score >= thresholds.min_overall - 10) {
+    result = 'พิจารณาเพิ่มเติม'; decision = 'รอ';
+  } else {
+    result = 'ไม่ผ่าน'; decision = 'ปฏิเสธ';
+  }
+  db.insert("P2_Screening", { candidate_id: candidateId, screening_result: result, decision });
+  return { result, decision };
+}`,
+checklist:["แสดง AI Result ด้านบน","Color coding","Confirmation dialog","Export รายงาน"]
+},
+7:{phase:"P2",title:"นัดสัมภาษณ์ (Interview Scheduling)",desc:"นัดหมายผู้สัมภาษณ์ เวลา และสถานที่",actor:"HR Manager",sla:"1 วันทำการ",kpi:"Confirmation Rate ≥ 90%",roles:["hr","candidate"],
+form:[
+{section:"นัดสัมภาษณ์",fields:[
+{n:"interview_date",l:"วันที่",t:"date",req:true},
+{n:"start_time",l:"เวลาเริ่ม",t:"time",req:true},
+{n:"end_time",l:"เวลาสิ้นสุด",t:"time",req:true},
+{n:"type",l:"รูปแบบ",t:"select",req:true,o:["Online","Onsite"]},
+{n:"interviewers",l:"ผู้สัมภาษณ์",t:"checkbox",req:true,o:["HR Manager","BU Manager","Team Lead","Senior Developer"]},
+{n:"location",l:"สถานที่/ลิงก์",t:"text",req:true}
+]}
+],
+validation:["date > วันนี้","end > start","Online → meeting_link","Onsite → location","interviewers ≥ 1"],
+states:["passed","scheduled","confirmed","rescheduled","cancelled"],
+transitions:[["passed","scheduled","นัดสัมภาษณ์"],["scheduled","confirmed","ยืนยัน"],["scheduled","rescheduled","เลื่อน"],["scheduled","cancelled","ยกเลิก"]],
+schema:{table:"P2_InterviewSchedule",fields:[
+{n:"id",t:"INT",pk:1},{n:"candidate_id",t:"INT",nn:1,fk:"P1_Candidates.id"},
+{n:"interview_date",t:"DATE",nn:1},{n:"start_time",t:"TIME",nn:1},{n:"end_time",t:"TIME",nn:1},
+{n:"interviewer_ids",t:"JSON",nn:1},{n:"interview_type",t:"ENUM(Online,Onsite)",nn:1},
+{n:"location",t:"VARCHAR(200)"},{n:"meeting_link",t:"VARCHAR(500)"},
+{n:"status",t:"ENUM",nn:1,def:"scheduled"},{n:"reminder_sent",t:"BOOLEAN",def:"false"}
+]},
+api:[
+{m:"POST",e:"/api/p2/interview-schedule",d:"สร้างนัดสัมภาษณ์"},
+{m:"PUT",e:"/api/p2/interview-schedule/:id",d:"แก้ไขนัด"},
+{m:"POST",e:"/api/p2/interview-schedule/:id/confirm",d:"ยืนยัน"},
+{m:"POST",e:"/api/p2/interview-schedule/:id/reschedule",d:"เลื่อนนัด"}
+],
+logic:`function scheduleInterview(data) {
+  if (data.interview_date <= today()) throw new Error("วันต้องเป็นอนาคต");
+  if (data.end_time <= data.start_time) throw new Error("เวลาสิ้นสุดต้องหลังเวลาเริ่ม");
+  const schedule = db.insert("P2_InterviewSchedule", data);
+  sendNotification("email", data.candidate_id, "นัดสัมภาษณ์: " + data.interview_date);
+  sendNotification("telegram", data.candidate_id, "นัดสัมภาษณ์: " + data.interview_date);
+  createCalendarEvent(schedule);
+  return schedule;
+}`,
+checklist:["Calendar View","Available time slots","Auto-send Notification","Calendar invitation (ICS)"]
+},
+8:{phase:"P2",title:"สัมภาษณ์ (Interview Execution)",desc:"ผู้สัมภาษณ์กรอกฟอร์มประเมิน CC 7 ด้าน + ทักษะ 4 ด้าน + Behavioral Questions",actor:"ผู้สัมภาษณ์ (Interviewer)",sla:"60 นาที",kpi:"Interview Completion ≥ 95%",roles:["interviewer"],
+form:[
+{section:"ประเมิน CC 7 ด้าน (1-5)",fields:[
+{n:"cc1",l:"CC1: Servant Leadership",t:"range",req:true,min:1,max:5},
+{n:"cc2",l:"CC2: Adaptive Innovation",t:"range",req:true,min:1,max:5},
+{n:"cc3",l:"CC3: Trust-Based Value Creation",t:"range",req:true,min:1,max:5},
+{n:"cc4",l:"CC4: Consensus-Driven Teamwork",t:"range",req:true,min:1,max:5},
+{n:"cc5",l:"CC5: Disciplined Professionalism",t:"range",req:true,min:1,max:5},
+{n:"cc6",l:"CC6: Technology Mastery",t:"range",req:true,min:1,max:5},
+{n:"cc7",l:"CC7: Humor & Joy",t:"range",req:true,min:1,max:5}
+]},
+{section:"ประเมินทักษะ (1-5)",fields:[
+{n:"technical",l:"Technical Skills",t:"range",req:true,min:1,max:5},
+{n:"communication",l:"Communication",t:"range",req:true,min:1,max:5},
+{n:"problem_solving",l:"Problem Solving",t:"range",req:true,min:1,max:5},
+{n:"teamwork",l:"Teamwork",t:"range",req:true,min:1,max:5}
+]},
+{section:"Behavioral + สรุป",fields:[
+{n:"q_team",l:"เล่าประสบการณ์การทำงานเป็นทีม",t:"textarea",req:true},
+{n:"q_problem",l:"เล่าประสบการณ์การแก้ปัญหา",t:"textarea",req:true},
+{n:"strengths",l:"จุดแข็ง",t:"textarea",req:true},
+{n:"concerns",l:"จุดที่ต้องพัฒนา",t:"textarea",req:true},
+{n:"position_fit",l:"เหมาะสมกับตำแหน่ง (1-10)",t:"range",req:true,min:1,max:10},
+{n:"culture_fit",l:"เหมาะสมกับวัฒนธรรม (1-10)",t:"range",req:true,min:1,max:10},
+{n:"recommendation",l:"คำแนะนำ",t:"radio",req:true,o:["รับ","ไม่รับ","พิจารณาเพิ่มเติม"]}
+]}
+],
+validation:["CC ทุกด้าน 1-5","ทักษะทุกด้าน 1-5","position_fit/culture_fit 1-10","recommendation ต้องเลือก"],
+states:["confirmed","in_progress","completed"],
+transitions:[["confirmed","in_progress","เริ่มสัมภาษณ์"],["in_progress","completed","ส่งฟอร์ม"]],
+schema:{table:"P2_Interviews",fields:[
+{n:"id",t:"INT",pk:1},{n:"candidate_id",t:"INT",nn:1,fk:"P1_Candidates.id"},
+{n:"interview_schedule_id",t:"INT",nn:1,fk:"P2_InterviewSchedule.id"},{n:"interviewer_id",t:"INT",nn:1,fk:"Users.id"},
+{n:"cc1_score",t:"INT",nn:1},{n:"cc2_score",t:"INT",nn:1},{n:"cc3_score",t:"INT",nn:1},
+{n:"cc4_score",t:"INT",nn:1},{n:"cc5_score",t:"INT",nn:1},{n:"cc6_score",t:"INT",nn:1},{n:"cc7_score",t:"INT",nn:1},
+{n:"technical_score",t:"INT",nn:1},{n:"communication_score",t:"INT",nn:1},
+{n:"problem_solving_score",t:"INT",nn:1},{n:"teamwork_score",t:"INT",nn:1},
+{n:"behavioral_notes",t:"JSON",nn:1},{n:"strengths",t:"TEXT",nn:1},{n:"concerns",t:"TEXT",nn:1},
+{n:"position_fit_score",t:"INT",nn:1},{n:"culture_fit_score",t:"INT",nn:1},
+{n:"recommendation",t:"ENUM",nn:1},{n:"interview_status",t:"ENUM",nn:1,def:"in_progress"}
+]},
+api:[
+{m:"POST",e:"/api/p2/interviews",d:"สร้างฟอร์มสัมภาษณ์"},
+{m:"PUT",e:"/api/p2/interviews/:id",d:"แก้ไข"},
+{m:"POST",e:"/api/p2/interviews/:id/submit",d:"ส่งฟอร์ม"}
+],
+logic:`function submitInterview(interviewId) {
+  const iv = db.query("SELECT * FROM P2_Interviews WHERE id=?", interviewId);
+  const ccAvg = (iv.cc1+iv.cc2+iv.cc3+iv.cc4+iv.cc5+iv.cc6+iv.cc7) / 7;
+  const skillAvg = (iv.technical+iv.communication+iv.problem_solving+iv.teamwork) / 4;
+  db.update("P2_Interviews", interviewId, { interview_status: 'completed', cc_avg: ccAvg, skill_avg: skillAvg });
+  // Check if all interviewers completed
+  const allCompleted = db.count("P2_Interviews WHERE schedule_id=? AND status='completed'", iv.interview_schedule_id);
+  const totalInterviewers = db.count("P2_InterviewSchedule WHERE id=?", iv.interview_schedule_id).interviewer_ids.length;
+  if (allCompleted === totalInterviewers) triggerInterviewSummary(iv.candidate_id);
+}`,
+checklist:["Range slider UI","Real-time average","Auto-save","Progress bar (7 ส่วน)","Generate PDF"]
+},
+9:{phase:"P2",title:"สรุปผลการสัมภาษณ์ (Interview Summary)",desc:"สรุปผลจากผู้สัมภาษณ์ทุกคน + คะแนนแบบทดสอบ + AI Analysis",actor:"HR Manager",sla:"1 วันทำการ",kpi:"Summary within 24h ≥ 95%",roles:["hr"],
+form:[
+{section:"สรุปผล",fields:[
+{n:"test_avg",l:"คะแนนแบบทดสอบ (เฉลี่ย)",t:"static",v:"auto-calculate"},
+{n:"cc_avg",l:"สัมภาษณ์ CC (เฉลี่ย)",t:"static",v:"auto-calculate"},
+{n:"skill_avg",l:"สัมภาษณ์ทักษะ (เฉลี่ย)",t:"static",v:"auto-calculate"},
+{n:"overall",l:"Overall Score",t:"static",v:"auto-calculate"},
+{n:"strengths",l:"จุดแข็ง",t:"textarea",req:true},
+{n:"concerns",l:"จุดที่ต้องพิจารณา",t:"textarea",req:true},
+{n:"position_fit",l:"กับตำแหน่ง (1-10)",t:"range",req:true,min:1,max:10},
+{n:"culture_fit",l:"กับวัฒนธรรม (1-10)",t:"range",req:true,min:1,max:10},
+{n:"recommendation",l:"คำแนะนำ",t:"radio",req:true,o:["✅ รับ","⚠️ พิจารณา","❌ ไม่รับ"]},
+{n:"final_decision",l:"ตัดสินใจ",t:"radio",req:true,o:["รับ","ไม่รับ","พิจารณาเพิ่มเติม"]}
+]}
+],
+validation:["strengths/concerns ต้องกรอก","fit scores 1-10","recommendation + decision ต้องเลือก"],
+states:["completed","summarized","decided"],
+transitions:[["completed","summarized","สรุปผล"],["summarized","decided","ตัดสินใจ"]],
+schema:{table:"P2_InterviewSummary",fields:[
+{n:"id",t:"INT",pk:1},{n:"candidate_id",t:"INT",nn:1,fk:"P1_Candidates.id"},
+{n:"summary_date",t:"DATETIME",nn:1},{n:"test_score_avg",t:"DECIMAL(5,2)",nn:1},
+{n:"interview_cc_avg",t:"DECIMAL(5,2)",nn:1},{n:"interview_skill_avg",t:"DECIMAL(5,2)",nn:1},
+{n:"overall_score",t:"DECIMAL(5,2)",nn:1},{n:"strengths_json",t:"JSON",nn:1},{n:"concerns_json",t:"JSON",nn:1},
+{n:"position_fit_score",t:"INT",nn:1},{n:"culture_fit_score",t:"INT",nn:1},
+{n:"recommendation",t:"ENUM",nn:1},{n:"final_decision",t:"ENUM",nn:1},
+{n:"decided_by",t:"INT",nn:1,fk:"Users.id"},{n:"decided_date",t:"DATETIME",nn:1}
+]},
+api:[
+{m:"POST",e:"/api/p2/interview-summary/:cid",d:"สร้างสรุป"},
+{m:"GET",e:"/api/p2/interview-summary/:cid",d:"ดูสรุป"},
+{m:"POST",e:"/api/p2/interview-summary/:cid/decide",d:"ตัดสินใจ"}
+],
+logic:`function generateSummary(candidateId) {
+  const interviews = db.query("SELECT * FROM P2_Interviews WHERE candidate_id=? AND status='completed'", candidateId);
+  const ai = db.getAIAnalysis(candidateId);
+  const tests = db.getAssessments(candidateId);
+  
+  const ccAvg = avg(interviews.map(i => i.cc_avg));
+  const skillAvg = avg(interviews.map(i => i.skill_avg));
+  const testAvg = (tests.attitude*0.2 + tests.skill*0.3 + tests.cc*0.3 + tests.e3p*0.2);
+  const overall = testAvg*0.4 + ccAvg*20*0.3 + skillAvg*20*0.3;
+  
+  return { testAvg, ccAvg, skillAvg, overall, strengths: collectStrengths(interviews), concerns: collectConcerns(interviews) };
+}`,
+checklist:["Radar chart CC 7 ด้าน","Comparison chart","Decision buttons","Generate PDF Report"]
+},
+10:{phase:"P3",title:"ตัดสินใจรับ/ไม่รับ (Hiring Decision)",desc:"ตัดสินใจสุดท้าย ส่ง Offer Letter และนัดเริ่มงาน",actor:"HR Manager / Director",sla:"2 วันทำการ",kpi:"Offer Accept Rate ≥ 80%",roles:["hr","director","candidate"],
+form:[
+{section:"ข้อเสนอ",fields:[
+{n:"position",l:"ตำแหน่ง",t:"text",req:true},
+{n:"salary",l:"เงินเดือน (บาท)",t:"number",req:true},
+{n:"benefits",l:"สวัสดิการ",t:"textarea",req:true},
+{n:"start_date",l:"วันเริ่มงาน",t:"date",req:true},
+{n:"reporting_to",l:"รายงานต่อ",t:"text",req:true},
+{n:"expiry_date",l:"วันหมดอายุ Offer",t:"date",req:true}
+]},
+{section:"ตัดสินใจ",fields:[
+{n:"decision",l:"การตัดสินใจ",t:"radio",req:true,o:["✅ รับเข้าทำงาน","❌ ไม่รับ"]},
+{n:"rejected_reason",l:"เหตุผลที่ไม่รับ",t:"textarea",req:false}
+]}
+],
+validation:["salary ∈ [salary_min, salary_max]","start_date > วันนี้","expiry > start_date","ไม่รับ → ต้องมี reason"],
+states:["decided","offered","accepted","rejected","expired"],
+transitions:[["decided","offered","ส่ง Offer"],["offered","accepted","ตอบรับ"],["offered","rejected","ปฏิเสธ"],["offered","expired","หมดอายุ"]],
+schema:{table:"P3_JobOffer",fields:[
+{n:"id",t:"INT",pk:1},{n:"candidate_id",t:"INT",nn:1,fk:"P1_Candidates.id"},
+{n:"interview_summary_id",t:"INT",nn:1,fk:"P2_InterviewSummary.id"},
+{n:"offer_date",t:"DATETIME",nn:1},{n:"offer_position",t:"VARCHAR(200)",nn:1},
+{n:"offer_salary",t:"DECIMAL(10,2)",nn:1},{n:"offer_benefits",t:"TEXT",nn:1},
+{n:"offer_start_date",t:"DATE",nn:1},{n:"offer_reporting_to",t:"VARCHAR(200)",nn:1},
+{n:"offer_status",t:"ENUM(offered,accepted,rejected,expired)",nn:1,def:"offered"},
+{n:"accepted_date",t:"DATETIME"},{n:"rejected_reason",t:"TEXT"},{n:"expiry_date",t:"DATE",nn:1}
+]},
+api:[
+{m:"POST",e:"/api/p3/job-offer",d:"สร้าง Offer"},
+{m:"POST",e:"/api/p3/job-offer/:id/send",d:"ส่ง Offer Letter"},
+{m:"POST",e:"/api/p3/job-offer/:id/accept",d:"ตอบรับ"},
+{m:"POST",e:"/api/p3/job-offer/:id/reject",d:"ปฏิเสธ"}
+],
+logic:`function sendOffer(candidateId, offerData) {
+  const hc = getHeadcount(candidateId);
+  if (offerData.salary < hc.salary_min || offerData.salary > hc.salary_max) throw new Error("เงินเดือนนอกช่วงที่กำหนด");
+  const offer = db.insert("P3_JobOffer", { ...offerData, offer_date: now(), offer_status: 'offered' });
+  const pdf = generateOfferLetter(offer);
+  sendEmail(offerData.candidate_email, "Offer Letter — PKG Group", pdf);
+  sendTelegram(offerData.candidate_id, "ท่านได้รับ Offer Letter จาก PKG Group");
+  scheduleExpiryCheck(offer.id, offerData.expiry_date);
+  return offer;
+}`,
+checklist:["Offer Summary preview","Generate PDF Offer Letter","Auto-send Email+Telegram","Countdown timer","Confirmation dialog"]
+}
+};
+
+// ===== RENDER FUNCTIONS =====
+function showSection(name) {
+  document.querySelectorAll('[id^="section-"]').forEach(s => s.style.display = 'none');
+  document.getElementById('step-container').innerHTML = '';
+  const el = document.getElementById('section-' + name);
+  if (el) el.style.display = 'block';
+  document.querySelectorAll('.step-nav-item').forEach(n => n.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+
+function showStep(num) {
+  document.querySelectorAll('[id^="section-"]').forEach(s => s.style.display = 'none');
+  document.querySelectorAll('.step-nav-item').forEach(n => n.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  renderStep(num);
+}
+
+function renderStep(num) {
+  const s = steps[num];
+  if (!s) return;
+  const phaseColors = {P1:'indigo',P2:'amber',P3:'green'};
+  const c = phaseColors[s.phase] || 'indigo';
+  
+  let html = `<section class="p-6 fade-in">
+    <!-- Breadcrumb -->
+    <div class="text-xs text-slate-500 mb-4">
+      <span class="cursor-pointer hover:text-indigo-600" onclick="showSection('dashboard')">Dashboard</span> / 
+      <span class="badge badge-${c==='indigo'?'blue':c==='amber'?'amber':'green'}">${s.phase}</span> / 
+      Step ${num}
+    </div>
+    
+    <!-- Header -->
+    <div class="card p-6 mb-6">
+      <div class="flex items-start justify-between flex-wrap gap-4">
+        <div>
+          <h1 class="text-xl font-bold mb-1">Step ${num}: ${s.title}</h1>
+          <p class="text-sm text-slate-500">${s.desc}</p>
+        </div>
+        <div class="flex gap-2 flex-wrap">
+          <span class="badge badge-blue"><i class="fas fa-user mr-1"></i>${s.actor}</span>
+          <span class="badge badge-amber"><i class="fas fa-clock mr-1"></i>SLA: ${s.sla}</span>
+          <span class="badge badge-green"><i class="fas fa-chart-line mr-1"></i>${s.kpi}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex border-b border-slate-200 mb-6 overflow-x-auto">
+      <button class="tab-btn active" onclick="switchTab(this,'form-${num}')">📝 ฟอร์ม</button>
+      <button class="tab-btn" onclick="switchTab(this,'state-${num}')">🔄 Status</button>
+      <button class="tab-btn" onclick="switchTab(this,'schema-${num}')">🗄️ Schema</button>
+      <button class="tab-btn" onclick="switchTab(this,'api-${num}')">🔌 API</button>
+      <button class="tab-btn" onclick="switchTab(this,'logic-${num}')">⚙️ Logic</button>
+      <button class="tab-btn" onclick="switchTab(this,'check-${num}')">✅ Checklist</button>
+    </div>
+
+    <!-- Tab: Form -->
+    <div class="tab-panel active" id="form-${num}">
+      <div class="space-y-4">`;
+  
+  s.form.forEach(sec => {
+    html += `<div class="card p-5"><h3 class="font-bold text-sm mb-3 text-${c}-700">${sec.section}</h3><div class="space-y-2">`;
+    sec.fields.forEach(f => {
+      html += `<div class="flex items-start gap-3 py-2 border-b border-slate-100">
+        <code class="text-xs bg-slate-100 px-2 py-0.5 rounded font-mono min-w-[120px]">${f.n}</code>
+        <div class="flex-1">
+          <span class="text-sm font-medium">${f.l}</span>
+          ${f.req ? '<span class="text-red-500 ml-1">*</span>' : ''}
+          <div class="text-xs text-slate-500 mt-0.5">
+            type: <code class="bg-slate-50 px-1 rounded">${f.t}</code>
+            ${f.o ? ' | options: ' + f.o.join(', ') : ''}
+            ${f.min !== undefined ? ' | min: ' + f.min : ''}
+            ${f.max !== undefined ? ' | max: ' + f.max : ''}
+            ${f.pattern ? ' | pattern: ' + f.pattern : ''}
+            ${f.v ? ' | ' + f.v : ''}
+            ${f.def ? ' | default: ' + f.def : ''}
+          </div>
+        </div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  // Validation
+  html += `<div class="card p-5"><h3 class="font-bold text-sm mb-3">🔒 Validation Rules</h3><div class="space-y-1">`;
+  s.validation.forEach(v => { html += `<div class="text-xs bg-amber-50 border border-amber-200 rounded px-3 py-2"><i class="fas fa-exclamation-triangle text-amber-500 mr-1"></i>${v}</div>`; });
+  html += `</div></div></div>`;
+
+  // Tab: State Machine
+  html += `<div class="tab-panel" id="state-${num}">
+    <div class="card p-5 mb-4"><h3 class="font-bold text-sm mb-4">State Machine Diagram</h3>
+    <div class="flex flex-wrap gap-3 items-center justify-center">`;
+  s.states.forEach((st, i) => {
+    const colors = {draft:'slate',submitted:'blue',approved:'green',rejected:'red',posted:'emerald',awaiting_test:'amber',testing:'amber',tested:'purple',analyzing:'purple',analyzed:'purple',screening:'amber',passed:'green',considered:'amber',confirmed:'green',scheduled:'blue',rescheduled:'amber',cancelled:'red',in_progress:'blue',completed:'green',summarized:'purple',decided:'green',offered:'blue',accepted:'green',expired:'red'};
+    const col = colors[st] || 'slate';
+    html += `<div class="px-4 py-2 rounded-lg border-2 border-${col}-300 bg-${col}-50 text-${col}-700 text-xs font-semibold">${st}</div>`;
+    if (i < s.states.length - 1) html += `<i class="fas fa-arrow-right text-slate-400"></i>`;
+  });
+  html += `</div></div>
+    <div class="card p-5"><h3 class="font-bold text-sm mb-3">Transitions</h3><div class="space-y-2">`;
+  s.transitions.forEach(t => {
+    html += `<div class="flex items-center gap-2 text-sm bg-slate-50 rounded px-3 py-2">
+      <span class="badge badge-blue">${t[0]}</span>
+      <i class="fas fa-arrow-right text-slate-400 text-xs"></i>
+      <span class="badge badge-green">${t[1]}</span>
+      <span class="text-xs text-slate-500 ml-2">→ ${t[2]}</span>
+    </div>`;
+  });
+  html += `</div></div></div>`;
+
+  // Tab: Schema
+  html += `<div class="tab-panel" id="schema-${num}">
+    <div class="card p-5"><h3 class="font-bold text-sm mb-3">🗄️ Table: <code>${s.schema.table}</code></h3>
+    <div class="overflow-x-auto"><table class="schema-table"><thead><tr><th>Field</th><th>Type</th><th>Key</th><th>Nullable</th><th>Default</th></tr></thead><tbody>`;
+  s.schema.fields.forEach(f => {
+    html += `<tr><td><code class="text-xs">${f.n}</code></td><td class="text-xs">${f.t}</td>
+    <td>${f.pk?'<span class="badge badge-blue">PK</span>':''}${f.fk?'<span class="badge badge-green">FK→'+f.fk+'</span>':''}${f.unique?'<span class="badge badge-purple">UQ</span>':''}</td>
+    <td class="text-xs">${f.nn?'NO':'YES'}</td><td class="text-xs">${f.def||'-'}</td></tr>`;
+  });
+  html += `</tbody></table></div></div></div>`;
+
+  // Tab: API
+  html += `<div class="tab-panel" id="api-${num}">
+    <div class="card p-5"><h3 class="font-bold text-sm mb-3">🔌 API Endpoints</h3><div class="space-y-3">`;
+  s.api.forEach(a => {
+    const mc = a.m.toLowerCase();
+    html += `<div class="bg-slate-50 rounded-lg p-3">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="api-method api-${mc}">${a.m}</span>
+        <code class="text-xs font-mono">${a.e}</code>
+      </div>
+      <div class="text-xs text-slate-500">${a.d}</div>
+    </div>`;
+  });
+  html += `</div></div></div>`;
+
+  // Tab: Logic
+  html += `<div class="tab-panel" id="logic-${num}">
+    <div class="card p-5"><h3 class="font-bold text-sm mb-3">⚙️ Business Logic (Pseudo-code)</h3>
+    <div class="relative"><pre class="text-xs"><code>${escapeHtml(s.logic)}</code></pre>
+    <button class="copy-btn" onclick="copyCode(this)"><i class="fas fa-copy"></i> Copy</button></div>
+    </div></div>`;
+
+  // Tab: Checklist
+  html += `<div class="tab-panel" id="check-${num}">
+    <div class="card p-5"><h3 class="font-bold text-sm mb-3">✅ Development Checklist</h3><div class="space-y-1">`;
+  s.checklist.forEach((c, i) => {
+    html += `<label class="checklist-item"><input type="checkbox" id="chk-${num}-${i}"> ${c}</label>`;
+  });
+  html += `</div></div></div>`;
+
+  // Dependencies
+  html += `<div class="card p-5 mt-6">
+    <h3 class="font-bold text-sm mb-3">🔗 Dependencies</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-slate-50 rounded-lg p-3">
+        <div class="text-xs font-semibold text-slate-500 mb-1">← Step ก่อนหน้า</div>
+        <div class="text-sm">${num > 1 ? 'Step ' + (num-1) + ': ' + steps[num-1].title : 'ไม่มี (จุดเริ่มต้น)'}</div>
+      </div>
+      <div class="bg-slate-50 rounded-lg p-3">
+        <div class="text-xs font-semibold text-slate-500 mb-1">→ Step ถัดไป</div>
+        <div class="text-sm">${num < 10 ? 'Step ' + (num+1) + ': ' + steps[num+1].title : 'ส่งต่อ P4 (ประเมินผล)'}</div>
+      </div>
+    </div>
+  </div>`;
+
+  html += `</section>`;
+  document.getElementById('step-container').innerHTML = html;
+}
+
+function switchTab(btn, panelId) {
+  const parent = btn.closest('section') || btn.closest('.fade-in') || document.getElementById('step-container');
+  btn.parentElement.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  parent.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(panelId).classList.add('active');
+}
+
+function escapeHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function copyCode(btn) { navigator.clipboard.writeText(btn.previousElementSibling.textContent); btn.innerHTML='<i class="fas fa-check"></i> Copied!'; setTimeout(()=>btn.innerHTML='<i class="fas fa-copy"></i> Copy',2000); }
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('collapsed'); document.getElementById('sidebar').classList.toggle('open'); }
+function toggleDark() { document.body.classList.toggle('dark'); const icon=document.getElementById('darkIcon'); icon.className=document.body.classList.contains('dark')?'fas fa-sun text-yellow-400':'fas fa-moon text-slate-600'; }
+
+function handleSearch(q) {
+  if (!q) return;
+  q = q.toLowerCase();
+  // Search in steps
+  for (let i = 1; i <= 10; i++) {
+    const s = steps[i];
+    const text = (s.title + s.desc + JSON.stringify(s.form) + JSON.stringify(s.api)).toLowerCase();
+    if (text.includes(q)) { showStep(i); return; }
+  }
+}
+
+function applyFilters() {
+  const phase = document.getElementById('filterPhase').value;
+  const role = document.getElementById('filterRole').value;
+  // Filter sidebar items
+  document.querySelectorAll('.step-nav-item').forEach(item => {
+    const onclick = item.getAttribute('onclick');
+    if (!onclick || !onclick.includes('showStep')) return;
+    const num = parseInt(onclick.match(/\d+/)[0]);
+    const s = steps[num];
+    if (!s) return;
+    const matchPhase = phase === 'all' || s.phase === phase;
+    const matchRole = role === 'all' || s.roles.includes(role);
+    item.style.display = (matchPhase && matchRole) ? 'flex' : 'none';
+  });
+}
+
+function exportJSON() {
+  const data = JSON.stringify(steps, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pp7-process-spec.json';
+  a.click();
+}
+
+// ===== CHARTS =====
+document.addEventListener('DOMContentLoaded', () => {
+  // Funnel Chart
+  new Chart(document.getElementById('funnelChart'), {
+    type: 'bar',
+    data: {
+      labels: ['สมัคร', 'ผ่านทดสอบ', 'ผ่าน AI', 'ผ่าน Screen', 'นัดสัมภาษณ์', 'ผ่านสัมภาษณ์', 'รับเข้างาน'],
+      datasets: [{
+        label: 'Conversion %',
+        data: [100, 65, 45, 30, 25, 18, 12.4],
+        backgroundColor: ['#6366f1','#8b5cf6','#a855f7','#d946ef','#ec4899','#f43f5e','#10b981'],
+        borderRadius: 6
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { x: { max: 110, ticks: { callback: v => v + '%' } } }
+    }
+  });
+
+  // Timeline Chart
+  new Chart(document.getElementById('timelineChart'), {
+    type: 'bar',
+    data: {
+      labels: ['S1 ขออัตรา','S2 เปิดรับ','S3 ใบสมัคร','S4 ทดสอบ','S5 AI','S6 คัดกรอง','S7 นัด','S8 สัมภาษณ์','S9 สรุป','S10 Offer'],
+      datasets: [{
+        label: 'วัน',
+        data: [3, 1, 0.5, 1, 0.5, 1, 1, 0.5, 1, 2],
+        backgroundColor: '#6366f1',
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, title: { display: true, text: 'วัน' } } }
+    }
+  });
+});
+</script>
+</body>
+</html>
