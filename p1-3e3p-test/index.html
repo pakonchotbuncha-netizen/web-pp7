@@ -105,7 +105,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
 
 <div class="timer-bar" id="timerBar" style="display:none">
   <div>⏱️ เวลาเหลือ: <span class="timer" id="timerDisplay">20:00</span></div>
-  <div class="progress-text" id="progressText">ตอบแล้ว 0/6 ข้อ | เรียงลำดับ 0/6</div>
+  <div class="progress-text" id="progressText">ตอบแล้ว 0/6 ข้อ</div>
 </div>
 
 <div class="container">
@@ -117,9 +117,8 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
       <h3>📋 คำชี้แจง</h3>
       <ul>
         <li>แบบทดสอบมี <strong>6 ข้อ</strong> วัดแรงจูงใจในการทำงาน</li>
-        <li>แต่ละข้อให้ <strong>เขียนอธิบาย</strong> สั้นๆ (2-3 ประโยค)</li>
-        <li><strong>เรียงลำดับ 1-6</strong> ตามความสำคัญที่สะท้อนตัวคุณมากที่สุด</li>
-        <li>1 = สำคัญที่สุด, 6 = สำคัญน้อยที่สุด</li>
+        <li>แต่ละข้อให้ <strong>เขียนอธิบาย</strong> ตามความรู้สึกจริง (2-3 ประโยค)</li>
+        <li><strong>ไม่ต้องเลือกลำดับ</strong> — AI จะวิเคราะห์และจัดลำดับแรงจูงใจให้อัตโนมัติจากคำตอบของคุณ</li>
         <li>เวลาทำ: <strong>20 นาที</strong> (ระบบจะบันทึกอัตโนมัติเมื่อหมดเวลา)</li>
       </ul>
     </div>
@@ -150,10 +149,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
 
   <!-- Test Screen -->
   <div id="testScreen" style="display:none">
-    <div class="rank-warning" id="rankWarning">
-      ⚠️ กรุณาเรียงลำดับให้ครบทั้ง 6 ข้อ (ไม่ซ้ำกัน) ก่อนส่งคำตอบ
-    </div>
-
     <!-- Question 1 -->
     <div class="question-card" id="qCard1">
       <div class="q-header">
@@ -163,18 +158,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
             <div class="q-title">ความสนุกสนานในการทำงาน</div>
             <div class="q-measure">📏 วัด: Engagement — ความผูกพันทางอารมณ์</div>
           </div>
-        </div>
-        <div class="q-rank">
-          <label>ลำดับ:</label>
-          <select onchange="updateRank(1, this.value)">
-            <option value="">-</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-          </select>
         </div>
       </div>
       <div class="q-desc">อะไรที่ทำให้คุณรู้สึกสนุกและมีพลังเมื่อมาทำงาน? เล่าประสบการณ์ที่คุณรู้สึกว่าการทำงานไม่ใช่แค่หน้าที่ แต่เป็นสิ่งที่ทำให้คุณมีความสุข</div>
@@ -191,18 +174,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
             <div class="q-measure">📏 วัด: Alignment — ความสอดคล้องเป้าหมายส่วนตัวกับองค์กร</div>
           </div>
         </div>
-        <div class="q-rank">
-          <label>ลำดับ:</label>
-          <select onchange="updateRank(2, this.value)">
-            <option value="">-</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-          </select>
-        </div>
       </div>
       <div class="q-desc">องค์กรแห่งนี้ตอบโจทย์เป้าหมายชีวิตของคุณอย่างไร? คุณมองเห็นตัวเองเติบโตที่นี่ในอีก 3-5 ปีข้างหน้าอย่างไร?</div>
       <textarea id="answer2" placeholder="เขียนคำตอบที่นี่..." oninput="updateProgress()"></textarea>
@@ -217,18 +188,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
             <div class="q-title">การใช้ความสามารถเต็มประสิทธิภาพ</div>
             <div class="q-measure">📏 วัด: Empowerment — โอกาสใช้ศักยภาพ</div>
           </div>
-        </div>
-        <div class="q-rank">
-          <label>ลำดับ:</label>
-          <select onchange="updateRank(3, this.value)">
-            <option value="">-</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-          </select>
         </div>
       </div>
       <div class="q-desc">เล่าสถานการณ์ที่คุณได้ใช้ความสามารถสูงสุดในการทำงาน คุณรู้สึกอย่างไรเมื่อได้ทำสิ่งที่ถนัดและท้าทาย?</div>
@@ -245,18 +204,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
             <div class="q-measure">📏 วัด: Ownership — ความรู้สึกเป็นเจ้าของงาน</div>
           </div>
         </div>
-        <div class="q-rank">
-          <label>ลำดับ:</label>
-          <select onchange="updateRank(4, this.value)">
-            <option value="">-</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-          </select>
-        </div>
       </div>
       <div class="q-desc">คุณมองว่าการทำงานเป็น 'หน้าที่ของทุกคน' อย่างไร? เล่าครั้งที่คุณทำเกินกว่าหน้าที่เพราะรู้สึกว่า 'นี่คืองานของเรา'</div>
       <textarea id="answer4" placeholder="เขียนคำตอบที่นี่..." oninput="updateProgress()"></textarea>
@@ -272,18 +219,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
             <div class="q-measure">📏 วัด: Extrinsic Motivation — แรงจูงใจภายนอก</div>
           </div>
         </div>
-        <div class="q-rank">
-          <label>ลำดับ:</label>
-          <select onchange="updateRank(5, this.value)">
-            <option value="">-</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-          </select>
-        </div>
       </div>
       <div class="q-desc">ค่าตอบแทนและความมั่นคงทางเศรษฐกิจมีความสำคัญต่อคุณอย่างไร? คุณสมดุลระหว่าง 'งานที่รัก' กับ 'งานที่เลี้ยงครอบครัว' อย่างไร?</div>
       <textarea id="answer5" placeholder="เขียนคำตอบที่นี่..." oninput="updateProgress()"></textarea>
@@ -298,18 +233,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
             <div class="q-title">การจัดการช่วงขาดแรงจูงใจ</div>
             <div class="q-measure">📏 วัด: Resilience — ความยืดหยุ่นทางจิตใจ</div>
           </div>
-        </div>
-        <div class="q-rank">
-          <label>ลำดับ:</label>
-          <select onchange="updateRank(6, this.value)">
-            <option value="">-</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-          </select>
         </div>
       </div>
       <div class="q-desc">มีช่วงไหนที่คุณรู้สึกว่า 'ไม่มีแรงจูงใจในการทำงาน'? อะไรทำให้คุณผ่านช่วงนั้นมาได้ หรืออะไรที่จะทำให้คุณรู้สึกมีพลังอีกครั้ง?</div>
@@ -332,7 +255,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
 // ===== STATE =====
 let timerInterval = null;
 let timeLeft = 20 * 60; // 20 minutes
-let ranks = {};
 let testStarted = false;
 
 const questionMeta = {
@@ -371,24 +293,6 @@ function startTimer() {
   }, 1000);
 }
 
-// ===== RANK =====
-function updateRank(qNum, value) {
-  if (value) {
-    // Check duplicate
-    for (let k in ranks) {
-      if (k != qNum && ranks[k] == value) {
-        alert(`ลำดับ ${value} ถูกใช้แล้ว กรุณาเลือกลำดับอื่น`);
-        document.querySelector(`#qCard${qNum} select`).value = '';
-        return;
-      }
-    }
-    ranks[qNum] = parseInt(value);
-  } else {
-    delete ranks[qNum];
-  }
-  updateProgress();
-}
-
 // ===== PROGRESS =====
 function updateProgress() {
   let answered = 0;
@@ -399,17 +303,11 @@ function updateProgress() {
     else { card.classList.remove('answered'); }
   }
   
-  const rankCount = Object.keys(ranks).length;
-  document.getElementById('progressText').textContent = `ตอบแล้ว ${answered}/6 ข้อ | เรียงลำดับ ${rankCount}/6`;
+  document.getElementById('progressText').textContent = `ตอบแล้ว ${answered}/6 ข้อ`;
   
-  // Enable submit when all answered and ranked
-  const allDone = answered === 6 && rankCount === 6;
+  // Enable submit when all answered
+  const allDone = answered === 6;
   document.getElementById('submitBtn').disabled = !allDone;
-  
-  // Show/hide warning
-  const warn = document.getElementById('rankWarning');
-  if (answered === 6 && rankCount < 6) warn.classList.add('show');
-  else warn.classList.remove('show');
 }
 
 // ===== SUBMIT =====
@@ -426,8 +324,7 @@ function submitTest(autoSubmit = false) {
     position: document.getElementById('inputPosition').value.trim(),
     timestamp: new Date().toISOString(),
     timeUsed: (20 * 60) - timeLeft,
-    answers: {},
-    ranks: ranks
+    answers: {}
   };
   
   for (let i = 1; i <= 6; i++) {
@@ -447,27 +344,144 @@ function submitTest(autoSubmit = false) {
   localStorage.setItem('3e3p_history', JSON.stringify(history));
 }
 
+// ===== AI ANALYSIS ENGINE =====
+function analyzeAnswers(answers) {
+  // Keywords for each question type
+  const keywordMap = {
+    1: { // Engagement - ความสนุกสนาน
+      positive: ['สนุก', 'มีความสุข', 'ท้าทาย', 'พลัง', 'เบิกบาน', 'สนุก', 'ชอบ', 'รัก', 'ตื่นเต้น', 'สร้างสรรค์', 'ใหม่', 'ท้าทาย'],
+      negative: ['เบื่อ', 'routine', 'ซ้ำซาก', 'ไม่สนุก', 'เหนื่อย', 'หมดแรง'],
+      growth: ['เรียนรู้', 'เติบโต', 'พัฒนา', 'ใหม่', 'ท้าทาย'],
+      social: ['ทีม', 'เพื่อน', 'ร่วมงาน', 'ช่วยเหลือ', 'แบ่งปัน']
+    },
+    2: { // Alignment - เป้าหมายชีวิต
+      positive: ['เติบโต', 'โอกาส', 'เป้าหมาย', 'อนาคต', 'ก้าวหน้า', 'พัฒนา'],
+      negative: ['ไม่แน่ใจ', 'ไม่รู้', 'สับสน', 'ไม่ชัด'],
+      longterm: ['3 ปี', '5 ปี', 'อนาคต', 'ระยะยาว', 'เติบโต', 'ก้าวหน้า'],
+      learning: ['เรียนรู้', 'ประสบการณ์', 'บทเรียน', 'พัฒนา']
+    },
+    3: { // Empowerment - ใช้ศักยภาพ
+      positive: ['ความสามารถ', 'ศักยภาพ', 'ถนัด', 'เชี่ยวชาญ', 'สร้าง', 'พัฒนา'],
+      negative: ['ไม่ได้ใช้', 'ไม่ถนัด', 'ไม่ชอบ'],
+      achievement: ['สร้าง', 'พัฒนา', 'สำเร็จ', 'บรรลุ', 'ผลงาน'],
+      legacy: ['ส่งต่อ', 'สอน', 'แนะนำ', 'แบ่งปัน', 'น้อง', 'รุ่น']
+    },
+    4: { // Ownership - ความเป็นเจ้าของ
+      positive: ['รับผิดชอบ', 'เจ้าของ', 'เกินหน้าที่', 'ช่วย', 'อาสา', 'ลงมือ'],
+      negative: ['ไม่เกี่ยว', 'ไม่ใช่หน้าที่', 'ไม่ทำ'],
+      beyond: ['เกินหน้าที่', 'ไม่เกี่ยวกับงานหลัก', 'ช่วย', 'อาสา'],
+      team: ['ทีม', 'องค์กร', 'ทุกคน', 'ร่วมกัน', 'ส่วนร่วม']
+    },
+    5: { // Extrinsic - ค่าตอบแทน
+      positive: ['ค่าตอบแทน', 'เงินเดือน', 'มั่นคง', 'เศรษฐกิจ', 'ครอบครัว'],
+      negative: ['ไม่สำคัญ', 'ไม่สน', 'ไม่สนใจ'],
+      performance: ['ผลงาน', 'ประสิทธิภาพ', 'ผลลัพธ์', 'ทำก่อน'],
+      security: ['มั่นคง', 'ปลอดภัย', 'แน่นอน', 'รับประกัน']
+    },
+    6: { // Resilience - การจัดการขาดแรงจูงใจ
+      positive: ['ผ่าน', 'ไม่ย่อท้อ', 'พยายาม', 'สู้', 'เข้าใจ', 'ปรับตัว'],
+      negative: ['ยอมแพ้', 'ลาออก', 'ท้อ', 'หมดหวัง'],
+      resilience: ['ไม่ย่อท้อ', 'พยายาม', 'สู้', 'ผ่าน', 'อดทน'],
+      growth: ['เรียนรู้', 'เข้าใจ', 'ปรับตัว', 'พัฒนา']
+    }
+  };
+  
+  // Score each answer
+  const scores = {};
+  for (let qNum = 1; qNum <= 6; qNum++) {
+    const answer = (answers[qNum] || '').toLowerCase();
+    const keywords = keywordMap[qNum];
+    let score = 50; // Base score
+    
+    // Count positive keywords
+    for (let kw of keywords.positive) {
+      if (answer.includes(kw)) score += 8;
+    }
+    
+    // Subtract negative keywords
+    for (let kw of keywords.negative) {
+      if (answer.includes(kw)) score -= 10;
+    }
+    
+    // Bonus for specific patterns
+    if (keywords.growth) {
+      for (let kw of keywords.growth) {
+        if (answer.includes(kw)) score += 5;
+      }
+    }
+    if (keywords.social) {
+      for (let kw of keywords.social) {
+        if (answer.includes(kw)) score += 4;
+      }
+    }
+    if (keywords.longterm) {
+      for (let kw of keywords.longterm) {
+        if (answer.includes(kw)) score += 6;
+      }
+    }
+    if (keywords.achievement) {
+      for (let kw of keywords.achievement) {
+        if (answer.includes(kw)) score += 5;
+      }
+    }
+    if (keywords.legacy) {
+      for (let kw of keywords.legacy) {
+        if (answer.includes(kw)) score += 7;
+      }
+    }
+    if (keywords.beyond) {
+      for (let kw of keywords.beyond) {
+        if (answer.includes(kw)) score += 8;
+      }
+    }
+    if (keywords.performance) {
+      for (let kw of keywords.performance) {
+        if (answer.includes(kw)) score += 6;
+      }
+    }
+    if (keywords.resilience) {
+      for (let kw of keywords.resilience) {
+        if (answer.includes(kw)) score += 7;
+      }
+    }
+    
+    // Normalize to 0-100
+    scores[qNum] = Math.max(0, Math.min(100, score));
+  }
+  
+  // Sort by score (descending)
+  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+  const ranks = {};
+  sorted.forEach(([qNum, score], idx) => {
+    ranks[qNum] = idx + 1;
+  });
+  
+  return { scores, ranks, sorted };
+}
+
 // ===== RENDER RESULTS =====
 function renderResults(data) {
   const timeMin = Math.floor(data.timeUsed / 60);
   const timeSec = data.timeUsed % 60;
   
-  // Calculate scores based on ranking (rank 1 = highest score)
-  const groupScores = { intrinsic: 0, duty: 0, extrinsic: 0, awareness: 0 };
-  const groupMax = { intrinsic: 0, duty: 0, extrinsic: 0, awareness: 0 };
+  // AI Analysis
+  const analysis = analyzeAnswers(data.answers);
+  data.ranks = analysis.ranks;
   
-  for (let qNum in data.ranks) {
-    const rank = data.ranks[qNum];
+  // Calculate group scores
+  const groupScores = { intrinsic: 0, duty: 0, extrinsic: 0, awareness: 0 };
+  const groupCount = { intrinsic: 0, duty: 0, extrinsic: 0, awareness: 0 };
+  
+  for (let qNum in analysis.scores) {
     const group = questionMeta[qNum].group;
-    const score = 7 - rank; // rank 1 = 6pts, rank 6 = 1pt
-    groupScores[group] += score;
-    groupMax[group] += 6;
+    groupScores[group] += analysis.scores[qNum];
+    groupCount[group]++;
   }
   
-  // Normalize to percentage
+  // Average per group
   const groupPct = {};
   for (let g in groupScores) {
-    groupPct[g] = groupMax[g] > 0 ? Math.round((groupScores[g] / groupMax[g]) * 100) : 0;
+    groupPct[g] = groupCount[g] > 0 ? Math.round(groupScores[g] / groupCount[g]) : 0;
   }
   
   // Determine profile
