@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แบบทดสอบ 3E3P — วัดแรงจูงใจ (6 ข้อ)</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #333; }
+
+/* Header */
+.header { background: linear-gradient(135deg, #43e97b, #38f9d7); color: white; padding: 24px 30px; text-align: center; }
+.header h1 { font-size: 26px; margin-bottom: 6px; }
+.header .subtitle { opacity: 0.9; font-size: 14px; }
+
+/* Timer Bar */
+.timer-bar { background: #1a237e; color: white; padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+.timer-bar .timer { font-size: 22px; font-weight: bold; font-family: monospace; }
+.timer-bar .timer.warning { color: #ff6b6b; animation: pulse 1s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+.timer-bar .progress-text { font-size: 13px; }
+
+/* Container */
+.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+/* Welcome Screen */
+.welcome-screen { text-align: center; padding: 40px 20px; }
+.welcome-screen h2 { color: #1a237e; font-size: 22px; margin-bottom: 20px; }
+.welcome-screen .info-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: left; margin-bottom: 20px; }
+.welcome-screen .info-box h3 { color: #43e97b; margin-bottom: 10px; }
+.welcome-screen .info-box ul { padding-left: 20px; line-height: 1.8; }
+.welcome-screen .info-box li { margin-bottom: 4px; }
+
+/* Form Fields */
+.form-group { margin-bottom: 10px; }
+.form-group label { display: block; font-weight: 600; margin-bottom: 6px; color: #555; }
+.form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
+.form-group input:focus, .form-group select:focus { border-color: #43e97b; outline: none; }
+
+/* Question Card */
+.question-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 16px; transition: all 0.3s; }
+.question-card.answered { border-left: 4px solid #43e97b; }
+.question-card .q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.question-card .q-number { background: linear-gradient(135deg, #43e97b, #38f9d7); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; }
+.question-card .q-rank { display: flex; align-items: center; gap: 8px; }
+.question-card .q-rank label { font-size: 13px; color: #666; white-space: nowrap; }
+.question-card .q-rank select { width: 70px; padding: 6px 10px; border: 2px solid #43e97b; border-radius: 8px; font-size: 14px; font-weight: bold; text-align: center; }
+.question-card .q-title { font-size: 16px; font-weight: 600; color: #1a237e; margin-bottom: 4px; }
+.question-card .q-desc { font-size: 13px; color: #666; margin-bottom: 12px; line-height: 1.5; }
+.question-card .q-measure { font-size: 11px; color: #999; background: #f5f5f5; padding: 4px 10px; border-radius: 12px; display: inline-block; margin-bottom: 10px; }
+.question-card textarea { width: 100%; min-height: 80px; padding: 12px; border: 2px solid #eee; border-radius: 8px; font-size: 14px; line-height: 1.6; resize: vertical; transition: border-color 0.2s; font-family: inherit; }
+.question-card textarea:focus { border-color: #43e97b; outline: none; }
+.question-card textarea::placeholder { color: #bbb; }
+
+/* Rank Warning */
+.rank-warning { background: #fff3e0; border: 1px solid #ffcc02; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: #e65100; display: none; }
+.rank-warning.show { display: block; }
+
+/* Buttons */
+.btn { padding: 12px 28px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 15px; transition: all 0.2s; }
+.btn-primary { background: linear-gradient(135deg, #43e97b, #38f9d7); color: white; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(67,233,123,0.4); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-secondary { background: #e0e0e0; color: #666; }
+.btn-secondary:hover { background: #d0d0d0; }
+
+/* Result Screen */
+.result-screen { display: none; }
+.result-screen h2 { color: #1a237e; text-align: center; margin-bottom: 20px; }
+.result-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 16px; }
+.result-card h3 { color: #43e97b; margin-bottom: 12px; }
+.result-item { padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+.result-item:last-child { border-bottom: none; }
+.result-item .label { font-weight: 600; color: #555; }
+.result-item .value { color: #333; margin-top: 4px; line-height: 1.5; }
+
+/* Radar Chart Placeholder */
+.radar-placeholder { background: #f9f9f9; border-radius: 12px; padding: 30px; text-align: center; margin: 20px 0; }
+.radar-placeholder .chart-bars { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+.radar-placeholder .bar-item { text-align: center; width: 100px; }
+.radar-placeholder .bar-fill { height: 120px; width: 40px; background: #e0e0e0; border-radius: 6px; margin: 0 auto 6px; position: relative; overflow: hidden; }
+.radar-placeholder .bar-fill .fill { position: absolute; bottom: 0; width: 100%; background: linear-gradient(to top, #43e97b, #38f9d7); border-radius: 6px; transition: height 1s ease; }
+.radar-placeholder .bar-label { font-size: 11px; color: #666; }
+.radar-placeholder .bar-value { font-size: 14px; font-weight: bold; color: #1a237e; }
+
+/* Profile Card */
+.profile-card { background: linear-gradient(135deg, #1a237e, #283593); color: white; border-radius: 12px; padding: 24px; margin: 20px 0; text-align: center; }
+.profile-card .profile-type { font-size: 22px; font-weight: bold; margin-bottom: 8px; }
+.profile-card .profile-desc { opacity: 0.9; font-size: 14px; line-height: 1.6; }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .header h1 { font-size: 20px; }
+  .question-card .q-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .question-card .q-rank { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🎯 แบบทดสอบ 3E3P</h1>
+  <div class="subtitle">วัดแรงจูงใจในการทำงาน — 6 ข้อ | เวลา 20 นาที</div>
+</div>
+
+<div class="timer-bar" id="timerBar" style="display:none">
+  <div>⏱️ เวลาเหลือ: <span class="timer" id="timerDisplay">20:00</span></div>
+  <div class="progress-text" id="progressText">ตอบแล้ว 0/6 ข้อ | เรียงลำดับ 0/6</div>
+</div>
+
+<div class="container">
+  <!-- Welcome Screen -->
+  <div id="welcomeScreen" class="welcome-screen">
+    <h2>🎯 แบบทดสอบ 3E3P — วัดแรงจูงใจ</h2>
+    
+    <div class="info-box">
+      <h3>📋 คำชี้แจง</h3>
+      <ul>
+        <li>แบบทดสอบมี <strong>6 ข้อ</strong> วัดแรงจูงใจในการทำงาน</li>
+        <li>แต่ละข้อให้ <strong>เขียนอธิบาย</strong> สั้นๆ (2-3 ประโยค)</li>
+        <li><strong>เรียงลำดับ 1-6</strong> ตามความสำคัญที่สะท้อนตัวคุณมากที่สุด</li>
+        <li>1 = สำคัญที่สุด, 6 = สำคัญน้อยที่สุด</li>
+        <li>เวลาทำ: <strong>20 นาที</strong> (ระบบจะบันทึกอัตโนมัติเมื่อหมดเวลา)</li>
+      </ul>
+    </div>
+
+    <div class="info-box">
+      <h3>📊 6 ข้อวัดแรงจูงใจ</h3>
+      <ul>
+        <li><strong>ข้อ 1:</strong> ความสนุกสนานในการทำงาน (Engagement)</li>
+        <li><strong>ข้อ 2:</strong> การตอบโจทย์เป้าหมายชีวิต (Alignment)</li>
+        <li><strong>ข้อ 3:</strong> การใช้ความสามารถเต็มประสิทธิภาพ (Empowerment)</li>
+        <li><strong>ข้อ 4:</strong> ความเป็นเจ้าของและความรับผิดชอบ (Ownership)</li>
+        <li><strong>ข้อ 5:</strong> แรงจูงใจด้านค่าตอบแทน (Extrinsic Motivation)</li>
+        <li><strong>ข้อ 6:</strong> การจัดการช่วงขาดแรงจูงใจ (Resilience)</li>
+      </ul>
+    </div>
+
+    <div class="form-group" style="max-width:400px;margin:20px auto">
+      <label>ชื่อ-นามสกุล</label>
+      <input type="text" id="inputName" placeholder="กรอกชื่อ-นามสกุล">
+    </div>
+    <div class="form-group" style="max-width:400px;margin:0 auto 20px">
+      <label>ตำแหน่งที่สมัคร</label>
+      <input type="text" id="inputPosition" placeholder="กรอกตำแหน่งที่สมัคร">
+    </div>
+
+    <button class="btn btn-primary" onclick="startTest()">🚀 เริ่มทำแบบทดสอบ</button>
+  </div>
+
+  <!-- Test Screen -->
+  <div id="testScreen" style="display:none">
+    <div class="rank-warning" id="rankWarning">
+      ⚠️ กรุณาเรียงลำดับให้ครบทั้ง 6 ข้อ (ไม่ซ้ำกัน) ก่อนส่งคำตอบ
+    </div>
+
+    <!-- Question 1 -->
+    <div class="question-card" id="qCard1">
+      <div class="q-header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="q-number">1</div>
+          <div>
+            <div class="q-title">ความสนุกสนานในการทำงาน</div>
+            <div class="q-measure">📏 วัด: Engagement — ความผูกพันทางอารมณ์</div>
+          </div>
+        </div>
+        <div class="q-rank">
+          <label>ลำดับ:</label>
+          <select onchange="updateRank(1, this.value)">
+            <option value="">-</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+        </div>
+      </div>
+      <div class="q-desc">อะไรที่ทำให้คุณรู้สึกสนุกและมีพลังเมื่อมาทำงาน? เล่าประสบการณ์ที่คุณรู้สึกว่าการทำงานไม่ใช่แค่หน้าที่ แต่เป็นสิ่งที่ทำให้คุณมีความสุข</div>
+      <textarea id="answer1" placeholder="เขียนคำตอบที่นี่..." oninput="updateProgress()"></textarea>
+    </div>
+
+    <!-- Question 2 -->
+    <div class="question-card" id="qCard2">
+      <div class="q-header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="q-number">2</div>
+          <div>
+            <div class="q-title">การตอบโจทย์เป้าหมายชีวิต</div>
+            <div class="q-measure">📏 วัด: Alignment — ความสอดคล้องเป้าหมายส่วนตัวกับองค์กร</div>
+          </div>
+        </div>
+        <div class="q-rank">
+          <label>ลำดับ:</label>
+          <select onchange="updateRank(2, this.value)">
+            <option value="">-</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+        </div>
+      </div>
+      <div class="q-desc">องค์กรแห่งนี้ตอบโจทย์เป้าหมายชีวิตของคุณอย่างไร? คุณมองเห็นตัวเองเติบโตที่นี่ในอีก 3-5 ปีข้างหน้าอย่างไร?</div>
+      <textarea id="answer2" placeholder="เขียนคำตอบที่นี่..." oninput="updateProgress()"></textarea>
+    </div>
+
+    <!-- Question 3 -->
+    <div class="question-card" id="qCard3">
+      <div class="q-header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="q-number">3</div>
+          <div>
+            <div class="q-title">การใช้ความสามารถเต็มประสิทธิภาพ</div>
+            <div class="q-measure">📏 วัด: Empowerment — โอกาสใช้ศักยภาพ</div>
+          </div>
+        </div>
+        <div class="q-rank">
+          <label>ลำดับ:</label>
+          <select onchange="updateRank(3, this.value)">
+            <option value="">-</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+        </div>
+      </div>
+      <div class="q-desc">เล่าสถานการณ์ที่คุณได้ใช้ความสามารถสูงสุดในการทำงาน คุณรู้สึกอย่างไรเมื่อได้ทำสิ่งที่ถนัดและท้าทาย?</div>
+      <textarea id="answer3" placeholder="เขียนคำตอบที่นี่..." oninput="updateProgress()"></textarea>
+    </div>
+
+    <!-- Question 4 -->
+    <div class="question-card" id="qCard4">
+      <div class="q-header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="q-number">4</div>
+          <div>
+            <div class="q-title">ความเป็นเจ้าของและความรับผิดชอบ</div>
+            <div class="q-measure">📏 วัด: Ownership — ความรู้สึกเป็นเจ้าของงาน</div>
+          </div>
+        </div>
+        <div class="q-rank">
+          <label>ลำดับ:</label>
+          <select onchange="updateRank(4, this.value)">
+            <option value="">-</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+        </div>
+      </div>
+      <div class="q-desc">คุณมองว่าการทำงานเป็น 'หน้าที่ของทุกคน' อย่างไร? เล่าครั้งที่คุณทำเกินกว่าหน้าที่เพราะรู้สึกว่า 'นี่คืองานของเรา'</div>
+      <textarea id="answer4" placeholder="เขียนคำตอบที่นี่..." oninput="updateProgress()"></textarea>
+    </div>
+
+    <!-- Question 5 -->
+    <div class="question-card" id="qCard5">
+      <div class="q-header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="q-number">5</div>
+          <div>
+            <div class="q-title">แรงจูงใจด้านค่าตอบแทนและความมั่นคง</div>
+            <div class="q-measure">📏 วัด: Extrinsic Motivation — แรงจูงใจภายนอก</div>
+          </div>
+        </div>
+        <div class="q-rank">
+          <label>ลำดับ:</label>
+          <select onchange="updateRank(5, this.value)">
+            <option value="">-</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+        </div>
+      </div>
+      <div class="q-desc">ค่าตอบแทนและความมั่นคงทางเศรษฐกิจมีความสำคัญต่อคุณอย่างไร? คุณสมดุลระหว่าง 'งานที่รัก' กับ 'งานที่เลี้ยงครอบครัว' อย่างไร?</div>
+      <textarea id="answer5" placeholder="เขียนคำตอบที่นี่..." oninput="updateProgress()"></textarea>
+    </div>
+
+    <!-- Question 6 -->
+    <div class="question-card" id="qCard6">
+      <div class="q-header">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="q-number">6</div>
+          <div>
+            <div class="q-title">การจัดการช่วงขาดแรงจูงใจ</div>
+            <div class="q-measure">📏 วัด: Resilience — ความยืดหยุ่นทางจิตใจ</div>
+          </div>
+        </div>
+        <div class="q-rank">
+          <label>ลำดับ:</label>
+          <select onchange="updateRank(6, this.value)">
+            <option value="">-</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+        </div>
+      </div>
+      <div class="q-desc">มีช่วงไหนที่คุณรู้สึกว่า 'ไม่มีแรงจูงใจในการทำงาน'? อะไรทำให้คุณผ่านช่วงนั้นมาได้ หรืออะไรที่จะทำให้คุณรู้สึกมีพลังอีกครั้ง?</div>
+      <textarea id="answer6" placeholder="เขียนคำตอบที่นี่..." oninput="updateProgress()"></textarea>
+    </div>
+
+    <div style="text-align:center;margin:24px 0">
+      <button class="btn btn-primary" id="submitBtn" onclick="submitTest()" disabled>📊 ส่งคำตอบและดูผลวิเคราะห์</button>
+    </div>
+  </div>
+
+  <!-- Result Screen -->
+  <div id="resultScreen" class="result-screen">
+    <h2>📊 ผลวิเคราะห์แรงจูงใจ 3E3P</h2>
+    <div id="resultContent"></div>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+let timerInterval = null;
+let timeLeft = 20 * 60; // 20 minutes
+let ranks = {};
+let testStarted = false;
+
+const questionMeta = {
+  1: { title: 'ความสนุกสนานในการทำงาน', measure: 'Engagement', group: 'intrinsic', color: '#667eea' },
+  2: { title: 'การตอบโจทย์เป้าหมายชีวิต', measure: 'Alignment', group: 'intrinsic', color: '#764ba2' },
+  3: { title: 'การใช้ความสามารถเต็มประสิทธิภาพ', measure: 'Empowerment', group: 'intrinsic', color: '#f093fb' },
+  4: { title: 'ความเป็นเจ้าของและความรับผิดชอบ', measure: 'Ownership', group: 'duty', color: '#4facfe' },
+  5: { title: 'แรงจูงใจด้านค่าตอบแทน', measure: 'Extrinsic', group: 'extrinsic', color: '#43e97b' },
+  6: { title: 'การจัดการช่วงขาดแรงจูงใจ', measure: 'Resilience', group: 'awareness', color: '#f5576c' }
+};
+
+// ===== START TEST =====
+function startTest() {
+  const name = document.getElementById('inputName').value.trim();
+  if (!name) { alert('กรุณากรอกชื่อ-นามสกุล'); return; }
+  
+  document.getElementById('welcomeScreen').style.display = 'none';
+  document.getElementById('testScreen').style.display = 'block';
+  document.getElementById('timerBar').style.display = 'flex';
+  testStarted = true;
+  
+  startTimer();
+}
+
+// ===== TIMER =====
+function startTimer() {
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    const min = Math.floor(timeLeft / 60);
+    const sec = timeLeft % 60;
+    const display = document.getElementById('timerDisplay');
+    display.textContent = `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+    
+    if (timeLeft <= 120) display.classList.add('warning');
+    if (timeLeft <= 0) { clearInterval(timerInterval); submitTest(true); }
+  }, 1000);
+}
+
+// ===== RANK =====
+function updateRank(qNum, value) {
+  if (value) {
+    // Check duplicate
+    for (let k in ranks) {
+      if (k != qNum && ranks[k] == value) {
+        alert(`ลำดับ ${value} ถูกใช้แล้ว กรุณาเลือกลำดับอื่น`);
+        document.querySelector(`#qCard${qNum} select`).value = '';
+        return;
+      }
+    }
+    ranks[qNum] = parseInt(value);
+  } else {
+    delete ranks[qNum];
+  }
+  updateProgress();
+}
+
+// ===== PROGRESS =====
+function updateProgress() {
+  let answered = 0;
+  for (let i = 1; i <= 6; i++) {
+    const val = document.getElementById('answer' + i).value.trim();
+    const card = document.getElementById('qCard' + i);
+    if (val.length > 0) { answered++; card.classList.add('answered'); }
+    else { card.classList.remove('answered'); }
+  }
+  
+  const rankCount = Object.keys(ranks).length;
+  document.getElementById('progressText').textContent = `ตอบแล้ว ${answered}/6 ข้อ | เรียงลำดับ ${rankCount}/6`;
+  
+  // Enable submit when all answered and ranked
+  const allDone = answered === 6 && rankCount === 6;
+  document.getElementById('submitBtn').disabled = !allDone;
+  
+  // Show/hide warning
+  const warn = document.getElementById('rankWarning');
+  if (answered === 6 && rankCount < 6) warn.classList.add('show');
+  else warn.classList.remove('show');
+}
+
+// ===== SUBMIT =====
+function submitTest(autoSubmit = false) {
+  if (autoSubmit) {
+    if (!confirm('หมดเวลาแล้ว! ต้องการส่งคำตอบเลยหรือไม่?')) return;
+  }
+  
+  clearInterval(timerInterval);
+  
+  // Collect data
+  const data = {
+    name: document.getElementById('inputName').value.trim(),
+    position: document.getElementById('inputPosition').value.trim(),
+    timestamp: new Date().toISOString(),
+    timeUsed: (20 * 60) - timeLeft,
+    answers: {},
+    ranks: ranks
+  };
+  
+  for (let i = 1; i <= 6; i++) {
+    data.answers[i] = document.getElementById('answer' + i).value.trim();
+  }
+  
+  // Show results
+  document.getElementById('testScreen').style.display = 'none';
+  document.getElementById('timerBar').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'block';
+  
+  renderResults(data);
+  
+  // Save to localStorage
+  const history = JSON.parse(localStorage.getItem('3e3p_history') || '[]');
+  history.push(data);
+  localStorage.setItem('3e3p_history', JSON.stringify(history));
+}
+
+// ===== RENDER RESULTS =====
+function renderResults(data) {
+  const timeMin = Math.floor(data.timeUsed / 60);
+  const timeSec = data.timeUsed % 60;
+  
+  // Calculate scores based on ranking (rank 1 = highest score)
+  const groupScores = { intrinsic: 0, duty: 0, extrinsic: 0, awareness: 0 };
+  const groupMax = { intrinsic: 0, duty: 0, extrinsic: 0, awareness: 0 };
+  
+  for (let qNum in data.ranks) {
+    const rank = data.ranks[qNum];
+    const group = questionMeta[qNum].group;
+    const score = 7 - rank; // rank 1 = 6pts, rank 6 = 1pt
+    groupScores[group] += score;
+    groupMax[group] += 6;
+  }
+  
+  // Normalize to percentage
+  const groupPct = {};
+  for (let g in groupScores) {
+    groupPct[g] = groupMax[g] > 0 ? Math.round((groupScores[g] / groupMax[g]) * 100) : 0;
+  }
+  
+  // Determine profile
+  const sortedGroups = Object.entries(groupPct).sort((a, b) => b[1] - a[1]);
+  const topGroup = sortedGroups[0][0];
+  const secondGroup = sortedGroups[1][0];
+  
+  const profileMap = {
+    'intrinsic+intrinsic': { type: '🌟 The Passionate Grower', desc: 'ขับเคลื่อนด้วยการเติบโต เรียนรู้ และท้าทายตัวเอง\nพร้อมสร้างสิ่งใหม่ มีความยืดหยุ่นสูง' },
+    'intrinsic+duty': { type: '🏗️ The Builder-Leader', desc: 'สร้างสิ่งใหม่ + รับผิดชอบสูง\nเป็นผู้นำที่ลงมือทำและพาทีมไปด้วยกัน' },
+    'intrinsic+extrinsic': { type: '🚀 The Ambitious Achiever', desc: 'เติบโต + ผลตอบแทนสูง\nมุ่งมั่นผลงาน มีเป้าหมายชัดเจน' },
+    'intrinsic+awareness': { type: '🧠 The Reflective Innovator', desc: 'สร้างสิ่งใหม่ + เข้าใจตัวเอง\nเป็นนักนวัตกรรมการเปลี่ยนแปลง' },
+    'duty+intrinsic': { type: '🤝 The Responsible Creator', desc: 'รับผิดชอบสูง + สร้างสิ่งใหม่\nเป็นเสาหลักของทีมที่พร้อมพัฒนา' },
+    'duty+duty': { type: '🛡️ The Steadfast Guardian', desc: 'รับผิดชอบสูงสุด เป็นที่พึ่งของทีม\nทำเกินหน้าที่เสมอ' },
+    'duty+extrinsic': { type: '💼 The Duty-Driven Professional', desc: 'ทำหน้าที่ + มองผลตอบแทน\nเป็นมืออาชีพที่เชื่อถือได้' },
+    'duty+awareness': { type: '⚖️ The Balanced Leader', desc: 'รับผิดชอบ + เข้าใจคน\nเป็นผู้นำที่สมดุล' },
+    'extrinsic+intrinsic': { type: '💎 The Strategic Achiever', desc: 'ผลตอบแทนนำ + เติบโตตาม\nมีกลยุทธ์ชัดเจนในชีวิต' },
+    'extrinsic+duty': { type: '📊 The Performance Professional', desc: 'ผลงาน + หน้าที่\nเป็นมืออาชีพที่วัดผลได้' },
+    'extrinsic+extrinsic': { type: '💰 The Security Seeker', desc: 'มุ่งเน้นความมั่นคงและผลตอบแทน\nต้องการความชัดเจน' },
+    'extrinsic+awareness': { type: '🎯 The Pragmatic Planner', desc: 'ปฏิบัติจริง + เข้าใจตัวเอง\nวางแผนชีวิตอย่างมีเหตุผล' },
+    'awareness+intrinsic': { type: '🔮 The Wise Grower', desc: 'เข้าใจตัวเอง + เติบโต\nมีปัญญาและวิสัยทัศน์' },
+    'awareness+duty': { type: '🧭 The Mindful Steward', desc: 'ตระหนักรู้ + รับผิดชอบ\nเป็นผู้ดูแลที่เข้าใจคน' },
+    'awareness+extrinsic': { type: '📐 The Calculated Builder', desc: 'เข้าใจตัวเอง + ปฏิบัติจริง\nสร้างอย่างมีแผน' },
+    'awareness+awareness': { type: '🪞 The Deep Reflector', desc: 'ตระหนักรู้สูงสุด เข้าใจตัวเองลึกซึ้ง\nต้องการเวลาและพื้นที่ในการเติบโต' }
+  };
+  
+  const profileKey = `${topGroup}+${secondGroup}`;
+  const profile = profileMap[profileKey] || { type: '🌈 The Unique Individual', desc: 'มีแรงจูงใจที่เป็นเอกลักษณ์ ผสมผสานหลายด้าน' };
+  
+  // Rank order
+  const rankOrder = Object.entries(data.ranks).sort((a, b) => a[1] - b[1]);
+  
+  let html = '';
+  
+  // Profile Card
+  html += `<div class="profile-card">
+    <div class="profile-type">${profile.type}</div>
+    <div class="profile-desc">${profile.desc.replace(/\n/g, '<br>')}</div>
+    <div style="margin-top:12px;opacity:0.7;font-size:12px">
+      ${data.name} | ${data.position || '-'} | เวลา ${timeMin}:${String(timeSec).padStart(2,'0')} นาที
+    </div>
+  </div>`;
+  
+  // Bar Chart
+  const groupLabels = {
+    intrinsic: { name: 'Intrinsic (ภายใน)', icon: '🟢' },
+    duty: { name: 'Ownership (หน้าที่)', icon: '🤝' },
+    extrinsic: { name: 'Extrinsic (ภายนอก)', icon: '💰' },
+    awareness: { name: 'Self-Awareness', icon: '🧠' }
+  };
+  
+  html += `<div class="radar-placeholder">
+    <h3>📊 คะแนนแรงจูงใจรายกลุ่ม</h3>
+    <div class="chart-bars">`;
+  
+  for (let g of ['intrinsic', 'duty', 'extrinsic', 'awareness']) {
+    const pct = groupPct[g];
+    const label = groupLabels[g];
+    html += `<div class="bar-item">
+      <div class="bar-value">${pct}%</div>
+      <div class="bar-fill"><div class="fill" style="height:${pct}%"></div></div>
+      <div class="bar-label">${label.icon} ${label.name}</div>
+    </div>`;
+  }
+  
+  html += `</div></div>`;
+  
+  // Rank Order
+  html += `<div class="result-card">
+    <h3>📌 ลำดับแรงจูงใจ (จากสำคัญมาก → น้อย)</h3>`;
+  
+  rankOrder.forEach(([qNum, rank]) => {
+    const meta = questionMeta[qNum];
+    const answer = data.answers[qNum] || '(ไม่ได้ตอบ)';
+    const stars = '★'.repeat(7 - rank) + '☆'.repeat(rank - 1);
+    html += `<div class="result-item">
+      <div class="label">อันดับ ${rank}: ${meta.title} <span style="color:#43e97b">${stars}</span></div>
+      <div class="value" style="font-size:13px;color:#666;margin-top:4px">"${answer.substring(0, 120)}${answer.length > 120 ? '...' : ''}"</div>
+    </div>`;
+  });
+  
+  html += `</div>`;
+  
+  // Detailed Answers
+  html += `<div class="result-card">
+    <h3>📝 คำตอบทั้งหมด</h3>`;
+  
+  for (let i = 1; i <= 6; i++) {
+    const meta = questionMeta[i];
+    const rank = data.ranks[i] || '-';
+    const answer = data.answers[i] || '(ไม่ได้ตอบ)';
+    html += `<div class="result-item">
+      <div class="label">ข้อ ${i}: ${meta.title} <span style="color:#999;font-size:12px">(อันดับ ${rank} | ${meta.measure})</span></div>
+      <div class="value">${answer}</div>
+    </div>`;
+  }
+  
+  html += `</div>`;
+  
+  // HR Recommendation
+  html += `<div class="result-card">
+    <h3>💡 ข้อแนะนำสำหรับ HR</h3>
+    <div style="line-height:1.8;font-size:14px">
+      <strong>✅ เหมาะกับตำแหน่ง:</strong><br>
+      ${getRecommendation(topGroup, secondGroup, 'fit')}<br><br>
+      <strong>⚠️ ข้อควรระวัง:</strong><br>
+      ${getRecommendation(topGroup, secondGroup, 'caution')}<br><br>
+      <strong>🎁 สิ่งที่ทำให้มีพลัง:</strong><br>
+      ${getRecommendation(topGroup, secondGroup, 'motivate')}
+    </div>
+  </div>`;
+  
+  // Back button
+  html += `<div style="text-align:center;margin:20px 0">
+    <button class="btn btn-secondary" onclick="location.reload()">🔄 ทำแบบทดสอบใหม่</button>
+  </div>`;
+  
+  document.getElementById('resultContent').innerHTML = html;
+}
+
+function getRecommendation(top, second, type) {
+  const recs = {
+    intrinsic: {
+      fit: '• ตำแหน่งที่ต้องสร้างสิ่งใหม่ / ระบบใหม่<br>• ผู้นำการเปลี่ยนแปลง (Change Agent)<br>• งานวิจัยและพัฒนา (R&D)',
+      caution: '• อย่าให้ทำงาน Routine นานเกินไป<br>• ต้องมีโปรเจกต์ท้าทายเสมอ',
+      motivate: '• โอกาสเรียนรู้สิ่งใหม่<br>• อิสระในการทดลอง<br>• เห็นผลงานส่งผลจริง'
+    },
+    duty: {
+      fit: '• ตำแหน่งบริหารทีม / หัวหน้างาน<br>• งานที่ต้องรับผิดชอบหลายด้าน<br>• ผู้ประสานงานข้ามหน่วยงาน',
+      caution: '• อย่าให้แบกรับงานมากเกินไป<br>• ต้องมีระบบ Support ที่ชัดเจน',
+      motivate: '• ความไว้วางใจจากองค์กร<br>• โอกาสได้ช่วยทีม<br>• การยอมรับในบทบาท'
+    },
+    extrinsic: {
+      fit: '• ตำแหน่งที่มี KPI ชัดเจน<br>• งานขาย / เป้าหมายตัวเลข<br>• บทบาทที่ต้องการความมุ่งมั่นสูง',
+      caution: '• ต้องมีความชัดเจนเรื่องค่าตอบแทน<br>• ถ้าไม่ชัดเจนจะลาออกง่าย',
+      motivate: '• โครงสร้างค่าตอบแทนที่โปร่งใส<br>• Bonus ตามผลงาน<br>• ความมั่นคงในระยะยาว'
+    },
+    awareness: {
+      fit: '• ตำแหน่ง Coaching / Mentoring<br>• งานที่ต้องเข้าใจคน<br>• ที่ปรึกษาองค์กร',
+      caution: '• ต้องการเวลาในการปรับตัว<br>• ต้องมีพื้นที่ปลอดภัยในการแสดงออก',
+      motivate: '• การรับฟังอย่างจริงใจ<br>• โอกาสได้สะท้อนตัวเอง<br>• วัฒนธรรมองค์กรที่เปิดกว้าง'
+    }
+  };
+  
+  return (recs[top]?.[type] || '') + '<br>' + (recs[second]?.[type] || '');
+}
+</script>
+</body>
+</html>
