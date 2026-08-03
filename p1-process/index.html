@@ -182,15 +182,45 @@ tr:hover { background: #f9f9f9; }
   <!-- STEP 3: แบบทดสอบ -->
   <div class="step-content" id="step3">
     <div class="card">
-      <h2>📝 ขั้นตอนที่ 3: แบบทดสอบ (4 ชุด)</h2>
+      <h2>📝 ขั้นตอนที่ 3: ทำแบบทดสอบ 4 ชุด</h2>
       <div class="process-desc">
-        <strong>วัตถุประสงค์:</strong> ประเมินผู้สมัครผ่านแบบทดสอบ 4 ด้าน<br>
-        <strong>แบบทดสอบ:</strong>
-        1. ทัศนคติ (Attitude) — วัด mindset การทำงาน
-        2. ทักษะ (Skill) — วัดความสามารถเฉพาะตำแหน่ง
-        3. CC 7 ด้าน (Core Competency) — วัดคุณสมบัติหลักองค์กร
-        4. 3E3P — วัด Engagement, Empowerment, Enablement + People, Process, Platform
+        <strong>วัตถุประสงค์:</strong> ประเมินผู้สมัครผ่านแบบทดสอบ 4 ชุด (รวม 170 ข้อ)<br>
+        <strong>ระบบ:</strong> Timer + Auto-submit + ป้องกันการโกง (ย้อนกลับไม่ได้)
       </div>
+      
+      <!-- แบบทดสอบ 4 ชุด -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:15px;margin-bottom:20px">
+        <div style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:20px;border-radius:12px">
+          <h3 style="margin:0 0 10px 0">🧠 1. แบบทดสอบทัศนคติ</h3>
+          <div style="font-size:24px;font-weight:bold;margin:10px 0">30 ข้อ / 30 นาที</div>
+          <div style="opacity:0.9;font-size:13px">วัด Mindset, ทัศนคติเชิงบวก, ความมุ่งมั่น</div>
+          <a href="http://www.peakpotential.in.th/about-brainbase.php?show=iname#iname" target="_blank" style="display:inline-block;margin-top:10px;padding:8px 16px;background:rgba(255,255,255,0.2);color:white;text-decoration:none;border-radius:6px;font-size:13px">🔗 เข้าทำแบบทดสอบ</a>
+        </div>
+        
+        <div style="background:linear-gradient(135deg,#f093fb,#f5576c);color:white;padding:20px;border-radius:12px">
+          <h3 style="margin:0 0 10px 0">💼 2. แบบทดสอบทักษะ</h3>
+          <div style="font-size:24px;font-weight:bold;margin:10px 0">40 ข้อ / 60 นาที</div>
+          <div style="opacity:0.9;font-size:13px">วัดความสามารถเฉพาะตำแหน่ง (BU จัดทำ)</div>
+          <div style="margin-top:10px;padding:8px 16px;background:rgba(255,255,255,0.2);border-radius:6px;font-size:13px;display:inline-block">📋 BU นำแบบทดสอบไปวาง</div>
+        </div>
+        
+        <div style="background:linear-gradient(135deg,#4facfe,#00f2fe);color:white;padding:20px;border-radius:12px">
+          <h3 style="margin:0 0 10px 0">⭐ 3. แบบทดสอบ CC 7 ด้าน</h3>
+          <div style="font-size:24px;font-weight:bold;margin:10px 0">70 ข้อ / 45 นาที</div>
+          <div style="opacity:0.9;font-size:13px">วัด Core Competency 7 ด้านของ PKG</div>
+          <div style="margin-top:10px;font-size:11px;opacity:0.8">CC1-7: Servant Leadership, Adaptive Innovation, Trust-Based Value, Consensus Teamwork, Disciplined Professionalism, Technology Mastery, Humor & Joy</div>
+        </div>
+        
+        <div style="background:linear-gradient(135deg,#43e97b,#38f9d7);color:white;padding:20px;border-radius:12px">
+          <h3 style="margin:0 0 10px 0">🎯 4. แบบทดสอบ 3E3P</h3>
+          <div style="font-size:24px;font-weight:bold;margin:10px 0">30 ข้อ / 20 นาที</div>
+          <div style="opacity:0.9;font-size:13px">วัด Engagement + Motivation (1-6)</div>
+          <div style="margin-top:10px;font-size:11px;opacity:0.8">3E: Engagement, Empowerment, Enablement<br>3P: People, Process, Platform</div>
+        </div>
+      </div>
+      
+      <!-- ตารางผู้สมัครที่ต้องทำแบบทดสอบ -->
+      <h3 style="margin-top:20px">📋 ผู้สมัครที่ต้องทำแบบทดสอบ</h3>
       <div id="step3Table"></div>
     </div>
   </div>
@@ -477,21 +507,51 @@ function renderStep2() {
 
 function renderStep3() {
   const candidates = applicants.filter(a => a.status === 'จ้างงาน' || a.status === 'มาสัมภาษณ์');
-  let html = `<p style="margin-bottom:10px;color:#666">ผู้สมัคร ${candidates.length} คน ที่ต้องทำแบบทดสอบ</p>`;
-  html += `<table><tr><th>#</th><th>ชื่อ</th><th>ตำแหน่ง</th><th>ทัศนคติ</th><th>ทักษะ</th><th>CC 7 ด้าน</th><th>3E3P</th><th>สถานะ</th></tr>`;
+  let html = `<p style="margin-bottom:10px;color:#666">ผู้สมัคร ${candidates.length} คน ที่ต้องทำแบบทดสอบ (รวม 170 ข้อ)</p>`;
+  html += `<table><tr>
+    <th>#</th>
+    <th>ชื่อ-นามสกุล</th>
+    <th>ตำแหน่ง</th>
+    <th style="text-align:center">🧠 ทัศนคติ<br><small>30ข้อ/30นาที</small></th>
+    <th style="text-align:center">💼 ทักษะ<br><small>40ข้อ/60นาที</small></th>
+    <th style="text-align:center">⭐ CC 7 ด้าน<br><small>70ข้อ/45นาที</small></th>
+    <th style="text-align:center">🎯 3E3P<br><small>30ข้อ/20นาที</small></th>
+    <th>สถานะ</th>
+  </tr>`;
   candidates.forEach(a => {
+    // Mock scores for demo
+    const attScore = Math.floor(Math.random() * 20) + 70;
+    const skillScore = Math.floor(Math.random() * 25) + 65;
+    const ccScore = (Math.random() * 1.5 + 3).toFixed(1);
+    const e3pScore = Math.floor(Math.random() * 15) + 75;
+    
     html += `<tr>
       <td>${a.id}</td>
-      <td>${a.prefix}${a.name} ${a.surname}</td>
-      <td style="max-width:150px">${(a.position1||'-').substring(0,30)}</td>
-      <td><button class="btn btn-sm btn-warning" onclick="alert('เปิดแบบทดสอบทัศนคติ')">ทำ</button></td>
-      <td><button class="btn btn-sm btn-warning" onclick="alert('เปิดแบบทดสอบทักษะ')">ทำ</button></td>
-      <td><button class="btn btn-sm btn-warning" onclick="alert('เปิดแบบทดสอบ CC')">ทำ</button></td>
-      <td><button class="btn btn-sm btn-warning" onclick="alert('เปิดแบบทดสอบ 3E3P')">ทำ</button></td>
+      <td>${a.prefix}${a.name} ${a.surname}<br><small style="color:#999">${a.nickname || ''}</small></td>
+      <td style="max-width:180px;font-size:12px">${(a.position1||'-').substring(0,35)}</td>
+      <td style="text-align:center">
+        <div style="font-weight:bold;color:#667eea">${attScore}%</div>
+        <button class="btn btn-sm btn-warning" onclick="alert('เปิดแบบทดสอบทัศนคติ: ${a.name}')" style="margin-top:4px">ทำ</button>
+      </td>
+      <td style="text-align:center">
+        <div style="font-weight:bold;color:#f5576c">${skillScore}%</div>
+        <button class="btn btn-sm btn-warning" onclick="alert('เปิดแบบทดสอบทักษะ: ${a.name}')" style="margin-top:4px">ทำ</button>
+      </td>
+      <td style="text-align:center">
+        <div style="font-weight:bold;color:#00b4d8">${ccScore}/5</div>
+        <button class="btn btn-sm btn-warning" onclick="alert('เปิดแบบทดสอบ CC: ${a.name}')" style="margin-top:4px">ทำ</button>
+      </td>
+      <td style="text-align:center">
+        <div style="font-weight:bold;color:#38b000">${e3pScore}%</div>
+        <button class="btn btn-sm btn-warning" onclick="alert('เปิดแบบทดสอบ 3E3P: ${a.name}')" style="margin-top:4px">ทำ</button>
+      </td>
       <td><span class="badge badge-pending">รอทำ</span></td>
     </tr>`;
   });
   html += '</table>';
+  html += `<div style="margin-top:15px;padding:12px;background:#e8eaf6;border-radius:8px;font-size:13px">
+    <strong>📊 สรุปคะแนน:</strong> ทัศนคติ 20% | ทักษะ 30% | CC 30% | 3E3P 20% = <strong>Overall Score</strong>
+  </div>`;
   document.getElementById('step3Table').innerHTML = html;
 }
 
