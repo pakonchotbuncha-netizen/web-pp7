@@ -3,631 +3,590 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>แบบทดสอบ 3E3P — วัดแรงจูงใจ (6 ข้อ)</title>
+<title>แบบทดสอบ 3E3P — Total Motivation (ToE)</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: #333; }
 
-/* Header */
 .header { background: linear-gradient(135deg, #43e97b, #38f9d7); color: white; padding: 24px 30px; text-align: center; }
 .header h1 { font-size: 26px; margin-bottom: 6px; }
 .header .subtitle { opacity: 0.9; font-size: 14px; }
 
-/* Timer Bar */
-.timer-bar { background: #1a237e; color: white; padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-.timer-bar .timer { font-size: 22px; font-weight: bold; font-family: monospace; }
-.timer-bar .timer.warning { color: #ff6b6b; animation: pulse 1s infinite; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-.timer-bar .progress-text { font-size: 13px; }
+.container { max-width: 900px; margin: 0 auto; padding: 20px; }
 
-/* Container */
-.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+/* Navigation */
+.nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+.nav-tab { padding: 10px 20px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+.nav-tab:hover { border-color: #43e97b; color: #43e97b; }
+.nav-tab.active { background: #43e97b; color: white; border-color: #43e97b; }
 
-/* Welcome Screen */
-.welcome-screen { text-align: center; padding: 40px 20px; }
-.welcome-screen h2 { color: #1a237e; font-size: 22px; margin-bottom: 20px; }
-.welcome-screen .info-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: left; margin-bottom: 20px; }
-.welcome-screen .info-box h3 { color: #43e97b; margin-bottom: 10px; }
-.welcome-screen .info-box ul { padding-left: 20px; line-height: 1.8; }
-.welcome-screen .info-box li { margin-bottom: 4px; }
+/* Screens */
+.screen { display: none; }
+.screen.active { display: block; }
 
-/* Form Fields */
+/* Welcome */
+.welcome { text-align: center; padding: 30px 20px; }
+.welcome h2 { color: #1a237e; font-size: 22px; margin-bottom: 20px; }
+.info-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: left; margin-bottom: 20px; }
+.info-box h3 { color: #43e97b; margin-bottom: 10px; }
+.info-box ul { padding-left: 20px; line-height: 1.8; }
+
+/* Form */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 600px; margin: 0 auto 20px; }
 .form-group { margin-bottom: 10px; }
-.form-group label { display: block; font-weight: 600; margin-bottom: 6px; color: #555; }
-.form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
+.form-group label { display: block; font-weight: 600; margin-bottom: 6px; color: #555; font-size: 13px; }
+.form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; }
 .form-group input:focus, .form-group select:focus { border-color: #43e97b; outline: none; }
 
-/* Question Card */
-.question-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 16px; transition: all 0.3s; }
-.question-card.answered { border-left: 4px solid #43e97b; }
-.question-card .q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.question-card .q-number { background: linear-gradient(135deg, #43e97b, #38f9d7); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; }
-.question-card .q-rank { display: flex; align-items: center; gap: 8px; }
-.question-card .q-rank label { font-size: 13px; color: #666; white-space: nowrap; }
-.question-card .q-rank select { width: 70px; padding: 6px 10px; border: 2px solid #43e97b; border-radius: 8px; font-size: 14px; font-weight: bold; text-align: center; }
-.question-card .q-title { font-size: 16px; font-weight: 600; color: #1a237e; margin-bottom: 4px; }
-.question-card .q-desc { font-size: 13px; color: #666; margin-bottom: 12px; line-height: 1.5; }
-.question-card .q-measure { font-size: 11px; color: #999; background: #f5f5f5; padding: 4px 10px; border-radius: 12px; display: inline-block; margin-bottom: 10px; }
-.question-card textarea { width: 100%; min-height: 80px; padding: 12px; border: 2px solid #eee; border-radius: 8px; font-size: 14px; line-height: 1.6; resize: vertical; transition: border-color 0.2s; font-family: inherit; }
-.question-card textarea:focus { border-color: #43e97b; outline: none; }
-.question-card textarea::placeholder { color: #bbb; }
+/* Question Table */
+.q-table { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 20px; }
+.q-table table { width: 100%; border-collapse: collapse; }
+.q-table th { background: #1a237e; color: white; padding: 12px; text-align: left; font-size: 13px; }
+.q-table th:nth-child(2), .q-table th:nth-child(3), .q-table th:nth-child(4) { text-align: center; width: 80px; }
+.q-table td { padding: 14px 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; vertical-align: middle; }
+.q-table td:nth-child(2), .q-table td:nth-child(3), .q-table td:nth-child(4) { text-align: center; }
+.q-table tr.direct-row { background: #f0fff4; }
+.q-table tr.indirect-row { background: #fff5f5; }
+.q-table .q-text { line-height: 1.5; }
+.q-table .q-text .q-label { font-weight: 600; color: #1a237e; display: block; margin-bottom: 2px; }
+.q-table .q-text .q-desc { font-size: 12px; color: #666; }
+.q-table input[type="number"] { width: 60px; padding: 8px; border: 2px solid #ddd; border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; }
+.q-table input[type="number"]:focus { border-color: #43e97b; outline: none; }
+.q-table .weight { font-weight: bold; color: #555; font-size: 16px; }
+.q-table .total-cell { font-weight: bold; font-size: 16px; color: #1a237e; }
 
-/* Rank Warning */
-.rank-warning { background: #fff3e0; border: 1px solid #ffcc02; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: #e65100; display: none; }
-.rank-warning.show { display: block; }
+/* Summary Row */
+.summary-row { background: #e8eaf6 !important; font-weight: bold; }
+.summary-row td { padding: 16px 12px; font-size: 15px; }
+.direct-total { color: #2e7d32; }
+.indirect-total { color: #c62828; }
+
+/* ToE Result */
+.toe-result { background: linear-gradient(135deg, #1a237e, #283593); color: white; border-radius: 12px; padding: 30px; text-align: center; margin: 20px 0; }
+.toe-result .toe-value { font-size: 48px; font-weight: bold; margin: 10px 0; }
+.toe-result .toe-label { font-size: 16px; opacity: 0.9; }
+.toe-result .toe-category { font-size: 20px; margin-top: 10px; padding: 8px 20px; border-radius: 20px; display: inline-block; }
+.toe-positive { background: #43e97b; color: white; }
+.toe-neutral { background: #ffd93d; color: #333; }
+.toe-negative { background: #ff6b6b; color: white; }
 
 /* Buttons */
 .btn { padding: 12px 28px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 15px; transition: all 0.2s; }
 .btn-primary { background: linear-gradient(135deg, #43e97b, #38f9d7); color: white; }
 .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(67,233,123,0.4); }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 .btn-secondary { background: #e0e0e0; color: #666; }
 .btn-secondary:hover { background: #d0d0d0; }
+.btn-danger { background: #ff6b6b; color: white; }
+.btn-danger:hover { background: #ee5a5a; }
 
-/* Result Screen */
-.result-screen { display: none; }
-.result-screen h2 { color: #1a237e; text-align: center; margin-bottom: 20px; }
-.result-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 16px; }
-.result-card h3 { color: #43e97b; margin-bottom: 12px; }
-.result-item { padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
-.result-item:last-child { border-bottom: none; }
-.result-item .label { font-weight: 600; color: #555; }
-.result-item .value { color: #333; margin-top: 4px; line-height: 1.5; }
+/* Team Results */
+.team-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 20px; margin-bottom: 16px; }
+.team-card h3 { color: #1a237e; margin-bottom: 12px; }
+.member-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+.member-row:last-child { border-bottom: none; }
+.member-row .name { font-weight: 600; }
+.member-row .toe-score { font-weight: bold; }
+.toe-high { color: #2e7d32; }
+.toe-mid { color: #f57c00; }
+.toe-low { color: #c62828; }
 
-/* Radar Chart Placeholder */
-.radar-placeholder { background: #f9f9f9; border-radius: 12px; padding: 30px; text-align: center; margin: 20px 0; }
-.radar-placeholder .chart-bars { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
-.radar-placeholder .bar-item { text-align: center; width: 100px; }
-.radar-placeholder .bar-fill { height: 120px; width: 40px; background: #e0e0e0; border-radius: 6px; margin: 0 auto 6px; position: relative; overflow: hidden; }
-.radar-placeholder .bar-fill .fill { position: absolute; bottom: 0; width: 100%; background: linear-gradient(to top, #43e97b, #38f9d7); border-radius: 6px; transition: height 1s ease; }
-.radar-placeholder .bar-label { font-size: 11px; color: #666; }
-.radar-placeholder .bar-value { font-size: 14px; font-weight: bold; color: #1a237e; }
+/* Team Summary */
+.team-summary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 12px; padding: 24px; text-align: center; margin: 20px 0; }
+.team-summary .avg-value { font-size: 36px; font-weight: bold; }
 
-/* Profile Card */
-.profile-card { background: linear-gradient(135deg, #1a237e, #283593); color: white; border-radius: 12px; padding: 24px; margin: 20px 0; text-align: center; }
-.profile-card .profile-type { font-size: 22px; font-weight: bold; margin-bottom: 8px; }
-.profile-card .profile-desc { opacity: 0.9; font-size: 14px; line-height: 1.6; }
+/* Empty State */
+.empty-state { text-align: center; padding: 40px; color: #999; }
+.empty-state .icon { font-size: 48px; margin-bottom: 10px; }
 
 /* Responsive */
 @media (max-width: 600px) {
-  .header h1 { font-size: 20px; }
-  .question-card .q-header { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .question-card .q-rank { width: 100%; }
+  .form-row { grid-template-columns: 1fr; }
+  .q-table { overflow-x: auto; }
+  .q-table table { min-width: 500px; }
 }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>🎯 แบบทดสอบ 3E3P</h1>
-  <div class="subtitle">วัดแรงจูงใจในการทำงาน — 6 ข้อ | เวลา 20 นาที</div>
-</div>
-
-<div class="timer-bar" id="timerBar" style="display:none">
-  <div>⏱️ เวลาเหลือ: <span class="timer" id="timerDisplay">20:00</span></div>
-  <div class="progress-text" id="progressText">ตอบแล้ว 0/6 ข้อ</div>
+  <h1> แบบทดสอบ 3E3P — Total Motivation (ToE)</h1>
+  <div class="subtitle">วัดแรงจูงใจด้วยสูตร ToE = Direct − Indirect | รายบุคคล + รายทีม</div>
 </div>
 
 <div class="container">
-  <!-- Welcome Screen -->
-  <div id="welcomeScreen" class="welcome-screen">
-    <h2>🎯 แบบทดสอบ 3E3P — วัดแรงจูงใจ</h2>
-    
-    <div class="info-box">
-      <h3>📋 คำชี้แจง</h3>
-      <ul>
-        <li>แบบทดสอบมี <strong>6 ข้อ</strong> วัดแรงจูงใจในการทำงาน</li>
-        <li>แต่ละข้อให้ <strong>เขียนอธิบาย</strong> ตามความรู้สึกจริง (2-3 ประโยค)</li>
-        <li><strong>ไม่ต้องเลือกลำดับ</strong> — AI จะวิเคราะห์และจัดลำดับแรงจูงใจให้อัตโนมัติจากคำตอบของคุณ</li>
-        <li>เวลาทำ: <strong>20 นาที</strong> (ระบบจะบันทึกอัตโนมัติเมื่อหมดเวลา)</li>
-      </ul>
-    </div>
-
-    <div class="info-box">
-      <h3>📊 6 ข้อวัดแรงจูงใจ</h3>
-      <ul>
-        <li><strong>ข้อ 1:</strong> ความสนุกสนานในการทำงาน (Engagement)</li>
-        <li><strong>ข้อ 2:</strong> การตอบโจทย์เป้าหมายชีวิต (Alignment)</li>
-        <li><strong>ข้อ 3:</strong> การใช้ความสามารถเต็มประสิทธิภาพ (Empowerment)</li>
-        <li><strong>ข้อ 4:</strong> ความเป็นเจ้าของและความรับผิดชอบ (Ownership)</li>
-        <li><strong>ข้อ 5:</strong> แรงจูงใจด้านค่าตอบแทน (Extrinsic Motivation)</li>
-        <li><strong>ข้อ 6:</strong> การจัดการช่วงขาดแรงจูงใจ (Resilience)</li>
-      </ul>
-    </div>
-
-    <div class="form-group" style="max-width:400px;margin:20px auto">
-      <label>ชื่อ-นามสกุล</label>
-      <input type="text" id="inputName" placeholder="กรอกชื่อ-นามสกุล">
-    </div>
-    <div class="form-group" style="max-width:400px;margin:0 auto 20px">
-      <label>ตำแหน่งที่สมัคร</label>
-      <input type="text" id="inputPosition" placeholder="กรอกตำแหน่งที่สมัคร">
-    </div>
-
-    <button class="btn btn-primary" onclick="startTest()">🚀 เริ่มทำแบบทดสอบ</button>
+  <!-- Navigation -->
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="showScreen('test')">📝 ทำแบบทดสอบ</div>
+    <div class="nav-tab" onclick="showScreen('team')">👥 ผลรวมทีม</div>
   </div>
 
-  <!-- Test Screen -->
-  <div id="testScreen" style="display:none">
-    <!-- Question 1 -->
-    <div class="question-card" id="qCard1">
-      <div class="q-header">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div class="q-number">1</div>
-          <div>
-            <div class="q-title">ความสนุกสนานในการทำงาน</div>
-            <div class="q-measure">📏 วัด: Engagement — ความผูกพันทางอารมณ์</div>
+  <!-- TEST SCREEN -->
+  <div id="screen-test" class="screen active">
+    <!-- Welcome / Form -->
+    <div id="welcomeSection">
+      <div class="welcome">
+        <h2> แบบทดสอบแรงจูงใจ (ToE)</h2>
+        
+        <div class="info-box">
+          <h3>📖 วิธีทำ</h3>
+          <ul>
+            <li>แต่ละข้อให้คะแนน <strong>1-5</strong> (1 = ไม่เห็นด้วยเลย, 5 = เห็นด้วยมาก)</li>
+            <li>ระบบจะคูณน้ำหนัก (Weight) อัตโนมัติ</li>
+            <li><strong>ToE = Direct − Indirect</strong></li>
+            <li>ToE สูง = แรงจูงใจภายในสูง (Self-driven) 🟢</li>
+            <li>ToE ต่ำ = แรงจูงใจภายนอก/แรงกดดันสูง 🔴</li>
+          </ul>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>ชื่อ-นามสกุล</label>
+            <input type="text" id="inputName" placeholder="กรอกชื่อ-นามสกุล">
+          </div>
+          <div class="form-group">
+            <label>ตำแหน่ง</label>
+            <input type="text" id="inputPosition" placeholder="กรอกตำแหน่ง">
+          </div>
+          <div class="form-group">
+            <label>BU / หน่วยงาน</label>
+            <select id="inputBU">
+              <option value="">-- เลือก BU --</option>
+              <option value="PKG">PKG (สำนักงานใหญ่)</option>
+              <option value="LDC">LDC (ฝึกอบรม)</option>
+              <option value="AWG">AWG (งานบริการ)</option>
+              <option value="CIX">CIX (ลูกค้า)</option>
+              <option value="PMS">PMS</option>
+              <option value="CPD">CPD</option>
+              <option value="AAM">AAM</option>
+              <option value="RPLC">RPLC</option>
+              <option value="RAFCO">RAFCO</option>
+              <option value="other">อื่นๆ</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>ทีม / แผนก</label>
+            <input type="text" id="inputTeam" placeholder="กรอกชื่อทีม">
           </div>
         </div>
+
+        <button class="btn btn-primary" onclick="startTest()">🚀 เริ่มทำแบบทดสอบ</button>
       </div>
-      <div class="q-desc">อะไรที่ทำให้คุณรู้สึกสนุกและมีพลังเมื่อมาทำงาน? เล่าประสบการณ์ที่คุณรู้สึกว่าการทำงานไม่ใช่แค่หน้าที่ แต่เป็นสิ่งที่ทำให้คุณมีความสุข</div>
-      <textarea id="answer1" placeholder="เขียนคำตอบที่นี่..." oninput="updateProgress()"></textarea>
     </div>
 
-    <!-- Question 2 -->
-    <div class="question-card" id="qCard2">
-      <div class="q-header">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div class="q-number">2</div>
-          <div>
-            <div class="q-title">การตอบโจทย์เป้าหมายชีวิต</div>
-            <div class="q-measure">📏 วัด: Alignment — ความสอดคล้องเป้าหมายส่วนตัวกับองค์กร</div>
-          </div>
-        </div>
+    <!-- Question Form -->
+    <div id="questionSection" style="display:none">
+      <div class="q-table">
+        <table>
+          <thead>
+            <tr>
+              <th>คำถาม</th>
+              <th>คะแนน<br>(1-5)</th>
+              <th>× Weight</th>
+              <th>= Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="direct-row">
+              <td class="q-text">
+                <span class="q-label">ข้อ 1: งานสนุก</span>
+                <span class="q-desc">I continue to work because the work itself is fun to do</span>
+              </td>
+              <td><input type="number" id="q1" min="1" max="5" value="" onchange="calcTotal()"></td>
+              <td class="weight">× 10</td>
+              <td class="total-cell" id="t1">-</td>
+            </tr>
+            <tr class="direct-row">
+              <td class="q-text">
+                <span class="q-label">ข้อ 2: มีจุดมุ่งหมาย</span>
+                <span class="q-desc">I continue to work because this work has an important purpose</span>
+              </td>
+              <td><input type="number" id="q2" min="1" max="5" value="" onchange="calcTotal()"></td>
+              <td class="weight">× 5</td>
+              <td class="total-cell" id="t2">-</td>
+            </tr>
+            <tr class="direct-row">
+              <td class="q-text">
+                <span class="q-label">ข้อ 3: เติบโต</span>
+                <span class="q-desc">I continue to work because this work will help me reach my personal goals</span>
+              </td>
+              <td><input type="number" id="q3" min="1" max="5" value="" onchange="calcTotal()"></td>
+              <td class="weight">× 1.66</td>
+              <td class="total-cell" id="t3">-</td>
+            </tr>
+            <tr class="indirect-row">
+              <td class="q-text">
+                <span class="q-label">ข้อ 4: กลัวผิดหวัง</span>
+                <span class="q-desc">I continue to work because if I didn't, I would disappoint myself or people I care about</span>
+              </td>
+              <td><input type="number" id="q4" min="1" max="5" value="" onchange="calcTotal()"></td>
+              <td class="weight">× 1.66</td>
+              <td class="total-cell" id="t4">-</td>
+            </tr>
+            <tr class="indirect-row">
+              <td class="q-text">
+                <span class="q-label">ข้อ 5: กลัว KPI ตก</span>
+                <span class="q-desc">I continue to work because without this job, I would be worried I couldn't meet my financial objectives</span>
+              </td>
+              <td><input type="number" id="q5" min="1" max="5" value="" onchange="calcTotal()"></td>
+              <td class="weight">× 5</td>
+              <td class="total-cell" id="t5">-</td>
+            </tr>
+            <tr class="indirect-row">
+              <td class="q-text">
+                <span class="q-label">ข้อ 6: ไม่มีเหตุผล</span>
+                <span class="q-desc">There is no good reason why I continue to work at my current job</span>
+              </td>
+              <td><input type="number" id="q6" min="1" max="5" value="" onchange="calcTotal()"></td>
+              <td class="weight">× 10</td>
+              <td class="total-cell" id="t6">-</td>
+            </tr>
+            <tr class="summary-row">
+              <td colspan="1"><strong>Direct (ข้อ 1-3)</strong></td>
+              <td colspan="2" class="direct-total" id="directTotal">-</td>
+              <td></td>
+            </tr>
+            <tr class="summary-row">
+              <td colspan="1"><strong>Indirect (ข้อ 4-6)</strong></td>
+              <td colspan="2" class="indirect-total" id="indirectTotal">-</td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div class="q-desc">องค์กรแห่งนี้ตอบโจทย์เป้าหมายชีวิตของคุณอย่างไร? คุณมองเห็นตัวเองเติบโตที่นี่ในอีก 3-5 ปีข้างหน้าอย่างไร?</div>
-      <textarea id="answer2" placeholder="เขียนคำตอบที่นี่..." oninput="updateProgress()"></textarea>
+
+      <div style="text-align:center;margin:20px 0">
+        <button class="btn btn-primary" id="submitBtn" onclick="submitTest()" disabled>📊 ส่งและดูผล ToE</button>
+      </div>
     </div>
 
-    <!-- Question 3 -->
-    <div class="question-card" id="qCard3">
-      <div class="q-header">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div class="q-number">3</div>
-          <div>
-            <div class="q-title">การใช้ความสามารถเต็มประสิทธิภาพ</div>
-            <div class="q-measure">📏 วัด: Empowerment — โอกาสใช้ศักยภาพ</div>
-          </div>
-        </div>
+    <!-- Result -->
+    <div id="resultSection" style="display:none">
+      <div id="resultContent"></div>
+      <div style="text-align:center;margin:20px 0">
+        <button class="btn btn-secondary" onclick="resetTest()">🔄 ทำใหม่อีกครั้ง</button>
+        <button class="btn btn-primary" onclick="showScreen('team')">👥 ดูผลรวมทีม</button>
       </div>
-      <div class="q-desc">เล่าสถานการณ์ที่คุณได้ใช้ความสามารถสูงสุดในการทำงาน คุณรู้สึกอย่างไรเมื่อได้ทำสิ่งที่ถนัดและท้าทาย?</div>
-      <textarea id="answer3" placeholder="เขียนคำตอบที่นี่..." oninput="updateProgress()"></textarea>
-    </div>
-
-    <!-- Question 4 -->
-    <div class="question-card" id="qCard4">
-      <div class="q-header">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div class="q-number">4</div>
-          <div>
-            <div class="q-title">ความเป็นเจ้าของและความรับผิดชอบ</div>
-            <div class="q-measure">📏 วัด: Ownership — ความรู้สึกเป็นเจ้าของงาน</div>
-          </div>
-        </div>
-      </div>
-      <div class="q-desc">คุณมองว่าการทำงานเป็น 'หน้าที่ของทุกคน' อย่างไร? เล่าครั้งที่คุณทำเกินกว่าหน้าที่เพราะรู้สึกว่า 'นี่คืองานของเรา'</div>
-      <textarea id="answer4" placeholder="เขียนคำตอบที่นี่..." oninput="updateProgress()"></textarea>
-    </div>
-
-    <!-- Question 5 -->
-    <div class="question-card" id="qCard5">
-      <div class="q-header">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div class="q-number">5</div>
-          <div>
-            <div class="q-title">แรงจูงใจด้านค่าตอบแทนและความมั่นคง</div>
-            <div class="q-measure">📏 วัด: Extrinsic Motivation — แรงจูงใจภายนอก</div>
-          </div>
-        </div>
-      </div>
-      <div class="q-desc">ค่าตอบแทนและความมั่นคงทางเศรษฐกิจมีความสำคัญต่อคุณอย่างไร? คุณสมดุลระหว่าง 'งานที่รัก' กับ 'งานที่เลี้ยงครอบครัว' อย่างไร?</div>
-      <textarea id="answer5" placeholder="เขียนคำตอบที่นี่..." oninput="updateProgress()"></textarea>
-    </div>
-
-    <!-- Question 6 -->
-    <div class="question-card" id="qCard6">
-      <div class="q-header">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div class="q-number">6</div>
-          <div>
-            <div class="q-title">การจัดการช่วงขาดแรงจูงใจ</div>
-            <div class="q-measure">📏 วัด: Resilience — ความยืดหยุ่นทางจิตใจ</div>
-          </div>
-        </div>
-      </div>
-      <div class="q-desc">มีช่วงไหนที่คุณรู้สึกว่า 'ไม่มีแรงจูงใจในการทำงาน'? อะไรทำให้คุณผ่านช่วงนั้นมาได้ หรืออะไรที่จะทำให้คุณรู้สึกมีพลังอีกครั้ง?</div>
-      <textarea id="answer6" placeholder="เขียนคำตอบที่นี่..." oninput="updateProgress()"></textarea>
-    </div>
-
-    <div style="text-align:center;margin:24px 0">
-      <button class="btn btn-primary" id="submitBtn" onclick="submitTest()" disabled>📊 ส่งคำตอบและดูผลวิเคราะห์</button>
     </div>
   </div>
 
-  <!-- Result Screen -->
-  <div id="resultScreen" class="result-screen">
-    <h2>📊 ผลวิเคราะห์แรงจูงใจ 3E3P</h2>
-    <div id="resultContent"></div>
+  <!-- TEAM SCREEN -->
+  <div id="screen-team" class="screen">
+    <div class="info-box" style="margin-bottom:20px">
+      <h3>👥 ผลรวมทีม — Total Motivation</h3>
+      <p style="font-size:13px;color:#666">เลือก BU/ทีม เพื่อดูผลรวมของสมาชิกทั้งหมด</p>
+    </div>
+
+    <div class="form-row" style="max-width:600px;margin-bottom:20px">
+      <div class="form-group">
+        <label>เลือก BU</label>
+        <select id="filterBU" onchange="renderTeam()">
+          <option value="all">ทุก BU</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>เลือกทีม</label>
+        <select id="filterTeam" onchange="renderTeam()">
+          <option value="all">ทุกทีม</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="teamSummary"></div>
+    <div id="teamMembers"></div>
+    <div id="teamChart"></div>
+
+    <div style="text-align:center;margin:20px 0">
+      <button class="btn btn-danger" onclick="clearAllData()">🗑️ ล้างข้อมูลทั้งหมด</button>
+    </div>
   </div>
 </div>
 
 <script>
-// ===== STATE =====
-let timerInterval = null;
-let timeLeft = 20 * 60; // 20 minutes
-let testStarted = false;
-
-const questionMeta = {
-  1: { title: 'ความสนุกสนานในการทำงาน', measure: 'Engagement', group: 'intrinsic', color: '#667eea' },
-  2: { title: 'การตอบโจทย์เป้าหมายชีวิต', measure: 'Alignment', group: 'intrinsic', color: '#764ba2' },
-  3: { title: 'การใช้ความสามารถเต็มประสิทธิภาพ', measure: 'Empowerment', group: 'intrinsic', color: '#f093fb' },
-  4: { title: 'ความเป็นเจ้าของและความรับผิดชอบ', measure: 'Ownership', group: 'duty', color: '#4facfe' },
-  5: { title: 'แรงจูงใจด้านค่าตอบแทน', measure: 'Extrinsic', group: 'extrinsic', color: '#43e97b' },
-  6: { title: 'การจัดการช่วงขาดแรงจูงใจ', measure: 'Resilience', group: 'awareness', color: '#f5576c' }
+// ===== WEIGHTS =====
+const weights = { 1: 10, 2: 5, 3: 1.66, 4: 1.66, 5: 5, 6: 10 };
+const questionLabels = {
+  1: 'งานสนุก', 2: 'มีจุดมุ่งหมาย', 3: 'เติบโต',
+  4: 'กลัวผิดหวัง', 5: 'กลัว KPI ตก', 6: 'ไม่มีเหตุผล'
 };
+
+// ===== NAVIGATION =====
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.querySelectorAll('.nav-tab')[name === 'test' ? 0 : 1].classList.add('active');
+  if (name === 'team') renderTeam();
+}
 
 // ===== START TEST =====
 function startTest() {
   const name = document.getElementById('inputName').value.trim();
+  const bu = document.getElementById('inputBU').value;
   if (!name) { alert('กรุณากรอกชื่อ-นามสกุล'); return; }
+  if (!bu) { alert('กรุณาเลือก BU'); return; }
   
-  document.getElementById('welcomeScreen').style.display = 'none';
-  document.getElementById('testScreen').style.display = 'block';
-  document.getElementById('timerBar').style.display = 'flex';
-  testStarted = true;
-  
-  startTimer();
+  document.getElementById('welcomeSection').style.display = 'none';
+  document.getElementById('questionSection').style.display = 'block';
 }
 
-// ===== TIMER =====
-function startTimer() {
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    const min = Math.floor(timeLeft / 60);
-    const sec = timeLeft % 60;
-    const display = document.getElementById('timerDisplay');
-    display.textContent = `${String(min).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-    
-    if (timeLeft <= 120) display.classList.add('warning');
-    if (timeLeft <= 0) { clearInterval(timerInterval); submitTest(true); }
-  }, 1000);
-}
-
-// ===== PROGRESS =====
-function updateProgress() {
-  let answered = 0;
+// ===== CALCULATE =====
+function calcTotal() {
+  let allFilled = true;
+  let directTotal = 0;
+  let indirectTotal = 0;
+  
   for (let i = 1; i <= 6; i++) {
-    const val = document.getElementById('answer' + i).value.trim();
-    const card = document.getElementById('qCard' + i);
-    if (val.length > 0) { answered++; card.classList.add('answered'); }
-    else { card.classList.remove('answered'); }
+    const val = parseFloat(document.getElementById('q' + i).value);
+    const cell = document.getElementById('t' + i);
+    
+    if (isNaN(val) || val < 1 || val > 5) {
+      cell.textContent = '-';
+      if (document.getElementById('q' + i).value !== '') allFilled = false;
+    } else {
+      const total = val * weights[i];
+      cell.textContent = total.toFixed(2);
+      
+      if (i <= 3) directTotal += total;
+      else indirectTotal += total;
+    }
   }
   
-  document.getElementById('progressText').textContent = `ตอบแล้ว ${answered}/6 ข้อ`;
+  document.getElementById('directTotal').textContent = directTotal > 0 ? directTotal.toFixed(2) : '-';
+  document.getElementById('indirectTotal').textContent = indirectTotal > 0 ? indirectTotal.toFixed(2) : '-';
   
-  // Enable submit when all answered
-  const allDone = answered === 6;
-  document.getElementById('submitBtn').disabled = !allDone;
+  document.getElementById('submitBtn').disabled = !allFilled;
 }
 
 // ===== SUBMIT =====
-function submitTest(autoSubmit = false) {
-  if (autoSubmit) {
-    if (!confirm('หมดเวลาแล้ว! ต้องการส่งคำตอบเลยหรือไม่?')) return;
-  }
-  
-  clearInterval(timerInterval);
-  
-  // Collect data
+function submitTest() {
   const data = {
     name: document.getElementById('inputName').value.trim(),
     position: document.getElementById('inputPosition').value.trim(),
+    bu: document.getElementById('inputBU').value,
+    team: document.getElementById('inputTeam').value.trim(),
     timestamp: new Date().toISOString(),
-    timeUsed: (20 * 60) - timeLeft,
-    answers: {}
+    answers: {},
+    totals: {},
+    direct: 0,
+    indirect: 0,
+    toe: 0
   };
   
   for (let i = 1; i <= 6; i++) {
-    data.answers[i] = document.getElementById('answer' + i).value.trim();
+    const val = parseFloat(document.getElementById('q' + i).value);
+    data.answers[i] = val;
+    data.totals[i] = val * weights[i];
+    
+    if (i <= 3) data.direct += data.totals[i];
+    else data.indirect += data.totals[i];
   }
   
-  // Show results
-  document.getElementById('testScreen').style.display = 'none';
-  document.getElementById('timerBar').style.display = 'none';
-  document.getElementById('resultScreen').style.display = 'block';
+  data.direct = Math.round(data.direct * 100) / 100;
+  data.indirect = Math.round(data.indirect * 100) / 100;
+  data.toe = Math.round((data.direct - data.indirect) * 100) / 100;
   
-  renderResults(data);
-  
-  // Save to localStorage
+  // Save
   const history = JSON.parse(localStorage.getItem('3e3p_history') || '[]');
   history.push(data);
   localStorage.setItem('3e3p_history', JSON.stringify(history));
+  
+  // Show result
+  document.getElementById('questionSection').style.display = 'none';
+  document.getElementById('resultSection').style.display = 'block';
+  renderResult(data);
 }
 
-// ===== AI ANALYSIS ENGINE =====
-function analyzeAnswers(answers) {
-  // Keywords for each question type
-  const keywordMap = {
-    1: { // Engagement - ความสนุกสนาน
-      positive: ['สนุก', 'มีความสุข', 'ท้าทาย', 'พลัง', 'เบิกบาน', 'สนุก', 'ชอบ', 'รัก', 'ตื่นเต้น', 'สร้างสรรค์', 'ใหม่', 'ท้าทาย'],
-      negative: ['เบื่อ', 'routine', 'ซ้ำซาก', 'ไม่สนุก', 'เหนื่อย', 'หมดแรง'],
-      growth: ['เรียนรู้', 'เติบโต', 'พัฒนา', 'ใหม่', 'ท้าทาย'],
-      social: ['ทีม', 'เพื่อน', 'ร่วมงาน', 'ช่วยเหลือ', 'แบ่งปัน']
-    },
-    2: { // Alignment - เป้าหมายชีวิต
-      positive: ['เติบโต', 'โอกาส', 'เป้าหมาย', 'อนาคต', 'ก้าวหน้า', 'พัฒนา'],
-      negative: ['ไม่แน่ใจ', 'ไม่รู้', 'สับสน', 'ไม่ชัด'],
-      longterm: ['3 ปี', '5 ปี', 'อนาคต', 'ระยะยาว', 'เติบโต', 'ก้าวหน้า'],
-      learning: ['เรียนรู้', 'ประสบการณ์', 'บทเรียน', 'พัฒนา']
-    },
-    3: { // Empowerment - ใช้ศักยภาพ
-      positive: ['ความสามารถ', 'ศักยภาพ', 'ถนัด', 'เชี่ยวชาญ', 'สร้าง', 'พัฒนา'],
-      negative: ['ไม่ได้ใช้', 'ไม่ถนัด', 'ไม่ชอบ'],
-      achievement: ['สร้าง', 'พัฒนา', 'สำเร็จ', 'บรรลุ', 'ผลงาน'],
-      legacy: ['ส่งต่อ', 'สอน', 'แนะนำ', 'แบ่งปัน', 'น้อง', 'รุ่น']
-    },
-    4: { // Ownership - ความเป็นเจ้าของ
-      positive: ['รับผิดชอบ', 'เจ้าของ', 'เกินหน้าที่', 'ช่วย', 'อาสา', 'ลงมือ'],
-      negative: ['ไม่เกี่ยว', 'ไม่ใช่หน้าที่', 'ไม่ทำ'],
-      beyond: ['เกินหน้าที่', 'ไม่เกี่ยวกับงานหลัก', 'ช่วย', 'อาสา'],
-      team: ['ทีม', 'องค์กร', 'ทุกคน', 'ร่วมกัน', 'ส่วนร่วม']
-    },
-    5: { // Extrinsic - ค่าตอบแทน
-      positive: ['ค่าตอบแทน', 'เงินเดือน', 'มั่นคง', 'เศรษฐกิจ', 'ครอบครัว'],
-      negative: ['ไม่สำคัญ', 'ไม่สน', 'ไม่สนใจ'],
-      performance: ['ผลงาน', 'ประสิทธิภาพ', 'ผลลัพธ์', 'ทำก่อน'],
-      security: ['มั่นคง', 'ปลอดภัย', 'แน่นอน', 'รับประกัน']
-    },
-    6: { // Resilience - การจัดการขาดแรงจูงใจ
-      positive: ['ผ่าน', 'ไม่ย่อท้อ', 'พยายาม', 'สู้', 'เข้าใจ', 'ปรับตัว'],
-      negative: ['ยอมแพ้', 'ลาออก', 'ท้อ', 'หมดหวัง'],
-      resilience: ['ไม่ย่อท้อ', 'พยายาม', 'สู้', 'ผ่าน', 'อดทน'],
-      growth: ['เรียนรู้', 'เข้าใจ', 'ปรับตัว', 'พัฒนา']
-    }
-  };
+// ===== RENDER RESULT =====
+function renderResult(data) {
+  let category, catClass, catDesc;
+  if (data.toe >= 30) { category = ' Self-driven'; catClass = 'toe-positive'; catDesc = 'แรงจูงใจภายในสูง — ทำงานเพราะรักและมีความหมาย'; }
+  else if (data.toe >= 0) { category = '🟡 Mixed'; catClass = 'toe-neutral'; catDesc = 'แรงจูงใจผสม — มีทั้งภายในและภายนอก'; }
+  else { category = '🔴 Pressure-driven'; catClass = 'toe-negative'; catDesc = 'แรงกดดันสูง — ทำงานเพราะต้องทำ'; }
   
-  // Score each answer
-  const scores = {};
-  for (let qNum = 1; qNum <= 6; qNum++) {
-    const answer = (answers[qNum] || '').toLowerCase();
-    const keywords = keywordMap[qNum];
-    let score = 50; // Base score
-    
-    // Count positive keywords
-    for (let kw of keywords.positive) {
-      if (answer.includes(kw)) score += 8;
-    }
-    
-    // Subtract negative keywords
-    for (let kw of keywords.negative) {
-      if (answer.includes(kw)) score -= 10;
-    }
-    
-    // Bonus for specific patterns
-    if (keywords.growth) {
-      for (let kw of keywords.growth) {
-        if (answer.includes(kw)) score += 5;
-      }
-    }
-    if (keywords.social) {
-      for (let kw of keywords.social) {
-        if (answer.includes(kw)) score += 4;
-      }
-    }
-    if (keywords.longterm) {
-      for (let kw of keywords.longterm) {
-        if (answer.includes(kw)) score += 6;
-      }
-    }
-    if (keywords.achievement) {
-      for (let kw of keywords.achievement) {
-        if (answer.includes(kw)) score += 5;
-      }
-    }
-    if (keywords.legacy) {
-      for (let kw of keywords.legacy) {
-        if (answer.includes(kw)) score += 7;
-      }
-    }
-    if (keywords.beyond) {
-      for (let kw of keywords.beyond) {
-        if (answer.includes(kw)) score += 8;
-      }
-    }
-    if (keywords.performance) {
-      for (let kw of keywords.performance) {
-        if (answer.includes(kw)) score += 6;
-      }
-    }
-    if (keywords.resilience) {
-      for (let kw of keywords.resilience) {
-        if (answer.includes(kw)) score += 7;
-      }
-    }
-    
-    // Normalize to 0-100
-    scores[qNum] = Math.max(0, Math.min(100, score));
-  }
-  
-  // Sort by score (descending)
-  const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-  const ranks = {};
-  sorted.forEach(([qNum, score], idx) => {
-    ranks[qNum] = idx + 1;
-  });
-  
-  return { scores, ranks, sorted };
-}
-
-// ===== RENDER RESULTS =====
-function renderResults(data) {
-  const timeMin = Math.floor(data.timeUsed / 60);
-  const timeSec = data.timeUsed % 60;
-  
-  // AI Analysis
-  const analysis = analyzeAnswers(data.answers);
-  data.ranks = analysis.ranks;
-  
-  // Calculate group scores
-  const groupScores = { intrinsic: 0, duty: 0, extrinsic: 0, awareness: 0 };
-  const groupCount = { intrinsic: 0, duty: 0, extrinsic: 0, awareness: 0 };
-  
-  for (let qNum in analysis.scores) {
-    const group = questionMeta[qNum].group;
-    groupScores[group] += analysis.scores[qNum];
-    groupCount[group]++;
-  }
-  
-  // Average per group
-  const groupPct = {};
-  for (let g in groupScores) {
-    groupPct[g] = groupCount[g] > 0 ? Math.round(groupScores[g] / groupCount[g]) : 0;
-  }
-  
-  // Determine profile
-  const sortedGroups = Object.entries(groupPct).sort((a, b) => b[1] - a[1]);
-  const topGroup = sortedGroups[0][0];
-  const secondGroup = sortedGroups[1][0];
-  
-  const profileMap = {
-    'intrinsic+intrinsic': { type: '🌟 The Passionate Grower', desc: 'ขับเคลื่อนด้วยการเติบโต เรียนรู้ และท้าทายตัวเอง\nพร้อมสร้างสิ่งใหม่ มีความยืดหยุ่นสูง' },
-    'intrinsic+duty': { type: '🏗️ The Builder-Leader', desc: 'สร้างสิ่งใหม่ + รับผิดชอบสูง\nเป็นผู้นำที่ลงมือทำและพาทีมไปด้วยกัน' },
-    'intrinsic+extrinsic': { type: '🚀 The Ambitious Achiever', desc: 'เติบโต + ผลตอบแทนสูง\nมุ่งมั่นผลงาน มีเป้าหมายชัดเจน' },
-    'intrinsic+awareness': { type: '🧠 The Reflective Innovator', desc: 'สร้างสิ่งใหม่ + เข้าใจตัวเอง\nเป็นนักนวัตกรรมการเปลี่ยนแปลง' },
-    'duty+intrinsic': { type: '🤝 The Responsible Creator', desc: 'รับผิดชอบสูง + สร้างสิ่งใหม่\nเป็นเสาหลักของทีมที่พร้อมพัฒนา' },
-    'duty+duty': { type: '🛡️ The Steadfast Guardian', desc: 'รับผิดชอบสูงสุด เป็นที่พึ่งของทีม\nทำเกินหน้าที่เสมอ' },
-    'duty+extrinsic': { type: '💼 The Duty-Driven Professional', desc: 'ทำหน้าที่ + มองผลตอบแทน\nเป็นมืออาชีพที่เชื่อถือได้' },
-    'duty+awareness': { type: '⚖️ The Balanced Leader', desc: 'รับผิดชอบ + เข้าใจคน\nเป็นผู้นำที่สมดุล' },
-    'extrinsic+intrinsic': { type: '💎 The Strategic Achiever', desc: 'ผลตอบแทนนำ + เติบโตตาม\nมีกลยุทธ์ชัดเจนในชีวิต' },
-    'extrinsic+duty': { type: '📊 The Performance Professional', desc: 'ผลงาน + หน้าที่\nเป็นมืออาชีพที่วัดผลได้' },
-    'extrinsic+extrinsic': { type: '💰 The Security Seeker', desc: 'มุ่งเน้นความมั่นคงและผลตอบแทน\nต้องการความชัดเจน' },
-    'extrinsic+awareness': { type: '🎯 The Pragmatic Planner', desc: 'ปฏิบัติจริง + เข้าใจตัวเอง\nวางแผนชีวิตอย่างมีเหตุผล' },
-    'awareness+intrinsic': { type: '🔮 The Wise Grower', desc: 'เข้าใจตัวเอง + เติบโต\nมีปัญญาและวิสัยทัศน์' },
-    'awareness+duty': { type: '🧭 The Mindful Steward', desc: 'ตระหนักรู้ + รับผิดชอบ\nเป็นผู้ดูแลที่เข้าใจคน' },
-    'awareness+extrinsic': { type: '📐 The Calculated Builder', desc: 'เข้าใจตัวเอง + ปฏิบัติจริง\nสร้างอย่างมีแผน' },
-    'awareness+awareness': { type: '🪞 The Deep Reflector', desc: 'ตระหนักรู้สูงสุด เข้าใจตัวเองลึกซึ้ง\nต้องการเวลาและพื้นที่ในการเติบโต' }
-  };
-  
-  const profileKey = `${topGroup}+${secondGroup}`;
-  const profile = profileMap[profileKey] || { type: '🌈 The Unique Individual', desc: 'มีแรงจูงใจที่เป็นเอกลักษณ์ ผสมผสานหลายด้าน' };
-  
-  // Rank order
-  const rankOrder = Object.entries(data.ranks).sort((a, b) => a[1] - b[1]);
-  
-  let html = '';
-  
-  // Profile Card
-  html += `<div class="profile-card">
-    <div class="profile-type">${profile.type}</div>
-    <div class="profile-desc">${profile.desc.replace(/\n/g, '<br>')}</div>
-    <div style="margin-top:12px;opacity:0.7;font-size:12px">
-      ${data.name} | ${data.position || '-'} | เวลา ${timeMin}:${String(timeSec).padStart(2,'0')} นาที
+  let html = `
+    <div class="toe-result">
+      <div class="toe-label">Total Motivation (ToE)</div>
+      <div class="toe-value">${data.toe.toFixed(2)}</div>
+      <div class="toe-category ${catClass}">${category}</div>
+      <div style="margin-top:15px;opacity:0.8;font-size:13px">
+        ${data.name} | ${data.position || '-'} | ${data.bu} ${data.team ? '/ ' + data.team : ''}
+      </div>
     </div>
-  </div>`;
-  
-  // Bar Chart
-  const groupLabels = {
-    intrinsic: { name: 'Intrinsic (ภายใน)', icon: '🟢' },
-    duty: { name: 'Ownership (หน้าที่)', icon: '🤝' },
-    extrinsic: { name: 'Extrinsic (ภายนอก)', icon: '💰' },
-    awareness: { name: 'Self-Awareness', icon: '🧠' }
-  };
-  
-  html += `<div class="radar-placeholder">
-    <h3>📊 คะแนนแรงจูงใจรายกลุ่ม</h3>
-    <div class="chart-bars">`;
-  
-  for (let g of ['intrinsic', 'duty', 'extrinsic', 'awareness']) {
-    const pct = groupPct[g];
-    const label = groupLabels[g];
-    html += `<div class="bar-item">
-      <div class="bar-value">${pct}%</div>
-      <div class="bar-fill"><div class="fill" style="height:${pct}%"></div></div>
-      <div class="bar-label">${label.icon} ${label.name}</div>
-    </div>`;
-  }
-  
-  html += `</div></div>`;
-  
-  // Rank Order
-  html += `<div class="result-card">
-    <h3>📌 ลำดับแรงจูงใจ (จากสำคัญมาก → น้อย)</h3>`;
-  
-  rankOrder.forEach(([qNum, rank]) => {
-    const meta = questionMeta[qNum];
-    const answer = data.answers[qNum] || '(ไม่ได้ตอบ)';
-    const stars = '★'.repeat(7 - rank) + '☆'.repeat(rank - 1);
-    html += `<div class="result-item">
-      <div class="label">อันดับ ${rank}: ${meta.title} <span style="color:#43e97b">${stars}</span></div>
-      <div class="value" style="font-size:13px;color:#666;margin-top:4px">"${answer.substring(0, 120)}${answer.length > 120 ? '...' : ''}"</div>
-    </div>`;
-  });
-  
-  html += `</div>`;
-  
-  // Detailed Answers
-  html += `<div class="result-card">
-    <h3>📝 คำตอบทั้งหมด</h3>`;
+    
+    <div class="info-box">
+      <h3>📊 สรุปรายบุคคล</h3>
+      <table style="width:100%;font-size:14px">
+        <tr><td style="width:150px;font-weight:600">Direct (ข้อ 1-3)</td><td class="direct-total" style="font-size:18px;font-weight:bold">${data.direct.toFixed(2)}</td></tr>
+        <tr><td style="font-weight:600">Indirect (ข้อ 4-6)</td><td class="indirect-total" style="font-size:18px;font-weight:bold">${data.indirect.toFixed(2)}</td></tr>
+        <tr><td style="font-weight:600;border-top:2px solid #ddd;padding-top:8px">ToE = Direct − Indirect</td><td style="font-size:20px;font-weight:bold;border-top:2px solid #ddd;padding-top:8px">${data.toe.toFixed(2)}</td></tr>
+      </table>
+    </div>
+    
+    <div class="info-box">
+      <h3>📝 รายละเอียดแต่ละข้อ</h3>
+      <table style="width:100%;font-size:13px">
+        <tr style="background:#f5f5f5"><th style="padding:8px;text-align:left">ข้อ</th><th style="padding:8px;text-align:center">คะแนน</th><th style="padding:8px;text-align:center">Weight</th><th style="padding:8px;text-align:center">Total</th><th style="padding:8px;text-align:left">ประเภท</th></tr>`;
   
   for (let i = 1; i <= 6; i++) {
-    const meta = questionMeta[i];
-    const rank = data.ranks[i] || '-';
-    const answer = data.answers[i] || '(ไม่ได้ตอบ)';
-    html += `<div class="result-item">
-      <div class="label">ข้อ ${i}: ${meta.title} <span style="color:#999;font-size:12px">(อันดับ ${rank} | ${meta.measure})</span></div>
-      <div class="value">${answer}</div>
-    </div>`;
+    const type = i <= 3 ? 'Direct' : 'Indirect';
+    const typeColor = i <= 3 ? '#2e7d32' : '#c62828';
+    html += `<tr>
+      <td style="padding:8px"><strong>${i}. ${questionLabels[i]}</strong></td>
+      <td style="padding:8px;text-align:center;font-weight:bold">${data.answers[i]}</td>
+      <td style="padding:8px;text-align:center">× ${weights[i]}</td>
+      <td style="padding:8px;text-align:center;font-weight:bold">${data.totals[i].toFixed(2)}</td>
+      <td style="padding:8px;color:${typeColor};font-size:12px">${type}</td>
+    </tr>`;
   }
   
-  html += `</div>`;
+  html += `</table></div>`;
   
-  // HR Recommendation
-  html += `<div class="result-card">
-    <h3>💡 ข้อแนะนำสำหรับ HR</h3>
+  // Interpretation
+  html += `<div class="info-box">
+    <h3>💡 การตีความผล</h3>
     <div style="line-height:1.8;font-size:14px">
-      <strong>✅ เหมาะกับตำแหน่ง:</strong><br>
-      ${getRecommendation(topGroup, secondGroup, 'fit')}<br><br>
-      <strong>⚠️ ข้อควรระวัง:</strong><br>
-      ${getRecommendation(topGroup, secondGroup, 'caution')}<br><br>
-      <strong>🎁 สิ่งที่ทำให้มีพลัง:</strong><br>
-      ${getRecommendation(topGroup, secondGroup, 'motivate')}
-    </div>
-  </div>`;
+      <strong>ToE = ${data.toe.toFixed(2)}</strong> → ${catDesc}<br><br>
+      <strong>ข้อที่มีน้ำหนักสูงสุด:</strong><br>`;
   
-  // Back button
-  html += `<div style="text-align:center;margin:20px 0">
-    <button class="btn btn-secondary" onclick="location.reload()">🔄 ทำแบบทดสอบใหม่</button>
-  </div>`;
+  const sorted = Object.entries(data.totals).sort((a, b) => b[1] - a[1]);
+  sorted.forEach(([q, t]) => {
+    html += `• ข้อ ${q} (${questionLabels[q]}): ${t.toFixed(2)} คะแนน<br>`;
+  });
+  
+  html += `</div></div>`;
   
   document.getElementById('resultContent').innerHTML = html;
 }
 
-function getRecommendation(top, second, type) {
-  const recs = {
-    intrinsic: {
-      fit: '• ตำแหน่งที่ต้องสร้างสิ่งใหม่ / ระบบใหม่<br>• ผู้นำการเปลี่ยนแปลง (Change Agent)<br>• งานวิจัยและพัฒนา (R&D)',
-      caution: '• อย่าให้ทำงาน Routine นานเกินไป<br>• ต้องมีโปรเจกต์ท้าทายเสมอ',
-      motivate: '• โอกาสเรียนรู้สิ่งใหม่<br>• อิสระในการทดลอง<br>• เห็นผลงานส่งผลจริง'
-    },
-    duty: {
-      fit: '• ตำแหน่งบริหารทีม / หัวหน้างาน<br>• งานที่ต้องรับผิดชอบหลายด้าน<br>• ผู้ประสานงานข้ามหน่วยงาน',
-      caution: '• อย่าให้แบกรับงานมากเกินไป<br>• ต้องมีระบบ Support ที่ชัดเจน',
-      motivate: '• ความไว้วางใจจากองค์กร<br>• โอกาสได้ช่วยทีม<br>• การยอมรับในบทบาท'
-    },
-    extrinsic: {
-      fit: '• ตำแหน่งที่มี KPI ชัดเจน<br>• งานขาย / เป้าหมายตัวเลข<br>• บทบาทที่ต้องการความมุ่งมั่นสูง',
-      caution: '• ต้องมีความชัดเจนเรื่องค่าตอบแทน<br>• ถ้าไม่ชัดเจนจะลาออกง่าย',
-      motivate: '• โครงสร้างค่าตอบแทนที่โปร่งใส<br>• Bonus ตามผลงาน<br>• ความมั่นคงในระยะยาว'
-    },
-    awareness: {
-      fit: '• ตำแหน่ง Coaching / Mentoring<br>• งานที่ต้องเข้าใจคน<br>• ที่ปรึกษาองค์กร',
-      caution: '• ต้องการเวลาในการปรับตัว<br>• ต้องมีพื้นที่ปลอดภัยในการแสดงออก',
-      motivate: '• การรับฟังอย่างจริงใจ<br>• โอกาสได้สะท้อนตัวเอง<br>• วัฒนธรรมองค์กรที่เปิดกว้าง'
-    }
-  };
-  
-  return (recs[top]?.[type] || '') + '<br>' + (recs[second]?.[type] || '');
+// ===== RESET =====
+function resetTest() {
+  document.getElementById('welcomeSection').style.display = 'block';
+  document.getElementById('questionSection').style.display = 'none';
+  document.getElementById('resultSection').style.display = 'none';
+  for (let i = 1; i <= 6; i++) {
+    document.getElementById('q' + i).value = '';
+    document.getElementById('t' + i).textContent = '-';
+  }
+  document.getElementById('directTotal').textContent = '-';
+  document.getElementById('indirectTotal').textContent = '-';
+  document.getElementById('submitBtn').disabled = true;
 }
+
+// ===== TEAM RENDER =====
+function renderTeam() {
+  const history = JSON.parse(localStorage.getItem('3e3p_history') || '[]');
+  const filterBU = document.getElementById('filterBU').value;
+  const filterTeam = document.getElementById('filterTeam').value;
+  
+  // Populate filters
+  const bus = [...new Set(history.map(h => h.bu).filter(Boolean))];
+  const teams = [...new Set(history.map(h => h.team).filter(Boolean))];
+  
+  const buSelect = document.getElementById('filterBU');
+  const currentBU = buSelect.value;
+  buSelect.innerHTML = '<option value="all">ทุก BU</option>';
+  bus.forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b; opt.textContent = b;
+    if (b === currentBU) opt.selected = true;
+    buSelect.appendChild(opt);
+  });
+  
+  const teamSelect = document.getElementById('filterTeam');
+  const currentTeam = teamSelect.value;
+  teamSelect.innerHTML = '<option value="all">ทุกทีม</option>';
+  teams.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t; opt.textContent = t;
+    if (t === currentTeam) opt.selected = true;
+    teamSelect.appendChild(opt);
+  });
+  
+  // Filter
+  let filtered = history;
+  if (filterBU !== 'all') filtered = filtered.filter(h => h.bu === filterBU);
+  if (filterTeam !== 'all') filtered = filtered.filter(h => h.team === filterTeam);
+  
+  if (filtered.length === 0) {
+    document.getElementById('teamSummary').innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>ยังไม่มีข้อมูลในทีมที่เลือก</p></div>';
+    document.getElementById('teamMembers').innerHTML = '';
+    document.getElementById('teamChart').innerHTML = '';
+    return;
+  }
+  
+  // Calculate averages
+  const avgDirect = filtered.reduce((s, h) => s + h.direct, 0) / filtered.length;
+  const avgIndirect = filtered.reduce((s, h) => s + h.indirect, 0) / filtered.length;
+  const avgToE = filtered.reduce((s, h) => s + h.toe, 0) / filtered.length;
+  
+  let toeCategory, toeClass;
+  if (avgToE >= 30) { toeCategory = '🟢 Self-driven Team'; toeClass = 'toe-positive'; }
+  else if (avgToE >= 0) { toeCategory = '🟡 Mixed Team'; toeClass = 'toe-neutral'; }
+  else { toeCategory = '🔴 Pressure-driven Team'; toeClass = 'toe-negative'; }
+  
+  // Team Summary
+  document.getElementById('teamSummary').innerHTML = `
+    <div class="team-summary">
+      <div style="font-size:14px;opacity:0.8">ค่าเฉลี่ยทีม (${filtered.length} คน)</div>
+      <div class="avg-value">ToE: ${avgToE.toFixed(2)}</div>
+      <div style="font-size:16px;margin-top:8px">${toeCategory}</div>
+      <div style="display:flex;justify-content:center;gap:30px;margin-top:15px;font-size:13px">
+        <div>Direct: <strong>${avgDirect.toFixed(2)}</strong></div>
+        <div>Indirect: <strong>${avgIndirect.toFixed(2)}</strong></div>
+      </div>
+    </div>`;
+  
+  // Members list
+  let membersHtml = '<div class="team-card"><h3>👤 สมาชิกในทีม</h3>';
+  const sorted = [...filtered].sort((a, b) => b.toe - a.toe);
+  sorted.forEach(h => {
+    let cls = h.toe >= 30 ? 'toe-high' : h.toe >= 0 ? 'toe-mid' : 'toe-low';
+    membersHtml += `<div class="member-row">
+      <span class="name">${h.name} <span style="color:#999;font-size:12px">(${h.position || '-'})</span></span>
+      <span class="toe-score ${cls}">ToE: ${h.toe.toFixed(2)}</span>
+    </div>`;
+  });
+  membersHtml += '</div>';
+  document.getElementById('teamMembers').innerHTML = membersHtml;
+  
+  // Simple bar chart
+  let chartHtml = '<div class="team-card"><h3>📊 แผนภูมิ ToE รายบุคคล</h3><div style="padding:10px 0">';
+  sorted.forEach(h => {
+    const maxBar = 100;
+    const barWidth = Math.max(5, Math.min(100, ((h.toe + 50) / 100) * 100));
+    const color = h.toe >= 30 ? '#43e97b' : h.toe >= 0 ? '#ffd93d' : '#ff6b6b';
+    chartHtml += `<div style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px">
+        <span>${h.name}</span>
+        <span style="font-weight:bold">${h.toe.toFixed(2)}</span>
+      </div>
+      <div style="background:#f0f0f0;border-radius:4px;height:20px;overflow:hidden">
+        <div style="background:${color};height:100%;width:${barWidth}%;border-radius:4px;transition:width 0.5s"></div>
+      </div>
+    </div>`;
+  });
+  chartHtml += '</div></div>';
+  document.getElementById('teamChart').innerHTML = chartHtml;
+}
+
+// ===== CLEAR DATA =====
+function clearAllData() {
+  if (confirm('⚠️ ต้องการล้างข้อมูลทั้งหมดหรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้')) {
+    localStorage.removeItem('3e3p_history');
+    renderTeam();
+    alert('✅ ล้างข้อมูลแล้ว');
+  }
+}
+
+// ===== INIT =====
+window.onload = () => {
+  // Check if there's existing data
+  const history = JSON.parse(localStorage.getItem('3e3p_history') || '[]');
+  if (history.length > 0) {
+    console.log(`📊 มีข้อมูล ${history.length} รายการใน localStorage`);
+  }
+};
 </script>
 </body>
 </html>
