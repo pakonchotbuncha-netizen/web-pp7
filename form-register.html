@@ -15,7 +15,7 @@
     </style>
 </head>
 <body class="bg-gray-100" data-lang="th">
-    <!-- Language Switcher - Fixed Top -->
+    <!-- Language Switcher -->
     <div class="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
         <div class="max-w-4xl mx-auto px-4 py-2 flex justify-between items-center">
             <span class="text-sm font-medium text-gray-600">🌐 Language:</span>
@@ -35,13 +35,11 @@
             <p class="text-gray-600 mt-2" id="form-subtitle">กรุณากรอกข้อมูลให้ครบถ้วน</p>
         </div>
 
-        <!-- PDPA Consent Section -->
+        <!-- PDPA Consent -->
         <div class="bg-white shadow-lg p-6 border-b">
             <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
                 <h2 class="text-xl font-bold text-yellow-800 mb-2" id="consent-title">📋 ความยินยอมในการเก็บรวบรวมข้อมูลส่วนบุคคล</h2>
-                <div id="consent-content" class="text-sm text-gray-700 space-y-3 max-h-96 overflow-y-auto">
-                    <!-- Content will be loaded from JSON -->
-                </div>
+                <div id="consent-content" class="text-sm text-gray-700 space-y-3 max-h-96 overflow-y-auto"></div>
             </div>
             <div class="flex items-center gap-2 mt-4">
                 <input type="checkbox" id="consent-check" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
@@ -49,46 +47,115 @@
             </div>
         </div>
 
-        <!-- Form Start -->
+        <!-- Form -->
         <form id="application-form" class="bg-white shadow-lg">
-            <!-- Section 1: ข้อมูลส่วนตัว -->
+            
+            <!-- Section 1: ข้อมูลตำแหน่งที่สมัคร -->
             <div class="p-6 border-b">
-                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec1-title">📋 ข้อมูลส่วนตัว</h3>
-                
-                <!-- Photo Upload -->
-                <div class="flex justify-center mb-4">
-                    <div class="text-center">
-                        <div class="w-32 h-40 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50 mb-2">
-                            <img id="photo-preview" src="" alt="" class="hidden w-full h-full object-cover rounded-lg">
-                            <span id="photo-placeholder" class="text-gray-400 text-sm">📷<br>อัพโหลดรูป</span>
-                        </div>
-                        <input type="file" id="photo" accept="image/*" class="hidden" onchange="previewPhoto(this)">
-                        <button type="button" onclick="document.getElementById('photo').click()" class="text-blue-600 text-sm hover:underline" id="btn-upload-photo">อัพโหลดรูปถ่าย</button>
+                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec1-title">💼 ข้อมูลตำแหน่งที่สมัคร</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-position-open">ตำแหน่งงานที่เปิดรับ</label>
+                        <select id="position-open" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- เลือก --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-position-other">ตำแหน่งงานอื่นที่สนใจแต่ไม่เปิดรับ</label>
+                        <select id="position-other" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- เลือก --</option>
+                        </select>
                     </div>
                 </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-salary">เงินเดือนที่คาดหวัง</label>
+                    <input type="text" id="salary" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-app-channel">ช่องทางการสมัคร</label>
+                    <div class="flex flex-wrap gap-8">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="appChannel" value="website" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-channel-web">สมัครจาก website</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="appChannel" value="office" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-channel-office">มาสมัครที่บริษัท</span>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-source">ทราบข่าวการรับสมัครงานจากช่องทางใด</label>
+                    <div class="space-y-2">
+                        <label class="flex items-start gap-2 cursor-pointer"><input type="radio" name="source" value="facebook" class="w-4 h-4 text-blue-600 mt-0.5"><span class="text-sm text-gray-700" id="opt-src-1">1. Facebook</span></label>
+                        <label class="flex items-start gap-2 cursor-pointer"><input type="radio" name="source" value="store-sign" class="w-4 h-4 text-blue-600 mt-0.5"><span class="text-sm text-gray-700" id="opt-src-2">2. ป้ายหน้าร้าน (เข้ามาที่สำนักงาน)</span></label>
+                        <label class="flex items-start gap-2 cursor-pointer"><input type="radio" name="source" value="friend" class="w-4 h-4 text-blue-600 mt-0.5"><span class="text-sm text-gray-700" id="opt-src-3">3. เพื่อน / คนรู้จัก</span></label>
+                        <label class="flex items-start gap-2 cursor-pointer"><input type="radio" name="source" value="company-website" class="w-4 h-4 text-blue-600 mt-0.5"><span class="text-sm text-gray-700" id="opt-src-4">4. Website บริษัท</span></label>
+                        <label class="flex items-start gap-2 cursor-pointer"><input type="radio" name="source" value="company-line" class="w-4 h-4 text-blue-600 mt-0.5"><span class="text-sm text-gray-700" id="opt-src-5">5. Line บริษัท</span></label>
+                        <label class="flex items-start gap-2 cursor-pointer"><input type="radio" name="source" value="employee-referral" class="w-4 h-4 text-blue-600 mt-0.5"><span class="text-sm text-gray-700" id="opt-src-6">6. พนักงานภายในบริษัทแนะนำ</span></label>
+                        <label class="flex items-start gap-2 cursor-pointer"><input type="radio" name="source" value="education" class="w-4 h-4 text-blue-600 mt-0.5"><span class="text-sm text-gray-700" id="opt-src-7">7. สถานศึกษา</span></label>
+                        <label class="flex items-start gap-2 cursor-pointer"><input type="radio" name="source" value="mr-representative" class="w-4 h-4 text-blue-600 mt-0.5"><span class="text-sm text-gray-700" id="opt-src-8">8. ตัวแทนบริษัท MR (นายหน้า ผู้ใหญ่ เนภูมิ นายบ้าน)</span></label>
+                        <label class="flex items-start gap-2 cursor-pointer"><input type="radio" name="source" value="provincial-employment" class="w-4 h-4 text-blue-600 mt-0.5"><span class="text-sm text-gray-700 font-semibold" id="opt-src-9">9. สำนักงานจัดหางานจังหวัด</span></label>
+                        <div class="ml-6 space-y-2">
+                            <label class="flex items-start gap-2 cursor-pointer"><input type="radio" name="source" value="prov-website" class="w-4 h-4 text-blue-600 mt-0.5"><span class="text-sm text-gray-700" id="opt-src-9a">Website สำนักงานจัดหางานจังหวัด</span></label>
+                            <label class="flex items-start gap-2 cursor-pointer"><input type="radio" name="source" value="prov-facebook" class="w-4 h-4 text-blue-600 mt-0.5"><span class="text-sm text-gray-700" id="opt-src-9b">Facebook สำนักงานจัดหางานจังหวัด</span></label>
+                            <label class="flex items-start gap-2 cursor-pointer"><input type="radio" name="source" value="prov-line" class="w-4 h-4 text-blue-600 mt-0.5"><span class="text-sm text-gray-700" id="opt-src-9c">Line สำนักงานจัดหางานจังหวัด</span></label>
+                            <label class="flex items-start gap-2 cursor-pointer"><input type="radio" name="source" value="labor-dev" class="w-4 h-4 text-blue-600 mt-0.5"><span class="text-sm text-gray-700" id="opt-src-9d">มุมกรมพัฒนาแรงงาน</span></label>
+                            <label class="flex items-start gap-2 cursor-pointer"><input type="radio" name="source" value="registered" class="w-4 h-4 text-blue-600 mt-0.5"><span class="text-sm text-gray-700" id="opt-src-9e">ลงชื่อกับสำนักงานจัดหางาน</span></label>
+                        </div>
+                        <label class="flex items-start gap-2 cursor-pointer"><input type="radio" name="source" value="jobfair" class="w-4 h-4 text-blue-600 mt-0.5"><span class="text-sm text-gray-700" id="opt-src-10">10. มหกรรมนัดพบแรงงาน</span></label>
+                        <label class="flex items-start gap-2 cursor-pointer"><input type="radio" name="source" value="other" class="w-4 h-4 text-blue-600 mt-0.5"><span class="text-sm text-gray-700" id="opt-src-11">11. อื่นๆ</span></label>
+                    </div>
+                </div>
+            </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Section 2: ข้อมูลส่วนตัว -->
+            <div class="p-6 border-b bg-gray-50">
+                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec2-title">👤 ข้อมูลส่วนตัวของผู้สมัคร</h3>
+                
+                <!-- ชื่อไทย -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-prefix">คำนำหน้า</label>
-                        <select id="prefix" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-prefix-th">คำนำหน้า (ภาษาไทย)</label>
+                        <select id="prefix-th" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                             <option value="">-- เลือก --</option>
                             <option value="mr">นาย</option>
                             <option value="mrs">นาง</option>
                             <option value="miss">นางสาว</option>
-                            <option value="other">อื่นๆ</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-firstname">ชื่อ</label>
-                        <input type="text" id="firstname" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-firstname-th">ชื่อ (ภาษาไทย)</label>
+                        <input type="text" id="firstname-th" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-lastname">นามสกุล</label>
-                        <input type="text" id="lastname" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-lastname-th">นามสกุล (ภาษาไทย)</label>
+                        <input type="text" id="lastname-th" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <!-- ชื่ออังกฤษ -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-prefix-en">คำนำหน้า (English)</label>
+                        <select id="prefix-en" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- Select --</option>
+                            <option value="mr">Mr.</option>
+                            <option value="mrs">Mrs.</option>
+                            <option value="miss">Miss</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-firstname-en">First Name (English)</label>
+                        <input type="text" id="firstname-en" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-lastname-en">Last Name (English)</label>
+                        <input type="text" id="lastname-en" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-nickname">ชื่อเล่น</label>
                         <input type="text" id="nickname" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
@@ -97,34 +164,212 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-gender">เพศ</label>
                         <select id="gender" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                             <option value="">-- เลือก --</option>
-                            <option value="male">ชาย</option>
-                            <option value="female">หญิง</option>
+                            <option value="male" id="opt-male">ชาย</option>
+                            <option value="female" id="opt-female">หญิง</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-birthdate">วัน/เดือน/ปี เกิด</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-birthdate">วันเกิด</label>
                         <input type="date" id="birthdate" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500" onchange="calcAge()">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-age">อายุ</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-age">อายุ</label>
                         <input type="text" id="age" readonly class="w-full px-3 py-2 border border-gray-200 rounded bg-gray-50">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-nationality">สัญชาติ</label>
-                        <input type="text" id="nationality" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-weight">น้ำหนัก (กก.)</label>
+                        <input type="number" id="weight" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-idcard">เลขบัตร ปชช./พาสปอร์ต</label>
-                        <input type="text" id="idcard" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-height">ส่วนสูง (ซม.)</label>
+                        <input type="number" id="height" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-blood">กรุ๊ปเลือด</label>
+                        <select id="blood" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- เลือก --</option>
+                            <option value="O">O</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="AB">AB</option>
+                        </select>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-marital">สถานภาพ</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-ethnicity">เชื้อชาติ</label>
+                        <select id="ethnicity" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- เลือก --</option>
+                            <option value="thai">ไทย</option>
+                            <option value="lao">ลาว</option>
+                            <option value="khmer">กัมพูชา</option>
+                            <option value="chinese">จีน</option>
+                            <option value="vietnamese">เวียดนาม</option>
+                            <option value="other">อื่นๆ</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-nationality">สัญชาติ</label>
+                        <select id="nationality" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- เลือก --</option>
+                            <option value="thai">ไทย</option>
+                            <option value="lao">ลาว</option>
+                            <option value="khmer">กัมพูชา</option>
+                            <option value="other">อื่นๆ</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-education">การศึกษา</label>
+                        <select id="education" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- เลือก --</option>
+                            <option value="below-highschool">ต่ำกว่ามัธยมศึกษา</option>
+                            <option value="highschool">มัธยมศึกษา</option>
+                            <option value="vocational">ปวช.</option>
+                            <option value="high-vocational">ปวส.</option>
+                            <option value="bachelor">ปริญญาตรี</option>
+                            <option value="master">ปริญญาโท</option>
+                            <option value="doctorate">ปริญญาเอก</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-major">สาขาวิชา</label>
+                        <input type="text" id="major" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-upload-degree">อัพโหลดรูปภาพวุฒิการศึกษา</label>
+                        <input type="file" id="upload-degree" accept="image/*,.pdf" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-idcard">รหัสบัตรประชาชน</label>
+                        <input type="text" id="idcard" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-idcard-place">สถานที่ออกบัตรประชาชน</label>
+                        <input type="text" id="idcard-place" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-idcard-issue">วันที่ออกบัตร</label>
+                        <input type="date" id="idcard-issue" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-idcard-expire">วันที่บัตรหมดอายุ</label>
+                        <input type="date" id="idcard-expire" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-upload-photo">อัพโหลดรูปผู้สมัคร</label>
+                    <input type="file" id="upload-photo" accept="image/*" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <!-- Section 3: ที่อยู่ตามทะเบียนบ้าน -->
+            <div class="p-6 border-b">
+                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec3-title">🏠 ที่อยู่ตามทะเบียนบ้าน</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-reg-house">บ้านเลขที่</label>
+                        <input type="text" id="reg-house" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-reg-subdistrict">ตำบล</label>
+                        <input type="text" id="reg-subdistrict" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-reg-district">อำเภอ</label>
+                        <input type="text" id="reg-district" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-reg-province">จังหวัด</label>
+                        <input type="text" id="reg-province" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-reg-postal">รหัสไปรษณีย์</label>
+                        <input type="text" id="reg-postal" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: ที่อยู่ปัจจุบัน -->
+            <div class="p-6 border-b bg-gray-50">
+                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec4-title">📍 ที่อยู่ปัจจุบัน</h3>
+                <div class="mb-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="same-as-reg" class="w-4 h-4 text-blue-600 rounded" onchange="copyAddress()">
+                        <span class="text-sm text-gray-700" id="lbl-same-address">ที่อยู่ปัจจุบัน = ที่อยู่ตามทะเบียนบ้าน</span>
+                    </label>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-cur-house">บ้านเลขที่</label>
+                        <input type="text" id="cur-house" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-cur-subdistrict">ตำบล</label>
+                        <input type="text" id="cur-subdistrict" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-cur-district">อำเภอ</label>
+                        <input type="text" id="cur-district" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-cur-province">จังหวัด</label>
+                        <input type="text" id="cur-province" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-cur-postal">รหัสไปรษณีย์</label>
+                        <input type="text" id="cur-postal" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-phone">เบอร์โทรศัพท์</label>
+                        <input type="tel" id="phone" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500" placeholder="08083491xx">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-facebook">Facebook</label>
+                        <input type="text" id="facebook" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-line">ID Line</label>
+                        <input type="text" id="line" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3" id="lbl-military">สถานะทางทหาร</label>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="military" value="exempt" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-mil-1">ยกเว้น</span></label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="military" value="passed" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-mil-2">ผ่านเกณฑ์</span></label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="military" value="not-yet" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-mil-3">ยังไม่ผ่านเกณฑ์</span></label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="military" value="discharged" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-mil-4">ปลดประจำการ</span></label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="military" value="studying" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-mil-5">ศึกษาวิชาทหาร</span></label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 5: ข้อมูลด้านครอบครัว -->
+            <div class="p-6 border-b">
+                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec5-title">👨‍👩‍👧‍👦 ข้อมูลด้านครอบครัว</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-marital">สถานะการสมรส</label>
                         <select id="marital" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                             <option value="">-- เลือก --</option>
                             <option value="single">โสด</option>
@@ -134,387 +379,250 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-height">ส่วนสูง (ซม.)</label>
-                        <input type="number" id="height" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-weight">น้ำหนัก (กก.)</label>
-                        <input type="number" id="weight" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section 2: ที่อยู่ -->
-            <div class="p-6 border-b bg-gray-50">
-                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec2-title">📍 ที่อยู่ปัจจุบัน</h3>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-address">ที่อยู่</label>
-                    <textarea id="address" rows="2" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"></textarea>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-district">แขวง/เขต</label>
-                        <input type="text" id="district" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-province">จังหวัด/รัฐ</label>
-                        <input type="text" id="province" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-postal">รหัสไปรษณีย์</label>
-                        <input type="text" id="postal" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-country">ประเทศ</label>
-                    <input type="text" id="country" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                </div>
-            </div>
-
-            <!-- Section 3: ข้อมูลติดต่อ -->
-            <div class="p-6 border-b">
-                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec3-title">📞 ข้อมูลติดต่อ</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-phone">เบอร์โทรศัพท์</label>
-                        <input type="tel" id="phone" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-phone2">เบอร์สำรอง</label>
-                        <input type="tel" id="phone2" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-email">อีเมล</label>
-                        <input type="email" id="email" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-line">Line ID</label>
-                        <input type="text" id="line" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-facebook">Facebook</label>
-                    <input type="text" id="facebook" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                </div>
-            </div>
-
-            <!-- Section 4: ตำแหน่งที่สมัคร -->
-            <div class="p-6 border-b bg-gray-50">
-                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec4-title">💼 ตำแหน่งที่สมัคร</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-position">ตำแหน่ง</label>
-                        <input type="text" id="position" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-department">แผนก/ฝ่าย</label>
-                        <input type="text" id="department" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-branch">สาขา</label>
-                        <input type="text" id="branch" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-salary">เงินเดือนที่คาดหวัง</label>
-                        <input type="text" id="salary" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-startdate">วันที่เริ่มงานได้</label>
-                        <input type="date" id="startdate" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section 5: การศึกษา -->
-            <div class="p-6 border-b">
-                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec5-title">🎓 การศึกษา</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-edulevel">ระดับการศึกษาสูงสุด</label>
-                        <select id="edulevel" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-children">จำนวนบุตร</label>
+                        <select id="children" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                             <option value="">-- เลือก --</option>
-                            <option value="below-highschool">ต่ำกว่ามัธยมศึกษา</option>
-                            <option value="highschool">มัธยมศึกษา</option>
-                            <option value="vocational">ปวช./ปวส.</option>
-                            <option value="bachelor">ปริญญาตรี</option>
-                            <option value="master">ปริญญาโท</option>
-                            <option value="doctorate">ปริญญาเอก</option>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="more">มากกว่า 3</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-institution">สถาบัน/มหาวิทยาลัย</label>
-                        <input type="text" id="institution" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-major">สาขาวิชา</label>
-                        <input type="text" id="major" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-gpa">เกรดเฉลี่ย (GPA)</label>
-                        <input type="text" id="gpa" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-gradyear">ปีที่จบ</label>
-                        <input type="number" id="gradyear" min="1950" max="2099" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section 6: ประสบการณ์ทำงาน -->
-            <div class="p-6 border-b bg-gray-50">
-                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec6-title">💼 ประสบการณ์ทำงาน</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-company">ชื่อบริษัทล่าสุด</label>
-                        <input type="text" id="company" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-lastpos">ตำแหน่งล่าสุด</label>
-                        <input type="text" id="lastpos" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-duration">ระยะเวลาทำงาน</label>
-                        <div class="flex gap-2">
-                            <input type="number" id="dur-years" min="0" max="50" placeholder="ปี" class="w-1/2 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                            <input type="number" id="dur-months" min="0" max="11" placeholder="เดือน" class="w-1/2 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-reasonleave">เหตุผลที่ออกจากงาน</label>
-                        <input type="text" id="reasonleave" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-responsibilities">หน้าที่ความรับผิดชอบ</label>
-                    <textarea id="responsibilities" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"></textarea>
-                </div>
-            </div>
-
-            <!-- Section 7: ใบอนุญาต -->
-            <div class="p-6 border-b">
-                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec7-title">📜 ใบอนุญาต/ใบรับรอง</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-license">ใบอนุญาตประกอบวิชาชีพ</label>
-                        <input type="text" id="license" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-driving">ใบขับขี่</label>
-                        <select id="driving" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                            <option value="">-- ไม่มี --</option>
-                            <option value="car">รถยนต์</option>
-                            <option value="motorcycle">รถจักรยานยนต์</option>
-                            <option value="both">ทั้งสองอย่าง</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-othercert">ใบรับรองอื่นๆ</label>
-                        <input type="text" id="othercert" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section 8: ผู้ติดต่อฉุกเฉิน -->
-            <div class="p-6 border-b bg-gray-50">
-                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec8-title">🚨 ผู้ติดต่อกรณีฉุกเฉิน</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-emergname">ชื่อ-นามสกุล</label>
-                        <input type="text" id="emergname" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-emergrel">ความสัมพันธ์</label>
-                        <input type="text" id="emergrel" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-emergphone">เบอร์โทรศัพท์</label>
-                        <input type="tel" id="emergphone" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section 9: บุคคลอ้างอิง -->
-            <div class="p-6 border-b">
-                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec9-title">👥 บุคคลอ้างอิง</h3>
-                <p class="text-sm text-gray-600 mb-4" id="ref-subtitle">ระบุบุคคลที่สามารถอ้างอิงได้ 2 ท่าน</p>
-                
-                <div class="border rounded-lg p-4 mb-4">
-                    <p class="font-medium text-gray-700 mb-2" id="ref1-title">บุคคลอ้างอิงที่ 1</p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-ref1name">ชื่อ-นามสกุล</label>
-                            <input type="text" id="ref1name" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-ref1pos">ตำแหน่ง</label>
-                            <input type="text" id="ref1pos" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-ref1company">บริษัท</label>
-                            <input type="text" id="ref1company" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-ref1phone">เบอร์โทรศัพท์</label>
-                            <input type="tel" id="ref1phone" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="border rounded-lg p-4">
-                    <p class="font-medium text-gray-700 mb-2" id="ref2-title">บุคคลอ้างอิงที่ 2</p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-ref2name">ชื่อ-นามสกุล</label>
-                            <input type="text" id="ref2name" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-ref2pos">ตำแหน่ง</label>
-                            <input type="text" id="ref2pos" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-ref2company">บริษัท</label>
-                            <input type="text" id="ref2company" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-ref2phone">เบอร์โทรศัพท์</label>
-                            <input type="tel" id="ref2phone" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section 10: อัพโหลดเอกสาร -->
-            <div class="p-6 border-b bg-gray-50">
-                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec10-title">📎 อัพโหลดเอกสาร</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-resume">Resume/CV</label>
-                        <input type="file" id="resume" accept=".pdf,.doc,.docx" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                        <p class="text-xs text-gray-500 mt-1">PDF, DOC, DOCX (สูงสุด 5MB)</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-degree">ใบปริญญา</label>
-                        <input type="file" id="degree" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                        <p class="text-xs text-gray-500 mt-1">PDF, JPG, PNG (สูงสุด 5MB)</p>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-cert">ใบรับรองการทำงาน</label>
-                    <input type="file" id="cert" accept=".pdf,.jpg,.jpeg,.png" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                    <p class="text-xs text-gray-500 mt-1">PDF, JPG, PNG (สูงสุด 5MB)</p>
-                </div>
-            </div>
-            <!-- Section 11: ช่องทางการสมัครและแหล่งข่าว -->
-            <div class="p-6 border-b">
-                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec11-title">📝 ช่องทางการสมัครและแหล่งข่าว</h3>
-                
-                <!-- ช่องทางการสมัคร -->
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-application-channel">ช่องทางการสมัคร*:</label>
-                    <div class="flex flex-wrap gap-8">
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="applicationChannel" value="website" class="w-4 h-4 text-blue-600">
-                            <span class="text-sm text-gray-700" id="opt-channel-website">สมัครจากwebsite</span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="radio" name="applicationChannel" value="office" class="w-4 h-4 text-blue-600">
-                            <span class="text-sm text-gray-700" id="opt-channel-office">มาสมัครที่บริษัท</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- ทราบข่าวจากช่องทางใด -->
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-source">ทราบข่าวการรับสมัครงานจากช่องทางใด*:</label>
-                    <div class="space-y-2">
-                        <label class="flex items-start gap-2 cursor-pointer">
-                            <input type="radio" name="source" value="facebook" class="w-4 h-4 text-blue-600 mt-0.5">
-                            <span class="text-sm text-gray-700" id="opt-source-facebook">1. Facebook</span>
-                        </label>
-                        <label class="flex items-start gap-2 cursor-pointer">
-                            <input type="radio" name="source" value="store-sign" class="w-4 h-4 text-blue-600 mt-0.5">
-                            <span class="text-sm text-gray-700" id="opt-source-store-sign">2. ป้ายหน้าร้าน (เข้ามาที่สำนักงาน)</span>
-                        </label>
-                        <label class="flex items-start gap-2 cursor-pointer">
-                            <input type="radio" name="source" value="friend" class="w-4 h-4 text-blue-600 mt-0.5">
-                            <span class="text-sm text-gray-700" id="opt-source-friend">3. เพื่อน / คนรู้จัก</span>
-                        </label>
-                        <label class="flex items-start gap-2 cursor-pointer">
-                            <input type="radio" name="source" value="company-website" class="w-4 h-4 text-blue-600 mt-0.5">
-                            <span class="text-sm text-gray-700" id="opt-source-company-website">4. Website บริษัท</span>
-                        </label>
-                        <label class="flex items-start gap-2 cursor-pointer">
-                            <input type="radio" name="source" value="company-line" class="w-4 h-4 text-blue-600 mt-0.5">
-                            <span class="text-sm text-gray-700" id="opt-source-company-line">5. Line บริษัท</span>
-                        </label>
-                        <label class="flex items-start gap-2 cursor-pointer">
-                            <input type="radio" name="source" value="employee-referral" class="w-4 h-4 text-blue-600 mt-0.5">
-                            <span class="text-sm text-gray-700" id="opt-source-employee-referral">6. พนักงานภายในบริษัทแนะนำ</span>
-                        </label>
-                        <label class="flex items-start gap-2 cursor-pointer">
-                            <input type="radio" name="source" value="education" class="w-4 h-4 text-blue-600 mt-0.5">
-                            <span class="text-sm text-gray-700" id="opt-source-education">7. สถานศึกษา</span>
-                        </label>
-                        <label class="flex items-start gap-2 cursor-pointer">
-                            <input type="radio" name="source" value="mr-representative" class="w-4 h-4 text-blue-600 mt-0.5">
-                            <span class="text-sm text-gray-700" id="opt-source-mr-representative">8. ตัวแทนบริษัท MR (นายหน้า ผู้ใหญ่ เนภูมิ นายบ้าน)</span>
-                        </label>
-                        <label class="flex items-start gap-2 cursor-pointer">
-                            <input type="radio" name="source" value="provincial-employment" class="w-4 h-4 text-blue-600 mt-0.5">
-                            <span class="text-sm text-gray-700 font-semibold" id="opt-source-provincial-employment">9. สำนักงานจัดหางานจังหวัด</span>
-                        </label>
-                        <!-- Sub-options for #9 -->
-                        <div class="ml-6 space-y-2">
-                            <label class="flex items-start gap-2 cursor-pointer">
-                                <input type="radio" name="source" value="provincial-employment-website" class="w-4 h-4 text-blue-600 mt-0.5">
-                                <span class="text-sm text-gray-700" id="opt-source-provincial-employment-website">Website สำนักงานจัดหางานจังหวัด</span>
-                            </label>
-                            <label class="flex items-start gap-2 cursor-pointer">
-                                <input type="radio" name="source" value="provincial-employment-facebook" class="w-4 h-4 text-blue-600 mt-0.5">
-                                <span class="text-sm text-gray-700" id="opt-source-provincial-employment-facebook">Facebook สำนักงานจัดหางานจังหวัด</span>
-                            </label>
-                            <label class="flex items-start gap-2 cursor-pointer">
-                                <input type="radio" name="source" value="provincial-employment-line" class="w-4 h-4 text-blue-600 mt-0.5">
-                                <span class="text-sm text-gray-700" id="opt-source-provincial-employment-line">Line สำนักงานจัดหางานจังหวัด</span>
-                            </label>
-                            <label class="flex items-start gap-2 cursor-pointer">
-                                <input type="radio" name="source" value="labor-development" class="w-4 h-4 text-blue-600 mt-0.5">
-                                <span class="text-sm text-gray-700" id="opt-source-labor-development">มุมกรมพัฒนาแรงงาน</span>
-                            </label>
-                            <label class="flex items-start gap-2 cursor-pointer">
-                                <input type="radio" name="source" value="registered-employment" class="w-4 h-4 text-blue-600 mt-0.5">
-                                <span class="text-sm text-gray-700" id="opt-source-registered-employment">ลงชื่อกับสำนักงานจัดหางาน</span>
-                            </label>
-                        </div>
-                        <label class="flex items-start gap-2 cursor-pointer">
-                            <input type="radio" name="source" value="other" class="w-4 h-4 text-blue-600 mt-0.5">
-                            <span class="text-sm text-gray-700" id="opt-source-other">10. อื่นๆ</span>
-                        </label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-family-info">ชื่อ-นามสกุล เบอร์โทร ข้อมูลครอบครัว</label>
+                    <textarea id="family-info" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-father">ชื่อ-นามสกุล บิดา</label>
+                        <input type="text" id="father" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-mother">ชื่อ-นามสกุล มารดา</label>
+                        <input type="text" id="mother" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
             </div>
 
-            <!-- Submit Buttons -->
+            <!-- Section 6: ข้อมูลด้านความสามารถ -->
+            <div class="p-6 border-b bg-gray-50">
+                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec6-title">💪 ข้อมูลด้านความสามารถ</h3>
+                
+                <!-- ภาษาไทย Matrix -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2 required" id="lbl-thai-skill">ความสามารถทางภาษาไทย</label>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="border px-3 py-2 text-left"></th>
+                                    <th class="border px-3 py-2 text-center" id="lbl-skill-0">ไม่ได้</th>
+                                    <th class="border px-3 py-2 text-center" id="lbl-skill-1">พอใช้</th>
+                                    <th class="border px-3 py-2 text-center" id="lbl-skill-2">ปานกลาง</th>
+                                    <th class="border px-3 py-2 text-center" id="lbl-skill-3">ดี</th>
+                                    <th class="border px-3 py-2 text-center" id="lbl-skill-4">ดีเยี่ยม</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="border px-3 py-2" id="lbl-thai-listen">ฟัง</td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-listen" value="0" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-listen" value="1" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-listen" value="2" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-listen" value="3" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-listen" value="4" class="w-4 h-4"></td></tr>
+                                <tr><td class="border px-3 py-2" id="lbl-thai-speak">พูด</td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-speak" value="0" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-speak" value="1" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-speak" value="2" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-speak" value="3" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-speak" value="4" class="w-4 h-4"></td></tr>
+                                <tr><td class="border px-3 py-2" id="lbl-thai-read">อ่าน</td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-read" value="0" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-read" value="1" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-read" value="2" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-read" value="3" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-read" value="4" class="w-4 h-4"></td></tr>
+                                <tr><td class="border px-3 py-2" id="lbl-thai-write">เขียน</td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-write" value="0" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-write" value="1" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-write" value="2" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-write" value="3" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="thai-write" value="4" class="w-4 h-4"></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ภาษาอังกฤษ Matrix -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2 required" id="lbl-eng-skill">ความสามารถทางภาษาอังกฤษ</label>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm border-collapse">
+                            <thead>
+                                <tr class="bg-gray-100">
+                                    <th class="border px-3 py-2 text-left"></th>
+                                    <th class="border px-3 py-2 text-center" id="lbl-eskill-0">ไม่ได้</th>
+                                    <th class="border px-3 py-2 text-center" id="lbl-eskill-1">พอใช้</th>
+                                    <th class="border px-3 py-2 text-center" id="lbl-eskill-2">ปานกลาง</th>
+                                    <th class="border px-3 py-2 text-center" id="lbl-eskill-3">ดี</th>
+                                    <th class="border px-3 py-2 text-center" id="lbl-eskill-4">ดีเยี่ยม</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="border px-3 py-2" id="lbl-eng-listen">ฟัง</td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-listen" value="0" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-listen" value="1" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-listen" value="2" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-listen" value="3" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-listen" value="4" class="w-4 h-4"></td></tr>
+                                <tr><td class="border px-3 py-2" id="lbl-eng-speak">พูด</td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-speak" value="0" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-speak" value="1" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-speak" value="2" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-speak" value="3" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-speak" value="4" class="w-4 h-4"></td></tr>
+                                <tr><td class="border px-3 py-2" id="lbl-eng-read">อ่าน</td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-read" value="0" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-read" value="1" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-read" value="2" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-read" value="3" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-read" value="4" class="w-4 h-4"></td></tr>
+                                <tr><td class="border px-3 py-2" id="lbl-eng-write">เขียน</td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-write" value="0" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-write" value="1" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-write" value="2" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-write" value="3" class="w-4 h-4"></td><td class="border px-3 py-2 text-center"><input type="radio" name="eng-write" value="4" class="w-4 h-4"></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-other-lang">ความสามารถในภาษาอื่นๆ</label>
+                        <input type="text" id="other-lang" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-special-skill">ความสามารถพิเศษ</label>
+                        <input type="text" id="special-skill" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-hobby">งานอดิเรก/สิ่งที่สนใจ</label>
+                    <input type="text" id="hobby" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-driving">ความสามารถในการขับขี่</label>
+                    <div class="flex flex-wrap gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="driving" value="none" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-drive-0">ไม่มี</span></label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="driving" value="motorcycle" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-drive-1">รถจักรยานยนต์</span></label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="driving" value="car" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-drive-2">รถยนต์</span></label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="driving" value="both" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-drive-3">รถจักรยานยนต์และรถยนต์</span></label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="driving" value="6wheel" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-drive-4">รถ 6 ล้อ</span></label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="driving" value="10wheel" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-drive-5">รถ 10 ล้อ</span></label>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-has-license">มีใบอนุญาตขับขี่หรือไม่</label>
+                    <div class="flex gap-8">
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="hasLicense" value="yes" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-license-yes">มี</span></label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="hasLicense" value="no" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-license-no">ไม่มี</span></label>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-car-license">เลขที่ใบขับขี่รถยนต์</label>
+                        <input type="text" id="car-license" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-moto-license">เลขที่ใบขับขี่รถจักรยานยนต์</label>
+                        <input type="text" id="moto-license" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 7: ประสบการณ์ทำงาน -->
+            <div class="p-6 border-b">
+                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec7-title">💼 ประสบการณ์ทำงาน</h3>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-work-exp">ประสบการณ์ทำงานที่ผ่านมา</label>
+                    <textarea id="work-exp" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-reference">บุคคลอ้างอิงจากที่ทำงานเดิม</label>
+                        <input type="text" id="reference" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-emergency">บุคคลที่ติดต่อกรณีฉุกเฉิน</label>
+                        <input type="text" id="emergency" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-allow-check">ยินยอมให้สอบถามไปยังสถานที่ทำงานเดิม</label>
+                    <div class="flex gap-8">
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="allowCheck" value="yes" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-allow-yes">ยอม</span></label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="allowCheck" value="no" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-allow-no">ไม่ยอม</span></label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 8: ข้อมูลทั่วไป -->
+            <div class="p-6 border-b bg-gray-50">
+                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec8-title">📋 ข้อมูลทั่วไป</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-disease">ท่านมีโรคประจำตัวหรือไม่</label>
+                        <input type="text" id="disease" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-surgery">เคยป่วยรุนแรง/ได้รับการผ่าตัดในช่วง 5 ปีที่ผ่านมา</label>
+                        <input type="text" id="surgery" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-fired">คุณเคยถูกปลดออกจากงานหรือไม่</label>
+                        <div class="flex gap-8">
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="fired" value="yes" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-fired-yes">เคย</span></label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="fired" value="no" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-fired-no">ไม่เคย</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-prev-apply">เคยยื่นใบสมัคร/ทำงานกับบริษัทนี้มาก่อน</label>
+                        <div class="flex gap-8">
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="prevApply" value="yes" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-prev-yes">เคย</span></label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="prevApply" value="no" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-prev-no">ไม่เคย</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-social-security">เคยเป็นลูกจ้างในระบบประกันสังคมมาก่อน</label>
+                        <div class="flex gap-8">
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="socialSecurity" value="yes" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-ss-yes">เคย</span></label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="socialSecurity" value="no" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-ss-no">ไม่เคย</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-debt">คุณมีภาระหนี้สินหรือไม่</label>
+                        <div class="flex gap-8">
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="debt" value="yes" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-debt-yes">มี</span></label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="debt" value="no" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-debt-no">ไม่มี</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-debt-detail">กรุณากรอกรายการหนี้สินตามด้วยจำนวน</label>
+                        <input type="text" id="debt-detail" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-family-duty">คุณมีภาระความรับผิดชอบดูแลในครอบครัว</label>
+                        <div class="flex gap-8">
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="familyDuty" value="yes" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-fd-yes">มี</span></label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="familyDuty" value="no" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-fd-no">ไม่มี</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-family-duty-detail">กรุณาระบุความรับผิดชอบที่ต้องดูแล</label>
+                        <textarea id="family-duty-detail" rows="2" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-criminal-self">ยินยอมให้ตรวจประวัติอาชญากรรม (ดำเนินการเอง)</label>
+                        <div class="flex gap-8">
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="criminalSelf" value="yes" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-cs-yes">ยินยอม</span></label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="criminalSelf" value="no" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-cs-no">ไม่ยินยอม</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-criminal-company">ยินยอมให้ตรวจประวัติอาชญากรรม (บริษัทดำเนินการแทน)</label>
+                        <div class="flex gap-8">
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="criminalCompany" value="yes" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-cc-yes">ยินยอม</span></label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="criminalCompany" value="no" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-cc-no">ไม่ยินยอม</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-transport">หากได้รับการเข้าทำงานคุณจะเดินทางอย่างไร</label>
+                        <div class="flex flex-wrap gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="transport" value="motorcycle" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-trans-1">รถจักรยานยนต์</span></label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="transport" value="car" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-trans-2">รถยนต์</span></label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="transport" value="bus" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-trans-3">รถประจำทาง</span></label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="transport" value="with-people" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-trans-4">เดินทางมาพร้อมญาติ/เพื่อนร่วมงาน/คนรู้จัก</span></label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="transport" value="none" class="w-4 h-4 text-blue-600"><span class="text-sm text-gray-700" id="opt-trans-5">ไม่มี</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-referrer">ระบุชื่อ-นามสกุล เบอร์โทรของบุคคลที่แนะนำ</label>
+                        <textarea id="referrer" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
             <div class="p-6 bg-gray-100 rounded-b-xl">
-                <div class="flex justify-center gap-4">
-                    <button type="submit" class="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-lg" id="btn-submit">
-                        📤 ส่งใบสมัคร
-                    </button>
-                    <button type="reset" class="px-8 py-3 bg-gray-500 text-white font-bold rounded-lg hover:bg-gray-600 transition shadow-lg" id="btn-reset">
-                        🔄 ล้างข้อมูล
-                    </button>
+                <div class="flex justify-center">
+                    <button type="submit" class="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-lg" id="btn-submit">📤 ส่งใบสมัคร</button>
                 </div>
             </div>
         </form>
@@ -524,215 +632,84 @@
         let currentLang = 'th';
         let translations = {};
 
-        // Load translation
         async function loadTranslation(lang) {
             try {
                 const res = await fetch(`i18n/form-register-${lang}.json`);
                 translations[lang] = await res.json();
                 return translations[lang];
-            } catch (e) {
-                console.error('Error loading translation:', e);
-                return null;
-            }
+            } catch (e) { return null; }
         }
 
-        // Set language
         async function setLanguage(lang) {
             currentLang = lang;
             document.body.setAttribute('data-lang', lang);
-            
-            // Update buttons
-            ['th', 'en', 'lo', 'km'].forEach(l => {
+            ['th','en','lo','km'].forEach(l => {
                 const btn = document.getElementById(`btn-${l}`);
-                if (l === lang) {
-                    btn.classList.remove('bg-gray-200', 'text-gray-700');
-                    btn.classList.add('bg-blue-600', 'text-white');
-                } else {
-                    btn.classList.remove('bg-blue-600', 'text-white');
-                    btn.classList.add('bg-gray-200', 'text-gray-700');
-                }
+                if (l === lang) { btn.classList.remove('bg-gray-200','text-gray-700'); btn.classList.add('bg-blue-600','text-white'); }
+                else { btn.classList.remove('bg-blue-600','text-white'); btn.classList.add('bg-gray-200','text-gray-700'); }
             });
-
             const data = await loadTranslation(lang);
             if (data) updateLabels(data);
         }
 
-        // Update all labels
         function updateLabels(data) {
-            // Form title
             document.getElementById('form-title').textContent = data.pageTitle || 'ใบสมัครงาน';
             document.getElementById('form-subtitle').textContent = data.pageSubtitle || 'กรุณากรอกข้อมูลให้ครบถ้วน';
-
-            // Consent
             document.getElementById('consent-title').textContent = data.consentTitle || '📋 ความยินยอมในการเก็บรวบรวมข้อมูลส่วนบุคคล';
             document.getElementById('consent-label').textContent = data.consentLabel || 'ข้าพเจ้ายินยอมให้เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลตามนโยบายข้างต้น';
 
             // Build consent content
-            let consentHtml = `<p class="font-medium">${data.companies}</p>`;
-            consentHtml += `<p>${data.intro}</p>`;
-            
-            data.sections.forEach((section, i) => {
-                consentHtml += `<div class="mt-3"><p class="font-semibold">${section.title}</p>`;
-                consentHtml += `<p>${section.content}</p>`;
-                if (section.items && section.items.length > 0) {
-                    consentHtml += '<ol class="list-decimal list-inside ml-2 mt-1">';
-                    section.items.forEach(item => {
-                        consentHtml += `<li>${item}</li>`;
-                    });
-                    consentHtml += '</ol>';
-                }
-                consentHtml += '</div>';
+            let html = `<p class="font-medium">${data.companies}</p><p>${data.intro}</p>`;
+            data.sections.forEach(s => {
+                html += `<div class="mt-3"><p class="font-semibold">${s.title}</p><p>${s.content}</p>`;
+                if (s.items?.length) { html += '<ol class="list-decimal list-inside ml-2 mt-1">'; s.items.forEach(i => html += `<li>${i}</li>`); html += '</ol>'; }
+                html += '</div>';
             });
-            
-            consentHtml += `<p class="mt-3 font-medium">${data.consent}</p>`;
-            consentHtml += `<p>${data.consentAgree}</p>`;
-            
-            document.getElementById('consent-content').innerHTML = consentHtml;
+            html += `<p class="mt-3 font-medium">${data.consent}</p><p>${data.consentAgree}</p>`;
+            document.getElementById('consent-content').innerHTML = html;
 
             // Section titles
-            const sectionTitles = data.sectionTitles || {};
-            document.getElementById('sec1-title').textContent = sectionTitles.sec1 || '📋 ข้อมูลส่วนตัว';
-            document.getElementById('sec2-title').textContent = sectionTitles.sec2 || '📍 ที่อยู่ปัจจุบัน';
-            document.getElementById('sec3-title').textContent = sectionTitles.sec3 || '📞 ข้อมูลติดต่อ';
-            document.getElementById('sec4-title').textContent = sectionTitles.sec4 || '💼 ตำแหน่งที่สมัคร';
-            document.getElementById('sec5-title').textContent = sectionTitles.sec5 || '🎓 การศึกษา';
-            document.getElementById('sec6-title').textContent = sectionTitles.sec6 || '💼 ประสบการณ์ทำงาน';
-            document.getElementById('sec7-title').textContent = sectionTitles.sec7 || '📜 ใบอนุญาต/ใบรับรอง';
-            document.getElementById('sec8-title').textContent = sectionTitles.sec8 || '🚨 ผู้ติดต่อกรณีฉุกเฉิน';
-            document.getElementById('sec9-title').textContent = sectionTitles.sec9 || '👥 บุคคลอ้างอิง';
-            document.getElementById('sec10-title').textContent = sectionTitles.sec10 || '📎 อัพโหลดเอกสาร';
-            // Section 11 title
-            document.getElementById('sec11-title').textContent = sectionTitles.sec11 || '📝 ช่องทางการสมัครและแหล่งข่าว';
-            document.getElementById('lbl-application-channel').textContent = labels.applicationChannel || 'ช่องทางการสมัคร';
-            document.getElementById('lbl-source').textContent = labels.source || 'ทราบข่าวการรับสมัครงานจากช่องทางใด';
+            const st = data.sectionTitles || {};
+            for (let i = 1; i <= 8; i++) { const el = document.getElementById(`sec${i}-title`); if (el && st[`sec${i}`]) el.textContent = st[`sec${i}`]; }
 
-            // Channel options
-            const channelOptions = data.channelOptions || {};
-            document.getElementById('opt-channel-website').textContent = channelOptions.website || 'สมัครจาก website';
-            document.getElementById('opt-channel-office').textContent = channelOptions.office || 'มาสมัครที่บริษัท';
+            // All labels
+            const lbl = data.labels || {};
+            Object.keys(lbl).forEach(id => { const el = document.getElementById(id); if (el) el.textContent = lbl[id]; });
 
-            // Source options
-            const sourceOptions = data.sourceOptions || {};
-            document.getElementById('opt-source-facebook').textContent = sourceOptions.facebook || '1. Facebook';
-            document.getElementById('opt-source-store-sign').textContent = sourceOptions.storeSign || '2. ป้ายหน้าร้าน (เข้ามาที่สำนักงาน)';
-            document.getElementById('opt-source-friend').textContent = sourceOptions.friend || '3. เพื่อน / คนรู้จัก';
-            document.getElementById('opt-source-company-website').textContent = sourceOptions.companyWebsite || '4. Website บริษัท';
-            document.getElementById('opt-source-company-line').textContent = sourceOptions.companyLine || '5. Line บริษัท';
-            document.getElementById('opt-source-employee-referral').textContent = sourceOptions.employeeReferral || '6. พนักงานภายในบริษัทแนะนำ';
-            document.getElementById('opt-source-education').textContent = sourceOptions.education || '7. สถานศึกษา';
-            document.getElementById('opt-source-mr-representative').textContent = sourceOptions.mrRepresentative || '8. ตัวแทนบริษัท MR (นายหน้า ผู้ใหญ่ เนภูมิ นายบ้าน)';
-            document.getElementById('opt-source-provincial-employment').textContent = sourceOptions.provincialEmployment || '9. สำนักงานจัดหางานจังหวัด';
-            document.getElementById('opt-source-provincial-employment-website').textContent = sourceOptions.provincialEmploymentWebsite || 'Website สำนักงานจัดหางานจังหวัด';
-            document.getElementById('opt-source-provincial-employment-facebook').textContent = sourceOptions.provincialEmploymentFacebook || 'Facebook สำนักงานจัดหางานจังหวัด';
-            document.getElementById('opt-source-provincial-employment-line').textContent = sourceOptions.provincialEmploymentLine || 'Line สำนักงานจัดหางานจังหวัด';
-            document.getElementById('opt-source-labor-development').textContent = sourceOptions.laborDevelopment || 'มุมกรมพัฒนาแรงงาน';
-            document.getElementById('opt-source-registered-employment').textContent = sourceOptions.registeredEmployment || 'ลงชื่อกับสำนักงานจัดหางาน';
-            document.getElementById('opt-source-other').textContent = sourceOptions.other || '10. อื่นๆ';
-
-            // Labels
-            const labels = data.labels || {};
-            const labelMap = {
-                'lbl-prefix': 'prefix', 'lbl-firstname': 'firstname', 'lbl-lastname': 'lastname',
-                'lbl-nickname': 'nickname', 'lbl-gender': 'gender', 'lbl-birthdate': 'birthdate',
-                'lbl-age': 'age', 'lbl-nationality': 'nationality', 'lbl-idcard': 'idcard',
-                'lbl-marital': 'marital', 'lbl-height': 'height', 'lbl-weight': 'weight',
-                'lbl-address': 'address', 'lbl-district': 'district', 'lbl-province': 'province',
-                'lbl-postal': 'postal', 'lbl-country': 'country',
-                'lbl-phone': 'phone', 'lbl-phone2': 'phone2', 'lbl-email': 'email',
-                'lbl-line': 'line', 'lbl-facebook': 'facebook',
-                'lbl-position': 'position', 'lbl-department': 'department', 'lbl-branch': 'branch',
-                'lbl-salary': 'salary', 'lbl-startdate': 'startdate',
-                'lbl-edulevel': 'edulevel', 'lbl-institution': 'institution', 'lbl-major': 'major',
-                'lbl-gpa': 'gpa', 'lbl-gradyear': 'gradyear',
-                'lbl-company': 'company', 'lbl-lastpos': 'lastpos', 'lbl-duration': 'duration',
-                'lbl-reasonleave': 'reasonleave', 'lbl-responsibilities': 'responsibilities',
-                'lbl-license': 'license', 'lbl-driving': 'driving', 'lbl-othercert': 'othercert',
-                'lbl-emergname': 'emergname', 'lbl-emergrel': 'emergrel', 'lbl-emergphone': 'emergphone',
-                'lbl-resume': 'resume', 'lbl-degree': 'degree', 'lbl-cert': 'cert',
-                'lbl-source': 'source', 'lbl-whyinterested': 'whyinterested',
-                'lbl-strength': 'strength', 'lbl-weakness': 'weakness'
-            };
-
-            Object.keys(labelMap).forEach(id => {
-                const el = document.getElementById(id);
-                if (el && labels[labelMap[id]]) {
-                    el.textContent = labels[labelMap[id]];
-                }
-            });
-
-            // References
-            document.getElementById('ref-subtitle').textContent = data.refSubtitle || 'ระบุบุคคลที่สามารถอ้างอิงได้ 2 ท่าน';
-            document.getElementById('ref1-title').textContent = data.ref1Title || 'บุคคลอ้างอิงที่ 1';
-            document.getElementById('ref2-title').textContent = data.ref2Title || 'บุคคลอ้างอิงที่ 2';
-            
-            const refLabels = ['ref1name', 'ref1pos', 'ref1company', 'ref1phone', 'ref2name', 'ref2pos', 'ref2company', 'ref2phone'];
-            refLabels.forEach(key => {
-                const el = document.getElementById(`lbl-${key}`);
-                if (el && labels[key]) el.textContent = labels[key];
-            });
-
-            // Buttons
-            document.getElementById('btn-submit').textContent = data.buttons?.submit || '📤 ส่งใบสมัคร';
-            document.getElementById('btn-reset').textContent = data.buttons?.reset || '🔄 ล้างข้อมูล';
-            document.getElementById('btn-upload-photo').textContent = data.btnUploadPhoto || 'อัพโหลดรูปถ่าย';
-
-            // Gender options
-            if (data.genderOptions) {
-                const genderSelect = document.getElementById('gender');
-                const currentVal = genderSelect.value;
-                genderSelect.innerHTML = `
-                    <option value="">${data.genderOptions.placeholder}</option>
-                    <option value="male">${data.genderOptions.male}</option>
-                    <option value="female">${data.genderOptions.female}</option>
-                `;
-                genderSelect.value = currentVal;
-            }
+            // All options
+            const opt = data.options || {};
+            Object.keys(opt).forEach(id => { const el = document.getElementById(id); if (el) el.textContent = opt[id]; });
         }
 
-        // Calculate age
         function calcAge() {
-            const birthdate = document.getElementById('birthdate').value;
-            if (birthdate) {
-                const birth = new Date(birthdate);
-                const today = new Date();
+            const bd = document.getElementById('birthdate').value;
+            if (bd) {
+                const birth = new Date(bd), today = new Date();
                 let age = today.getFullYear() - birth.getFullYear();
                 const m = today.getMonth() - birth.getMonth();
                 if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-                document.getElementById('age').value = age + (currentLang === 'th' ? ' ปี' : currentLang === 'lo' ? ' ປີ' : currentLang === 'km' ? ' ឆ្នាំ' : ' years');
+                const unit = currentLang === 'th' ? ' ปี' : currentLang === 'lo' ? ' ປີ' : currentLang === 'km' ? ' ឆ្នាំ' : ' years';
+                document.getElementById('age').value = age + unit;
             }
         }
 
-        // Photo preview
-        function previewPhoto(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.getElementById('photo-preview');
-                    img.src = e.target.result;
-                    img.classList.remove('hidden');
-                    document.getElementById('photo-placeholder').classList.add('hidden');
-                };
-                reader.readAsDataURL(input.files[0]);
+        function copyAddress() {
+            if (document.getElementById('same-as-reg').checked) {
+                ['house','subdistrict','district','province','postal'].forEach(f => {
+                    document.getElementById(`cur-${f}`).value = document.getElementById(`reg-${f}`).value;
+                });
             }
         }
 
-        // Form submit
         document.getElementById('application-form').addEventListener('submit', function(e) {
             e.preventDefault();
             if (!document.getElementById('consent-check').checked) {
-                alert(currentLang === 'th' ? 'กรุณากดยินยอมก่อนส่งใบสมัคร' : 
-                      currentLang === 'lo' ? 'ກະລຸນາກົດຍິນຍອມກ່ອນສົ່ງໃບສະໝັກ' :
-                      currentLang === 'km' ? 'សូមចុចយល់ព្រមមុនដាក់ពាក្យ' :
-                      'Please accept the consent before submitting');
+                alert(currentLang === 'th' ? 'กรุณากดยินยอมก่อนส่งใบสมัคร' : currentLang === 'lo' ? 'ກະລຸນາກົດຍິນຍອມກ່ອນສົ່ງໃບສະໝັກ' : currentLang === 'km' ? 'សូមចុចយល់ព្រមមុនដាក់ពាក្យ' : 'Please accept the consent before submitting');
                 return;
             }
-            alert(currentLang === 'th' ? 'ส่งใบสมัครสำเร็จ!' : 
-                  currentLang === 'lo' ? 'ສົ່ງໃບສະໝັກສຳເລັດ!' :
-                  currentLang === 'km' ? 'ដាក់ពាក្យបានជោគជ័យ!' :
-                  'Application submitted successfully!');
+            alert(currentLang === 'th' ? 'ส่งใบสมัครสำเร็จ!' : currentLang === 'lo' ? 'ສົ່ງໃບສະໝັກສຳເລັດ!' : currentLang === 'km' ? 'ដាក់ពាក្យបានជោគជ័យ!' : 'Application submitted successfully!');
         });
 
-        // Initialize
         setLanguage('th');
     </script>
 </body>
