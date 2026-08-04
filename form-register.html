@@ -53,44 +53,126 @@
                 <h2 class="text-2xl font-bold text-gray-800 mb-6" id="form-title">ข้อมูลผู้สมัคร</h2>
                 
                 <form id="registerForm" class="space-y-6">
-                    <!-- Personal Information -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2" id="label-firstname">ชื่อ</label>
-                            <input type="text" name="firstname" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <!-- Section 1: ข้อมูลส่วนตัว -->
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-blue-800 mb-4">📋 ข้อมูลส่วนตัว</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-firstname">ชื่อ *</label>
+                                <input type="text" name="firstname" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-lastname">นามสกุล *</label>
+                                <input type="text" name="lastname" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2" id="label-lastname">นามสกุล</label>
-                            <input type="text" name="lastname" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-nickname">ชื่อเล่น</label>
+                                <input type="text" name="nickname" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-gender">เพศ *</label>
+                                <select name="gender" id="gender-select" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-- เลือก --</option>
+                                    <option value="male">ชาย</option>
+                                    <option value="female">หญิง</option>
+                                    <option value="other">อื่นๆ</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-birthdate">วัน/เดือน/ปี เกิด *</label>
+                                <input type="date" name="birthdate" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-email">อีเมล *</label>
+                                <input type="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-phone">เบอร์โทรศัพท์ *</label>
+                                <input type="tel" name="phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2" id="label-address">ที่อยู่ *</label>
+                            <textarea name="address" rows="2" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Section 2: ตำแหน่งและประสบการณ์ -->
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-green-800 mb-4"> ตำแหน่งและประสบการณ์</h3>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2" id="label-email">อีเมล</label>
-                            <input type="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <label class="block text-sm font-medium text-gray-700 mb-2" id="label-position">ตำแหน่งที่สมัคร *</label>
+                            <input type="text" name="position" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2" id="label-phone">เบอร์โทรศัพท์</label>
-                            <input type="tel" name="phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2" id="label-experience">ประสบการณ์ทำงาน *</label>
+                            <textarea name="experience" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="ระบุบริษัท ตำแหน่ง ระยะเวลา และหน้าที่รับผิดชอบ"></textarea>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2" id="label-education">การศึกษา *</label>
+                            <textarea name="education" rows="3" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="ระบุระดับการศึกษา สถาบัน สาขาวิชา"></textarea>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2" id="label-license">ใบอนุญาตประกอบวิชาชีพ</label>
+                            <input type="text" name="license" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="ถ้ามี">
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2" id="label-position">ตำแหน่งที่สมัคร</label>
-                        <input type="text" name="position" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <!-- Section 3: ผู้ติดต่อฉุกเฉินและบุคคลอ้างอิง -->
+                    <div class="bg-orange-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-orange-800 mb-4">🚨 ผู้ติดต่อกรณีฉุกเฉิน</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-emergency-name">ชื่อ-นามสกุล *</label>
+                                <input type="text" name="emergency_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-emergency-phone">เบอร์โทรศัพท์ *</label>
+                                <input type="tel" name="emergency_phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+
+                        <h3 class="font-semibold text-orange-800 mb-4 mt-6">👥 บุคคลอ้างอิง</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-reference-name">ชื่อ-นามสกุล</label>
+                                <input type="text" name="reference_name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-reference-phone">เบอร์โทรศัพท์</label>
+                                <input type="tel" name="reference_phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2" id="label-experience">ประสบการณ์ทำงาน</label>
-                        <textarea name="experience" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                    <!-- Section 4: อัพโหลดเอกสาร -->
+                    <div class="bg-purple-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-purple-800 mb-4"> อัพโหลดเอกสาร</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-resume">Resume/CV *</label>
+                                <input type="file" name="resume" accept=".pdf,.doc,.docx" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <p class="text-xs text-gray-500 mt-1">รองรับ PDF, DOC, DOCX (สูงสุด 5MB)</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-photo">รูปถ่าย *</label>
+                                <input type="file" name="photo" accept="image/*" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <p class="text-xs text-gray-500 mt-1">รองรับ JPG, PNG (สูงสุด 2MB)</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2" id="label-education">การศึกษา</label>
-                        <textarea name="education" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
-                    </div>
-
+                    <!-- Submit Buttons -->
                     <div class="flex justify-center gap-4 pt-4">
                         <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition">
                             <span id="btn-submit">ส่งใบสมัคร</span>
@@ -180,11 +262,22 @@
             document.getElementById('form-title').textContent = data.formTitle || 'ข้อมูลผู้สมัคร';
             document.getElementById('label-firstname').textContent = data.labels?.firstname || 'ชื่อ';
             document.getElementById('label-lastname').textContent = data.labels?.lastname || 'นามสกุล';
+            document.getElementById('label-nickname').textContent = data.labels?.nickname || 'ชื่อเล่น';
+            document.getElementById('label-gender').textContent = data.labels?.gender || 'เพศ';
+            document.getElementById('label-birthdate').textContent = data.labels?.birthdate || 'วัน/เดือน/ปี เกิด';
             document.getElementById('label-email').textContent = data.labels?.email || 'อีเมล';
             document.getElementById('label-phone').textContent = data.labels?.phone || 'เบอร์โทรศัพท์';
+            document.getElementById('label-address').textContent = data.labels?.address || 'ที่อยู่';
             document.getElementById('label-position').textContent = data.labels?.position || 'ตำแหน่งที่สมัคร';
             document.getElementById('label-experience').textContent = data.labels?.experience || 'ประสบการณ์ทำงาน';
             document.getElementById('label-education').textContent = data.labels?.education || 'การศึกษา';
+            document.getElementById('label-license').textContent = data.labels?.license || 'ใบอนุญาตประกอบวิชาชีพ';
+            document.getElementById('label-emergency-name').textContent = data.labels?.emergency_name || 'ชื่อผู้ติดต่อกรณีฉุกเฉิน';
+            document.getElementById('label-emergency-phone').textContent = data.labels?.emergency_phone || 'เบอร์โทรศัพท์ผู้ติดต่อฉุกเฉิน';
+            document.getElementById('label-reference-name').textContent = data.labels?.reference_name || 'ชื่อบุคคลอ้างอิง';
+            document.getElementById('label-reference-phone').textContent = data.labels?.reference_phone || 'เบอร์โทรศัพท์บุคคลอ้างอิง';
+            document.getElementById('label-resume').textContent = data.labels?.resume || 'อัพโหลด Resume/CV';
+            document.getElementById('label-photo').textContent = data.labels?.photo || 'อัพโหลดรูปถ่าย';
             document.getElementById('btn-submit').textContent = data.buttons?.submit || 'ส่งใบสมัคร';
             document.getElementById('btn-reset').textContent = data.buttons?.reset || 'ล้างข้อมูล';
         }
