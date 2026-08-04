@@ -417,19 +417,90 @@
                 </div>
             </div>
 
-            <!-- Section 11: คำถามเพิ่มเติม -->
+            <!-- Section 11: ช่องทางการสมัครและแหล่งข่าว -->
             <div class="p-6 border-b">
-                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec11-title">📝 คำถามเพิ่มเติม</h3>
+                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec11-title">📝 ช่องทางการสมัครและแหล่งข่าว</h3>
+                
+                <!-- ช่องทางการสมัคร -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-application-channel">ช่องทางการสมัคร</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="applicationChannel" value="website" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-channel-website">สมัครจาก website</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="applicationChannel" value="office" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-channel-office">มาสมัครที่บริษัท</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ทราบข่าวจากช่องทางใด -->
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-source">รู้จักบริษัทจากช่องทางไหน?</label>
-                    <select id="source" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                        <option value="">-- เลือก --</option>
-                        <option value="website">เว็บไซต์</option>
-                        <option value="social">โซเชียลมีเดีย</option>
-                        <option value="friend">เพื่อน/คนรู้จัก</option>
-                        <option value="jobfair">งาน JOB FAIR</option>
-                        <option value="other">อื่นๆ</option>
-                    </select>
+                    <label class="block text-sm font-medium text-gray-700 mb-3 required" id="lbl-source">ทราบข่าวการรับสมัครงานจากช่องทางใด</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="source" value="facebook" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-source-facebook">1. Facebook</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="source" value="store-sign" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-source-store-sign">2. ป้ายหน้าร้าน (เข้ามาที่สำนักงาน)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="source" value="friend" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-source-friend">3. เพื่อน / คนรู้จัก</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="source" value="company-website" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-source-company-website">4. Website บริษัท</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="source" value="company-line" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-source-company-line">5. Line บริษัท</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="source" value="employee-referral" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-source-employee-referral">6. พนักงานภายในบริษัทแนะนำ</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="source" value="education" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-source-education">7. สถานศึกษา</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="source" value="mr-representative" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-source-mr-representative">8. ตัวแทนบริษัท MR (นายหน้า ผู้ใหญ่ เนภูมิ นายบ้าน)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="source" value="provincial-employment" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-source-provincial-employment">9. สำนักงานจัดหางานจังหวัด</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="source" value="provincial-employment-website" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-source-provincial-employment-website">Website สำนักงานจัดหางานจังหวัด</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="source" value="provincial-employment-facebook" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-source-provincial-employment-facebook">Facebook สำนักงานจัดหางานจังหวัด</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="source" value="provincial-employment-line" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-source-provincial-employment-line">Line สำนักงานจัดหางานจังหวัด</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="source" value="labor-development" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-source-labor-development">มุมกรมพัฒนาแรงงาน</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="source" value="registered-employment" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-source-registered-employment">ลงชื่อกับสำนักงานจัดหางาน</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="source" value="other" class="w-4 h-4 text-blue-600">
+                            <span class="text-sm text-gray-700" id="opt-source-other">10. อื่นๆ</span>
+                        </label>
+                    </div>
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-whyinterested">ทำไมถึงสนใจทำงานกับบริษัท?</label>
@@ -542,7 +613,33 @@
             document.getElementById('sec8-title').textContent = sectionTitles.sec8 || '🚨 ผู้ติดต่อกรณีฉุกเฉิน';
             document.getElementById('sec9-title').textContent = sectionTitles.sec9 || '👥 บุคคลอ้างอิง';
             document.getElementById('sec10-title').textContent = sectionTitles.sec10 || '📎 อัพโหลดเอกสาร';
-            document.getElementById('sec11-title').textContent = sectionTitles.sec11 || '📝 คำถามเพิ่มเติม';
+            // Section 11 title
+            document.getElementById('sec11-title').textContent = sectionTitles.sec11 || '📝 ช่องทางการสมัครและแหล่งข่าว';
+            document.getElementById('lbl-application-channel').textContent = labels.applicationChannel || 'ช่องทางการสมัคร';
+            document.getElementById('lbl-source').textContent = labels.source || 'ทราบข่าวการรับสมัครงานจากช่องทางใด';
+
+            // Channel options
+            const channelOptions = data.channelOptions || {};
+            document.getElementById('opt-channel-website').textContent = channelOptions.website || 'สมัครจาก website';
+            document.getElementById('opt-channel-office').textContent = channelOptions.office || 'มาสมัครที่บริษัท';
+
+            // Source options
+            const sourceOptions = data.sourceOptions || {};
+            document.getElementById('opt-source-facebook').textContent = sourceOptions.facebook || '1. Facebook';
+            document.getElementById('opt-source-store-sign').textContent = sourceOptions.storeSign || '2. ป้ายหน้าร้าน (เข้ามาที่สำนักงาน)';
+            document.getElementById('opt-source-friend').textContent = sourceOptions.friend || '3. เพื่อน / คนรู้จัก';
+            document.getElementById('opt-source-company-website').textContent = sourceOptions.companyWebsite || '4. Website บริษัท';
+            document.getElementById('opt-source-company-line').textContent = sourceOptions.companyLine || '5. Line บริษัท';
+            document.getElementById('opt-source-employee-referral').textContent = sourceOptions.employeeReferral || '6. พนักงานภายในบริษัทแนะนำ';
+            document.getElementById('opt-source-education').textContent = sourceOptions.education || '7. สถานศึกษา';
+            document.getElementById('opt-source-mr-representative').textContent = sourceOptions.mrRepresentative || '8. ตัวแทนบริษัท MR (นายหน้า ผู้ใหญ่ เนภูมิ นายบ้าน)';
+            document.getElementById('opt-source-provincial-employment').textContent = sourceOptions.provincialEmployment || '9. สำนักงานจัดหางานจังหวัด';
+            document.getElementById('opt-source-provincial-employment-website').textContent = sourceOptions.provincialEmploymentWebsite || 'Website สำนักงานจัดหางานจังหวัด';
+            document.getElementById('opt-source-provincial-employment-facebook').textContent = sourceOptions.provincialEmploymentFacebook || 'Facebook สำนักงานจัดหางานจังหวัด';
+            document.getElementById('opt-source-provincial-employment-line').textContent = sourceOptions.provincialEmploymentLine || 'Line สำนักงานจัดหางานจังหวัด';
+            document.getElementById('opt-source-labor-development').textContent = sourceOptions.laborDevelopment || 'มุมกรมพัฒนาแรงงาน';
+            document.getElementById('opt-source-registered-employment').textContent = sourceOptions.registeredEmployment || 'ลงชื่อกับสำนักงานจัดหางาน';
+            document.getElementById('opt-source-other').textContent = sourceOptions.other || '10. อื่นๆ';
 
             // Labels
             const labels = data.labels || {};
