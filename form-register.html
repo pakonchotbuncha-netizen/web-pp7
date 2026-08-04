@@ -280,6 +280,21 @@
             document.getElementById('label-photo').textContent = data.labels?.photo || 'อัพโหลดรูปถ่าย';
             document.getElementById('btn-submit').textContent = data.buttons?.submit || 'ส่งใบสมัคร';
             document.getElementById('btn-reset').textContent = data.buttons?.reset || 'ล้างข้อมูล';
+
+            // Update gender options
+            if (data.genderOptions) {
+                const genderSelect = document.getElementById('gender-select');
+                if (genderSelect) {
+                    const currentVal = genderSelect.value;
+                    genderSelect.innerHTML = `
+                        <option value="">${data.genderOptions.placeholder}</option>
+                        <option value="male">${data.genderOptions.male}</option>
+                        <option value="female">${data.genderOptions.female}</option>
+                        <option value="other">${data.genderOptions.other}</option>
+                    `;
+                    genderSelect.value = currentVal;
+                }
+            }
         }
 
         // Handle consent
