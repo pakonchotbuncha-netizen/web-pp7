@@ -551,6 +551,7 @@
                 <div class="text-6xl mb-4">🏗️</div>
                 <h1 class="text-4xl font-bold text-gray-800 mb-3">โครงสร้างธุรกิจ</h1>
                 <p class="text-lg text-gray-600 max-w-2xl mx-auto">Master Data สำหรับ P1 (แสวงหา) — ข้อมูลตั้งต้นในการนำเข้ากระบวนการรับสมัครงาน</p>
+                <p class="text-sm text-gray-500 mt-2">อัพเดทล่าสุด: <span id="last-updated">-</span></p>
             </div>
 
             <!-- ข้อมูลโครงสร้างบริษัท ภาษี -->
@@ -560,7 +561,7 @@
                     <h2 class="text-2xl font-bold text-gray-800">ข้อมูลโครงสร้างบริษัท ภาษี</h2>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
+                    <table class="w-full text-sm" id="tax-table">
                         <thead>
                             <tr class="bg-blue-100">
                                 <th class="px-3 py-2 text-left font-semibold">รหัสสมาชิก</th>
@@ -568,39 +569,13 @@
                                 <th class="px-3 py-2 text-left font-semibold">ประเทศ</th>
                                 <th class="px-3 py-2 text-left font-semibold">บริษัท</th>
                                 <th class="px-3 py-2 text-left font-semibold">สาขา</th>
-                                <th class="px-3 py-2 text-left font-semibold">ฝ่าย</th>
-                                <th class="px-3 py-2 text-left font-semibold">แผนก</th>
                                 <th class="px-3 py-2 text-left font-semibold">ตำแหน่งงาน</th>
                                 <th class="px-3 py-2 text-left font-semibold">คุณสมบัติ</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-3 py-2">X5102012</td>
-                                <td class="px-3 py-2">นางสาวรัฐพร คะชาแก้ว</td>
-                                <td class="px-3 py-2">ไทย</td>
-                                <td class="px-3 py-2">ทีมธุรกิจ LDC</td>
-                                <td class="px-3 py-2">สำนักงานใหญ่</td>
-                                <td class="px-3 py-2">-</td>
-                                <td class="px-3 py-2">-</td>
-                                <td class="px-3 py-2">ผู้รับใช้ทีมนวัตกรรม</td>
-                                <td class="px-3 py-2 text-xs">สร้างชุมชนแห่งการสร้างสรรค์นวัตกรรม</td>
-                            </tr>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-3 py-2">X4604033</td>
-                                <td class="px-3 py-2">นางสาวกัลรณัฎฐ์ คงดี</td>
-                                <td class="px-3 py-2">ลาว</td>
-                                <td class="px-3 py-2">ทีมธุรกิจ RPLC</td>
-                                <td class="px-3 py-2">สาขานาเล่า</td>
-                                <td class="px-3 py-2">-</td>
-                                <td class="px-3 py-2">-</td>
-                                <td class="px-3 py-2">ผู้รับใช้ทีมบัญชีการเงิน</td>
-                                <td class="px-3 py-2 text-xs">ดูแล กำกับ และตรวจสอบงบให้ถูกต้อง</td>
-                            </tr>
-                        </tbody>
+                        <tbody id="tax-tbody"></tbody>
                     </table>
                 </div>
-                <p class="text-xs text-gray-500 mt-2">* แสดงข้อมูลตัวอย่าง — ข้อมูลเต็มอยู่ใน Google Sheet</p>
             </div>
 
             <!-- ข้อมูลโครงสร้างบริษัท บริหาร -->
@@ -623,31 +598,9 @@
                                 <th class="px-3 py-2 text-left font-semibold">Key Result</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-3 py-2">ไทย</td>
-                                <td class="px-3 py-2">CPDG</td>
-                                <td class="px-3 py-2">ทีมนวัตกรรมและกระบวนการ</td>
-                                <td class="px-3 py-2">CPDgr.INP</td>
-                                <td class="px-3 py-2">ผู้รับใช้ทีม</td>
-                                <td class="px-3 py-2 text-xs">สร้างชุมชนแห่งการสร้างสรรค์นวัตกรรม</td>
-                                <td class="px-3 py-2 text-xs">ทุกหน่วยงานปรับปรุงกระบวนการทำงานเป็นอัตโนมัติ</td>
-                                <td class="px-3 py-2 text-xs">ค่า CSI 90%</td>
-                            </tr>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-3 py-2">ลาว</td>
-                                <td class="px-3 py-2">RPLC</td>
-                                <td class="px-3 py-2">ทีมบัญชีการเงิน สาขานาเล่า</td>
-                                <td class="px-3 py-2">RPLC-NAL-ACC</td>
-                                <td class="px-3 py-2">ผู้รับใช้ทีม</td>
-                                <td class="px-3 py-2 text-xs">ดูแล กำกับ และตรวจสอบงบให้ถูกต้อง</td>
-                                <td class="px-3 py-2 text-xs">มีความเข้าใจในเรื่องของ CBNP</td>
-                                <td class="px-3 py-2 text-xs">-</td>
-                            </tr>
-                        </tbody>
+                        <tbody id="admin-tbody"></tbody>
                     </table>
                 </div>
-                <p class="text-xs text-gray-500 mt-2">* แสดงข้อมูลตัวอย่าง — ข้อมูลเต็มอยู่ใน Google Sheet</p>
             </div>
 
             <!-- DATAโครงสร้างบริษัทภายนอก -->
@@ -656,45 +609,11 @@
                     <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center text-white text-xl">🏭</div>
                     <h2 class="text-2xl font-bold text-gray-800">DATAโครงสร้างบริษัทภายนอก</h2>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                    <div class="bg-purple-50 p-3 rounded-lg text-center">
-                        <div class="text-2xl font-bold text-purple-600">AGS</div>
-                        <p class="text-xs text-gray-600">แอจจิลซอฟท์</p>
-                    </div>
-                    <div class="bg-purple-50 p-3 rounded-lg text-center">
-                        <div class="text-2xl font-bold text-purple-600">21CT</div>
-                        <p class="text-xs text-gray-600">21ซีที เวนเจอร์ส</p>
-                    </div>
-                    <div class="bg-purple-50 p-3 rounded-lg text-center">
-                        <div class="text-2xl font-bold text-purple-600">PMG</div>
-                        <p class="text-xs text-gray-600">ประชากิจมอเตอร์เซลส์</p>
-                    </div>
-                    <div class="bg-purple-50 p-3 rounded-lg text-center">
-                        <div class="text-2xl font-bold text-purple-600">RPLC</div>
-                        <p class="text-xs text-gray-600">ประชากิจลิสซิ่ง</p>
-                    </div>
-                    <div class="bg-purple-50 p-3 rounded-lg text-center">
-                        <div class="text-2xl font-bold text-purple-600">RAFCO</div>
-                        <p class="text-xs text-gray-600">ราชธานีไฟแนนซ์</p>
-                    </div>
-                    <div class="bg-purple-50 p-3 rounded-lg text-center">
-                        <div class="text-2xl font-bold text-purple-600">LDC</div>
-                        <p class="text-xs text-gray-600">Leadership Dev.</p>
-                    </div>
-                    <div class="bg-purple-50 p-3 rounded-lg text-center">
-                        <div class="text-2xl font-bold text-purple-600">AAM</div>
-                        <p class="text-xs text-gray-600">เอเอเอ็ม</p>
-                    </div>
-                    <div class="bg-purple-50 p-3 rounded-lg text-center">
-                        <div class="text-2xl font-bold text-purple-600">PMS</div>
-                        <p class="text-xs text-gray-600">พีเอ็มเอส</p>
-                    </div>
-                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4" id="external-companies-grid"></div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="bg-purple-100">
-                                <th class="px-3 py-2 text-left font-semibold">ประเทศ</th>
                                 <th class="px-3 py-2 text-left font-semibold">บริษัท</th>
                                 <th class="px-3 py-2 text-left font-semibold">สาขา</th>
                                 <th class="px-3 py-2 text-left font-semibold">ฝ่าย</th>
@@ -703,38 +622,9 @@
                                 <th class="px-3 py-2 text-left font-semibold">ชื่อภาษาอังกฤษ</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-3 py-2">ไทย</td>
-                                <td class="px-3 py-2">แอจจิลซอฟท์ คอร์ปอเรชั่น</td>
-                                <td class="px-3 py-2">สำนักงานใหญ่</td>
-                                <td class="px-3 py-2">เทคโนโลยีสารสนเทศ</td>
-                                <td class="px-3 py-2">พัฒนาและสนับสนุนโปรแกรม</td>
-                                <td class="px-3 py-2">หัวหน้าแผนก</td>
-                                <td class="px-3 py-2">System Development Support</td>
-                            </tr>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-3 py-2">ไทย</td>
-                                <td class="px-3 py-2">21ซีที เวนเจอร์ส</td>
-                                <td class="px-3 py-2">สำนักงานใหญ่</td>
-                                <td class="px-3 py-2">วิศวกรรมซอฟท์แวร์</td>
-                                <td class="px-3 py-2">วิจัยและพัฒนาธุรกิจ</td>
-                                <td class="px-3 py-2">พนักงานการเงินดิจิตอล</td>
-                                <td class="px-3 py-2">Digital Finance Staff</td>
-                            </tr>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-3 py-2">ไทย</td>
-                                <td class="px-3 py-2">ประชากิจมอเตอร์เซลส์</td>
-                                <td class="px-3 py-2">สำนักงานใหญ่</td>
-                                <td class="px-3 py-2">อะไหล่และศูนย์บริการ</td>
-                                <td class="px-3 py-2">กรุ๊ป O/H</td>
-                                <td class="px-3 py-2">หัวหน้าช่างกรุ๊ป O/H</td>
-                                <td class="px-3 py-2">Head of Over Haul Machnic</td>
-                            </tr>
-                        </tbody>
+                        <tbody id="external-tbody"></tbody>
                     </table>
                 </div>
-                <p class="text-xs text-gray-500 mt-2">* แสดงข้อมูลตัวอย่าง — ข้อมูลเต็มอยู่ใน Google Sheet</p>
             </div>
 
             <!-- Center BCT Flowchart ภาษี -->
@@ -756,80 +646,32 @@
                                 <th class="px-3 py-2 text-left font-semibold">Flow XL_M</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-3 py-2 font-mono">X14</td>
-                                <td class="px-3 py-2 font-semibold">AGS</td>
-                                <td class="px-3 py-2"><a href="https://ags.im/sNZlKGM" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/L5Yh4A" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/FnLv1o" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/mOoAnm" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/NoLq5I" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
+                        <tbody id="flowchart-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- DATAโครงสร้างบริษัทภายใน -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center text-white text-xl">🏠</div>
+                    <h2 class="text-2xl font-bold text-gray-800">DATAโครงสร้างบริษัทภายใน</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-red-100">
+                                <th class="px-3 py-2 text-left font-semibold">วันที่ส่ง</th>
+                                <th class="px-3 py-2 text-left font-semibold">รหัสสมาชิก</th>
+                                <th class="px-3 py-2 text-left font-semibold">ชื่อสมาชิก</th>
+                                <th class="px-3 py-2 text-left font-semibold">ประเทศ</th>
+                                <th class="px-3 py-2 text-left font-semibold">บริษัท</th>
+                                <th class="px-3 py-2 text-left font-semibold">ทีม</th>
+                                <th class="px-3 py-2 text-left font-semibold">บทบาท</th>
+                                <th class="px-3 py-2 text-left font-semibold">จุดมุ่งหมาย</th>
                             </tr>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-3 py-2 font-mono">X15</td>
-                                <td class="px-3 py-2 font-semibold">PMS</td>
-                                <td class="px-3 py-2"><a href="https://ags.im/qq72sUM" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/4xoDtI" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/I4NKhN" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/7XeI31" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/dKGsuT" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                            </tr>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-3 py-2 font-mono">X16</td>
-                                <td class="px-3 py-2 font-semibold">PMG</td>
-                                <td class="px-3 py-2"><a href="https://ags.im/2oWWSlM" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/Lex3kc" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/rvaPpm" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/rEW1hB" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/0flzHS" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                            </tr>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-3 py-2 font-mono">X17</td>
-                                <td class="px-3 py-2 font-semibold">AAM</td>
-                                <td class="px-3 py-2"><a href="https://ags.im/nYNe7RM" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/cp5JZZ" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/R5AaJI" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/EaNqPJ" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/8CvJB7" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                            </tr>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-3 py-2 font-mono">X18</td>
-                                <td class="px-3 py-2 font-semibold">21CT</td>
-                                <td class="px-3 py-2"><a href="https://ags.im/KWMb8QM" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/quHU1Q" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/cgYksq" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/5B377H" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/19PRs8" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                            </tr>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-3 py-2 font-mono">X19</td>
-                                <td class="px-3 py-2 font-semibold">RPLC</td>
-                                <td class="px-3 py-2"><a href="https://ags.im/9MK6LRM" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/z8cAYJ" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/q81saa" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/qa14kN" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/GbRUCn" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                            </tr>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-3 py-2 font-mono">X20</td>
-                                <td class="px-3 py-2 font-semibold">RAFCO</td>
-                                <td class="px-3 py-2"><a href="https://ags.im/rlj9QOM" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/u3KiWX" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/8MeNXk" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/98gkId" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                                <td class="px-3 py-2"><a href="https://ags.im/Od75OK" target="_blank" class="text-blue-600 hover:underline">🔗</a></td>
-                            </tr>
-                            <tr class="border-b hover:bg-gray-50">
-                                <td class="px-3 py-2 font-mono">X21</td>
-                                <td class="px-3 py-2 font-semibold">LDC</td>
-                                <td class="px-3 py-2 text-gray-400">-</td>
-                                <td class="px-3 py-2 text-gray-400">-</td>
-                                <td class="px-3 py-2 text-gray-400">-</td>
-                                <td class="px-3 py-2 text-gray-400">-</td>
-                                <td class="px-3 py-2 text-gray-400">-</td>
-                            </tr>
-                        </tbody>
+                        </thead>
+                        <tbody id="internal-tbody"></tbody>
                     </table>
                 </div>
             </div>
@@ -2418,6 +2260,132 @@
             if (tabName === 'assess') renderP2();
             if (tabName === 'match') renderP3();
         };
+    </script>
+    <script>
+        // Load business structure data
+        async function loadBusinessStructureData() {
+            try {
+                const response = await fetch('business-structure-data.json');
+                const data = await response.json();
+                
+                // Update last updated
+                document.getElementById('last-updated').textContent = data.meta.lastUpdated;
+                
+                // Render tax structure
+                const taxTbody = document.getElementById('tax-tbody');
+                if (taxTbody && data.taxStructure.sampleData) {
+                    taxTbody.innerHTML = data.taxStructure.sampleData.map(item => `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="px-3 py-2">${item['รหัสสมาชิก'] || '-'}</td>
+                            <td class="px-3 py-2">${item['ชื่อสมาชิก'] || '-'}</td>
+                            <td class="px-3 py-2">${item['ประเทศ'] || '-'}</td>
+                            <td class="px-3 py-2">${item['บริษัท'] || '-'}</td>
+                            <td class="px-3 py-2">${item['สาขา'] || '-'}</td>
+                            <td class="px-3 py-2">${item['ตำแหน่งงาน'] || '-'}</td>
+                            <td class="px-3 py-2 text-xs">${item['คุณสมบัติ'] || '-'}</td>
+                        </tr>
+                    `).join('');
+                }
+                
+                // Render admin structure
+                const adminTbody = document.getElementById('admin-tbody');
+                if (adminTbody && data.adminStructure.sampleData) {
+                    adminTbody.innerHTML = data.adminStructure.sampleData.map(item => `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="px-3 py-2">${item['ประเทศ'] || '-'}</td>
+                            <td class="px-3 py-2">${item['บริษัท'] || '-'}</td>
+                            <td class="px-3 py-2">${item['ทีม'] || '-'}</td>
+                            <td class="px-3 py-2">${item['กรุ๊ป'] || '-'}</td>
+                            <td class="px-3 py-2">${item['บทบาท'] || '-'}</td>
+                            <td class="px-3 py-2 text-xs">${item['จุดมุ่งหมายทีม'] || '-'}</td>
+                            <td class="px-3 py-2 text-xs">${item['เป้าหมายทีม'] || '-'}</td>
+                            <td class="px-3 py-2 text-xs">${item['ตัววัดผลทีม'] || '-'}</td>
+                        </tr>
+                    `).join('');
+                }
+                
+                // Render external companies grid
+                const externalGrid = document.getElementById('external-companies-grid');
+                if (externalGrid && data.externalCompanies.companies) {
+                    const allCompanies = [...data.externalCompanies.companies, ...(data.externalCompanies.otherCompanies || [])];
+                    externalGrid.innerHTML = allCompanies.map(company => `
+                        <div class="bg-purple-50 p-3 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-purple-600">${company.code}</div>
+                            <p class="text-xs text-gray-600">${company.name}</p>
+                        </div>
+                    `).join('');
+                }
+                
+                // Render external positions table
+                const externalTbody = document.getElementById('external-tbody');
+                if (externalTbody && data.externalCompanies.companies) {
+                    let allPositions = [];
+                    data.externalCompanies.companies.forEach(company => {
+                        if (company.positions) {
+                            company.positions.forEach(pos => {
+                                allPositions.push({
+                                    company: company.name,
+                                    ...pos
+                                });
+                            });
+                        }
+                    });
+                    externalTbody.innerHTML = allPositions.slice(0, 20).map(pos => `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="px-3 py-2">${pos.company}</td>
+                            <td class="px-3 py-2">${pos['สาขา'] || '-'}</td>
+                            <td class="px-3 py-2">${pos['ฝ่าย'] || '-'}</td>
+                            <td class="px-3 py-2">${pos['แผนก'] || '-'}</td>
+                            <td class="px-3 py-2">${pos['ตำแหน่ง'] || '-'}</td>
+                            <td class="px-3 py-2">${pos['ตำแหน่งEn'] || '-'}</td>
+                        </tr>
+                    `).join('');
+                }
+                
+                // Render flowchart tax
+                const flowchartTbody = document.getElementById('flowchart-tbody');
+                if (flowchartTbody && data.flowchartTax.companies) {
+                    flowchartTbody.innerHTML = data.flowchartTax.companies.map(company => `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="px-3 py-2 font-mono">${company.code}</td>
+                            <td class="px-3 py-2 font-semibold">${company.name}</td>
+                            <td class="px-3 py-2">${company.flows.S ? `<a href="${company.flows.S}" target="_blank" class="text-blue-600 hover:underline">🔗</a>` : '<span class="text-gray-400">-</span>'}</td>
+                            <td class="px-3 py-2">${company.flows.XL ? `<a href="${company.flows.XL}" target="_blank" class="text-blue-600 hover:underline">🔗</a>` : '<span class="text-gray-400">-</span>'}</td>
+                            <td class="px-3 py-2">${company.flows.S_M ? `<a href="${company.flows.S_M}" target="_blank" class="text-blue-600 hover:underline">🔗</a>` : '<span class="text-gray-400">-</span>'}</td>
+                            <td class="px-3 py-2">${company.flows.M_M ? `<a href="${company.flows.M_M}" target="_blank" class="text-blue-600 hover:underline">🔗</a>` : '<span class="text-gray-400">-</span>'}</td>
+                            <td class="px-3 py-2">${company.flows.XL_M ? `<a href="${company.flows.XL_M}" target="_blank" class="text-blue-600 hover:underline">🔗</a>` : '<span class="text-gray-400">-</span>'}</td>
+                        </tr>
+                    `).join('');
+                }
+                
+                // Render internal companies
+                const internalTbody = document.getElementById('internal-tbody');
+                if (internalTbody && data.internalCompanies.teams) {
+                    internalTbody.innerHTML = data.internalCompanies.teams.map(item => `
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="px-3 py-2">${item['วันที่ส่ง'] || '-'}</td>
+                            <td class="px-3 py-2">${item['รหัสสมาชิก'] || '-'}</td>
+                            <td class="px-3 py-2">${item['ชื่อสมาชิก'] || '-'}</td>
+                            <td class="px-3 py-2">${item['ประเทศ'] || '-'}</td>
+                            <td class="px-3 py-2">${item['บริษัท'] || '-'}</td>
+                            <td class="px-3 py-2">${item['ทีม'] || '-'}</td>
+                            <td class="px-3 py-2">${item['บทบาท'] || '-'}</td>
+                            <td class="px-3 py-2 text-xs">${item['จุดมุ่งหมาย'] || '-'}</td>
+                        </tr>
+                    `).join('');
+                }
+                
+            } catch (error) {
+                console.error('Error loading business structure data:', error);
+            }
+        }
+        
+        // Load data when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadBusinessStructureData);
+        } else {
+            loadBusinessStructureData();
+        }
     </script>
 </body>
 </html>
