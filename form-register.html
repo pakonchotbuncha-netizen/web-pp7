@@ -1,330 +1,1164 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" dir="ltr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ใบสมัครงาน - Application Form</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Noto+Sans+Lao:wght@300;400;500;600;700&family=Noto+Sans+Khmer:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Prompt', sans-serif; }
-        body[data-lang="lo"] { font-family: 'Noto Sans Lao', sans-serif; }
-        body[data-lang="km"] { font-family: 'Noto Sans Khmer', sans-serif; }
-        .lang-btn { transition: all 0.2s; }
-        .lang-btn.active { background: #3b82f6; color: white; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบสมัครงาน | Job Application</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Noto+Sans+Lao:wght@300;400;500;600;700&family=Noto+Sans+Khmer:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            th: ['Prompt', 'sans-serif'],
+            lo: ['Noto Sans Lao', 'sans-serif'],
+            km: ['Noto Sans Khmer', 'sans-serif'],
+            en: ['system-ui', '-apple-system', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { transition: font-family 0.3s ease; }
+    .step-section { display: none; }
+    .step-section.active { display: block; }
+    .lang-btn.active { ring: 2px; }
+    .pdpa-section { scroll-behavior: smooth; }
+    .pdpa-section details[open] summary { margin-bottom: 0.5rem; }
+    .file-upload-area { border: 2px dashed #cbd5e1; transition: all 0.2s; }
+    .file-upload-area:hover { border-color: #3b82f6; background: #eff6ff; }
+    .file-upload-area.dragover { border-color: #3b82f6; background: #dbeafe; }
+    .progress-step { transition: all 0.3s ease; }
+    .progress-step.completed { background: #10b981; color: white; }
+    .progress-step.current { background: #3b82f6; color: white; transform: scale(1.1); }
+    .progress-step.pending { background: #e5e7eb; color: #6b7280; }
+    .required-star { color: #ef4444; }
+    @media print { .no-print { display: none !important; } }
+    .fade-in { animation: fadeIn 0.3s ease-in; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
 </head>
-<body class="bg-gray-50" data-lang="th">
-    <!-- Language Selector -->
-    <div class="fixed top-4 right-4 z-50 bg-white rounded-lg shadow-lg p-2 flex gap-2">
-        <button onclick="setLanguage('th')" id="lang-th" class="lang-btn active px-3 py-1 rounded text-sm font-medium">🇹🇭 ไทย</button>
-        <button onclick="setLanguage('en')" id="lang-en" class="lang-btn px-3 py-1 rounded text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300">🇬🇧 EN</button>
-        <button onclick="setLanguage('lo')" id="lang-lo" class="lang-btn px-3 py-1 rounded text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300">🇱🇦 ລາວ</button>
-        <button onclick="setLanguage('km')" id="lang-km" class="lang-btn px-3 py-1 rounded text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300">🇰🇭 ខ្មែរ</button>
+<body class="bg-gray-50 min-h-screen">
+
+<!-- Language Switcher -->
+<div class="fixed top-4 right-4 z-50 no-print" id="langSwitcher">
+  <div class="bg-white rounded-xl shadow-lg p-2 flex gap-1">
+    <button onclick="switchLang('th')" class="lang-btn px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-50 transition" data-lang="th">🇹🇭 ไทย</button>
+    <button onclick="switchLang('en')" class="lang-btn px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-50 transition" data-lang="en">🇬🇧 EN</button>
+    <button onclick="switchLang('lo')" class="lang-btn px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-50 transition" data-lang="lo">🇱🇦 ລາວ</button>
+    <button onclick="switchLang('km')" class="lang-btn px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-50 transition" data-lang="km">🇰🇭 ខ្មែរ</button>
+  </div>
+</div>
+
+<!-- Main Container -->
+<div class="max-w-4xl mx-auto px-4 py-8" id="mainContainer">
+
+  <!-- Header -->
+  <div class="text-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-800" id="pageTitle">ใบสมัครงาน</h1>
+    <p class="text-gray-500 mt-2" id="pageSubtitle">กรุณากรอกข้อมูลให้ครบถ้วน</p>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="mb-8 no-print" id="progressContainer" style="display:none;">
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-sm font-medium text-gray-600" id="progressLabel">ความคืบหน้า</span>
+      <span class="text-sm font-bold text-blue-600" id="progressPercent">0%</span>
+    </div>
+    <div class="w-full bg-gray-200 rounded-full h-2.5">
+      <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-500" id="progressBar" style="width: 0%"></div>
+    </div>
+    <!-- Step indicators -->
+    <div class="flex justify-between mt-4 overflow-x-auto pb-2" id="stepIndicators"></div>
+  </div>
+
+  <!-- ==================== STEP 0: PDPA CONSENT ==================== -->
+  <div class="step-section active" id="step-pdpa">
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+          <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800">PDPA Consent</h2>
+      </div>
+
+      <!-- Companies -->
+      <div class="bg-blue-50 rounded-xl p-4 mb-6">
+        <p class="text-sm text-blue-800 font-medium" id="pdpaCompanies"></p>
+      </div>
+
+      <!-- Intro -->
+      <div class="mb-6">
+        <p class="text-gray-700 leading-relaxed" id="pdpaIntro"></p>
+      </div>
+
+      <!-- Sections -->
+      <div class="space-y-3" id="pdpaSections"></div>
+
+      <!-- Consent Statement -->
+      <div class="mt-8 bg-yellow-50 border border-yellow-200 rounded-xl p-5">
+        <p class="text-gray-800 font-medium mb-3" id="pdpaConsent"></p>
+        <p class="text-gray-700 text-sm" id="pdpaConsentAgree"></p>
+      </div>
+
+      <!-- Buttons -->
+      <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+        <button onclick="handleConsent(true)" class="px-8 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+          <span id="btnAgree">ยินยอม</span>
+        </button>
+        <button onclick="handleConsent(false)" class="px-8 py-3 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+          <span id="btnDisagree">ไม่ยินยอม</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== FORM STEPS ==================== -->
+  <form id="applicationForm" class="space-y-6" style="display:none;" novalidate>
+
+    <!-- STEP 1: Personal Info -->
+    <div class="step-section" id="step-personal" data-step="1">
+      <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 fade-in">
+        <h2 class="text-xl font-bold text-gray-800 mb-6" id="sectionTitlePersonal">📋 ข้อมูลส่วนตัว</h2>
+
+        <!-- Photo Upload -->
+        <div class="mb-6 flex flex-col items-center">
+          <div class="w-32 h-40 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition overflow-hidden relative" id="photoUploadArea" onclick="document.getElementById('photoInput').click()">
+            <svg class="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span class="text-xs text-gray-500" id="photoLabel">อัพโหลดรูปถ่าย</span>
+            <img id="photoPreview" class="absolute inset-0 w-full h-full object-cover hidden" alt="Preview">
+          </div>
+          <input type="file" id="photoInput" accept="image/*" class="hidden" onchange="previewPhoto(this)">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Prefix -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelPrefix">คำนำหน้า</label>
+            <select id="prefix" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="" id="phPrefix">-- เลือกคำนำหน้า --</option>
+              <option value="mr" id="optPrefixMr">นาย</option>
+              <option value="mrs" id="optPrefixMrs">นาง</option>
+              <option value="miss" id="optPrefixMiss">นางสาว</option>
+              <option value="other" id="optPrefixOther">อื่นๆ</option>
+            </select>
+          </div>
+
+          <!-- First Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"><span id="labelFirstname">ชื่อ</span> <span class="required-star">*</span></label>
+            <input type="text" id="firstname" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Last Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"><span id="labelLastname">นามสกุล</span> <span class="required-star">*</span></label>
+            <input type="text" id="lastname" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Nickname -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelNickname">ชื่อเล่น</label>
+            <input type="text" id="nickname" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Gender -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"><span id="labelGender">เพศ</span> <span class="required-star">*</span></label>
+            <select id="gender" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="" id="phGender">-- เลือกเพศ --</option>
+              <option value="male" id="optGenderMale">ชาย</option>
+              <option value="female" id="optGenderFemale">หญิง</option>
+              <option value="other" id="optGenderOther">อื่นๆ</option>
+            </select>
+          </div>
+
+          <!-- Birthdate -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"><span id="labelBirthdate">วัน/เดือน/ปี เกิด</span> <span class="required-star">*</span></label>
+            <input type="date" id="birthdate" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="calculateAge()">
+          </div>
+
+          <!-- Age (auto) -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelAge">อายุ</label>
+            <div class="flex items-center">
+              <input type="text" id="age" readonly class="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-600">
+              <span class="ml-2 text-sm text-gray-500" id="ageSuffix">ปี</span>
+            </div>
+          </div>
+
+          <!-- Nationality -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelNationality">สัญชาติ</label>
+            <input type="text" id="nationality" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- ID Card / Passport -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelIdCard">เลขบัตรประชาชน / เลขพาสปอร์ต</label>
+            <input type="text" id="idCard" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Marital Status -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelMaritalStatus">สถานภาพทางการสมรส</label>
+            <select id="maritalStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="" id="phMaritalStatus">-- เลือกสถานภาพ --</option>
+              <option value="single" id="optMaritalSingle">โสด</option>
+              <option value="married" id="optMaritalMarried">สมรส</option>
+              <option value="divorced" id="optMaritalDivorced">หย่า</option>
+              <option value="widowed" id="optMaritalWidowed">หม้าย</option>
+            </select>
+          </div>
+
+          <!-- Height -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelHeight">ส่วนสูง (ซม.)</label>
+            <input type="number" id="height" min="0" max="300" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+
+          <!-- Weight -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelWeight">น้ำหนัก (กก.)</label>
+            <input type="number" id="weight" min="0" max="500" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="max-w-4xl mx-auto px-4 py-8">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl shadow-lg p-8 mb-6">
-            <h1 class="text-3xl font-bold mb-2" id="page-title">ใบสมัครงาน</h1>
-            <p class="text-blue-100" id="page-subtitle">กรุณากรอกข้อมูลให้ครบถ้วน</p>
-        </div>
-
-        <!-- PDPA Consent Section -->
-        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-            <div class="prose max-w-none" id="consent-content">
-                <!-- Content will be loaded dynamically -->
+    <!-- STEP 2: Address -->
+    <div class="step-section" id="step-address" data-step="2">
+      <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 fade-in">
+        <h2 class="text-xl font-bold text-gray-800 mb-6" id="sectionTitleAddress">📍 ที่อยู่ปัจจุบัน</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelAddress">ที่อยู่</label>
+            <textarea id="address" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1" id="labelDistrict">แขวง/เขต</label>
+              <input type="text" id="district" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
-
-            <!-- Consent Buttons -->
-            <div class="mt-6 flex gap-4 justify-center">
-                <button onclick="handleConsent(true)" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg transition">
-                    <span id="btn-agree">ยินยอม</span>
-                </button>
-                <button onclick="handleConsent(false)" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg transition">
-                    <span id="btn-disagree">ไม่ยินยอม</span>
-                </button>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1" id="labelProvince">จังหวัด/รัฐ</label>
+              <input type="text" id="province" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
-        </div>
-
-        <!-- Application Form (shown after consent) -->
-        <div id="application-form" class="hidden">
-            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6" id="form-title">ข้อมูลผู้สมัคร</h2>
-                
-                <form id="registerForm" class="space-y-6">
-                    <!-- Section 1: ข้อมูลส่วนตัว -->
-                    <div class="bg-blue-50 p-4 rounded-lg">
-                        <h3 class="font-semibold text-blue-800 mb-4">📋 ข้อมูลส่วนตัว</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-firstname">ชื่อ *</label>
-                                <input type="text" name="firstname" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-lastname">นามสกุล *</label>
-                                <input type="text" name="lastname" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-nickname">ชื่อเล่น</label>
-                                <input type="text" name="nickname" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-gender">เพศ *</label>
-                                <select name="gender" id="gender-select" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                    <option value="">-- เลือก --</option>
-                                    <option value="male">ชาย</option>
-                                    <option value="female">หญิง</option>
-                                    <option value="other">อื่นๆ</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-birthdate">วัน/เดือน/ปี เกิด *</label>
-                                <input type="date" name="birthdate" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-email">อีเมล *</label>
-                                <input type="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-phone">เบอร์โทรศัพท์ *</label>
-                                <input type="tel" name="phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            </div>
-                        </div>
-
-                        <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2" id="label-address">ที่อยู่ *</label>
-                            <textarea name="address" rows="2" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Section 2: ตำแหน่งและประสบการณ์ -->
-                    <div class="bg-green-50 p-4 rounded-lg">
-                        <h3 class="font-semibold text-green-800 mb-4"> ตำแหน่งและประสบการณ์</h3>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2" id="label-position">ตำแหน่งที่สมัคร *</label>
-                            <input type="text" name="position" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                        </div>
-
-                        <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2" id="label-experience">ประสบการณ์ทำงาน *</label>
-                            <textarea name="experience" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="ระบุบริษัท ตำแหน่ง ระยะเวลา และหน้าที่รับผิดชอบ"></textarea>
-                        </div>
-
-                        <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2" id="label-education">การศึกษา *</label>
-                            <textarea name="education" rows="3" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="ระบุระดับการศึกษา สถาบัน สาขาวิชา"></textarea>
-                        </div>
-
-                        <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2" id="label-license">ใบอนุญาตประกอบวิชาชีพ</label>
-                            <input type="text" name="license" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="ถ้ามี">
-                        </div>
-                    </div>
-
-                    <!-- Section 3: ผู้ติดต่อฉุกเฉินและบุคคลอ้างอิง -->
-                    <div class="bg-orange-50 p-4 rounded-lg">
-                        <h3 class="font-semibold text-orange-800 mb-4">🚨 ผู้ติดต่อกรณีฉุกเฉิน</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-emergency-name">ชื่อ-นามสกุล *</label>
-                                <input type="text" name="emergency_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-emergency-phone">เบอร์โทรศัพท์ *</label>
-                                <input type="tel" name="emergency_phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            </div>
-                        </div>
-
-                        <h3 class="font-semibold text-orange-800 mb-4 mt-6">👥 บุคคลอ้างอิง</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-reference-name">ชื่อ-นามสกุล</label>
-                                <input type="text" name="reference_name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-reference-phone">เบอร์โทรศัพท์</label>
-                                <input type="tel" name="reference_phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Section 4: อัพโหลดเอกสาร -->
-                    <div class="bg-purple-50 p-4 rounded-lg">
-                        <h3 class="font-semibold text-purple-800 mb-4"> อัพโหลดเอกสาร</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-resume">Resume/CV *</label>
-                                <input type="file" name="resume" accept=".pdf,.doc,.docx" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                <p class="text-xs text-gray-500 mt-1">รองรับ PDF, DOC, DOCX (สูงสุด 5MB)</p>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2" id="label-photo">รูปถ่าย *</label>
-                                <input type="file" name="photo" accept="image/*" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                                <p class="text-xs text-gray-500 mt-1">รองรับ JPG, PNG (สูงสุด 2MB)</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Submit Buttons -->
-                    <div class="flex justify-center gap-4 pt-4">
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition">
-                            <span id="btn-submit">ส่งใบสมัคร</span>
-                        </button>
-                        <button type="reset" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-8 rounded-lg transition">
-                            <span id="btn-reset">ล้างข้อมูล</span>
-                        </button>
-                    </div>
-                </form>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1" id="labelPostalCode">รหัสไปรษณีย์</label>
+              <input type="text" id="postalCode" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1" id="labelCountry">ประเทศ</label>
+              <input type="text" id="country" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <script>
-        let currentLang = 'th';
-        let translations = {};
+    <!-- STEP 3: Contact -->
+    <div class="step-section" id="step-contact" data-step="3">
+      <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 fade-in">
+        <h2 class="text-xl font-bold text-gray-800 mb-6" id="sectionTitleContact">📞 ข้อมูลติดต่อ</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"><span id="labelPhone">เบอร์โทรศัพท์</span> <span class="required-star">*</span></label>
+            <input type="tel" id="phone" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelPhoneAlt">เบอร์โทรศัพท์สำรอง</label>
+            <input type="tel" id="phoneAlt" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"><span id="labelEmail">อีเมล</span> <span class="required-star">*</span></label>
+            <input type="email" id="email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelLineId">Line ID</label>
+            <input type="text" id="lineId" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelFacebook">Facebook</label>
+            <input type="text" id="facebook" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+        </div>
+      </div>
+    </div>
 
-        // Load translation files
-        async function loadTranslations(lang) {
-            try {
-                const response = await fetch(`i18n/form-register-${lang}.json`);
-                translations[lang] = await response.json();
-                return translations[lang];
-            } catch (error) {
-                console.error(`Error loading ${lang} translation:`, error);
-                return null;
-            }
-        }
+    <!-- STEP 4: Position -->
+    <div class="step-section" id="step-position" data-step="4">
+      <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 fade-in">
+        <h2 class="text-xl font-bold text-gray-800 mb-6" id="sectionTitlePosition">💼 ตำแหน่งที่สมัคร</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"><span id="labelPosition">ตำแหน่งที่สมัคร</span> <span class="required-star">*</span></label>
+            <input type="text" id="position" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelDepartment">แผนก/ฝ่าย</label>
+            <input type="text" id="department" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelBranch">สาขาที่ทำงาน</label>
+            <input type="text" id="branch" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelExpectedSalary">เงินเดือนที่คาดหวัง</label>
+            <input type="text" id="expectedSalary" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelStartDate">วันที่สามารถเริ่มงานได้</label>
+            <input type="text" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="">
+          </div>
+        </div>
+      </div>
+    </div>
 
-        // Set language
-        async function setLanguage(lang) {
-            currentLang = lang;
-            document.body.setAttribute('data-lang', lang);
-            
-            // Update button styles
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.remove('active', 'bg-blue-600', 'text-white');
-                btn.classList.add('bg-gray-200', 'text-gray-700');
-            });
-            document.getElementById(`lang-${lang}`).classList.add('active', 'bg-blue-600', 'text-white');
-            document.getElementById(`lang-${lang}`).classList.remove('bg-gray-200', 'text-gray-700');
+    <!-- STEP 5: Education -->
+    <div class="step-section" id="step-education" data-step="5">
+      <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 fade-in">
+        <h2 class="text-xl font-bold text-gray-800 mb-6" id="sectionTitleEducation">🎓 การศึกษา</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"><span id="labelEducationLevel">ระดับการศึกษาสูงสุด</span> <span class="required-star">*</span></label>
+            <select id="educationLevel" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="" id="phEducationLevel">-- เลือกระดับการศึกษา --</option>
+              <option value="high_school" id="optEduHighSchool">มัธยมศึกษา</option>
+              <option value="vocational" id="optEduVocational">ปวช./ปวส.</option>
+              <option value="bachelor" id="optEduBachelor">ปริญญาตรี</option>
+              <option value="master" id="optEduMaster">ปริญญาโท</option>
+              <option value="doctorate" id="optEduDoctorate">ปริญญาเอก</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelInstitution">สถาบัน/มหาวิทยาลัย</label>
+            <input type="text" id="institution" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelMajor">สาขาวิชา</label>
+            <input type="text" id="major" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelGpa">เกรดเฉลี่ย (GPA)</label>
+            <input type="text" id="gpa" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelGradYear">ปีที่จบ</label>
+            <input type="number" id="gradYear" min="1950" max="2099" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+        </div>
+      </div>
+    </div>
 
-            // Load and render content
-            const data = await loadTranslations(lang);
-            if (data) {
-                renderContent(data);
-            }
-        }
+    <!-- STEP 6: Work Experience -->
+    <div class="step-section" id="step-experience" data-step="6">
+      <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 fade-in">
+        <h2 class="text-xl font-bold text-gray-800 mb-6" id="sectionTitleExperience">💼 ประสบการณ์ทำงาน</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelCompanyName">ชื่อบริษัทล่าสุด</label>
+            <input type="text" id="companyName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelLastPosition">ตำแหน่งล่าสุด</label>
+            <input type="text" id="lastPosition" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelDurationYears">ระยะเวลาทำงาน (ปี)</label>
+            <input type="number" id="durationYears" min="0" max="50" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelDurationMonths">ระยะเวลาทำงาน (เดือน)</label>
+            <input type="number" id="durationMonths" min="0" max="11" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelResponsibilities">หน้าที่ความรับผิดชอบ</label>
+            <textarea id="responsibilities" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelReasonLeave">เหตุผลที่ออกจากงาน</label>
+            <textarea id="reasonLeave" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        // Render content
-        function renderContent(data) {
-            // Update page title
-            document.getElementById('page-title').textContent = data.pageTitle || 'ใบสมัครงาน';
-            document.getElementById('page-subtitle').textContent = data.pageSubtitle || 'กรุณากรอกข้อมูลให้ครบถ้วน';
+    <!-- STEP 7: Licenses -->
+    <div class="step-section" id="step-licenses" data-step="7">
+      <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 fade-in">
+        <h2 class="text-xl font-bold text-gray-800 mb-6" id="sectionTitleLicenses">📜 ใบอนุญาต/ใบรับรอง</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelProfessionalLicense">ใบอนุญาตประกอบวิชาชีพ</label>
+            <input type="text" id="professionalLicense" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelDrivingLicense">ใบขับขี่</label>
+            <select id="drivingLicense" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="" id="phDrivingLicense">-- เลือกใบขับขี่ --</option>
+              <option value="none" id="optDrivingNone">ไม่มี</option>
+              <option value="car" id="optDrivingCar">รถยนต์</option>
+              <option value="motorcycle" id="optDrivingMotorcycle">รถจักรยานยนต์</option>
+              <option value="both" id="optDrivingBoth">รถยนต์ + รถจักรยานยนต์</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelOtherCertificates">ใบรับรองอื่นๆ</label>
+            <input type="text" id="otherCertificates" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+        </div>
+      </div>
+    </div>
 
-            // Build consent content
-            let html = '';
-            
-            // Companies and intro
-            html += `<p class="text-sm text-gray-700 mb-4">${data.companies} ${data.intro}</p>`;
+    <!-- STEP 8: Emergency Contact -->
+    <div class="step-section" id="step-emergency" data-step="8">
+      <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 fade-in">
+        <h2 class="text-xl font-bold text-gray-800 mb-6" id="sectionTitleEmergency">🚨 ผู้ติดต่อกรณีฉุกเฉิน</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"><span id="labelEmergencyName">ชื่อ-นามสกุล</span> <span class="required-star">*</span></label>
+            <input type="text" id="emergencyName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"><span id="labelEmergencyRelationship">ความสัมพันธ์</span> <span class="required-star">*</span></label>
+            <input type="text" id="emergencyRelationship" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"><span id="labelEmergencyPhone">เบอร์โทรศัพท์</span> <span class="required-star">*</span></label>
+            <input type="tel" id="emergencyPhone" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+        </div>
+      </div>
+    </div>
 
-            // Sections
-            data.sections.forEach(section => {
-                html += `<h3 class="text-lg font-bold text-gray-800 mt-6 mb-3">${section.title}</h3>`;
-                html += `<p class="text-sm text-gray-700 mb-2">${section.content}</p>`;
-                
-                if (section.items && section.items.length > 0) {
-                    html += '<ol class="list-decimal list-inside space-y-2 text-sm text-gray-700 ml-4">';
-                    section.items.forEach(item => {
-                        html += `<li>${item}</li>`;
-                    });
-                    html += '</ol>';
-                }
-            });
+    <!-- STEP 9: References -->
+    <div class="step-section" id="step-references" data-step="9">
+      <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 fade-in">
+        <h2 class="text-xl font-bold text-gray-800 mb-6" id="sectionTitleReferences">👥 บุคคลอ้างอิง</h2>
 
-            // Consent text
-            html += `<p class="text-sm text-gray-700 mt-6 font-semibold">${data.consent}</p>`;
-            html += `<p class="text-sm text-gray-700 mt-2">${data.consentAgree}</p>`;
+        <!-- Reference 1 -->
+        <div class="bg-gray-50 rounded-xl p-4 mb-4">
+          <h3 class="font-semibold text-gray-700 mb-3" id="ref1Title">บุคคลอ้างอิง 1</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1" id="labelRef1Name">ชื่อ</label>
+              <input type="text" id="ref1Name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1" id="labelRef1Position">ตำแหน่ง</label>
+              <input type="text" id="ref1Position" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1" id="labelRef1Company">บริษัท</label>
+              <input type="text" id="ref1Company" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1" id="labelRef1Phone">เบอร์โทร</label>
+              <input type="tel" id="ref1Phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+          </div>
+        </div>
 
-            document.getElementById('consent-content').innerHTML = html;
+        <!-- Reference 2 -->
+        <div class="bg-gray-50 rounded-xl p-4">
+          <h3 class="font-semibold text-gray-700 mb-3" id="ref2Title">บุคคลอ้างอิง 2</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1" id="labelRef2Name">ชื่อ</label>
+              <input type="text" id="ref2Name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1" id="labelRef2Position">ตำแหน่ง</label>
+              <input type="text" id="ref2Position" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1" id="labelRef2Company">บริษัท</label>
+              <input type="text" id="ref2Company" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1" id="labelRef2Phone">เบอร์โทร</label>
+              <input type="tel" id="ref2Phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-            // Update buttons
-            document.getElementById('btn-agree').textContent = data.buttons.agree;
-            document.getElementById('btn-disagree').textContent = data.buttons.disagree;
+    <!-- STEP 10: Uploads -->
+    <div class="step-section" id="step-uploads" data-step="10">
+      <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 fade-in">
+        <h2 class="text-xl font-bold text-gray-800 mb-6" id="sectionTitleUploads">📎 อัพโหลดเอกสาร</h2>
+        <div class="space-y-4">
+          <!-- Resume -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"><span id="labelResume">Resume/CV</span> <span class="required-star">*</span></label>
+            <div class="file-upload-area rounded-xl p-4 text-center cursor-pointer" onclick="document.getElementById('resumeFile').click()" id="resumeArea">
+              <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+              <p class="text-sm text-gray-500">PDF, DOC, DOCX</p>
+              <p class="text-xs text-blue-500 mt-1" id="resumeFileName"></p>
+            </div>
+            <input type="file" id="resumeFile" accept=".pdf,.doc,.docx" required class="hidden" onchange="showFileName(this, 'resumeFileName')">
+          </div>
 
-            // Update form labels
-            document.getElementById('form-title').textContent = data.formTitle || 'ข้อมูลผู้สมัคร';
-            document.getElementById('label-firstname').textContent = data.labels?.firstname || 'ชื่อ';
-            document.getElementById('label-lastname').textContent = data.labels?.lastname || 'นามสกุล';
-            document.getElementById('label-nickname').textContent = data.labels?.nickname || 'ชื่อเล่น';
-            document.getElementById('label-gender').textContent = data.labels?.gender || 'เพศ';
-            document.getElementById('label-birthdate').textContent = data.labels?.birthdate || 'วัน/เดือน/ปี เกิด';
-            document.getElementById('label-email').textContent = data.labels?.email || 'อีเมล';
-            document.getElementById('label-phone').textContent = data.labels?.phone || 'เบอร์โทรศัพท์';
-            document.getElementById('label-address').textContent = data.labels?.address || 'ที่อยู่';
-            document.getElementById('label-position').textContent = data.labels?.position || 'ตำแหน่งที่สมัคร';
-            document.getElementById('label-experience').textContent = data.labels?.experience || 'ประสบการณ์ทำงาน';
-            document.getElementById('label-education').textContent = data.labels?.education || 'การศึกษา';
-            document.getElementById('label-license').textContent = data.labels?.license || 'ใบอนุญาตประกอบวิชาชีพ';
-            document.getElementById('label-emergency-name').textContent = data.labels?.emergency_name || 'ชื่อผู้ติดต่อกรณีฉุกเฉิน';
-            document.getElementById('label-emergency-phone').textContent = data.labels?.emergency_phone || 'เบอร์โทรศัพท์ผู้ติดต่อฉุกเฉิน';
-            document.getElementById('label-reference-name').textContent = data.labels?.reference_name || 'ชื่อบุคคลอ้างอิง';
-            document.getElementById('label-reference-phone').textContent = data.labels?.reference_phone || 'เบอร์โทรศัพท์บุคคลอ้างอิง';
-            document.getElementById('label-resume').textContent = data.labels?.resume || 'อัพโหลด Resume/CV';
-            document.getElementById('label-photo').textContent = data.labels?.photo || 'อัพโหลดรูปถ่าย';
-            document.getElementById('btn-submit').textContent = data.buttons?.submit || 'ส่งใบสมัคร';
-            document.getElementById('btn-reset').textContent = data.buttons?.reset || 'ล้างข้อมูล';
+          <!-- Degree -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelDegreeFile">ใบปริญญา/ปริญญาตรี</label>
+            <div class="file-upload-area rounded-xl p-4 text-center cursor-pointer" onclick="document.getElementById('degreeFile').click()" id="degreeArea">
+              <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+              <p class="text-sm text-gray-500">PDF, JPG, PNG</p>
+              <p class="text-xs text-blue-500 mt-1" id="degreeFileName"></p>
+            </div>
+            <input type="file" id="degreeFile" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="showFileName(this, 'degreeFileName')">
+          </div>
 
-            // Update gender options
-            if (data.genderOptions) {
-                const genderSelect = document.getElementById('gender-select');
-                if (genderSelect) {
-                    const currentVal = genderSelect.value;
-                    genderSelect.innerHTML = `
-                        <option value="">${data.genderOptions.placeholder}</option>
-                        <option value="male">${data.genderOptions.male}</option>
-                        <option value="female">${data.genderOptions.female}</option>
-                        <option value="other">${data.genderOptions.other}</option>
-                    `;
-                    genderSelect.value = currentVal;
-                }
-            }
-        }
+          <!-- Work Certificate -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelWorkCertFile">ใบรับรองการทำงาน</label>
+            <div class="file-upload-area rounded-xl p-4 text-center cursor-pointer" onclick="document.getElementById('workCertFile').click()" id="workCertArea">
+              <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+              <p class="text-sm text-gray-500">PDF, JPG, PNG</p>
+              <p class="text-xs text-blue-500 mt-1" id="workCertFileName"></p>
+            </div>
+            <input type="file" id="workCertFile" accept=".pdf,.jpg,.jpeg,.png" class="hidden" onchange="showFileName(this, 'workCertFileName')">
+          </div>
 
-        // Handle consent
-        function handleConsent(agreed) {
-            if (agreed) {
-                document.getElementById('application-form').classList.remove('hidden');
-                document.getElementById('application-form').scrollIntoView({ behavior: 'smooth' });
-            } else {
-                alert(currentLang === 'th' ? 'คุณต้องยินยอมเพื่อสมัครงาน' : 
-                      currentLang === 'lo' ? 'ທ່ານຕ້ອງຍິນຍອມເພື່ອສະໝັກວຽກ' : 
-                      'អ្នកត្រូវយល់ព្រមដើម្បីដាក់ពាក្យសុំការងារ');
-            }
-        }
+          <!-- Other Documents -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelOtherFiles">เอกสารอื่นๆ</label>
+            <div class="file-upload-area rounded-xl p-4 text-center cursor-pointer" onclick="document.getElementById('otherFiles').click()" id="otherFilesArea">
+              <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+              <p class="text-sm text-gray-500">PDF, JPG, PNG, DOC, DOCX</p>
+              <p class="text-xs text-blue-500 mt-1" id="otherFilesName"></p>
+            </div>
+            <input type="file" id="otherFiles" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple class="hidden" onchange="showFileName(this, 'otherFilesName')">
+          </div>
+        </div>
+      </div>
+    </div>
 
-        // Form submission
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData);
-            
-            // Here you would send the data to your backend
-            console.log('Form data:', data);
-            
-            alert(currentLang === 'th' ? 'ส่งใบสมัครสำเร็จ!' : 
-                  currentLang === 'lo' ? 'ສົ່ງໃບສະໝັກສຳເລັດ!' : 
-                  'ដាក់ពាក្យសុំការងារបានជោគជ័យ!');
+    <!-- STEP 11: Additional Questions -->
+    <div class="step-section" id="step-questions" data-step="11">
+      <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 fade-in">
+        <h2 class="text-xl font-bold text-gray-800 mb-6" id="sectionTitleQuestions">📝 คำถามเพิ่มเติม</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelHowKnown">รู้จักบริษัทจากช่องทางไหน?</label>
+            <input type="text" id="howKnown" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelWhyInterested">ทำไมถึงสนใจทำงานกับบริษัท?</label>
+            <textarea id="whyInterested" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder=""></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelStrengthsWeaknesses">จุดแข็ง/จุดอ่อน</label>
+            <textarea id="strengthsWeaknesses" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder=""></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" id="labelHobbies">งานอดิเรก</label>
+            <input type="text" id="hobbies" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="flex flex-col sm:flex-row justify-between gap-4 no-print" id="formNav">
+      <button type="button" onclick="prevStep()" id="btnPrev" class="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-300 transition hidden">
+        <span id="btnPrevText">ย้อนกลับ</span>
+      </button>
+      <div class="flex gap-3 ml-auto">
+        <button type="button" onclick="saveDraft()" class="px-6 py-3 bg-yellow-500 text-white font-semibold rounded-xl hover:bg-yellow-600 transition">
+          <span id="btnSaveDraft">บันทึกฉบับร่าง</span>
+        </button>
+        <button type="button" onclick="resetForm()" class="px-6 py-3 bg-red-100 text-red-700 font-semibold rounded-xl hover:bg-red-200 transition">
+          <span id="btnReset">ล้างข้อมูล</span>
+        </button>
+        <button type="button" onclick="nextStep()" id="btnNext" class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition">
+          <span id="btnNextText">ถัดไป</span>
+        </button>
+        <button type="submit" id="btnSubmit" class="px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition hidden">
+          <span id="btnSubmitText">ส่งใบสมัคร</span>
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Disagreement Message -->
+  <div class="bg-white rounded-2xl shadow-lg p-8 text-center hidden" id="disagreeMessage">
+    <div class="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
+      <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </div>
+    <h3 class="text-xl font-bold text-gray-800 mb-2" id="disagreeTitle">คุณไม่ยินยอมให้เก็บข้อมูลส่วนบุคคล</h3>
+    <p class="text-gray-600 mb-6" id="disagreeDesc">กรุณายินยอมเพื่อทำการสมัครงาน</p>
+    <button onclick="showPdpaStep()" class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition">
+      <span id="btnBackToConsent">กลับไปหน้า PDPA</span>
+    </button>
+  </div>
+
+</div>
+
+<!-- Toast Notification -->
+<div class="fixed bottom-4 right-4 z-50 hidden" id="toast">
+  <div class="bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+    <span id="toastMessage">สำเร็จ!</span>
+  </div>
+</div>
+
+<script>
+// ==================== GLOBALS ====================
+let currentLang = 'th';
+let currentStep = 0; // 0 = PDPA
+let i18n = {};
+const totalSteps = 12; // pdpa + 11 form steps
+const stepIds = ['pdpa','personal','address','contact','position','education','experience','licenses','emergency','references','uploads','questions'];
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+  loadLanguage('th');
+});
+
+// ==================== LANGUAGE ====================
+async function loadLanguage(lang) {
+  currentLang = lang;
+  try {
+    const resp = await fetch(`i18n/form-register-${lang}.json`);
+    i18n = await resp.json();
+    applyTranslations();
+    updateFontFamily();
+    updateLangButtons();
+  } catch(e) {
+    console.error('Failed to load language:', lang, e);
+  }
+}
+
+function switchLang(lang) {
+  loadLanguage(lang);
+}
+
+function updateFontFamily() {
+  const fontMap = { th: 'font-th', en: 'font-en', lo: 'font-lo', km: 'font-km' };
+  const body = document.body;
+  body.className = body.className.replace(/font-(th|en|lo|km)/g, '');
+  body.classList.add(fontMap[currentLang] || 'font-th');
+  document.documentElement.lang = i18n.lang || 'th';
+  document.documentElement.dir = i18n.dir || 'ltr';
+}
+
+function updateLangButtons() {
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.remove('bg-blue-600', 'text-white');
+    btn.classList.add('hover:bg-blue-50');
+    if (btn.dataset.lang === currentLang) {
+      btn.classList.add('bg-blue-600', 'text-white');
+      btn.classList.remove('hover:bg-blue-50');
+    }
+  });
+}
+
+function applyTranslations() {
+  const t = i18n;
+  // Page
+  setText('pageTitle', t.pageTitle);
+  setText('pageSubtitle', t.pageSubtitle);
+  setText('progressLabel', t.progress);
+
+  // PDPA
+  setText('pdpaCompanies', t.companies);
+  setText('pdpaIntro', t.intro);
+  setText('pdpaConsent', t.consent);
+  setText('pdpaConsentAgree', t.consentAgree);
+  setText('btnAgree', t.buttons.agree);
+  setText('btnDisagree', t.buttons.disagree);
+
+  // PDPA Sections
+  const sectionsEl = document.getElementById('pdpaSections');
+  sectionsEl.innerHTML = '';
+  if (t.sections) {
+    t.sections.forEach((sec, i) => {
+      const details = document.createElement('details');
+      details.className = 'bg-gray-50 rounded-xl border border-gray-200';
+      if (i === 0) details.open = true;
+      const summary = document.createElement('summary');
+      summary.className = 'p-4 cursor-pointer font-semibold text-gray-800 hover:bg-gray-100 rounded-xl';
+      summary.textContent = sec.title;
+      details.appendChild(summary);
+      const content = document.createElement('div');
+      content.className = 'px-4 pb-4';
+      const p = document.createElement('p');
+      p.className = 'text-gray-600 text-sm mb-3';
+      p.textContent = sec.content;
+      content.appendChild(p);
+      if (sec.items && sec.items.length > 0) {
+        const ul = document.createElement('ul');
+        ul.className = 'list-disc list-inside space-y-1 text-sm text-gray-700';
+        sec.items.forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = item;
+          ul.appendChild(li);
         });
+        content.appendChild(ul);
+      }
+      details.appendChild(content);
+      sectionsEl.appendChild(details);
+    });
+  }
 
-        // Initialize with Thai
-        setLanguage('th');
-    </script>
+  // Buttons
+  setText('btnSubmitText', t.buttons.submit);
+  setText('btnReset', t.buttons.reset);
+  setText('btnSaveDraft', t.buttons.saveDraft);
+  setText('btnNextText', t.buttons.next);
+  setText('btnPrevText', t.buttons.prev);
+
+  // Section titles
+  if (t.sectionTitles) {
+    Object.keys(t.sectionTitles).forEach(key => {
+      const elId = 'sectionTitle' + key.charAt(0).toUpperCase() + key.slice(1);
+      setText(elId, t.sectionTitles[key]);
+    });
+  }
+
+  // Labels
+  if (t.labels) {
+    const labels = t.labels;
+    // Simple labels
+    setText('labelPrefix', labels.prefix);
+    setText('labelFirstname', labels.firstname);
+    setText('labelLastname', labels.lastname);
+    setText('labelNickname', labels.nickname);
+    setText('labelGender', labels.gender);
+    setText('labelBirthdate', labels.birthdate);
+    setText('labelAge', labels.age);
+    setText('ageSuffix', labels.age_suffix);
+    setText('labelNationality', labels.nationality);
+    setText('labelIdCard', labels.id_card);
+    setText('labelMaritalStatus', labels.marital_status);
+    setText('labelHeight', labels.height);
+    setText('labelWeight', labels.weight);
+    setText('labelAddress', labels.address);
+    setText('labelDistrict', labels.district);
+    setText('labelProvince', labels.province);
+    setText('labelPostalCode', labels.postal_code);
+    setText('labelCountry', labels.country);
+    setText('labelPhone', labels.phone);
+    setText('labelPhoneAlt', labels.phone_alt);
+    setText('labelEmail', labels.email);
+    setText('labelLineId', labels.line_id);
+    setText('labelFacebook', labels.facebook);
+    setText('labelPosition', labels.position);
+    setText('labelDepartment', labels.department);
+    setText('labelBranch', labels.branch);
+    setText('labelExpectedSalary', labels.expected_salary);
+    setText('labelStartDate', labels.start_date);
+    setText('labelEducationLevel', labels.education_level);
+    setText('labelInstitution', labels.institution);
+    setText('labelMajor', labels.major);
+    setText('labelGpa', labels.gpa);
+    setText('labelGradYear', labels.grad_year);
+    setText('labelCompanyName', labels.company_name);
+    setText('labelLastPosition', labels.last_position);
+    setText('labelDurationYears', labels.duration_years);
+    setText('labelDurationMonths', labels.duration_months);
+    setText('labelResponsibilities', labels.responsibilities);
+    setText('labelReasonLeave', labels.reason_leave);
+    setText('labelProfessionalLicense', labels.professional_license);
+    setText('labelDrivingLicense', labels.driving_license);
+    setText('labelOtherCertificates', labels.other_certificates);
+    setText('labelEmergencyName', labels.emergency_name);
+    setText('labelEmergencyRelationship', labels.emergency_relationship);
+    setText('labelEmergencyPhone', labels.emergency_phone);
+    setText('labelRef1Name', labels.ref1_name);
+    setText('labelRef1Position', labels.ref1_position);
+    setText('labelRef1Company', labels.ref1_company);
+    setText('labelRef1Phone', labels.ref1_phone);
+    setText('labelRef2Name', labels.ref2_name);
+    setText('labelRef2Position', labels.ref2_position);
+    setText('labelRef2Company', labels.ref2_company);
+    setText('labelRef2Phone', labels.ref2_phone);
+    setText('labelResume', labels.resume);
+    setText('labelDegreeFile', labels.degree_file);
+    setText('labelWorkCertFile', labels.work_cert_file);
+    setText('labelOtherFiles', labels.other_files);
+    setText('labelHowKnown', labels.how_known);
+    setText('labelWhyInterested', labels.why_interested);
+    setText('labelStrengthsWeaknesses', labels.strengths_weaknesses);
+    setText('labelHobbies', labels.hobbies);
+    setText('photoLabel', labels.photo);
+
+    // Select options
+    setText('optPrefixMr', labels.prefix_mr);
+    setText('optPrefixMrs', labels.prefix_mrs);
+    setText('optPrefixMiss', labels.prefix_miss);
+    setText('optPrefixOther', labels.prefix_other);
+    setText('optGenderMale', labels.gender_male);
+    setText('optGenderFemale', labels.gender_female);
+    setText('optGenderOther', labels.gender_other);
+    setText('optMaritalSingle', labels.marital_single);
+    setText('optMaritalMarried', labels.marital_married);
+    setText('optMaritalDivorced', labels.marital_divorced);
+    setText('optMaritalWidowed', labels.marital_widowed);
+    setText('optEduHighSchool', labels.edu_high_school);
+    setText('optEduVocational', labels.edu_vocational);
+    setText('optEduBachelor', labels.edu_bachelor);
+    setText('optEduMaster', labels.edu_master);
+    setText('optEduDoctorate', labels.edu_doctorate);
+    setText('optDrivingNone', labels.driving_none);
+    setText('optDrivingCar', labels.driving_car);
+    setText('optDrivingMotorcycle', labels.driving_motorcycle);
+    setText('optDrivingBoth', labels.driving_both);
+  }
+
+  // Placeholders
+  if (t.placeholders) {
+    const ph = t.placeholders;
+    setPlaceholder('phPrefix', ph.prefix);
+    setPlaceholder('phGender', ph.gender);
+    setPlaceholder('phMaritalStatus', ph.marital_status);
+    setPlaceholder('phEducationLevel', ph.education_level);
+    setPlaceholder('phDrivingLicense', ph.driving_license);
+    setPlaceholder('position', ph.position);
+    setPlaceholder('expectedSalary', ph.expected_salary);
+    setPlaceholder('startDate', ph.start_date);
+    setPlaceholder('gpa', ph.gpa);
+    setPlaceholder('howKnown', ph.how_known);
+    setPlaceholder('whyInterested', ph.why_interested);
+    setPlaceholder('strengthsWeaknesses', ph.strengths_weaknesses);
+    setPlaceholder('hobbies', ph.hobbies);
+  }
+
+  // Disagree
+  setText('btnBackToConsent', t.buttons.prev || 'Back');
+
+  // Step indicators
+  buildStepIndicators();
+}
+
+function setText(id, text) {
+  const el = document.getElementById(id);
+  if (el && text) el.textContent = text;
+}
+
+function setPlaceholder(id, text) {
+  const el = document.getElementById(id);
+  if (el && text) {
+    // If it's an option element, set textContent
+    if (el.tagName === 'OPTION') {
+      el.textContent = text;
+    } else {
+      el.placeholder = text;
+    }
+  }
+}
+
+// ==================== STEP NAVIGATION ====================
+function buildStepIndicators() {
+  const container = document.getElementById('stepIndicators');
+  container.innerHTML = '';
+  if (!i18n.stepLabels) return;
+
+  const labels = i18n.stepLabels;
+  stepIds.forEach((id, idx) => {
+    const label = labels[id] || id;
+    const div = document.createElement('div');
+    div.className = 'flex flex-col items-center min-w-[60px]';
+
+    const circle = document.createElement('div');
+    circle.className = `w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold progress-step ${idx < currentStep ? 'completed' : idx === currentStep ? 'current' : 'pending'}`;
+    circle.textContent = idx + 1;
+    circle.id = `stepCircle${idx}`;
+
+    const labelEl = document.createElement('span');
+    labelEl.className = 'text-[10px] text-gray-500 mt-1 text-center truncate max-w-[70px]';
+    labelEl.textContent = label;
+
+    div.appendChild(circle);
+    div.appendChild(labelEl);
+    container.appendChild(div);
+  });
+}
+
+function updateProgress() {
+  const percent = Math.round((currentStep / (totalSteps - 1)) * 100);
+  document.getElementById('progressBar').style.width = percent + '%';
+  document.getElementById('progressPercent').textContent = percent + '%';
+  buildStepIndicators();
+}
+
+function showStep(stepIdx) {
+  // Hide all steps
+  document.querySelectorAll('.step-section').forEach(el => el.classList.remove('active'));
+
+  if (stepIdx === 0) {
+    // PDPA step
+    document.getElementById('step-pdpa').classList.add('active');
+    document.getElementById('progressContainer').style.display = 'none';
+    document.getElementById('applicationForm').style.display = 'none';
+    document.getElementById('disagreeMessage').classList.add('hidden');
+  } else {
+    const stepId = stepIds[stepIdx];
+    const stepEl = document.getElementById('step-' + stepId);
+    if (stepEl) stepEl.classList.add('active');
+    document.getElementById('progressContainer').style.display = 'block';
+    document.getElementById('applicationForm').style.display = 'block';
+    document.getElementById('disagreeMessage').classList.add('hidden');
+
+    // Show/hide nav buttons
+    document.getElementById('btnPrev').classList.toggle('hidden', stepIdx <= 1);
+    document.getElementById('btnNext').classList.toggle('hidden', stepIdx === totalSteps - 1);
+    document.getElementById('btnSubmit').classList.toggle('hidden', stepIdx !== totalSteps - 1);
+  }
+
+  currentStep = stepIdx;
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextStep() {
+  // Validate current step
+  if (!validateCurrentStep()) return;
+
+  if (currentStep < totalSteps - 1) {
+    showStep(currentStep + 1);
+  }
+}
+
+function prevStep() {
+  if (currentStep > 1) {
+    showStep(currentStep - 1);
+  } else if (currentStep === 1) {
+    showStep(0); // Back to PDPA
+  }
+}
+
+// ==================== PDPA CONSENT ====================
+function handleConsent(agreed) {
+  if (agreed) {
+    showStep(1);
+  } else {
+    document.getElementById('step-pdpa').classList.remove('active');
+    document.getElementById('disagreeMessage').classList.remove('hidden');
+    document.getElementById('progressContainer').style.display = 'none';
+  }
+}
+
+function showPdpaStep() {
+  document.getElementById('disagreeMessage').classList.add('hidden');
+  showStep(0);
+}
+
+// ==================== VALIDATION ====================
+function validateCurrentStep() {
+  const stepId = stepIds[currentStep];
+  const stepEl = document.getElementById('step-' + stepId);
+  if (!stepEl) return true;
+
+  const requiredInputs = stepEl.querySelectorAll('[required]');
+  let valid = true;
+
+  requiredInputs.forEach(input => {
+    input.classList.remove('border-red-500', 'ring-red-500');
+    if (!input.value || (input.type === 'file' && !input.files.length)) {
+      input.classList.add('border-red-500');
+      valid = false;
+    }
+    // Email validation
+    if (input.type === 'email' && input.value) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(input.value)) {
+        input.classList.add('border-red-500');
+        valid = false;
+      }
+    }
+  });
+
+  if (!valid) {
+    // Shake animation
+    stepEl.classList.add('animate-pulse');
+    setTimeout(() => stepEl.classList.remove('animate-pulse'), 500);
+  }
+
+  return valid;
+}
+
+// ==================== AGE CALCULATION ====================
+function calculateAge() {
+  const birthdate = document.getElementById('birthdate').value;
+  if (!birthdate) return;
+
+  const birth = new Date(birthdate);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const monthDiff = today.getMonth() - birth.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  document.getElementById('age').value = age >= 0 ? age : '';
+}
+
+// ==================== PHOTO PREVIEW ====================
+function previewPhoto(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const preview = document.getElementById('photoPreview');
+      preview.src = e.target.result;
+      preview.classList.remove('hidden');
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// ==================== FILE NAMES ====================
+function showFileName(input, labelId) {
+  const label = document.getElementById(labelId);
+  if (input.files && input.files.length > 0) {
+    const names = Array.from(input.files).map(f => f.name).join(', ');
+    label.textContent = names;
+  }
+}
+
+// ==================== FORM ACTIONS ====================
+function saveDraft() {
+  const formData = {};
+  const form = document.getElementById('applicationForm');
+  const inputs = form.querySelectorAll('input, select, textarea');
+  inputs.forEach(input => {
+    if (input.id) {
+      if (input.type === 'file') return;
+      formData[input.id] = input.value;
+    }
+  });
+  formData._lang = currentLang;
+  formData._step = currentStep;
+  formData._timestamp = new Date().toISOString();
+
+  try {
+    localStorage.setItem('applicationDraft', JSON.stringify(formData));
+    showToast(i18n.validation?.draft_saved || 'Draft saved!');
+  } catch(e) {
+    console.error('Failed to save draft:', e);
+  }
+}
+
+function loadDraft() {
+  try {
+    const data = localStorage.getItem('applicationDraft');
+    if (!data) return false;
+    const formData = JSON.parse(data);
+
+    Object.keys(formData).forEach(key => {
+      if (key.startsWith('_')) return;
+      const el = document.getElementById(key);
+      if (el) el.value = formData[key];
+    });
+
+    if (formData._lang) switchLang(formData._lang);
+    calculateAge();
+    return true;
+  } catch(e) {
+    console.error('Failed to load draft:', e);
+    return false;
+  }
+}
+
+function resetForm() {
+  if (confirm(i18n.validation?.form_reset || 'Clear all data?')) {
+    document.getElementById('applicationForm').reset();
+    document.getElementById('age').value = '';
+    document.getElementById('photoPreview').classList.add('hidden');
+    ['resumeFileName','degreeFileName','workCertFileName','otherFilesName'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '';
+    });
+    localStorage.removeItem('applicationDraft');
+    showStep(1);
+    showToast(i18n.validation?.form_reset || 'Form cleared!');
+  }
+}
+
+// Form submit
+document.getElementById('applicationForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  // Validate all steps
+  let allValid = true;
+  for (let i = 1; i < totalSteps; i++) {
+    const stepId = stepIds[i];
+    const stepEl = document.getElementById('step-' + stepId);
+    if (!stepEl) continue;
+    const requiredInputs = stepEl.querySelectorAll('[required]');
+    requiredInputs.forEach(input => {
+      if (!input.value) {
+        allValid = false;
+      }
+    });
+  }
+
+  if (!allValid) {
+    showToast(i18n.validation?.required || 'Please fill all required fields');
+    return;
+  }
+
+  // Collect all data
+  const formData = {};
+  const inputs = this.querySelectorAll('input, select, textarea');
+  inputs.forEach(input => {
+    if (input.id && input.type !== 'file') {
+      formData[input.id] = input.value;
+    }
+  });
+  formData._submittedAt = new Date().toISOString();
+  formData._lang = currentLang;
+
+  console.log('Form submitted:', formData);
+  showToast(i18n.validation?.form_submitted || 'Application submitted!');
+
+  // In production, send to server here
+  // fetch('/api/applications', { method: 'POST', body: JSON.stringify(formData) })
+});
+
+// ==================== TOAST ====================
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  const toastMsg = document.getElementById('toastMessage');
+  toastMsg.textContent = message;
+  toast.classList.remove('hidden');
+  setTimeout(() => toast.classList.add('hidden'), 3000);
+}
+
+// ==================== DRAG & DROP ====================
+document.querySelectorAll('.file-upload-area').forEach(area => {
+  area.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    area.classList.add('dragover');
+  });
+  area.addEventListener('dragleave', () => {
+    area.classList.remove('dragover');
+  });
+  area.addEventListener('drop', (e) => {
+    e.preventDefault();
+    area.classList.remove('dragover');
+    const input = area.nextElementSibling;
+    if (input && input.type === 'file') {
+      input.files = e.dataTransfer.files;
+      input.dispatchEvent(new Event('change'));
+    }
+  });
+});
+
+// ==================== LOAD DRAFT ON START ====================
+// Uncomment to auto-load draft:
+// setTimeout(() => loadDraft(), 1000);
+</script>
+
 </body>
 </html>
