@@ -554,6 +554,57 @@
                 <p class="text-sm text-gray-500 mt-2">อัพเดทล่าสุด: <span id="last-updated">-</span></p>
             </div>
 
+            <!-- Database Architecture -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white text-xl">🗄️</div>
+                    <h2 class="text-2xl font-bold text-gray-800">Database Architecture (3 ฐานข้อมูล)</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
+                        <h3 class="font-bold text-blue-800 mb-2">📥 Database 1: ข้อมูลผู้สมัครงาน</h3>
+                        <p class="text-xs text-gray-600 mb-2"><strong>Trigger:</strong> ผู้สมัครสมัครงานเข้ามา</p>
+                        <ul class="text-xs text-gray-700 space-y-1">
+                            <li>• Stock ข้อมูลผู้สมัคร (สมัครเข้ามาโดยไม่จำเป็นต้องเลือกว่าตำแหน่งงานไหนว่าง)</li>
+                            <li>• ข้อมูลผู้สมัครเข้ามากองในฐาน และเราสามารถเลือกใช้ได้โดย AI พิจารณาคุณสมบัติตามพื้นที่</li>
+                            <li>• เอกสารการสมัครงาน</li>
+                        </ul>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg border-2 border-green-200">
+                        <h3 class="font-bold text-green-800 mb-2">🏗️ Database 2: ข้อมูลโครงสร้าง</h3>
+                        <p class="text-xs text-gray-600 mb-2"><strong>Trigger:</strong> คีย์ขออัตรากำลังคน / สร้างโครงสร้างใหม่</p>
+                        <div class="space-y-2">
+                            <div class="bg-white p-2 rounded">
+                                <p class="text-xs font-semibold text-gray-800">โครงสร้างภายนอก:</p>
+                                <ul class="text-xs text-gray-700 space-y-1">
+                                    <li>• เงินเดือน เบี้ยเลี้ยง ค่าตอบแทนตามต้นสังกัด</li>
+                                    <li>• ประกันสังคม สิทธิสวัสดิการรัฐ</li>
+                                    <li>• อยู่ใน PKG Member</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white p-2 rounded">
+                                <p class="text-xs font-semibold text-gray-800">โครงสร้างภายใน:</p>
+                                <ul class="text-xs text-gray-700 space-y-1">
+                                    <li>• โครงสร้างเครือข่าย ข้าม function ได้</li>
+                                    <li>• กลุ่มธุรกิจ PMSG, AAMG, CPDG</li>
+                                    <li>• ประเมินเครดิต ค่าตอบแทน ข้ามสายงานได้</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg border-2 border-red-200">
+                        <h3 class="font-bold text-red-800 mb-2">📤 Database 3: ข้อมูลสมาชิกลาออก</h3>
+                        <p class="text-xs text-gray-600 mb-2"><strong>Trigger:</strong> สมาชิกมีผลลาออก</p>
+                        <ul class="text-xs text-gray-700 space-y-1">
+                            <li>• ข้อมูลทั้งหมดจะถูกดึงออกไปอยู่ฐานนี้ ตั้งแต่วันที่มีผลลาออก</li>
+                            <li>• สามารถดึงกลับเข้าไปใหม่ได้กรณีที่เปลี่ยนใจกลับมาทำงาน</li>
+                            <li>• ต้องทำการ update ให้เป็นปัจจุบัน</li>
+                            <li>• <strong>เก็บไว้ 10 ปี</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             <!-- ข้อมูลโครงสร้างบริษัท ภาษี -->
             <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
                 <div class="flex items-center gap-3 mb-4">
