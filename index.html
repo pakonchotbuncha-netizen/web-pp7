@@ -2599,12 +2599,16 @@
                 const externalGrid = document.getElementById('external-companies-grid');
                 if (externalGrid && data.externalCompanies.companies) {
                     const allCompanies = [...data.externalCompanies.companies, ...(data.externalCompanies.otherCompanies || [])];
-                    externalGrid.innerHTML = allCompanies.map(company => `
+                    externalGrid.innerHTML = allCompanies.map(company => {
+                        const displayName = company.newName || company.name;
+                        const changeBadge = company.changeHistory ? `<p class="text-[10px] text-orange-600 mt-1">${company.changeHistory}</p>` : '';
+                        return `
                         <div class="bg-purple-50 p-3 rounded-lg text-center">
                             <div class="text-2xl font-bold text-purple-600">${company.code}</div>
-                            <p class="text-xs text-gray-600">${company.name}</p>
+                            <p class="text-xs text-gray-600">${displayName}</p>
+                            ${changeBadge}
                         </div>
-                    `).join('');
+                    `}).join('');
                 }
                 
                 // Render external positions table
