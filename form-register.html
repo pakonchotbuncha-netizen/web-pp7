@@ -851,18 +851,7 @@
         
         // Submit to backend
         async function submitToBackend(data) {
-            // TODO: Replace with actual GAS URL after deployment
-            const GAS_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
-            
-            if (GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
-                // Demo mode - just log data
-                console.log('Form data:', data);
-                return {
-                    success: true,
-                    applicantId: 'APP-' + Date.now(),
-                    message: 'Demo mode - Backend not configured yet'
-                };
-            }
+            const GAS_URL = 'https://script.google.com/macros/s/AKfycbyp7f6kX699UhK3e7EHyjQYSQgAzmeTNu4bAJqW2f5n4Zj5AreGoM2TrPqv_AmP3v_r/exec';
             
             // Real submission
             const response = await fetch(GAS_URL + '?action=submitApplication', {
