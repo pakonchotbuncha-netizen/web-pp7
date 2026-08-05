@@ -1147,9 +1147,17 @@ setLanguage = async function(lang) {
     updateFileUploadLabels();
 };
 
-// Initial call
-updateDatePlaceholders();
-updateFileUploadLabels();
+// Initial call when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    updateDatePlaceholders();
+    updateFileUploadLabels();
+});
+
+// Also call immediately in case DOM is already loaded
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    updateDatePlaceholders();
+    updateFileUploadLabels();
+}
 </script>
 </body>
 </html>
