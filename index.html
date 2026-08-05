@@ -1015,53 +1015,9 @@
 
         // ===== STEP 2: APPLICATION FORM =====
         function renderApplicationForm() {
-            const content = document.getElementById('content-area');
-            content.innerHTML = `
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <button onclick="backToPositions()" class="mb-4 text-purple-600 hover:text-purple-800"><i class="fas fa-arrow-left mr-2"></i>กลับหน้าตำแหน่งงาน</button>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2"><i class="fas fa-file-alt text-purple-600 mr-2"></i>ใบสมัครงาน</h2>
-                    <p class="text-gray-600 mb-6">ตำแหน่ง: <strong>${selectedPosition.title}</strong></p>
-                    
-                    <form onsubmit="submitApplication(event)">
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-4"><i class="fas fa-user mr-2"></i>ข้อมูลส่วนตัว</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div><label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ <span class="text-red-500">*</span></label><input type="text" id="app-firstname" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"></div>
-                                <div><label class="block text-sm font-medium text-gray-700 mb-2">นามสกุล <span class="text-red-500">*</span></label><input type="text" id="app-lastname" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"></div>
-                                <div><label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทร <span class="text-red-500">*</span></label><input type="tel" id="app-phone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"></div>
-                                <div><label class="block text-sm font-medium text-gray-700 mb-2">Email <span class="text-red-500">*</span></label><input type="email" id="app-email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"></div>
-                            </div>
-                        </div>
-
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-4"><i class="fas fa-graduation-cap mr-2"></i>การศึกษา</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div><label class="block text-sm font-medium text-gray-700 mb-2">วุฒิการศึกษา <span class="text-red-500">*</span></label><select id="app-education" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"><option value="">-- เลือก --</option><option value="มัธยมศึกษา">มัธยมศึกษา</option><option value="ปวส.">ปวส.</option><option value="ปริญญาตรี">ปริญญาตรี</option><option value="ปริญญาโท">ปริญญาโท</option></select></div>
-                                <div><label class="block text-sm font-medium text-gray-700 mb-2">สาขาวิชา <span class="text-red-500">*</span></label><input type="text" id="app-major" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"></div>
-                                <div><label class="block text-sm font-medium text-gray-700 mb-2">GPA</label><input type="number" step="0.01" min="0" max="4" id="app-gpa" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"></div>
-                                <div><label class="block text-sm font-medium text-gray-700 mb-2">สถาบัน</label><input type="text" id="app-institution" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"></div>
-                            </div>
-                        </div>
-
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-4"><i class="fas fa-tools mr-2"></i>ทักษะ</h3>
-                            <textarea id="app-skills" required rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600" placeholder="เช่น ซ่อมเครื่องยนต์, ระบบไฟฟ้า, การวินิจฉัยปัญหา"></textarea>
-                            <p class="text-xs text-gray-500 mt-1">ตำแหน่งนี้ต้องการ: ${selectedPosition.requirements.skills.join(', ')}</p>
-                        </div>
-
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-700 mb-4"><i class="fas fa-briefcase mr-2"></i>ประสบการณ์ทำงาน</h3>
-                            <input type="number" min="0" id="app-experience" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 mb-3" placeholder="จำนวนปี">
-                            <textarea id="app-experience-detail" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600" placeholder="อธิบายประสบการณ์ทำงานที่ผ่านมา"></textarea>
-                        </div>
-
-                        <div class="flex space-x-4">
-                            <button type="button" onclick="backToPositions()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition"><i class="fas fa-arrow-left mr-2"></i>ย้อนกลับ</button>
-                            <button type="submit" class="flex-1 bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold"><i class="fas fa-paper-plane mr-2"></i>ส่งใบสมัคร</button>
-                        </div>
-                    </form>
-                </div>
-            `;
+            // Redirect to full application form (form-register.html)
+            const positionId = selectedPosition ? selectedPosition.id : '';
+            window.location.href = `form-register.html?position=${positionId}`;
         }
 
         function backToPositions() { currentStep = 'positions'; renderPositionsList(); }
