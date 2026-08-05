@@ -422,7 +422,7 @@ function applyPosition(positionId) {
     }
     
     // Redirect to application form
-    window.location.href = `application.html?position=${positionId}`;
+    window.location.href = `form-register.html?position=${positionId}`;
 }
 
 // ===== FILTER FUNCTIONS =====
