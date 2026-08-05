@@ -701,14 +701,180 @@
             }
         }
 
-        document.getElementById('application-form').addEventListener('submit', function(e) {
+        document.getElementById('application-form').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
             if (!document.getElementById('consent-check').checked) {
                 alert(currentLang === 'th' ? 'กรุณากดยินยอมก่อนส่งใบสมัคร' : currentLang === 'lo' ? 'ກະລຸນາກົດຍິນຍອມກ່ອນສົ່ງໃບສະໝັກ' : currentLang === 'km' ? 'សូមចុចយល់ព្រមមុនដាក់ពាក្យ' : 'Please accept the consent before submitting');
                 return;
             }
-            alert(currentLang === 'th' ? 'ส่งใบสมัครสำเร็จ!' : currentLang === 'lo' ? 'ສົ່ງໃບສະໝັກສຳເລັດ!' : currentLang === 'km' ? 'ដាក់ពាក្យបានជោគជ័យ!' : 'Application submitted successfully!');
+            
+            // Show loading
+            const submitBtn = document.getElementById('btn-submit');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = currentLang === 'th' ? '⏳ กำลังส่ง...' : currentLang === 'lo' ? '⏳ ກຳລັງສົ່ງ...' : currentLang === 'km' ? '⏳ កំពុងផ្ញើ...' : '⏳ Submitting...';
+            
+            try {
+                // Collect form data
+                const formData = collectFormData();
+                
+                // Submit to backend
+                const response = await submitToBackend(formData);
+                
+                if (response.success) {
+                    alert(currentLang === 'th' ? `ส่งใบสมัครสำเร็จ!\n\nรหัสผู้สมัคร: ${response.applicantId}\n\nกรุณาตรวจสอบอีเมลของคุณ` : currentLang === 'lo' ? `ສົ່ງໃບສະໝັກສຳເລັດ!\n\nລະຫັດຜູ້ສະໝັກ: ${response.applicantId}` : currentLang === 'km' ? `ដាក់ពាក្យបានជោគជ័យ!\n\nលេខសម្គាល់: ${response.applicantId}` : `Application submitted successfully!\n\nApplicant ID: ${response.applicantId}`);
+                    
+                    // Reset form
+                    document.getElementById('application-form').reset();
+                } else {
+                    throw new Error(response.error || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Submit error:', error);
+                alert(currentLang === 'th' ? `เกิดข้อผิดพลาด: ${error.message}\n\nกรุณาลองใหม่อีกครั้ง` : `Error: ${error.message}\n\nPlease try again`);
+            } finally {
+                // Restore button
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
         });
+        
+        // Collect all form data
+        function collectFormData() {
+            const data = {};
+            
+            // Section 1: Position
+            data.positionOpen = document.getElementById('position-open').value;
+            data.positionOther = document.getElementById('position-other').value;
+            data.salary = document.getElementById('salary').value;
+            data.applicationChannel = document.querySelector('input[name="appChannel"]:checked')?.value || '';
+            data.source = document.querySelector('input[name="source"]:checked')?.value || '';
+            
+            // Section 2: Personal Info (Thai)
+            data.prefixTh = document.getElementById('prefix-th').value;
+            data.firstnameTh = document.getElementById('firstname-th').value;
+            data.lastnameTh = document.getElementById('lastname-th').value;
+            
+            // Personal Info (English)
+            data.prefixEn = document.getElementById('prefix-en').value;
+            data.firstnameEn = document.getElementById('firstname-en').value;
+            data.lastnameEn = document.getElementById('lastname-en').value;
+            
+            data.nickname = document.getElementById('nickname').value;
+            data.gender = document.getElementById('gender').value;
+            data.birthdate = document.getElementById('birthdate').value;
+            data.age = document.getElementById('age').value;
+            data.weight = document.getElementById('weight').value;
+            data.height = document.getElementById('height').value;
+            data.blood = document.getElementById('blood').value;
+            data.ethnicity = document.getElementById('ethnicity').value;
+            data.nationality = document.getElementById('nationality').value;
+            data.education = document.getElementById('education').value;
+            data.major = document.getElementById('major').value;
+            
+            // ID Card
+            data.idCard = document.getElementById('idcard').value;
+            data.idCardPlace = document.getElementById('idcard-place').value;
+            data.idCardIssue = document.getElementById('idcard-issue').value;
+            data.idCardExpire = document.getElementById('idcard-expire').value;
+            
+            // Section 3: Registration Address
+            data.regHouse = document.getElementById('reg-house').value;
+            data.regSubdistrict = document.getElementById('reg-subdistrict').value;
+            data.regDistrict = document.getElementById('reg-district').value;
+            data.regProvince = document.getElementById('reg-province').value;
+            data.regPostal = document.getElementById('reg-postal').value;
+            
+            // Section 4: Current Address
+            data.curHouse = document.getElementById('cur-house').value;
+            data.curSubdistrict = document.getElementById('cur-subdistrict').value;
+            data.curDistrict = document.getElementById('cur-district').value;
+            data.curProvince = document.getElementById('cur-province').value;
+            data.curPostal = document.getElementById('cur-postal').value;
+            data.phone = document.getElementById('phone').value;
+            data.facebook = document.getElementById('facebook').value;
+            data.line = document.getElementById('line').value;
+            data.military = document.querySelector('input[name="military"]:checked')?.value || '';
+            
+            // Section 5: Family
+            data.marital = document.getElementById('marital').value;
+            data.children = document.getElementById('children').value;
+            data.familyInfo = document.getElementById('family-info').value;
+            data.father = document.getElementById('father').value;
+            data.mother = document.getElementById('mother').value;
+            
+            // Section 6: Skills
+            data.thaiSkill = collectSkillMatrix('thai');
+            data.engSkill = collectSkillMatrix('eng');
+            data.otherLang = document.getElementById('other-lang').value;
+            data.specialSkill = document.getElementById('special-skill').value;
+            data.hobby = document.getElementById('hobby').value;
+            data.driving = document.querySelector('input[name="driving"]:checked')?.value || '';
+            data.hasLicense = document.querySelector('input[name="hasLicense"]:checked')?.value || '';
+            data.carLicense = document.getElementById('car-license').value;
+            data.motoLicense = document.getElementById('moto-license').value;
+            
+            // Section 7: Work Experience
+            data.workExp = document.getElementById('work-exp').value;
+            data.reference = document.getElementById('reference').value;
+            data.emergency = document.getElementById('emergency').value;
+            data.allowCheck = document.querySelector('input[name="allowCheck"]:checked')?.value || '';
+            
+            // Section 8: General Info
+            data.disease = document.getElementById('disease').value;
+            data.surgery = document.getElementById('surgery').value;
+            data.fired = document.querySelector('input[name="fired"]:checked')?.value || '';
+            data.prevApply = document.querySelector('input[name="prevApply"]:checked')?.value || '';
+            data.socialSecurity = document.querySelector('input[name="socialSecurity"]:checked')?.value || '';
+            data.debt = document.querySelector('input[name="debt"]:checked')?.value || '';
+            data.debtDetail = document.getElementById('debt-detail').value;
+            data.familyDuty = document.querySelector('input[name="familyDuty"]:checked')?.value || '';
+            data.familyDutyDetail = document.getElementById('family-duty-detail').value;
+            data.criminalSelf = document.querySelector('input[name="criminalSelf"]:checked')?.value || '';
+            data.criminalCompany = document.querySelector('input[name="criminalCompany"]:checked')?.value || '';
+            data.transport = document.querySelector('input[name="transport"]:checked')?.value || '';
+            data.referrer = document.getElementById('referrer').value;
+            
+            return data;
+        }
+        
+        // Collect skill matrix data
+        function collectSkillMatrix(lang) {
+            const skills = {};
+            ['listen', 'speak', 'read', 'write'].forEach(skill => {
+                const checked = document.querySelector(`input[name="${lang}-${skill}"]:checked`);
+                skills[skill] = checked ? checked.value : '';
+            });
+            return JSON.stringify(skills);
+        }
+        
+        // Submit to backend
+        async function submitToBackend(data) {
+            // TODO: Replace with actual GAS URL after deployment
+            const GAS_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
+            
+            if (GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+                // Demo mode - just log data
+                console.log('Form data:', data);
+                return {
+                    success: true,
+                    applicantId: 'APP-' + Date.now(),
+                    message: 'Demo mode - Backend not configured yet'
+                };
+            }
+            
+            // Real submission
+            const response = await fetch(GAS_URL + '?action=submitApplication', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            return await response.json();
+        }
 
         setLanguage('th');
     </script>
