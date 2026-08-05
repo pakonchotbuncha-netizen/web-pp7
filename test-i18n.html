@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Test i18n</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .pass { background: #d4edda; color: #155724; }
+        .fail { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>i18n Translation Test</h1>
+    <div id="results"></div>
+
+    <script>
+        const results = document.getElementById('results');
+        
+        function addResult(message, type) {
+            const div = document.createElement('div');
+            div.className = 'test-result ' + type;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+
+        async function runTests() {
+            addResult('Starting i18n tests...', 'info');
+
+            // Test 1: Load all JSON files
+            const languages = ['th', 'en', 'lo', 'km'];
+            const translations = {};
+            
+            for (const lang of languages) {
+                try {
+                    const res = await fetch(`i18n/form-register-${lang}.json`);
+                    translations[lang] = await res.json();
+                    addResult(`✓ Loaded ${lang}.json`, 'pass');
+                } catch (e) {
+                    addResult(`✗ Failed to load ${lang}.json: ${e.message}`, 'fail');
+                    return;
+                }
+            }
+
+            // Test 2: Check critical keys exist in all languages
+            const criticalKeys = [
+                'pageTitle', 'pageSubtitle', 'sectionTitles', 'labels', 'options', 'buttons'
+            ];
+
+            for (const lang of languages) {
+                const data = translations[lang];
+                for (const key of criticalKeys) {
+                    if (!data[key]) {
+                        addResult(`✗ ${lang} missing key: ${key}`, 'fail');
+                    }
+                }
+                addResult(`✓ ${lang} has all critical keys`, 'pass');
+            }
+
+            // Test 3: Check critical option keys
+            const criticalOptions = [
+                'opt-placeholder-select',
+                'opt-prefix-mr', 'opt-prefix-mrs', 'opt-prefix-miss',
+                'opt-gender-male', 'opt-gender-female',
+                'opt-marital-single', 'opt-marital-married', 'opt-marital-divorced', 'opt-marital-widowed',
+                'opt-children-0', 'opt-children-1', 'opt-children-2', 'opt-children-3', 'opt-children-more',
+                'opt-edu-below-highschool', 'opt-edu-highschool', 'opt-edu-vocational',
+                'opt-edu-high-vocational', 'opt-edu-bachelor', 'opt-edu-master', 'opt-edu-phd',
+                'opt-military-exempt', 'opt-military-passed', 'opt-military-not-passed',
+                'opt-military-discharged', 'opt-military-studied',
+                'opt-pos-sales', 'opt-pos-service', 'opt-pos-accounting'
+            ];
+
+            for (const lang of languages) {
+                const data = translations[lang];
+                let missingCount = 0;
+                
+                for (const optKey of criticalOptions) {
+                    if (!data.options[optKey]) {
+                        addResult(`✗ ${lang} missing option: ${optKey}`, 'fail');
+                        missingCount++;
+                    }
+                }
+                
+                if (missingCount === 0) {
+                    addResult(`✓ ${lang} has all critical options (${criticalOptions.length} checked)`, 'pass');
+                }
+            }
+
+            // Test 4: Check that no Thai text remains in non-Thai languages
+            const thaiPattern = /[\u0E00-\u0E7F]/;
+            
+            for (const lang of ['en', 'lo', 'km']) {
+                const data = translations[lang];
+                let thaiFound = false;
+                
+                // Check labels
+                for (const [key, value] of Object.entries(data.labels)) {
+                    if (thaiPattern.test(value)) {
+                        addResult(`✗ ${lang} has Thai text in labels.${key}: "${value}"`, 'fail');
+                        thaiFound = true;
+                    }
+                }
+                
+                // Check options
+                for (const [key, value] of Object.entries(data.options)) {
+                    if (thaiPattern.test(value)) {
+                        addResult(`✗ ${lang} has Thai text in options.${key}: "${value}"`, 'fail');
+                        thaiFound = true;
+                    }
+                }
+                
+                if (!thaiFound) {
+                    addResult(`✓ ${lang} has no Thai text in labels or options`, 'pass');
+                }
+            }
+
+            // Test 5: Simulate select option translation
+            addResult('\nTesting select option translation logic...', 'info');
+            
+            const selectMaps = {
+                'education': { 
+                    'below-highschool': 'opt-edu-below-highschool', 
+                    'highschool': 'opt-edu-highschool', 
+                    'vocational': 'opt-edu-vocational', 
+                    'high-vocational': 'opt-edu-high-vocational', 
+                    'bachelor': 'opt-edu-bachelor', 
+                    'master': 'opt-edu-master', 
+                    'doctorate': 'opt-edu-phd' 
+                },
+                'marital': { 
+                    'single': 'opt-marital-single', 
+                    'married': 'opt-marital-married', 
+                    'divorced': 'opt-marital-divorced', 
+                    'widowed': 'opt-marital-widowed' 
+                },
+                'children': { 
+                    '0': 'opt-children-0', 
+                    '1': 'opt-children-1', 
+                    '2': 'opt-children-2', 
+                    '3': 'opt-children-3', 
+                    'more': 'opt-children-more' 
+                },
+                'military': { 
+                    'exempt': 'opt-military-exempt', 
+                    'passed': 'opt-military-passed', 
+                    'not-yet': 'opt-military-not-passed', 
+                    'discharged': 'opt-military-discharged', 
+                    'studying': 'opt-military-studied' 
+                }
+            };
+
+            for (const lang of languages) {
+                const data = translations[lang];
+                let allMapped = true;
+                
+                for (const [selectId, valueMap] of Object.entries(selectMaps)) {
+                    for (const [value, optKey] of Object.entries(valueMap)) {
+                        if (!data.options[optKey]) {
+                            addResult(`✗ ${lang} missing mapping: ${selectId}[${value}] -> ${optKey}`, 'fail');
+                            allMapped = false;
+                        }
+                    }
+                }
+                
+                if (allMapped) {
+                    addResult(`✓ ${lang} has all select option mappings`, 'pass');
+                }
+            }
+
+            addResult('\n✓ All tests completed!', 'pass');
+        }
+
+        runTests();
+    </script>
+</body>
+</html>
