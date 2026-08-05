@@ -13,7 +13,7 @@
  * @date 2026-08-05
  */
 
-const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID_HERE'; // เปลี่ยนเป็น ID ของ Google Sheets
+const SPREADSHEET_ID = '1FfpF4hT7vV-ZIyeHVb31MUJh_3kXMX52x0sYJGUr6kU'; // เปลี่ยนเป็น ID ของ Google Sheets
 const SHEET_NAME = 'Applicants';
 const LOG_SHEET_NAME = 'Logs';
 
