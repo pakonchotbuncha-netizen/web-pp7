@@ -59,6 +59,64 @@
     color: #6b7280;
 }
 </style>
+
+<style>
+.custom-date-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+.custom-date-wrapper input[type="date"] {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.custom-date-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+.custom-date-placeholder {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 14px;
+    pointer-events: none;
+}
+.custom-file-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.custom-file-btn {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #3b82f6;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+.custom-file-btn:hover {
+    background: #2563eb;
+}
+.custom-file-name {
+    font-size: 14px;
+    color: #6b7280;
+}
+.file-input-hidden {
+    display: none;
+}
+</style>
 </head>
 <body class="bg-gray-100" data-lang="th">
     <!-- Language Switcher -->
@@ -240,7 +298,13 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-birthdate">วันเกิด</label>
-                        <input type="date" id="birthdate" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500" onchange="calcAge()">
+                        <div class="relative">
+        <div class="custom-date-wrapper">
+        <input type="date" id="birthdate" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500" onchange="calcAge()">
+        <div class="custom-date-placeholder" id="birthdate-ph">วว/ดด/ปปปป</div>
+    </div>
+        <span class="date-placeholder-label absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" id="birthdate-placeholder">วว/ดด/ปปปป</span>
+    </div>
                     </div>
                 </div>
 
@@ -314,10 +378,10 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-upload-degree">อัพโหลดรูปภาพวุฒิการศึกษา</label>
-                        <div class="flex items-center gap-2">
-    <label for="upload-degree" class="custom-file-upload" data-i18n="btn-choose-file">เลือกไฟล์</label>
-    <input type="file" id="upload-degree" accept="image/*,.pdf" class="file-input-hidden">
-    <span class="file-name" id="upload-degree-name" data-i18n="no-file-selected">ไม่ได้เลือกไฟล์ใด</span>
+                        <div class="custom-file-wrapper">
+    <input type="file" id="upload-degree" accept="image/*,.pdf" class="file-input-hidden" onchange="updateFileName('upload-degree')">
+    <label for="upload-degree" class="custom-file-btn" id="upload-degree-btn">เลือกไฟล์</label>
+    <span class="custom-file-name" id="upload-degree-name">ไม่ได้เลือกไฟล์ใด</span>
 </div>
                     </div>
                 </div>
@@ -336,20 +400,32 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-idcard-issue">วันที่ออกบัตร</label>
-                        <input type="date" id="idcard-issue" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                        <div class="relative">
+        <div class="custom-date-wrapper">
+        <input type="date" id="idcard-issue" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+        <div class="custom-date-placeholder" id="idcard-issue-ph">วว/ดด/ปปปป</div>
+    </div>
+        <span class="date-placeholder-label absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" id="idcard-issue-placeholder">วว/ดด/ปปปป</span>
+    </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-idcard-expire">วันที่บัตรหมดอายุ</label>
-                        <input type="date" id="idcard-expire" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                        <div class="relative">
+        <div class="custom-date-wrapper">
+        <input type="date" id="idcard-expire" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+        <div class="custom-date-placeholder" id="idcard-expire-ph">วว/ดด/ปปปป</div>
+    </div>
+        <span class="date-placeholder-label absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" id="idcard-expire-placeholder">วว/ดด/ปปปป</span>
+    </div>
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-upload-photo">อัพโหลดรูปผู้สมัคร</label>
-                    <div class="flex items-center gap-2">
-    <label for="upload-photo" class="custom-file-upload" data-i18n="btn-choose-file">เลือกไฟล์</label>
-    <input type="file" id="upload-photo" accept="image/*" class="file-input-hidden">
-    <span class="file-name" id="upload-photo-name" data-i18n="no-file-selected">ไม่ได้เลือกไฟล์ใด</span>
+                    <div class="custom-file-wrapper">
+    <input type="file" id="upload-photo" accept="image/*" class="file-input-hidden" onchange="updateFileName('upload-photo')">
+    <label for="upload-photo" class="custom-file-btn" id="upload-photo-btn">เลือกไฟล์</label>
+    <span class="custom-file-name" id="upload-photo-name">ไม่ได้เลือกไฟล์ใด</span>
 </div>
                 </div>
             </div>
@@ -1015,6 +1091,65 @@ document.querySelectorAll('.file-input-hidden').forEach(input => {
         }
     });
 });
+</script>
+
+<script>
+// Update file name display
+function updateFileName(inputId) {
+    const input = document.getElementById(inputId);
+    const nameSpan = document.getElementById(inputId + '-name');
+    if (input && nameSpan) {
+        const fileName = input.files[0]?.name || '';
+        nameSpan.textContent = fileName || getTranslation('no-file-selected');
+    }
+}
+
+// Get translation helper
+function getTranslation(key) {
+    const translations = {
+        'th': { 'no-file-selected': 'ไม่ได้เลือกไฟล์ใด', 'btn-choose-file': 'เลือกไฟล์', 'date-placeholder': 'วว/ดด/ปปปป' },
+        'en': { 'no-file-selected': 'No file selected', 'btn-choose-file': 'Choose File', 'date-placeholder': 'dd/mm/yyyy' },
+        'lo': { 'no-file-selected': 'ບໍ່ໄດ້ເລືອກໄຟລ໌', 'btn-choose-file': 'ເລືອກຟລ໌', 'date-placeholder': 'ວວ/ດດ/ປປປປ' },
+        'km': { 'no-file-selected': 'មិនបានជ្រើសរើសឯកសារ', 'btn-choose-file': 'ជ្រើសរើសឯកសារ', 'date-placeholder': 'ថ្ងៃ/ខែ/្ាំ' }
+    };
+    return translations[currentLang]?.[key] || key;
+}
+
+// Update date placeholders
+function updateDatePlaceholders() {
+    const ph = getTranslation('date-placeholder');
+    document.querySelectorAll('.custom-date-placeholder').forEach(el => {
+        el.textContent = ph;
+    });
+}
+
+// Update file upload buttons
+function updateFileUploadLabels() {
+    const btnText = getTranslation('btn-choose-file');
+    const noFileText = getTranslation('no-file-selected');
+    
+    document.querySelectorAll('.custom-file-btn').forEach(btn => {
+        btn.textContent = btnText;
+    });
+    
+    document.querySelectorAll('.custom-file-name').forEach(name => {
+        if (name.textContent === 'ไม่ได้เลือกไฟล์ใด' || name.textContent === 'No file selected') {
+            name.textContent = noFileText;
+        }
+    });
+}
+
+// Call these when language changes
+const originalSetLanguage = setLanguage;
+setLanguage = async function(lang) {
+    await originalSetLanguage(lang);
+    updateDatePlaceholders();
+    updateFileUploadLabels();
+};
+
+// Initial call
+updateDatePlaceholders();
+updateFileUploadLabels();
 </script>
 </body>
 </html>
