@@ -9,146 +9,686 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
         * { font-family: 'Prompt', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .tab-active { background: #667eea; color: white; }
-        .tab-inactive { background: #f3f4f6; color: #6b7280; }
-        .card-hover { transition: all 0.3s ease; }
-        .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); }
+        .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 260px; background: linear-gradient(180deg, #0f172a 0%, #1e3a5f 100%); color: #fff; z-index: 50; overflow-y: auto; transition: transform .3s; }
+        .sidebar-header { padding: 1.25rem 1rem; border-bottom: 1px solid rgba(255,255,255,.1); }
+        .sidebar-link { display: flex; align-items: center; padding: .75rem 1rem; color: rgba(255,255,255,.7); transition: all .2s; border-left: 3px solid transparent; }
+        .sidebar-link:hover, .sidebar-link.active { background: rgba(255,255,255,.1); color: #fff; border-left-color: #818cf8; }
+        .main-content { margin-left: 260px; min-height: 100vh; background: #f1f5f9; }
+        .stat-card { transition: all .3s; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px -5px rgba(0,0,0,.1); }
+        .status-badge { padding: .25rem .75rem; border-radius: 9999px; font-size: .75rem; font-weight: 500; }
+        .status-new { background: #dbeafe; color: #1d4ed8; }
+        .status-reviewed { background: #fef3c7; color: #92400e; }
+        .status-interview { background: #e0e7ff; color: #3730a3; }
+        .status-hired { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .toast { position: fixed; top: 1rem; right: 1rem; z-index: 9999; padding: 1rem 1.5rem; border-radius: .5rem; color: #fff; font-weight: 500; transform: translateX(120%); transition: transform .3s; }
+        .toast.show { transform: translateX(0); }
+        .toast-success { background: #10b981; }
+        .toast-error { background: #ef4444; }
+        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; } }
     </style>
 </head>
-<body class="bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <i class="fas fa-building text-purple-600 text-2xl mr-3"></i>
-                    <span class="font-bold text-xl text-gray-800">PKG HR Dashboard</span>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <button onclick="showNotifications()" class="relative text-gray-700 hover:text-purple-600">
-                        <i class="fas fa-bell text-xl"></i>
-                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">5</span>
-                    </button>
-                    <div class="flex items-center space-x-2">
-                        <div class="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white font-semibold">HR</div>
-                        <span class="text-gray-700 font-medium">HR Manager</span>
-                    </div>
-                    <button onclick="logout()" class="text-gray-700 hover:text-red-600">
-                        <i class="fas fa-sign-out-alt mr-1"></i>ออก
-                    </button>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="flex items-center">
+                <i class="fas fa-building text-indigo-400 text-xl mr-3"></i>
+                <div>
+                    <div class="font-bold text-sm">PKG Recruitment</div>
+                    <div class="text-xs text-gray-400">HR Dashboard</div>
                 </div>
             </div>
         </div>
-    </nav>
-
-    <!-- Tabs -->
-    <div class="bg-white border-b">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex space-x-4 py-3">
-                <button onclick="switchTab('applicants')" id="tab-applicants" class="tab-active px-4 py-2 rounded-lg font-medium">
-                    <i class="fas fa-users mr-2"></i>ผู้สมัคร
-                </button>
-                <button onclick="switchTab('tests')" id="tab-tests" class="tab-inactive px-4 py-2 rounded-lg font-medium">
-                    <i class="fas fa-tasks mr-2"></i>แบบทดสอบ
-                </button>
-                <button onclick="switchTab('interviews')" id="tab-interviews" class="tab-inactive px-4 py-2 rounded-lg font-medium">
-                    <i class="fas fa-calendar-check mr-2"></i>นัดสัมภาษณ์
-                </button>
-                <button onclick="switchTab('scoring')" id="tab-scoring" class="tab-inactive px-4 py-2 rounded-lg font-medium">
-                    <i class="fas fa-star mr-2"></i>สัมภาษณ์
-                </button>
-                <button onclick="switchTab('results')" id="tab-results" class="tab-inactive px-4 py-2 rounded-lg font-medium">
-                    <i class="fas fa-award mr-2"></i>สรุปผล
-                </button>
-                <button onclick="switchTab('onboarding')" id="tab-onboarding" class="tab-inactive px-4 py-2 rounded-lg font-medium">
-                    <i class="fas fa-handshake mr-2"></i>เริ่มงาน
-                </button>
-            </div>
-        </div>
-    </div>
+        <nav class="py-4">
+            <a href="#" class="sidebar-link active" onclick="showSection('dashboard')">
+                <i class="fas fa-tachometer-alt w-6 mr-3"></i>แดชบอร์ด
+            </a>
+            <a href="#" class="sidebar-link" onclick="showSection('applicants')">
+                <i class="fas fa-users w-6 mr-3"></i>ผู้สมัครทั้งหมด
+            </a>
+            <a href="index.html" class="sidebar-link">
+                <i class="fas fa-home w-6 mr-3"></i>หน้าหลัก
+            </a>
+        </nav>
+    </aside>
 
     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">ผู้สมัครทั้งหมด</p>
-                        <p class="text-3xl font-bold text-gray-800" id="stat-total">0</p>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-users text-blue-600 text-xl"></i>
+    <div class="main-content">
+        <!-- Top Bar -->
+        <header class="bg-white shadow-sm sticky top-0 z-40">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center">
+                    <button onclick="toggleSidebar()" class="md:hidden text-gray-600 mr-4">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <h1 class="text-xl font-bold text-gray-800" id="pageTitle">แดชบอร์ด</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="loadApplicants()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition text-sm">
+                        <i class="fas fa-sync-alt mr-2"></i>รีเฟรช
+                    </button>
+                    <div class="text-right hidden sm:block">
+                        <div class="text-sm font-medium text-gray-700">HR Admin</div>
+                        <div class="text-xs text-gray-500">hr@prachakij.com</div>
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">ใหม่</p>
-                        <p class="text-3xl font-bold text-blue-600" id="stat-new">0</p>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-file-alt text-blue-600 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">ทำแบบทดสอบแล้ว</p>
-                        <p class="text-3xl font-bold text-purple-600" id="stat-tested">0</p>
-                    </div>
-                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-check-circle text-purple-600 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">กำลังสัมภาษณ์</p>
-                        <p class="text-3xl font-bold text-orange-600" id="stat-interview">0</p>
-                    </div>
-                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-calendar-check text-orange-600 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-lg p-6 card-hover">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">จ้างงาน</p>
-                        <p class="text-3xl font-bold text-green-600" id="stat-hired">0</p>
-                    </div>
-                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-handshake text-green-600 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </header>
 
-        <!-- Tab Content -->
-        <div id="tab-content">
-            <!-- Content will be loaded here -->
+        <!-- Dashboard Section -->
+        <div id="section-dashboard" class="p-6">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+                <div class="stat-card bg-white rounded-xl p-5 shadow-sm border-l-4 border-blue-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm text-gray-500">ผู้สมัครทั้งหมด</div>
+                            <div class="text-2xl font-bold text-gray-800" id="stat-total">0</div>
+                        </div>
+                        <i class="fas fa-users text-blue-500 text-2xl opacity-50"></i>
+                    </div>
+                </div>
+                <div class="stat-card bg-white rounded-xl p-5 shadow-sm border-l-4 border-blue-400">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm text-gray-500">ใหม่</div>
+                            <div class="text-2xl font-bold text-blue-600" id="stat-new">0</div>
+                        </div>
+                        <i class="fas fa-inbox text-blue-400 text-2xl opacity-50"></i>
+                    </div>
+                </div>
+                <div class="stat-card bg-white rounded-xl p-5 shadow-sm border-l-4 border-yellow-400">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm text-gray-500">พิจารณา</div>
+                            <div class="text-2xl font-bold text-yellow-600" id="stat-reviewed">0</div>
+                        </div>
+                        <i class="fas fa-search text-yellow-400 text-2xl opacity-50"></i>
+                    </div>
+                </div>
+                <div class="stat-card bg-white rounded-xl p-5 shadow-sm border-l-4 border-indigo-400">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm text-gray-500">สัมภาษณ์</div>
+                            <div class="text-2xl font-bold text-indigo-600" id="stat-interview">0</div>
+                        </div>
+                        <i class="fas fa-comments text-indigo-400 text-2xl opacity-50"></i>
+                    </div>
+                </div>
+                <div class="stat-card bg-white rounded-xl p-5 shadow-sm border-l-4 border-green-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm text-gray-500">จ้างแล้ว</div>
+                            <div class="text-2xl font-bold text-green-600" id="stat-hired">0</div>
+                        </div>
+                        <i class="fas fa-check-circle text-green-500 text-2xl opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Filters -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                <h3 class="font-semibold text-gray-700 mb-4"><i class="fas fa-filter mr-2 text-indigo-500"></i>ตัวกรอง</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">ค้นหา</label>
+                        <input type="text" id="searchInput" placeholder="ชื่อ, ID, ตำแหน่ง..." 
+                               class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                               oninput="filterApplicants()">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">ตำแหน่ง</label>
+                        <select id="filterPosition" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500" onchange="filterApplicants()">
+                            <option value="">ทั้งหมด</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">สถานะ</label>
+                        <select id="filterStatus" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500" onchange="filterApplicants()">
+                            <option value="">ทั้งหมด</option>
+                            <option value="new">ใหม่</option>
+                            <option value="reviewed">พิจารณา</option>
+                            <option value="interview">สัมภาษณ์</option>
+                            <option value="hired">จ้างแล้ว</option>
+                            <option value="rejected">ไม่ผ่าน</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">วันที่สมัคร</label>
+                        <input type="date" id="filterDate" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500" onchange="filterApplicants()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Applicants Table -->
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b flex items-center justify-between">
+                    <h3 class="font-semibold text-gray-700"><i class="fas fa-list mr-2 text-indigo-500"></i>รายการผู้สมัคร</h3>
+                    <span class="text-sm text-gray-500" id="resultCount">0 รายการ</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50 text-gray-600">
+                            <tr>
+                                <th class="px-4 py-3 text-left font-medium">Applicant ID</th>
+                                <th class="px-4 py-3 text-left font-medium">ชื่อ-นามสกุล</th>
+                                <th class="px-4 py-3 text-left font-medium">ตำแหน่ง</th>
+                                <th class="px-4 py-3 text-left font-medium">วันที่สมัคร</th>
+                                <th class="px-4 py-3 text-left font-medium">สถานะ</th>
+                                <th class="px-4 py-3 text-center font-medium">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicantsTable" class="divide-y divide-gray-100">
+                            <tr>
+                                <td colspan="6" class="px-4 py-12 text-center text-gray-400">
+                                    <i class="fas fa-spinner fa-spin text-2xl mb-3 block"></i>
+                                    กำลังโหลดข้อมูล...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Modal -->
-    <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div class="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
-                <h2 id="modal-title" class="text-2xl font-bold"></h2>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-2xl"></i>
-                </button>
+    <!-- Detail Modal -->
+    <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between rounded-t-2xl">
+                <h3 class="text-lg font-bold text-gray-800"><i class="fas fa-user-circle mr-2 text-indigo-500"></i>รายละเอียดผู้สมัคร</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-xl"><i class="fas fa-times"></i></button>
             </div>
-            <div id="modal-content" class="p-6"></div>
+            <div id="detailContent" class="p-6">
+                <!-- Dynamic content -->
+            </div>
         </div>
     </div>
 
-    <script src="./app.js"></script>
-    <script src="./hr-dashboard.js"></script>
+    <!-- Status Change Modal -->
+    <div id="statusModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <div class="border-b px-6 py-4 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-800"><i class="fas fa-exchange-alt mr-2 text-indigo-500"></i>เปลี่ยนสถานะ</h3>
+                <button onclick="closeStatusModal()" class="text-gray-400 hover:text-gray-600 text-xl"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6">
+                <input type="hidden" id="statusApplicantId">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ผู้สมัคร</label>
+                    <div id="statusApplicantName" class="text-gray-600 font-medium"></div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">สถานะใหม่</label>
+                    <select id="newStatus" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500">
+                        <option value="new">ใหม่</option>
+                        <option value="reviewed">พิจารณา</option>
+                        <option value="interview">นัดสัมภาษณ์</option>
+                        <option value="hired">จ้างแล้ว</option>
+                        <option value="rejected">ไม่ผ่าน</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">หมายเหตุ</label>
+                    <textarea id="statusNotes" rows="3" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="เพิ่มหมายเหตุ (ถ้ามี)"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeStatusModal()" class="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50">ยกเลิก</button>
+                    <button onclick="saveStatus()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">บันทึก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-trash-alt text-red-500 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-2">ยืนยันการลบ</h3>
+                <p class="text-gray-500 mb-1">คุณต้องการลบผู้สมัคร:</p>
+                <p class="font-medium text-gray-700 mb-4" id="deleteApplicantName"></p>
+                <input type="hidden" id="deleteApplicantId">
+                <div class="flex justify-center space-x-3">
+                    <button onclick="closeDeleteModal()" class="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50">ยกเลิก</button>
+                    <button onclick="confirmDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">ลบเลย</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+    // ===== Configuration =====
+    const GAS_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec'; // TODO: Replace with actual deployment URL
+    let allApplicants = [];
+
+    // ===== Status Labels =====
+    const STATUS_LABELS = {
+        'new': 'ใหม่',
+        'reviewed': 'พิจารณา',
+        'interview': 'นัดสัมภาษณ์',
+        'hired': 'จ้างแล้ว',
+        'rejected': 'ไม่ผ่าน'
+    };
+
+    // ===== Init =====
+    document.addEventListener('DOMContentLoaded', () => {
+        loadApplicants();
+    });
+
+    // ===== API Calls =====
+    async function loadApplicants() {
+        try {
+            showLoading();
+            const response = await fetch(`${GAS_URL}?action=getApplicants`);
+            const data = await response.json();
+
+            if (data.success) {
+                allApplicants = data.applicants || [];
+                updateStats();
+                populatePositionFilter();
+                filterApplicants();
+            } else {
+                showToast('โหลดข้อมูลไม่สำเร็จ: ' + (data.error || ''), 'error');
+                showEmptyState();
+            }
+        } catch (error) {
+            console.error('Load error:', error);
+            showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ API', 'error');
+            showEmptyState();
+        }
+    }
+
+    async function updateApplicantStatus(id, status, notes) {
+        try {
+            const params = new URLSearchParams({
+                action: 'updateStatus',
+                applicantId: id,
+                status: status,
+                changedBy: 'HR Admin',
+                notes: notes || ''
+            });
+            const response = await fetch(`${GAS_URL}?${params}`);
+            const data = await response.json();
+
+            if (data.success) {
+                showToast('อัพเดทสถานะสำเร็จ', 'success');
+                await loadApplicants();
+            } else {
+                showToast('อัพเดทไม่สำเร็จ: ' + (data.error || ''), 'error');
+            }
+        } catch (error) {
+            showToast('เกิดข้อผิดพลาด', 'error');
+        }
+    }
+
+    async function deleteApplicant(id) {
+        try {
+            const params = new URLSearchParams({
+                action: 'deleteApplicant',
+                applicantId: id
+            });
+            const response = await fetch(`${GAS_URL}?${params}`);
+            const data = await response.json();
+
+            if (data.success) {
+                showToast('ลบผู้สมัครสำเร็จ', 'success');
+                await loadApplicants();
+            } else {
+                showToast('ลบไม่สำเร็จ: ' + (data.error || ''), 'error');
+            }
+        } catch (error) {
+            showToast('เกิดข้อผิดพลาด', 'error');
+        }
+    }
+
+    async function loadApplicantDetail(id) {
+        try {
+            const params = new URLSearchParams({
+                action: 'getApplicant',
+                applicantId: id
+            });
+            const response = await fetch(`${GAS_URL}?${params}`);
+            const data = await response.json();
+
+            if (data.success) {
+                showDetailModal(data.applicant);
+            } else {
+                showToast('ไม่พบข้อมูล: ' + (data.error || ''), 'error');
+            }
+        } catch (error) {
+            showToast('เกิดข้อผิดพลาด', 'error');
+        }
+    }
+
+    // ===== UI Functions =====
+    function updateStats() {
+        const total = allApplicants.length;
+        const counts = { new: 0, reviewed: 0, interview: 0, hired: 0, rejected: 0 };
+
+        allApplicants.forEach(a => {
+            const status = getStatus(a);
+            if (counts[status] !== undefined) counts[status]++;
+        });
+
+        document.getElementById('stat-total').textContent = total;
+        document.getElementById('stat-new').textContent = counts.new;
+        document.getElementById('stat-reviewed').textContent = counts.reviewed;
+        document.getElementById('stat-interview').textContent = counts.interview;
+        document.getElementById('stat-hired').textContent = counts.hired;
+    }
+
+    function populatePositionFilter() {
+        const positions = [...new Set(allApplicants.map(a => getPosition(a)).filter(Boolean))];
+        const select = document.getElementById('filterPosition');
+        select.innerHTML = '<option value="">ทั้งหมด</option>';
+        positions.forEach(pos => {
+            select.innerHTML += `<option value="${escapeHtml(pos)}">${escapeHtml(pos)}</option>`;
+        });
+    }
+
+    function filterApplicants() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const position = document.getElementById('filterPosition').value;
+        const status = document.getElementById('filterStatus').value;
+        const date = document.getElementById('filterDate').value;
+
+        let filtered = allApplicants.filter(a => {
+            const name = `${getName(a)}`.toLowerCase();
+            const id = (getId(a) || '').toLowerCase();
+            const pos = getPosition(a);
+            const s = getStatus(a);
+            const d = getDate(a);
+
+            if (search && !name.includes(search) && !id.includes(search) && !(pos || '').toLowerCase().includes(search)) return false;
+            if (position && pos !== position) return false;
+            if (status && s !== status) return false;
+            if (date && d && !d.startsWith(date)) return false;
+            return true;
+        });
+
+        renderTable(filtered);
+        document.getElementById('resultCount').textContent = `${filtered.length} รายการ`;
+    }
+
+    function renderTable(applicants) {
+        const tbody = document.getElementById('applicantsTable');
+
+        if (applicants.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="px-4 py-12 text-center text-gray-400">
+                        <i class="fas fa-search text-3xl mb-3 block"></i>
+                        ไม่พบข้อมูลผู้สมัคร
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        tbody.innerHTML = applicants.map(a => {
+            const id = getId(a);
+            const name = getName(a);
+            const position = getPosition(a);
+            const date = formatDate(getDate(a));
+            const status = getStatus(a);
+
+            return `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-4 py-3">
+                        <span class="font-mono text-xs bg-gray-100 px-2 py-1 rounded">${escapeHtml(id || '-')}</span>
+                    </td>
+                    <td class="px-4 py-3 font-medium text-gray-800">${escapeHtml(name)}</td>
+                    <td class="px-4 py-3 text-gray-600">${escapeHtml(position || '-')}</td>
+                    <td class="px-4 py-3 text-gray-500 text-sm">${date}</td>
+                    <td class="px-4 py-3">
+                        <span class="status-badge status-${status}">${STATUS_LABELS[status] || status}</span>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="loadApplicantDetail('${escapeHtml(id)}')" 
+                                    class="text-indigo-600 hover:text-indigo-800" title="ดูรายละเอียด">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button onclick="openStatusModal('${escapeHtml(id)}', '${escapeHtml(name)}', '${status}')" 
+                                    class="text-yellow-600 hover:text-yellow-800" title="เปลี่ยนสถานะ">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="openDeleteModal('${escapeHtml(id)}', '${escapeHtml(name)}')" 
+                                    class="text-red-600 hover:text-red-800" title="ลบ">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+        }).join('');
+    }
+
+    // ===== Detail Modal =====
+    function showDetailModal(applicant) {
+        const content = document.getElementById('detailContent');
+        const status = getStatus(applicant);
+
+        content.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Profile Header -->
+                <div class="md:col-span-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-5 text-white">
+                    <div class="flex items-center">
+                        <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-user text-2xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold">${escapeHtml(getName(applicant))}</h2>
+                            <p class="opacity-90">${escapeHtml(getPosition(applicant) || '-')}</p>
+                            <p class="text-sm opacity-75 mt-1">ID: ${escapeHtml(getId(applicant))}</p>
+                        </div>
+                        <div class="ml-auto">
+                            <span class="status-badge status-${status} text-base">${STATUS_LABELS[status] || status}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Info -->
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-gray-700 border-b pb-2"><i class="fas fa-id-card mr-2 text-indigo-500"></i>ข้อมูลส่วนตัว</h4>
+                    <div class="text-sm"><span class="text-gray-500">ชื่อเล่น:</span> ${escapeHtml(getField(applicant, 'nickname') || '-')}</div>
+                    <div class="text-sm"><span class="text-gray-500">เพศ:</span> ${escapeHtml(getField(applicant, 'gender') || '-')}</div>
+                    <div class="text-sm"><span class="text-gray-500">วันเกิด:</span> ${formatDate(getField(applicant, 'birthdate'))}</div>
+                    <div class="text-sm"><span class="text-gray-500">อายุ:</span> ${escapeHtml(String(getField(applicant, 'age') || '-'))}</div>
+                    <div class="text-sm"><span class="text-gray-500">สัญชาติ:</span> ${escapeHtml(getField(applicant, 'nationality') || '-')}</div>
+                </div>
+
+                <!-- Contact -->
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-gray-700 border-b pb-2"><i class="fas fa-phone mr-2 text-indigo-500"></i>ติดต่อ</h4>
+                    <div class="text-sm"><span class="text-gray-500">โทร:</span> ${escapeHtml(getField(applicant, 'phone') || '-')}</div>
+                    <div class="text-sm"><span class="text-gray-500">Facebook:</span> ${escapeHtml(getField(applicant, 'facebook') || '-')}</div>
+                    <div class="text-sm"><span class="text-gray-500">Line:</span> ${escapeHtml(getField(applicant, 'line') || '-')}</div>
+                    <div class="text-sm"><span class="text-gray-500">ที่อยู่:</span> ${escapeHtml(getField(applicant, 'cur_house') || '-')}</div>
+                </div>
+
+                <!-- Education -->
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-gray-700 border-b pb-2"><i class="fas fa-graduation-cap mr-2 text-indigo-500"></i>การศึกษา</h4>
+                    <div class="text-sm"><span class="text-gray-500">วุฒิ:</span> ${escapeHtml(getField(applicant, 'education') || '-')}</div>
+                    <div class="text-sm"><span class="text-gray-500">สาขา:</span> ${escapeHtml(getField(applicant, 'major') || '-')}</div>
+                </div>
+
+                <!-- Skills -->
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-gray-700 border-b pb-2"><i class="fas fa-star mr-2 text-indigo-500"></i>ทักษะ</h4>
+                    <div class="text-sm"><span class="text-gray-500">ทักษะพิเศษ:</span> ${escapeHtml(getField(applicant, 'special_skill') || '-')}</div>
+                    <div class="text-sm"><span class="text-gray-500">งานอดิเรก:</span> ${escapeHtml(getField(applicant, 'hobby') || '-')}</div>
+                    <div class="text-sm"><span class="text-gray-500">ใบขับขี่:</span> ${escapeHtml(getField(applicant, 'has_license') || '-')}</div>
+                </div>
+
+                <!-- Work -->
+                <div class="md:col-span-2 space-y-3">
+                    <h4 class="font-semibold text-gray-700 border-b pb-2"><i class="fas fa-briefcase mr-2 text-indigo-500"></i>ประสบการณ์ทำงาน</h4>
+                    <div class="text-sm bg-gray-50 p-3 rounded-lg">${escapeHtml(getField(applicant, 'work_exp') || 'ไม่ระบุ')}</div>
+                </div>
+
+                <!-- Actions -->
+                <div class="md:col-span-2 flex justify-end space-x-3 pt-4 border-t">
+                    <button onclick="closeModal(); openStatusModal('${escapeHtml(getId(applicant))}', '${escapeHtml(getName(applicant))}', '${status}')" 
+                            class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 text-sm">
+                        <i class="fas fa-edit mr-1"></i>เปลี่ยนสถานะ
+                    </button>
+                    <button onclick="closeModal()" class="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50 text-sm">ปิด</button>
+                </div>
+            </div>`;
+
+        const modal = document.getElementById('detailModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('detailModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    // ===== Status Modal =====
+    function openStatusModal(id, name, currentStatus) {
+        document.getElementById('statusApplicantId').value = id;
+        document.getElementById('statusApplicantName').textContent = `${name} (${id})`;
+        document.getElementById('newStatus').value = currentStatus;
+        document.getElementById('statusNotes').value = '';
+
+        const modal = document.getElementById('statusModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeStatusModal() {
+        const modal = document.getElementById('statusModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    async function saveStatus() {
+        const id = document.getElementById('statusApplicantId').value;
+        const status = document.getElementById('newStatus').value;
+        const notes = document.getElementById('statusNotes').value;
+        closeStatusModal();
+        await updateApplicantStatus(id, status, notes);
+    }
+
+    // ===== Delete Modal =====
+    function openDeleteModal(id, name) {
+        document.getElementById('deleteApplicantId').value = id;
+        document.getElementById('deleteApplicantName').textContent = `${name} (${id})`;
+
+        const modal = document.getElementById('deleteModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    async function confirmDelete() {
+        const id = document.getElementById('deleteApplicantId').value;
+        closeDeleteModal();
+        await deleteApplicant(id);
+    }
+
+    // ===== Helpers =====
+    function getStatus(a) {
+        return getField(a, 'status') || 'new';
+    }
+
+    function getId(a) {
+        return getField(a, 'applicant_id') || '';
+    }
+
+    function getName(a) {
+        const prefix = getField(a, 'prefix_th') || '';
+        const first = getField(a, 'firstname_th') || '';
+        const last = getField(a, 'lastname_th') || '';
+        return `${prefix}${first} ${last}`.trim() || 'ไม่ระบุชื่อ';
+    }
+
+    function getPosition(a) {
+        return getField(a, 'position_open') || getField(a, 'positionOpen') || '';
+    }
+
+    function getDate(a) {
+        const ts = getField(a, 'timestamp');
+        if (!ts) return '';
+        if (ts instanceof Date) return ts.toISOString().split('T')[0];
+        return String(ts).split('T')[0];
+    }
+
+    function getField(obj, key) {
+        if (!obj) return '';
+        // Try exact key first, then case-insensitive
+        if (obj[key] !== undefined) return obj[key];
+        const lower = key.toLowerCase();
+        for (const k of Object.keys(obj)) {
+            if (k.toLowerCase() === lower) return obj[k];
+        }
+        return '';
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return String(dateStr).split('T')[0];
+            return d.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+        } catch { return '-'; }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = String(str);
+        return div.innerHTML;
+    }
+
+    function showLoading() {
+        document.getElementById('applicantsTable').innerHTML = `
+            <tr><td colspan="6" class="px-4 py-12 text-center text-gray-400">
+                <i class="fas fa-spinner fa-spin text-2xl mb-3 block"></i>กำลังโหลดข้อมูล...
+            </td></tr>`;
+    }
+
+    function showEmptyState() {
+        document.getElementById('applicantsTable').innerHTML = `
+            <tr><td colspan="6" class="px-4 py-12 text-center text-gray-400">
+                <i class="fas fa-exclamation-triangle text-3xl mb-3 block"></i>
+                ไม่สามารถโหลดข้อมูลได้<br>
+                <button onclick="loadApplicants()" class="mt-3 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">ลองใหม่</button>
+            </td></tr>`;
+    }
+
+    function showToast(message, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast toast-${type} show`;
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    function showSection(section) {
+        // For now single-section dashboard
+        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+        event.target.closest('.sidebar-link').classList.add('active');
+    }
+    </script>
 </body>
 </html>

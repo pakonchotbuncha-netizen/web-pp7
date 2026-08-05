@@ -54,6 +54,9 @@ function handleRequest(e) {
       case 'updateStatus':
         result = updateStatus(e);
         break;
+      case 'deleteApplicant':
+        result = deleteApplicant(e);
+        break;
       default:
         result = { success: false, error: 'Unknown action: ' + action };
     }
@@ -506,6 +509,60 @@ function sendStatusUpdateEmail(applicantId, oldStatus, newStatus) {
     subject: subject,
     htmlBody: body
   });
+}
+
+/**
+ * Delete an applicant by ID
+ */
+function deleteApplicant(e) {
+  const applicantId = e.parameter.applicantId;
+  
+  if (!applicantId) {
+    return { success: false, error: 'applicantId is required' };
+  }
+  
+  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(CONFIG.APPLICANT_SHEET);
+  const data = sheet.getDataRange().getValues();
+  
+  const headers = data[0];
+  const idIndex = headers.indexOf('applicant_id');
+  
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][idIndex] === applicantId) {
+      // Log deletion before removing
+      const name = `${data[i][headers.indexOf('prefix_th')] || ''}${data[i][headers.indexOf('firstname_th')] || ''} ${data[i][headers.indexOf('lastname_th')] || ''}`;
+      
+      sheet.deleteRow(i + 1);
+      
+      // Also log the deletion
+      try {
+        const logSheet = ss.getSheetByName(CONFIG.STATUS_LOG_SHEET);
+        if (logSheet) {
+          logSheet.appendRow([
+            applicantId,
+            'deleted',
+            'removed',
+            'HR Admin',
+            new Date(),
+            'Applicant record deleted: ' + name
+          ]);
+        }
+      } catch (logErr) {
+        Logger.log('Could not log deletion: ' + logErr);
+      }
+      
+      return {
+        success: true,
+        message: 'Applicant deleted successfully'
+      };
+    }
+  }
+  
+  return {
+    success: false,
+    error: 'Applicant not found'
+  };
 }
 
 /**
