@@ -720,8 +720,10 @@
                 'blood': { 'O': 'opt-blood-o', 'A': 'opt-blood-a', 'B': 'opt-blood-b', 'AB': 'opt-blood-ab' },
                 'ethnicity': { 'thai': 'opt-ethnicity-thai', 'lao': 'opt-ethnicity-lao', 'khmer': 'opt-ethnicity-khmer', 'chinese': 'opt-ethnicity-chinese', 'vietnamese': 'opt-ethnicity-vietnamese', 'other': 'opt-ethnicity-other' },
                 'nationality': { 'thai': 'opt-nationality-thai', 'lao': 'opt-nationality-lao', 'khmer': 'opt-nationality-khmer', 'other': 'opt-nationality-other' },
-                'education': { 'below-highschool': 'opt-edu-below-highschool', 'highschool': 'opt-edu-highschool', 'vocational': 'opt-edu-vocational', 'high-vocational': 'opt-edu-high-vocational', 'bachelor': 'opt-edu-bachelor', 'master': 'opt-edu-master', 'phd': 'opt-edu-phd' },
-                'military': { 'exempt': 'opt-military-exempt', 'passed': 'opt-military-passed', 'not-passed': 'opt-military-not-passed', 'discharged': 'opt-military-discharged', 'studied': 'opt-military-studied' },
+                'education': { 'below-highschool': 'opt-edu-below-highschool', 'highschool': 'opt-edu-highschool', 'vocational': 'opt-edu-vocational', 'high-vocational': 'opt-edu-high-vocational', 'bachelor': 'opt-edu-bachelor', 'master': 'opt-edu-master', 'doctorate': 'opt-edu-phd' },
+                'marital': { 'single': 'opt-marital-single', 'married': 'opt-marital-married', 'divorced': 'opt-marital-divorced', 'widowed': 'opt-marital-widowed' },
+                'children': { '0': 'opt-children-0', '1': 'opt-children-1', '2': 'opt-children-2', '3': 'opt-children-3', 'more': 'opt-children-more' },
+                'military': { 'exempt': 'opt-military-exempt', 'passed': 'opt-military-passed', 'not-yet': 'opt-military-not-passed', 'discharged': 'opt-military-discharged', 'studying': 'opt-military-studied' },
                 'position-open': { 'sales': 'opt-pos-sales', 'service': 'opt-pos-service', 'accounting': 'opt-pos-accounting', 'hr': 'opt-pos-hr', 'it': 'opt-pos-it', 'marketing': 'opt-pos-marketing', 'manager': 'opt-pos-manager', 'engineer': 'opt-pos-engineer', 'technician': 'opt-pos-technician', 'admin': 'opt-pos-admin', 'driver': 'opt-pos-driver', 'other': 'opt-pos-other' },
                 'position-other': { 'sales': 'opt-pos-sales', 'service': 'opt-pos-service', 'accounting': 'opt-pos-accounting', 'hr': 'opt-pos-hr', 'it': 'opt-pos-it', 'marketing': 'opt-pos-marketing', 'manager': 'opt-pos-manager', 'engineer': 'opt-pos-engineer', 'technician': 'opt-pos-technician', 'admin': 'opt-pos-admin', 'driver': 'opt-pos-driver', 'other': 'opt-pos-other' },
             };
@@ -740,17 +742,11 @@
                 });
             }
             
-            // Translate placeholders for date inputs
-            const datePlaceholders = {
-                'th': 'วว/ดด/ปปปป',
-                'en': 'dd/mm/yyyy',
-                'lo': 'ວວ/ດດ/ປປປປ',
-                'km': 'ថ្ងៃ/ខែ/្នាំ'
-            };
-            const ph = datePlaceholders[currentLang] || 'วว/ดด/ปปปป';
-            document.querySelectorAll('input[type="date"]').forEach(el => {
-                // Browsers handle date placeholder differently, skip
-            });
+            // Translate submit button
+            const btnSubmit = document.getElementById('btn-submit');
+            if (btnSubmit && data.buttons?.submit) {
+                btnSubmit.textContent = '📤 ' + data.buttons.submit;
+            }
         }
 
         function calcAge() {
@@ -937,6 +933,7 @@
             return await response.json();
         }
 
+        // Initialize with Thai
         setLanguage('th');
     </script>
 </body>
