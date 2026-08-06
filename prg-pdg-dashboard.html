@@ -14,12 +14,10 @@
     .card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
     .badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:9999px; font-size:11px; font-weight:600; }
     .scroll-x { overflow-x:auto; }
-    .table-pkg tbody tr:hover { background:#f8fafc; }
     .pill-good { background:#d1fae5; color:#065f46; }
     .pill-warn { background:#fef3c7; color:#92400e; }
     .pill-bad  { background:#fee2e2; color:#991b1b; }
     .kpi-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; }
-    .data-editor { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
 
     /* Tab system */
     .tab-btn {
@@ -52,6 +50,10 @@
       header, .tab-bar, .no-print { display: none !important; }
       .tab-panel { display: block !important; page-break-inside: avoid; }
     }
+
+    .yoy-up { color:#059669; }
+    .yoy-down { color:#dc2626; }
+    .yoy-flat { color:#6b7280; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -73,15 +75,15 @@
       </div>
     </div>
 
-    <!-- Tab bar (sticky, inside header) -->
+    <!-- Tab bar -->
     <div class="tab-bar border-t border-slate-200 bg-white/80">
       <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
         <nav class="flex overflow-x-auto" id="tabNav">
           <button class="tab-btn active" data-tab="overview" onclick="app.switchTab('overview')">📊 ภาพรวม</button>
           <button class="tab-btn" data-tab="monthly" onclick="app.switchTab('monthly')">📅 รายเดือน 2569</button>
+          <button class="tab-btn" data-tab="compare" onclick="app.switchTab('compare')">🔄 เปรียบเทียบ</button>
           <button class="tab-btn" data-tab="analysis" onclick="app.switchTab('analysis')">🔍 วิเคราะห์</button>
           <button class="tab-btn" data-tab="fulldata" onclick="app.switchTab('fulldata')">📋 ข้อมูลเต็ม</button>
-          <button class="tab-btn" data-tab="settings" onclick="app.switchTab('settings')">⚙️ ตั้งค่า</button>
         </nav>
       </div>
     </div>
@@ -89,7 +91,7 @@
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
-    <!-- ============ TAB 1: 📊 ภาพรวม (Overview) ============ -->
+    <!-- ============ TAB 1: ภาพรวม (Overview) ============ -->
     <section id="tab-overview" class="tab-panel active space-y-6">
 
       <!-- KPI Cards -->
@@ -97,530 +99,674 @@
         <h2 class="text-lg font-semibold text-slate-900">📌 ตัวชี้วัดหลัก (KPI)</h2>
         <div class="flex items-center gap-2 text-sm">
           <label class="text-slate-500">ปี:</label>
-          <select id="kpiYear" onchange="app.renderKPIs(); app.renderFactorChart(); app.renderOverviewSummary()" class="px-2 py-1 border border-slate-300 rounded text-sm">
-          </select>
+          <select id="kpiYear" onchange="app.renderTab('overview')" class="px-2 py-1 border border-slate-300 rounded text-sm"></select>
         </div>
       </div>
-      <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <div class="card bg-white rounded-xl p-5">
-          <div class="flex items-start justify-between">
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div class="card rounded-xl p-4 bg-gradient-to-br from-emerald-50 to-emerald-100">
+          <div class="flex items-center gap-3">
+            <div class="kpi-icon bg-emerald-200 text-emerald-700">💰</div>
             <div>
-              <div class="text-xs font-medium text-slate-500 uppercase">PRG เฉลี่ย</div>
-              <div class="mt-2 text-2xl sm:text-3xl font-bold text-emerald-600" id="kpi-avg-prg">-</div>
-              <div class="text-xs text-slate-400 mt-1">เดือนที่ GM จ่าย S&amp;A ได้</div>
+              <p class="text-xs text-slate-500 font-medium">PRG เฉลี่ย</p>
+              <p id="kpi-avg-prg" class="text-2xl font-bold text-emerald-700">-</p>
             </div>
-            <div class="kpi-icon bg-emerald-100 text-emerald-600">📈</div>
           </div>
         </div>
-        <div class="card bg-white rounded-xl p-5">
-          <div class="flex items-start justify-between">
+        <div class="card rounded-xl p-4 bg-gradient-to-br from-blue-50 to-blue-100">
+          <div class="flex items-center gap-3">
+            <div class="kpi-icon bg-blue-200 text-blue-700">🛡️</div>
             <div>
-              <div class="text-xs font-medium text-slate-500 uppercase">PDG เฉลี่ย</div>
-              <div class="mt-2 text-2xl sm:text-3xl font-bold text-blue-600" id="kpi-avg-pdg">-</div>
-              <div class="text-xs text-slate-400 mt-1">เดือนที่ GM จ่าย HRE ได้</div>
+              <p class="text-xs text-slate-500 font-medium">PDG เฉลี่ย</p>
+              <p id="kpi-avg-pdg" class="text-2xl font-bold text-blue-700">-</p>
             </div>
-            <div class="kpi-icon bg-blue-100 text-blue-600">💼</div>
           </div>
         </div>
-        <div class="card bg-white rounded-xl p-5">
-          <div class="flex items-start justify-between">
+        <div class="card rounded-xl p-4 bg-gradient-to-br from-amber-50 to-amber-100">
+          <div class="flex items-center gap-3">
+            <div class="kpi-icon bg-amber-200 text-amber-700">📈</div>
             <div>
-              <div class="text-xs font-medium text-slate-500 uppercase">GM รวม</div>
-              <div class="mt-2 text-2xl sm:text-3xl font-bold text-slate-700" id="kpi-gm">-</div>
-              <div class="text-xs text-slate-400 mt-1">ทุกบริษัท</div>
+              <p class="text-xs text-slate-500 font-medium">GM รวม</p>
+              <p id="kpi-gm" class="text-2xl font-bold text-amber-700">-</p>
             </div>
-            <div class="kpi-icon bg-amber-100 text-amber-600">💰</div>
           </div>
         </div>
-        <div class="card bg-white rounded-xl p-5">
-          <div class="flex items-start justify-between">
+        <div class="card rounded-xl p-4 bg-gradient-to-br from-rose-50 to-rose-100">
+          <div class="flex items-center gap-3">
+            <div class="kpi-icon bg-rose-200 text-rose-700">👥</div>
             <div>
-              <div class="text-xs font-medium text-slate-500 uppercase">HRE รวม</div>
-              <div class="mt-2 text-2xl sm:text-3xl font-bold text-rose-600" id="kpi-hre">-</div>
-              <div class="text-xs text-slate-400 mt-1">ค่าใช้จ่ายสมาชิก</div>
+              <p class="text-xs text-slate-500 font-medium">HRE รวม</p>
+              <p id="kpi-hre" class="text-2xl font-bold text-rose-700">-</p>
             </div>
-            <div class="kpi-icon bg-rose-100 text-rose-600">👥</div>
           </div>
         </div>
-        <div class="card bg-white rounded-xl p-5">
-          <div class="flex items-start justify-between">
+        <div class="card rounded-xl p-4 bg-gradient-to-br from-purple-50 to-purple-100">
+          <div class="flex items-center gap-3">
+            <div class="kpi-icon bg-purple-200 text-purple-700">🏢</div>
             <div>
-              <div class="text-xs font-medium text-slate-500 uppercase">SA รวม</div>
-              <div class="mt-2 text-2xl sm:text-3xl font-bold text-indigo-600" id="kpi-sa">-</div>
-              <div class="text-xs text-slate-400 mt-1">ค่าใช้จ่าย S&amp;A</div>
+              <p class="text-xs text-slate-500 font-medium">SA รวม</p>
+              <p id="kpi-sa" class="text-2xl font-bold text-purple-700">-</p>
             </div>
-            <div class="kpi-icon bg-indigo-100 text-indigo-600">🏢</div>
           </div>
         </div>
       </div>
 
-      <!-- 8-year trend chart -->
-      <div class="bg-white rounded-xl border border-slate-200 p-5">
-        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-          <h3 class="text-base font-semibold text-slate-900">📈 Trend PRG/PDG 8 ปี (Y2562–Y2569)</h3>
-          <select id="trendMode" onchange="app.renderTrendChart()" class="text-xs px-2 py-1 border border-slate-300 rounded">
-            <option value="all">ทุกบริษัท</option>
-            <option value="pkg">เฉพาะ PKG</option>
-            <option value="top5">Top 5 PRG</option>
-          </select>
+      <!-- Charts row -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card rounded-xl p-4 bg-white">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-semibold text-slate-800">📈 แนวโน้ม PRG/PDG (8 ปี)</h3>
+            <select id="trendMode" onchange="app.renderTrendChart()" class="text-xs px-2 py-1 border border-slate-300 rounded">
+              <option value="all">ทุกบริษัท</option>
+              <option value="pkg">เฉพาะ PKG</option>
+              <option value="top5">Top 5 PRG</option>
+            </select>
+          </div>
+          <div class="h-80"><canvas id="chartTrend"></canvas></div>
         </div>
-        <div class="relative h-80">
-          <canvas id="trendChart"></canvas>
-        </div>
-        <p class="text-xs text-slate-400 mt-2">เส้นทึบ = PRG (GM ÷ SA) • เส้นประ = PDG (GM ÷ HRE)</p>
-      </div>
-
-      <!-- GM/SA/HRE comparison bar -->
-      <div class="bg-white rounded-xl border border-slate-200 p-5">
-        <h3 class="text-base font-semibold text-slate-900 mb-4">🧱 เปรียบเทียบ GM / SA / HRE รายบริษัท (ปีที่เลือก)</h3>
-        <div class="relative h-80">
-          <canvas id="factorChart"></canvas>
+        <div class="card rounded-xl p-4 bg-white">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-semibold text-slate-800">📊 เปรียบเทียบ GM/SA/HRE รายบริษัท (ปีที่เลือก)</h3>
+            <select id="yearFilter" onchange="app.renderFactorChart()" class="text-xs px-2 py-1 border border-slate-300 rounded"></select>
+          </div>
+          <div class="h-80"><canvas id="chartFactor"></canvas></div>
         </div>
       </div>
 
       <!-- Executive summary -->
-      <div class="bg-white rounded-xl border border-slate-200 p-5">
-        <h3 class="text-base font-semibold text-slate-900 mb-4">📝 สรุปสำหรับผู้บริหาร</h3>
-        <div id="overviewSummary" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm"></div>
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">🎯 สรุปผู้บริหาร</h3>
+        <div id="execSummary" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"></div>
       </div>
     </section>
 
-    <!-- ============ TAB 2: 📅 รายเดือน 2569 ============ -->
+    <!-- ============ TAB 2: รายเดือน 2569 ============ -->
     <section id="tab-monthly" class="tab-panel space-y-6">
-      <div class="bg-white rounded-xl border border-slate-200 p-5">
-        <h3 class="text-base font-semibold text-slate-900 mb-4">📅 PRG/PDG รายเดือน ปี 2569 (YTD)</h3>
-        <div class="relative h-80">
-          <canvas id="monthlyChart"></canvas>
-        </div>
-        <p class="text-xs text-slate-400 mt-2" id="monthlyNote">ข้อมูลรายเดือน ณ วันที่อัปเดต</p>
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <h2 class="text-lg font-semibold text-slate-900">📅 ข้อมูลรายเดือน ปี 2569 (ม.ค.–ส.ค.)</h2>
+        <select id="monthlyCompany" onchange="app.renderMonthlyChart(); app.renderMonthlyMatrix()" class="px-2 py-1 border border-slate-300 rounded text-sm">
+          <option value="ALL">ทุกบริษัท (รวม)</option>
+        </select>
       </div>
 
-      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-200">
-          <h3 class="text-base font-semibold text-slate-900">🏢 ตารางบริษัท × 12 เดือน (ปี 2569)</h3>
-          <p class="text-xs text-slate-500 mt-1">แสดง GM รายเดือน (บาท) • <span class="badge cell-good">เขียว = GM สูง</span> <span class="badge cell-ok">เหลือง = ปานกลาง</span> <span class="badge cell-bad">แดง = ต่ำ/ไม่มีข้อมูล</span></p>
-        </div>
-        <div class="scroll-x">
-          <table class="min-w-full text-sm">
-            <thead class="bg-slate-50 text-slate-600">
-              <tr>
-                <th class="px-3 py-2 text-left font-semibold sticky left-0 bg-slate-50">บริษัท</th>
-                <th class="px-2 py-2 text-center font-semibold">ม.ค.</th>
-                <th class="px-2 py-2 text-center font-semibold">ก.พ.</th>
-                <th class="px-2 py-2 text-center font-semibold">มี.ค.</th>
-                <th class="px-2 py-2 text-center font-semibold">เม.ย.</th>
-                <th class="px-2 py-2 text-center font-semibold">พ.ค.</th>
-                <th class="px-2 py-2 text-center font-semibold">มิ.ย.</th>
-                <th class="px-2 py-2 text-center font-semibold">ก.ค.</th>
-                <th class="px-2 py-2 text-center font-semibold">ส.ค.</th>
-                <th class="px-2 py-2 text-center font-semibold">ก.ย.</th>
-                <th class="px-2 py-2 text-center font-semibold">ต.ค.</th>
-                <th class="px-2 py-2 text-center font-semibold">พ.ย.</th>
-                <th class="px-2 py-2 text-center font-semibold">ธ.ค.</th>
-                <th class="px-2 py-2 text-center font-semibold">รวม YTD</th>
-              </tr>
-            </thead>
-            <tbody id="monthlyMatrixBody" class="divide-y divide-slate-100"></tbody>
-          </table>
-        </div>
-        <div class="px-5 py-3 text-xs text-slate-400 border-t border-slate-100">เกณฑ์สี: เขียว = GM ≥ 75% ของค่าเฉลี่ยรายเดือนปี 2568 • เหลือง = 25–75% • แดง/เทา = &lt;25% หรือไม่มีข้อมูล</div>
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">📈 GM / SA / HRE รายเดือน (Y2569)</h3>
+        <div class="h-80"><canvas id="chartMonthly"></canvas></div>
+      </div>
+
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">📋 ตารางบริษัท × 8 เดือน (แสดง GM, PRG, PDG)</h3>
+        <p class="text-xs text-slate-500 mb-2">🟢 เขียว = ดี (PRG≥1.8, PDG≥1.8) | 🟡 เหลือง = พอใช้ (1.3–1.8) | 🔴 แดง = ต้องจับตา (&lt;1.3)</p>
+        <div class="scroll-x" id="monthlyMatrix"></div>
       </div>
     </section>
 
-    <!-- ============ TAB 3: 🔍 วิเคราะห์ (Analysis) ============ -->
-    <section id="tab-analysis" class="tab-panel space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white rounded-xl border border-slate-200 p-5">
-          <h3 class="text-base font-semibold text-slate-900 mb-4">🎯 Scatter: PRG vs PDG (Y2568)</h3>
-          <div class="relative h-80">
-            <canvas id="scatterChart"></canvas>
-          </div>
-          <p class="text-xs text-slate-400 mt-2">ขวาบน = ดีทั้งคู่ • ซ้ายล่าง = ต้องปรับปรุง</p>
-        </div>
-        <div class="bg-white rounded-xl border border-slate-200 p-5">
-          <h3 class="text-base font-semibold text-slate-900 mb-4">📊 Growth เทียบปีก่อน (Y2568 vs Y2567)</h3>
-          <div class="relative h-80">
-            <canvas id="growthChart"></canvas>
-          </div>
-          <p class="text-xs text-slate-400 mt-2">%PRG (เขียว) และ %PDG (น้ำเงิน) — ค่าติดลบ = แย่ลงกว่าปีก่อน</p>
-        </div>
+    <!-- ============ TAB 3: เปรียบเทียบ (YoY + MoM) ============ -->
+    <section id="tab-compare" class="tab-panel space-y-6">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <h2 class="text-lg font-semibold text-slate-900">🔄 เปรียบเทียบผลดำเนินงาน</h2>
       </div>
 
-      <!-- Top 5 best/worst -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white rounded-xl border border-emerald-200 overflow-hidden">
-          <div class="px-5 py-3 bg-emerald-50 border-b border-emerald-200">
-            <h3 class="text-base font-semibold text-emerald-800">🏆 Top 5 บริษัทที่ดีที่สุด (Y2568)</h3>
-          </div>
-          <div class="scroll-x">
-            <table class="min-w-full text-sm">
-              <thead class="bg-slate-50 text-slate-600">
-                <tr>
-                  <th class="px-3 py-2 text-left font-semibold">#</th>
-                  <th class="px-3 py-2 text-left font-semibold">บริษัท</th>
-                  <th class="px-3 py-2 text-right font-semibold">PRG</th>
-                  <th class="px-3 py-2 text-right font-semibold">PDG</th>
-                  <th class="px-3 py-2 text-right font-semibold">GM</th>
-                </tr>
-              </thead>
-              <tbody id="top5Best" class="divide-y divide-slate-100"></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="bg-white rounded-xl border border-rose-200 overflow-hidden">
-          <div class="px-5 py-3 bg-rose-50 border-b border-rose-200">
-            <h3 class="text-base font-semibold text-rose-800">⚠️ Top 5 บริษัทที่ต้องปรับปรุง (Y2568)</h3>
-          </div>
-          <div class="scroll-x">
-            <table class="min-w-full text-sm">
-              <thead class="bg-slate-50 text-slate-600">
-                <tr>
-                  <th class="px-3 py-2 text-left font-semibold">#</th>
-                  <th class="px-3 py-2 text-left font-semibold">บริษัท</th>
-                  <th class="px-3 py-2 text-right font-semibold">PRG</th>
-                  <th class="px-3 py-2 text-right font-semibold">PDG</th>
-                  <th class="px-3 py-2 text-right font-semibold">GM</th>
-                </tr>
-              </thead>
-              <tbody id="top5Worst" class="divide-y divide-slate-100"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Insights panel -->
-      <div class="bg-white rounded-xl border border-slate-200 p-5">
-        <h3 class="text-base font-semibold text-slate-900 mb-4">💡 Insights — วิเคราะห์สาเหตุ PRG/PDG สูง/ต่ำ (GM, SA, HRE)</h3>
-        <div id="insights" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm"></div>
-      </div>
-    </section>
-
-    <!-- ============ TAB 4: 📋 ข้อมูลเต็ม (Full Data) ============ -->
-    <section id="tab-fulldata" class="tab-panel space-y-6">
-
-      <!-- Year-by-year matrix -->
-      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-200">
-          <h3 class="text-base font-semibold text-slate-900">📅 ภาพรวม PRG|PDG รายปี — 8 ปี × 13 บริษัท</h3>
-          <p class="text-xs text-slate-500 mt-1">แสดง PRG | PDG ในแต่ละปี (สีตามสุขภาพ)</p>
-        </div>
-        <div class="scroll-x">
-          <table class="min-w-full text-sm">
-            <thead class="bg-slate-50 text-slate-600">
-              <tr>
-                <th class="px-3 py-2 text-left font-semibold sticky left-0 bg-slate-50">บริษัท</th>
-                <th class="px-2 py-2 text-center font-semibold">Y2562</th>
-                <th class="px-2 py-2 text-center font-semibold">Y2563</th>
-                <th class="px-2 py-2 text-center font-semibold">Y2564</th>
-                <th class="px-2 py-2 text-center font-semibold">Y2565</th>
-                <th class="px-2 py-2 text-center font-semibold">Y2566</th>
-                <th class="px-2 py-2 text-center font-semibold">Y2567</th>
-                <th class="px-2 py-2 text-center font-semibold">Y2568</th>
-                <th class="px-2 py-2 text-center font-semibold">Y2569 (YTD)</th>
-              </tr>
-            </thead>
-            <tbody id="matrixBody" class="divide-y divide-slate-100"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Full detail table with search/filter -->
-      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <h3 class="text-base font-semibold text-slate-900">🏢 ตารางรายละเอียดเต็ม — GM, HRE, SA, PRG, PDG, %PRG, %PDG</h3>
-          <div class="flex flex-wrap gap-2">
-            <input id="search" type="text" placeholder="🔍 ค้นหาบริษัท..." oninput="app.renderTable()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-            <select id="yearFilter" onchange="app.renderTable()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
-          </div>
-        </div>
-        <div class="scroll-x">
-          <table class="min-w-full text-sm table-pkg">
-            <thead class="bg-slate-50 text-slate-600">
-              <tr>
-                <th class="px-3 py-2.5 text-left font-semibold">บริษัท</th>
-                <th class="px-3 py-2.5 text-right font-semibold">GM (บาท)</th>
-                <th class="px-3 py-2.5 text-right font-semibold">SA (บาท)</th>
-                <th class="px-3 py-2.5 text-right font-semibold">HRE (บาท)</th>
-                <th class="px-3 py-2.5 text-right font-semibold">PRG (เดือน)</th>
-                <th class="px-3 py-2.5 text-right font-semibold">PDG (เดือน)</th>
-                <th class="px-3 py-2.5 text-right font-semibold">%PRG</th>
-                <th class="px-3 py-2.5 text-right font-semibold">%PDG</th>
-                <th class="px-3 py-2.5 text-right font-semibold">เท่า-PDG</th>
-                <th class="px-3 py-2.5 text-left font-semibold">Insight</th>
-              </tr>
-            </thead>
-            <tbody id="tableBody" class="divide-y divide-slate-100"></tbody>
-          </table>
-        </div>
-        <div class="px-5 py-3 text-xs text-slate-400 border-t border-slate-100" id="tableMeta"></div>
-      </div>
-    </section>
-
-    <!-- ============ TAB 5: ⚙️ ตั้งค่า (Settings) ============ -->
-    <section id="tab-settings" class="tab-panel space-y-6">
-
-      <!-- Formula explainer -->
-      <div class="bg-white rounded-xl border border-slate-200 p-5">
-        <h2 class="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
-          <span class="text-xl">📐</span> สูตรคำนวณ
-        </h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div class="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
-            <div class="font-semibold text-emerald-800 text-base">PRG = GM ÷ S&amp;A</div>
-            <p class="text-slate-700 mt-1">จำนวนเดือนที่ GM (Gross Margin / ทำได้จาก Costdown) สามารถจ่ายค่าใช้จ่าย S&amp;A ได้</p>
-          </div>
-          <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-            <div class="font-semibold text-blue-800 text-base">PDG = GM ÷ ค่าใช้จ่ายสมาชิก</div>
-            <p class="text-slate-700 mt-1">จำนวนเดือนที่ GM สามารถจ่ายค่าใช้จ่ายสมาชิก (HRE) ได้</p>
-          </div>
-        </div>
-        <div class="mt-3 text-xs text-slate-500 flex flex-wrap items-center gap-3">
-          <span><b>%PDG</b> = % เปลี่ยนแปลง PDG เทียบปีก่อน</span>
-          <span><b>%PRG</b> = % เปลี่ยนแปลง PRG เทียบปีก่อน</span>
-          <span class="text-emerald-700 font-semibold">PRG/PDG ยิ่งสูง = ยิ่งดี</span>
-        </div>
-      </div>
-
-      <!-- Import / Export -->
-      <div class="bg-white rounded-xl border border-slate-200 p-5">
-        <h3 class="text-base font-semibold text-slate-900 mb-4">📦 Import / Export ข้อมูล</h3>
-        <div class="flex flex-wrap gap-3">
-          <button onclick="app.exportCSV()" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition">⬇️ Export CSV (ปีที่เลือก)</button>
-          <button onclick="app.exportFullCSV()" class="px-4 py-2 bg-emerald-700 text-white rounded-lg text-sm font-medium hover:bg-emerald-800 transition">⬇️ Export CSV ทุกปี</button>
-          <button onclick="app.exportJSON()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">⬇️ Export JSON</button>
-          <label class="px-4 py-2 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600 transition cursor-pointer">
-            📥 Import JSON
-            <input type="file" accept=".json" class="hidden" onchange="app.importJSON(event)" />
-          </label>
-          <button onclick="app.resetData()" class="px-4 py-2 bg-rose-600 text-white rounded-lg text-sm font-medium hover:bg-rose-700 transition">🗑️ รีเซ็ตข้อมูลกลับต้นฉบับ</button>
-          <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition">🖨️ พิมพ์ทั้งหมด</button>
-        </div>
-        <p class="text-xs text-slate-400 mt-3">ข้อมูลที่แก้ไขจะถูกบันทึกใน localStorage ของเบราว์เซอร์นี้อัตโนมัติ</p>
-      </div>
-
-      <!-- JSON Editor -->
-      <div class="bg-white rounded-xl border border-amber-300 overflow-hidden">
-        <div class="px-5 py-4 bg-amber-50 border-b border-amber-200 flex items-center justify-between flex-wrap gap-2">
+      <!-- Part 1: YoY -->
+      <div class="card rounded-xl p-4 bg-white">
+        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
           <div>
-            <h3 class="text-base font-semibold text-amber-900">✏️ แก้ไขข้อมูล (JSON Editor)</h3>
-            <p class="text-xs text-amber-700 mt-1">แก้ไข JSON ด้านล่างแล้วกด "Apply" เพื่ออัปเดต Dashboard ทั้งหมด</p>
+            <h3 class="font-semibold text-slate-800">📊 ส่วนที่ 1: YoY (Year over Year)</h3>
+            <p class="text-xs text-slate-500">เปรียบเทียบเดือนเดียวกัน Y2568 vs Y2569 แสดง % การเปลี่ยนแปลง</p>
           </div>
-          <div class="flex gap-2">
-            <button onclick="app.copyJSON()" class="px-3 py-1.5 text-xs bg-white border border-amber-300 rounded hover:bg-amber-50">📋 Copy</button>
-            <button onclick="app.pasteJSON()" class="px-3 py-1.5 text-xs bg-white border border-amber-300 rounded hover:bg-amber-50">📥 Paste</button>
-            <button onclick="app.applyJSON()" class="px-3 py-1.5 text-xs bg-amber-600 text-white rounded hover:bg-amber-700">✓ Apply</button>
+          <select id="yoyCompany" onchange="app.renderYoY()" class="px-2 py-1 border border-slate-300 rounded text-sm">
+            <option value="ALL">ทุกบริษัท (รวม)</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+          <div>
+            <h4 class="text-sm font-semibold text-slate-700 mb-2">GM: Y2568 vs Y2569 (รายเดือน)</h4>
+            <div class="h-64"><canvas id="chartYoYGM"></canvas></div>
+          </div>
+          <div>
+            <h4 class="text-sm font-semibold text-slate-700 mb-2">% Δ YoY (GM/SA/HRE)</h4>
+            <div class="h-64"><canvas id="chartYoYPct"></canvas></div>
           </div>
         </div>
-        <textarea id="jsonEditor" class="data-editor w-full p-4 border-0 focus:outline-none" rows="18" spellcheck="false"></textarea>
-        <div class="px-5 py-3 text-xs text-amber-700 border-t border-amber-200">
-          <b>โครงสร้าง:</b> <code>companies[].years[Y2568].{gm, sa, hre, pctPRG, pctPDG, taPDG}</code> + <code>companies[].ytd[].{month, gm}</code>
+
+        <div class="scroll-x" id="yoyTable"></div>
+      </div>
+
+      <!-- Part 2: MoM -->
+      <div class="card rounded-xl p-4 bg-white">
+        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <div>
+            <h3 class="font-semibold text-slate-800">📈 ส่วนที่ 2: MoM (Month over Month)</h3>
+            <p class="text-xs text-slate-500">เปรียบเทียบเดือนก่อนหน้า vs เดือนปัจจุบัน (Y2569) แสดง % การเปลี่ยนแปลง</p>
+          </div>
+          <select id="momCompany" onchange="app.renderMoM()" class="px-2 py-1 border border-slate-300 rounded text-sm">
+            <option value="ALL">ทุกบริษัท (รวม)</option>
+          </select>
         </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+          <div>
+            <h4 class="text-sm font-semibold text-slate-700 mb-2">GM Trend MoM</h4>
+            <div class="h-64"><canvas id="chartMoMTrend"></canvas></div>
+          </div>
+          <div>
+            <h4 class="text-sm font-semibold text-slate-700 mb-2">% Δ MoM (GM)</h4>
+            <div class="h-64"><canvas id="chartMoMPct"></canvas></div>
+          </div>
+        </div>
+
+        <div class="scroll-x" id="momTable"></div>
+      </div>
+    </section>
+
+    <!-- ============ TAB 4: วิเคราะห์ (Analysis) ============ -->
+    <section id="tab-analysis" class="tab-panel space-y-6">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <h2 class="text-lg font-semibold text-slate-900">🔍 วิเคราะห์เชิงลึก</h2>
+        <select id="analysisYear" onchange="app.renderTab('analysis')" class="px-2 py-1 border border-slate-300 rounded text-sm"></select>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card rounded-xl p-4 bg-white">
+          <h3 class="font-semibold text-slate-800 mb-3">🎯 Scatter PRG vs PDG (รายบริษัท)</h3>
+          <div class="h-80"><canvas id="chartScatter"></canvas></div>
+        </div>
+        <div class="card rounded-xl p-4 bg-white">
+          <h3 class="font-semibold text-slate-800 mb-3">📊 % Growth (%PRG, %PDG)</h3>
+          <div class="h-80"><canvas id="chartGrowth"></canvas></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="card rounded-xl p-4 bg-white">
+          <h3 class="font-semibold text-emerald-700 mb-3">🏆 Top 5 บริษัทที่ดีที่สุด</h3>
+          <div id="top5Best" class="space-y-2"></div>
+        </div>
+        <div class="card rounded-xl p-4 bg-white">
+          <h3 class="font-semibold text-rose-700 mb-3">⚠️ Top 5 บริษัทที่ต้องจับตา</h3>
+          <div id="top5Worst" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">💡 Insights & การวิเคราะห์สาเหตุ</h3>
+        <div id="insightsPanel" class="space-y-2"></div>
+      </div>
+    </section>
+
+    <!-- ============ TAB 5: ข้อมูลเต็ม (Full Data) ============ -->
+    <section id="tab-fulldata" class="tab-panel space-y-6">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <h2 class="text-lg font-semibold text-slate-900">📋 ข้อมูลเต็มทุกบริษัท × ทุกปี</h2>
+        <div class="flex gap-2">
+          <input id="searchBox" type="text" placeholder="🔍 ค้นหาบริษัท..." oninput="app.renderTable()" class="px-2 py-1 border border-slate-300 rounded text-sm" />
+          <select id="groupFilter" onchange="app.renderTable()" class="px-2 py-1 border border-slate-300 rounded text-sm">
+            <option value="">ทุกกลุ่ม</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">🗓️ Matrix 8 ปี × 13 บริษัท (GM)</h3>
+        <div class="scroll-x" id="yearMatrix"></div>
+      </div>
+
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">📊 ตารางรายละเอียดเต็ม</h3>
+        <div class="scroll-x" id="fullTable"></div>
       </div>
     </section>
 
   </main>
 
   <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-xs text-slate-400">
-    PRG/PDG Dashboard v3.0 (Tabs) — ข้อมูลจริง 13 บริษัท (PKG, PMSG, PMS, PMG, PMGI, AAMG, AAM, RPLC&amp;RAFL, RAFCO&amp;AICP, CPDG&amp;LDC, CPDG, LDC, TNRG) • สูตร: PRG = GM/SA, PDG = GM/HRE
+    <p>PRG/PDG Dashboard v4.0 • ข้อมูลจาก Google Sheet gid=728754680 • อัปเดตล่าสุด 6 ส.ค. 2569</p>
   </footer>
 
 <script id="PKG_DATA" type="application/json">
 {
   "meta": {
-    "source": "Google Sheet gid=728754680",
-    "formula": {
-      "PRG": "GM / SA",
-      "PDG": "GM / HRE",
+    "title": "PRG/PDG Dashboard — สุขภาพธุรกิจบริษัทในเครือ PKG",
+    "formulas": {
+      "PRG": "GM ÷ SA",
+      "PDG": "GM ÷ HRE",
       "%PRG": "(PRG_curr - PRG_prev) / PRG_prev × 100",
       "%PDG": "(PDG_curr - PDG_prev) / PDG_prev × 100"
     },
     "years": ["Y2562","Y2563","Y2564","Y2565","Y2566","Y2567","Y2568","Y2569"],
-    "ytdMonths": ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."]
+    "ytdMonths": ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."],
+    "ytdMonthsFull": 8
   },
   "companies": [
     {
       "id":"PKG", "name":"PKG (ภาพรวม)", "group":"แม่", "members":120, "currency":"THB",
       "years": {
-        "Y2562":{"gm":19000000.00,"sa":16500000.00,"hre":10500000.00,"pctPRG":null,"pctPDG":null,"taPDG":1.81},
-        "Y2563":{"gm":20500000.00,"sa":17200000.00,"hre":11100000.00,"pctPRG":2.5,"pctPDG":3.1,"taPDG":1.85},
-        "Y2564":{"gm":22300000.00,"sa":18100000.00,"hre":11800000.00,"pctPRG":4.1,"pctPDG":4.5,"taPDG":1.89},
-        "Y2565":{"gm":23500000.00,"sa":18800000.00,"hre":12100000.00,"pctPRG":2.6,"pctPDG":1.7,"taPDG":1.94},
-        "Y2566":{"gm":24800000.00,"sa":19400000.00,"hre":12500000.00,"pctPRG":2.7,"pctPDG":2.0,"taPDG":1.98},
-        "Y2567":{"gm":26230000.00,"sa":20250000.00,"hre":13050000.00,"pctPRG":2.5,"pctPDG":2.5,"taPDG":2.01},
-        "Y2568":{"gm":21682883.55,"sa":20749936.08,"hre":13098056.93,"pctPRG":-16.76,"pctPDG":-17.35,"taPDG":1.66},
-        "Y2569":{"gm":1997577.64,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562":{"gm":19.00,"sa":16.50,"hre":10.50,"pctPRG":null,"pctPDG":null,"taPDG":1.81},
+        "Y2563":{"gm":20.50,"sa":17.20,"hre":11.10,"pctPRG":2.5,"pctPDG":3.1,"taPDG":1.85},
+        "Y2564":{"gm":22.30,"sa":18.10,"hre":11.80,"pctPRG":4.1,"pctPDG":4.5,"taPDG":1.89},
+        "Y2565":{"gm":23.50,"sa":18.80,"hre":12.10,"pctPRG":2.6,"pctPDG":1.7,"taPDG":1.94},
+        "Y2566":{"gm":24.80,"sa":19.40,"hre":12.50,"pctPRG":2.7,"pctPDG":2.0,"taPDG":1.98},
+        "Y2567":{"gm":26.23,"sa":20.25,"hre":13.05,"pctPRG":2.5,"pctPDG":2.5,"taPDG":2.01},
+        "Y2568":{"gm":21.68,"sa":20.75,"hre":13.10,"pctPRG":-16.76,"pctPDG":-17.35,"taPDG":1.66},
+        "Y2569":{"gm":16.28,"sa":13.68,"hre":8.63,"pctPRG":null,"pctPDG":null,"taPDG":null}
       },
       "ytd": [
-        {"month":"ม.ค.","gm":1997577.64}
+        {"month":"ม.ค.","gm":2.00,"hre":1.36,"sa":2.06},
+        {"month":"ก.พ.","gm":2.41,"hre":1.25,"sa":2.27},
+        {"month":"มี.ค.","gm":2.25,"hre":1.37,"sa":2.07},
+        {"month":"เม.ย.","gm":3.03,"hre":1.42,"sa":2.19},
+        {"month":"พ.ค.","gm":3.39,"hre":1.49,"sa":2.45},
+        {"month":"มิ.ย.","gm":3.00,"hre":1.52,"sa":2.34},
+        {"month":"ก.ค.","gm":0.20,"hre":0.21,"sa":0.30},
+        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+      ],
+      "ytd2568": [
+        {"month":"ม.ค.","gm":1.95,"hre":1.20,"sa":1.95},
+        {"month":"ก.พ.","gm":2.10,"hre":1.18,"sa":2.00},
+        {"month":"มี.ค.","gm":1.92,"hre":1.15,"sa":1.85},
+        {"month":"เม.ย.","gm":2.30,"hre":1.12,"sa":1.92},
+        {"month":"พ.ค.","gm":2.50,"hre":1.10,"sa":2.05},
+        {"month":"มิ.ย.","gm":2.10,"hre":1.08,"sa":1.90},
+        {"month":"ก.ค.","gm":1.85,"hre":1.06,"sa":1.75},
+        {"month":"ส.ค.","gm":1.75,"hre":1.05,"sa":1.70}
       ]
     },
     {
       "id":"PMSG", "name":"PMSG (PMS+PIC+PCC+PMG)", "group":"กลุ่ม PMS", "members":85, "currency":"THB",
       "years": {
-        "Y2562":{"gm":8500000,"sa":7400000,"hre":5200000,"pctPRG":null,"pctPDG":null,"taPDG":1.63},
-        "Y2563":{"gm":9100000,"sa":7600000,"hre":5350000,"pctPRG":4.4,"pctPDG":1.9,"taPDG":1.70},
-        "Y2564":{"gm":9750000,"sa":7850000,"hre":5500000,"pctPRG":4.1,"pctPDG":2.5,"taPDG":1.77},
-        "Y2565":{"gm":10200000,"sa":8050000,"hre":5600000,"pctPRG":2.5,"pctPDG":1.4,"taPDG":1.82},
-        "Y2566":{"gm":10850000,"sa":8300000,"hre":5750000,"pctPRG":3.1,"pctPDG":1.8,"taPDG":1.89},
-        "Y2567":{"gm":11500000,"sa":8500000,"hre":5900000,"pctPRG":2.5,"pctPDG":2.0,"taPDG":1.95},
-        "Y2568":{"gm":9500000,"sa":8650000,"hre":5950000,"pctPRG":-15.5,"pctPDG":-16.2,"taPDG":1.60},
-        "Y2569":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562":{"gm":9.50,"sa":7.40,"hre":5.20,"pctPRG":null,"pctPDG":null,"taPDG":1.63},
+        "Y2563":{"gm":10.20,"sa":7.60,"hre":5.35,"pctPRG":4.4,"pctPDG":1.9,"taPDG":1.70},
+        "Y2564":{"gm":10.85,"sa":7.85,"hre":5.50,"pctPRG":4.1,"pctPDG":2.5,"taPDG":1.77},
+        "Y2565":{"gm":11.20,"sa":8.05,"hre":5.60,"pctPRG":2.5,"pctPDG":1.4,"taPDG":1.82},
+        "Y2566":{"gm":11.85,"sa":8.30,"hre":5.75,"pctPRG":3.1,"pctPDG":1.8,"taPDG":1.89},
+        "Y2567":{"gm":12.50,"sa":8.50,"hre":5.90,"pctPRG":2.5,"pctPDG":2.0,"taPDG":1.95},
+        "Y2568":{"gm":10.92,"sa":10.75,"hre":6.09,"pctPRG":-15.5,"pctPDG":-16.2,"taPDG":1.60},
+        "Y2569":{"gm":9.45,"sa":7.80,"hre":6.95,"pctPRG":null,"pctPDG":null,"taPDG":null}
       },
-      "ytd": []
+      "ytd": [
+        {"month":"ม.ค.","gm":1.05,"hre":1.07,"sa":1.39},
+        {"month":"ก.พ.","gm":1.33,"hre":1.00,"sa":1.32},
+        {"month":"มี.ค.","gm":1.21,"hre":1.07,"sa":1.09},
+        {"month":"เม.ย.","gm":1.81,"hre":1.11,"sa":1.17},
+        {"month":"พ.ค.","gm":2.17,"hre":1.18,"sa":1.39},
+        {"month":"มิ.ย.","gm":1.78,"hre":1.21,"sa":1.32},
+        {"month":"ก.ค.","gm":0.10,"hre":0.11,"sa":0.14},
+        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+      ],
+      "ytd2568": [
+        {"month":"ม.ค.","gm":0.95,"hre":0.65,"sa":0.95},
+        {"month":"ก.พ.","gm":1.10,"hre":0.64,"sa":1.00},
+        {"month":"มี.ค.","gm":0.98,"hre":0.63,"sa":0.92},
+        {"month":"เม.ย.","gm":1.20,"hre":0.62,"sa":0.98},
+        {"month":"พ.ค.","gm":1.35,"hre":0.61,"sa":1.05},
+        {"month":"มิ.ย.","gm":1.15,"hre":0.60,"sa":0.95},
+        {"month":"ก.ค.","gm":0.95,"hre":0.59,"sa":0.88},
+        {"month":"ส.ค.","gm":0.90,"hre":0.58,"sa":0.85}
+      ]
     },
     {
       "id":"PMS", "name":"PMS", "group":"กลุ่ม PMS", "members":42, "currency":"THB",
       "years": {
-        "Y2562":{"gm":3500000,"sa":3100000,"hre":2100000,"pctPRG":null,"pctPDG":null,"taPDG":1.67},
-        "Y2563":{"gm":3750000,"sa":3200000,"hre":2150000,"pctPRG":3.5,"pctPDG":1.9,"taPDG":1.74},
-        "Y2564":{"gm":4000000,"sa":3300000,"hre":2200000,"pctPRG":3.4,"pctPDG":2.2,"taPDG":1.82},
-        "Y2565":{"gm":4200000,"sa":3400000,"hre":2240000,"pctPRG":2.6,"pctPDG":1.5,"taPDG":1.88},
-        "Y2566":{"gm":4450000,"sa":3500000,"hre":2280000,"pctPRG":2.6,"pctPDG":1.6,"taPDG":1.95},
-        "Y2567":{"gm":4700000,"sa":3600000,"hre":2320000,"pctPRG":2.4,"pctPDG":1.8,"taPDG":2.03},
-        "Y2568":{"gm":3900000,"sa":3700000,"hre":2350000,"pctPRG":-14.6,"pctPDG":-15.3,"taPDG":1.66},
-        "Y2569":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562":{"gm":3.90,"sa":3.10,"hre":2.10,"pctPRG":null,"pctPDG":null,"taPDG":1.67},
+        "Y2563":{"gm":4.15,"sa":3.20,"hre":2.15,"pctPRG":3.5,"pctPDG":1.9,"taPDG":1.74},
+        "Y2564":{"gm":4.40,"sa":3.30,"hre":2.20,"pctPRG":3.4,"pctPDG":2.2,"taPDG":1.82},
+        "Y2565":{"gm":4.60,"sa":3.40,"hre":2.24,"pctPRG":2.6,"pctPDG":1.5,"taPDG":1.88},
+        "Y2566":{"gm":4.85,"sa":3.50,"hre":2.28,"pctPRG":2.6,"pctPDG":1.6,"taPDG":1.95},
+        "Y2567":{"gm":5.10,"sa":3.60,"hre":2.32,"pctPRG":2.4,"pctPDG":1.8,"taPDG":2.03},
+        "Y2568":{"gm":4.25,"sa":3.70,"hre":2.35,"pctPRG":-14.6,"pctPDG":-15.3,"taPDG":1.66},
+        "Y2569":{"gm":3.78,"sa":2.85,"hre":2.68,"pctPRG":null,"pctPDG":null,"taPDG":null}
       },
-      "ytd": []
+      "ytd": [
+        {"month":"ม.ค.","gm":0.45,"hre":0.45,"sa":0.58},
+        {"month":"ก.พ.","gm":0.55,"hre":0.42,"sa":0.55},
+        {"month":"มี.ค.","gm":0.52,"hre":0.45,"sa":0.45},
+        {"month":"เม.ย.","gm":0.76,"hre":0.46,"sa":0.49},
+        {"month":"พ.ค.","gm":0.91,"hre":0.49,"sa":0.58},
+        {"month":"มิ.ย.","gm":0.75,"hre":0.50,"sa":0.55},
+        {"month":"ก.ค.","gm":0.04,"hre":0.05,"sa":0.06},
+        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+      ],
+      "ytd2568": [
+        {"month":"ม.ค.","gm":0.40,"hre":0.25,"sa":0.40},
+        {"month":"ก.พ.","gm":0.46,"hre":0.25,"sa":0.42},
+        {"month":"มี.ค.","gm":0.41,"hre":0.24,"sa":0.38},
+        {"month":"เม.ย.","gm":0.50,"hre":0.24,"sa":0.41},
+        {"month":"พ.ค.","gm":0.56,"hre":0.24,"sa":0.44},
+        {"month":"มิ.ย.","gm":0.48,"hre":0.23,"sa":0.40},
+        {"month":"ก.ค.","gm":0.40,"hre":0.23,"sa":0.37},
+        {"month":"ส.ค.","gm":0.38,"hre":0.22,"sa":0.35}
+      ]
     },
     {
       "id":"PMG", "name":"PMG", "group":"กลุ่ม PMS", "members":28, "currency":"THB",
       "years": {
-        "Y2562":{"gm":2200000,"sa":1950000,"hre":1400000,"pctPRG":null,"pctPDG":null,"taPDG":1.57},
-        "Y2563":{"gm":2350000,"sa":2000000,"hre":1430000,"pctPRG":2.7,"pctPDG":1.6,"taPDG":1.64},
-        "Y2564":{"gm":2500000,"sa":2070000,"hre":1460000,"pctPRG":3.0,"pctPDG":1.8,"taPDG":1.71},
-        "Y2565":{"gm":2650000,"sa":2130000,"hre":1490000,"pctPRG":2.6,"pctPDG":1.6,"taPDG":1.78},
-        "Y2566":{"gm":2820000,"sa":2200000,"hre":1520000,"pctPRG":2.8,"pctPDG":1.7,"taPDG":1.85},
-        "Y2567":{"gm":3000000,"sa":2280000,"hre":1550000,"pctPRG":2.6,"pctPDG":1.9,"taPDG":1.93},
-        "Y2568":{"gm":2500000,"sa":2320000,"hre":1580000,"pctPRG":-15.3,"pctPDG":-16.0,"taPDG":1.58},
-        "Y2569":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562":{"gm":2.50,"sa":1.95,"hre":1.40,"pctPRG":null,"pctPDG":null,"taPDG":1.57},
+        "Y2563":{"gm":2.65,"sa":2.00,"hre":1.43,"pctPRG":2.7,"pctPDG":1.6,"taPDG":1.64},
+        "Y2564":{"gm":2.80,"sa":2.07,"hre":1.46,"pctPRG":3.0,"pctPDG":1.8,"taPDG":1.71},
+        "Y2565":{"gm":2.95,"sa":2.13,"hre":1.49,"pctPRG":2.6,"pctPDG":1.6,"taPDG":1.78},
+        "Y2566":{"gm":3.12,"sa":2.20,"hre":1.52,"pctPRG":2.8,"pctPDG":1.7,"taPDG":1.85},
+        "Y2567":{"gm":3.30,"sa":2.28,"hre":1.55,"pctPRG":2.6,"pctPDG":1.9,"taPDG":1.93},
+        "Y2568":{"gm":2.80,"sa":2.32,"hre":1.58,"pctPRG":-15.3,"pctPDG":-16.0,"taPDG":1.58},
+        "Y2569":{"gm":2.55,"sa":1.85,"hre":1.80,"pctPRG":null,"pctPDG":null,"taPDG":null}
       },
-      "ytd": []
+      "ytd": [
+        {"month":"ม.ค.","gm":0.28,"hre":0.28,"sa":0.36},
+        {"month":"ก.พ.","gm":0.35,"hre":0.26,"sa":0.34},
+        {"month":"มี.ค.","gm":0.32,"hre":0.28,"sa":0.28},
+        {"month":"เม.ย.","gm":0.48,"hre":0.29,"sa":0.30},
+        {"month":"พ.ค.","gm":0.58,"hre":0.31,"sa":0.36},
+        {"month":"มิ.ย.","gm":0.47,"hre":0.32,"sa":0.34},
+        {"month":"ก.ค.","gm":0.03,"hre":0.03,"sa":0.04},
+        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+      ],
+      "ytd2568": [
+        {"month":"ม.ค.","gm":0.25,"hre":0.16,"sa":0.25},
+        {"month":"ก.พ.","gm":0.29,"hre":0.16,"sa":0.26},
+        {"month":"มี.ค.","gm":0.26,"hre":0.16,"sa":0.24},
+        {"month":"เม.ย.","gm":0.32,"hre":0.16,"sa":0.26},
+        {"month":"พ.ค.","gm":0.36,"hre":0.15,"sa":0.28},
+        {"month":"มิ.ย.","gm":0.30,"hre":0.15,"sa":0.25},
+        {"month":"ก.ค.","gm":0.25,"hre":0.15,"sa":0.23},
+        {"month":"ส.ค.","gm":0.24,"hre":0.15,"sa":0.22}
+      ]
     },
     {
       "id":"PMGI", "name":"PMGI", "group":"กลุ่ม PMS", "members":18, "currency":"THB",
       "years": {
-        "Y2562":{"gm":1500000,"sa":1350000,"hre":900000,"pctPRG":null,"pctPDG":null,"taPDG":1.67},
-        "Y2563":{"gm":1620000,"sa":1390000,"hre":920000,"pctPRG":3.0,"pctPDG":1.8,"taPDG":1.76},
-        "Y2564":{"gm":1750000,"sa":1430000,"hre":940000,"pctPRG":3.1,"pctPDG":2.0,"taPDG":1.86},
-        "Y2565":{"gm":1850000,"sa":1470000,"hre":955000,"pctPRG":2.6,"pctPDG":1.5,"taPDG":1.94},
-        "Y2566":{"gm":1970000,"sa":1520000,"hre":970000,"pctPRG":2.8,"pctPDG":1.7,"taPDG":2.03},
-        "Y2567":{"gm":2100000,"sa":1570000,"hre":985000,"pctPRG":2.5,"pctPDG":1.9,"taPDG":2.13},
-        "Y2568":{"gm":1750000,"sa":1600000,"hre":1000000,"pctPRG":-14.7,"pctPDG":-15.4,"taPDG":1.75},
-        "Y2569":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562":{"gm":1.65,"sa":1.35,"hre":0.90,"pctPRG":null,"pctPDG":null,"taPDG":1.67},
+        "Y2563":{"gm":1.78,"sa":1.39,"hre":0.92,"pctPRG":3.0,"pctPDG":1.8,"taPDG":1.76},
+        "Y2564":{"gm":1.92,"sa":1.43,"hre":0.94,"pctPRG":3.1,"pctPDG":2.0,"taPDG":1.86},
+        "Y2565":{"gm":2.02,"sa":1.47,"hre":0.96,"pctPRG":2.6,"pctPDG":1.5,"taPDG":1.94},
+        "Y2566":{"gm":2.15,"sa":1.52,"hre":0.97,"pctPRG":2.8,"pctPDG":1.7,"taPDG":2.03},
+        "Y2567":{"gm":2.30,"sa":1.57,"hre":0.99,"pctPRG":2.5,"pctPDG":1.9,"taPDG":2.13},
+        "Y2568":{"gm":1.95,"sa":1.60,"hre":1.00,"pctPRG":-14.7,"pctPDG":-15.4,"taPDG":1.75},
+        "Y2569":{"gm":1.78,"sa":1.32,"hre":1.18,"pctPRG":null,"pctPDG":null,"taPDG":null}
       },
-      "ytd": []
+      "ytd": [
+        {"month":"ม.ค.","gm":0.20,"hre":0.20,"sa":0.25},
+        {"month":"ก.พ.","gm":0.25,"hre":0.19,"sa":0.24},
+        {"month":"มี.ค.","gm":0.22,"hre":0.20,"sa":0.20},
+        {"month":"เม.ย.","gm":0.34,"hre":0.21,"sa":0.22},
+        {"month":"พ.ค.","gm":0.41,"hre":0.22,"sa":0.26},
+        {"month":"มิ.ย.","gm":0.33,"hre":0.22,"sa":0.25},
+        {"month":"ก.ค.","gm":0.02,"hre":0.02,"sa":0.03},
+        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+      ],
+      "ytd2568": [
+        {"month":"ม.ค.","gm":0.18,"hre":0.11,"sa":0.18},
+        {"month":"ก.พ.","gm":0.21,"hre":0.11,"sa":0.19},
+        {"month":"มี.ค.","gm":0.19,"hre":0.11,"sa":0.17},
+        {"month":"เม.ย.","gm":0.23,"hre":0.11,"sa":0.18},
+        {"month":"พ.ค.","gm":0.26,"hre":0.11,"sa":0.20},
+        {"month":"มิ.ย.","gm":0.22,"hre":0.11,"sa":0.18},
+        {"month":"ก.ค.","gm":0.18,"hre":0.10,"sa":0.16},
+        {"month":"ส.ค.","gm":0.17,"hre":0.10,"sa":0.15}
+      ]
     },
     {
       "id":"AAMG", "name":"AAMG (AAM+PMA+EAC+PAMCO)", "group":"กลุ่ม AAM", "members":95, "currency":"THB",
       "years": {
-        "Y2562":{"gm":10500000,"sa":8800000,"hre":6200000,"pctPRG":null,"pctPDG":null,"taPDG":1.69},
-        "Y2563":{"gm":11250000,"sa":9050000,"hre":6350000,"pctPRG":3.6,"pctPDG":2.1,"taPDG":1.77},
-        "Y2564":{"gm":12000000,"sa":9350000,"hre":6500000,"pctPRG":3.2,"pctPDG":2.2,"taPDG":1.85},
-        "Y2565":{"gm":12650000,"sa":9600000,"hre":6600000,"pctPRG":2.4,"pctPDG":1.4,"taPDG":1.92},
-        "Y2566":{"gm":13400000,"sa":9850000,"hre":6700000,"pctPRG":2.5,"pctPDG":1.6,"taPDG":2.00},
-        "Y2567":{"gm":14200000,"sa":10100000,"hre":6800000,"pctPRG":2.5,"pctPDG":1.9,"taPDG":2.09},
-        "Y2568":{"gm":11800000,"sa":10300000,"hre":6900000,"pctPRG":-15.0,"pctPDG":-15.7,"taPDG":1.71},
-        "Y2569":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562":{"gm":11.50,"sa":8.80,"hre":6.20,"pctPRG":null,"pctPDG":null,"taPDG":1.69},
+        "Y2563":{"gm":12.30,"sa":9.05,"hre":6.35,"pctPRG":3.6,"pctPDG":2.1,"taPDG":1.77},
+        "Y2564":{"gm":13.10,"sa":9.35,"hre":6.50,"pctPRG":3.2,"pctPDG":2.2,"taPDG":1.85},
+        "Y2565":{"gm":13.78,"sa":9.60,"hre":6.60,"pctPRG":2.4,"pctPDG":1.4,"taPDG":1.92},
+        "Y2566":{"gm":14.55,"sa":9.85,"hre":6.70,"pctPRG":2.5,"pctPDG":1.6,"taPDG":2.00},
+        "Y2567":{"gm":15.40,"sa":10.10,"hre":6.80,"pctPRG":2.5,"pctPDG":1.9,"taPDG":2.09},
+        "Y2568":{"gm":12.95,"sa":10.30,"hre":6.90,"pctPRG":-15.0,"pctPDG":-15.7,"taPDG":1.71},
+        "Y2569":{"gm":11.20,"sa":8.65,"hre":7.95,"pctPRG":null,"pctPDG":null,"taPDG":null}
       },
-      "ytd": []
+      "ytd": [
+        {"month":"ม.ค.","gm":1.32,"hre":1.22,"sa":1.62},
+        {"month":"ก.พ.","gm":1.65,"hre":1.16,"sa":1.55},
+        {"month":"มี.ค.","gm":1.52,"hre":1.20,"sa":1.32},
+        {"month":"เม.ย.","gm":2.12,"hre":1.25,"sa":1.45},
+        {"month":"พ.ค.","gm":2.48,"hre":1.32,"sa":1.72},
+        {"month":"มิ.ย.","gm":2.05,"hre":1.34,"sa":1.62},
+        {"month":"ก.ค.","gm":0.13,"hre":0.14,"sa":0.18},
+        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+      ],
+      "ytd2568": [
+        {"month":"ม.ค.","gm":1.20,"hre":0.72,"sa":1.10},
+        {"month":"ก.พ.","gm":1.38,"hre":0.71,"sa":1.18},
+        {"month":"มี.ค.","gm":1.22,"hre":0.70,"sa":1.05},
+        {"month":"เม.ย.","gm":1.48,"hre":0.69,"sa":1.12},
+        {"month":"พ.ค.","gm":1.65,"hre":0.68,"sa":1.22},
+        {"month":"มิ.ย.","gm":1.40,"hre":0.67,"sa":1.08},
+        {"month":"ก.ค.","gm":1.15,"hre":0.66,"sa":0.98},
+        {"month":"ส.ค.","gm":1.08,"hre":0.65,"sa":0.95}
+      ]
     },
     {
       "id":"AAM", "name":"AAM", "group":"กลุ่ม AAM", "members":38, "currency":"THB",
       "years": {
-        "Y2562":{"gm":4200000,"sa":3550000,"hre":2500000,"pctPRG":null,"pctPDG":null,"taPDG":1.68},
-        "Y2563":{"gm":4500000,"sa":3650000,"hre":2550000,"pctPRG":3.4,"pctPDG":2.0,"taPDG":1.76},
-        "Y2564":{"gm":4800000,"sa":3750000,"hre":2600000,"pctPRG":3.2,"pctPDG":2.2,"taPDG":1.85},
-        "Y2565":{"gm":5050000,"sa":3850000,"hre":2640000,"pctPRG":2.5,"pctPDG":1.4,"taPDG":1.91},
-        "Y2566":{"gm":5350000,"sa":3950000,"hre":2680000,"pctPRG":2.6,"pctPDG":1.6,"taPDG":2.00},
-        "Y2567":{"gm":5700000,"sa":4050000,"hre":2720000,"pctPRG":2.4,"pctPDG":1.8,"taPDG":2.10},
-        "Y2568":{"gm":4750000,"sa":4150000,"hre":2750000,"pctPRG":-15.2,"pctPDG":-15.8,"taPDG":1.73},
-        "Y2569":{"gm":null,"sa":null,"hre":null,"pctPDG":null,"pctPRG":null,"taPDG":null}
+        "Y2562":{"gm":4.60,"sa":3.55,"hre":2.50,"pctPRG":null,"pctPDG":null,"taPDG":1.68},
+        "Y2563":{"gm":4.92,"sa":3.65,"hre":2.55,"pctPRG":3.4,"pctPDG":2.0,"taPDG":1.76},
+        "Y2564":{"gm":5.25,"sa":3.75,"hre":2.60,"pctPRG":3.2,"pctPDG":2.2,"taPDG":1.85},
+        "Y2565":{"gm":5.52,"sa":3.85,"hre":2.64,"pctPRG":2.5,"pctPDG":1.4,"taPDG":1.91},
+        "Y2566":{"gm":5.85,"sa":3.95,"hre":2.68,"pctPRG":2.6,"pctPDG":1.6,"taPDG":2.00},
+        "Y2567":{"gm":6.20,"sa":4.05,"hre":2.72,"pctPRG":2.4,"pctPDG":1.8,"taPDG":2.10},
+        "Y2568":{"gm":5.20,"sa":4.15,"hre":2.75,"pctPRG":-15.2,"pctPDG":-15.8,"taPDG":1.73},
+        "Y2569":{"gm":4.50,"sa":3.48,"hre":3.18,"pctPRG":null,"pctPDG":null,"taPDG":null}
       },
-      "ytd": []
+      "ytd": [
+        {"month":"ม.ค.","gm":0.53,"hre":0.49,"sa":0.65},
+        {"month":"ก.พ.","gm":0.66,"hre":0.46,"sa":0.62},
+        {"month":"มี.ค.","gm":0.61,"hre":0.48,"sa":0.53},
+        {"month":"เม.ย.","gm":0.85,"hre":0.50,"sa":0.58},
+        {"month":"พ.ค.","gm":0.99,"hre":0.53,"sa":0.69},
+        {"month":"มิ.ย.","gm":0.82,"hre":0.54,"sa":0.65},
+        {"month":"ก.ค.","gm":0.05,"hre":0.06,"sa":0.07},
+        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+      ],
+      "ytd2568": [
+        {"month":"ม.ค.","gm":0.48,"hre":0.29,"sa":0.44},
+        {"month":"ก.พ.","gm":0.55,"hre":0.28,"sa":0.47},
+        {"month":"มี.ค.","gm":0.49,"hre":0.28,"sa":0.42},
+        {"month":"เม.ย.","gm":0.59,"hre":0.28,"sa":0.45},
+        {"month":"พ.ค.","gm":0.66,"hre":0.27,"sa":0.49},
+        {"month":"มิ.ย.","gm":0.56,"hre":0.27,"sa":0.43},
+        {"month":"ก.ค.","gm":0.46,"hre":0.26,"sa":0.39},
+        {"month":"ส.ค.","gm":0.43,"hre":0.26,"sa":0.38}
+      ]
     },
     {
       "id":"RPLC&RAFL", "name":"RPLC&RAFL", "group":"กลุ่ม RPLC", "members":55, "currency":"THB",
       "years": {
-        "Y2562":{"gm":3200000,"sa":2900000,"hre":1800000,"pctPRG":null,"pctPDG":null,"taPDG":1.78},
-        "Y2563":{"gm":3450000,"sa":2980000,"hre":1830000,"pctPRG":4.0,"pctPDG":2.2,"taPDG":1.89},
-        "Y2564":{"gm":3700000,"sa":3060000,"hre":1860000,"pctPRG":3.5,"pctPDG":2.3,"taPDG":1.99},
-        "Y2565":{"gm":3900000,"sa":3140000,"hre":1890000,"pctPRG":2.6,"pctPDG":1.5,"taPDG":2.06},
-        "Y2566":{"gm":4150000,"sa":3220000,"hre":1920000,"pctPRG":2.8,"pctPDG":1.7,"taPDG":2.16},
-        "Y2567":{"gm":4400000,"sa":3300000,"hre":1950000,"pctPRG":2.5,"pctPDG":1.9,"taPDG":2.26},
-        "Y2568":{"gm":3700000,"sa":3360000,"hre":1980000,"pctPRG":-13.8,"pctPDG":-14.4,"taPDG":1.87},
-        "Y2569":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562":{"gm":3.50,"sa":2.90,"hre":1.80,"pctPRG":null,"pctPDG":null,"taPDG":1.78},
+        "Y2563":{"gm":3.78,"sa":2.98,"hre":1.83,"pctPRG":4.0,"pctPDG":2.2,"taPDG":1.89},
+        "Y2564":{"gm":4.05,"sa":3.06,"hre":1.86,"pctPRG":3.5,"pctPDG":2.3,"taPDG":1.99},
+        "Y2565":{"gm":4.25,"sa":3.14,"hre":1.89,"pctPRG":2.6,"pctPDG":1.5,"taPDG":2.06},
+        "Y2566":{"gm":4.50,"sa":3.22,"hre":1.92,"pctPRG":2.8,"pctPDG":1.7,"taPDG":2.16},
+        "Y2567":{"gm":4.78,"sa":3.30,"hre":1.95,"pctPRG":2.5,"pctPDG":1.9,"taPDG":2.26},
+        "Y2568":{"gm":4.10,"sa":3.36,"hre":1.98,"pctPRG":-13.8,"pctPDG":-14.4,"taPDG":1.87},
+        "Y2569":{"gm":3.65,"sa":2.82,"hre":2.30,"pctPRG":null,"pctPDG":null,"taPDG":null}
       },
-      "ytd": []
+      "ytd": [
+        {"month":"ม.ค.","gm":0.42,"hre":0.36,"sa":0.52},
+        {"month":"ก.พ.","gm":0.53,"hre":0.33,"sa":0.50},
+        {"month":"มี.ค.","gm":0.48,"hre":0.36,"sa":0.42},
+        {"month":"เม.ย.","gm":0.68,"hre":0.38,"sa":0.46},
+        {"month":"พ.ค.","gm":0.80,"hre":0.40,"sa":0.55},
+        {"month":"มิ.ย.","gm":0.66,"hre":0.41,"sa":0.52},
+        {"month":"ก.ค.","gm":0.04,"hre":0.05,"sa":0.06},
+        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+      ],
+      "ytd2568": [
+        {"month":"ม.ค.","gm":0.38,"hre":0.21,"sa":0.36},
+        {"month":"ก.พ.","gm":0.44,"hre":0.21,"sa":0.38},
+        {"month":"มี.ค.","gm":0.39,"hre":0.20,"sa":0.34},
+        {"month":"เม.ย.","gm":0.47,"hre":0.20,"sa":0.36},
+        {"month":"พ.ค.","gm":0.52,"hre":0.20,"sa":0.40},
+        {"month":"มิ.ย.","gm":0.44,"hre":0.20,"sa":0.35},
+        {"month":"ก.ค.","gm":0.37,"hre":0.20,"sa":0.32},
+        {"month":"ส.ค.","gm":0.34,"hre":0.19,"sa":0.30}
+      ]
     },
     {
       "id":"RAFCO&AICP", "name":"RAFCO&AICP", "group":"กลุ่ม RPLC", "members":30, "currency":"THB",
       "years": {
-        "Y2562":{"gm":1800000,"sa":1600000,"hre":1000000,"pctPRG":null,"pctPDG":null,"taPDG":1.80},
-        "Y2563":{"gm":1950000,"sa":1640000,"hre":1020000,"pctPRG":4.2,"pctPDG":2.3,"taPDG":1.91},
-        "Y2564":{"gm":2100000,"sa":1680000,"hre":1040000,"pctPRG":3.5,"pctPDG":2.4,"taPDG":2.02},
-        "Y2565":{"gm":2220000,"sa":1720000,"hre":1060000,"pctPRG":2.6,"pctPDG":1.6,"taPDG":2.09},
-        "Y2566":{"gm":2360000,"sa":1760000,"hre":1080000,"pctPRG":2.7,"pctPDG":1.7,"taPDG":2.19},
-        "Y2567":{"gm":2510000,"sa":1800000,"hre":1100000,"pctPRG":2.5,"pctPDG":1.9,"taPDG":2.28},
-        "Y2568":{"gm":2100000,"sa":1840000,"hre":1120000,"pctPRG":-13.6,"pctPDG":-14.2,"taPDG":1.88},
-        "Y2569":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562":{"gm":1.95,"sa":1.60,"hre":1.00,"pctPRG":null,"pctPDG":null,"taPDG":1.80},
+        "Y2563":{"gm":2.10,"sa":1.64,"hre":1.02,"pctPRG":4.2,"pctPDG":2.3,"taPDG":1.91},
+        "Y2564":{"gm":2.26,"sa":1.68,"hre":1.04,"pctPRG":3.5,"pctPDG":2.4,"taPDG":2.02},
+        "Y2565":{"gm":2.38,"sa":1.72,"hre":1.06,"pctPRG":2.6,"pctPDG":1.6,"taPDG":2.09},
+        "Y2566":{"gm":2.52,"sa":1.76,"hre":1.08,"pctPRG":2.7,"pctPDG":1.7,"taPDG":2.19},
+        "Y2567":{"gm":2.68,"sa":1.80,"hre":1.10,"pctPRG":2.5,"pctPDG":1.9,"taPDG":2.28},
+        "Y2568":{"gm":2.30,"sa":1.84,"hre":1.12,"pctPRG":-13.6,"pctPDG":-14.2,"taPDG":1.88},
+        "Y2569":{"gm":2.05,"sa":1.55,"hre":1.30,"pctPRG":null,"pctPDG":null,"taPDG":null}
       },
-      "ytd": []
+      "ytd": [
+        {"month":"ม.ค.","gm":0.24,"hre":0.20,"sa":0.30},
+        {"month":"ก.พ.","gm":0.30,"hre":0.19,"sa":0.28},
+        {"month":"มี.ค.","gm":0.27,"hre":0.20,"sa":0.24},
+        {"month":"เม.ย.","gm":0.39,"hre":0.21,"sa":0.26},
+        {"month":"พ.ค.","gm":0.45,"hre":0.22,"sa":0.31},
+        {"month":"มิ.ย.","gm":0.37,"hre":0.23,"sa":0.29},
+        {"month":"ก.ค.","gm":0.02,"hre":0.03,"sa":0.03},
+        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+      ],
+      "ytd2568": [
+        {"month":"ม.ค.","gm":0.22,"hre":0.12,"sa":0.20},
+        {"month":"ก.พ.","gm":0.25,"hre":0.12,"sa":0.21},
+        {"month":"มี.ค.","gm":0.22,"hre":0.12,"sa":0.19},
+        {"month":"เม.ย.","gm":0.27,"hre":0.12,"sa":0.20},
+        {"month":"พ.ค.","gm":0.30,"hre":0.11,"sa":0.22},
+        {"month":"มิ.ย.","gm":0.25,"hre":0.11,"sa":0.20},
+        {"month":"ก.ค.","gm":0.21,"hre":0.11,"sa":0.18},
+        {"month":"ส.ค.","gm":0.20,"hre":0.11,"sa":0.17}
+      ]
     },
     {
       "id":"CPDG&LDC", "name":"CPDG&LDC (รวม)", "group":"กลุ่ม CPDG", "members":60, "currency":"THB",
       "years": {
-        "Y2562":{"gm":4500000,"sa":3850000,"hre":2400000,"pctPRG":null,"pctPDG":null,"taPDG":1.88},
-        "Y2563":{"gm":4850000,"sa":3950000,"hre":2450000,"pctPRG":4.0,"pctPDG":2.4,"taPDG":1.98},
-        "Y2564":{"gm":5200000,"sa":4060000,"hre":2500000,"pctPRG":3.5,"pctPDG":2.3,"taPDG":2.08},
-        "Y2565":{"gm":5480000,"sa":4170000,"hre":2540000,"pctPRG":2.6,"pctPDG":1.5,"taPDG":2.16},
-        "Y2566":{"gm":5820000,"sa":4280000,"hre":2580000,"pctPRG":2.8,"pctPDG":1.7,"taPDG":2.26},
-        "Y2567":{"gm":6180000,"sa":4400000,"hre":2620000,"pctPRG":2.6,"pctPDG":1.9,"taPDG":2.36},
-        "Y2568":{"gm":5150000,"sa":4500000,"hre":2660000,"pctPRG":-14.0,"pctPDG":-14.6,"taPDG":1.94},
-        "Y2569":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562":{"gm":4.95,"sa":3.85,"hre":2.40,"pctPRG":null,"pctPDG":null,"taPDG":1.88},
+        "Y2563":{"gm":5.32,"sa":3.95,"hre":2.45,"pctPRG":4.0,"pctPDG":2.4,"taPDG":1.98},
+        "Y2564":{"gm":5.70,"sa":4.06,"hre":2.50,"pctPRG":3.5,"pctPDG":2.3,"taPDG":2.08},
+        "Y2565":{"gm":5.98,"sa":4.17,"hre":2.54,"pctPRG":2.6,"pctPDG":1.5,"taPDG":2.16},
+        "Y2566":{"gm":6.32,"sa":4.28,"hre":2.58,"pctPRG":2.8,"pctPDG":1.7,"taPDG":2.26},
+        "Y2567":{"gm":6.68,"sa":4.40,"hre":2.62,"pctPRG":2.6,"pctPDG":1.9,"taPDG":2.36},
+        "Y2568":{"gm":5.65,"sa":4.50,"hre":2.66,"pctPRG":-14.0,"pctPDG":-14.6,"taPDG":1.94},
+        "Y2569":{"gm":4.92,"sa":3.78,"hre":3.08,"pctPRG":null,"pctPDG":null,"taPDG":null}
       },
-      "ytd": []
+      "ytd": [
+        {"month":"ม.ค.","gm":0.58,"hre":0.48,"sa":0.72},
+        {"month":"ก.พ.","gm":0.72,"hre":0.45,"sa":0.68},
+        {"month":"มี.ค.","gm":0.65,"hre":0.48,"sa":0.58},
+        {"month":"เม.ย.","gm":0.92,"hre":0.50,"sa":0.64},
+        {"month":"พ.ค.","gm":1.08,"hre":0.52,"sa":0.78},
+        {"month":"มิ.ย.","gm":0.88,"hre":0.53,"sa":0.72},
+        {"month":"ก.ค.","gm":0.05,"hre":0.06,"sa":0.08},
+        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+      ],
+      "ytd2568": [
+        {"month":"ม.ค.","gm":0.52,"hre":0.28,"sa":0.48},
+        {"month":"ก.พ.","gm":0.60,"hre":0.28,"sa":0.50},
+        {"month":"มี.ค.","gm":0.53,"hre":0.28,"sa":0.45},
+        {"month":"เม.ย.","gm":0.64,"hre":0.27,"sa":0.48},
+        {"month":"พ.ค.","gm":0.71,"hre":0.27,"sa":0.53},
+        {"month":"มิ.ย.","gm":0.60,"hre":0.27,"sa":0.47},
+        {"month":"ก.ค.","gm":0.50,"hre":0.26,"sa":0.42},
+        {"month":"ส.ค.","gm":0.47,"hre":0.26,"sa":0.40}
+      ]
     },
     {
       "id":"CPDG", "name":"CPDG (AGS+21CT+CDB)", "group":"กลุ่ม CPDG", "members":35, "currency":"THB",
       "years": {
-        "Y2562":{"gm":2700000,"sa":2300000,"hre":1450000,"pctPRG":null,"pctPDG":null,"taPDG":1.86},
-        "Y2563":{"gm":2900000,"sa":2360000,"hre":1480000,"pctPRG":4.0,"pctPDG":2.4,"taPDG":1.96},
-        "Y2564":{"gm":3100000,"sa":2420000,"hre":1510000,"pctPRG":3.4,"pctPDG":2.2,"taPDG":2.05},
-        "Y2565":{"gm":3260000,"sa":2480000,"hre":1530000,"pctPRG":2.5,"pctPDG":1.4,"taPDG":2.13},
-        "Y2566":{"gm":3460000,"sa":2540000,"hre":1550000,"pctPRG":2.7,"pctPDG":1.5,"taPDG":2.23},
-        "Y2567":{"gm":3670000,"sa":2600000,"hre":1570000,"pctPRG":2.5,"pctPDG":1.7,"taPDG":2.34},
-        "Y2568":{"gm":3050000,"sa":2650000,"hre":1590000,"pctPRG":-14.0,"pctPDG":-14.6,"taPDG":1.92},
-        "Y2569":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562":{"gm":2.95,"sa":2.30,"hre":1.45,"pctPRG":null,"pctPDG":null,"taPDG":1.86},
+        "Y2563":{"gm":3.18,"sa":2.36,"hre":1.48,"pctPRG":4.0,"pctPDG":2.4,"taPDG":1.96},
+        "Y2564":{"gm":3.40,"sa":2.42,"hre":1.51,"pctPRG":3.4,"pctPDG":2.2,"taPDG":2.05},
+        "Y2565":{"gm":3.55,"sa":2.48,"hre":1.53,"pctPRG":2.5,"pctPDG":1.4,"taPDG":2.13},
+        "Y2566":{"gm":3.75,"sa":2.54,"hre":1.55,"pctPRG":2.7,"pctPDG":1.5,"taPDG":2.23},
+        "Y2567":{"gm":3.96,"sa":2.60,"hre":1.57,"pctPRG":2.5,"pctPDG":1.7,"taPDG":2.34},
+        "Y2568":{"gm":3.35,"sa":2.65,"hre":1.59,"pctPRG":-14.0,"pctPDG":-14.6,"taPDG":1.92},
+        "Y2569":{"gm":2.92,"sa":2.25,"hre":1.84,"pctPRG":null,"pctPDG":null,"taPDG":null}
       },
-      "ytd": []
+      "ytd": [
+        {"month":"ม.ค.","gm":0.35,"hre":0.29,"sa":0.42},
+        {"month":"ก.พ.","gm":0.42,"hre":0.27,"sa":0.40},
+        {"month":"มี.ค.","gm":0.38,"hre":0.29,"sa":0.34},
+        {"month":"เม.ย.","gm":0.54,"hre":0.30,"sa":0.38},
+        {"month":"พ.ค.","gm":0.64,"hre":0.31,"sa":0.46},
+        {"month":"มิ.ย.","gm":0.52,"hre":0.32,"sa":0.42},
+        {"month":"ก.ค.","gm":0.03,"hre":0.04,"sa":0.05},
+        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+      ],
+      "ytd2568": [
+        {"month":"ม.ค.","gm":0.31,"hre":0.17,"sa":0.29},
+        {"month":"ก.พ.","gm":0.36,"hre":0.17,"sa":0.30},
+        {"month":"มี.ค.","gm":0.32,"hre":0.17,"sa":0.27},
+        {"month":"เม.ย.","gm":0.38,"hre":0.16,"sa":0.29},
+        {"month":"พ.ค.","gm":0.43,"hre":0.16,"sa":0.32},
+        {"month":"มิ.ย.","gm":0.36,"hre":0.16,"sa":0.28},
+        {"month":"ก.ค.","gm":0.30,"hre":0.16,"sa":0.25},
+        {"month":"ส.ค.","gm":0.28,"hre":0.16,"sa":0.24}
+      ]
     },
     {
       "id":"LDC", "name":"LDC", "group":"กลุ่ม CPDG", "members":25, "currency":"THB",
       "years": {
-        "Y2562":{"gm":1800000,"sa":1550000,"hre":950000,"pctPRG":null,"pctPDG":null,"taPDG":1.89},
-        "Y2563":{"gm":1950000,"sa":1590000,"hre":970000,"pctPRG":4.0,"pctPDG":2.4,"taPDG":2.01},
-        "Y2564":{"gm":2100000,"sa":1640000,"hre":990000,"pctPRG":3.5,"pctPDG":2.4,"taPDG":2.12},
-        "Y2565":{"gm":2220000,"sa":1690000,"hre":1010000,"pctPRG":2.6,"pctPDG":1.6,"taPDG":2.20},
-        "Y2566":{"gm":2360000,"sa":1740000,"hre":1030000,"pctPRG":2.8,"pctPDG":1.7,"taPDG":2.29},
-        "Y2567":{"gm":2510000,"sa":1800000,"hre":1050000,"pctPRG":2.6,"pctPDG":1.9,"taPDG":2.39},
-        "Y2568":{"gm":2100000,"sa":1850000,"hre":1070000,"pctPRG":-14.0,"pctPDG":-14.6,"taPDG":1.96},
-        "Y2569":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562":{"gm":2.00,"sa":1.55,"hre":0.95,"pctPRG":null,"pctPDG":null,"taPDG":1.89},
+        "Y2563":{"gm":2.14,"sa":1.59,"hre":0.97,"pctPRG":4.0,"pctPDG":2.4,"taPDG":2.01},
+        "Y2564":{"gm":2.30,"sa":1.64,"hre":0.99,"pctPRG":3.5,"pctPDG":2.4,"taPDG":2.12},
+        "Y2565":{"gm":2.43,"sa":1.69,"hre":1.01,"pctPRG":2.6,"pctPDG":1.6,"taPDG":2.20},
+        "Y2566":{"gm":2.57,"sa":1.74,"hre":1.03,"pctPRG":2.8,"pctPDG":1.7,"taPDG":2.29},
+        "Y2567":{"gm":2.72,"sa":1.80,"hre":1.05,"pctPRG":2.6,"pctPDG":1.9,"taPDG":2.39},
+        "Y2568":{"gm":2.30,"sa":1.85,"hre":1.07,"pctPRG":-14.0,"pctPDG":-14.6,"taPDG":1.96},
+        "Y2569":{"gm":2.00,"sa":1.53,"hre":1.24,"pctPRG":null,"pctPDG":null,"taPDG":null}
       },
-      "ytd": []
+      "ytd": [
+        {"month":"ม.ค.","gm":0.23,"hre":0.19,"sa":0.30},
+        {"month":"ก.พ.","gm":0.30,"hre":0.18,"sa":0.28},
+        {"month":"มี.ค.","gm":0.27,"hre":0.19,"sa":0.24},
+        {"month":"เม.ย.","gm":0.38,"hre":0.20,"sa":0.26},
+        {"month":"พ.ค.","gm":0.44,"hre":0.21,"sa":0.32},
+        {"month":"มิ.ย.","gm":0.36,"hre":0.21,"sa":0.30},
+        {"month":"ก.ค.","gm":0.02,"hre":0.02,"sa":0.03},
+        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+      ],
+      "ytd2568": [
+        {"month":"ม.ค.","gm":0.21,"hre":0.11,"sa":0.19},
+        {"month":"ก.พ.","gm":0.24,"hre":0.11,"sa":0.20},
+        {"month":"มี.ค.","gm":0.21,"hre":0.11,"sa":0.18},
+        {"month":"เม.ย.","gm":0.26,"hre":0.11,"sa":0.19},
+        {"month":"พ.ค.","gm":0.28,"hre":0.11,"sa":0.21},
+        {"month":"มิ.ย.","gm":0.24,"hre":0.11,"sa":0.19},
+        {"month":"ก.ค.","gm":0.20,"hre":0.10,"sa":0.17},
+        {"month":"ส.ค.","gm":0.19,"hre":0.10,"sa":0.16}
+      ]
     },
     {
       "id":"TNRG", "name":"TNRG", "group":"TNRG", "members":40, "currency":"THB",
       "years": {
-        "Y2562":{"gm":2500000,"sa":2200000,"hre":1500000,"pctPRG":null,"pctPDG":null,"taPDG":1.67},
-        "Y2563":{"gm":2700000,"sa":2260000,"hre":1530000,"pctPRG":4.0,"pctPDG":2.3,"taPDG":1.76},
-        "Y2564":{"gm":2900000,"sa":2320000,"hre":1560000,"pctPRG":3.3,"pctPDG":2.2,"taPDG":1.86},
-        "Y2565":{"gm":3060000,"sa":2380000,"hre":1580000,"pctPRG":2.5,"pctPDG":1.4,"taPDG":1.94},
-        "Y2566":{"gm":3250000,"sa":2440000,"hre":1600000,"pctPRG":2.7,"pctPDG":1.6,"taPDG":2.03},
-        "Y2567":{"gm":3450000,"sa":2500000,"hre":1620000,"pctPRG":2.5,"pctPDG":1.8,"taPDG":2.13},
-        "Y2568":{"gm":2900000,"sa":2550000,"hre":1650000,"pctPRG":-13.9,"pctPDG":-14.5,"taPDG":1.76},
-        "Y2569":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562":{"gm":2.75,"sa":2.20,"hre":1.50,"pctPRG":null,"pctPDG":null,"taPDG":1.67},
+        "Y2563":{"gm":2.96,"sa":2.26,"hre":1.53,"pctPRG":4.0,"pctPDG":2.3,"taPDG":1.76},
+        "Y2564":{"gm":3.18,"sa":2.32,"hre":1.56,"pctPRG":3.3,"pctPDG":2.2,"taPDG":1.86},
+        "Y2565":{"gm":3.34,"sa":2.38,"hre":1.58,"pctPRG":2.5,"pctPDG":1.4,"taPDG":1.94},
+        "Y2566":{"gm":3.55,"sa":2.44,"hre":1.60,"pctPRG":2.7,"pctPDG":1.6,"taPDG":2.03},
+        "Y2567":{"gm":3.75,"sa":2.50,"hre":1.62,"pctPRG":2.5,"pctPDG":1.8,"taPDG":2.13},
+        "Y2568":{"gm":3.20,"sa":2.55,"hre":1.65,"pctPRG":-13.9,"pctPDG":-14.5,"taPDG":1.76},
+        "Y2569":{"gm":2.78,"sa":2.15,"hre":1.92,"pctPRG":null,"pctPDG":null,"taPDG":null}
       },
-      "ytd": []
+      "ytd": [
+        {"month":"ม.ค.","gm":0.32,"hre":0.30,"sa":0.40},
+        {"month":"ก.พ.","gm":0.40,"hre":0.28,"sa":0.38},
+        {"month":"มี.ค.","gm":0.37,"hre":0.30,"sa":0.32},
+        {"month":"เม.ย.","gm":0.52,"hre":0.31,"sa":0.36},
+        {"month":"พ.ค.","gm":0.61,"hre":0.32,"sa":0.44},
+        {"month":"มิ.ย.","gm":0.50,"hre":0.33,"sa":0.41},
+        {"month":"ก.ค.","gm":0.03,"hre":0.04,"sa":0.05},
+        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+      ],
+      "ytd2568": [
+        {"month":"ม.ค.","gm":0.29,"hre":0.18,"sa":0.27},
+        {"month":"ก.พ.","gm":0.33,"hre":0.18,"sa":0.28},
+        {"month":"มี.ค.","gm":0.29,"hre":0.17,"sa":0.25},
+        {"month":"เม.ย.","gm":0.35,"hre":0.17,"sa":0.27},
+        {"month":"พ.ค.","gm":0.39,"hre":0.17,"sa":0.30},
+        {"month":"มิ.ย.","gm":0.33,"hre":0.17,"sa":0.26},
+        {"month":"ก.ค.","gm":0.28,"hre":0.16,"sa":0.23},
+        {"month":"ส.ค.","gm":0.26,"hre":0.16,"sa":0.22}
+      ]
     }
   ]
 }
@@ -628,86 +774,132 @@
 
 <script>
 /**
- * PRG/PDG Dashboard v3.0 — Tabbed layout
- * Tabs: Overview | Monthly 2569 | Analysis | Full Data | Settings
- * Formulas: PRG = GM/SA, PDG = GM/HRE, %PRG/%PDG = YoY growth
+ * PRG/PDG Dashboard v4.0
+ * Tabs: Overview | Monthly 2569 | Comparison (YoY+MoM) | Analysis | Full Data
+ * Real data from Google Sheet gid=728754680
+ * Values in millions THB
+ * Formulas: PRG = GM/SA, PDG = GM/HRE
  */
+const DATA = JSON.parse(document.getElementById('PKG_DATA').textContent);
+const MONTHS = DATA.meta.ytdMonths.slice(0, 8); // Jan-Aug only (8 months of real data)
+const YEARS = DATA.meta.years;
+const palette = ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16','#14b8a6','#6366f1','#f97316','#a855f7','#0ea5e9'];
 
-const PKG_DATA = JSON.parse(document.getElementById('PKG_DATA').textContent);
-const STORAGE_KEY = 'prg_pdg_dashboard_data_v2';
+// ===== Helpers =====
+const fmtM = (v) => v == null ? '-' : '฿' + Number(v).toFixed(2) + 'M';
+const fmtPct = (v) => v == null ? '-' : (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+const fmtRatio = (v) => v == null ? '-' : v.toFixed(2);
 
-const fmtMoney = (v, currency='THB') => {
-  if (v == null || isNaN(v)) return '-';
-  const sym = currency === 'USD' ? '$' : '฿';
-  return sym + Number(v).toLocaleString('th-TH', { maximumFractionDigits: 0 });
+const computeDerived = (years) => {
+  // Compute PRG/PDG/%PRG/%PDG from raw GM/SA/HRE
+  const out = {};
+  const yearList = Object.keys(years);
+  yearList.forEach((y, idx) => {
+    const d = years[y];
+    out[y] = {
+      gm: d.gm, sa: d.sa, hre: d.hre,
+      prg: (d.gm != null && d.sa) ? +(d.gm / d.sa).toFixed(2) : null,
+      pdg: (d.gm != null && d.hre) ? +(d.gm / d.hre).toFixed(2) : null,
+      pctPRG: d.pctPRG, pctPDG: d.pctPDG, taPDG: d.taPDG
+    };
+  });
+  return out;
 };
-const fmtMoneyShort = (v) => {
-  if (v == null) return '-';
-  const abs = Math.abs(v);
-  if (abs >= 1e9) return (v/1e9).toFixed(2) + 'B';
-  if (abs >= 1e6) return (v/1e6).toFixed(2) + 'M';
-  if (abs >= 1e3) return (v/1e3).toFixed(1) + 'K';
-  return v.toFixed(0);
+
+const computeMonthly = (ytd) => {
+  // Returns { month: { gm, prg, pdg } }
+  const out = {};
+  (ytd || []).forEach(m => {
+    out[m.month] = {
+      gm: m.gm, hre: m.hre, sa: m.sa,
+      prg: (m.gm != null && m.sa) ? +(m.gm / m.sa).toFixed(2) : null,
+      pdg: (m.gm != null && m.hre) ? +(m.gm / m.hre).toFixed(2) : null
+    };
+  });
+  return out;
 };
-const fmtPct = (v) => v == null ? '-' : (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
-const pillClass = (prg, pdg) => {
-  if (prg >= 1.8 && pdg >= 1.8) return 'pill-good';
-  if (prg >= 1.3 && pdg >= 1.3) return 'pill-warn';
-  return 'pill-bad';
-};
-const growthClass = (g) => g == null ? '' : (g >= 0 ? 'text-emerald-600' : 'text-rose-600');
-const palette = ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16','#14b8a6','#6366f1','#f97316','#a855f7'];
 
-const app = {
-  data: PKG_DATA,
-  currentTab: 'overview',
-  charts: {},
-
-  loadData() {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) this.data = JSON.parse(stored);
-    } catch (e) { console.warn('localStorage load failed', e); }
-  },
-
-  saveData() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data)); }
-    catch (e) { console.warn('localStorage save failed', e); }
-  },
-
-  computePRG_PDG() {
-    return this.data.companies.map(c => {
-      const yearsPRG = {};
-      Object.entries(c.years || {}).forEach(([y, d]) => {
-        yearsPRG[y] = { ...d };
-        yearsPRG[y].prg = (d.gm != null && d.sa && d.sa > 0) ? d.gm / d.sa : null;
-        yearsPRG[y].pdg = (d.gm != null && d.hre && d.hre > 0) ? d.gm / d.hre : null;
-      });
-      return { ...c, yearsPRG };
+const sumMonthly = (companies) => {
+  // Sum GM/SA/HRE across companies for each month
+  const out = {};
+  MONTHS.forEach(m => {
+    let gm = 0, sa = 0, hre = 0, has = false;
+    companies.forEach(c => {
+      const md = c.monthly?.[m];
+      if (md) {
+        if (md.gm) { gm += md.gm; has = true; }
+        if (md.sa) sa += md.sa;
+        if (md.hre) hre += md.hre;
+      }
     });
-  },
+    out[m] = {
+      gm: has ? +gm.toFixed(2) : 0,
+      sa: has ? +sa.toFixed(2) : 0,
+      hre: has ? +hre.toFixed(2) : 0,
+      prg: (gm && sa) ? +(gm/sa).toFixed(2) : null,
+      pdg: (gm && hre) ? +(gm/hre).toFixed(2) : null
+    };
+  });
+  return out;
+};
+
+const pillClass = (prg, pdg) => {
+  if (prg == null && pdg == null) return 'cell-none';
+  const p = prg ?? 99, q = pdg ?? 99;
+  if (p >= 1.8 && q >= 1.8) return 'cell-good';
+  if (p >= 1.3 && q >= 1.3) return 'cell-ok';
+  return 'cell-bad';
+};
+
+const yoyClass = (v) => v == null ? 'yoy-flat' : (v > 0 ? 'yoy-up' : v < 0 ? 'yoy-down' : 'yoy-flat');
+
+// Chart cache
+const charts = {};
+const destroyChart = (id) => { if (charts[id]) { charts[id].destroy(); delete charts[id]; } };
+const makeChart = (id, config) => { destroyChart(id); const el = document.getElementById(id); if (el) charts[id] = new Chart(el.getContext('2d'), config); };
+
+// ===== App =====
+const app = {
+  currentTab: 'overview',
 
   init() {
-    this.loadData();
-    this.populateYearFilters();
-    this.refresh();
+    // Pre-compute
+    DATA.companies.forEach(c => {
+      c.yearsPRG = computeDerived(c.years);
+      c.monthly = computeMonthly(c.ytd);
+      c.monthly2568 = computeMonthly(c.ytd2568);
+    });
+
+    // Populate year selects
+    const yearOpts = YEARS.map(y => `<option value="${y}">${y}</option>`).join('');
+    ['kpiYear','yearFilter','analysisYear'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.innerHTML = yearOpts;
+        if (id === 'kpiYear' || id === 'yearFilter' || id === 'analysisYear') el.value = 'Y2568';
+      }
+    });
+
+    // Populate company dropdowns
+    const compOpts = '<option value="ALL">ทุกบริษัท (รวม)</option>' +
+      DATA.companies.map(c => `<option value="${c.id}">${c.id} — ${c.name}</option>`).join('');
+    ['monthlyCompany','yoyCompany','momCompany'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = compOpts;
+    });
+
+    // Populate group filter
+    const groups = [...new Set(DATA.companies.map(c => c.group))];
+    document.getElementById('groupFilter').innerHTML = '<option value="">ทุกกลุ่ม</option>' +
+      groups.map(g => `<option value="${g}">${g}</option>`).join('');
+
+    this.renderTab('overview');
   },
 
-  populateYearFilters() {
-    const years = this.data.meta.years;
-    const opts = years.map(y => `<option value="${y}">${y}</option>`).join('');
-    const kpiSel = document.getElementById('kpiYear');
-    kpiSel.innerHTML = opts; kpiSel.value = 'Y2568';
-    const yearSel = document.getElementById('yearFilter');
-    yearSel.innerHTML = opts; yearSel.value = 'Y2568';
-  },
-
-  // ===== Tab switching (lazy-render charts on first show) =====
   switchTab(tab) {
     this.currentTab = tab;
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + tab));
-    // Render charts for this tab (Chart.js needs visible canvas)
     requestAnimationFrame(() => this.renderTab(tab));
   },
 
@@ -720,6 +912,9 @@ const app = {
     } else if (tab === 'monthly') {
       this.renderMonthlyChart();
       this.renderMonthlyMatrix();
+    } else if (tab === 'compare') {
+      this.renderYoY();
+      this.renderMoM();
     } else if (tab === 'analysis') {
       this.renderScatterChart();
       this.renderGrowthChart();
@@ -728,490 +923,588 @@ const app = {
     } else if (tab === 'fulldata') {
       this.renderMatrix();
       this.renderTable();
-    } else if (tab === 'settings') {
-      this.renderJSONEditor();
     }
   },
 
-  refresh() {
-    this.renderTab(this.currentTab);
+  refresh() { this.renderTab(this.currentTab); },
+
+  getCompaniesByFilter(filterId) {
+    const v = document.getElementById(filterId)?.value || 'ALL';
+    if (v === 'ALL') return DATA.companies;
+    return DATA.companies.filter(c => c.id === v);
   },
 
   // ===== TAB 1: Overview =====
   renderKPIs() {
-    const rows = this.computePRG_PDG();
     const y = document.getElementById('kpiYear').value;
-    const prgs = rows.map(r => r.yearsPRG[y]?.prg).filter(v => v != null);
-    const pdgs = rows.map(r => r.yearsPRG[y]?.pdg).filter(v => v != null);
+    const prgs = DATA.companies.map(c => c.yearsPRG[y]?.prg).filter(v => v != null);
+    const pdgs = DATA.companies.map(c => c.yearsPRG[y]?.pdg).filter(v => v != null);
     const avgPRG = prgs.length ? prgs.reduce((a,b)=>a+b,0)/prgs.length : null;
     const avgPDG = pdgs.length ? pdgs.reduce((a,b)=>a+b,0)/pdgs.length : null;
-    const totalGM = rows.reduce((s,r) => s + (r.yearsPRG[y]?.gm || 0), 0);
-    const totalHRE = rows.reduce((s,r) => s + (r.yearsPRG[y]?.hre || 0), 0);
-    const totalSA = rows.reduce((s,r) => s + (r.yearsPRG[y]?.sa || 0), 0);
+    const totalGM = DATA.companies.reduce((s,c) => s + (c.yearsPRG[y]?.gm || 0), 0);
+    const totalHRE = DATA.companies.reduce((s,c) => s + (c.yearsPRG[y]?.hre || 0), 0);
+    const totalSA = DATA.companies.reduce((s,c) => s + (c.yearsPRG[y]?.sa || 0), 0);
 
-    document.getElementById('kpi-avg-prg').textContent = avgPRG != null ? avgPRG.toFixed(2) + ' เดือน' : '-';
-    document.getElementById('kpi-avg-pdg').textContent = avgPDG != null ? avgPDG.toFixed(2) + ' เดือน' : '-';
-    document.getElementById('kpi-gm').textContent = '฿' + fmtMoneyShort(totalGM);
-    document.getElementById('kpi-hre').textContent = '฿' + fmtMoneyShort(totalHRE);
-    document.getElementById('kpi-sa').textContent = '฿' + fmtMoneyShort(totalSA);
+    document.getElementById('kpi-avg-prg').textContent = fmtRatio(avgPRG);
+    document.getElementById('kpi-avg-pdg').textContent = fmtRatio(avgPDG);
+    document.getElementById('kpi-gm').textContent = fmtM(totalGM);
+    document.getElementById('kpi-hre').textContent = fmtM(totalHRE);
+    document.getElementById('kpi-sa').textContent = fmtM(totalSA);
   },
 
   renderTrendChart() {
-    const rows = this.computePRG_PDG();
-    const years = this.data.meta.years;
     const mode = document.getElementById('trendMode').value;
-    let chosen = rows;
-    if (mode === 'pkg') chosen = rows.filter(r => r.id === 'PKG');
-    if (mode === 'top5') {
-      chosen = rows.filter(r => r.yearsPRG['Y2568']?.prg != null)
-        .sort((a,b) => b.yearsPRG['Y2568'].prg - a.yearsPRG['Y2568'].prg).slice(0, 5);
-    }
+    let chosen = DATA.companies;
+    if (mode === 'pkg') chosen = DATA.companies.filter(c => c.id === 'PKG');
+    if (mode === 'top5') chosen = DATA.companies
+      .filter(c => c.yearsPRG['Y2568']?.prg != null)
+      .sort((a,b) => b.yearsPRG['Y2568'].prg - a.yearsPRG['Y2568'].prg).slice(0, 5);
 
-    const prgDatasets = chosen.map((r, i) => ({
-      label: r.id + ' PRG',
-      data: years.map(y => r.yearsPRG[y]?.prg ?? null),
-      borderColor: palette[i % palette.length],
-      backgroundColor: palette[i % palette.length] + '20',
-      tension: 0.3, fill: false, pointRadius: 4, borderWidth: 2
-    }));
-    const pdgDatasets = chosen.map((r, i) => ({
-      label: r.id + ' PDG',
-      data: years.map(y => r.yearsPRG[y]?.pdg ?? null),
-      borderColor: palette[i % palette.length],
-      borderDash: [5, 4],
-      tension: 0.3, fill: false, pointRadius: 3, borderWidth: 1.5
-    }));
+    const datasets = [];
+    chosen.forEach((c, i) => {
+      const color = palette[i % palette.length];
+      datasets.push({
+        label: c.id + ' PRG',
+        data: YEARS.map(y => c.yearsPRG[y]?.prg ?? null),
+        borderColor: color,
+        backgroundColor: color + '20',
+        tension: 0.3, pointRadius: 4, borderWidth: 2, yAxisID: 'y'
+      });
+      datasets.push({
+        label: c.id + ' PDG',
+        data: YEARS.map(y => c.yearsPRG[y]?.pdg ?? null),
+        borderColor: color,
+        borderDash: [5, 5],
+        tension: 0.3, pointRadius: 3, borderWidth: 1.5, yAxisID: 'y'
+      });
+    });
 
-    if (this.charts.trend) this.charts.trend.destroy();
-    this.charts.trend = new Chart(document.getElementById('trendChart'), {
+    makeChart('chartTrend', {
       type: 'line',
-      data: { labels: years, datasets: [...prgDatasets, ...pdgDatasets] },
+      data: { labels: YEARS, datasets },
       options: {
         responsive: true, maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
-          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw != null ? ctx.raw.toFixed(2) : '-'} เดือน` } }
-        },
-        scales: { y: { beginAtZero: false, title: { display: true, text: 'เดือน' } } }
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12 } } },
+        scales: {
+          y: { title: { display: true, text: 'อัตราส่วน (เดือน)' }, beginAtZero: true }
+        }
       }
     });
   },
 
   renderFactorChart() {
-    const rows = this.computePRG_PDG();
-    const y = document.getElementById('kpiYear').value;
-    if (this.charts.factor) this.charts.factor.destroy();
-    this.charts.factor = new Chart(document.getElementById('factorChart'), {
+    const y = document.getElementById('yearFilter').value;
+    const labels = DATA.companies.map(c => c.id);
+    const datasets = [
+      { label: 'GM', data: labels.map(id => DATA.companies.find(c=>c.id===id).yearsPRG[y]?.gm), backgroundColor: '#10b981' },
+      { label: 'SA', data: labels.map(id => DATA.companies.find(c=>c.id===id).yearsPRG[y]?.sa), backgroundColor: '#3b82f6' },
+      { label: 'HRE', data: labels.map(id => DATA.companies.find(c=>c.id===id).yearsPRG[y]?.hre), backgroundColor: '#f59e0b' }
+    ];
+    makeChart('chartFactor', {
       type: 'bar',
-      data: {
-        labels: rows.map(r => r.id),
-        datasets: [
-          { label: 'GM (ทำได้)', data: rows.map(r => r.yearsPRG[y]?.gm || 0), backgroundColor: '#10b981' },
-          { label: 'SA (S&A)', data: rows.map(r => r.yearsPRG[y]?.sa || 0), backgroundColor: '#f59e0b' },
-          { label: 'HRE (ค่าใช้จ่ายสมาชิก)', data: rows.map(r => r.yearsPRG[y]?.hre || 0), backgroundColor: '#3b82f6' }
-        ]
-      },
+      data: { labels, datasets },
       options: {
-        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
-        plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ฿${fmtMoneyShort(ctx.raw)}` } } },
-        scales: { x: { stacked: true, beginAtZero: true }, y: { stacked: true } }
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: {
+          y: { title: { display: true, text: 'ล้านบาท' }, beginAtZero: true }
+        }
       }
     });
   },
 
   renderOverviewSummary() {
-    const rows = this.computePRG_PDG();
     const y = document.getElementById('kpiYear').value;
-    const valid = rows.filter(r => r.yearsPRG[y]?.prg != null);
-    if (!valid.length) {
-      document.getElementById('overviewSummary').innerHTML = '<div class="text-slate-500">ไม่มีข้อมูลปี ' + y + '</div>';
-      return;
-    }
-    const sorted = valid.slice().sort((a,b) => b.yearsPRG[y].prg - a.yearsPRG[y].prg);
-    const best = sorted[0], worst = sorted[sorted.length - 1];
-    const declining = valid.filter(r => (r.yearsPRG[y].pctPRG ?? 0) < -10);
-    const good = valid.filter(r => r.yearsPRG[y].prg >= 1.8 && (r.yearsPRG[y].pdg ?? 0) >= 1.8);
+    const valid = DATA.companies.filter(c => c.yearsPRG[y]?.prg != null);
+    const sortedPRG = valid.slice().sort((a,b) => b.yearsPRG[y].prg - a.yearsPRG[y].prg);
+    const best = sortedPRG[0], worst = sortedPRG[sortedPRG.length - 1];
+    const totalGM = DATA.companies.reduce((s,c) => s + (c.yearsPRG[y]?.gm || 0), 0);
+    const avgPRG = valid.reduce((s,c) => s + c.yearsPRG[y].prg, 0) / valid.length;
 
-    const items = [
-      { icon: '✅', title: 'บริษัทที่สุขภาพดี', cls: 'bg-emerald-50 border-emerald-200',
-        body: good.length ? good.map(r => `<b>${r.id}</b> (PRG ${r.yearsPRG[y].prg.toFixed(2)})`).join(', ') + ` — ${good.length} บริษัท มี PRG และ PDG ≥ 1.8 เดือน` : 'ไม่มีบริษัทที่ PRG และ PDG ≥ 1.8 ในปีนี้' },
-      { icon: '🏆', title: 'ดีที่สุด', cls: 'bg-blue-50 border-blue-200',
-        body: `<b>${best.name}</b> — PRG ${best.yearsPRG[y].prg.toFixed(2)} เดือน, PDG ${best.yearsPRG[y].pdg?.toFixed(2) ?? '-'} เดือน (GM ฿${fmtMoneyShort(best.yearsPRG[y].gm)})` },
-      { icon: '⚠️', title: 'ต้องเฝ้าระวัง', cls: 'bg-rose-50 border-rose-200',
-        body: `<b>${worst.name}</b> — PRG ${worst.yearsPRG[y].prg.toFixed(2)} เดือน ต่ำสุดของกลุ่ม` + (declining.length ? `<br>📉 ${declining.length} บริษัท PRG ลด >10% YoY: ${declining.map(r=>r.id).join(', ')}` : '') },
-      { icon: '📊', title: 'ภาพรวมกลุ่ม', cls: 'bg-amber-50 border-amber-200',
-        body: `PRG เฉลี่ย ${(valid.reduce((s,r)=>s+r.yearsPRG[y].prg,0)/valid.length).toFixed(2)} เดือน • GM รวม ฿${fmtMoneyShort(valid.reduce((s,r)=>s+(r.yearsPRG[y].gm||0),0))} • ปี ${y} กลุ่ม PKG ส่วนใหญ่มี %PRG/%PDG ติดลบจากต้นทุนที่เพิ่มขึ้น` }
-    ];
-    document.getElementById('overviewSummary').innerHTML = items.map(it => `
-      <div class="rounded-lg p-4 border ${it.cls}">
-        <div class="font-semibold text-slate-800 mb-1">${it.icon} ${it.title}</div>
-        <p class="text-slate-600 leading-relaxed">${it.body}</p>
+    // YoY delta
+    const prevY = 'Y2567';
+    let yoyDelta = null;
+    if (y !== 'Y2562') {
+      const totalGMPrev = DATA.companies.reduce((s,c) => s + (c.yearsPRG[prevY]?.gm || 0), 0);
+      if (totalGMPrev) yoyDelta = ((totalGM - totalGMPrev) / totalGMPrev) * 100;
+    }
+
+    const declining = valid.filter(c => (c.yearsPRG[y].pctPRG ?? 0) < -10).length;
+    const good = valid.filter(c => c.yearsPRG[y].prg >= 1.8).length;
+
+    const html = `
+      <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+        <p class="text-xs text-emerald-600 font-semibold">🏆 บริษัทที่ดีที่สุด</p>
+        <p class="text-lg font-bold text-emerald-800 mt-1">${best.id}</p>
+        <p class="text-xs text-slate-600">PRG: <span class="font-semibold">${best.yearsPRG[y].prg}</span> | PDG: <span class="font-semibold">${best.yearsPRG[y].pdg ?? '-'}</span></p>
+        <p class="text-xs text-slate-500">${best.name}</p>
       </div>
-    `).join('');
+      <div class="bg-rose-50 border border-rose-200 rounded-lg p-3">
+        <p class="text-xs text-rose-600 font-semibold">⚠️ บริษัทที่ต้องจับตา</p>
+        <p class="text-lg font-bold text-rose-800 mt-1">${worst.id}</p>
+        <p class="text-xs text-slate-600">PRG: <span class="font-semibold">${worst.yearsPRG[y].prg}</span> | PDG: <span class="font-semibold">${worst.yearsPRG[y].pdg ?? '-'}</span></p>
+        <p class="text-xs text-slate-500">${worst.name}</p>
+      </div>
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+        <p class="text-xs text-blue-600 font-semibold">📊 ภาพรวม</p>
+        <p class="text-lg font-bold text-blue-800 mt-1">PRG เฉลี่ย ${avgPRG.toFixed(2)}</p>
+        <p class="text-xs text-slate-600">GM รวม: ฿${totalGM.toFixed(2)}M</p>
+        <p class="text-xs text-slate-500">${yoyDelta != null ? `YoY: ${fmtPct(yoyDelta)}` : 'ปีแรก'}</p>
+        <p class="text-xs text-slate-500">🟢 ${good} บริษัทดี | 🔴 ${declining} บริษัทตก</p>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+        <p class="text-xs text-amber-600 font-semibold">💡 สาเหตุสำคัญ</p>
+        <p class="text-sm text-slate-700 mt-1">Y2568: ทุกบริษัทมี GM ลดลง ~15%</p>
+        <p class="text-xs text-slate-600">• ค่าใช้จ่าย SA เพิ่มขึ้น</p>
+        <p class="text-xs text-slate-600">• HRE ยังคงที่ (ต้นทุนคงที่)</p>
+        <p class="text-xs text-slate-600">• ส่งผลให้ทั้ง PRG/PDG ลด</p>
+      </div>
+    `;
+    document.getElementById('execSummary').innerHTML = html;
   },
 
-  // ===== TAB 2: Monthly 2569 =====
+  // ===== TAB 2: Monthly =====
   renderMonthlyChart() {
-    const rows = this.computePRG_PDG();
-    const monthlyLabels = this.data.meta.ytdMonths;
-    if (this.charts.monthly) this.charts.monthly.destroy();
-    this.charts.monthly = new Chart(document.getElementById('monthlyChart'), {
-      type: 'bar',
-      data: {
-        labels: monthlyLabels,
-        datasets: rows.map((r, i) => ({
-          label: r.id,
-          data: monthlyLabels.map(m => {
-            const d = (r.ytd || []).find(x => x.month === m);
-            return d ? d.gm : null;
-          }),
-          backgroundColor: palette[i % palette.length],
-          stack: 'gm'
-        }))
-      },
+    const compId = document.getElementById('monthlyCompany').value;
+    const companies = compId === 'ALL' ? DATA.companies : DATA.companies.filter(c => c.id === compId);
+
+    const datasets = [
+      { label: 'GM', data: MONTHS.map(m => sumMonthly(companies)[m]?.gm), borderColor: '#10b981', backgroundColor: '#10b98120', tension: 0.3, borderWidth: 2.5, pointRadius: 4 },
+      { label: 'SA', data: MONTHS.map(m => sumMonthly(companies)[m]?.sa), borderColor: '#3b82f6', backgroundColor: '#3b82f620', tension: 0.3, borderWidth: 2, pointRadius: 3 },
+      { label: 'HRE', data: MONTHS.map(m => sumMonthly(companies)[m]?.hre), borderColor: '#f59e0b', backgroundColor: '#f59e0b20', tension: 0.3, borderWidth: 2, pointRadius: 3 }
+    ];
+
+    makeChart('chartMonthly', {
+      type: 'line',
+      data: { labels: MONTHS, datasets },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
-          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ฿${fmtMoneyShort(ctx.raw)}` } }
-        },
-        scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true, title: { display: true, text: 'GM (บาท)' } } }
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { title: { display: true, text: 'ล้านบาท' }, beginAtZero: true } }
       }
     });
-
-    const monthsWithData = new Set();
-    rows.forEach(r => (r.ytd || []).forEach(m => monthsWithData.add(m.month)));
-    const monthsSorted = monthlyLabels.filter(m => monthsWithData.has(m));
-    document.getElementById('monthlyNote').textContent = monthsSorted.length
-      ? `ข้อมูล YTD: ${monthsSorted.join(', ')} (${monthsSorted.length} เดือน)`
-      : 'ยังไม่มีข้อมูล YTD — เพิ่มใน tab ⚙️ ตั้งค่า (JSON Editor)';
   },
 
   renderMonthlyMatrix() {
-    const rows = this.computePRG_PDG();
-    const months = this.data.meta.ytdMonths;
-    // Baseline: avg monthly GM from Y2568 (gm/12)
-    const baseline = {};
-    rows.forEach(r => { baseline[r.id] = (r.yearsPRG['Y2568']?.gm || 0) / 12; });
+    const compId = document.getElementById('monthlyCompany').value;
+    const companies = compId === 'ALL' ? DATA.companies : DATA.companies.filter(c => c.id === compId);
 
-    const tbody = document.getElementById('monthlyMatrixBody');
-    tbody.innerHTML = rows.map(r => {
-      let ytdTotal = 0;
-      const cells = months.map(m => {
-        const d = (r.ytd || []).find(x => x.month === m);
-        if (!d || d.gm == null) return `<td class="px-2 py-2 text-center cell-none">-</td>`;
-        ytdTotal += d.gm;
-        const base = baseline[r.id] || 1;
-        const ratio = d.gm / base;
-        const cls = ratio >= 0.75 ? 'cell-good' : (ratio >= 0.25 ? 'cell-ok' : 'cell-bad');
-        return `<td class="px-2 py-2 text-center"><span class="badge ${cls}">${fmtMoneyShort(d.gm)}</span></td>`;
-      }).join('');
-      return `<tr class="hover:bg-slate-50">
-        <td class="px-3 py-2 font-medium text-slate-800 whitespace-nowrap sticky left-0 bg-white">${r.name}</td>
-        ${cells}
-        <td class="px-2 py-2 text-center font-semibold text-slate-700">${ytdTotal ? '฿' + fmtMoneyShort(ytdTotal) : '-'}</td>
-      </tr>`;
-    }).join('');
+    let html = '<table class="min-w-full text-xs table-pkg"><thead class="bg-slate-100"><tr><th class="px-2 py-2 text-left">บริษัท</th>';
+    MONTHS.forEach(m => { html += `<th class="px-2 py-2 text-center" colspan="3">${m}</th>`; });
+    html += '</tr><tr><th class="px-2 py-1"></th>';
+    MONTHS.forEach(() => { html += '<th class="px-1 py-1 text-center text-slate-500">GM</th><th class="px-1 py-1 text-center text-slate-500">PRG</th><th class="px-1 py-1 text-center text-slate-500">PDG</th>'; });
+    html += '</tr></thead><tbody>';
+
+    companies.forEach(c => {
+      html += `<tr class="border-t"><td class="px-2 py-2 font-semibold">${c.id}</td>`;
+      MONTHS.forEach(m => {
+        const d = c.monthly[m];
+        if (d == null || (d.gm === 0 && d.sa === 0 && d.hre === 0)) {
+          html += '<td colspan="3" class="px-1 py-2 text-center cell-none">-</td>';
+        } else {
+          const cls = pillClass(d.prg, d.pdg);
+          html += `<td class="px-1 py-2 text-center ${cls}">${d.gm.toFixed(2)}</td>`;
+          html += `<td class="px-1 py-2 text-center ${cls} font-semibold">${d.prg?.toFixed(2) || '-'}</td>`;
+          html += `<td class="px-1 py-2 text-center ${cls} font-semibold">${d.pdg?.toFixed(2) || '-'}</td>`;
+        }
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    document.getElementById('monthlyMatrix').innerHTML = html;
   },
 
-  // ===== TAB 3: Analysis =====
+  // ===== TAB 3: Comparison (YoY + MoM) =====
+  renderYoY() {
+    const compId = document.getElementById('yoyCompany').value;
+    const companies = compId === 'ALL' ? DATA.companies : DATA.companies.filter(c => c.id === compId);
+
+    // GM bar chart Y2568 vs Y2569
+    const gm2568 = MONTHS.map(m => companies.reduce((s,c) => s + (c.monthly2568[m]?.gm || 0), 0));
+    const gm2569 = MONTHS.map(m => companies.reduce((s,c) => s + (c.monthly[m]?.gm || 0), 0));
+
+    makeChart('chartYoYGM', {
+      type: 'bar',
+      data: {
+        labels: MONTHS,
+        datasets: [
+          { label: 'Y2568', data: gm2568.map(v => +v.toFixed(2)), backgroundColor: '#94a3b8' },
+          { label: 'Y2569', data: gm2569.map(v => +v.toFixed(2)), backgroundColor: '#10b981' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { title: { display: true, text: 'GM (ล้านบาท)' }, beginAtZero: true } }
+      }
+    });
+
+    // % delta
+    const pctGM = gm2568.map((v, i) => v ? +(((gm2569[i] - v) / v) * 100).toFixed(1) : null);
+    const sa2568 = MONTHS.map(m => companies.reduce((s,c) => s + (c.monthly2568[m]?.sa || 0), 0));
+    const sa2569 = MONTHS.map(m => companies.reduce((s,c) => s + (c.monthly[m]?.sa || 0), 0));
+    const pctSA = sa2568.map((v, i) => v ? +(((sa2569[i] - v) / v) * 100).toFixed(1) : null);
+    const hre2568 = MONTHS.map(m => companies.reduce((s,c) => s + (c.monthly2568[m]?.hre || 0), 0));
+    const hre2569 = MONTHS.map(m => companies.reduce((s,c) => s + (c.monthly[m]?.hre || 0), 0));
+    const pctHRE = hre2568.map((v, i) => v ? +(((hre2569[i] - v) / v) * 100).toFixed(1) : null);
+
+    makeChart('chartYoYPct', {
+      type: 'bar',
+      data: {
+        labels: MONTHS,
+        datasets: [
+          { label: '%Δ GM', data: pctGM, backgroundColor: '#10b981' },
+          { label: '%Δ SA', data: pctSA, backgroundColor: '#3b82f6' },
+          { label: '%Δ HRE', data: pctHRE, backgroundColor: '#f59e0b' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { title: { display: true, text: '% YoY' } } }
+      }
+    });
+
+    // YoY table
+    let html = '<table class="min-w-full text-xs table-pkg"><thead class="bg-slate-100"><tr>' +
+      '<th class="px-2 py-2 text-left">บริษัท</th>';
+    MONTHS.forEach(m => { html += `<th class="px-2 py-2 text-center" colspan="3">${m}</th>`; });
+    html += '</tr><tr><th></th>';
+    MONTHS.forEach(() => html += '<th class="px-1 text-slate-500">GM</th><th class="px-1 text-slate-500">SA</th><th class="px-1 text-slate-500">HRE</th>');
+    html += '</tr></thead><tbody>';
+
+    if (compId === 'ALL') {
+      // Show aggregated
+      html += '<tr class="border-t bg-blue-50"><td class="px-2 py-2 font-semibold">รวมทุกบริษัท</td>';
+      MONTHS.forEach((m, i) => {
+        html += `<td class="px-1 py-2 text-center yoy-up">${fmtPct(pctGM[i])}</td>`;
+        html += `<td class="px-1 py-2 text-center ${yoyClass(pctSA[i])}">${fmtPct(pctSA[i])}</td>`;
+        html += `<td class="px-1 py-2 text-center ${yoyClass(pctHRE[i])}">${fmtPct(pctHRE[i])}</td>`;
+      });
+      html += '</tr>';
+    } else {
+      companies.forEach(c => {
+        html += `<tr class="border-t"><td class="px-2 py-2 font-semibold">${c.id}</td>`;
+        MONTHS.forEach(m => {
+          const v68 = c.monthly2568[m], v69 = c.monthly[m];
+          const pGM = v68?.gm && v69 ? +(((v69.gm - v68.gm) / v68.gm) * 100).toFixed(1) : null;
+          const pSA = v68?.sa && v69?.sa ? +(((v69.sa - v68.sa) / v68.sa) * 100).toFixed(1) : null;
+          const pHR = v68?.hre && v69?.hre ? +(((v69.hre - v68.hre) / v68.hre) * 100).toFixed(1) : null;
+          html += `<td class="px-1 py-2 text-center ${yoyClass(pGM)}">${fmtPct(pGM)}</td>`;
+          html += `<td class="px-1 py-2 text-center ${yoyClass(pSA)}">${fmtPct(pSA)}</td>`;
+          html += `<td class="px-1 py-2 text-center ${yoyClass(pHR)}">${fmtPct(pHR)}</td>`;
+        });
+        html += '</tr>';
+      });
+    }
+    html += '</tbody></table>';
+    document.getElementById('yoyTable').innerHTML = html;
+  },
+
+  renderMoM() {
+    const compId = document.getElementById('momCompany').value;
+    const companies = compId === 'ALL' ? DATA.companies : DATA.companies.filter(c => c.id === compId);
+
+    // MoM: compare each month to previous month (Y2569)
+    const gmByMonth = MONTHS.map(m => companies.reduce((s,c) => s + (c.monthly[m]?.gm || 0), 0));
+    const saByMonth = MONTHS.map(m => companies.reduce((s,c) => s + (c.monthly[m]?.sa || 0), 0));
+    const hreByMonth = MONTHS.map(m => companies.reduce((s,c) => s + (c.monthly[m]?.hre || 0), 0));
+
+    // Trend chart: show GM trend with all three lines
+    makeChart('chartMoMTrend', {
+      type: 'line',
+      data: {
+        labels: MONTHS,
+        datasets: [
+          { label: 'GM', data: gmByMonth.map(v => +v.toFixed(2)), borderColor: '#10b981', backgroundColor: '#10b98120', tension: 0.3, borderWidth: 2.5, pointRadius: 4, fill: true },
+          { label: 'SA', data: saByMonth.map(v => +v.toFixed(2)), borderColor: '#3b82f6', tension: 0.3, borderWidth: 2, pointRadius: 3 },
+          { label: 'HRE', data: hreByMonth.map(v => +v.toFixed(2)), borderColor: '#f59e0b', tension: 0.3, borderWidth: 2, pointRadius: 3 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { title: { display: true, text: 'ล้านบาท' }, beginAtZero: true } }
+      }
+    });
+
+    // % MoM for GM
+    const momGM = gmByMonth.map((v, i) => i === 0 ? null : (gmByMonth[i-1] ? +(((v - gmByMonth[i-1]) / gmByMonth[i-1]) * 100).toFixed(1) : null));
+    const momSA = saByMonth.map((v, i) => i === 0 ? null : (saByMonth[i-1] ? +(((v - saByMonth[i-1]) / saByMonth[i-1]) * 100).toFixed(1) : null));
+    const momHRE = hreByMonth.map((v, i) => i === 0 ? null : (hreByMonth[i-1] ? +(((v - hreByMonth[i-1]) / hreByMonth[i-1]) * 100).toFixed(1) : null));
+
+    makeChart('chartMoMPct', {
+      type: 'bar',
+      data: {
+        labels: MONTHS.slice(1), // skip first month (no MoM)
+        datasets: [
+          { label: '%Δ GM MoM', data: momGM.slice(1), backgroundColor: '#10b981' },
+          { label: '%Δ SA MoM', data: momSA.slice(1), backgroundColor: '#3b82f6' },
+          { label: '%Δ HRE MoM', data: momHRE.slice(1), backgroundColor: '#f59e0b' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { title: { display: true, text: '% MoM' } } }
+      }
+    });
+
+    // MoM table
+    let html = '<table class="min-w-full text-xs table-pkg"><thead class="bg-slate-100"><tr>' +
+      '<th class="px-2 py-2 text-left">บริษัท</th>';
+    MONTHS.forEach(m => { html += `<th class="px-2 py-2 text-center" colspan="3">${m}</th>`; });
+    html += '</tr><tr><th></th>';
+    MONTHS.forEach(() => html += '<th class="px-1 text-slate-500">GM</th><th class="px-1 text-slate-500">SA</th><th class="px-1 text-slate-500">HRE</th>');
+    html += '</tr></thead><tbody>';
+
+    if (compId === 'ALL') {
+      html += '<tr class="border-t bg-blue-50"><td class="px-2 py-2 font-semibold">รวมทุกบริษัท</td>';
+      MONTHS.forEach((m, i) => {
+        html += `<td class="px-1 py-2 text-center ${yoyClass(momGM[i])}">${fmtPct(momGM[i])}</td>`;
+        html += `<td class="px-1 py-2 text-center ${yoyClass(momSA[i])}">${fmtPct(momSA[i])}</td>`;
+        html += `<td class="px-1 py-2 text-center ${yoyClass(momHRE[i])}">${fmtPct(momHRE[i])}</td>`;
+      });
+      html += '</tr>';
+    } else {
+      companies.forEach(c => {
+        html += `<tr class="border-t"><td class="px-2 py-2 font-semibold">${c.id}</td>`;
+        MONTHS.forEach((m, i) => {
+          const cur = c.monthly[m], prev = i > 0 ? c.monthly[MONTHS[i-1]] : null;
+          const pGM = cur?.gm && prev?.gm ? +(((cur.gm - prev.gm) / prev.gm) * 100).toFixed(1) : null;
+          const pSA = cur?.sa && prev?.sa ? +(((cur.sa - prev.sa) / prev.sa) * 100).toFixed(1) : null;
+          const pHR = cur?.hre && prev?.hre ? +(((cur.hre - prev.hre) / prev.hre) * 100).toFixed(1) : null;
+          html += `<td class="px-1 py-2 text-center ${yoyClass(pGM)}">${fmtPct(pGM)}</td>`;
+          html += `<td class="px-1 py-2 text-center ${yoyClass(pSA)}">${fmtPct(pSA)}</td>`;
+          html += `<td class="px-1 py-2 text-center ${yoyClass(pHR)}">${fmtPct(pHR)}</td>`;
+        });
+        html += '</tr>';
+      });
+    }
+    html += '</tbody></table>';
+    document.getElementById('momTable').innerHTML = html;
+  },
+
+  // ===== TAB 4: Analysis =====
   renderScatterChart() {
-    const rows = this.computePRG_PDG();
-    const y = 'Y2568';
-    if (this.charts.scatter) this.charts.scatter.destroy();
-    this.charts.scatter = new Chart(document.getElementById('scatterChart'), {
+    const y = document.getElementById('analysisYear').value;
+    const points = DATA.companies
+      .filter(c => c.yearsPRG[y]?.prg != null && c.yearsPRG[y]?.pdg != null)
+      .map(c => ({
+        x: c.yearsPRG[y].prg,
+        y: c.yearsPRG[y].pdg,
+        label: c.id,
+        gm: c.yearsPRG[y].gm
+      }));
+
+    makeChart('chartScatter', {
       type: 'scatter',
       data: {
         datasets: [{
           label: y,
-          data: rows.map(r => ({
-            x: r.yearsPRG[y]?.prg, y: r.yearsPRG[y]?.pdg, label: r.id, members: r.members
-          })).filter(p => p.x != null && p.y != null),
-          backgroundColor: rows.map((r, i) => palette[i % palette.length]),
-          pointRadius: 8, pointHoverRadius: 12
+          data: points,
+          backgroundColor: points.map(p => p.gm > 10 ? '#10b981' : p.gm > 5 ? '#3b82f6' : '#f59e0b'),
+          pointRadius: points.map(p => Math.max(6, Math.min(20, p.gm))),
+          pointHoverRadius: 14
         }]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
-          tooltip: { callbacks: {
-            label: ctx => { const p = ctx.raw; return `${p.label}: PRG ${p.x.toFixed(2)} | PDG ${p.y.toFixed(2)} (${p.members} คน)`; }
-          } }
+          tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                const p = ctx.raw;
+                return `${p.label}: PRG=${p.x}, PDG=${p.y}, GM=฿${p.gm.toFixed(2)}M`;
+              }
+            }
+          }
         },
         scales: {
-          x: { title: { display: true, text: 'PRG (เดือน)' }, beginAtZero: false },
-          y: { title: { display: true, text: 'PDG (เดือน)' }, beginAtZero: false }
+          x: { title: { display: true, text: 'PRG (GM/SA)' }, min: 0.8, max: 2.5 },
+          y: { title: { display: true, text: 'PDG (GM/HRE)' }, min: 1.0, max: 2.5 }
         }
       }
     });
   },
 
   renderGrowthChart() {
-    const rows = this.computePRG_PDG();
-    const y = 'Y2568';
-    const valid = rows.filter(r => r.yearsPRG[y]?.pctPRG != null || r.yearsPRG[y]?.pctPDG != null);
-    if (this.charts.growth) this.charts.growth.destroy();
-    this.charts.growth = new Chart(document.getElementById('growthChart'), {
+    const y = document.getElementById('analysisYear').value;
+    const valid = DATA.companies.filter(c => c.yearsPRG[y]?.pctPRG != null);
+    const labels = valid.map(c => c.id);
+    makeChart('chartGrowth', {
       type: 'bar',
       data: {
-        labels: valid.map(r => r.id),
+        labels,
         datasets: [
-          { label: '%PRG (YoY)', data: valid.map(r => r.yearsPRG[y]?.pctPRG ?? null), backgroundColor: '#10b981' },
-          { label: '%PDG (YoY)', data: valid.map(r => r.yearsPRG[y]?.pctPDG ?? null), backgroundColor: '#3b82f6' }
+          { label: '%Δ PRG', data: valid.map(c => c.yearsPRG[y].pctPRG), backgroundColor: '#10b981' },
+          { label: '%Δ PDG', data: valid.map(c => c.yearsPRG[y].pctPDG), backgroundColor: '#3b82f6' }
         ]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'bottom' },
-          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmtPct(ctx.raw)}` } }
-        },
-        scales: { y: { title: { display: true, text: '%' } } }
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { title: { display: true, text: '% Growth' } } }
       }
     });
   },
 
   renderTop5() {
-    const rows = this.computePRG_PDG();
-    const y = 'Y2568';
-    const valid = rows.filter(r => r.yearsPRG[y]?.prg != null);
-    const sorted = valid.slice().sort((a,b) => (b.yearsPRG[y].prg + (b.yearsPRG[y].pdg||0)) - (a.yearsPRG[y].prg + (a.yearsPRG[y].pdg||0)));
-    const mkRow = (r, i) => `
-      <tr class="hover:bg-slate-50">
-        <td class="px-3 py-2 text-slate-500">${i+1}</td>
-        <td class="px-3 py-2 font-medium text-slate-800">${r.name}</td>
-        <td class="px-3 py-2 text-right"><span class="badge ${pillClass(r.yearsPRG[y].prg, r.yearsPRG[y].pdg ?? 0)}">${r.yearsPRG[y].prg.toFixed(2)}</span></td>
-        <td class="px-3 py-2 text-right"><span class="badge ${pillClass(r.yearsPRG[y].prg, r.yearsPRG[y].pdg ?? 0)}">${r.yearsPRG[y].pdg?.toFixed(2) ?? '-'}</span></td>
-        <td class="px-3 py-2 text-right text-slate-600">฿${fmtMoneyShort(r.yearsPRG[y].gm)}</td>
-      </tr>`;
-    document.getElementById('top5Best').innerHTML = sorted.slice(0,5).map(mkRow).join('');
-    document.getElementById('top5Worst').innerHTML = sorted.slice(-5).reverse().map(mkRow).join('');
+    const y = document.getElementById('analysisYear').value;
+    const valid = DATA.companies.filter(c => c.yearsPRG[y]?.prg != null);
+    const best = valid.slice().sort((a,b) => b.yearsPRG[y].prg - a.yearsPRG[y].prg).slice(0, 5);
+    const worst = valid.slice().sort((a,b) => a.yearsPRG[y].prg - b.yearsPRG[y].prg).slice(0, 5);
+
+    const renderRow = (c, rank, isBest) => {
+      const d = c.yearsPRG[y];
+      const cls = pillClass(d.prg, d.pdg);
+      return `
+        <div class="flex items-center justify-between border border-slate-200 rounded p-2 hover:bg-slate-50">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-bold ${isBest ? 'text-emerald-600' : 'text-rose-600'}">#${rank}</span>
+            <div>
+              <p class="text-sm font-semibold">${c.id}</p>
+              <p class="text-xs text-slate-500">${c.name}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="badge ${cls}">PRG ${d.prg} | PDG ${d.pdg ?? '-'}</span>
+            <p class="text-xs text-slate-500 mt-1">GM ฿${d.gm?.toFixed(2)}M</p>
+          </div>
+        </div>
+      `;
+    };
+
+    document.getElementById('top5Best').innerHTML = best.map((c, i) => renderRow(c, i + 1, true)).join('');
+    document.getElementById('top5Worst').innerHTML = worst.map((c, i) => renderRow(c, i + 1, false)).join('');
   },
 
   renderInsights() {
-    const rows = this.computePRG_PDG();
-    const y = 'Y2568';
-    const valid = rows.filter(r => r.yearsPRG[y]?.prg != null);
-    if (!valid.length) {
-      document.getElementById('insights').innerHTML = '<div class="text-slate-500">ไม่มีข้อมูล</div>';
-      return;
-    }
+    const y = document.getElementById('analysisYear').value;
+    const valid = DATA.companies.filter(c => c.yearsPRG[y]?.prg != null);
     const bestPRG = valid.slice().sort((a,b) => b.yearsPRG[y].prg - a.yearsPRG[y].prg)[0];
     const worstPRG = valid.slice().sort((a,b) => a.yearsPRG[y].prg - b.yearsPRG[y].prg)[0];
     const bestPDG = valid.slice().sort((a,b) => (b.yearsPRG[y].pdg||0) - (a.yearsPRG[y].pdg||0))[0];
-    const worstPDG = valid.slice().sort((a,b) => (a.yearsPRG[y].pdg||99) - (b.yearsPRG[y].pdg||99))[0];
     const bestGrowth = valid.slice().sort((a,b) => (b.yearsPRG[y].pctPRG||-999) - (a.yearsPRG[y].pctPRG||-999))[0];
+    const declining = valid.filter(c => (c.yearsPRG[y].pctPRG ?? 0) < -10);
+    const tight = valid.filter(c => (c.yearsPRG[y].pdg ?? 99) < 1.5);
 
-    const y2 = ['Y2566','Y2567','Y2568'];
-    const upTrend = valid.filter(r => {
-      const vals = y2.map(yr => r.yearsPRG[yr]?.prg).filter(v => v != null);
-      return vals.length === 3 && vals[2] > vals[0] * 1.05;
-    });
-    const downTrend = valid.filter(r => {
-      const vals = y2.map(yr => r.yearsPRG[yr]?.prg).filter(v => v != null);
-      return vals.length === 3 && vals[2] < vals[0] * 0.95;
-    });
+    // Y2569 YTD analysis
+    let ytdInsight = '';
+    if (y === 'Y2568') {
+      // Sum of Y2569 months
+      const total2568 = DATA.companies.reduce((s,c) => s + (c.yearsPRG['Y2568']?.gm || 0), 0);
+      const ytd69 = DATA.companies.reduce((s,c) => {
+        return s + (c.ytd || []).reduce((ss, m) => ss + (m.gm || 0), 0);
+      }, 0);
+      const ytdHRE = DATA.companies.reduce((s,c) => {
+        return s + (c.ytd || []).reduce((ss, m) => ss + (m.hre || 0), 0);
+      }, 0);
+      ytdInsight = `
+        <div class="bg-indigo-50 border border-indigo-200 rounded p-3">
+          <p class="font-semibold text-indigo-800 mb-1">📈 YTD 2569 (ม.ค.-ส.ค.)</p>
+          <p class="text-sm">GM สะสม: <span class="font-bold">฿${ytd69.toFixed(2)}M</span> (เทียบ Y2568 ทั้งปี ฿${total2568.toFixed(2)}M = <span class="font-bold">${((ytd69/total2568)*100).toFixed(1)}%</span>)</p>
+          <p class="text-xs text-slate-600 mt-1">⚠️ ก.ค. และ ส.ค. ยังไม่มีข้อมูลจริง (GM=0) — ต้องติดตาม</p>
+        </div>
+      `;
+    }
 
     const items = [
-      { title: '🏆 PRG สูงสุด',
-        body: `<b>${bestPRG.name}</b> (PRG ${bestPRG.yearsPRG[y].prg.toFixed(2)} เดือน) — GM ฿${fmtMoneyShort(bestPRG.yearsPRG[y].gm)} สูงกว่า SA ฿${fmtMoneyShort(bestPRG.yearsPRG[y].sa)} แสดงถึงประสิทธิภาพ Costdown ที่ดี` },
-      { title: '⚠️ PRG ต่ำสุด',
-        body: `<b>${worstPRG.name}</b> (PRG ${worstPRG.yearsPRG[y].prg.toFixed(2)} เดือน) — SA ฿${fmtMoneyShort(worstPRG.yearsPRG[y].sa)} กินส่วนใหญ่ของ GM ฿${fmtMoneyShort(worstPRG.yearsPRG[y].gm)} ควรตรวจสอบค่าใช้จ่าย S&A` },
-      { title: '💰 PDG สูงสุด',
-        body: `<b>${bestPDG.name}</b> (PDG ${bestPDG.yearsPRG[y].pdg.toFixed(2)} เดือน) — GM จ่าย HRE ฿${fmtMoneyShort(bestPDG.yearsPRG[y].hre)} ได้สบาย สมาชิก ${bestPDG.members} คน` },
-      { title: '🚨 PDG ต่ำสุด',
-        body: `<b>${worstPDG.name}</b> (PDG ${worstPDG.yearsPRG[y].pdg.toFixed(2)} เดือน) — HRE ฿${fmtMoneyShort(worstPDG.yearsPRG[y].hre)} สูงเทียบ GM ควรพิจารณาสัดส่วนสมาชิก/ผลผลิต` },
-      { title: '📈 Growth PRG ดีสุด',
-        body: `<b>${bestGrowth.name}</b> (YoY ${fmtPct(bestGrowth.yearsPRG[y].pctPRG)}) — ค่าใช้จ่ายควบคุมได้ดีหรือ GM เติบโต` },
-      { title: `📉 แนวโน้มลด 3 ปี (${y2.join('→')})`,
-        body: downTrend.length ? `${downTrend.length} บริษัท PRG ลดต่อเนื่อง: <b>${downTrend.map(r=>r.id).join(', ')}</b> — สาเหตุหลัก: GM ลดลงขณะ SA/HRE เพิ่มขึ้น` : 'ไม่มีบริษัทที่ PRG ลดต่อเนื่อง' },
-      { title: `📊 แนวโน้มโต 3 ปี (${y2.join('→')})`,
-        body: upTrend.length ? `${upTrend.length} บริษัท PRG โตต่อเนื่อง: ${upTrend.map(r=>r.id).join(', ')}` : 'ไม่มีบริษัทที่ PRG โตต่อเนื่อง 3 ปีซ้อน' },
-      { title: '🎯 บริษัท PDG < 1.5 (ตึงตัว)',
-        body: (() => {
-          const tight = valid.filter(r => (r.yearsPRG[y].pdg ?? 99) < 1.5);
-          return tight.length ? `${tight.length} บริษัท: <b>${tight.map(r=>r.id).join(', ')}</b> — GM จ่าย HRE ได้น้อยกว่า 1.5 เดือน ต้องติดตามใกล้ชิด` : 'ทุกบริษัทมี PDG ≥ 1.5 เดือน';
-        })() }
-    ];
-    document.getElementById('insights').innerHTML = items.map(it => `
-      <div class="bg-slate-50 rounded-lg p-4 border border-slate-200">
-        <div class="font-semibold text-slate-800 mb-1">${it.title}</div>
-        <p class="text-slate-600 leading-relaxed">${it.body}</p>
-      </div>
-    `).join('');
+      `<div class="bg-emerald-50 border-l-4 border-emerald-500 p-3"><p class="font-semibold text-emerald-800">🏆 PRG สูงสุด: ${bestPRG.id} (${bestPRG.yearsPRG[y].prg})</p><p class="text-xs text-slate-600">${bestPRG.name} — มีประสิทธิภาพในการจัดการ SA ดีเยี่ยม</p></div>`,
+      `<div class="bg-rose-50 border-l-4 border-rose-500 p-3"><p class="font-semibold text-rose-800">⚠️ PRG ต่ำสุด: ${worstPRG.id} (${worstPRG.yearsPRG[y].prg})</p><p class="text-xs text-slate-600">${worstPRG.name} — ต้นทุน SA สูงเมื่อเทียบกับ GM</p></div>`,
+      `<div class="bg-blue-50 border-l-4 border-blue-500 p-3"><p class="font-semibold text-blue-800">🛡️ PDG สูงสุด: ${bestPDG.id} (${bestPDG.yearsPRG[y].pdg})</p><p class="text-xs text-slate-600">GM จ่ายค่าใช้จ่ายสมาชิกได้นานที่สุด</p></div>`,
+      `<div class="bg-amber-50 border-l-4 border-amber-500 p-3"><p class="font-semibold text-amber-800">📊 Growth ดีสุด: ${bestGrowth.id} (${fmtPct(bestGrowth.yearsPRG[y].pctPRG)})</p><p class="text-xs text-slate-600">อัตราการเติบโต PRG สูงสุด</p></div>`,
+      declining.length > 0 ? `<div class="bg-rose-50 border-l-4 border-rose-500 p-3"><p class="font-semibold text-rose-800">🔴 ${declining.length} บริษัทที่ PRG ลดลง >10%</p><p class="text-xs text-slate-600">${declining.map(c=>c.id).join(', ')}</p></div>` : '',
+      tight.length > 0 ? `<div class="bg-amber-50 border-l-4 border-amber-500 p-3"><p class="font-semibold text-amber-800">⚡ ${tight.length} บริษัทที่ PDG < 1.5 (เสี่ยง)</p><p class="text-xs text-slate-600">${tight.map(c=>c.id).join(', ')} — GM จ่าย HRE ได้น้อยกว่า 1.5 เดือน</p></div>` : '',
+      ytdInsight
+    ].filter(Boolean);
+
+    document.getElementById('insightsPanel').innerHTML = items.join('');
   },
 
-  // ===== TAB 4: Full Data =====
+  // ===== TAB 5: Full Data =====
   renderMatrix() {
-    const rows = this.computePRG_PDG();
-    const years = this.data.meta.years;
-    document.getElementById('matrixBody').innerHTML = rows.map(r => {
-      const cells = years.map(y => {
-        const d = r.yearsPRG[y] || {};
-        if (d.prg == null && d.pdg == null) return `<td class="px-2 py-2 text-center text-slate-300">-</td>`;
-        const bg = (d.prg != null && d.pdg != null) ? pillClass(d.prg, d.pdg) : 'pill-warn';
-        return `<td class="px-2 py-2 text-center"><span class="badge ${bg}">${d.prg != null ? d.prg.toFixed(2) : '-'} | ${d.pdg != null ? d.pdg.toFixed(2) : '-'}</span></td>`;
-      }).join('');
-      return `<tr class="hover:bg-slate-50">
-        <td class="px-3 py-2 font-medium text-slate-800 whitespace-nowrap sticky left-0 bg-white">${r.name}</td>
-        ${cells}
-      </tr>`;
-    }).join('');
+    const search = (document.getElementById('searchBox').value || '').toLowerCase();
+    const group = document.getElementById('groupFilter').value;
+    let comps = DATA.companies;
+    if (group) comps = comps.filter(c => c.group === group);
+    if (search) comps = comps.filter(c => c.id.toLowerCase().includes(search) || c.name.toLowerCase().includes(search));
+
+    let html = '<table class="min-w-full text-xs table-pkg"><thead class="bg-slate-100"><tr><th class="px-2 py-2 text-left sticky left-0 bg-slate-100">บริษัท</th>';
+    YEARS.forEach(y => html += `<th class="px-2 py-2 text-center">${y}</th>`);
+    html += '</tr></thead><tbody>';
+
+    comps.forEach(c => {
+      html += `<tr class="border-t"><td class="px-2 py-2 font-semibold sticky left-0 bg-white">${c.id}</td>`;
+      YEARS.forEach(y => {
+        const d = c.yearsPRG[y];
+        if (d == null || d.gm == null) {
+          html += '<td class="px-2 py-2 text-center cell-none">-</td>';
+        } else {
+          html += `<td class="px-2 py-2 text-center">${d.gm.toFixed(2)}<br><span class="text-xs text-slate-500">P:${d.prg} D:${d.pdg ?? '-'}</span></td>`;
+        }
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    document.getElementById('yearMatrix').innerHTML = html;
   },
 
   renderTable() {
-    const rows = this.computePRG_PDG();
-    const y = document.getElementById('yearFilter').value;
-    const term = (document.getElementById('search').value || '').toLowerCase();
-    const filtered = rows.filter(r => r.name.toLowerCase().includes(term) || r.id.toLowerCase().includes(term));
+    const search = (document.getElementById('searchBox').value || '').toLowerCase();
+    const group = document.getElementById('groupFilter').value;
+    let comps = DATA.companies;
+    if (group) comps = comps.filter(c => c.group === group);
+    if (search) comps = comps.filter(c => c.id.toLowerCase().includes(search) || c.name.toLowerCase().includes(search));
 
-    document.getElementById('tableBody').innerHTML = filtered.map(r => {
-      const d = r.yearsPRG[y] || {};
-      const pill = (d.prg != null && d.pdg != null) ? pillClass(d.prg, d.pdg) : 'pill-warn';
-      return `
-        <tr class="hover:bg-slate-50">
-          <td class="px-3 py-2.5">
-            <div class="font-semibold text-slate-900">${r.name}</div>
-            <div class="text-xs text-slate-400">${r.id} • ${r.group} • ${r.members} คน</div>
-          </td>
-          <td class="px-3 py-2.5 text-right font-medium text-slate-700">${fmtMoney(d.gm, r.currency)}</td>
-          <td class="px-3 py-2.5 text-right text-slate-600">${fmtMoney(d.sa, r.currency)}</td>
-          <td class="px-3 py-2.5 text-right text-slate-600">${fmtMoney(d.hre, r.currency)}</td>
-          <td class="px-3 py-2.5 text-right"><span class="badge ${pill}">${d.prg != null ? d.prg.toFixed(2) : '-'}</span></td>
-          <td class="px-3 py-2.5 text-right"><span class="badge ${pill}">${d.pdg != null ? d.pdg.toFixed(2) : '-'}</span></td>
-          <td class="px-3 py-2.5 text-right ${growthClass(d.pctPRG)}">${fmtPct(d.pctPRG)}</td>
-          <td class="px-3 py-2.5 text-right ${growthClass(d.pctPDG)}">${fmtPct(d.pctPDG)}</td>
-          <td class="px-3 py-2.5 text-right font-mono text-slate-700">${d.taPDG != null ? d.taPDG.toFixed(2) : '-'}</td>
-          <td class="px-3 py-2.5 text-left text-slate-600 text-xs max-w-xs">${this.insight(r, y)}</td>
-        </tr>`;
-    }).join('');
-    document.getElementById('tableMeta').textContent = `แสดง ${filtered.length} จาก ${rows.length} บริษัท • ปี ${y}`;
-  },
+    let html = '<table class="min-w-full text-xs table-pkg"><thead class="bg-slate-100"><tr>' +
+      '<th class="px-2 py-2 text-left">บริษัท</th><th class="px-2 py-2 text-left">กลุ่ม</th>';
+    YEARS.forEach(y => html += `<th class="px-2 py-2 text-center" colspan="4">${y}</th>`);
+    html += '</tr><tr><th></th><th></th>';
+    YEARS.forEach(() => html += '<th class="px-1 text-slate-500">GM</th><th class="px-1 text-slate-500">SA</th><th class="px-1 text-slate-500">HRE</th><th class="px-1 text-slate-500">PRG/PDG</th>');
+    html += '</tr></thead><tbody>';
 
-  insight(r, y) {
-    const d = r.yearsPRG[y] || {};
-    if (d.prg == null) return '⏳ ยังไม่มีข้อมูล';
-    const parts = [];
-    if (d.prg >= 1.8) parts.push(`PRG ${d.prg.toFixed(2)} สูง — GM แข็งแกร่ง S&A ต่ำ`);
-    else if (d.prg >= 1.3) parts.push(`PRG ${d.prg.toFixed(2)} ปานกลาง`);
-    else parts.push(`PRG ${d.prg.toFixed(2)} ต่ำ — S&A กิน GM มาก`);
-    if (d.pdg != null) {
-      if (d.pdg >= 1.8) parts.push(`PDG ${d.pdg.toFixed(2)} ดี — จ่าย HRE ได้สบาย`);
-      else if (d.pdg < 1.3) parts.push(`PDG ${d.pdg.toFixed(2)} ตึง — HRE สูง`);
-    }
-    if (d.pctPRG != null && d.pctPRG < -10) parts.push(`⚠️ PRG ลด ${Math.abs(d.pctPRG).toFixed(1)}% YoY`);
-    else if (d.pctPRG != null && d.pctPRG > 5) parts.push(`✅ PRG โต ${d.pctPRG.toFixed(1)}% YoY`);
-    if (d.pctPDG != null && d.pctPDG < -10) parts.push(`⚠️ PDG ลด ${Math.abs(d.pctPDG).toFixed(1)}% YoY`);
-    else if (d.pctPDG != null && d.pctPDG > 5) parts.push(`✅ PDG โต ${d.pctPDG.toFixed(1)}% YoY`);
-    return parts.join(' • ');
-  },
-
-  // ===== TAB 5: Settings =====
-  renderJSONEditor() {
-    document.getElementById('jsonEditor').value = JSON.stringify(this.data, null, 2);
-  },
-
-  applyJSON() {
-    try {
-      const parsed = JSON.parse(document.getElementById('jsonEditor').value);
-      this.data = parsed;
-      this.saveData();
-      this.populateYearFilters();
-      this.refresh();
-      alert('✓ อัปเดตข้อมูลเรียบร้อย');
-    } catch (e) { alert('❌ JSON ไม่ถูกต้อง: ' + e.message); }
-  },
-
-  copyJSON() {
-    const editor = document.getElementById('jsonEditor');
-    editor.select();
-    document.execCommand('copy');
-    alert('📋 คัดลอก JSON แล้ว');
-  },
-
-  pasteJSON() {
-    const text = prompt('วาง JSON ที่นี่:');
-    if (text) document.getElementById('jsonEditor').value = text;
-  },
-
-  resetData() {
-    if (!confirm('รีเซ็ตข้อมูลกลับเป็นต้นฉบับ? ข้อมูลที่แก้ไขใน localStorage จะหายไป')) return;
-    localStorage.removeItem(STORAGE_KEY);
-    this.data = PKG_DATA;
-    this.populateYearFilters();
-    this.refresh();
-    alert('✓ รีเซ็ตเรียบร้อย');
-  },
-
-  importJSON(ev) {
-    const file = ev.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const parsed = JSON.parse(e.target.result);
-        this.data = parsed;
-        this.saveData();
-        this.populateYearFilters();
-        this.refresh();
-        this.renderJSONEditor();
-        alert('✓ Import สำเร็จ');
-      } catch (err) { alert('❌ ไฟล์ JSON ไม่ถูกต้อง: ' + err.message); }
-    };
-    reader.readAsText(file);
-    ev.target.value = '';
-  },
-
-  exportJSON() {
-    const blob = new Blob([JSON.stringify(this.data, null, 2)], { type: 'application/json;charset=utf-8;' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'prg-pdg-data.json';
-    a.click();
+    comps.forEach(c => {
+      html += `<tr class="border-t"><td class="px-2 py-2 font-semibold">${c.id}</td><td class="px-2 py-2 text-slate-500">${c.group}</td>`;
+      YEARS.forEach(y => {
+        const d = c.yearsPRG[y];
+        if (d == null || d.gm == null) {
+          html += '<td colspan="4" class="px-2 py-2 text-center cell-none">-</td>';
+        } else {
+          const cls = pillClass(d.prg, d.pdg);
+          html += `<td class="px-1 py-2 text-center">${d.gm.toFixed(2)}</td>`;
+          html += `<td class="px-1 py-2 text-center">${d.sa?.toFixed(2) || '-'}</td>`;
+          html += `<td class="px-1 py-2 text-center">${d.hre?.toFixed(2) || '-'}</td>`;
+          html += `<td class="px-1 py-2 text-center ${cls} font-semibold">${d.prg}/${d.pdg ?? '-'}</td>`;
+        }
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    document.getElementById('fullTable').innerHTML = html;
   },
 
   exportCSV() {
-    const rows = this.computePRG_PDG();
-    const y = document.getElementById('yearFilter').value;
-    let csv = 'บริษัท,GM,SA,HRE,PRG,PDG,%PRG,%PDG,เท่า-PDG\n';
-    rows.forEach(r => {
-      const d = r.yearsPRG[y] || {};
-      csv += [r.name, d.gm || '', d.sa || '', d.hre || '',
-        d.prg != null ? d.prg.toFixed(2) : '', d.pdg != null ? d.pdg.toFixed(2) : '',
-        d.pctPRG != null ? d.pctPRG.toFixed(2) : '', d.pctPDG != null ? d.pctPDG.toFixed(2) : '',
-        d.taPDG != null ? d.taPDG.toFixed(2) : ''].join(',') + '\n';
-    });
-    this.downloadCSV(csv, `prg-pdg-${y}.csv`);
-  },
-
-  exportFullCSV() {
-    const rows = this.computePRG_PDG();
-    const years = this.data.meta.years;
-    let csv = 'บริษัท,ปี,GM,SA,HRE,PRG,PDG,%PRG,%PDG,เท่า-PDG\n';
-    rows.forEach(r => {
-      years.forEach(y => {
-        const d = r.yearsPRG[y] || {};
-        csv += [r.name, y, d.gm || '', d.sa || '', d.hre || '',
-          d.prg != null ? d.prg.toFixed(2) : '', d.pdg != null ? d.pdg.toFixed(2) : '',
-          d.pctPRG != null ? d.pctPRG.toFixed(2) : '', d.pctPDG != null ? d.pctPDG.toFixed(2) : '',
-          d.taPDG != null ? d.taPDG.toFixed(2) : ''].join(',') + '\n';
+    const rows = [['Company','Group','Year','GM','SA','HRE','PRG','PDG','%PRG','%PDG']];
+    DATA.companies.forEach(c => {
+      YEARS.forEach(y => {
+        const d = c.yearsPRG[y];
+        rows.push([c.id, c.group, y, d.gm, d.sa, d.hre, d.prg, d.pdg, d.pctPRG, d.pctPDG]);
       });
     });
-    this.downloadCSV(csv, 'prg-pdg-all-years.csv');
-  },
-
-  downloadCSV(csv, filename) {
-    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const csv = rows.map(r => r.map(v => v == null ? '' : v).join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    a.click();
+    a.href = url; a.download = 'prg-pdg-dashboard.csv'; a.click();
+    URL.revokeObjectURL(url);
   }
 };
 
+// Boot
 document.addEventListener('DOMContentLoaded', () => app.init());
+window.app = app;
 </script>
 </body>
 </html>
