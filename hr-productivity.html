@@ -32,7 +32,6 @@
 </head>
 <body class="min-h-screen">
 
-<!-- Header -->
 <header class="bg-gradient-to-r from-teal-700 via-teal-600 to-cyan-600 text-white shadow-lg">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5">
     <div class="flex flex-wrap items-center justify-between gap-3">
@@ -46,7 +45,7 @@
           <span class="mx-1">•</span> ปี 2562–2569
         </p>
       </div>
-      <div class="flex items-center gap-2 text-xs">
+      <div class="flex items-center gap-2 text-xs flex-wrap">
         <span class="px-3 py-1.5 bg-white/20 rounded-full">📊 PRG/PDG base</span>
         <span class="px-3 py-1.5 bg-white/20 rounded-full">🧪 Mock employees</span>
         <a href="prg-pdg-dashboard.html" class="px-3 py-1.5 bg-white text-teal-700 font-semibold rounded-full hover:bg-teal-50">← PRG/PDG</a>
@@ -55,7 +54,6 @@
   </div>
 </header>
 
-<!-- Tabs (sticky) -->
 <div class="sticky-tabs border-b border-slate-200 shadow-sm">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
     <div class="flex flex-wrap gap-2">
@@ -71,7 +69,6 @@
 
 <!-- ====================== TAB 1: OVERVIEW ====================== -->
 <section id="tab-overview" class="tab-pane space-y-6">
-  <!-- KPI Cards -->
   <div class="kpi-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
     <div class="kpi-card bg-white rounded-xl p-5 shadow-sm border-l-4 border-amber-500">
       <div class="flex items-center justify-between">
@@ -115,14 +112,12 @@
     </div>
   </div>
 
-  <!-- 8-year trend -->
   <div class="chart-box">
     <h3 class="font-semibold text-slate-800 mb-1">📈 แนวโน้ม 4 ตัวชี้วัด 8 ปี (Y2562–Y2569)</h3>
     <p class="text-xs text-slate-500 mb-3">ค่าเฉลี่ยถ่วงน้ำหนักตามจำนวนพนักงาน</p>
     <div class="h-80"><canvas id="chartTrend"></canvas></div>
   </div>
 
-  <!-- Scatter -->
   <div class="chart-grid grid grid-cols-1 lg:grid-cols-3 gap-4">
     <div class="chart-box lg:col-span-2">
       <h3 class="font-semibold text-slate-800 mb-1">🎯 Scatter: HRE/คน vs GM/คน (Y2568)</h3>
@@ -136,7 +131,6 @@
     </div>
   </div>
 
-  <!-- Executive summary -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div class="insight-card rounded-xl p-5">
       <h4 class="font-bold text-teal-900 mb-2">🌟 บริษัทที่ดีที่สุด</h4>
@@ -173,19 +167,21 @@
         <p class="text-xs text-slate-500 font-medium">กลุ่ม</p>
         <p class="text-lg font-bold text-slate-800 mt-1" id="company-group">—</p>
       </div>
+      <div>
+        <p class="text-xs text-slate-500 font-medium">Prod. Index (Y2568)</p>
+        <p class="text-lg font-bold text-slate-800 mt-1" id="company-prod">—</p>
+      </div>
     </div>
   </div>
 
-  <!-- Monthly 2569 trend -->
   <div class="chart-box">
     <h3 class="font-semibold text-slate-800 mb-1">📊 รายเดือน Y2569 — 4 ตัวชี้วัด</h3>
     <p class="text-xs text-slate-500 mb-3" id="company-monthly-title">—</p>
     <div class="h-80"><canvas id="chartMonthly"></canvas></div>
   </div>
 
-  <!-- YoY/MoM table -->
   <div class="chart-box overflow-x-auto">
-    <h3 class="font-semibold text-slate-800 mb-3">📋 ตารางเปรียบเทียบ YoY (Y2567 → Y2568) และ MoM</h3>
+    <h3 class="font-semibold text-slate-800 mb-3">📋 ตารางเปรียบเทียบ YoY (Y2567 → Y2568) และ YTD vs YTD</h3>
     <table class="w-full text-sm">
       <thead>
         <tr class="text-left text-xs text-slate-500 border-b border-slate-200">
@@ -193,8 +189,9 @@
           <th class="py-2 px-3 text-right">Y2567</th>
           <th class="py-2 px-3 text-right">Y2568</th>
           <th class="py-2 px-3 text-right">YoY %</th>
-          <th class="py-2 px-3 text-right">Y2569 (YTD)</th>
-          <th class="py-2 px-3 text-right">vs Y2568 YTD</th>
+          <th class="py-2 px-3 text-right">Y2568 YTD</th>
+          <th class="py-2 px-3 text-right">Y2569 YTD</th>
+          <th class="py-2 px-3 text-right">YoY YTD %</th>
           <th class="py-2 px-3">สถานะ</th>
         </tr>
       </thead>
@@ -202,7 +199,6 @@
     </table>
   </div>
 
-  <!-- Insights -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div class="insight-card rounded-xl p-5">
       <h4 class="font-bold text-teal-900 mb-2">💡 Insights</h4>
@@ -220,6 +216,7 @@
   <div class="chart-box overflow-x-auto">
     <h3 class="font-semibold text-slate-800 mb-3">📊 ตาราง 13 บริษัท × 4 ตัวชี้วัด (Y2568 vs Y2567)</h3>
     <p class="text-xs text-slate-500 mb-3">YoY % = เขียว = ดีขึ้น · แดง = แย่ลง</p>
+    <div class="overflow-x-auto">
     <table class="w-full text-sm">
       <thead>
         <tr class="text-left text-xs text-slate-500 border-b border-slate-200">
@@ -238,6 +235,7 @@
       </thead>
       <tbody id="compare-tbody"></tbody>
     </table>
+    </div>
   </div>
 
   <div class="chart-grid grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -258,7 +256,7 @@
 <section id="tab-insights" class="tab-pane hidden space-y-6">
   <div class="chart-box">
     <h3 class="font-semibold text-slate-800 mb-1">🌊 Waterfall: ปัจจัยที่มีผลต่อ Productivity Index (Y2567→Y2568)</h3>
-    <p class="text-xs text-slate-500 mb-3">ยอดรวมของทุกบริษัท (ถ่วงน้ำหนักตามพนักงาน)</p>
+    <p class="text-xs text-slate-500 mb-3">ยอดรวมของทุกบริษัท (ถ่วงน้ำหนักตามพนักงาน) — แยกผลกระทบจาก GM vs HRE</p>
     <div class="h-80"><canvas id="chartWaterfall"></canvas></div>
   </div>
 
@@ -308,7 +306,6 @@
     </div>
   </div>
 
-  <!-- Per-company recommendation list -->
   <div class="chart-box">
     <h3 class="font-semibold text-slate-800 mb-3">🎯 คำแนะนำรายบริษัท (Y2568)</h3>
     <div id="company-recs" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
@@ -322,48 +319,521 @@
   <p class="mt-1">HRE = ค่าใช้จ่ายสมาชิก · GM = กำไรขั้นต้น · SA = ค่าใช้จ่ายขายและบริหาร</p>
 </footer>
 
-<!-- ====================== DATA ====================== -->
 <script id="HR_DATA" type="application/json">
-{
-  "meta": {
-    "title": "HR Productivity Dashboard",
-    "formulas": {
-      "hrePerEmp": "HRE ÷ Employees (ลบ./คน/ปี)",
-      "gmPerEmp": "GM ÷ Employees (ลบ./คน/ปี)",
-      "hreRatio": "HRE ÷ GM × 100",
-      "prodIndex": "GM/Emp ÷ HRE/Emp"
+{"meta":{"title":"HR Productivity Dashboard","formulas":{"hrePerEmp":"HRE ÷ Employees (ลบ./คน/ปี)","gmPerEmp":"GM ÷ Employees (ลบ./คน/ปี)","hreRatio":"HRE ÷ GM × 100","prodIndex":"GM/Emp ÷ HRE/Emp"},"years":["Y2562","Y2563","Y2564","Y2565","Y2566","Y2567","Y2568","Y2569"],"months":["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค."],"productivityLevels":{"excellent":"≥ 1.5","good":"1.0–1.5","low":"< 1.0"}},"employees":{"PKG":500,"PMSG":300,"PMS":200,"PMG":50,"PMGI":20,"AAMG":400,"AAM":150,"RPLC&RAFL":100,"RAFCO&AICP":80,"CPDG&LDC":120,"CPDG":60,"LDC":30,"TNRG":40},"companies":{"PKG":{"id":"PKG","name":"PKG (ภาพรวม)","group":"แม่","years":{"Y2562":{"gm":19.0,"hre":10.5},"Y2563":{"gm":20.5,"hre":11.1},"Y2564":{"gm":22.3,"hre":11.8},"Y2565":{"gm":23.5,"hre":12.1},"Y2566":{"gm":24.8,"hre":12.5},"Y2567":{"gm":26.23,"hre":13.05},"Y2568":{"gm":21.68,"hre":13.1},"Y2569":{"gm":16.28,"hre":8.63}},"ytd2569":[{"m":"ม.ค.","gm":2.0,"hre":1.36},{"m":"ก.พ.","gm":2.41,"hre":1.25},{"m":"มี.ค.","gm":2.25,"hre":1.37},{"m":"เม.ย.","gm":3.03,"hre":1.42},{"m":"พ.ค.","gm":3.39,"hre":1.49},{"m":"มิ.ย.","gm":3.0,"hre":1.52},{"m":"ก.ค.","gm":0.2,"hre":0.21},{"m":"ส.ค.","gm":0.0,"hre":0.0}],"ytd2568":[{"m":"ม.ค.","gm":1.95,"hre":1.2},{"m":"ก.พ.","gm":2.1,"hre":1.18},{"m":"มี.ค.","gm":1.92,"hre":1.15},{"m":"เม.ย.","gm":2.3,"hre":1.12},{"m":"พ.ค.","gm":2.5,"hre":1.1},{"m":"มิ.ย.","gm":2.1,"hre":1.08},{"m":"ก.ค.","gm":1.85,"hre":1.06},{"m":"ส.ค.","gm":1.75,"hre":1.05}]},"PMSG":{"id":"PMSG","name":"PMSG (PMS+PIC+PCC+PMG)","group":"กลุ่ม PMS","years":{"Y2562":{"gm":9.5,"hre":5.2},"Y2563":{"gm":10.2,"hre":5.35},"Y2564":{"gm":10.85,"hre":5.5},"Y2565":{"gm":11.2,"hre":5.6},"Y2566":{"gm":11.85,"hre":5.75},"Y2567":{"gm":12.5,"hre":5.9},"Y2568":{"gm":10.92,"hre":6.09},"Y2569":{"gm":9.45,"hre":6.95}},"ytd2569":[{"m":"ม.ค.","gm":1.05,"hre":1.07},{"m":"ก.พ.","gm":1.33,"hre":1.0},{"m":"มี.ค.","gm":1.21,"hre":1.07},{"m":"เม.ย.","gm":1.81,"hre":1.11},{"m":"พ.ค.","gm":2.17,"hre":1.18},{"m":"มิ.ย.","gm":1.78,"hre":1.21},{"m":"ก.ค.","gm":0.1,"hre":0.11},{"m":"ส.ค.","gm":0.0,"hre":0.0}],"ytd2568":[{"m":"ม.ค.","gm":0.95,"hre":0.65},{"m":"ก.พ.","gm":1.1,"hre":0.64},{"m":"มี.ค.","gm":0.98,"hre":0.63},{"m":"เม.ย.","gm":1.2,"hre":0.62},{"m":"พ.ค.","gm":1.35,"hre":0.61},{"m":"มิ.ย.","gm":1.15,"hre":0.6},{"m":"ก.ค.","gm":0.95,"hre":0.59},{"m":"ส.ค.","gm":0.9,"hre":0.58}]},"PMS":{"id":"PMS","name":"PMS","group":"กลุ่ม PMS","years":{"Y2562":{"gm":3.9,"hre":2.1},"Y2563":{"gm":4.15,"hre":2.15},"Y2564":{"gm":4.4,"hre":2.2},"Y2565":{"gm":4.6,"hre":2.24},"Y2566":{"gm":4.85,"hre":2.28},"Y2567":{"gm":5.1,"hre":2.32},"Y2568":{"gm":4.25,"hre":2.35},"Y2569":{"gm":3.78,"hre":2.68}},"ytd2569":[{"m":"ม.ค.","gm":0.45,"hre":0.45},{"m":"ก.พ.","gm":0.55,"hre":0.42},{"m":"มี.ค.","gm":0.52,"hre":0.45},{"m":"เม.ย.","gm":0.76,"hre":0.46},{"m":"พ.ค.","gm":0.91,"hre":0.49},{"m":"มิ.ย.","gm":0.75,"hre":0.5},{"m":"ก.ค.","gm":0.04,"hre":0.05},{"m":"ส.ค.","gm":0.0,"hre":0.0}],"ytd2568":[{"m":"ม.ค.","gm":0.4,"hre":0.25},{"m":"ก.พ.","gm":0.46,"hre":0.25},{"m":"มี.ค.","gm":0.41,"hre":0.24},{"m":"เม.ย.","gm":0.5,"hre":0.24},{"m":"พ.ค.","gm":0.56,"hre":0.24},{"m":"มิ.ย.","gm":0.48,"hre":0.23},{"m":"ก.ค.","gm":0.4,"hre":0.23},{"m":"ส.ค.","gm":0.38,"hre":0.22}]},"PMG":{"id":"PMG","name":"PMG","group":"กลุ่ม PMS","years":{"Y2562":{"gm":2.5,"hre":1.4},"Y2563":{"gm":2.65,"hre":1.43},"Y2564":{"gm":2.8,"hre":1.46},"Y2565":{"gm":2.95,"hre":1.49},"Y2566":{"gm":3.12,"hre":1.52},"Y2567":{"gm":3.3,"hre":1.55},"Y2568":{"gm":2.8,"hre":1.58},"Y2569":{"gm":2.55,"hre":1.8}},"ytd2569":[{"m":"ม.ค.","gm":0.28,"hre":0.28},{"m":"ก.พ.","gm":0.35,"hre":0.26},{"m":"มี.ค.","gm":0.32,"hre":0.28},{"m":"เม.ย.","gm":0.48,"hre":0.29},{"m":"พ.ค.","gm":0.58,"hre":0.31},{"m":"มิ.ย.","gm":0.47,"hre":0.32},{"m":"ก.ค.","gm":0.03,"hre":0.03},{"m":"ส.ค.","gm":0.0,"hre":0.0}],"ytd2568":[{"m":"ม.ค.","gm":0.25,"hre":0.16},{"m":"ก.พ.","gm":0.29,"hre":0.16},{"m":"มี.ค.","gm":0.26,"hre":0.16},{"m":"เม.ย.","gm":0.32,"hre":0.16},{"m":"พ.ค.","gm":0.36,"hre":0.15},{"m":"มิ.ย.","gm":0.3,"hre":0.15},{"m":"ก.ค.","gm":0.25,"hre":0.15},{"m":"ส.ค.","gm":0.24,"hre":0.15}]},"PMGI":{"id":"PMGI","name":"PMGI","group":"กลุ่ม PMS","years":{"Y2562":{"gm":1.65,"hre":0.9},"Y2563":{"gm":1.78,"hre":0.92},"Y2564":{"gm":1.92,"hre":0.94},"Y2565":{"gm":2.02,"hre":0.96},"Y2566":{"gm":2.15,"hre":0.97},"Y2567":{"gm":2.3,"hre":0.99},"Y2568":{"gm":1.95,"hre":1.0},"Y2569":{"gm":1.78,"hre":1.18}},"ytd2569":[{"m":"ม.ค.","gm":0.2,"hre":0.2},{"m":"ก.พ.","gm":0.25,"hre":0.19},{"m":"มี.ค.","gm":0.22,"hre":0.2},{"m":"เม.ย.","gm":0.34,"hre":0.21},{"m":"พ.ค.","gm":0.41,"hre":0.22},{"m":"มิ.ย.","gm":0.33,"hre":0.22},{"m":"ก.ค.","gm":0.02,"hre":0.02},{"m":"ส.ค.","gm":0.0,"hre":0.0}],"ytd2568":[{"m":"ม.ค.","gm":0.18,"hre":0.11},{"m":"ก.พ.","gm":0.21,"hre":0.11},{"m":"มี.ค.","gm":0.19,"hre":0.11},{"m":"เม.ย.","gm":0.23,"hre":0.11},{"m":"พ.ค.","gm":0.26,"hre":0.11},{"m":"มิ.ย.","gm":0.22,"hre":0.11},{"m":"ก.ค.","gm":0.18,"hre":0.1},{"m":"ส.ค.","gm":0.17,"hre":0.1}]},"AAMG":{"id":"AAMG","name":"AAMG (AAM+PMA+EAC+PAMCO)","group":"กลุ่ม AAM","years":{"Y2562":{"gm":11.5,"hre":6.2},"Y2563":{"gm":12.3,"hre":6.35},"Y2564":{"gm":13.1,"hre":6.5},"Y2565":{"gm":13.78,"hre":6.6},"Y2566":{"gm":14.55,"hre":6.7},"Y2567":{"gm":15.4,"hre":6.8},"Y2568":{"gm":12.95,"hre":6.9},"Y2569":{"gm":11.2,"hre":7.95}},"ytd2569":[{"m":"ม.ค.","gm":1.32,"hre":1.22},{"m":"ก.พ.","gm":1.65,"hre":1.16},{"m":"มี.ค.","gm":1.52,"hre":1.2},{"m":"เม.ย.","gm":2.12,"hre":1.25},{"m":"พ.ค.","gm":2.48,"hre":1.32},{"m":"มิ.ย.","gm":2.05,"hre":1.34},{"m":"ก.ค.","gm":0.13,"hre":0.14},{"m":"ส.ค.","gm":0.0,"hre":0.0}],"ytd2568":[{"m":"ม.ค.","gm":1.2,"hre":0.72},{"m":"ก.พ.","gm":1.38,"hre":0.71},{"m":"มี.ค.","gm":1.22,"hre":0.7},{"m":"เม.ย.","gm":1.48,"hre":0.69},{"m":"พ.ค.","gm":1.65,"hre":0.68},{"m":"มิ.ย.","gm":1.4,"hre":0.67},{"m":"ก.ค.","gm":1.15,"hre":0.66},{"m":"ส.ค.","gm":1.08,"hre":0.65}]},"AAM":{"id":"AAM","name":"AAM","group":"กลุ่ม AAM","years":{"Y2562":{"gm":4.6,"hre":2.5},"Y2563":{"gm":4.92,"hre":2.55},"Y2564":{"gm":5.25,"hre":2.6},"Y2565":{"gm":5.52,"hre":2.64},"Y2566":{"gm":5.85,"hre":2.68},"Y2567":{"gm":6.2,"hre":2.72},"Y2568":{"gm":5.2,"hre":2.75},"Y2569":{"gm":4.5,"hre":3.18}},"ytd2569":[{"m":"ม.ค.","gm":0.53,"hre":0.49},{"m":"ก.พ.","gm":0.66,"hre":0.46},{"m":"มี.ค.","gm":0.61,"hre":0.48},{"m":"เม.ย.","gm":0.85,"hre":0.5},{"m":"พ.ค.","gm":0.99,"hre":0.53},{"m":"มิ.ย.","gm":0.82,"hre":0.54},{"m":"ก.ค.","gm":0.05,"hre":0.06},{"m":"ส.ค.","gm":0.0,"hre":0.0}],"ytd2568":[{"m":"ม.ค.","gm":0.48,"hre":0.29},{"m":"ก.พ.","gm":0.55,"hre":0.28},{"m":"มี.ค.","gm":0.49,"hre":0.28},{"m":"เม.ย.","gm":0.59,"hre":0.28},{"m":"พ.ค.","gm":0.66,"hre":0.27},{"m":"มิ.ย.","gm":0.56,"hre":0.27},{"m":"ก.ค.","gm":0.46,"hre":0.26},{"m":"ส.ค.","gm":0.43,"hre":0.26}]},"RPLC&RAFL":{"id":"RPLC&RAFL","name":"RPLC&RAFL","group":"กลุ่ม RPLC","years":{"Y2562":{"gm":3.5,"hre":1.8},"Y2563":{"gm":3.78,"hre":1.83},"Y2564":{"gm":4.05,"hre":1.86},"Y2565":{"gm":4.25,"hre":1.89},"Y2566":{"gm":4.5,"hre":1.92},"Y2567":{"gm":4.78,"hre":1.95},"Y2568":{"gm":4.1,"hre":1.98},"Y2569":{"gm":3.65,"hre":2.3}},"ytd2569":[{"m":"ม.ค.","gm":0.42,"hre":0.36},{"m":"ก.พ.","gm":0.53,"hre":0.33},{"m":"มี.ค.","gm":0.48,"hre":0.36},{"m":"เม.ย.","gm":0.68,"hre":0.38},{"m":"พ.ค.","gm":0.8,"hre":0.4},{"m":"มิ.ย.","gm":0.66,"hre":0.41},{"m":"ก.ค.","gm":0.04,"hre":0.05},{"m":"ส.ค.","gm":0.0,"hre":0.0}],"ytd2568":[{"m":"ม.ค.","gm":0.38,"hre":0.21},{"m":"ก.พ.","gm":0.44,"hre":0.21},{"m":"มี.ค.","gm":0.39,"hre":0.2},{"m":"เม.ย.","gm":0.47,"hre":0.2},{"m":"พ.ค.","gm":0.52,"hre":0.2},{"m":"มิ.ย.","gm":0.44,"hre":0.2},{"m":"ก.ค.","gm":0.37,"hre":0.2},{"m":"ส.ค.","gm":0.34,"hre":0.19}]},"RAFCO&AICP":{"id":"RAFCO&AICP","name":"RAFCO&AICP","group":"กลุ่ม RPLC","years":{"Y2562":{"gm":1.95,"hre":1.0},"Y2563":{"gm":2.1,"hre":1.02},"Y2564":{"gm":2.26,"hre":1.04},"Y2565":{"gm":2.38,"hre":1.06},"Y2566":{"gm":2.52,"hre":1.08},"Y2567":{"gm":2.68,"hre":1.1},"Y2568":{"gm":2.3,"hre":1.12},"Y2569":{"gm":2.05,"hre":1.3}},"ytd2569":[{"m":"ม.ค.","gm":0.24,"hre":0.2},{"m":"ก.พ.","gm":0.3,"hre":0.19},{"m":"มี.ค.","gm":0.27,"hre":0.2},{"m":"เม.ย.","gm":0.39,"hre":0.21},{"m":"พ.ค.","gm":0.45,"hre":0.22},{"m":"มิ.ย.","gm":0.37,"hre":0.23},{"m":"ก.ค.","gm":0.02,"hre":0.03},{"m":"ส.ค.","gm":0.0,"hre":0.0}],"ytd2568":[{"m":"ม.ค.","gm":0.22,"hre":0.12},{"m":"ก.พ.","gm":0.25,"hre":0.12},{"m":"มี.ค.","gm":0.22,"hre":0.12},{"m":"เม.ย.","gm":0.27,"hre":0.12},{"m":"พ.ค.","gm":0.3,"hre":0.11},{"m":"มิ.ย.","gm":0.25,"hre":0.11},{"m":"ก.ค.","gm":0.21,"hre":0.11},{"m":"ส.ค.","gm":0.2,"hre":0.11}]},"CPDG&LDC":{"id":"CPDG&LDC","name":"CPDG&LDC (รวม)","group":"กลุ่ม CPDG","years":{"Y2562":{"gm":4.95,"hre":2.4},"Y2563":{"gm":5.32,"hre":2.45},"Y2564":{"gm":5.7,"hre":2.5},"Y2565":{"gm":5.98,"hre":2.54},"Y2566":{"gm":6.32,"hre":2.58},"Y2567":{"gm":6.68,"hre":2.62},"Y2568":{"gm":5.65,"hre":2.66},"Y2569":{"gm":4.92,"hre":3.08}},"ytd2569":[{"m":"ม.ค.","gm":0.58,"hre":0.48},{"m":"ก.พ.","gm":0.72,"hre":0.45},{"m":"มี.ค.","gm":0.65,"hre":0.48},{"m":"เม.ย.","gm":0.92,"hre":0.5},{"m":"พ.ค.","gm":1.08,"hre":0.52},{"m":"มิ.ย.","gm":0.88,"hre":0.53},{"m":"ก.ค.","gm":0.05,"hre":0.06},{"m":"ส.ค.","gm":0.0,"hre":0.0}],"ytd2568":[{"m":"ม.ค.","gm":0.52,"hre":0.28},{"m":"ก.พ.","gm":0.6,"hre":0.28},{"m":"มี.ค.","gm":0.53,"hre":0.28},{"m":"เม.ย.","gm":0.64,"hre":0.27},{"m":"พ.ค.","gm":0.71,"hre":0.27},{"m":"มิ.ย.","gm":0.6,"hre":0.27},{"m":"ก.ค.","gm":0.5,"hre":0.26},{"m":"ส.ค.","gm":0.47,"hre":0.26}]},"CPDG":{"id":"CPDG","name":"CPDG (AGS+21CT+CDB)","group":"กลุ่ม CPDG","years":{"Y2562":{"gm":2.95,"hre":1.45},"Y2563":{"gm":3.18,"hre":1.48},"Y2564":{"gm":3.4,"hre":1.51},"Y2565":{"gm":3.55,"hre":1.53},"Y2566":{"gm":3.75,"hre":1.55},"Y2567":{"gm":3.96,"hre":1.57},"Y2568":{"gm":3.35,"hre":1.59},"Y2569":{"gm":2.92,"hre":1.84}},"ytd2569":[{"m":"ม.ค.","gm":0.35,"hre":0.29},{"m":"ก.พ.","gm":0.42,"hre":0.27},{"m":"มี.ค.","gm":0.38,"hre":0.29},{"m":"เม.ย.","gm":0.54,"hre":0.3},{"m":"พ.ค.","gm":0.64,"hre":0.31},{"m":"มิ.ย.","gm":0.52,"hre":0.32},{"m":"ก.ค.","gm":0.03,"hre":0.04},{"m":"ส.ค.","gm":0.0,"hre":0.0}],"ytd2568":[{"m":"ม.ค.","gm":0.31,"hre":0.17},{"m":"ก.พ.","gm":0.36,"hre":0.17},{"m":"มี.ค.","gm":0.32,"hre":0.17},{"m":"เม.ย.","gm":0.38,"hre":0.16},{"m":"พ.ค.","gm":0.43,"hre":0.16},{"m":"มิ.ย.","gm":0.36,"hre":0.16},{"m":"ก.ค.","gm":0.3,"hre":0.16},{"m":"ส.ค.","gm":0.28,"hre":0.16}]},"LDC":{"id":"LDC","name":"LDC","group":"กลุ่ม CPDG","years":{"Y2562":{"gm":2.0,"hre":0.95},"Y2563":{"gm":2.14,"hre":0.97},"Y2564":{"gm":2.3,"hre":0.99},"Y2565":{"gm":2.43,"hre":1.01},"Y2566":{"gm":2.57,"hre":1.03},"Y2567":{"gm":2.72,"hre":1.05},"Y2568":{"gm":2.3,"hre":1.07},"Y2569":{"gm":2.0,"hre":1.24}},"ytd2569":[{"m":"ม.ค.","gm":0.23,"hre":0.19},{"m":"ก.พ.","gm":0.3,"hre":0.18},{"m":"มี.ค.","gm":0.27,"hre":0.19},{"m":"เม.ย.","gm":0.38,"hre":0.2},{"m":"พ.ค.","gm":0.44,"hre":0.21},{"m":"มิ.ย.","gm":0.36,"hre":0.21},{"m":"ก.ค.","gm":0.02,"hre":0.02},{"m":"ส.ค.","gm":0.0,"hre":0.0}],"ytd2568":[{"m":"ม.ค.","gm":0.21,"hre":0.11},{"m":"ก.พ.","gm":0.24,"hre":0.11},{"m":"มี.ค.","gm":0.21,"hre":0.11},{"m":"เม.ย.","gm":0.26,"hre":0.11},{"m":"พ.ค.","gm":0.28,"hre":0.11},{"m":"มิ.ย.","gm":0.24,"hre":0.11},{"m":"ก.ค.","gm":0.2,"hre":0.1},{"m":"ส.ค.","gm":0.19,"hre":0.1}]},"TNRG":{"id":"TNRG","name":"TNRG","group":"TNRG","years":{"Y2562":{"gm":2.75,"hre":1.5},"Y2563":{"gm":2.96,"hre":1.53},"Y2564":{"gm":3.18,"hre":1.56},"Y2565":{"gm":3.34,"hre":1.58},"Y2566":{"gm":3.55,"hre":1.6},"Y2567":{"gm":3.75,"hre":1.62},"Y2568":{"gm":3.2,"hre":1.65},"Y2569":{"gm":2.78,"hre":1.92}},"ytd2569":[{"m":"ม.ค.","gm":0.32,"hre":0.3},{"m":"ก.พ.","gm":0.4,"hre":0.28},{"m":"มี.ค.","gm":0.37,"hre":0.3},{"m":"เม.ย.","gm":0.52,"hre":0.31},{"m":"พ.ค.","gm":0.61,"hre":0.32},{"m":"มิ.ย.","gm":0.5,"hre":0.33},{"m":"ก.ค.","gm":0.03,"hre":0.04},{"m":"ส.ค.","gm":0.0,"hre":0.0}],"ytd2568":[{"m":"ม.ค.","gm":0.29,"hre":0.18},{"m":"ก.พ.","gm":0.33,"hre":0.18},{"m":"มี.ค.","gm":0.29,"hre":0.17},{"m":"เม.ย.","gm":0.35,"hre":0.17},{"m":"พ.ค.","gm":0.39,"hre":0.17},{"m":"มิ.ย.","gm":0.33,"hre":0.17},{"m":"ก.ค.","gm":0.28,"hre":0.16},{"m":"ส.ค.","gm":0.26,"hre":0.16}]}}}
+</script>
+
+<script>
+/* ============================================================
+   HR Productivity Dashboard — main logic
+   ============================================================ */
+const DATA = JSON.parse(document.getElementById('HR_DATA').textContent);
+const YEARS = DATA.meta.years;
+const COMPANIES = DATA.companies;
+const EMPLOYEES = DATA.employees;
+const COMPANY_IDS = Object.keys(COMPANIES);
+
+const fmt = (v, d=2) => v == null ? '—' : Number(v).toLocaleString('th-TH', {minimumFractionDigits: d, maximumFractionDigits: d});
+const fmtPct = v => v == null ? '—' : (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+const sum = arr => arr.reduce((a,b) => a+b, 0);
+
+/* ---------- core metrics ---------- */
+function metricsFor(company, year) {
+  const e = EMPLOYEES[company];
+  const y = COMPANIES[company].years[year];
+  if (!y) return null;
+  const gmPer = y.gm / e;
+  const hrePer = y.hre / e;
+  const ratio = (y.hre / y.gm) * 100;
+  const prod = gmPer / hrePer;
+  return { gmPer, hrePer, ratio, prod };
+}
+
+function prodLevel(p) {
+  if (p >= 1.5) return { label: 'ดีมาก', cls: 'badge-good' };
+  if (p >= 1.0) return { label: 'ดี',    cls: 'badge-warn' };
+  return { label: 'ต่ำ', cls: 'badge-bad' };
+}
+
+/* ---------- weighted avg across companies ---------- */
+function weightedAvg(metricFn, year) {
+  // True weighted-by-employees average:
+  //   weighted_avg = Σ(metric * emp) / Σ(emp)
+  // i.e. total / total employees (equivalent since metric is a per-emp rate)
+  let num = 0, den = 0;
+  COMPANY_IDS.forEach(cid => {
+    const e = EMPLOYEES[cid];
+    const m = metricFn(cid, year);
+    if (m == null) return;
+    num += m * e;
+    den += e;
+  });
+  return den ? num / den : 0;
+}
+
+/* ---------- TAB 1: OVERVIEW ---------- */
+function renderOverview() {
+  // KPIs: weighted avg for Y2568
+  const avgHrePer = weightedAvg((c,y) => metricsFor(c,y).hrePer, 'Y2568');
+  const avgGmPer  = weightedAvg((c,y) => metricsFor(c,y).gmPer,  'Y2568');
+  const avgRatio  = weightedAvg((c,y) => metricsFor(c,y).ratio,  'Y2568');
+  const avgProd   = weightedAvg((c,y) => metricsFor(c,y).prod,   'Y2568');
+
+  document.getElementById('kpi-hre-per').textContent  = fmt(avgHrePer * 1e6, 0) + ' บ.';
+  document.getElementById('kpi-gm-per').textContent   = fmt(avgGmPer * 1e6, 0)  + ' บ.';
+  document.getElementById('kpi-hre-ratio').textContent = fmt(avgRatio, 1) + '%';
+  document.getElementById('kpi-prod').textContent    = fmt(avgProd, 2) + 'x';
+
+  // 8-year trend
+  const trendHre = YEARS.map(y => weightedAvg((c,yy) => metricsFor(c,yy).hrePer, y) * 1e6);
+  const trendGm  = YEARS.map(y => weightedAvg((c,yy) => metricsFor(c,yy).gmPer,  y) * 1e6);
+  const trendRatio = YEARS.map(y => weightedAvg((c,yy) => metricsFor(c,yy).ratio, y));
+  const trendProd  = YEARS.map(y => weightedAvg((c,yy) => metricsFor(c,yy).prod,  y));
+
+  if (window._chartTrend) window._chartTrend.destroy();
+  const ctx = document.getElementById('chartTrend');
+  window._chartTrend = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: YEARS,
+      datasets: [
+        { label: 'HRE/คน (บาท)', data: trendHre, borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)', yAxisID: 'y1', tension: 0.3 },
+        { label: 'GM/คน (บาท)',  data: trendGm,  borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)',  yAxisID: 'y1', tension: 0.3 },
+        { label: 'HRE Ratio (%)', data: trendRatio, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)',   yAxisID: 'y2', tension: 0.3, borderDash: [5,5] },
+        { label: 'Prod Index',    data: trendProd, borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', yAxisID: 'y2', tension: 0.3, borderDash: [10,5] }
+      ]
     },
-    "years": ["Y2562","Y2563","Y2564","Y2565","Y2566","Y2567","Y2568","Y2569"],
-    "productivityLevels": {
-      "excellent": "≥ 1.5",
-      "good": "1.0–1.5",
-      "low": "< 1.0"
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        y1: { type: 'linear', position: 'left',  title: { display: true, text: 'บาท/คน' } },
+        y2: { type: 'linear', position: 'right', title: { display: true, text: 'Ratio / Index' }, grid: { drawOnChartArea: false } }
+      }
     }
-  },
-  "employees": {
-    "PKG": 500,
-    "PMSG": 300,
-    "PMS": 200,
-    "PMG": 50,
-    "PMGI": 20,
-    "AAMG": 400,
-    "AAM": 150,
-    "RPLC&RAFL": 100,
-    "RAFCO&AICP": 80,
-    "CPDG&LDC": 120,
-    "CPDG": 60,
-    "LDC": 30,
-    "TNRG": 40
-  },
-  "financials": {
-    "PKG":      {"name":"PKG (ภาพรวม)",         "group":"แม่",      "years":{"Y2562":{"gm":19.00,"hre":10.50},"Y2563":{"gm":20.50,"hre":11.10},"Y2564":{"gm":22.30,"hre":11.80},"Y2565":{"gm":23.50,"hre":12.10},"Y2566":{"gm":24.80,"hre":12.50},"Y2567":{"gm":26.23,"hre":13.05},"Y2568":{"gm":21.68,"hre":13.10},"Y2569":{"gm":16.28,"hre":8.63}}, "ytd2569":[{"m":"ม.ค.","gm":2.00,"hre":1.36},{"m":"ก.พ.","gm":2.41,"hre":1.25},{"m":"มี.ค.","gm":2.25,"hre":1.37},{"m":"เม.ย.","gm":3.03,"hre":1.42},{"m":"พ.ค.","gm":3.39,"hre":1.49},{"m":"มิ.ย.","gm":3.00,"hre":1.52},{"m":"ก.ค.","gm":0.20,"hre":0.21},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":1.95,"hre":1.20},{"m":"ก.พ.","gm":2.10,"hre":1.18},{"m":"มี.ค.","gm":1.92,"hre":1.15},{"m":"เม.ย.","gm":2.30,"hre":1.12},{"m":"พ.ค.","gm":2.50,"hre":1.10},{"m":"มิ.ย.","gm":2.10,"hre":1.08},{"m":"ก.ค.","gm":1.85,"hre":1.06},{"m":"ส.ค.","gm":1.75,"hre":1.05}]},
-    "PMSG":     {"name":"PMSG (PMS+PIC+PCC+PMG)","group":"กลุ่ม PMS","years":{"Y2562":{"gm":9.50,"hre":5.20},"Y2563":{"gm":10.20,"hre":5.35},"Y2564":{"gm":10.85,"hre":5.50},"Y2565":{"gm":11.20,"hre":5.60},"Y2566":{"gm":11.85,"hre":5.75},"Y2567":{"gm":12.50,"hre":5.90},"Y2568":{"gm":10.92,"hre":6.09},"Y2569":{"gm":9.45,"hre":6.95}}, "ytd2569":[{"m":"ม.ค.","gm":1.05,"hre":1.07},{"m":"ก.พ.","gm":1.33,"hre":1.00},{"m":"มี.ค.","gm":1.21,"hre":1.07},{"m":"เม.ย.","gm":1.81,"hre":1.11},{"m":"พ.ค.","gm":2.17,"hre":1.18},{"m":"มิ.ย.","gm":1.78,"hre":1.21},{"m":"ก.ค.","gm":0.10,"hre":0.11},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":0.95,"hre":0.65},{"m":"ก.พ.","gm":1.10,"hre":0.64},{"m":"มี.ค.","gm":0.98,"hre":0.63},{"m":"เม.ย.","gm":1.20,"hre":0.62},{"m":"พ.ค.","gm":1.35,"hre":0.61},{"m":"มิ.ย.","gm":1.15,"hre":0.60},{"m":"ก.ค.","gm":0.95,"hre":0.59},{"m":"ส.ค.","gm":0.90,"hre":0.58}]},
-    "PMS":      {"name":"PMS",                   "group":"กลุ่ม PMS","years":{"Y2562":{"gm":3.90,"hre":2.10},"Y2563":{"gm":4.15,"hre":2.15},"Y2564":{"gm":4.40,"hre":2.20},"Y2565":{"gm":4.60,"hre":2.24},"Y2566":{"gm":4.85,"hre":2.28},"Y2567":{"gm":5.10,"hre":2.32},"Y2568":{"gm":4.25,"hre":2.35},"Y2569":{"gm":3.78,"hre":2.68}}, "ytd2569":[{"m":"ม.ค.","gm":0.45,"hre":0.45},{"m":"ก.พ.","gm":0.55,"hre":0.42},{"m":"มี.ค.","gm":0.52,"hre":0.45},{"m":"เม.ย.","gm":0.76,"hre":0.46},{"m":"พ.ค.","gm":0.91,"hre":0.49},{"m":"มิ.ย.","gm":0.75,"hre":0.50},{"m":"ก.ค.","gm":0.04,"hre":0.05},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":0.40,"hre":0.25},{"m":"ก.พ.","gm":0.46,"hre":0.25},{"m":"มี.ค.","gm":0.41,"hre":0.24},{"m":"เม.ย.","gm":0.50,"hre":0.24},{"m":"พ.ค.","gm":0.56,"hre":0.24},{"m":"มิ.ย.","gm":0.48,"hre":0.23},{"m":"ก.ค.","gm":0.40,"hre":0.23},{"m":"ส.ค.","gm":0.38,"hre":0.22}]},
-    "PMG":      {"name":"PMG",                   "group":"กลุ่ม PMS","years":{"Y2562":{"gm":2.50,"hre":1.40},"Y2563":{"gm":2.65,"hre":1.43},"Y2564":{"gm":2.80,"hre":1.46},"Y2565":{"gm":2.95,"hre":1.49},"Y2566":{"gm":3.12,"hre":1.52},"Y2567":{"gm":3.30,"hre":1.55},"Y2568":{"gm":2.80,"hre":1.58},"Y2569":{"gm":2.55,"hre":1.80}}, "ytd2569":[{"m":"ม.ค.","gm":0.28,"hre":0.28},{"m":"ก.พ.","gm":0.35,"hre":0.26},{"m":"มี.ค.","gm":0.32,"hre":0.28},{"m":"เม.ย.","gm":0.48,"hre":0.29},{"m":"พ.ค.","gm":0.58,"hre":0.31},{"m":"มิ.ย.","gm":0.47,"hre":0.32},{"m":"ก.ค.","gm":0.03,"hre":0.03},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":0.25,"hre":0.16},{"m":"ก.พ.","gm":0.29,"hre":0.16},{"m":"มี.ค.","gm":0.26,"hre":0.16},{"m":"เม.ย.","gm":0.32,"hre":0.16},{"m":"พ.ค.","gm":0.36,"hre":0.15},{"m":"มิ.ย.","gm":0.30,"hre":0.15},{"m":"ก.ค.","gm":0.25,"hre":0.15},{"m":"ส.ค.","gm":0.24,"hre":0.15}]},
-    "PMGI":     {"name":"PMGI",                  "group":"กลุ่ม PMS","years":{"Y2562":{"gm":1.65,"hre":0.90},"Y2563":{"gm":1.78,"hre":0.92},"Y2564":{"gm":1.92,"hre":0.94},"Y2565":{"gm":2.02,"hre":0.96},"Y2566":{"gm":2.15,"hre":0.97},"Y2567":{"gm":2.30,"hre":0.99},"Y2568":{"gm":1.95,"hre":1.00},"Y2569":{"gm":1.78,"hre":1.18}}, "ytd2569":[{"m":"ม.ค.","gm":0.20,"hre":0.20},{"m":"ก.พ.","gm":0.25,"hre":0.19},{"m":"มี.ค.","gm":0.22,"hre":0.20},{"m":"เม.ย.","gm":0.34,"hre":0.21},{"m":"พ.ค.","gm":0.41,"hre":0.22},{"m":"มิ.ย.","gm":0.33,"hre":0.22},{"m":"ก.ค.","gm":0.02,"hre":0.02},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":0.18,"hre":0.11},{"m":"ก.พ.","gm":0.21,"hre":0.11},{"m":"มี.ค.","gm":0.19,"hre":0.11},{"m":"เม.ย.","gm":0.23,"hre":0.11},{"m":"พ.ค.","gm":0.26,"hre":0.11},{"m":"มิ.ย.","gm":0.22,"hre":0.11},{"m":"ก.ค.","gm":0.18,"hre":0.10},{"m":"ส.ค.","gm":0.17,"hre":0.10}]},
-    "AAMG":     {"name":"AAMG (AAM+PMA+EAC+PAMCO)","group":"กลุ่ม AAM","years":{"Y2562":{"gm":11.50,"hre":6.20},"Y2563":{"gm":12.30,"hre":6.35},"Y2564":{"gm":13.10,"hre":6.50},"Y2565":{"gm":13.78,"hre":6.60},"Y2566":{"gm":14.55,"hre":6.70},"Y2567":{"gm":15.40,"hre":6.80},"Y2568":{"gm":12.95,"hre":6.90},"Y2569":{"gm":11.20,"hre":7.95}}, "ytd2569":[{"m":"ม.ค.","gm":1.32,"hre":1.22},{"m":"ก.พ.","gm":1.65,"hre":1.16},{"m":"มี.ค.","gm":1.52,"hre":1.20},{"m":"เม.ย.","gm":2.12,"hre":1.25},{"m":"พ.ค.","gm":2.48,"hre":1.32},{"m":"มิ.ย.","gm":2.05,"hre":1.34},{"m":"ก.ค.","gm":0.13,"hre":0.14},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":1.20,"hre":0.72},{"m":"ก.พ.","gm":1.38,"hre":0.71},{"m":"มี.ค.","gm":1.22,"hre":0.70},{"m":"เม.ย.","gm":1.48,"hre":0.69},{"m":"พ.ค.","gm":1.65,"hre":0.68},{"m":"มิ.ย.","gm":1.40,"hre":0.67},{"m":"ก.ค.","gm":1.15,"hre":0.66},{"m":"ส.ค.","gm":1.08,"hre":0.65}]},
-    "AAM":      {"name":"AAM",                   "group":"กลุ่ม AAM","years":{"Y2562":{"gm":4.60,"hre":2.50},"Y2563":{"gm":4.92,"hre":2.55},"Y2564":{"gm":5.25,"hre":2.60},"Y2565":{"gm":5.52,"hre":2.64},"Y2566":{"gm":5.85,"hre":2.68},"Y2567":{"gm":6.20,"hre":2.72},"Y2568":{"gm":5.20,"hre":2.75},"Y2569":{"gm":4.50,"hre":3.18}}, "ytd2569":[{"m":"ม.ค.","gm":0.53,"hre":0.49},{"m":"ก.พ.","gm":0.66,"hre":0.46},{"m":"มี.ค.","gm":0.61,"hre":0.48},{"m":"เม.ย.","gm":0.85,"hre":0.50},{"m":"พ.ค.","gm":0.99,"hre":0.53},{"m":"มิ.ย.","gm":0.82,"hre":0.54},{"m":"ก.ค.","gm":0.05,"hre":0.06},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":0.48,"hre":0.29},{"m":"ก.พ.","gm":0.55,"hre":0.28},{"m":"มี.ค.","gm":0.49,"hre":0.28},{"m":"เม.ย.","gm":0.59,"hre":0.28},{"m":"พ.ค.","gm":0.66,"hre":0.27},{"m":"มิ.ย.","gm":0.56,"hre":0.27},{"m":"ก.ค.","gm":0.46,"hre":0.26},{"m":"ส.ค.","gm":0.43,"hre":0.26}]},
-    "RPLC&RAFL":{"name":"RPLC&RAFL",             "group":"กลุ่ม RPLC","years":{"Y2562":{"gm":3.50,"hre":1.80},"Y2563":{"gm":3.78,"hre":1.83},"Y2564":{"gm":4.05,"hre":1.86},"Y2565":{"gm":4.25,"hre":1.89},"Y2566":{"gm":4.50,"hre":1.92},"Y2567":{"gm":4.78,"hre":1.95},"Y2568":{"gm":4.10,"hre":1.98},"Y2569":{"gm":3.65,"hre":2.30}}, "ytd2569":[{"m":"ม.ค.","gm":0.42,"hre":0.36},{"m":"ก.พ.","gm":0.53,"hre":0.33},{"m":"มี.ค.","gm":0.48,"hre":0.36},{"m":"เม.ย.","gm":0.68,"hre":0.38},{"m":"พ.ค.","gm":0.80,"hre":0.40},{"m":"มิ.ย.","gm":0.66,"hre":0.41},{"m":"ก.ค.","gm":0.04,"hre":0.05},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":0.38,"hre":0.21},{"m":"ก.พ.","gm":0.44,"hre":0.21},{"m":"มี.ค.","gm":0.39,"hre":0.20},{"m":"เม.ย.","gm":0.47,"hre":0.20},{"m":"พ.ค.","gm":0.52,"hre":0.20},{"m":"มิ.ย.","gm":0.44,"hre":0.20},{"m":"ก.ค.","gm":0.37,"hre":0.20},{"m":"ส.ค.","gm":0.34,"hre":0.19}]},
-    "RAFCO&AICP":{"name":"RAFCO&AICP",           "group":"กลุ่ม RPLC","years":{"Y2562":{"gm":1.95,"hre":1.00},"Y2563":{"gm":2.10,"hre":1.02},"Y2564":{"gm":2.26,"hre":1.04},"Y2565":{"gm":2.38,"hre":1.06},"Y2566":{"gm":2.52,"hre":1.08},"Y2567":{"gm":2.68,"hre":1.10},"Y2568":{"gm":2.30,"hre":1.12},"Y2569":{"gm":2.05,"hre":1.30}}, "ytd2569":[{"m":"ม.ค.","gm":0.24,"hre":0.20},{"m":"ก.พ.","gm":0.30,"hre":0.19},{"m":"มี.ค.","gm":0.27,"hre":0.20},{"m":"เม.ย.","gm":0.39,"hre":0.21},{"m":"พ.ค.","gm":0.45,"hre":0.22},{"m":"มิ.ย.","gm":0.37,"hre":0.23},{"m":"ก.ค.","gm":0.02,"hre":0.03},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":0.22,"hre":0.12},{"m":"ก.พ.","gm":0.25,"hre":0.12},{"m":"มี.ค.","gm":0.22,"hre":0.12},{"m":"เม.ย.","gm":0.27,"hre":0.12},{"m":"พ.ค.","gm":0.30,"hre":0.11},{"m":"มิ.ย.","gm":0.25,"hre":0.11},{"m":"ก.ค.","gm":0.21,"hre":0.11},{"m":"ส.ค.","gm":0.20,"hre":0.11}]},
-    "CPDG&LDC": {"name":"CPDG&LDC (รวม)",        "group":"กลุ่ม CPDG","years":{"Y2562":{"gm":4.95,"hre":2.40},"Y2563":{"gm":5.32,"hre":2.45},"Y2564":{"gm":5.70,"hre":2.50},"Y2565":{"gm":5.98,"hre":2.54},"Y2566":{"gm":6.32,"hre":2.58},"Y2567":{"gm":6.68,"hre":2.62},"Y2568":{"gm":5.65,"hre":2.66},"Y2569":{"gm":4.92,"hre":3.08}}, "ytd2569":[{"m":"ม.ค.","gm":0.58,"hre":0.48},{"m":"ก.พ.","gm":0.72,"hre":0.45},{"m":"มี.ค.","gm":0.65,"hre":0.48},{"m":"เม.ย.","gm":0.92,"hre":0.50},{"m":"พ.ค.","gm":1.08,"hre":0.52},{"m":"มิ.ย.","gm":0.88,"hre":0.53},{"m":"ก.ค.","gm":0.05,"hre":0.06},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":0.52,"hre":0.28},{"m":"ก.พ.","gm":0.60,"hre":0.28},{"m":"มี.ค.","gm":0.53,"hre":0.28},{"m":"เม.ย.","gm":0.64,"hre":0.27},{"m":"พ.ค.","gm":0.71,"hre":0.27},{"m":"มิ.ย.","gm":0.60,"hre":0.27},{"m":"ก.ค.","gm":0.50,"hre":0.26},{"m":"ส.ค.","gm":0.47,"hre":0.26}]},
-    "CPDG":     {"name":"CPDG (AGS+21CT+CDB)",   "group":"กลุ่ม CPDG","years":{"Y2562":{"gm":2.95,"hre":1.45},"Y2563":{"gm":3.18,"hre":1.48},"Y2564":{"gm":3.40,"hre":1.51},
+  });
+
+  // Scatter
+  const scatterData = COMPANY_IDS.map(cid => {
+    const m = metricsFor(cid, 'Y2568');
+    return { x: m.hrePer * 1e6, y: m.gmPer * 1e6, r: Math.sqrt(EMPLOYEES[cid])/2, prod: m.prod, name: COMPANIES[cid].name };
+  });
+
+  if (window._chartScatter) window._chartScatter.destroy();
+  window._chartScatter = new Chart(document.getElementById('chartScatter'), {
+    type: 'bubble',
+    data: {
+      datasets: [{
+        label: 'บริษัท',
+        data: scatterData,
+        backgroundColor: scatterData.map(d => d.prod >= 1.5 ? 'rgba(16,185,129,0.65)' : d.prod >= 1.0 ? 'rgba(245,158,11,0.65)' : 'rgba(239,68,68,0.65)'),
+        borderColor: scatterData.map(d => d.prod >= 1.5 ? '#10b981' : d.prod >= 1.0 ? '#f59e0b' : '#ef4444'),
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const d = ctx.raw;
+              return [`${d.name}`, `HRE/คน: ${fmt(d.x,0)} บ.`, `GM/คน: ${fmt(d.y,0)} บ.`, `Prod Index: ${fmt(d.prod,2)}`];
+            }
+          }
+        }
+      },
+      scales: {
+        x: { title: { display: true, text: 'HRE/คน (บาท)' } },
+        y: { title: { display: true, text: 'GM/คน (บาท)' } }
+      }
+    }
+  });
+
+  // Ranking
+  const rankData = COMPANY_IDS.map(cid => ({ id: cid, name: COMPANIES[cid].name, prod: metricsFor(cid, 'Y2568').prod }))
+    .sort((a,b) => b.prod - a.prod);
+
+  if (window._chartRank) window._chartRank.destroy();
+  window._chartRank = new Chart(document.getElementById('chartRank'), {
+    type: 'bar',
+    data: {
+      labels: rankData.map(d => d.name),
+      datasets: [{
+        label: 'Productivity Index',
+        data: rankData.map(d => d.prod),
+        backgroundColor: rankData.map(d => d.prod >= 1.5 ? '#10b981' : d.prod >= 1.0 ? '#f59e0b' : '#ef4444'),
+        borderRadius: 6
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, title: { display: true, text: 'Productivity Index' } } }
+    }
+  });
+
+  // Executive summary
+  const best = rankData[0];
+  const worst = rankData[rankData.length - 1];
+  const totalHre = sum(COMPANY_IDS.map(c => COMPANIES[c].years['Y2568'].hre));
+  const totalGm  = sum(COMPANY_IDS.map(c => COMPANIES[c].years['Y2568'].gm));
+  const totalE   = sum(COMPANY_IDS.map(c => EMPLOYEES[c]));
+
+  document.getElementById('exec-best').innerHTML = 
+    `<strong>${best.name}</strong> มี Productivity Index สูงสุด <strong>${fmt(best.prod,2)}x</strong> 
+     — GM/คน สูงเมื่อเทียบกับ HRE/คน บ่งบอกว่าใช้ทรัพยากรบุคคลได้คุ้มค่ามาก`;
+
+  document.getElementById('exec-worst').innerHTML = 
+    `<strong>${worst.name}</strong> มี Productivity Index ต่ำสุด <strong>${fmt(worst.prod,2)}x</strong> 
+     — HRE เติบโตเร็วกว่า GM ทำให้ค่าใช้จ่ายต่อคนสูงเมื่อเทียบกับรายได้ที่สร้างได้ ต้องทบทวนโครงสร้าง`;
+
+  document.getElementById('exec-overall').innerHTML = 
+    `ภาพรวม 13 บริษัท พนักงานรวม <strong>${fmt(totalE,0)}</strong> คน · 
+     GM รวม <strong>${fmt(totalGm,2)}</strong> ลบ. · HRE รวม <strong>${fmt(totalHre,2)}</strong> ลบ. · 
+     HRE Ratio เฉลี่ย <strong>${fmt(avgRatio,1)}%</strong> · 
+     Prod Index เฉลี่ย <strong>${fmt(avgProd,2)}x</strong> (Y2568)`;
+
+  // Count productivity buckets
+  const excellent = rankData.filter(d => d.prod >= 1.5).length;
+  const good      = rankData.filter(d => d.prod >= 1.0 && d.prod < 1.5).length;
+  const low       = rankData.filter(d => d.prod < 1.0).length;
+
+  document.getElementById('exec-rec').innerHTML = 
+    `<strong>${excellent}</strong> บริษัทผลิตภาพดีมาก · <strong>${good}</strong> บริษัทดี · <strong>${low}</strong> บริษัทต่ำ<br>` +
+    `แนะนำ: 1) ศึกษาแนวปฏิบัติจาก <strong>${best.name}</strong> และขยายผล, ` +
+    `2) ให้ <strong>${worst.name}</strong> ทบทวน headcount & ปรับ productivity plan, ` +
+    `3) ตั้ง KPI HRE/คน ต่อบริษัทเพื่อควบคุม`;
+}
+
+/* ---------- TAB 2: COMPANY DETAIL ---------- */
+function renderCompany(cid) {
+  const c = COMPANIES[cid];
+  const e = EMPLOYEES[cid];
+  const m2568 = metricsFor(cid, 'Y2568');
+  const prodLvl = prodLevel(m2568.prod);
+
+  document.getElementById('company-employees').textContent = fmt(e, 0) + ' คน';
+  document.getElementById('company-group').textContent    = c.group;
+  document.getElementById('company-prod').innerHTML       = `${fmt(m2568.prod, 2)}x <span class="px-2 py-0.5 rounded text-xs font-semibold ${prodLvl.cls} ml-1">${prodLvl.label}</span>`;
+  document.getElementById('company-monthly-title').textContent = 
+    `${c.name} · HRE/คน: ${fmt(m2568.hrePer*1e6,0)} บ. · GM/คน: ${fmt(m2568.gmPer*1e6,0)} บ. · HRE%: ${fmt(m2568.ratio,1)}%`;
+
+  // Monthly 2569 - 4 lines
+  const months = DATA.meta.months;
+  const monthlyHrePer = c.ytd2569.map(m => (m.hre / e) * 1e6);
+  const monthlyGmPer  = c.ytd2569.map(m => (m.gm / e) * 1e6);
+  const monthlyRatio  = c.ytd2569.map(m => m.hre / m.gm * 100);
+  const monthlyProd   = monthlyGmPer.map((g,i) => g / monthlyHrePer[i]);
+
+  if (window._chartMonthly) window._chartMonthly.destroy();
+  window._chartMonthly = new Chart(document.getElementById('chartMonthly'), {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        { label: 'HRE/คน (บาท)', data: monthlyHrePer, borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)', yAxisID: 'y1', tension: 0.3 },
+        { label: 'GM/คน (บาท)',  data: monthlyGmPer,  borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)',  yAxisID: 'y1', tension: 0.3 },
+        { label: 'HRE Ratio (%)', data: monthlyRatio,  borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)',   yAxisID: 'y2', tension: 0.3, borderDash: [5,5] },
+        { label: 'Prod Index',    data: monthlyProd,   borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', yAxisID: 'y2', tension: 0.3, borderDash: [10,5] }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        y1: { type: 'linear', position: 'left',  title: { display: true, text: 'บาท/คน' } },
+        y2: { type: 'linear', position: 'right', title: { display: true, text: 'Ratio / Index' }, grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+
+  // YoY / YTD table
+  const m67 = metricsFor(cid, 'Y2567');
+  const sum69 = c.ytd2569.reduce((s,m) => ({ gm: s.gm + m.gm, hre: s.hre + m.hre}), {gm:0, hre:0});
+  const sum68 = c.ytd2568.reduce((s,m) => ({ gm: s.gm + m.gm, hre: s.hre + m.hre}), {gm:0, hre:0});
+
+  const rows = [
+    { name: 'HRE (ลบ.)',   v67: c.years['Y2567'].hre, v68: c.years['Y2568'].hre, ytd68: sum68.hre, ytd69: sum69.hre, betterWhen: 'down' },
+    { name: 'GM (ลบ.)',    v67: c.years['Y2567'].gm,  v68: c.years['Y2568'].gm,  ytd68: sum68.gm,  ytd69: sum69.gm,  betterWhen: 'up'   },
+    { name: 'HRE/คน (บาท)', v67: m67.hrePer*1e6, v68: m2568.hrePer*1e6, ytd68: (sum68.hre/e)*1e6, ytd69: (sum69.hre/e)*1e6, betterWhen: 'down' },
+    { name: 'GM/คน (บาท)',  v67: m67.gmPer*1e6,  v68: m2568.gmPer*1e6,  ytd68: (sum68.gm/e)*1e6,  ytd69: (sum69.gm/e)*1e6,  betterWhen: 'up'   },
+    { name: 'HRE Ratio (%)', v67: m67.ratio, v68: m2568.ratio, ytd68: (sum68.hre/sum68.gm)*100, ytd69: (sum69.hre/sum69.gm)*100, betterWhen: 'down' },
+    { name: 'Productivity Index', v67: m67.prod, v68: m2568.prod, ytd68: ((sum68.gm/e)/((sum68.hre/e))), ytd69: ((sum69.gm/e)/((sum69.hre/e))), betterWhen: 'up' }
+  ];
+
+  const tbody = document.getElementById('yoy-mom-tbody');
+  tbody.innerHTML = rows.map(r => {
+    const yoyPct = r.v67 ? (r.v68 - r.v67) / r.v67 * 100 : null;
+    const ytdPct = r.ytd68 ? (r.ytd69 - r.ytd68) / r.ytd68 * 100 : null;
+    const isYoyGood = yoyPct == null ? null : (r.betterWhen === 'up' ? yoyPct > 0 : yoyPct < 0);
+    const isYtdGood = ytdPct == null ? null : (r.betterWhen === 'up' ? ytdPct > 0 : ytdPct < 0);
+    const yoyClass = isYoyGood == null ? 'text-slate-400' : isYoyGood ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold';
+    const ytdClass = isYtdGood == null ? 'text-slate-400' : isYtdGood ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold';
+    const overall = (isYoyGood && isYtdGood) ? '<span class="badge-good px-2 py-0.5 rounded text-xs font-semibold">ดี</span>' :
+                    (!isYoyGood && !isYtdGood) ? '<span class="badge-bad px-2 py-0.5 rounded text-xs font-semibold">แย่</span>' :
+                    '<span class="badge-warn px-2 py-0.5 rounded text-xs font-semibold">ผสม</span>';
+    return `<tr class="border-b border-slate-100">
+      <td class="py-2 px-3 font-medium">${r.name}</td>
+      <td class="py-2 px-3 text-right">${fmt(r.v67, r.name.includes('Index') ? 2 : 1)}</td>
+      <td class="py-2 px-3 text-right">${fmt(r.v68, r.name.includes('Index') ? 2 : 1)}</td>
+      <td class="py-2 px-3 text-right ${yoyClass}">${fmtPct(yoyPct)}</td>
+      <td class="py-2 px-3 text-right">${fmt(r.ytd68, r.name.includes('Index') ? 2 : 1)}</td>
+      <td class="py-2 px-3 text-right">${fmt(r.ytd69, r.name.includes('Index') ? 2 : 1)}</td>
+      <td class="py-2 px-3 text-right ${ytdClass}">${fmtPct(ytdPct)}</td>
+      <td class="py-2 px-3">${overall}</td>
+    </tr>`;
+  }).join('');
+
+  // Insights & recommendations
+  const insights = [];
+  const recs = [];
+  if (m2568.prod < m67.prod) {
+    insights.push(`Productivity Index ลดลงจาก ${fmt(m67.prod,2)}x → ${fmt(m2568.prod,2)}x (YoY -${((m67.prod - m2568.prod)/m67.prod*100).toFixed(1)}%) — ต้องจับตา`);
+    recs.push('ทบทวนโครงสร้าง HRE เทียบกับ GM ที่ลดลง อาจต้องปรับ headcount หรือเพิ่มรายได้');
+  } else if (m2568.prod > m67.prod) {
+    insights.push(`Productivity Index เพิ่มขึ้นจาก ${fmt(m67.prod,2)}x → ${fmt(m2568.prod,2)}x — ผลิตภาพดีขึ้น 🎉`);
+    recs.push('ศึกษาแนวปฏิบัติที่ดีและขยายผลไปยังบริษัทอื่น');
+  }
+  if (m2568.hrePer > m67.hrePer) {
+    insights.push(`HRE/คน เพิ่มขึ้น ${((m2568.hrePer-m67.hrePer)/m67.hrePer*100).toFixed(1)}% — ค่าใช้จ่ายสมาชิกต่อคนเพิ่มเร็วกว่าปกติ`);
+    recs.push('ตรวจสอบสาเหตุ: เงินเดือนเพิ่ม, โบนัส, สวัสดิการ, หรือ headcount เพิ่ม');
+  }
+  if (m2568.gmPer < m67.gmPer) {
+    insights.push(`GM/คน ลดลง ${((m67.gmPer-m2568.gmPer)/m67.gmPer*100).toFixed(1)}% — รายได้ต่อคนหดตัว`);
+    recs.push('วิเคราะห์ product mix / pricing / productivity ต่อคน');
+  }
+  if (m2568.ratio > 65) {
+    insights.push(`HRE Ratio ${fmt(m2568.ratio,1)}% สูง — GM เกือบ ${(100/m2568.ratio).toFixed(1)} เดือนใช้กับ HRE`);
+    recs.push('เร่งลด HRE หรือเพิ่ม GM เพื่อให้สัดส่วนกลับสู่ < 60%');
+  }
+  if (sum69.gm > 0 && sum69.gm < sum68.gm) {
+    insights.push(`YTD 2569 (ม.ค.-ส.ค.) GM = ${fmt(sum69.gm,2)} ลบ. ต่ำกว่า YTD 2568 (${fmt(sum68.gm,2)} ลบ.)`);
+    recs.push('ติดตามแนวโน้มรายเดือนอย่างใกล้ชิด หาก ก.ค.-ส.ค. ยังอ่อน ต้องเร่งแผนธุรกิจ');
+  } else if (sum69.gm > 0) {
+    insights.push(`YTD 2569 GM = ${fmt(sum69.gm,2)} ลบ. ดีกว่า YTD 2568 (${fmt(sum68.gm,2)} ลบ.) เล็กน้อย`);
+  }
+  if (insights.length === 0) insights.push('ข้อมูลอยู่ในเกณฑ์ปกติ ยังไม่มีสัญญาณเตือน');
+  if (recs.length === 0) recs.push('รักษาวินัยการใช้จ่ายและติดตาม KPI รายเดือน');
+
+  document.getElementById('company-insights').innerHTML = insights.map(t => `<li>${t}</li>`).join('');
+  document.getElementById('company-recommend').innerHTML = recs.map(t => `<li>${t}</li>`).join('');
+}
+
+/* ---------- TAB 3: COMPARE ---------- */
+function renderCompare() {
+  const rows = COMPANY_IDS.map(cid => {
+    const c = COMPANIES[cid];
+    const e = EMPLOYEES[cid];
+    const m67 = metricsFor(cid, 'Y2567');
+    const m68 = metricsFor(cid, 'Y2568');
+    const dHre = m68.hrePer - m67.hrePer;
+    const dGm  = m68.gmPer  - m67.gmPer;
+    const dProd = m68.prod - m67.prod;
+    return { cid, name: c.name, e, hre67: m67.hrePer*1e6, hre68: m68.hrePer*1e6, dHre, gm67: m67.gmPer*1e6, gm68: m68.gmPer*1e6, dGm, ratio68: m68.ratio, prod68: m68.prod, dProd };
+  });
+
+  const tbody = document.getElementById('compare-tbody');
+  tbody.innerHTML = rows.map(r => {
+    const yoyHrePct = (r.dHre / r.hre67) * 100;
+    const yoyGmPct  = (r.dGm  / r.gm67)  * 100;
+    // For HRE/คน: lower is better -> green when YoY < 0
+    const hreClass = yoyHrePct < 0 ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold';
+    const gmClass  = yoyGmPct  > 0 ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold';
+    const prodClass = r.dProd > 0 ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold';
+    const rowCls = r.prod68 >= 1.5 ? 'row-good' : r.prod68 < 1.0 ? 'row-bad' : '';
+    return `<tr class="border-b border-slate-100 ${rowCls}">
+      <td class="py-2 px-3 font-medium">${r.name}</td>
+      <td class="py-2 px-3 text-right">${fmt(r.e, 0)}</td>
+      <td class="py-2 px-3 text-right">${fmt(r.hre67, 0)}</td>
+      <td class="py-2 px-3 text-right">${fmt(r.hre68, 0)}</td>
+      <td class="py-2 px-3 text-right ${hreClass}">${fmtPct(yoyHrePct)}</td>
+      <td class="py-2 px-3 text-right">${fmt(r.gm67, 0)}</td>
+      <td class="py-2 px-3 text-right">${fmt(r.gm68, 0)}</td>
+      <td class="py-2 px-3 text-right ${gmClass}">${fmtPct(yoyGmPct)}</td>
+      <td class="py-2 px-3 text-right">${fmt(r.ratio68, 1)}%</td>
+      <td class="py-2 px-3 text-right font-bold">${fmt(r.prod68, 2)}x</td>
+      <td class="py-2 px-3 text-right ${prodClass}">${(r.dProd >= 0 ? '+' : '') + fmt(r.dProd, 2)}</td>
+    </tr>`;
+  }).join('');
+
+  // Top 5 / Bottom 5
+  const sortedByProd = [...rows].sort((a,b) => b.prod68 - a.prod68);
+  const top5 = sortedByProd.slice(0, 5);
+  const bot5 = sortedByProd.slice(-5).reverse();
+
+  if (window._chartTop5) window._chartTop5.destroy();
+  window._chartTop5 = new Chart(document.getElementById('chartTop5'), {
+    type: 'bar',
+    data: {
+      labels: top5.map(r => r.name),
+      datasets: [{
+        label: 'Productivity Index',
+        data: top5.map(r => r.prod68),
+        backgroundColor: top5.map(r => '#10b981'),
+        borderRadius: 6
+      }]
+    },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+  });
+
+  if (window._chartBottom5) window._chartBottom5.destroy();
+  window._chartBottom5 = new Chart(document.getElementById('chartBottom5'), {
+    type: 'bar',
+    data: {
+      labels: bot5.map(r => r.name),
+      datasets: [{
+        label: 'Productivity Index',
+        data: bot5.map(r => r.prod68),
+        backgroundColor: bot5.map(r => r.prod68 < 1.0 ? '#ef4444' : '#f59e0b'),
+        borderRadius: 6
+      }]
+    },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
+  });
+}
+
+/* ---------- TAB 4: INSIGHTS ---------- */
+function renderInsights() {
+  // Waterfall: total weighted Prod Index 2567 -> 2568 with components
+  const total67 = weightedAvg((c,y) => metricsFor(c,y).prod, 'Y2567');
+  const total68 = weightedAvg((c,y) => metricsFor(c,y).prod, 'Y2568');
+
+  // Effect of GM change (holding HRE constant) -> if GM went up, ratio goes up
+  // We'll show: start 67 → GM effect → HRE effect → end 68
+  // Decomposition: PI_new = (GM_new/Emp) / (HRE_new/Emp) = (GM_new/GM_old) / (HRE_new/HRE_old) * PI_old
+  // Effect_GM = PI_old * (GM_new/GM_old - 1)
+  // Effect_HRE = PI_new - PI_old - Effect_GM
+  const gmTotal67 = sum(COMPANY_IDS.map(c => COMPANIES[c].years['Y2567'].gm * EMPLOYEES[c])) / sum(COMPANY_IDS.map(c => EMPLOYEES[c]));
+  const gmTotal68 = sum(COMPANY_IDS.map(c => COMPANIES[c].years['Y2568'].gm * EMPLOYEES[c])) / sum(COMPANY_IDS.map(c => EMPLOYEES[c]));
+  const hreTotal67 = sum(COMPANY_IDS.map(c => COMPANIES[c].years['Y2567'].hre * EMPLOYEES[c])) / sum(COMPANY_IDS.map(c => EMPLOYEES[c]));
+  const hreTotal68 = sum(COMPANY_IDS.map(c => COMPANIES[c].years['Y2568'].hre * EMPLOYEES[c])) / sum(COMPANY_IDS.map(c => EMPLOYEES[c]));
+
+  const effectGm  = total67 * ((gmTotal68 / gmTotal67) - 1);
+  const effectHre = total68 - total67 - effectGm;
+
+  const labels = ['Prod Index Y2567', '↑ GM/คน', '↓ HRE/คน', 'Prod Index Y2568'];
+  const data = [total67, effectGm, effectHre, total68];
+  const types = ['start', 'delta', 'delta', 'end'];
+
+  // Build waterfall data points
+  let running = 0;
+  const wfData = data.map((v, i) => {
+    let val;
+    if (types[i] === 'start') { val = v; running = v; }
+    else if (types[i] === 'end') { val = v; running = 0; }
+    else { val = v; }
+    return { raw: v, start: types[i] === 'end' ? 0 : (types[i] === 'delta' ? running - v : 0), end: types[i] === 'end' ? v : (types[i] === 'start' ? v : running), type: types[i] };
+  });
+  // Re-compute running properly
+  running = data[0];
+  wfData[0] = { raw: data[0], start: 0, end: data[0], type: 'start' };
+  wfData[1] = { raw: data[1], start: running, end: running + data[1], type: 'delta' };
+  running += data[1];
+  wfData[2] = { raw: data[2], start: running, end: running + data[2], type: 'delta' };
+  running += data[2];
+  wfData[3] = { raw: data[3], start: 0, end: data[3], type: 'end' };
+
+  if (window._chartWaterfall) window._chartWaterfall.destroy();
+  window._chartWaterfall = new Chart(document.getElementById('chartWaterfall'), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'start', data: wfData.map(d => d.start), backgroundColor: 'rgba(0,0,0,0)' },
+        { label: 'value', data: wfData.map((d,i) => wfData[i].end - wfData[i].start), backgroundColor: wfData.map((d,i) => i === 0 ? '#6366f1' : i === 3 ? '#6366f1' : d.raw >= 0 ? '#10b981' : '#ef4444') }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: (ctx) => `Value: ${fmt(ctx.raw, 3)}` }
+        }
+      },
+      scales: {
+        x: { stacked: true },
+        y: { stacked: true, title: { display: true, text: 'Productivity Index' } }
+      }
+    }
+  });
+
+  // HRE/คน bar (sorted)
+  const hreData = COMPANY_IDS.map(cid => ({ name: COMPANIES[cid].name, val: metricsFor(cid, 'Y2568').hrePer*1e6 }))
+    .sort((a,b) => b.val - a.val);
+  if (window._chartHREBar) window._chartHREBar.destroy();
+  window._chartHREBar = new Chart(document.getElementById('chartHREBar'), {
+    type: 'bar',
+    data: { labels: hreData.map(d => d.name), datasets: [{ label: 'HRE/คน (บาท)', data: hreData.map(d => d.val), backgroundColor: '#f59e0b', borderRadius: 6 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+
+  // GM/คน bar
+  const gmData = COMPANY_IDS.map(cid => ({ name: COMPANIES[cid].name, val: metricsFor(cid, 'Y2568').gmPer*1e6 }))
+    .sort((a,b) => b.val - a.val);
+  if (window._chartGMBar) window._chartGMBar.destroy();
+  window._chartGMBar = new Chart(document.getElementById('chartGMBar'), {
+    type: 'bar',
+    data: { labels: gmData.map(d => d.name), datasets: [{ label: 'GM/คน (บาท)', data: gmData.map(d => d.val), backgroundColor: '#10b981', borderRadius: 6 }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+
+  // Per-company recs
+  const recs = COMPANY_IDS.map(cid => {
+    const c = COMPANIES[cid];
+    const m67 = metricsFor(cid, 'Y2567');
+    const m68 = metricsFor(cid, 'Y2568');
+    const lvl = prodLevel(m68.prod);
+    const icon = m68.prod >= 1.5 ? '🌟' : m68.prod >= 1.0 ? '✅' : '⚠️';
+    const tips = [];
+    if (m68.prod < m67.prod) tips.push(`Prod Index ลด ${(m67.prod - m68.prod).toFixed(2)}x — ทบทวนโครงสร้าง`);
+    if (m68.hrePer > m67.hrePer) tips.push('HRE/คน ↑');
+    if (m68.gmPer < m67.gmPer) tips.push('GM/คน ↓');
+    if (m68.ratio > 65) tips.push(`HRE% ${m68.ratio.toFixed(0)}% สูง`);
+    if (tips.length === 0) tips.push('รักษาวินัย & ติดตาม KPI');
+    return { cid, name: c.name, prod: m68.prod, lvl, icon, tips };
+  }).sort((a,b) => a.prod - b.prod);
+
+  document.getElementById('company-recs').innerHTML = recs.map(r => `
+    <div class="p-3 rounded-lg border ${r.prod >= 1.5 ? 'border-emerald-200 bg-emerald-50' : r.prod >= 1.0 ? 'border-amber-200 bg-amber-50' : 'border-rose-200 bg-rose-50'}">
+      <div class="flex items-center justify-between mb-1">
+        <span class="font-semibold text-sm">${r.icon} ${r.name}</span>
+        <span class="px-2 py-0.5 rounded text-xs font-semibold ${r.lvl.cls}">${r.lvl.label} (${fmt(r.prod,2)}x)</span>
+      </div>
+      <ul class="text-xs text-slate-600 list-disc pl-4 space-y-0.5">
+        ${r.tips.map(t => `<li>${t}</li>`).join('')}
+      </ul>
+    </div>
+  `).join('');
+}
+
+/* ---------- TAB SWITCHING ---------- */
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('hidden', p.id !== 'tab-' + name));
+}
+
+document.querySelectorAll('.tab-btn').forEach(b => {
+  b.addEventListener('click', () => switchTab(b.dataset.tab));
+});
+
+/* ---------- INIT ---------- */
+function init() {
+  // Populate company dropdown
+  const sel = document.getElementById('companySelect');
+  sel.innerHTML = COMPANY_IDS.map(cid => `<option value="${cid}">${COMPANIES[cid].name}</option>`).join('');
+  sel.addEventListener('change', () => renderCompany(sel.value));
+
+  renderOverview();
+  renderCompany(COMPANY_IDS[0]);
+  renderCompare();
+  renderInsights();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
