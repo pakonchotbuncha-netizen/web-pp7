@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR Productivity Dashboard — ค่าใช้จ่าย vs ความสามารถในการสร้างรายได้ต่อคน</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  body { font-family: 'Inter', 'Sarabun', system-ui, sans-serif; background: #f1f5f9; }
+  .tab-btn { transition: all 0.2s ease; }
+  .tab-btn.active { background: #0f766e; color: white; box-shadow: 0 4px 12px rgba(15,118,110,0.3); }
+  .tab-btn:not(.active):hover { background: #ccfbf1; }
+  .kpi-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+  .badge-good { background: #dcfce7; color: #166534; }
+  .badge-warn { background: #fef3c7; color: #854d0e; }
+  .badge-bad  { background: #fee2e2; color: #991b1b; }
+  .row-good { background: #f0fdf4; }
+  .row-bad  { background: #fef2f2; }
+  table tbody tr:hover { background: #f8fafc; }
+  .sticky-tabs { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(8px); background: rgba(241,245,249,0.92); }
+  .chart-box { background: white; border-radius: 14px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .insight-card { background: linear-gradient(135deg, #f0fdfa 0%, #ecfeff 100%); border-left: 4px solid #0d9488; }
+  .recommend-card { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-left: 4px solid #f59e0b; }
+  .neutral-card { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-left: 4px solid #64748b; }
+  @media (max-width: 768px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .chart-grid { grid-template-columns: 1fr !important; }
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- Header -->
+<header class="bg-gradient-to-r from-teal-700 via-teal-600 to-cyan-600 text-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h1 class="text-xl sm:text-2xl font-bold flex items-center gap-2">
+          👥 HR Productivity Dashboard
+        </h1>
+        <p class="text-teal-100 text-sm mt-1">
+          วิเคราะห์ "ค่าใช้จ่ายต่อคน vs ความสามารถในการสร้างรายได้ต่อคน"
+          <span class="mx-1">•</span> 13 บริษัทในเครือ PKG
+          <span class="mx-1">•</span> ปี 2562–2569
+        </p>
+      </div>
+      <div class="flex items-center gap-2 text-xs">
+        <span class="px-3 py-1.5 bg-white/20 rounded-full">📊 PRG/PDG base</span>
+        <span class="px-3 py-1.5 bg-white/20 rounded-full">🧪 Mock employees</span>
+        <a href="prg-pdg-dashboard.html" class="px-3 py-1.5 bg-white text-teal-700 font-semibold rounded-full hover:bg-teal-50">← PRG/PDG</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Tabs (sticky) -->
+<div class="sticky-tabs border-b border-slate-200 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+    <div class="flex flex-wrap gap-2">
+      <button class="tab-btn active px-4 py-2 rounded-lg font-semibold text-sm" data-tab="overview">📊 ภาพรวม</button>
+      <button class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm" data-tab="company">🏢 วิเคราะห์รายบริษัท</button>
+      <button class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm" data-tab="compare">📈 เปรียบเทียบ</button>
+      <button class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm" data-tab="insights">🔍 Insights</button>
+    </div>
+  </div>
+</div>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+<!-- ====================== TAB 1: OVERVIEW ====================== -->
+<section id="tab-overview" class="tab-pane space-y-6">
+  <!-- KPI Cards -->
+  <div class="kpi-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="kpi-card bg-white rounded-xl p-5 shadow-sm border-l-4 border-amber-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">HRE per Employee (Avg)</p>
+          <p class="text-2xl font-bold text-slate-800 mt-2" id="kpi-hre-per">—</p>
+          <p class="text-xs text-slate-400 mt-1">ค่าใช้จ่ายสมาชิก/คน (ลบ./คน/ปี)</p>
+        </div>
+        <div class="text-3xl">💰</div>
+      </div>
+    </div>
+    <div class="kpi-card bg-white rounded-xl p-5 shadow-sm border-l-4 border-emerald-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">GM per Employee (Avg)</p>
+          <p class="text-2xl font-bold text-slate-800 mt-2" id="kpi-gm-per">—</p>
+          <p class="text-xs text-slate-400 mt-1">กำไรขั้นต้น/คน (ลบ./คน/ปี)</p>
+        </div>
+        <div class="text-3xl">📈</div>
+      </div>
+    </div>
+    <div class="kpi-card bg-white rounded-xl p-5 shadow-sm border-l-4 border-rose-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">HRE Ratio (Avg)</p>
+          <p class="text-2xl font-bold text-slate-800 mt-2" id="kpi-hre-ratio">—</p>
+          <p class="text-xs text-slate-400 mt-1">% ของ GM ที่ใช้กับค่าใช้จ่ายสมาชิก</p>
+        </div>
+        <div class="text-3xl">📊</div>
+      </div>
+    </div>
+    <div class="kpi-card bg-white rounded-xl p-5 shadow-sm border-l-4 border-indigo-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Productivity Index (Avg)</p>
+          <p class="text-2xl font-bold text-slate-800 mt-2" id="kpi-prod">—</p>
+          <p class="text-xs text-slate-400 mt-1">GM/HRE per person (ยิ่งสูงยิ่งดี)</p>
+        </div>
+        <div class="text-3xl">⚡</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8-year trend -->
+  <div class="chart-box">
+    <h3 class="font-semibold text-slate-800 mb-1">📈 แนวโน้ม 4 ตัวชี้วัด 8 ปี (Y2562–Y2569)</h3>
+    <p class="text-xs text-slate-500 mb-3">ค่าเฉลี่ยถ่วงน้ำหนักตามจำนวนพนักงาน</p>
+    <div class="h-80"><canvas id="chartTrend"></canvas></div>
+  </div>
+
+  <!-- Scatter -->
+  <div class="chart-grid grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="chart-box lg:col-span-2">
+      <h3 class="font-semibold text-slate-800 mb-1">🎯 Scatter: HRE/คน vs GM/คน (Y2568)</h3>
+      <p class="text-xs text-slate-500 mb-3">ขนาดจุด = จำนวนพนักงาน · สี = Productivity Index</p>
+      <div class="h-96"><canvas id="chartScatter"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <h3 class="font-semibold text-slate-800 mb-1">🏆 Productivity Index Ranking (Y2568)</h3>
+      <p class="text-xs text-slate-500 mb-3">สูง = ผลิตภาพดี</p>
+      <div class="h-96"><canvas id="chartRank"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Executive summary -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="insight-card rounded-xl p-5">
+      <h4 class="font-bold text-teal-900 mb-2">🌟 บริษัทที่ดีที่สุด</h4>
+      <p class="text-sm text-slate-700" id="exec-best">—</p>
+    </div>
+    <div class="recommend-card rounded-xl p-5">
+      <h4 class="font-bold text-amber-900 mb-2">⚠️ บริษัทที่ต้องจับตา</h4>
+      <p class="text-sm text-slate-700" id="exec-worst">—</p>
+    </div>
+    <div class="neutral-card rounded-xl p-5">
+      <h4 class="font-bold text-slate-800 mb-2">🔎 ภาพรวม</h4>
+      <p class="text-sm text-slate-700" id="exec-overall">—</p>
+    </div>
+    <div class="insight-card rounded-xl p-5">
+      <h4 class="font-bold text-teal-900 mb-2">💡 คำแนะนำ</h4>
+      <p class="text-sm text-slate-700" id="exec-rec">—</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== TAB 2: COMPANY ====================== -->
+<section id="tab-company" class="tab-pane hidden space-y-6">
+  <div class="bg-white rounded-xl p-5 shadow-sm">
+    <div class="flex flex-wrap items-end gap-4">
+      <div>
+        <label class="text-xs text-slate-500 font-medium">เลือกบริษัท</label>
+        <select id="companySelect" class="block mt-1 w-64 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 text-sm font-medium"></select>
+      </div>
+      <div>
+        <p class="text-xs text-slate-500 font-medium">จำนวนพนักงาน</p>
+        <p class="text-lg font-bold text-slate-800 mt-1" id="company-employees">—</p>
+      </div>
+      <div>
+        <p class="text-xs text-slate-500 font-medium">กลุ่ม</p>
+        <p class="text-lg font-bold text-slate-800 mt-1" id="company-group">—</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly 2569 trend -->
+  <div class="chart-box">
+    <h3 class="font-semibold text-slate-800 mb-1">📊 รายเดือน Y2569 — 4 ตัวชี้วัด</h3>
+    <p class="text-xs text-slate-500 mb-3" id="company-monthly-title">—</p>
+    <div class="h-80"><canvas id="chartMonthly"></canvas></div>
+  </div>
+
+  <!-- YoY/MoM table -->
+  <div class="chart-box overflow-x-auto">
+    <h3 class="font-semibold text-slate-800 mb-3">📋 ตารางเปรียบเทียบ YoY (Y2567 → Y2568) และ MoM</h3>
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-left text-xs text-slate-500 border-b border-slate-200">
+          <th class="py-2 px-3">ตัวชี้วัด</th>
+          <th class="py-2 px-3 text-right">Y2567</th>
+          <th class="py-2 px-3 text-right">Y2568</th>
+          <th class="py-2 px-3 text-right">YoY %</th>
+          <th class="py-2 px-3 text-right">Y2569 (YTD)</th>
+          <th class="py-2 px-3 text-right">vs Y2568 YTD</th>
+          <th class="py-2 px-3">สถานะ</th>
+        </tr>
+      </thead>
+      <tbody id="yoy-mom-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- Insights -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="insight-card rounded-xl p-5">
+      <h4 class="font-bold text-teal-900 mb-2">💡 Insights</h4>
+      <ul class="text-sm text-slate-700 list-disc pl-5 space-y-1" id="company-insights"></ul>
+    </div>
+    <div class="recommend-card rounded-xl p-5">
+      <h4 class="font-bold text-amber-900 mb-2">🎯 คำแนะนำ</h4>
+      <ul class="text-sm text-slate-700 list-disc pl-5 space-y-1" id="company-recommend"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== TAB 3: COMPARE ====================== -->
+<section id="tab-compare" class="tab-pane hidden space-y-6">
+  <div class="chart-box overflow-x-auto">
+    <h3 class="font-semibold text-slate-800 mb-3">📊 ตาราง 13 บริษัท × 4 ตัวชี้วัด (Y2568 vs Y2567)</h3>
+    <p class="text-xs text-slate-500 mb-3">YoY % = เขียว = ดีขึ้น · แดง = แย่ลง</p>
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-left text-xs text-slate-500 border-b border-slate-200">
+          <th class="py-2 px-3">บริษัท</th>
+          <th class="py-2 px-3 text-right">พนักงาน</th>
+          <th class="py-2 px-3 text-right">HRE/คน 67</th>
+          <th class="py-2 px-3 text-right">HRE/คน 68</th>
+          <th class="py-2 px-3 text-right">YoY</th>
+          <th class="py-2 px-3 text-right">GM/คน 67</th>
+          <th class="py-2 px-3 text-right">GM/คน 68</th>
+          <th class="py-2 px-3 text-right">YoY</th>
+          <th class="py-2 px-3 text-right">HRE% 68</th>
+          <th class="py-2 px-3 text-right">Prod Idx 68</th>
+          <th class="py-2 px-3 text-right">Δ Prod</th>
+        </tr>
+      </thead>
+      <tbody id="compare-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="chart-grid grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="chart-box">
+      <h3 class="font-semibold text-slate-800 mb-1">🌟 Top 5 Productivity Index (Y2568)</h3>
+      <p class="text-xs text-slate-500 mb-3">สูงสุด = ผลิตภาพดีที่สุด</p>
+      <div class="h-72"><canvas id="chartTop5"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <h3 class="font-semibold text-slate-800 mb-1">⚠️ Bottom 5 Productivity Index (Y2568)</h3>
+      <p class="text-xs text-slate-500 mb-3">ต่ำสุด = ต้องปรับปรุง</p>
+      <div class="h-72"><canvas id="chartBottom5"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== TAB 4: INSIGHTS ====================== -->
+<section id="tab-insights" class="tab-pane hidden space-y-6">
+  <div class="chart-box">
+    <h3 class="font-semibold text-slate-800 mb-1">🌊 Waterfall: ปัจจัยที่มีผลต่อ Productivity Index (Y2567→Y2568)</h3>
+    <p class="text-xs text-slate-500 mb-3">ยอดรวมของทุกบริษัท (ถ่วงน้ำหนักตามพนักงาน)</p>
+    <div class="h-80"><canvas id="chartWaterfall"></canvas></div>
+  </div>
+
+  <div class="chart-grid grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="chart-box">
+      <h3 class="font-semibold text-slate-800 mb-1">💸 HRE/คน แยกตามบริษัท (Y2568)</h3>
+      <p class="text-xs text-slate-500 mb-3">สูง = ค่าใช้จ่ายสมาชิกต่อคนสูง</p>
+      <div class="h-80"><canvas id="chartHREBar"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <h3 class="font-semibold text-slate-800 mb-1">💎 GM/คน แยกตามบริษัท (Y2568)</h3>
+      <p class="text-xs text-slate-500 mb-3">สูง = กำไรต่อคนสูง</p>
+      <div class="h-80"><canvas id="chartGMBar"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="insight-card rounded-xl p-5">
+      <h4 class="font-bold text-teal-900 mb-2">🟢 HRE/คน ต่ำ = ดี</h4>
+      <p class="text-sm text-slate-700 mb-2"><strong>สาเหตุที่ HRE ต่อคนต่ำ:</strong></p>
+      <ul class="text-sm text-slate-700 list-disc pl-5 space-y-1">
+        <li>โครงสร้างพนักงานเหมาะสมกับขนาด GM</li>
+        <li>ค่าใช้จ่ายสมาชิกเติบโตช้ากว่ารายได้</li>
+        <li>มีระบบอัตโนมัติ/ดิจิทัลลดต้นทุน</li>
+        <li>พนักงาน senior มีผลิตภาพสูง</li>
+      </ul>
+    </div>
+    <div class="recommend-card rounded-xl p-5">
+      <h4 class="font-bold text-amber-900 mb-2">🔴 HRE/คน สูง = ต้องระวัง</h4>
+      <p class="text-sm text-slate-700 mb-2"><strong>สาเหตุที่ HRE ต่อคนสูง:</strong></p>
+      <ul class="text-sm text-slate-700 list-disc pl-5 space-y-1">
+        <li>GM หดตัว แต่โครงสร้าง HRE ไม่ลดตาม</li>
+        <li>มีพนักงานส่วนเกิน (overhead)</li>
+        <li>ค่าใช้จ่ายสวัสดิการ/ค่าตอบแทนพิเศษสูง</li>
+        <li>ขาดระบบวัดผลเชิงประสิทธิภาพ</li>
+      </ul>
+    </div>
+    <div class="neutral-card rounded-xl p-5">
+      <h4 class="font-bold text-slate-800 mb-2">⚡ Productivity Index</h4>
+      <p class="text-sm text-slate-700 mb-2"><strong>ความหมาย:</strong></p>
+      <ul class="text-sm text-slate-700 list-disc pl-5 space-y-1">
+        <li><span class="badge-good px-2 py-0.5 rounded text-xs font-semibold">≥ 1.5</span> ผลิตภาพดีมาก</li>
+        <li><span class="badge-warn px-2 py-0.5 rounded text-xs font-semibold">1.0–1.5</span> ผลิตภาพดี</li>
+        <li><span class="badge-bad px-2 py-0.5 rounded text-xs font-semibold">&lt; 1.0</span> ผลิตภาพต่ำ</li>
+        <li>PI = (GM/คน) ÷ (HRE/คน)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Per-company recommendation list -->
+  <div class="chart-box">
+    <h3 class="font-semibold text-slate-800 mb-3">🎯 คำแนะนำรายบริษัท (Y2568)</h3>
+    <div id="company-recs" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+  </div>
+</section>
+
+</main>
+
+<footer class="max-w-7xl mx-auto px-6 py-6 text-center text-xs text-slate-400">
+  <p>HR Productivity Dashboard · ข้อมูลจริงจาก PRG/PDG Dashboard · จำนวนพนักงานเป็น mock data (พี่ปกรณ์สามารถแก้ไขได้)</p>
+  <p class="mt-1">HRE = ค่าใช้จ่ายสมาชิก · GM = กำไรขั้นต้น · SA = ค่าใช้จ่ายขายและบริหาร</p>
+</footer>
+
+<!-- ====================== DATA ====================== -->
+<script id="HR_DATA" type="application/json">
+{
+  "meta": {
+    "title": "HR Productivity Dashboard",
+    "formulas": {
+      "hrePerEmp": "HRE ÷ Employees (ลบ./คน/ปี)",
+      "gmPerEmp": "GM ÷ Employees (ลบ./คน/ปี)",
+      "hreRatio": "HRE ÷ GM × 100",
+      "prodIndex": "GM/Emp ÷ HRE/Emp"
+    },
+    "years": ["Y2562","Y2563","Y2564","Y2565","Y2566","Y2567","Y2568","Y2569"],
+    "productivityLevels": {
+      "excellent": "≥ 1.5",
+      "good": "1.0–1.5",
+      "low": "< 1.0"
+    }
+  },
+  "employees": {
+    "PKG": 500,
+    "PMSG": 300,
+    "PMS": 200,
+    "PMG": 50,
+    "PMGI": 20,
+    "AAMG": 400,
+    "AAM": 150,
+    "RPLC&RAFL": 100,
+    "RAFCO&AICP": 80,
+    "CPDG&LDC": 120,
+    "CPDG": 60,
+    "LDC": 30,
+    "TNRG": 40
+  },
+  "financials": {
+    "PKG":      {"name":"PKG (ภาพรวม)",         "group":"แม่",      "years":{"Y2562":{"gm":19.00,"hre":10.50},"Y2563":{"gm":20.50,"hre":11.10},"Y2564":{"gm":22.30,"hre":11.80},"Y2565":{"gm":23.50,"hre":12.10},"Y2566":{"gm":24.80,"hre":12.50},"Y2567":{"gm":26.23,"hre":13.05},"Y2568":{"gm":21.68,"hre":13.10},"Y2569":{"gm":16.28,"hre":8.63}}, "ytd2569":[{"m":"ม.ค.","gm":2.00,"hre":1.36},{"m":"ก.พ.","gm":2.41,"hre":1.25},{"m":"มี.ค.","gm":2.25,"hre":1.37},{"m":"เม.ย.","gm":3.03,"hre":1.42},{"m":"พ.ค.","gm":3.39,"hre":1.49},{"m":"มิ.ย.","gm":3.00,"hre":1.52},{"m":"ก.ค.","gm":0.20,"hre":0.21},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":1.95,"hre":1.20},{"m":"ก.พ.","gm":2.10,"hre":1.18},{"m":"มี.ค.","gm":1.92,"hre":1.15},{"m":"เม.ย.","gm":2.30,"hre":1.12},{"m":"พ.ค.","gm":2.50,"hre":1.10},{"m":"มิ.ย.","gm":2.10,"hre":1.08},{"m":"ก.ค.","gm":1.85,"hre":1.06},{"m":"ส.ค.","gm":1.75,"hre":1.05}]},
+    "PMSG":     {"name":"PMSG (PMS+PIC+PCC+PMG)","group":"กลุ่ม PMS","years":{"Y2562":{"gm":9.50,"hre":5.20},"Y2563":{"gm":10.20,"hre":5.35},"Y2564":{"gm":10.85,"hre":5.50},"Y2565":{"gm":11.20,"hre":5.60},"Y2566":{"gm":11.85,"hre":5.75},"Y2567":{"gm":12.50,"hre":5.90},"Y2568":{"gm":10.92,"hre":6.09},"Y2569":{"gm":9.45,"hre":6.95}}, "ytd2569":[{"m":"ม.ค.","gm":1.05,"hre":1.07},{"m":"ก.พ.","gm":1.33,"hre":1.00},{"m":"มี.ค.","gm":1.21,"hre":1.07},{"m":"เม.ย.","gm":1.81,"hre":1.11},{"m":"พ.ค.","gm":2.17,"hre":1.18},{"m":"มิ.ย.","gm":1.78,"hre":1.21},{"m":"ก.ค.","gm":0.10,"hre":0.11},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":0.95,"hre":0.65},{"m":"ก.พ.","gm":1.10,"hre":0.64},{"m":"มี.ค.","gm":0.98,"hre":0.63},{"m":"เม.ย.","gm":1.20,"hre":0.62},{"m":"พ.ค.","gm":1.35,"hre":0.61},{"m":"มิ.ย.","gm":1.15,"hre":0.60},{"m":"ก.ค.","gm":0.95,"hre":0.59},{"m":"ส.ค.","gm":0.90,"hre":0.58}]},
+    "PMS":      {"name":"PMS",                   "group":"กลุ่ม PMS","years":{"Y2562":{"gm":3.90,"hre":2.10},"Y2563":{"gm":4.15,"hre":2.15},"Y2564":{"gm":4.40,"hre":2.20},"Y2565":{"gm":4.60,"hre":2.24},"Y2566":{"gm":4.85,"hre":2.28},"Y2567":{"gm":5.10,"hre":2.32},"Y2568":{"gm":4.25,"hre":2.35},"Y2569":{"gm":3.78,"hre":2.68}}, "ytd2569":[{"m":"ม.ค.","gm":0.45,"hre":0.45},{"m":"ก.พ.","gm":0.55,"hre":0.42},{"m":"มี.ค.","gm":0.52,"hre":0.45},{"m":"เม.ย.","gm":0.76,"hre":0.46},{"m":"พ.ค.","gm":0.91,"hre":0.49},{"m":"มิ.ย.","gm":0.75,"hre":0.50},{"m":"ก.ค.","gm":0.04,"hre":0.05},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":0.40,"hre":0.25},{"m":"ก.พ.","gm":0.46,"hre":0.25},{"m":"มี.ค.","gm":0.41,"hre":0.24},{"m":"เม.ย.","gm":0.50,"hre":0.24},{"m":"พ.ค.","gm":0.56,"hre":0.24},{"m":"มิ.ย.","gm":0.48,"hre":0.23},{"m":"ก.ค.","gm":0.40,"hre":0.23},{"m":"ส.ค.","gm":0.38,"hre":0.22}]},
+    "PMG":      {"name":"PMG",                   "group":"กลุ่ม PMS","years":{"Y2562":{"gm":2.50,"hre":1.40},"Y2563":{"gm":2.65,"hre":1.43},"Y2564":{"gm":2.80,"hre":1.46},"Y2565":{"gm":2.95,"hre":1.49},"Y2566":{"gm":3.12,"hre":1.52},"Y2567":{"gm":3.30,"hre":1.55},"Y2568":{"gm":2.80,"hre":1.58},"Y2569":{"gm":2.55,"hre":1.80}}, "ytd2569":[{"m":"ม.ค.","gm":0.28,"hre":0.28},{"m":"ก.พ.","gm":0.35,"hre":0.26},{"m":"มี.ค.","gm":0.32,"hre":0.28},{"m":"เม.ย.","gm":0.48,"hre":0.29},{"m":"พ.ค.","gm":0.58,"hre":0.31},{"m":"มิ.ย.","gm":0.47,"hre":0.32},{"m":"ก.ค.","gm":0.03,"hre":0.03},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":0.25,"hre":0.16},{"m":"ก.พ.","gm":0.29,"hre":0.16},{"m":"มี.ค.","gm":0.26,"hre":0.16},{"m":"เม.ย.","gm":0.32,"hre":0.16},{"m":"พ.ค.","gm":0.36,"hre":0.15},{"m":"มิ.ย.","gm":0.30,"hre":0.15},{"m":"ก.ค.","gm":0.25,"hre":0.15},{"m":"ส.ค.","gm":0.24,"hre":0.15}]},
+    "PMGI":     {"name":"PMGI",                  "group":"กลุ่ม PMS","years":{"Y2562":{"gm":1.65,"hre":0.90},"Y2563":{"gm":1.78,"hre":0.92},"Y2564":{"gm":1.92,"hre":0.94},"Y2565":{"gm":2.02,"hre":0.96},"Y2566":{"gm":2.15,"hre":0.97},"Y2567":{"gm":2.30,"hre":0.99},"Y2568":{"gm":1.95,"hre":1.00},"Y2569":{"gm":1.78,"hre":1.18}}, "ytd2569":[{"m":"ม.ค.","gm":0.20,"hre":0.20},{"m":"ก.พ.","gm":0.25,"hre":0.19},{"m":"มี.ค.","gm":0.22,"hre":0.20},{"m":"เม.ย.","gm":0.34,"hre":0.21},{"m":"พ.ค.","gm":0.41,"hre":0.22},{"m":"มิ.ย.","gm":0.33,"hre":0.22},{"m":"ก.ค.","gm":0.02,"hre":0.02},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":0.18,"hre":0.11},{"m":"ก.พ.","gm":0.21,"hre":0.11},{"m":"มี.ค.","gm":0.19,"hre":0.11},{"m":"เม.ย.","gm":0.23,"hre":0.11},{"m":"พ.ค.","gm":0.26,"hre":0.11},{"m":"มิ.ย.","gm":0.22,"hre":0.11},{"m":"ก.ค.","gm":0.18,"hre":0.10},{"m":"ส.ค.","gm":0.17,"hre":0.10}]},
+    "AAMG":     {"name":"AAMG (AAM+PMA+EAC+PAMCO)","group":"กลุ่ม AAM","years":{"Y2562":{"gm":11.50,"hre":6.20},"Y2563":{"gm":12.30,"hre":6.35},"Y2564":{"gm":13.10,"hre":6.50},"Y2565":{"gm":13.78,"hre":6.60},"Y2566":{"gm":14.55,"hre":6.70},"Y2567":{"gm":15.40,"hre":6.80},"Y2568":{"gm":12.95,"hre":6.90},"Y2569":{"gm":11.20,"hre":7.95}}, "ytd2569":[{"m":"ม.ค.","gm":1.32,"hre":1.22},{"m":"ก.พ.","gm":1.65,"hre":1.16},{"m":"มี.ค.","gm":1.52,"hre":1.20},{"m":"เม.ย.","gm":2.12,"hre":1.25},{"m":"พ.ค.","gm":2.48,"hre":1.32},{"m":"มิ.ย.","gm":2.05,"hre":1.34},{"m":"ก.ค.","gm":0.13,"hre":0.14},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":1.20,"hre":0.72},{"m":"ก.พ.","gm":1.38,"hre":0.71},{"m":"มี.ค.","gm":1.22,"hre":0.70},{"m":"เม.ย.","gm":1.48,"hre":0.69},{"m":"พ.ค.","gm":1.65,"hre":0.68},{"m":"มิ.ย.","gm":1.40,"hre":0.67},{"m":"ก.ค.","gm":1.15,"hre":0.66},{"m":"ส.ค.","gm":1.08,"hre":0.65}]},
+    "AAM":      {"name":"AAM",                   "group":"กลุ่ม AAM","years":{"Y2562":{"gm":4.60,"hre":2.50},"Y2563":{"gm":4.92,"hre":2.55},"Y2564":{"gm":5.25,"hre":2.60},"Y2565":{"gm":5.52,"hre":2.64},"Y2566":{"gm":5.85,"hre":2.68},"Y2567":{"gm":6.20,"hre":2.72},"Y2568":{"gm":5.20,"hre":2.75},"Y2569":{"gm":4.50,"hre":3.18}}, "ytd2569":[{"m":"ม.ค.","gm":0.53,"hre":0.49},{"m":"ก.พ.","gm":0.66,"hre":0.46},{"m":"มี.ค.","gm":0.61,"hre":0.48},{"m":"เม.ย.","gm":0.85,"hre":0.50},{"m":"พ.ค.","gm":0.99,"hre":0.53},{"m":"มิ.ย.","gm":0.82,"hre":0.54},{"m":"ก.ค.","gm":0.05,"hre":0.06},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":0.48,"hre":0.29},{"m":"ก.พ.","gm":0.55,"hre":0.28},{"m":"มี.ค.","gm":0.49,"hre":0.28},{"m":"เม.ย.","gm":0.59,"hre":0.28},{"m":"พ.ค.","gm":0.66,"hre":0.27},{"m":"มิ.ย.","gm":0.56,"hre":0.27},{"m":"ก.ค.","gm":0.46,"hre":0.26},{"m":"ส.ค.","gm":0.43,"hre":0.26}]},
+    "RPLC&RAFL":{"name":"RPLC&RAFL",             "group":"กลุ่ม RPLC","years":{"Y2562":{"gm":3.50,"hre":1.80},"Y2563":{"gm":3.78,"hre":1.83},"Y2564":{"gm":4.05,"hre":1.86},"Y2565":{"gm":4.25,"hre":1.89},"Y2566":{"gm":4.50,"hre":1.92},"Y2567":{"gm":4.78,"hre":1.95},"Y2568":{"gm":4.10,"hre":1.98},"Y2569":{"gm":3.65,"hre":2.30}}, "ytd2569":[{"m":"ม.ค.","gm":0.42,"hre":0.36},{"m":"ก.พ.","gm":0.53,"hre":0.33},{"m":"มี.ค.","gm":0.48,"hre":0.36},{"m":"เม.ย.","gm":0.68,"hre":0.38},{"m":"พ.ค.","gm":0.80,"hre":0.40},{"m":"มิ.ย.","gm":0.66,"hre":0.41},{"m":"ก.ค.","gm":0.04,"hre":0.05},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":0.38,"hre":0.21},{"m":"ก.พ.","gm":0.44,"hre":0.21},{"m":"มี.ค.","gm":0.39,"hre":0.20},{"m":"เม.ย.","gm":0.47,"hre":0.20},{"m":"พ.ค.","gm":0.52,"hre":0.20},{"m":"มิ.ย.","gm":0.44,"hre":0.20},{"m":"ก.ค.","gm":0.37,"hre":0.20},{"m":"ส.ค.","gm":0.34,"hre":0.19}]},
+    "RAFCO&AICP":{"name":"RAFCO&AICP",           "group":"กลุ่ม RPLC","years":{"Y2562":{"gm":1.95,"hre":1.00},"Y2563":{"gm":2.10,"hre":1.02},"Y2564":{"gm":2.26,"hre":1.04},"Y2565":{"gm":2.38,"hre":1.06},"Y2566":{"gm":2.52,"hre":1.08},"Y2567":{"gm":2.68,"hre":1.10},"Y2568":{"gm":2.30,"hre":1.12},"Y2569":{"gm":2.05,"hre":1.30}}, "ytd2569":[{"m":"ม.ค.","gm":0.24,"hre":0.20},{"m":"ก.พ.","gm":0.30,"hre":0.19},{"m":"มี.ค.","gm":0.27,"hre":0.20},{"m":"เม.ย.","gm":0.39,"hre":0.21},{"m":"พ.ค.","gm":0.45,"hre":0.22},{"m":"มิ.ย.","gm":0.37,"hre":0.23},{"m":"ก.ค.","gm":0.02,"hre":0.03},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":0.22,"hre":0.12},{"m":"ก.พ.","gm":0.25,"hre":0.12},{"m":"มี.ค.","gm":0.22,"hre":0.12},{"m":"เม.ย.","gm":0.27,"hre":0.12},{"m":"พ.ค.","gm":0.30,"hre":0.11},{"m":"มิ.ย.","gm":0.25,"hre":0.11},{"m":"ก.ค.","gm":0.21,"hre":0.11},{"m":"ส.ค.","gm":0.20,"hre":0.11}]},
+    "CPDG&LDC": {"name":"CPDG&LDC (รวม)",        "group":"กลุ่ม CPDG","years":{"Y2562":{"gm":4.95,"hre":2.40},"Y2563":{"gm":5.32,"hre":2.45},"Y2564":{"gm":5.70,"hre":2.50},"Y2565":{"gm":5.98,"hre":2.54},"Y2566":{"gm":6.32,"hre":2.58},"Y2567":{"gm":6.68,"hre":2.62},"Y2568":{"gm":5.65,"hre":2.66},"Y2569":{"gm":4.92,"hre":3.08}}, "ytd2569":[{"m":"ม.ค.","gm":0.58,"hre":0.48},{"m":"ก.พ.","gm":0.72,"hre":0.45},{"m":"มี.ค.","gm":0.65,"hre":0.48},{"m":"เม.ย.","gm":0.92,"hre":0.50},{"m":"พ.ค.","gm":1.08,"hre":0.52},{"m":"มิ.ย.","gm":0.88,"hre":0.53},{"m":"ก.ค.","gm":0.05,"hre":0.06},{"m":"ส.ค.","gm":0.00,"hre":0.00}], "ytd2568":[{"m":"ม.ค.","gm":0.52,"hre":0.28},{"m":"ก.พ.","gm":0.60,"hre":0.28},{"m":"มี.ค.","gm":0.53,"hre":0.28},{"m":"เม.ย.","gm":0.64,"hre":0.27},{"m":"พ.ค.","gm":0.71,"hre":0.27},{"m":"มิ.ย.","gm":0.60,"hre":0.27},{"m":"ก.ค.","gm":0.50,"hre":0.26},{"m":"ส.ค.","gm":0.47,"hre":0.26}]},
+    "CPDG":     {"name":"CPDG (AGS+21CT+CDB)",   "group":"กลุ่ม CPDG","years":{"Y2562":{"gm":2.95,"hre":1.45},"Y2563":{"gm":3.18,"hre":1.48},"Y2564":{"gm":3.40,"hre":1.51},
