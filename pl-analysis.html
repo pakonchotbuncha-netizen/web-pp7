@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P&L Analysis Dashboard — PKG Group</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  body { font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Thai", sans-serif; }
+  .tab-active { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+  .tab-inactive { background: #f3f4f6; color: #374151; }
+  .tab-inactive:hover { background: #e5e7eb; }
+  .kpi-card { background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%); }
+  .pct-up { color: #059669; font-weight: 600; }
+  .pct-down { color: #dc2626; font-weight: 600; }
+  .pct-flat { color: #6b7280; }
+  .highlight-up { background: #d1fae5 !important; }
+  .highlight-down { background: #fee2e2 !important; }
+  table.data-table tbody tr:hover { background: #f9fafb; }
+  .sticky-tabs { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(10px); background: rgba(255,255,255,0.95); }
+  .insight-card { transition: all 0.2s; }
+  .insight-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+
+<!-- Header -->
+<header class="bg-gradient-to-r from-blue-700 via-blue-800 to-indigo-900 text-white shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold">📊 P&L Analysis Dashboard</h1>
+        <p class="text-blue-100 text-sm mt-1">วิเคราะห์งบกำไรขาดทุน รายบริษัท & รายรายการ — PKG Group</p>
+      </div>
+      <div class="text-right">
+        <div class="text-xs text-blue-200">ข้อมูลจาก Google Sheets</div>
+        <div class="text-sm font-semibold" id="dataPeriod">กำลังโหลด...</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Tabs -->
+<nav class="sticky-tabs border-b border-slate-200 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="flex overflow-x-auto gap-2 py-3" id="tabBar">
+      <button data-tab="overview" class="tab-btn tab-active px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition">📊 ภาพรวม</button>
+      <button data-tab="company" class="tab-btn tab-inactive px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition">🏢 วิเคราะห์รายบริษัท</button>
+      <button data-tab="account" class="tab-btn tab-inactive px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition">📋 วิเคราะห์รายรายการ</button>
+      <button data-tab="compare" class="tab-btn tab-inactive px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition">🔍 เปรียบเทียบ</button>
+      <button data-tab="insights" class="tab-btn tab-inactive px-4 py-2 rounded-lg font-medium text-sm whitespace-nowrap transition">📈 Insights</button>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 py-6">
+
+<!-- TAB 1: OVERVIEW -->
+<section id="tab-overview" class="tab-content">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6" id="kpiCards">
+    <div class="kpi-card rounded-xl shadow-md p-5 border-l-4 border-blue-500">
+      <div class="text-sm text-slate-500">ยอดรวมทั้งหมด</div>
+      <div class="text-2xl font-bold text-slate-800 mt-1" id="kpiTotal">฿0</div>
+      <div class="text-xs text-slate-400 mt-1" id="kpiTotalSub">140 รายการ</div>
+    </div>
+    <div class="kpi-card rounded-xl shadow-md p-5 border-l-4 border-emerald-500">
+      <div class="text-sm text-slate-500">จำนวนบริษัท</div>
+      <div class="text-2xl font-bold text-slate-800 mt-1" id="kpiCompanies">0</div>
+      <div class="text-xs text-slate-400 mt-1">บริษัทในเครือ</div>
+    </div>
+    <div class="kpi-card rounded-xl shadow-md p-5 border-l-4 border-purple-500">
+      <div class="text-sm text-slate-500">จำนวนรายการ</div>
+      <div class="text-2xl font-bold text-slate-800 mt-1" id="kpiEntries">0</div>
+      <div class="text-xs text-slate-400 mt-1" id="kpiEntriesSub">3 เดือน</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="bg-white rounded-xl shadow-md p-5">
+      <h3 class="text-lg font-semibold text-slate-800 mb-3">📈 ยอดรวมรายเดือน (MoM)</h3>
+      <div class="h-72"><canvas id="chartMonthly"></canvas></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-md p-5">
+      <h3 class="text-lg font-semibold text-slate-800 mb-3">🏢 ยอดรวมรายบริษัท (Top 10)</h3>
+      <div class="h-72"><canvas id="chartByCompany"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+    <div class="bg-white rounded-xl shadow-md p-5">
+      <h3 class="text-lg font-semibold text-slate-800 mb-3">👥 ยอดรวมรายกลุ่ม</h3>
+      <div class="h-72"><canvas id="chartByGroup"></canvas></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-md p-5">
+      <h3 class="text-lg font-semibold text-slate-800 mb-3">📊 จำนวนรายการรายเดือน</h3>
+      <div class="h-72"><canvas id="chartCountByMonth"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 2: BY COMPANY -->
+<section id="tab-company" class="tab-content hidden">
+  <div class="bg-white rounded-xl shadow-md p-5 mb-4">
+    <div class="flex flex-wrap items-center gap-3">
+      <label class="text-sm font-medium text-slate-700">🏢 เลือกบริษัท:</label>
+      <select id="companySelect" class="flex-1 min-w-[280px] border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+      <div id="companyInfo" class="text-xs text-slate-500"></div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4" id="companyKpis">
+    <div class="bg-white rounded-xl shadow p-4">
+      <div class="text-xs text-slate-500">ยอดรวมทั้งหมด</div>
+      <div class="text-xl font-bold text-slate-800" id="compKpiTotal">฿0</div>
+    </div>
+    <div class="bg-white rounded-xl shadow p-4">
+      <div class="text-xs text-slate-500">เฉลี่ย/เดือน</div>
+      <div class="text-xl font-bold text-slate-800" id="compKpiAvg">฿0</div>
+    </div>
+    <div class="bg-white rounded-xl shadow p-4">
+      <div class="text-xs text-slate-500">MoM (ล่าสุด)</div>
+      <div class="text-xl font-bold" id="compKpiMoM">-</div>
+    </div>
+    <div class="bg-white rounded-xl shadow p-4">
+      <div class="text-xs text-slate-500">รายการ</div>
+      <div class="text-xl font-bold text-slate-800" id="compKpiCount">0</div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-md p-5">
+    <h3 class="text-lg font-semibold text-slate-800 mb-3">📈 ยอดรายเดือน — <span id="compName"></span></h3>
+    <div class="h-80"><canvas id="chartCompanyMonthly"></canvas></div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-md p-5 mt-4">
+    <h3 class="text-lg font-semibold text-slate-800 mb-3">🔄 เปรียบเทียบเดือน</h3>
+    <div class="overflow-x-auto">
+      <table class="data-table w-full text-sm">
+        <thead class="bg-slate-100 text-slate-700">
+          <tr>
+            <th class="px-3 py-2 text-left">เดือน</th>
+            <th class="px-3 py-2 text-right">ยอดเงิน</th>
+            <th class="px-3 py-2 text-right">vs เดือนก่อน</th>
+            <th class="px-3 py-2 text-right">% เปลี่ยนแปลง</th>
+          </tr>
+        </thead>
+        <tbody id="companyCompareBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 3: BY ACCOUNT -->
+<section id="tab-account" class="tab-content hidden">
+  <div class="bg-white rounded-xl shadow-md p-5 mb-4">
+    <div class="flex flex-wrap items-center gap-3">
+      <label class="text-sm font-medium text-slate-700">📋 เลือกรหัสบัญชี (CM Code):</label>
+      <select id="accountSelect" class="flex-1 min-w-[280px] border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></select>
+      <div id="accountInfo" class="text-xs text-slate-500"></div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4" id="accountKpis">
+    <div class="bg-white rounded-xl shadow p-4">
+      <div class="text-xs text-slate-500">ยอดรวม</div>
+      <div class="text-xl font-bold text-slate-800" id="accKpiTotal">฿0</div>
+    </div>
+    <div class="bg-white rounded-xl shadow p-4">
+      <div class="text-xs text-slate-500">เฉลี่ย/เดือน</div>
+      <div class="text-xl font-bold text-slate-800" id="accKpiAvg">฿0</div>
+    </div>
+    <div class="bg-white rounded-xl shadow p-4">
+      <div class="text-xs text-slate-500">MoM (ล่าสุด)</div>
+      <div class="text-xl font-bold" id="accKpiMoM">-</div>
+    </div>
+    <div class="bg-white rounded-xl shadow p-4">
+      <div class="text-xs text-slate-500">รายการ</div>
+      <div class="text-xl font-bold text-slate-800" id="accKpiCount">0</div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-md p-5">
+    <h3 class="text-lg font-semibold text-slate-800 mb-3">📈 ยอดรายเดือน — <span id="accName"></span></h3>
+    <div class="h-80"><canvas id="chartAccountMonthly"></canvas></div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-md p-5 mt-4">
+    <h3 class="text-lg font-semibold text-slate-800 mb-3">🔄 เปรียบเทียบเดือน</h3>
+    <div class="overflow-x-auto">
+      <table class="data-table w-full text-sm">
+        <thead class="bg-slate-100 text-slate-700">
+          <tr>
+            <th class="px-3 py-2 text-left">เดือน</th>
+            <th class="px-3 py-2 text-right">ยอดเงิน</th>
+            <th class="px-3 py-2 text-right">vs เดือนก่อน</th>
+            <th class="px-3 py-2 text-right">% เปลี่ยนแปลง</th>
+          </tr>
+        </thead>
+        <tbody id="accountCompareBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 4: COMPARE -->
+<section id="tab-compare" class="tab-content hidden">
+  <div class="bg-white rounded-xl shadow-md p-5 mb-4">
+    <h3 class="text-lg font-semibold text-slate-800 mb-3">🔄 เปรียบเทียบ MoM (เดือนล่าสุด vs เดือนก่อนหน้า)</h3>
+    <p class="text-xs text-slate-500 mb-3" id="momPeriod">-</p>
+    <div class="overflow-x-auto">
+      <table class="data-table w-full text-sm">
+        <thead class="bg-slate-100 text-slate-700">
+          <tr>
+            <th class="px-3 py-2 text-left">รายการ</th>
+            <th class="px-3 py-2 text-left">ประเภท</th>
+            <th class="px-3 py-2 text-right" id="momPrev">เดือนก่อน</th>
+            <th class="px-3 py-2 text-right" id="momCurr">เดือนปัจจุบัน</th>
+            <th class="px-3 py-2 text-right">ผลต่าง</th>
+            <th class="px-3 py-2 text-right">% เปลี่ยนแปลง</th>
+            <th class="px-3 py-2 text-center">สถานะ</th>
+          </tr>
+        </thead>
+        <tbody id="momBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-md p-5 mb-4">
+    <h3 class="text-lg font-semibold text-slate-800 mb-3">🔄 เปรียบเทียบ MoM — รายบริษัท (Top 20)</h3>
+    <div class="overflow-x-auto">
+      <table class="data-table w-full text-sm">
+        <thead class="bg-slate-100 text-slate-700">
+          <tr>
+            <th class="px-3 py-2 text-left">บริษัท</th>
+            <th class="px-3 py-2 text-left">กลุ่ม</th>
+            <th class="px-3 py-2 text-right">เดือนก่อน</th>
+            <th class="px-3 py-2 text-right">เดือนปัจจุบัน</th>
+            <th class="px-3 py-2 text-right">% เปลี่ยนแปลง</th>
+            <th class="px-3 py-2 text-center">ทิศทาง</th>
+          </tr>
+        </thead>
+        <tbody id="momCompanyBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-md p-5">
+    <h3 class="text-lg font-semibold text-slate-800 mb-3">📅 เปรียบเทียบรายเดือน — 3 เดือน</h3>
+    <div class="overflow-x-auto">
+      <table class="data-table w-full text-sm">
+        <thead class="bg-slate-100 text-slate-700">
+          <tr>
+            <th class="px-3 py-2 text-left">เดือน</th>
+            <th class="px-3 py-2 text-right">ยอดรวม</th>
+            <th class="px-3 py-2 text-right">จำนวนรายการ</th>
+            <th class="px-3 py-2 text-right">vs เดือนก่อน</th>
+            <th class="px-3 py-2 text-right">% เปลี่ยนแปลง</th>
+            <th class="px-3 py-2 text-center">ทิศทาง</th>
+          </tr>
+        </thead>
+        <tbody id="monthlySummaryBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 5: INSIGHTS -->
+<section id="tab-insights" class="tab-content hidden">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div class="bg-white rounded-xl shadow-md p-5 insight-card">
+      <h3 class="text-lg font-semibold text-slate-800 mb-3">🏆 Top 5 บริษัท (ยอดรวมสูงสุด)</h3>
+      <div id="topCompanies"></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-md p-5 insight-card">
+      <h3 class="text-lg font-semibold text-slate-800 mb-3">📊 Top 5 รายการ (ยอดรวมสูงสุด)</h3>
+      <div id="topAccounts"></div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div class="bg-white rounded-xl shadow-md p-5 insight-card">
+      <h3 class="text-lg font-semibold text-slate-800 mb-3">📈 บริษัทที่เติบโตสูงสุด (MoM)</h3>
+      <div id="topGrowth"></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-md p-5 insight-card">
+      <h3 class="text-lg font-semibold text-slate-800 mb-3">📉 บริษัทที่ลดลงมากสุด (MoM)</h3>
+      <div id="topDecline"></div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div class="bg-white rounded-xl shadow-md p-5 insight-card">
+      <h3 class="text-lg font-semibold text-slate-800 mb-3">👥 กลุ่มที่มียอดสูงสุด</h3>
+      <div id="topGroups"></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-md p-5 insight-card">
+      <h3 class="text-lg font-semibold text-slate-800 mb-3">🏅 Top 5 รายการ (เดือนล่าสุด)</h3>
+      <div id="topLatestAccounts"></div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-md p-5">
+    <h3 class="text-lg font-semibold text-slate-800 mb-3">💡 บทวิเคราะห์และคำแนะนำ</h3>
+    <div id="analysisText" class="prose prose-sm max-w-none text-slate-700 leading-relaxed space-y-3"></div>
+  </div>
+</section>
+
+<footer class="max-w-7xl mx-auto px-4 py-6 text-center text-xs text-slate-500">
+  Dashboard by PKG Group • ข้อมูลจาก <a href="https://docs.google.com/spreadsheets/d/1lKvKDsP9ahi9ma5hYa7uzfcZuuErj5rMWg4_6m0TRC0/edit?usp=sharing" target="_blank" class="text-blue-600 hover:underline">Google Sheets</a>
+  • <span id="lastUpdate"></span>
+</footer>
+
+</main>
+
+<script>
+/* ============================================================
+   P&L Analysis Dashboard — Data + Logic
+   ============================================================ */
+window.PL_DATA = [{"name":"บริษัท เอเอเอ็ม แคปปิตอล เซอร์วิส อุดรดุษฎี จำกัด","tax_id":"0415558000950","ss_id":"4100064748","bank":"ธนาคารกรุงไทย จำกัด (มหาชน) 2926010214","group":"","amount_full":9000.0,"amount":9000.0,"entry_date":"2021-11","company_code":"","cm_code":"","expense_account":"","ar_account":""},{"name":"บริษัท เอเอเอ็ม สกลนคร จำกัด","tax_id":"0475560000635","ss_id":"47-0004032-7","bank":"ธนาคารกรุงไทย จำกัด (มหาชน) 4126048820","group":"","amount_full":12000.0,"amount":12000.0,"entry_date":"2021-11","company_code":"","cm_code":"","expense_account":"","ar_account":""},{"name":"บริษัท  เอเอเอ็ม แคปปิตอลเซอร์วิส  นนทบุรี จำกัด","tax_id":"0125556013640","ss_id":"12-0022087-1","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)    4421014154","group":"aamgr","amount_full":15000.0,"amount":14990.0,"entry_date":"2021-12","company_code":"111773","cm_code":"CMNTR","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม ลพบุรี จำกัด","tax_id":"0165560000379","ss_id":"16-00038-204","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 027-8-85635-6","group":"aamgr","amount_full":9000.0,"amount":8990.0,"entry_date":"2021-12","company_code":"111841","cm_code":"CMLBR","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท  เอเอเอ็ม แคปปิตอลเซอร์วิส พัทยา จำกัด","tax_id":"0205542006491","ss_id":"20-0009742-1","bank":"ธนาคารกรุงศรีอยุธยา จำกัด (มหาชน)  1740010172","group":"aamgr","amount_full":39000.0,"amount":38990.0,"entry_date":"2021-12","company_code":"111151","cm_code":"CMPAP2","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท อาร์วายแอล แคปปิตอลเซอร์วิส  จำกัด","tax_id":"0215543001094","ss_id":"21-0005506-2","bank":"ธนาคารกรุงศรีอยุธยา จำกัด (มหาชน)  1500015167","group":"aamgr","amount_full":9000.0,"amount":8990.0,"entry_date":"2021-12","company_code":"111156","cm_code":"CMPRL2","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท ประชากิจมอเตอร์เซลส์ จำกัด สำนักงานใหญ่","tax_id":"0225524000011","ss_id":"22-0000040-5","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 1481082397","group":"PMSgr","amount_full":567000.0,"amount":566990.0,"entry_date":"2021-12","company_code":"111797","cm_code":"CMPCK","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท ประชากิจมอเตอร์เซลส์ จำกัด สำนักงานใหญ่","tax_id":"0225524000011","ss_id":"22-0000040-5","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 1481082397","group":"PMSgr","amount_full":561000.0,"amount":560990.0,"entry_date":"2021-12","company_code":"","cm_code":"CMPCK","expense_account":"","ar_account":""},{"name":"บริษัท พีเอ็มเอส ออโตโมบิล  จำกัด","tax_id":"0225535000432","ss_id":"22-0000216-5","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 1482736137","group":"aamgr","amount_full":12000.0,"amount":11990.0,"entry_date":"2021-12","company_code":"111580","cm_code":"CMPSM","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท แอสเซทแมเนจเมนท์ โฮลดิ้ง จำกัด","tax_id":"0225542000027","ss_id":"22-0000430-3","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 1482733766","group":"pghgr","amount_full":171000.0,"amount":170990.0,"entry_date":"2021-12","company_code":"111576","cm_code":"CMPMH","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท  เอเอเอ็ม แคปปิตอลเซอร์วิส  จำกัด สนญ.","tax_id":"0225542000124","ss_id":"22-0002213-1","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 1482733782","group":"aamgr","amount_full":126000.0,"amount":125990.0,"entry_date":"2021-12","company_code":"111573","cm_code":"CMPAM2","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท พีเอ็มเอส แคปปิตอลเซอร์วิส  จำกัด","tax_id":"0225542000175","ss_id":"22-0002978-1","bank":"ธนาคารกรุงเทพ จำกัด (มหาชน) 4403011812","group":"aamgr","amount_full":12000.0,"amount":11990.0,"entry_date":"2021-12","company_code":"111138","cm_code":"CMPMS2","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท พีเอ็มเอส คัสตอมเมอร์ เซอร์วิส จำกัด","tax_id":"0225542000281","ss_id":"22-0001680-8","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)  1482841100","group":"aamgr","amount_full":87000.0,"amount":86990.0,"entry_date":"2021-12","company_code":"111615","cm_code":"CMPMS","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท พีเอ็มเอส ออโต้ การันตี จำกัด","tax_id":"0225542000299","ss_id":"22-0003368-1","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)  1481080041","group":"PMSgr","amount_full":24000.0,"amount":23990.0,"entry_date":"2021-12","company_code":"211332","cm_code":"CMPMG","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท  ศูนย์พัฒนาผู้นำ จำกัด","tax_id":"0225547000475","ss_id":"22-0002353-7","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)   1481076028","group":"LDC","amount_full":6000.0,"amount":5990.0,"entry_date":"2021-12","company_code":"111241","cm_code":"CMPDC","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท แอจจิลซอฟท์ คอร์ปอเรชั่น จำกัด","tax_id":"0225548000011","ss_id":"22-0002394-4","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 1481075927","group":"cpdg","amount_full":57000.0,"amount":56990.0,"entry_date":"2021-12","company_code":"111240","cm_code":"CMAGS","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท แอจจิลซอฟท์ คอร์ปอเรชั่น จำกัด","tax_id":"0225548000011","ss_id":"22-0002394-4","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 1481075927","group":"cpdg","amount_full":60000.0,"amount":59990.0,"entry_date":"2021-12","company_code":"","cm_code":"CMAGS","expense_account":"","ar_account":""},{"name":"บริษัท ไทยพนา แนชเชอรัล รีซอร์สเซส จำกัด","tax_id":"0225548000436","ss_id":"22-0002564-5","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)  1482734134","group":"TNR","amount_full":12000.0,"amount":11990.0,"entry_date":"2021-12","company_code":"111574","cm_code":"CMLSS","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท โปรตอนจันทบุรี จำกัด","tax_id":"0225551000506","ss_id":"22-0003040-1","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)1481077156","group":"cpdg","amount_full":15000.0,"amount":14990.0,"entry_date":"2021-12","company_code":"111271","cm_code":"CMPCC","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท โปรตอนจันทบุรี จำกัด","tax_id":"0225551000506","ss_id":"22-0003040-1","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)1481077156","group":"PMSgr","amount_full":12000.0,"amount":11990.0,"entry_date":"2021-12","company_code":"","cm_code":"CMPCC","expense_account":"","ar_account":""},{"name":"บริษัท  เอเอเอ็ม แคปปิตอล เซอร์วิส พระยาสัจจา จำกัด","tax_id":"0225555000501","ss_id":"20-0027453-6","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)  293-1-03297-9","group":"aamgr","amount_full":9000.0,"amount":8990.0,"entry_date":"2021-12","company_code":"111803","cm_code":"CMPYJ","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท  เอเอเอ็ม แคปปิตอล เซอร์วิส สอยดาว จำกัด","tax_id":"0225558000340","ss_id":"2200043236","bank":"ธนาคารกรุงเทพ จำกัด (มหาชน) 5653004654","group":"aamgr","amount_full":9000.0,"amount":8990.0,"entry_date":"2021-12","company_code":"111805","cm_code":"CMSOD","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม ตะเคียนคู่ จำกัด","tax_id":"0225558000781","ss_id":"2200044445","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)  005-1-21354-8","group":"aamgr","amount_full":18000.0,"amount":17990.0,"entry_date":"2021-12","company_code":"111822","cm_code":"CMTKK","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท พรีเชียส สโตน แอสเซทแมเนจเมนท์ จำกัด","tax_id":"0225560001412","ss_id":"22-0004944-7","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)   1481083822","group":"aamgr","amount_full":6000.0,"amount":5990.0,"entry_date":"2021-12","company_code":"111866","cm_code":"CPAMCO","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท 21ซีทีเวนเจอร์ส จำกัด","tax_id":"0225560001692","ss_id":"22-0006642-2","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 1481082427","group":"cpdg","amount_full":18000.0,"amount":17990.0,"entry_date":"2021-12","company_code":"","cm_code":"","expense_account":"","ar_account":""},{"name":"บริษัท แอล ดี เอ็กซ์ ดิจิทัล อิโคซิสเต็มส์ จำกัด","tax_id":"0225564000682","ss_id":"22-2000396-5","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)       0943329435","group":"cpdg","amount_full":33000.0,"amount":32990.0,"entry_date":"2021-12","company_code":"111905","cm_code":"CMLDX","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท  ทีวายเค แคปปิตอลเซอร์วิส  จำกัด","tax_id":"0235545000036","ss_id":"23-0001208-1","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)  2251011608","group":"aamgr","amount_full":9000.0,"amount":8990.0,"entry_date":"2021-12","company_code":"111857","cm_code":"CMPTY2","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม ฉะเชิงเทรา จำกัด","tax_id":"0245559002206","ss_id":"2400059934","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)  0178695851","group":"aamgr","amount_full":9000.0,"amount":8990.0,"entry_date":"2021-12","company_code":"111834","cm_code":"CMCHS","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท  พีซีแอล แคปปิตอลเซอร์วิส   จำกัด","tax_id":"0255542000167","ss_id":"25-0001516-5","bank":"ธนาคารกรุงศรีอยุธยา จำกัด (มหาชน) 5100000493","group":"aamgr","amount_full":12000.0,"amount":11990.0,"entry_date":"2021-12","company_code":"111710","cm_code":"CMPCL2","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอ็นเอฟ เทรดดิ้ง  จำกัด","tax_id":"0255543000144","ss_id":"22-0000495-8","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 1482736145","group":"aamgr","amount_full":42000.0,"amount":41990.0,"entry_date":"2021-12","company_code":"111579","cm_code":"CMPNF","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เกษตรไทยลิสซิ่ง จำกัด","tax_id":"0255551000948","ss_id":"25-0002157-2","bank":"ธนาคารไทยพาณิชย์ จำกัด (มหาชน)  5923010469","group":"","amount_full":15000.0,"amount":14990.0,"entry_date":"2021-12","company_code":"","cm_code":"","expense_account":"","ar_account":""},{"name":"บริษัท  สระแก้วลิสซิ่ง จำกัด","tax_id":"0275538000115","ss_id":"27-0000137-1","bank":"ธนาคารกรุงศรีอยุธยา จำกัด (มหาชน) 281-0-01015-5","group":"aamgr","amount_full":18000.0,"amount":17990.0,"entry_date":"2021-12","company_code":"111159","cm_code":"CMPSK","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม ปากช่อง จำกัด","tax_id":"0305559000644","ss_id":"3000131183","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 0112724664","group":"aamgr","amount_full":15000.0,"amount":14990.0,"entry_date":"2021-12","company_code":"111829","cm_code":"CMPAC","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม บุรีรัมย์ จำกัด","tax_id":"0315559000709","ss_id":"3100032799","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)  0178559559","group":"aamgr","amount_full":9000.0,"amount":8990.0,"entry_date":"2021-12","company_code":"111835","cm_code":"CMBRM","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม สุรินทร์ จำกัด","tax_id":"0325560001225","ss_id":"32-0003600-1","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 036-1-94829-7","group":"aamgr","amount_full":9000.0,"amount":8990.0,"entry_date":"2021-12","company_code":"111871","cm_code":"CMSUR","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เกษตรไทยลิสซิ่ง  บึงกาฬ  จำกัด","tax_id":"0385557000132","ss_id":"38-0000088-1","bank":"ธนาคารกรุงเทพ จำกัด (มหาชน) 990-3-50043-8","group":"aamgr","amount_full":12000.0,"amount":11990.0,"entry_date":"2021-12","company_code":"111784","cm_code":"CMBUK","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม แคปปิตอล เซอร์วิส อุดรดุษฎี จำกัด","tax_id":"0415558000950","ss_id":"4100064748","bank":"ธนาคารกรุงไทย จำกัด (มหาชน) 2926010214","group":"aamgr","amount_full":9000.0,"amount":9000.0,"entry_date":"2021-12","company_code":"111824","cm_code":"CMUDD","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม สกลนคร จำกัด","tax_id":"0475560000635","ss_id":"47-0004032-7","bank":"ธนาคารกรุงไทย จำกัด (มหาชน) 4126048820","group":"aamgr","amount_full":12000.0,"amount":12000.0,"entry_date":"2021-12","company_code":"111849","cm_code":"CMSKN","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม มุกดาหาร จำกัด","tax_id":"0495559000376","ss_id":"4900018813","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)   027-1-53396-9","group":"aamgr","amount_full":12000.0,"amount":11990.0,"entry_date":"2021-12","company_code":"111840","cm_code":"CMMDH","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท อีเอซี ราชบุรี จำกัด","tax_id":"0705558001775","ss_id":"70-0007710-7","bank":"ธนาคารกรุงเทพ จำกัด (มหาชน) 530-301330-3","group":"cpdg","amount_full":12000.0,"amount":11990.0,"entry_date":"2021-12","company_code":"111821","cm_code":"EACRBR","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท อีเอซี กาญจนบุรี จำกัด","tax_id":"0715560000845","ss_id":"71-00047-951","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)    033-1-17273-1","group":"cpdg","amount_full":12000.0,"amount":11990.0,"entry_date":"2021-12","company_code":"111846","cm_code":"CMKAN","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท พรีเชียส สโตน แอสเซทแมเนจเมนท์ จำกัด","tax_id":"225560001412","ss_id":"22-0004944-7","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)   1481083822","group":"aamgr","amount_full":6000.0,"amount":5990.0,"entry_date":"2021-12","company_code":"","cm_code":"","expense_account":"","ar_account":""},{"name":"บริษัท  เอเอเอ็ม แคปปิตอลเซอร์วิส  นนทบุรี จำกัด","tax_id":"0125556013640","ss_id":"12-0022087-1","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)    4421014154","group":"aamgr","amount_full":15000.0,"amount":14990.0,"entry_date":"2022-01","company_code":"111773","cm_code":"CMNTR","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม ลพบุรี จำกัด","tax_id":"0165560000379","ss_id":"16-00038-204","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 027-8-85635-6","group":"aamgr","amount_full":9000.0,"amount":8990.0,"entry_date":"2022-01","company_code":"111841","cm_code":"CMLBR","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท  เอเอเอ็ม แคปปิตอลเซอร์วิส พัทยา จำกัด","tax_id":"0205542006491","ss_id":"20-0009742-1","bank":"ธนาคารกรุงศรีอยุธยา จำกัด (มหาชน)  1740010172","group":"aamgr","amount_full":39000.0,"amount":38990.0,"entry_date":"2022-01","company_code":"111151","cm_code":"CMPAP2","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท อาร์วายแอล แคปปิตอลเซอร์วิส  จำกัด","tax_id":"0215543001094","ss_id":"21-0005506-2","bank":"ธนาคารกรุงศรีอยุธยา จำกัด (มหาชน)  1500015167","group":"aamgr","amount_full":9000.0,"amount":8990.0,"entry_date":"2022-01","company_code":"111156","cm_code":"CMPRL2","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท ประชากิจมอเตอร์เซลส์ จำกัด สำนักงานใหญ่","tax_id":"0225524000011","ss_id":"22-0000040-5","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 1481082397","group":"PMSgr","amount_full":576000.0,"amount":575990.0,"entry_date":"2022-01","company_code":"111797","cm_code":"CMPCK","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท พีเอ็มเอส ออโตโมบิล  จำกัด","tax_id":"0225535000432","ss_id":"22-0000216-5","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 1482736137","group":"aamgr","amount_full":12000.0,"amount":11990.0,"entry_date":"2022-01","company_code":"111580","cm_code":"CMPSM","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท แอสเซทแมเนจเมนท์ โฮลดิ้ง จำกัด","tax_id":"0225542000027","ss_id":"22-0000430-3","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 1482733766","group":"pghgr","amount_full":171000.0,"amount":170990.0,"entry_date":"2022-01","company_code":"111576","cm_code":"CMPMH","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท  เอเอเอ็ม แคปปิตอลเซอร์วิส  จำกัด สนญ.","tax_id":"0225542000124","ss_id":"22-0002213-1","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 1482733782","group":"aamgr","amount_full":126000.0,"amount":125990.0,"entry_date":"2022-01","company_code":"111573","cm_code":"CMPAM2","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท พีเอ็มเอส แคปปิตอลเซอร์วิส  จำกัด","tax_id":"0225542000175","ss_id":"22-0002978-1","bank":"ธนาคารกรุงเทพ จำกัด (มหาชน) 4403011812","group":"aamgr","amount_full":12000.0,"amount":11990.0,"entry_date":"2022-01","company_code":"111138","cm_code":"CMPMS2","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท พีเอ็มเอส คัสตอมเมอร์ เซอร์วิส จำกัด","tax_id":"0225542000281","ss_id":"22-0001680-8","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)  1482841100","group":"aamgr","amount_full":87000.0,"amount":86990.0,"entry_date":"2022-01","company_code":"111615","cm_code":"CMPMS","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท พีเอ็มเอส ออโต้ การันตี จำกัด","tax_id":"0225542000299","ss_id":"22-0003368-1","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)  1481080041","group":"PMSgr","amount_full":27000.0,"amount":26990.0,"entry_date":"2022-01","company_code":"211332","cm_code":"CMPMG","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท  ศูนย์พัฒนาผู้นำ จำกัด","tax_id":"0225547000475","ss_id":"22-0002353-7","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)   1481076028","group":"LDC","amount_full":6000.0,"amount":5990.0,"entry_date":"2022-01","company_code":"111241","cm_code":"CMPDC","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท แอจจิลซอฟท์ คอร์ปอเรชั่น จำกัด","tax_id":"0225548000011","ss_id":"22-0002394-4","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 1481075927","group":"cpdg","amount_full":57000.0,"amount":56990.0,"entry_date":"2022-01","company_code":"111240","cm_code":"CMAGS","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท ไทยพนา แนชเชอรัล รีซอร์สเซส จำกัด","tax_id":"0225548000436","ss_id":"22-0002564-5","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)  1482734134","group":"cpdg","amount_full":12000.0,"amount":11990.0,"entry_date":"2022-01","company_code":"111574","cm_code":"CMLSS","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท โปรตอนจันทบุรี จำกัด","tax_id":"0225551000506","ss_id":"22-0003040-1","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)1481077156","group":"cpdg","amount_full":15000.0,"amount":14990.0,"entry_date":"2022-01","company_code":"111271","cm_code":"CMPCC","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท  เอเอเอ็ม แคปปิตอล เซอร์วิส พระยาสัจจา จำกัด","tax_id":"0225555000501","ss_id":"20-0027453-6","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)  293-1-03297-9","group":"aamgr","amount_full":9000.0,"amount":8990.0,"entry_date":"2022-01","company_code":"111803","cm_code":"CMPYJ","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท  เอเอเอ็ม แคปปิตอล เซอร์วิส สอยดาว จำกัด","tax_id":"0225558000340","ss_id":"2200043236","bank":"ธนาคารกรุงเทพ จำกัด (มหาชน) 5653004654","group":"aamgr","amount_full":9000.0,"amount":8990.0,"entry_date":"2022-01","company_code":"111805","cm_code":"CMSOD","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม ตะเคียนคู่ จำกัด","tax_id":"0225558000781","ss_id":"2200044445","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)  005-1-21354-8","group":"aamgr","amount_full":18000.0,"amount":17990.0,"entry_date":"2022-01","company_code":"111822","cm_code":"CMTKK","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท พรีเชียส สโตน แอสเซทแมเนจเมนท์ จำกัด","tax_id":"0225560001412","ss_id":"22-0004944-7","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)   1481083822","group":"aamgr","amount_full":6000.0,"amount":5990.0,"entry_date":"2022-01","company_code":"111866","cm_code":"CPAMCO","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท แอล ดี เอ็กซ์ ดิจิทัล อิโคซิสเต็มส์ จำกัด","tax_id":"0225564000682","ss_id":"22-2000396-5","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)       0943329435","group":"cpdg","amount_full":36000.0,"amount":35990.0,"entry_date":"2022-01","company_code":"111905","cm_code":"CMLDX","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท  ทีวายเค แคปปิตอลเซอร์วิส  จำกัด","tax_id":"0235545000036","ss_id":"23-0001208-1","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)  2251011608","group":"aamgr","amount_full":9000.0,"amount":8990.0,"entry_date":"2022-01","company_code":"111857","cm_code":"CMPTY2","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม ฉะเชิงเทรา จำกัด","tax_id":"0245559002206","ss_id":"2400059934","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)  0178695851","group":"aamgr","amount_full":9000.0,"amount":8990.0,"entry_date":"2022-01","company_code":"111834","cm_code":"CMCHS","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท  พีซีแอล แคปปิตอลเซอร์วิส   จำกัด","tax_id":"0255542000167","ss_id":"25-0001516-5","bank":"ธนาคารกรุงศรีอยุธยา จำกัด (มหาชน) 5100000493","group":"aamgr","amount_full":12000.0,"amount":11990.0,"entry_date":"2022-01","company_code":"111710","cm_code":"CMPCL2","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอ็นเอฟ เทรดดิ้ง  จำกัด","tax_id":"0255543000144","ss_id":"22-0000495-8","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 1482736145","group":"aamgr","amount_full":126000.0,"amount":41990.0,"entry_date":"2022-01","company_code":"111579","cm_code":"CMPNF","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เกษตรไทยลิสซิ่ง จำกัด","tax_id":"0255551000948","ss_id":"25-0002157-2","bank":"ธนาคารไทยพาณิชย์ จำกัด (มหาชน)  5923010469","group":"aamgr","amount_full":15000.0,"amount":14990.0,"entry_date":"2022-01","company_code":"111278","cm_code":"CMKTL","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เกษตรไทยลิสซิ่ง จำกัด","tax_id":"0255551000948","ss_id":"25-0002157-2","bank":"ธนาคารไทยพาณิชย์ จำกัด (มหาชน)  5923010469","group":"aamgr","amount_full":15000.0,"amount":14990.0,"entry_date":"2022-01","company_code":"111278","cm_code":"CMKTL","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท  สระแก้วลิสซิ่ง จำกัด","tax_id":"0275538000115","ss_id":"27-0000137-1","bank":"ธนาคารกรุงศรีอยุธยา จำกัด (มหาชน) 281-0-01015-5","group":"aamgr","amount_full":18000.0,"amount":17990.0,"entry_date":"2022-01","company_code":"111159","cm_code":"CMPSK","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม ปากช่อง จำกัด","tax_id":"0305559000644","ss_id":"3000131183","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 0112724664","group":"aamgr","amount_full":15000.0,"amount":14990.0,"entry_date":"2022-01","company_code":"111829","cm_code":"CMPAC","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม บุรีรัมย์ จำกัด","tax_id":"0315559000709","ss_id":"3100032799","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)  0178559559","group":"aamgr","amount_full":9000.0,"amount":8990.0,"entry_date":"2022-01","company_code":"111835","cm_code":"CMBRM","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม สุรินทร์ จำกัด","tax_id":"0325560001225","ss_id":"32-0003600-1","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน) 036-1-94829-7","group":"aamgr","amount_full":9000.0,"amount":8990.0,"entry_date":"2022-01","company_code":"111871","cm_code":"CMSUR","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เกษตรไทยลิสซิ่ง  บึงกาฬ  จำกัด","tax_id":"0385557000132","ss_id":"38-0000088-1","bank":"ธนาคารกรุงเทพ จำกัด (มหาชน) 990-3-50043-8","group":"aamgr","amount_full":12000.0,"amount":11990.0,"entry_date":"2022-01","company_code":"111784","cm_code":"CMBUK","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม แคปปิตอล เซอร์วิส อุดรดุษฎี จำกัด","tax_id":"0415558000950","ss_id":"4100064748","bank":"ธนาคารกรุงไทย จำกัด (มหาชน) 2926010214","group":"aamgr","amount_full":9000.0,"amount":9000.0,"entry_date":"2022-01","company_code":"111824","cm_code":"CMUDD","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม สกลนคร จำกัด","tax_id":"0475560000635","ss_id":"47-0004032-7","bank":"ธนาคารกรุงไทย จำกัด (มหาชน) 4126048820","group":"aamgr","amount_full":12000.0,"amount":12000.0,"entry_date":"2022-01","company_code":"111849","cm_code":"CMSKN","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท เอเอเอ็ม มุกดาหาร จำกัด","tax_id":"0495559000376","ss_id":"4900018813","bank":"ธนาคารกสิกรไทย จำกัด (มหาชน)   027-1-53396-9","group":"aamgr","amount_full":12000.0,"amount":11990.0,"entry_date":"2022-01","company_code":"111840","cm_code":"CMMDH","expense_account":"499000","ar_account":"631390"},{"name":"บริษัท อีเอซี ราชบุรี จำกัด","tax_id":"0705558001775","ss_id":"70-0007710-7","bank":"ธนาคารกรุงเทพ จำกัด (มหาชน) 530-301330-3","group":"cpdg","amount_full":12000.0,"amount":11990.0,"entry_date":"2022-01","company_code":"111821","cm_code":"EACRBR","expense_account":"499000","ar_account":"631390"}];
+
+// ===== Helpers =====
+const fmt = (n) => '฿' + (Number(n) || 0).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+const fmtShort = (n) => {
+  n = Number(n) || 0;
+  if (n >= 1e6) return '฿' + (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return '฿' + (n/1e3).toFixed(1) + 'K';
+  return '฿' + n.toFixed(0);
+};
+const monthLabel = (ym) => {
+  if (!ym) return '-';
+  const [y, m] = ym.split('-');
+  const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  return months[parseInt(m)-1] + ' ' + (parseInt(y)+543).toString().slice(-2);
+};
+const pct = (cur, prev) => {
+  if (!prev || prev === 0) return cur > 0 ? 100 : 0;
+  return ((cur - prev) / prev) * 100;
+};
+const pctStr = (cur, prev) => {
+  const p = pct(cur, prev);
+  const sign = p > 0 ? '+' : '';
+  return sign + p.toFixed(1) + '%';
+};
+
+const DATA = window.PL_DATA;
+const dates = [...new Set(DATA.map(d => d.entry_date).filter(Boolean))].sort();
+const companies = {};
+DATA.forEach(d => {
+  if (d.tax_id) {
+    if (!companies[d.tax_id]) companies[d.tax_id] = { tax_id: d.tax_id, name: d.name, group: d.group, count: 0, total: 0 };
+    companies[d.tax_id].count++;
+    companies[d.tax_id].total += d.amount;
+  }
+});
+const companyList = Object.values(companies);
+const accounts = {};
+DATA.forEach(d => {
+  if (d.cm_code) {
+    if (!accounts[d.cm_code]) accounts[d.cm_code] = { code: d.cm_code, name: d.cm_code, count: 0, total: 0 };
+    accounts[d.cm_code].count++;
+    accounts[d.cm_code].total += d.amount;
+  }
+});
+const accountList = Object.values(accounts);
+
+// ===== Tab Navigation =====
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('tab-active'); b.classList.add('tab-inactive'); });
+    btn.classList.remove('tab-inactive'); btn.classList.add('tab-active');
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+    document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+    // Trigger resize for charts
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+  });
+});
+
+// ===== Period Display =====
+document.getElementById('dataPeriod').textContent = dates.length + ' เดือน: ' + dates.map(monthLabel).join(', ');
+document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleString('th-TH');
+
+// ===== TAB 1: OVERVIEW =====
+function renderOverview() {
+  // KPIs
+  const totalAmount = DATA.reduce((s, d) => s + d.amount, 0);
+  document.getElementById('kpiTotal').textContent = fmt(totalAmount);
+  document.getElementById('kpiTotalSub').textContent = DATA.length + ' รายการ';
+  document.getElementById('kpiCompanies').textContent = companyList.length;
+  document.getElementById('kpiEntries').textContent = DATA.length;
+  document.getElementById('kpiEntriesSub').textContent = dates.length + ' เดือน';
+
+  // Monthly totals
+  const monthlyTotals = {};
+  dates.forEach(d => monthlyTotals[d] = 0);
+  DATA.forEach(d => { if (d.entry_date) monthlyTotals[d.entry_date] += d.amount; });
+  
+  // Monthly chart
+  new Chart(document.getElementById('chartMonthly'), {
+    type: 'line',
+    data: {
+      labels: dates.map(monthLabel),
+      datasets: [{
+        label: 'ยอดรวม (บาท)',
+        data: dates.map(d => monthlyTotals[d]),
+        borderColor: '#2563eb',
+        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+        borderWidth: 3,
+        tension: 0.3,
+        fill: true,
+        pointRadius: 6,
+        pointBackgroundColor: '#2563eb'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => fmt(ctx.parsed.y) } } },
+      scales: { y: { ticks: { callback: (v) => fmtShort(v) }, beginAtZero: true } }
+    }
+  });
+
+  // By company (top 10)
+  const topCos = companyList.sort((a, b) => b.total - a.total).slice(0, 10);
+  new Chart(document.getElementById('chartByCompany'), {
+    type: 'bar',
+    data: {
+      labels: topCos.map(c => c.name.replace('บริษัท ', '').replace(' จำกัด', '').slice(0, 18)),
+      datasets: [{ label: 'ยอดรวม', data: topCos.map(c => c.total), backgroundColor: '#10b981', borderRadius: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => fmt(ctx.parsed.x) } } },
+      scales: { x: { ticks: { callback: (v) => fmtShort(v) } } }
+    }
+  });
+
+  // By group
+  const groupTotals = {};
+  DATA.forEach(d => {
+    const g = d.group || 'ไม่ระบุ';
+    groupTotals[g] = (groupTotals[g] || 0) + d.amount;
+  });
+  const groupSorted = Object.entries(groupTotals).sort((a, b) => b[1] - a[1]);
+  new Chart(document.getElementById('chartByGroup'), {
+    type: 'doughnut',
+    data: {
+      labels: groupSorted.map(([g]) => g || 'ไม่ระบุ'),
+      datasets: [{ data: groupSorted.map(([_, v]) => v), backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#6b7280'] }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'right' }, tooltip: { callbacks: { label: (ctx) => ctx.label + ': ' + fmt(ctx.parsed) } } }
+    }
+  });
+
+  // Count by month
+  const monthlyCount = {};
+  dates.forEach(d => monthlyCount[d] = 0);
+  DATA.forEach(d => { if (d.entry_date) monthlyCount[d.entry_date]++; });
+  new Chart(document.getElementById('chartCountByMonth'), {
+    type: 'bar',
+    data: {
+      labels: dates.map(monthLabel),
+      datasets: [{ label: 'จำนวนรายการ', data: dates.map(d => monthlyCount[d]), backgroundColor: '#8b5cf6', borderRadius: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+  });
+}
+
+// ===== TAB 2: BY COMPANY =====
+function renderCompanyTab() {
+  const sel = document.getElementById('companySelect');
+  companyList.sort((a, b) => b.total - a.total).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.tax_id;
+    opt.textContent = c.name.replace('บริษัท ', '').replace(' จำกัด', '').slice(0, 40) + ' (' + fmtShort(c.total) + ')';
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change', () => updateCompanyView(sel.value));
+  updateCompanyView(sel.value);
+}
+
+function updateCompanyView(taxId) {
+  const comp = companies[taxId];
+  if (!comp) return;
+  document.getElementById('compName').textContent = comp.name.replace('บริษัท ', '').replace(' จำกัด', '');
+  document.getElementById('companyInfo').textContent = 'กลุ่ม: ' + (comp.group || '-') + ' • ' + comp.count + ' รายการ';
+
+  const compData = DATA.filter(d => d.tax_id === taxId);
+  const monthly = {};
+  dates.forEach(d => monthly[d] = 0);
+  compData.forEach(d => { if (d.entry_date) monthly[d.entry_date] += d.amount; });
+
+  const total = compData.reduce((s, d) => s + d.amount, 0);
+  const monthsWithData = dates.filter(d => monthly[d] > 0);
+  const avg = monthsWithData.length ? total / monthsWithData.length : 0;
+  
+  // MoM for last month
+  const lastDate = dates[dates.length - 1];
+  const prevDate = dates[dates.length - 2];
+  const lastAmt = monthly[lastDate] || 0;
+  const prevAmt = monthly[prevDate] || 0;
+  const momPct = pct(lastAmt, prevAmt);
+
+  document.getElementById('compKpiTotal').textContent = fmt(total);
+  document.getElementById('compKpiAvg').textContent = fmt(avg);
+  const momEl = document.getElementById('compKpiMoM');
+  momEl.textContent = (momPct > 0 ? '+' : '') + momPct.toFixed(1) + '%';
+  momEl.className = 'text-xl font-bold ' + (momPct > 10 ? 'pct-up' : momPct < -10 ? 'pct-down' : 'pct-flat');
+  document.getElementById('compKpiCount').textContent = compData.length;
+
+  // Chart
+  if (window._compChart) window._compChart.destroy();
+  window._compChart = new Chart(document.getElementById('chartCompanyMonthly'), {
+    type: 'bar',
+    data: {
+      labels: dates.map(monthLabel),
+      datasets: [{
+        label: 'ยอดเงิน',
+        data: dates.map(d => monthly[d]),
+        backgroundColor: dates.map(d => {
+          if (d === lastDate) return '#2563eb';
+          return monthly[d] > 0 ? '#93c5fd' : '#e5e7eb';
+        }),
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => fmt(ctx.parsed.y) } } },
+      scales: { y: { ticks: { callback: (v) => fmtShort(v) }, beginAtZero: true } }
+    }
+  });
+
+  // Compare table
+  const tbody = document.getElementById('companyCompareBody');
+  tbody.innerHTML = '';
+  for (let i = 0; i < dates.length; i++) {
+    const d = dates[i];
+    const amt = monthly[d];
+    const prev = i > 0 ? monthly[dates[i-1]] : 0;
+    const p = pct(amt, prev);
+    const tr = document.createElement('tr');
+    tr.className = 'border-t border-slate-100';
+    if (Math.abs(p) > 10 && i > 0) tr.className += p > 0 ? ' highlight-up' : ' highlight-down';
+    tr.innerHTML = `
+      <td class="px-3 py-2">${monthLabel(d)}</td>
+      <td class="px-3 py-2 text-right font-medium">${fmt(amt)}</td>
+      <td class="px-3 py-2 text-right">${i === 0 ? '-' : fmt(amt - prev)}</td>
+      <td class="px-3 py-2 text-right ${i === 0 ? 'pct-flat' : (p > 0 ? 'pct-up' : p < 0 ? 'pct-down' : 'pct-flat')}">${i === 0 ? '-' : (p > 0 ? '+' : '') + p.toFixed(1) + '%'}</td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+
+// ===== TAB 3: BY ACCOUNT =====
+function renderAccountTab() {
+  const sel = document.getElementById('accountSelect');
+  accountList.sort((a, b) => b.total - a.total).forEach(a => {
+    const opt = document.createElement('option');
+    opt.value = a.code;
+    opt.textContent = a.code + ' (' + fmtShort(a.total) + ')';
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change', () => updateAccountView(sel.value));
+  updateAccountView(sel.value);
+}
+
+function updateAccountView(cmCode) {
+  const accData = DATA.filter(d => d.cm_code === cmCode);
+  if (!accData.length) return;
+
+  document.getElementById('accName').textContent = cmCode;
+  const sample = accData[0];
+  document.getElementById('accountInfo').textContent = 'รหัสบริษัท: ' + (sample.company_code || '-') + ' • ' + accData.length + ' รายการ';
+
+  const monthly = {};
+  dates.forEach(d => monthly[d] = 0);
+  accData.forEach(d => { if (d.entry_date) monthly[d.entry_date] += d.amount; });
+
+  const total = accData.reduce((s, d) => s + d.amount, 0);
+  const monthsWithData = dates.filter(d => monthly[d] > 0);
+  const avg = monthsWithData.length ? total / monthsWithData.length : 0;
+  
+  const lastDate = dates[dates.length - 1];
+  const prevDate = dates[dates.length - 2];
+  const lastAmt = monthly[lastDate] || 0;
+  const prevAmt = monthly[prevDate] || 0;
+  const momPct = pct(lastAmt, prevAmt);
+
+  document.getElementById('accKpiTotal').textContent = fmt(total);
+  document.getElementById('accKpiAvg').textContent = fmt(avg);
+  const momEl = document.getElementById('accKpiMoM');
+  momEl.textContent = (momPct > 0 ? '+' : '') + momPct.toFixed(1) + '%';
+  momEl.className = 'text-xl font-bold ' + (momPct > 10 ? 'pct-up' : momPct < -10 ? 'pct-down' : 'pct-flat');
+  document.getElementById('accKpiCount').textContent = accData.length;
+
+  if (window._accChart) window._accChart.destroy();
+  window._accChart = new Chart(document.getElementById('chartAccountMonthly'), {
+    type: 'bar',
+    data: {
+      labels: dates.map(monthLabel),
+      datasets: [{
+        label: 'ยอดเงิน',
+        data: dates.map(d => monthly[d]),
+        backgroundColor: dates.map(d => d === lastDate ? '#8b5cf6' : (monthly[d] > 0 ? '#c4b5fd' : '#e5e7eb')),
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => fmt(ctx.parsed.y) } } },
+      scales: { y: { ticks: { callback: (v) => fmtShort(v) }, beginAtZero: true } }
+    }
+  });
+
+  const tbody = document.getElementById('accountCompareBody');
+  tbody.innerHTML = '';
+  for (let i = 0; i < dates.length; i++) {
+    const d = dates[i];
+    const amt = monthly[d];
+    const prev = i > 0 ? monthly[dates[i-1]] : 0;
+    const p = pct(amt, prev);
+    const tr = document.createElement('tr');
+    tr.className = 'border-t border-slate-100';
+    if (Math.abs(p) > 10 && i > 0) tr.className += p > 0 ? ' highlight-up' : ' highlight-down';
+    tr.innerHTML = `
+      <td class="px-3 py-2">${monthLabel(d)}</td>
+      <td class="px-3 py-2 text-right font-medium">${fmt(amt)}</td>
+      <td class="px-3 py-2 text-right">${i === 0 ? '-' : fmt(amt - prev)}</td>
+      <td class="px-3 py-2 text-right ${i === 0 ? 'pct-flat' : (p > 0 ? 'pct-up' : p < 0 ? 'pct-down' : 'pct-flat')}">${i === 0 ? '-' : (p > 0 ? '+' : '') + p.toFixed(1) + '%'}</td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+
+// ===== TAB 4: COMPARE =====
+function renderCompareTab() {
+  // MoM: latest month vs previous
+  const lastDate = dates[dates.length - 1];
+  const prevDate = dates[dates.length - 2];
+  document.getElementById('momPeriod').textContent = `เปรียบเทียบ ${monthLabel(prevDate)} กับ ${monthLabel(lastDate)}`;
+  document.getElementById('momPrev').textContent = monthLabel(prevDate);
+  document.getElementById('momCurr').textContent = monthLabel(lastDate);
+
+  // Aggregate by CM code
+  const accPrev = {}, accCurr = {};
+  DATA.forEach(d => {
+    if (d.cm_code && d.entry_date === prevDate) accPrev[d.cm_code] = (accPrev[d.cm_code] || 0) + d.amount;
+    if (d.cm_code && d.entry_date === lastDate) accCurr[d.cm_code] = (accCurr[d.cm_code] || 0) + d.amount;
+  });
+  const allAccs = new Set([...Object.keys(accPrev), ...Object.keys(accCurr)]);
+  const accRows = [...allAccs].map(code => ({
+    code,
+    prev: accPrev[code] || 0,
+    curr: accCurr[code] || 0,
+    diff: (accCurr[code] || 0) - (accPrev[code] || 0),
+    pct: pct(accCurr[code] || 0, accPrev[code] || 0)
+  })).sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff));
+
+  const momBody = document.getElementById('momBody');
+  momBody.innerHTML = accRows.map(r => {
+    const cls = r.pct > 10 ? 'highlight-up' : r.pct < -10 ? 'highlight-down' : '';
+    const pctCls = r.pct > 0 ? 'pct-up' : r.pct < 0 ? 'pct-down' : 'pct-flat';
+    return `<tr class="border-t border-slate-100 ${cls}">
+      <td class="px-3 py-2 font-mono">${r.code}</td>
+      <td class="px-3 py-2"><span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">Account</span></td>
+      <td class="px-3 py-2 text-right">${fmt(r.prev)}</td>
+      <td class="px-3 py-2 text-right">${fmt(r.curr)}</td>
+      <td class="px-3 py-2 text-right">${fmt(r.diff)}</td>
+      <td class="px-3 py-2 text-right ${pctCls}">${r.pct > 0 ? '+' : ''}${r.pct.toFixed(1)}%</td>
+      <td class="px-3 py-2 text-center">${r.pct > 10 ? '🟢 เพิ่ม' : r.pct < -10 ? '🔴 ลด' : '⚪ คงที่'}</td>
+    </tr>`;
+  }).join('');
+
+  // By company
+  const compPrev = {}, compCurr = {};
+  DATA.forEach(d => {
+    if (d.tax_id && d.entry_date === prevDate) compPrev[d.tax_id] = (compPrev[d.tax_id] || 0) + d.amount;
+    if (d.tax_id && d.entry_date === lastDate) compCurr[d.tax_id] = (compCurr[d.tax_id] || 0) + d.amount;
+  });
+  const allCos = new Set([...Object.keys(compPrev), ...Object.keys(compCurr)]);
+  const compRows = [...allCos].map(tax => {
+    const c = companies[tax];
+    return {
+      name: c ? c.name.replace('บริษัท ', '').replace(' จำกัด', '').slice(0, 35) : tax,
+      group: c ? c.group : '',
+      prev: compPrev[tax] || 0,
+      curr: compCurr[tax] || 0,
+      pct: pct(compCurr[tax] || 0, compPrev[tax] || 0)
+    };
+  }).sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct)).slice(0, 20);
+
+  const momCompBody = document.getElementById('momCompanyBody');
+  momCompBody.innerHTML = compRows.map(r => {
+    const cls = r.pct > 10 ? 'highlight-up' : r.pct < -10 ? 'highlight-down' : '';
+    const pctCls = r.pct > 0 ? 'pct-up' : r.pct < 0 ? 'pct-down' : 'pct-flat';
+    return `<tr class="border-t border-slate-100 ${cls}">
+      <td class="px-3 py-2">${r.name}</td>
+      <td class="px-3 py-2"><span class="text-xs text-slate-500">${r.group || '-'}</span></td>
+      <td class="px-3 py-2 text-right">${fmt(r.prev)}</td>
+      <td class="px-3 py-2 text-right">${fmt(r.curr)}</td>
+      <td class="px-3 py-2 text-right ${pctCls}">${r.pct > 0 ? '+' : ''}${r.pct.toFixed(1)}%</td>
+      <td class="px-3 py-2 text-center">${r.pct > 10 ? '🟢' : r.pct < -10 ? '🔴' : '⚪'}</td>
+    </tr>`;
+  }).join('');
+
+  // Monthly summary
+  const monthlySummary = dates.map((d, i) => {
+    const amt = DATA.filter(x => x.entry_date === d).reduce((s, x) => s + x.amount, 0);
+    const cnt = DATA.filter(x => x.entry_date === d).length;
+    const prev = i > 0 ? DATA.filter(x => x.entry_date === dates[i-1]).reduce((s, x) => s + x.amount, 0) : 0;
+    return { date: d, amt, cnt, prev, pct: pct(amt, prev) };
+  });
+  const summaryBody = document.getElementById('monthlySummaryBody');
+  summaryBody.innerHTML = monthlySummary.map(r => {
+    const pctCls = r.pct > 0 ? 'pct-up' : r.pct < 0 ? 'pct-down' : 'pct-flat';
+    return `<tr class="border-t border-slate-100">
+      <td class="px-3 py-2 font-medium">${monthLabel(r.date)}</td>
+      <td class="px-3 py-2 text-right">${fmt(r.amt)}</td>
+      <td class="px-3 py-2 text-right">${r.cnt}</td>
+      <td class="px-3 py-2 text-right">${r.prev > 0 ? fmt(r.amt - r.prev) : '-'}</td>
+      <td class="px-3 py-2 text-right ${pctCls}">${r.prev > 0 ? (r.pct > 0 ? '+' : '') + r.pct.toFixed(1) + '%' : '-'}</td>
+      <td class="px-3 py-2 text-center">${r.pct > 10 ? '🟢 เพิ่ม' : r.pct < -10 ? '🔴 ลด' : '⚪ คงที่'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ===== TAB 5: INSIGHTS =====
+function renderInsights() {
+  // Top companies
+  const topCos = [...companyList].sort((a, b) => b.total - a.total).slice(0, 5);
+  document.getElementById('topCompanies').innerHTML = topCos.map((c, i) => {
+    const medal = ['🥇', '🥈', '🥉', '🏅', '🏅'][i];
+    return `<div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">${medal}</span>
+        <div>
+          <div class="text-sm font-medium text-slate-800">${c.name.replace('บริษัท ', '').replace(' จำกัด', '')}</div>
+          <div class="text-xs text-slate-500">${c.group || '-'} • ${c.count} รายการ</div>
+        </div>
+      </div>
+      <div class="text-sm font-semibold text-slate-800">${fmt(c.total)}</div>
+    </div>`;
+  }).join('');
+
+  // Top accounts
+  const topAccs = [...accountList].sort((a, b) => b.total - a.total).slice(0, 5);
+  document.getElementById('topAccounts').innerHTML = topAccs.map((a, i) => {
+    const medal = ['🥇', '🥈', '🥉', '🏅', '🏅'][i];
+    return `<div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">${medal}</span>
+        <div>
+          <div class="text-sm font-mono font-medium text-slate-800">${a.code}</div>
+          <div class="text-xs text-slate-500">${a.count} รายการ</div>
+        </div>
+      </div>
+      <div class="text-sm font-semibold text-slate-800">${fmt(a.total)}</div>
+    </div>`;
+  }).join('');
+
+  // Top growth / decline
+  const lastDate = dates[dates.length - 1];
+  const prevDate = dates[dates.length - 2];
+  const changes = companyList.map(c => {
+    const last = DATA.filter(d => d.tax_id === c.tax_id && d.entry_date === lastDate).reduce((s, d) => s + d.amount, 0);
+    const prev = DATA.filter(d => d.tax_id === c.tax_id && d.entry_date === prevDate).reduce((s, d) => s + d.amount, 0);
+    return { ...c, last, prev, pct: pct(last, prev), diff: last - prev };
+  }).filter(c => c.prev > 0 || c.last > 0);
+
+  const topGrowth = [...changes].filter(c => c.pct > 0).sort((a, b) => b.pct - a.pct).slice(0, 5);
+  document.getElementById('topGrowth').innerHTML = topGrowth.length ? topGrowth.map((c, i) => {
+    const medal = ['🥇', '🥈', '🥉', '🏅', '🏅'][i];
+    return `<div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">${medal}</span>
+        <div>
+          <div class="text-sm font-medium text-slate-800">${c.name.replace('บริษัท ', '').replace(' จำกัด', '').slice(0, 28)}</div>
+          <div class="text-xs text-slate-500">${c.last > 0 ? fmt(c.last) : '0'} (was ${fmt(c.prev)})</div>
+        </div>
+      </div>
+      <div class="text-sm font-semibold pct-up">+${c.pct.toFixed(1)}%</div>
+    </div>`;
+  }).join('') : '<p class="text-sm text-slate-500">ไม่มีข้อมูลเปรียบเทียบ</p>';
+
+  const topDecline = [...changes].filter(c => c.pct < 0).sort((a, b) => a.pct - b.pct).slice(0, 5);
+  document.getElementById('topDecline').innerHTML = topDecline.length ? topDecline.map((c, i) => {
+    const medal = ['🥇', '🥈', '🥉', '🏅', '🏅'][i];
+    return `<div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">${medal}</span>
+        <div>
+          <div class="text-sm font-medium text-slate-800">${c.name.replace('บริษัท ', '').replace(' จำกัด', '').slice(0, 28)}</div>
+          <div class="text-xs text-slate-500">${c.last > 0 ? fmt(c.last) : '0'} (was ${fmt(c.prev)})</div>
+        </div>
+      </div>
+      <div class="text-sm font-semibold pct-down">${c.pct.toFixed(1)}%</div>
+    </div>`;
+  }).join('') : '<p class="text-sm text-slate-500">ไม่มีข้อมูลเปรียบเทียบ</p>';
+
+  // Top groups
+  const groupTotals = {};
+  DATA.forEach(d => {
+    const g = d.group || 'ไม่ระบุ';
+    groupTotals[g] = (groupTotals[g] || 0) + d.amount;
+  });
+  const topGroups = Object.entries(groupTotals).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  document.getElementById('topGroups').innerHTML = topGroups.map(([g, v], i) => {
+    const medal = ['🥇', '🥈', '🥉', '🏅', '🏅', '🏅'][i];
+    return `<div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">${medal}</span>
+        <div class="text-sm font-medium text-slate-800">${g || 'ไม่ระบุ'}</div>
+      </div>
+      <div class="text-sm font-semibold text-slate-800">${fmt(v)}</div>
+    </div>`;
+  }).join('');
+
+  // Top accounts in latest month
+  const latestAcc = {};
+  DATA.filter(d => d.entry_date === lastDate).forEach(d => {
+    if (d.cm_code) latestAcc[d.cm_code] = (latestAcc[d.cm_code] || 0) + d.amount;
+  });
+  const topLatest = Object.entries(latestAcc).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  document.getElementById('topLatestAccounts').innerHTML = topLatest.map(([code, v], i) => {
+    const medal = ['🥇', '🥈', '🥉', '🏅', '🏅'][i];
+    return `<div class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">${medal}</span>
+        <div class="text-sm font-mono font-medium text-slate-800">${code}</div>
+      </div>
+      <div class="text-sm font-semibold text-slate-800">${fmt(v)}</div>
+    </div>`;
+  }).join('');
+
+  // Analysis
+  const totalAmt = DATA.reduce((s, d) => s + d.amount, 0);
+  const lastMonthAmt = DATA.filter(d => d.entry_date === lastDate).reduce((s, d) => s + d.amount, 0);
+  const prevMonthAmt = DATA.filter(d => d.entry_date === prevDate).reduce((s, d) => s + d.amount, 0);
+  const overallPct = pct(lastMonthAmt, prevMonthAmt);
+  const topCo = topCos[0];
+  const topGrp = topGroups[0];
+  const topGrpShare = (topGrp[1] / totalAmt) * 100;
+  const growthCount = changes.filter(c => c.pct > 10).length;
+  const declineCount = changes.filter(c => c.pct < -10).length;
+
+  document.getElementById('analysisText').innerHTML = `
+    <p><strong>📊 ภาพรวม:</strong> ข้อมูลครอบคลุม <strong>${dates.length} เดือน</strong> (${dates.map(monthLabel).join(', ')}) มียอดรวมทั้งหมด <strong>${fmt(totalAmt)}</strong> จาก <strong>${companyList.length} บริษัท</strong> ใน <strong>${accountList.length} รหัสบัญชี</strong> (รวม ${DATA.length} รายการ)</p>
+    
+    <p><strong>📈 แนวโน้ม (MoM):</strong> เดือนล่าสุด (${monthLabel(lastDate)}) มียอดรวม <strong>${fmt(lastMonthAmt)}</strong> ${overallPct > 0 ? 'เพิ่มขึ้น' : overallPct < 0 ? 'ลดลง' : 'คงที่'} ${Math.abs(overallPct).toFixed(1)}% เมื่อเทียบกับเดือนก่อนหน้า (${monthLabel(prevDate)}: ${fmt(prevMonthAmt)})</p>
+    
+    <p><strong>🏆 บริษัทที่มียอดสูงสุด:</strong> <strong>${topCo ? topCo.name.replace('บริษัท ', '').replace(' จำกัด', '') : '-'}</strong> มียอดรวม <strong>${topCo ? fmt(topCo.total) : '0'}</strong> คิดเป็น ${topCo ? ((topCo.total/totalAmt)*100).toFixed(1) : '0'}% ของยอดรวมทั้งหมด</p>
+    
+    <p><strong>👥 กลุ่มที่มียอดสูงสุด:</strong> กลุ่ม <strong>${topGrp[0] || 'ไม่ระบุ'}</strong> มียอดรวม <strong>${fmt(topGrp[1])}</strong> คิดเป็น <strong>${topGrpShare.toFixed(1)}%</strong> ของยอดรวมทั้งหมด</p>
+    
+    <p><strong>🔄 การเปลี่ยนแปลง:</strong> บริษัทที่มีการเปลี่ยนแปลงมากกว่า ±10%: <span class="pct-up">📈 ${growthCount} บริษัทเติบโต</span> • <span class="pct-down">📉 ${declineCount} บริษัทลดลง</span></p>
+    
+    <div class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+      <p class="font-semibold text-blue-900 mb-2">💡 คำแนะนำ:</p>
+      <ul class="list-disc list-inside space-y-1 text-sm text-blue-800">
+        <li>ติดตามบริษัทที่มียอดสูงสุด 5 อันดับแรกอย่างใกล้ชิด — คิดเป็นสัดส่วนสำคัญของรายได้/ค่าใช้จ่าย</li>
+        <li>วิเคราะห์บริษัทที่ลดลงมากกว่า 10% เพื่อหาสาเหตุและแก้ไข</li>
+        <li>ตรวจสอบกลุ่มที่มียอดรวมสูงสุด (${topGrp[0] || '-'}) เพื่อหาโอกาสเพิ่มประสิทธิภาพ</li>
+        <li>ทบทวนรายการที่เพิ่มขึ้น/ลดลงมาก เพื่อคาดการณ์แนวโน้มในเดือนถัดไป</li>
+      </ul>
+    </div>
+  `;
+}
+
+// ===== Init =====
+document.addEventListener('DOMContentLoaded', () => {
+  renderOverview();
+  renderCompanyTab();
+  renderAccountTab();
+  renderCompareTab();
+  renderInsights();
+});
+</script>
+
+</body>
+</html>
