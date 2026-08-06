@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PRG/PDG Dashboard — สุขภาพธุรกิจบริษัทในเครือ PKG</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Sarabun', sans-serif; }
+    .glass { background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); }
+    .card { border:1px solid #e5e7eb; transition: transform .15s, box-shadow .15s; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 glass border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900">PRG / PDG Dashboard</h1>
+        <p class="text-sm text-slate-500">สุขภาพธุรกิจบริษัทในเครือ PKG <span class="mx-1">•</span> คำนวณจากข้อมูล Costdown รายเดือน</p>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="app.loadData()" class="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 transition">
+          🔄 รีเฟรชข้อมูล
+        </button>
+        <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition">
+          🖨️ พิมพ์
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- KPI Cards -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="card bg-white rounded-xl p-5">
+        <div class="text-xs font-medium text-slate-500 uppercase">PRG เฉลี่ย</div>
+        <div class="mt-2 text-3xl font-bold text-emerald-600" id="kpi-avg-prg">-</div>
+        <div class="text-xs text-slate-400 mt-1">เดือนที่ GM จ่าย S&A ได้</div>
+      </div>
+      <div class="card bg-white rounded-xl p-5">
+        <div class="text-xs font-medium text-slate-500 uppercase">PDG เฉลี่ย</div>
+        <div class="mt-2 text-3xl font-bold text-blue-600" id="kpi-avg-pdg">-</div>
+        <div class="text-xs text-slate-400 mt-1">เดือนที่ GM จ่ายค่าใช้จ่ายสมาชิกได้</div>
+      </div>
+      <div class="card bg-white rounded-xl p-5">
+        <div class="text-xs font-medium text-slate-500 uppercase">Growth PRG</div>
+        <div class="mt-2 text-3xl font-bold" id="kpi-growth-prg">-</div>
+        <div class="text-xs text-slate-400 mt-1">เปรียบเทียบเดือนล่าสุดกับก่อนหน้า</div>
+      </div>
+      <div class="card bg-white rounded-xl p-5">
+        <div class="text-xs font-medium text-slate-500 uppercase">Growth PDG</div>
+        <div class="mt-2 text-3xl font-bold" id="kpi-growth-pdg">-</div>
+        <div class="text-xs text-slate-400 mt-1">เปรียบเทียบเดือนล่าสุดกับก่อนหน้า</div>
+      </div>
+    </section>
+
+    <!-- Formula -->
+    <section class="bg-white rounded-xl border border-slate-200 p-5">
+      <h2 class="text-lg font-semibold text-slate-900 mb-3">สูตรคำนวณ</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div class="bg-slate-50 rounded-lg p-4">
+          <div class="font-semibold text-emerald-700">PRG = GM ÷ S&A</div>
+          <p class="text-slate-600 mt-1">จำนวนเดือนที่ GM (Gross Margin / ทำได้จาก Costdown) สามารถจ่ายค่า S&A ได้</p>
+        </div>
+        <div class="bg-slate-50 rounded-lg p-4">
+          <div class="font-semibold text-blue-700">PDG = GM ÷ ค่าใช้จ่ายสมาชิก</div>
+          <p class="text-slate-600 mt-1">จำนวนเดือนที่ GM สามารถจ่ายค่าใช้จ่ายสมาชิกได้ (โดยประมาณจาก members × avg expense)</p>
+        </div>
+      </div>
+      <div class="mt-4 text-sm text-slate-500">
+        <span class="font-semibold">Growth</span> = (ค่าปัจจุบัน − ค่าที่ผ่านมา) ÷ ค่าที่ผ่านมา × 100  <span class="mx-2">|</span>  PRG/PDG สูง = ดี
+      </div>
+    </section>
+
+    <!-- Charts -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white rounded-xl border border-slate-200 p-5">
+        <h3 class="text-base font-semibold text-slate-900 mb-4">Trend PRG/PDG รายเดือน</h3>
+        <div class="relative h-72">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl border border-slate-200 p-5">
+        <h3 class="text-base font-semibold text-slate-900 mb-4">สัดส่วนปัจจัย GM, S&A, ค่าใช้จ่ายสมาชิก</h3>
+        <div class="relative h-72">
+          <canvas id="factorChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Company table -->
+    <section class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h3 class="text-base font-semibold text-slate-900">ตารางบริษัทในเครือ</h3>
+        <div class="flex gap-2">
+          <input id="search" type="text" placeholder="ค้นหาบริษัท..." oninput="app.filter()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <select id="monthFilter" onchange="app.filter()" class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-50 text-slate-600">
+            <tr>
+              <th class="px-4 py-3 text-left font-semibold">บริษัท</th>
+              <th class="px-4 py-3 text-right font-semibold">สมาชิก</th>
+              <th class="px-4 py-3 text-right font-semibold">GM (ทำได้)</th>
+              <th class="px-4 py-3 text-right font-semibold">S&A</th>
+              <th class="px-4 py-3 text-right font-semibold">ค่าใช้จ่ายสมาชิก</th>
+              <th class="px-4 py-3 text-right font-semibold">PRG</th>
+              <th class="px-4 py-3 text-right font-semibold">PDG</th>
+              <th class="px-4 py-3 text-right font-semibold">Growth PRG</th>
+              <th class="px-4 py-3 text-right font-semibold">Growth PDG</th>
+              <th class="px-4 py-3 text-left font-semibold">Insight</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Insights panel -->
+    <section class="bg-white rounded-xl border border-slate-200 p-5">
+      <h3 class="text-base font-semibold text-slate-900 mb-4">วิเคราะห์สาเหตุ</h3>
+      <div id="insights" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm"></div>
+    </section>
+  </main>
+
+  <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-xs text-slate-400">
+    ข้อมูลจาก Google Sheet: สำเนาของ PL PKG 2566_PRG PDG — Dashboard สร้างจาก mock data โดยอ้างอิงข้อมูล Costdown รายเดือน
+  </footer>
+
+<script>
+/**
+ * PRG/PDG Dashboard
+ * ข้อมูล mock อ้างอิงจาก Google Sheet ของพี่ปกรณ์
+ * โครงสร้าง: บริษัทในเครือ PKG มี costdown รายเดือน (ทำได้) ใช้เป็นตัวแทน GM
+ */
+const PKG_DATA = {
+  months: [
+    "พ.ย. 64","ธ.ค. 64","ม.ค. 65","ก.พ. 65","มี.ค. 65","เม.ย. 65",
+    "พ.ค. 65","มิ.ย. 65","ก.ค. 65","ส.ค. 65","ก.ย. 65","ต.ค. 65"
+  ],
+  companies: [
+    {
+      id: "PKG", name: "PKG (บริษัทแม่)", members: 120, currency: "THB",
+      achieved: [4_000_000, 3_063_935, 5_030_035, 2_458_752, 3_200_000, 2_800_000, 3_500_000, 3_100_000, 2_900_000, 3_300_000, 3_000_000, 3_700_000],
+      sa:         [800_000, 750_000, 900_000, 720_000, 780_000, 760_000, 800_000, 820_000, 790_000, 810_000, 770_000, 850_000],
+      memberExp:  [400_000, 380_000, 420_000, 390_000, 410_000, 400_000, 405_000, 415_000, 395_000, 408_000, 385_000, 420_000]
+    },
+    {
+      id: "PMS", name: "PMSgr (PMS+PIC+PCC+PMG)", members: 85, currency: "THB",
+      achieved: [1_000_000, 625_906, 1_750_020, 315_116, 1_200_000, 980_000, 1_450_000, 1_100_000, 1_050_000, 1_300_000, 1_150_000, 1_500_000],
+      sa:         [400_000, 380_000, 450_000, 360_000, 420_000, 400_000, 430_000, 410_000, 405_000, 420_000, 395_000, 450_000],
+      memberExp:  [300_000, 280_000, 310_000, 290_000, 305_000, 300_000, 302_000, 308_000, 295_000, 306_000, 290_000, 315_000]
+    },
+    {
+      id: "RPLC", name: "RPLCgr", members: 55, currency: "THB",
+      achieved: [500_000, 138_779, 380_000, 129_201, 250_000, 300_000, 450_000, 320_000, 280_000, 350_000, 310_000, 420_000],
+      sa:         [120_000, 115_000, 130_000, 110_000, 125_000, 120_000, 128_000, 122_000, 118_000, 126_000, 116_000, 135_000],
+      memberExp:  [80_000, 78_000, 85_000, 76_000, 82_000, 80_000, 83_000, 81_000, 79_000, 84_000, 77_000, 88_000]
+    },
+    {
+      id: "AAM", name: "AAMgr+PMA+EAC+PAMCO", members: 95, currency: "THB",
+      achieved: [2_000_000, 1_948_006, 2_050_016, 1_640_211, 1_800_000, 1_700_000, 2_100_000, 1_900_000, 1_850_000, 2_000_000, 1_880_000, 2_200_000],
+      sa:         [600_000, 580_000, 620_000, 570_000, 600_000, 590_000, 615_000, 605_000, 595_000, 610_000, 585_000, 630_000],
+      memberExp:  [350_000, 340_000, 360_000, 345_000, 355_000, 350_000, 358_000, 352_000, 348_000, 356_000, 342_000, 365_000]
+    },
+    {
+      id: "PGH", name: "PGHgr+KKKgr", members: 70, currency: "THB",
+      achieved: [500_000, 351_245, 850_000, 374_224, 550_000, 600_000, 700_000, 620_000, 580_000, 650_000, 590_000, 750_000],
+      sa:         [250_000, 240_000, 260_000, 235_000, 255_000, 245_000, 258_000, 250_000, 248_000, 256_000, 242_000, 265_000],
+      memberExp:  [180_000, 175_000, 185_000, 178_000, 182_000, 180_000, 183_000, 181_000, 179_000, 184_000, 177_000, 188_000]
+    },
+    {
+      id: "RAFCO", name: "RAFCO", members: 30, currency: "USD",
+      achieved: [10_000, 8_500, 12_000, 7_500, 9_000, 11_000, 13_000, 10_000, 9_500, 11_500, 10_500, 12_500],
+      sa:         [3_000, 2_900, 3_200, 2_800, 3_000, 3_100, 3_300, 3_050, 2_950, 3_150, 3_000, 3_350],
+      memberExp:  [1_500, 1_450, 1_550, 1_420, 1_500, 1_480, 1_520, 1_500, 1_460, 1_540, 1_480, 1_600]
+    },
+    {
+      id: "LDC", name: "LDC (เติบโตจาก CD)", members: 25, currency: "THB",
+      achieved: [130_000, 150_000, 180_000, 200_000, 220_000, 250_000, 280_000, 300_000, 320_000, 350_000, 330_000, 380_000],
+      sa:         [90_000, 88_000, 92_000, 95_000, 98_000, 100_000, 105_000, 108_000, 110_000, 115_000, 112_000, 120_000],
+      memberExp:  [50_000, 48_000, 52_000, 55_000, 58_000, 60_000, 63_000, 65_000, 68_000, 70_000, 66_000, 72_000]
+    },
+    {
+      id: "TNR", name: "TNR", members: 40, currency: "THB",
+      achieved: [80_000, 75_000, 90_000, 70_000, 85_000, 88_000, 95_000, 92_000, 89_000, 96_000, 91_000, 100_000],
+      sa:         [50_000, 48_000, 52_000, 49_000, 51_000, 50_000, 53_000, 52_000, 50_000, 54_000, 51_000, 55_000],
+      memberExp:  [30_000, 29_000, 31_000, 30_000, 32_000, 31_000, 33_000, 32_000, 31_000, 33_000, 31_000, 34_000]
+    },
+    {
+      id: "CPDG", name: "CPDG", members: 35, currency: "THB",
+      achieved: [250_000, 240_000, 260_000, 230_000, 245_000, 255_000, 270_000, 265_000, 250_000, 275_000, 260_000, 285_000],
+      sa:         [100_000, 98_000, 105_000, 95_000, 102_000, 100_000, 108_000, 106_000, 100_000, 110_000, 104_000, 115_000],
+      memberExp:  [70_000, 68_000, 72_000, 66_000, 70_000, 69_000, 74_000, 72_000, 69_000, 75_000, 71_000, 78_000]
+    },
+    {
+      id: "21CT", name: "21CT", members: 20, currency: "THB",
+      achieved: [150_000, 140_000, 160_000, 135_000, 148_000, 155_000, 165_000, 162_000, 152_000, 168_000, 158_000, 175_000],
+      sa:         [60_000, 58_000, 62_000, 57_000, 60_000, 59_000, 63_000, 61_000, 58_000, 64_000, 60_000, 66_000],
+      memberExp:  [40_000, 39_000, 41_000, 38_000, 40_000, 39_000, 42_000, 41_000, 39_000, 43_000, 40_000, 44_000]
+    },
+    {
+      id: "AGS", name: "AGS", members: 18, currency: "THB",
+      achieved: [80_000, 78_000, 85_000, 75_000, 82_000, 86_000, 90_000, 88_000, 84_000, 92_000, 87_000, 95_000],
+      sa:         [35_000, 34_000, 36_000, 33_000, 35_000, 34_000, 37_000, 36_000, 34_000, 38_000, 35_000, 39_000],
+      memberExp:  [22_000, 21_000, 23_000, 21_000, 22_000, 22_000, 24_000, 23_000, 22_000, 24_000, 23_000, 25_000]
+    }
+  ]
+};
+
+const app = {
+  data: PKG_DATA,
+  trendChart: null,
+  factorChart: null,
+
+  /** คำนวณ PRG/PDG สำหรับบริษัททั้งหมด */
+  compute() {
+    return this.data.companies.map(c => {
+      const series = c.achieved.map((gm, i) => {
+        const sa = c.sa[i] || 0;
+        const mexp = c.memberExp[i] || 0;
+        const prg = sa > 0 ? gm / sa : 0;
+        const pdg = mexp > 0 ? gm / mexp : 0;
+        return { gm, sa, mexp, prg, pdg };
+      });
+
+      const latest = series[series.length - 1];
+      const prev = series[series.length - 2];
+      const growth = (cur, pre) => pre > 0 ? ((cur - pre) / pre) * 100 : 0;
+
+      const avgPrg = series.reduce((a, b) => a + b.prg, 0) / series.length;
+      const avgPdg = series.reduce((a, b) => a + b.pdg, 0) / series.length;
+
+      return {
+        ...c,
+        series,
+        latest,
+        prev,
+        avgPrg,
+        avgPdg,
+        growthPrg: growth(latest.prg, prev.prg),
+        growthPdg: growth(latest.pdg, prev.pdg)
+      };
+    });
+  },
+
+  /** วิเคราะห์สาเหตุ PRG/PDG สูง/ต่ำ */
+  insight(row) {
+    const l = row.latest;
+    const p = row.prev;
+    const parts = [];
+
+    if (l.prg >= 4) parts.push(`PRG สูง (${l.prg.toFixed(1)} เดือน) — GM แข็งแกร่งกว่า S&A`);
+    else if (l.prg < 2) parts.push(`PRG ต่ำ (${l.prg.toFixed(1)} เดือน) — S&A กินส่วนใหญ่ของ GM`);
+
+    if (l.pdg >= 8) parts.push(`PDG สูง (${l.pdg.toFixed(1)} เดือน) — GM คุ้มค่าใช้จ่ายสมาชิก`);
+    else if (l.pdg < 3) parts.push(`PDG ต่ำ (${l.pdg.toFixed(1)} เดือน) — ค่าใช้จ่ายสมาชิกสูง`);
+
+    if (row.growthPrg > 20) parts.push(`Growth PRG ดีขึ้น ${row.growthPrg.toFixed(1)}%`);
+    if (row.growthPdg > 20) parts.push(`Growth PDG ดีขึ้น ${row.growthPdg.toFixed(1)}%`);
+
+    if (parts.length === 0) parts.push(`สมดุล — PRG ${l.prg.toFixed(1)}, PDG ${l.pdg.toFixed(1)}`);
+    return parts.join(' • ');
+  },
+
+  formatMoney(value, currency = 'THB') {
+    const sym = currency === 'USD' ? '$' : '฿';
+    return sym + Number(value).toLocaleString('th-TH', { maximumFractionDigits: 0 });
+  },
+
+  renderKPIs(rows) {
+    const avgPrg = rows.reduce((a, b) => a + b.avgPrg, 0) / rows.length;
+    const avgPdg = rows.reduce((a, b) => a + b.avgPdg, 0) / rows.length;
+    const avgGrowthPrg = rows.reduce((a, b) => a + b.growthPrg, 0) / rows.length;
+    const avgGrowthPdg = rows.reduce((a, b) => a + b.growthPdg, 0) / rows.length;
+
+    document.getElementById('kpi-avg-prg').textContent = avgPrg.toFixed(1) + ' เดือน';
+    document.getElementById('kpi-avg-pdg').textContent = avgPdg.toFixed(1) + ' เดือน';
+
+    const setGrowth = (id, val) => {
+      const el = document.getElementById(id);
+      const cls = val >= 0 ? 'text-emerald-600' : 'text-rose-600';
+      el.className = 'mt-2 text-3xl font-bold ' + cls;
+      el.textContent = (val >= 0 ? '+' : '') + val.toFixed(1) + '%';
+    };
+    setGrowth('kpi-growth-prg', avgGrowthPrg);
+    setGrowth('kpi-growth-pdg', avgGrowthPdg);
+  },
+
+  renderTable(rows) {
+    const monthIdx = document.getElementById('monthFilter').value ? Number(document.getElementById('monthFilter').value) : this.data.months.length - 1;
+    const term = document.getElementById('search').value.toLowerCase();
+    const filtered = rows.filter(r => r.name.toLowerCase().includes(term));
+
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = filtered.map(r => {
+      const s = r.series[monthIdx] || r.series[r.series.length - 1];
+      const prev = r.series[monthIdx - 1] || r.series[monthIdx - 2] || r.series[r.series.length - 2];
+      const gPrg = prev && prev.prg > 0 ? ((s.prg - prev.prg) / prev.prg) * 100 : 0;
+      const gPdg = prev && prev.pdg > 0 ? ((s.pdg - prev.pdg) / prev.pdg) * 100 : 0;
+      const badgeClass = (v, good) => {
+        if (v >= good) return 'bg-emerald-100 text-emerald-700';
+        if (v >= good * 0.5) return 'bg-amber-100 text-amber-700';
+        return 'bg-rose-100 text-rose-700';
+      };
+      return `
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3">
+            <div class="font-medium text-slate-900">${r.name}</div>
+            <div class="text-xs text-slate-400">${r.id} • ${r.currency}</div>
+          </td>
+          <td class="px-4 py-3 text-right">${r.members.toLocaleString('th-TH')}</td>
+          <td class="px-4 py-3 text-right font-medium text-slate-700">${this.formatMoney(s.gm, r.currency)}</td>
+          <td class="px-4 py-3 text-right text-slate-600">${this.formatMoney(s.sa, r.currency)}</td>
+          <td class="px-4 py-3 text-right text-slate-600">${this.formatMoney(s.mexp, r.currency)}</td>
+          <td class="px-4 py-3 text-right">
+            <span class="badge ${badgeClass(s.prg, 4)}">${s.prg.toFixed(1)}</span>
+          </td>
+          <td class="px-4 py-3 text-right">
+            <span class="badge ${badgeClass(s.pdg, 8)}">${s.pdg.toFixed(1)}</span>
+          </td>
+          <td class="px-4 py-3 text-right ${gPrg >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${gPrg >= 0 ? '+' : ''}${gPrg.toFixed(1)}%</td>
+          <td class="px-4 py-3 text-right ${gPdg >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${gPdg >= 0 ? '+' : ''}${gPdg.toFixed(1)}%</td>
+          <td class="px-4 py-3 text-left text-slate-600 text-xs max-w-xs">${this.insight(r)}</td>
+        </tr>
+      `;
+    }).join('');
+  },
+
+  renderInsights(rows) {
+    const panel = document.getElementById('insights');
+    const items = [];
+
+    const bestPRG = rows.slice().sort((a, b) => b.latest.prg - a.latest.prg)[0];
+    const worstPRG = rows.slice().sort((a, b) => a.latest.prg - b.latest.prg)[0];
+    const bestPDG = rows.slice().sort((a, b) => b.latest.pdg - a.latest.pdg)[0];
+    const worstPDG = rows.slice().sort((a, b) => a.latest.pdg - b.latest.pdg)[0];
+
+    items.push({
+      title: 'PRG สูงสุด',
+      text: `${bestPRG.name} มี PRG ${bestPRG.latest.prg.toFixed(1)} เดือน — GM สูงกว่า S&A มาก ธุรกิจทนต่อค่าใช้จ่ายทั่วไปได้ดี`
+    });
+    items.push({
+      title: 'PRG ต่ำสุด',
+      text: `${worstPRG.name} มี PRG ${worstPRG.latest.prg.toFixed(1)} เดือน — S&A กินส่วนใหญ่ของ GM ควรตรวจสอบค่าใช้จ่ายทั่วไป`
+    });
+    items.push({
+      title: 'PDG สูงสุด',
+      text: `${bestPDG.name} มี PDG ${bestPDG.latest.pdg.toFixed(1)} เดือน — GM คุ้มค่าใช้จ่ายสมาชิก ประสิทธิภาพการใช้คน/งบดี`
+    });
+    items.push({
+      title: 'PDG ต่ำสุด',
+      text: `${worstPDG.name} มี PDG ${worstPDG.latest.pdg.toFixed(1)} เดือน — ค่าใช้จ่ายสมาชิกสูง ควรพิจารณาจำนวนสมาชิก/ผลผลิต`
+    });
+
+    // หาบริษัทที่ growth ดีที่สุด
+    const bestGrowth = rows.slice().sort((a, b) => (b.growthPrg + b.growthPdg) - (a.growthPrg + a.growthPdg))[0];
+    items.push({
+      title: 'Growth โดยรวมดีที่สุด',
+      text: `${bestGrowth.name} (PRG +${bestGrowth.growthPrg.toFixed(1)}%, PDG +${bestGrowth.growthPdg.toFixed(1)}%) — แนวโน้ม GM เติบโตหรือค่าใช้จ่ายลดลง`
+    });
+
+    panel.innerHTML = items.map(it => `
+      <div class="bg-slate-50 rounded-lg p-4">
+        <div class="font-semibold text-slate-800 mb-1">${it.title}</div>
+        <p class="text-slate-600 leading-relaxed">${it.text}</p>
+      </div>
+    `).join('');
+  },
+
+  renderCharts(rows) {
+    const labels = this.data.months;
+    const palette = [
+      '#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6',
+      '#06b6d4', '#ec4899', '#84cc16', '#14b8a6', '#6366f1', '#f97316'
+    ];
+
+    // Trend chart: PRG/PDG ของแต่ละบริษัท (line)
+    const prgDatasets = rows.map((r, i) => ({
+      label: r.id + ' PRG',
+      data: r.series.map(s => s.prg),
+      borderColor: palette[i % palette.length],
+      backgroundColor: palette[i % palette.length] + '20',
+      tension: 0.3,
+      fill: false,
+      pointRadius: 3
+    }));
+
+    const pdgDatasets = rows.map((r, i) => ({
+      label: r.id + ' PDG',
+      data: r.series.map(s => s.pdg),
+      borderColor: palette[i % palette.length],
+      borderDash: [5, 5],
+      backgroundColor: palette[i % palette.length] + '20',
+      tension: 0.3,
+      fill: false,
+      pointRadius: 3
+    }));
+
+    if (this.trendChart) this.trendChart.destroy();
+    this.trendChart = new Chart(document.getElementById('trendChart'), {
+      type: 'line',
+      data: { labels, datasets: [...prgDatasets, ...pdgDatasets] },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
+          tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw.toFixed(1)} เดือน` } }
+        },
+        scales: { y: { beginAtZero: true, title: { display: true, text: 'เดือน' } } }
+      }
+    });
+
+    // Factor chart: สัดส่วน GM vs S&A vs ค่าใช้จ่ายสมาชิก (stacked bar) เฉลี่ยทุกบริษัท
+    const avgGm = rows.map(r => r.series.reduce((a, s) => a + s.gm, 0) / r.series.length);
+    const avgSa = rows.map(r => r.series.reduce((a, s) => a + s.sa, 0) / r.series.length);
+    const avgMexp = rows.map(r => r.series.reduce((a, s) => a + s.mexp, 0) / r.series.length);
+
+    if (this.factorChart) this.factorChart.destroy();
+    this.factorChart = new Chart(document.getElementById('factorChart'), {
+      type: 'bar',
+      data: {
+        labels: rows.map(r => r.id),
+        datasets: [
+          { label: 'GM (ทำได้)', data: avgGm, backgroundColor: '#10b981' },
+          { label: 'S&A', data: avgSa, backgroundColor: '#f59e0b' },
+          { label: 'ค่าใช้จ่ายสมาชิก', data: avgMexp, backgroundColor: '#3b82f6' }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: {
+          x: { stacked: true },
+          y: { stacked: true, beginAtZero: true, title: { display: true, text: 'มูลค่าเฉลี่ย' } }
+        }
+      }
+    });
+  },
+
+  populateMonthFilter() {
+    const sel = document.getElementById('monthFilter');
+    sel.innerHTML = '<option value="">เดือนล่าสุด</option>' + this.data.months.map((m, i) => `<option value="${i}">${m}</option>`).join('');
+    sel.value = String(this.data.months.length - 1);
+  },
+
+  filter() {
+    const rows = this.compute();
+    this.renderTable(rows);
+  },
+
+  loadData() {
+    const rows = this.compute();
+    this.renderKPIs(rows);
+    this.renderTable(rows);
+    this.renderInsights(rows);
+    this.renderCharts(rows);
+  },
+
+  init() {
+    this.populateMonthFilter();
+    this.loadData();
+  }
+};
+
+app.init();
+</script>
+</body>
+</html>
