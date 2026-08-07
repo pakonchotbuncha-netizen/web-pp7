@@ -862,7 +862,7 @@ const fmtRatio = (v) => v == null ? '-' : v.toFixed(2);
 
 const computeDerived = (years) => {
   // Compute PRG/PDG/%PRG/%PDG from raw GM/SA/HRE
-  const out = {};
+  const out = {}
   const yearList = Object.keys(years);
   yearList.forEach((y, idx) => {
     const d = years[y];
@@ -871,27 +871,27 @@ const computeDerived = (years) => {
       prg: (d.gm != null && d.sa) ? +(d.gm / d.sa).toFixed(2) : null,
       pdg: (d.gm != null && d.hre) ? +(d.gm / d.hre).toFixed(2) : null,
       pctPRG: d.pctPRG, pctPDG: d.pctPDG, taPDG: d.taPDG
-    };
+    }
   });
   return out;
-};
+}
 
 const computeMonthly = (ytd) => {
   // Returns { month: { gm, prg, pdg } }
-  const out = {};
+  const out = {}
   (ytd || []).forEach(m => {
     out[m.month] = {
       gm: m.gm, hre: m.hre, sa: m.sa,
       prg: (m.gm != null && m.sa) ? +(m.gm / m.sa).toFixed(2) : null,
       pdg: (m.gm != null && m.hre) ? +(m.gm / m.hre).toFixed(2) : null
-    };
+    }
   });
   return out;
-};
+}
 
 const sumMonthly = (companies) => {
   // Sum GM/SA/HRE across companies for each month
-  const out = {};
+  const out = {}
   MONTHS.forEach(m => {
     let gm = 0, sa = 0, hre = 0, has = false;
     companies.forEach(c => {
@@ -908,10 +908,10 @@ const sumMonthly = (companies) => {
       hre: has ? +hre.toFixed(2) : 0,
       prg: (gm && sa) ? +(gm/sa).toFixed(2) : null,
       pdg: (gm && hre) ? +(gm/hre).toFixed(2) : null
-    };
+    }
   });
   return out;
-};
+}
 
 const pillClass = (prg, pdg) => {
   if (prg == null && pdg == null) return 'cell-none';
@@ -919,14 +919,14 @@ const pillClass = (prg, pdg) => {
   if (p >= 1.8 && q >= 1.8) return 'cell-good';
   if (p >= 1.3 && q >= 1.3) return 'cell-ok';
   return 'cell-bad';
-};
+}
 
 const yoyClass = (v) => v == null ? 'yoy-flat' : (v > 0 ? 'yoy-up' : v < 0 ? 'yoy-down' : 'yoy-flat');
 
 // Chart cache
-const charts = {};
-const destroyChart = (id) => { if (charts[id]) { charts[id].destroy(); delete charts[id]; } };
-const makeChart = (id, config) => { destroyChart(id); const el = document.getElementById(id); if (el) charts[id] = new Chart(el.getContext('2d'), config); };
+const charts = {}
+const destroyChart = (id) => { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+const makeChart = (id, config) => { destroyChart(id); const el = document.getElementById(id); if (el) charts[id] = new Chart(el.getContext('2d'), config); }
 
 // ===== App =====
 const app = {
@@ -1108,13 +1108,13 @@ const app = {
       <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
         <p class="text-xs text-emerald-600 font-semibold">🏆 บริษัทที่ดีที่สุด</p>
         <p class="text-lg font-bold text-emerald-800 mt-1">${best.id}</p>
-        <p class="text-xs text-slate-600">PRG: <span class="font-semibold">${best.yearsPRG[y].prg}</span> | PDG: <span class="font-semibold">${best.yearsPRG[y].pdg ?? '-'}</span></p>
+        <p class="text-xs text-slate-600">PRG: <span class="font-semibold">${best.yearsPRG[y].prg}</span> | PDG: <span class="font-semibold">${best.yearsPRG[y].pdg || '-'}</span></p>
         <p class="text-xs text-slate-500">${best.name}</p>
       </div>
       <div class="bg-rose-50 border border-rose-200 rounded-lg p-3">
         <p class="text-xs text-rose-600 font-semibold">⚠️ บริษัทที่ต้องจับตา</p>
         <p class="text-lg font-bold text-rose-800 mt-1">${worst.id}</p>
-        <p class="text-xs text-slate-600">PRG: <span class="font-semibold">${worst.yearsPRG[y].prg}</span> | PDG: <span class="font-semibold">${worst.yearsPRG[y].pdg ?? '-'}</span></p>
+        <p class="text-xs text-slate-600">PRG: <span class="font-semibold">${worst.yearsPRG[y].prg}</span> | PDG: <span class="font-semibold">${worst.yearsPRG[y].pdg || '-'}</span></p>
         <p class="text-xs text-slate-500">${worst.name}</p>
       </div>
       <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
@@ -1441,12 +1441,12 @@ const app = {
             </div>
           </div>
           <div class="text-right">
-            <span class="badge ${cls}">PRG ${d.prg} | PDG ${d.pdg ?? '-'}</span>
+            <span class="badge ${cls}">PRG ${d.prg} | PDG ${d.pdg || '-'}</span>
             <p class="text-xs text-slate-500 mt-1">GM ฿${d.gm?.toFixed(2)}M</p>
           </div>
         </div>
       `;
-    };
+    }
 
     document.getElementById('top5Best').innerHTML = best.map((c, i) => renderRow(c, i + 1, true)).join('');
     document.getElementById('top5Worst').innerHTML = worst.map((c, i) => renderRow(c, i + 1, false)).join('');
@@ -1514,7 +1514,7 @@ const app = {
         if (d == null || d.gm == null) {
           html += '<td class="px-2 py-2 text-center cell-none">-</td>';
         } else {
-          html += `<td class="px-2 py-2 text-center">${d.gm.toFixed(2)}<br><span class="text-xs text-slate-500">P:${d.prg} D:${d.pdg ?? '-'}</span></td>`;
+          html += `<td class="px-2 py-2 text-center">${d.gm.toFixed(2)}<br><span class="text-xs text-slate-500">P:${d.prg} D:${d.pdg || '-'}</span></td>`;
         }
       });
       html += '</tr>';
@@ -1548,7 +1548,7 @@ const app = {
           html += `<td class="px-1 py-2 text-center">${d.gm.toFixed(2)}</td>`;
           html += `<td class="px-1 py-2 text-center">${d.sa?.toFixed(2) || '-'}</td>`;
           html += `<td class="px-1 py-2 text-center">${d.hre?.toFixed(2) || '-'}</td>`;
-          html += `<td class="px-1 py-2 text-center ${cls} font-semibold">${d.prg}/${d.pdg ?? '-'}</td>`;
+          html += `<td class="px-1 py-2 text-center ${cls} font-semibold">${d.prg}/${d.pdg || '-'}</td>`;
         }
       });
       html += '</tr>';
@@ -1571,12 +1571,11 @@ const app = {
     const a = document.createElement('a');
     a.href = url; a.download = 'prg-pdg-dashboard.csv'; a.click();
     URL.revokeObjectURL(url);
-  }
-};
+  },
 
   // ===== TAB 6: HR Productivity =====
   renderHR() {
-    // Employee counts (from Google Sheet: https://docs.google.com/spreadsheets/d/1pKJlj6caK0_l53a2CULVJfx4wUYQflpIuFt5zaMCFOs/edit)
+    // Employee counts (from Google Sheet BCT)
     const employeeCount = {
       'PKG': 287,
       'PMSG': 58,
@@ -1591,7 +1590,7 @@ const app = {
       'CPDG': 45,
       'LDC': 30,
       'TNRG': 40
-    };
+    }
 
     const year = 'Y2568';
     const yearIdx = 6; // Y2568
@@ -1606,7 +1605,7 @@ const app = {
       const gmPerEmp = d.gm / emp;
       const hreRatio = (d.hre / d.gm) * 100;
       const prodIndex = gmPerEmp / hrePerEmp;
-      return { id: c.id, name: c.name, emp, hrePerEmp, gmPerEmp, hreRatio, prodIndex };
+      return { id: c.id, name: c.name, emp, hrePerEmp, gmPerEmp, hreRatio, prodIndex }
     }).filter(Boolean);
 
     // Render KPI cards (use PKG data)
@@ -1704,7 +1703,7 @@ const app = {
     });
     document.getElementById('hrCompanyTable').innerHTML = html;
   }
-}
+};
 
 // Boot
 document.addEventListener('DOMContentLoaded', () => app.init());
