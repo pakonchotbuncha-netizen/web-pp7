@@ -862,7 +862,7 @@ const fmtRatio = (v) => v == null ? '-' : v.toFixed(2);
 
 const computeDerived = (years) => {
   // Compute PRG/PDG/%PRG/%PDG from raw GM/SA/HRE
-  const out = {}
+  const out = {};
   const yearList = Object.keys(years);
   yearList.forEach((y, idx) => {
     const d = years[y];
@@ -878,7 +878,7 @@ const computeDerived = (years) => {
 
 const computeMonthly = (ytd) => {
   // Returns { month: { gm, prg, pdg } }
-  const out = {}
+  const out = {};
   (ytd || []).forEach(m => {
     out[m.month] = {
       gm: m.gm, hre: m.hre, sa: m.sa,
@@ -891,7 +891,7 @@ const computeMonthly = (ytd) => {
 
 const sumMonthly = (companies) => {
   // Sum GM/SA/HRE across companies for each month
-  const out = {}
+  const out = {};
   MONTHS.forEach(m => {
     let gm = 0, sa = 0, hre = 0, has = false;
     companies.forEach(c => {
