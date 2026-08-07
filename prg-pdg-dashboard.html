@@ -84,6 +84,7 @@
           <button class="tab-btn" data-tab="compare" onclick="app.switchTab('compare')">🔄 เปรียบเทียบ</button>
           <button class="tab-btn" data-tab="analysis" onclick="app.switchTab('analysis')">🔍 วิเคราะห์</button>
           <button class="tab-btn" data-tab="hr" onclick="app.switchTab('hr')">👥 HR Productivity</button>
+          <button class="tab-btn" data-tab="members" onclick="app.switchTab('members')">👤 สมาชิกย้อนหลัง</button>
           <button class="tab-btn" data-tab="fulldata" onclick="app.switchTab('fulldata')">📋 ข้อมูลเต็ม</button>
         </nav>
       </div>
@@ -388,14 +389,39 @@
       </div>
     </section>
 
+    <!-- ============ TAB: สมาชิกย้อนหลัง ============ -->
+    <section id="tab-members" class="tab-panel space-y-6">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <h2 class="text-lg font-semibold text-slate-900">👤 จำนวนสมาชิกย้อนหลัง (ปี 2559–2569)</h2>
+        <select id="memberMetric" onchange="app.renderMemberChart()" class="px-2 py-1 border border-slate-300 rounded text-sm">
+          <option value="headcount">จำนวนสมาชิก</option>
+          <option value="hregm">HRE / GM ต่อคน (บาท)</option>
+        </select>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="memberKpiCards"></div>
+
+      <!-- Chart -->
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">📈 เทรนด์จำนวนสมาชิกแยกตามกลุ่มบริษัท</h3>
+        <div class="h-96"><canvas id="memberChart"></canvas></div>
+      </div>
+
+      <!-- Table -->
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">📊 ตารางจำนวนสมาชิกแยกตามกลุ่มบริษัท</h3>
+        <div class="overflow-x-auto" id="memberTable"></div>
+      </div>
+    </section>
+
   </main>
 
   <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-xs text-slate-400">
     <p>PRG/PDG Dashboard v4.0 • ข้อมูลจาก Google Sheet gid=728754680 • อัปเดตล่าสุด 6 ส.ค. 2569</p>
   </footer>
 
-<script id="PKG_DATA" type="application/json">
-{
+<script id="PKG_DATA" type="application/json">{
   "meta": {
     "title": "PRG/PDG Dashboard — สุขภาพธุรกิจบริษัทในเครือ PKG",
     "formulas": {
@@ -404,443 +430,2375 @@
       "%PRG": "(PRG_curr - PRG_prev) / PRG_prev × 100",
       "%PDG": "(PDG_curr - PDG_prev) / PDG_prev × 100"
     },
-    "years": ["Y2562","Y2563","Y2564","Y2565","Y2566","Y2567","Y2568","Y2569"],
-    "ytdMonths": ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."],
+    "years": [
+      "Y2562",
+      "Y2563",
+      "Y2564",
+      "Y2565",
+      "Y2566",
+      "Y2567",
+      "Y2568",
+      "Y2569"
+    ],
+    "ytdMonths": [
+      "ม.ค.",
+      "ก.พ.",
+      "มี.ค.",
+      "เม.ย.",
+      "พ.ค.",
+      "มิ.ย.",
+      "ก.ค.",
+      "ส.ค.",
+      "ก.ย.",
+      "ต.ค.",
+      "พ.ย.",
+      "ธ.ค."
+    ],
     "ytdMonthsFull": 8
   },
   "companies": [
     {
-      "id":"PKG", "name":"PKG (ภาพรวม)", "group":"แม่", "members":525, "currency":"THB",
+      "id": "PKG",
+      "name": "PKG (ภาพรวม)",
+      "group": "แม่",
+      "members": 525,
+      "currency": "THB",
       "years": {
-        "Y2562":{"gm":19.00,"sa":16.50,"hre":8.4032,"pctPRG":null,"pctPDG":null,"taPDG":1.81},
-        "Y2563":{"gm":20.50,"sa":17.20,"hre":8.4032,"pctPRG":2.5,"pctPDG":3.1,"taPDG":1.85},
-        "Y2564":{"gm":22.30,"sa":18.10,"hre":8.4032,"pctPRG":4.1,"pctPDG":4.5,"taPDG":1.89},
-        "Y2565":{"gm":23.50,"sa":18.80,"hre":8.4032,"pctPRG":2.6,"pctPDG":1.7,"taPDG":1.94},
-        "Y2566":{"gm":24.80,"sa":19.40,"hre":8.4032,"pctPRG":2.7,"pctPDG":2.0,"taPDG":1.98},
-        "Y2567":{"gm":26.23,"sa":20.25,"hre":8.4032,"pctPRG":2.5,"pctPDG":2.5,"taPDG":2.01},
-        "Y2568":{"gm":21.68,"sa":20.75,"hre":8.4032,"pctPRG":-16.76,"pctPDG":-17.35,"taPDG":1.66},
-        "Y2569":{"gm":16.28,"sa":13.68,"hre":8.4032,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562": {
+          "gm": 19.0,
+          "sa": 16.5,
+          "hre": 8.4032,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": 1.81
+        },
+        "Y2563": {
+          "gm": 20.5,
+          "sa": 17.2,
+          "hre": 8.4032,
+          "pctPRG": 2.5,
+          "pctPDG": 3.1,
+          "taPDG": 1.85
+        },
+        "Y2564": {
+          "gm": 22.3,
+          "sa": 18.1,
+          "hre": 8.4032,
+          "pctPRG": 4.1,
+          "pctPDG": 4.5,
+          "taPDG": 1.89
+        },
+        "Y2565": {
+          "gm": 23.5,
+          "sa": 18.8,
+          "hre": 8.4032,
+          "pctPRG": 2.6,
+          "pctPDG": 1.7,
+          "taPDG": 1.94
+        },
+        "Y2566": {
+          "gm": 24.8,
+          "sa": 19.4,
+          "hre": 8.4032,
+          "pctPRG": 2.7,
+          "pctPDG": 2.0,
+          "taPDG": 1.98
+        },
+        "Y2567": {
+          "gm": 26.23,
+          "sa": 20.25,
+          "hre": 8.4032,
+          "pctPRG": 2.5,
+          "pctPDG": 2.5,
+          "taPDG": 2.01
+        },
+        "Y2568": {
+          "gm": 21.68,
+          "sa": 20.75,
+          "hre": 8.4032,
+          "pctPRG": -16.76,
+          "pctPDG": -17.35,
+          "taPDG": 1.66
+        },
+        "Y2569": {
+          "gm": 16.28,
+          "sa": 13.68,
+          "hre": 8.4032,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": null
+        }
       },
       "ytd": [
-        {"month":"ม.ค.","gm":2.00,"hre":1.36,"sa":2.06},
-        {"month":"ก.พ.","gm":2.41,"hre":1.25,"sa":2.27},
-        {"month":"มี.ค.","gm":2.25,"hre":1.37,"sa":2.07},
-        {"month":"เม.ย.","gm":3.03,"hre":1.42,"sa":2.19},
-        {"month":"พ.ค.","gm":3.39,"hre":1.49,"sa":2.45},
-        {"month":"มิ.ย.","gm":3.00,"hre":1.52,"sa":2.34},
-        {"month":"ก.ค.","gm":0.20,"hre":0.21,"sa":0.30},
-        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+        {
+          "month": "ม.ค.",
+          "gm": 2.0,
+          "hre": 1.36,
+          "sa": 2.06
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 2.41,
+          "hre": 1.25,
+          "sa": 2.27
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 2.25,
+          "hre": 1.37,
+          "sa": 2.07
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 3.03,
+          "hre": 1.42,
+          "sa": 2.19
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 3.39,
+          "hre": 1.49,
+          "sa": 2.45
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 3.0,
+          "hre": 1.52,
+          "sa": 2.34
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.2,
+          "hre": 0.21,
+          "sa": 0.3
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.0,
+          "hre": 0.0,
+          "sa": 0.0
+        }
       ],
       "ytd2568": [
-        {"month":"ม.ค.","gm":1.95,"hre":1.20,"sa":1.95},
-        {"month":"ก.พ.","gm":2.10,"hre":1.18,"sa":2.00},
-        {"month":"มี.ค.","gm":1.92,"hre":1.15,"sa":1.85},
-        {"month":"เม.ย.","gm":2.30,"hre":1.12,"sa":1.92},
-        {"month":"พ.ค.","gm":2.50,"hre":1.10,"sa":2.05},
-        {"month":"มิ.ย.","gm":2.10,"hre":1.08,"sa":1.90},
-        {"month":"ก.ค.","gm":1.85,"hre":1.06,"sa":1.75},
-        {"month":"ส.ค.","gm":1.75,"hre":1.05,"sa":1.70}
+        {
+          "month": "ม.ค.",
+          "gm": 1.95,
+          "hre": 1.2,
+          "sa": 1.95
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 2.1,
+          "hre": 1.18,
+          "sa": 2.0
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 1.92,
+          "hre": 1.15,
+          "sa": 1.85
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 2.3,
+          "hre": 1.12,
+          "sa": 1.92
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 2.5,
+          "hre": 1.1,
+          "sa": 2.05
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 2.1,
+          "hre": 1.08,
+          "sa": 1.9
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 1.85,
+          "hre": 1.06,
+          "sa": 1.75
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 1.75,
+          "hre": 1.05,
+          "sa": 1.7
+        }
+      ],
+      "employeesByYear": {
+        "Y2559": 527,
+        "Y2560": 525,
+        "Y2561": 628,
+        "Y2562": 570,
+        "Y2563": 547,
+        "Y2564": 584,
+        "Y2565": 559,
+        "Y2566": 183,
+        "Y2567": 513,
+        "Y2568": 532,
+        "Y2569": 303
+      }
+    },
+    {
+      "id": "PMSG",
+      "name": "PMSG (PMS+PIC+PCC+PMG)",
+      "group": "กลุ่ม PMS",
+      "members": 245,
+      "currency": "THB",
+      "years": {
+        "Y2562": {
+          "gm": 9.5,
+          "sa": 7.4,
+          "hre": 4.1461,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": 1.63
+        },
+        "Y2563": {
+          "gm": 10.2,
+          "sa": 7.6,
+          "hre": 4.1461,
+          "pctPRG": 4.4,
+          "pctPDG": 1.9,
+          "taPDG": 1.7
+        },
+        "Y2564": {
+          "gm": 10.85,
+          "sa": 7.85,
+          "hre": 4.1461,
+          "pctPRG": 4.1,
+          "pctPDG": 2.5,
+          "taPDG": 1.77
+        },
+        "Y2565": {
+          "gm": 11.2,
+          "sa": 8.05,
+          "hre": 4.1461,
+          "pctPRG": 2.5,
+          "pctPDG": 1.4,
+          "taPDG": 1.82
+        },
+        "Y2566": {
+          "gm": 11.85,
+          "sa": 8.3,
+          "hre": 4.1461,
+          "pctPRG": 3.1,
+          "pctPDG": 1.8,
+          "taPDG": 1.89
+        },
+        "Y2567": {
+          "gm": 12.5,
+          "sa": 8.5,
+          "hre": 4.1461,
+          "pctPRG": 2.5,
+          "pctPDG": 2.0,
+          "taPDG": 1.95
+        },
+        "Y2568": {
+          "gm": 10.92,
+          "sa": 10.75,
+          "hre": 4.1461,
+          "pctPRG": -15.5,
+          "pctPDG": -16.2,
+          "taPDG": 1.6
+        },
+        "Y2569": {
+          "gm": 9.45,
+          "sa": 7.8,
+          "hre": 4.1461,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": null
+        }
+      },
+      "ytd": [
+        {
+          "month": "ม.ค.",
+          "gm": 1.05,
+          "hre": 1.07,
+          "sa": 1.39
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 1.33,
+          "hre": 1.0,
+          "sa": 1.32
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 1.21,
+          "hre": 1.07,
+          "sa": 1.09
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 1.81,
+          "hre": 1.11,
+          "sa": 1.17
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 2.17,
+          "hre": 1.18,
+          "sa": 1.39
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 1.78,
+          "hre": 1.21,
+          "sa": 1.32
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.1,
+          "hre": 0.11,
+          "sa": 0.14
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.0,
+          "hre": 0.0,
+          "sa": 0.0
+        }
+      ],
+      "ytd2568": [
+        {
+          "month": "ม.ค.",
+          "gm": 0.95,
+          "hre": 0.65,
+          "sa": 0.95
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 1.1,
+          "hre": 0.64,
+          "sa": 1.0
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.98,
+          "hre": 0.63,
+          "sa": 0.92
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 1.2,
+          "hre": 0.62,
+          "sa": 0.98
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 1.35,
+          "hre": 0.61,
+          "sa": 1.05
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 1.15,
+          "hre": 0.6,
+          "sa": 0.95
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.95,
+          "hre": 0.59,
+          "sa": 0.88
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.9,
+          "hre": 0.58,
+          "sa": 0.85
+        }
+      ],
+      "employeesByYear": {
+        "Y2559": 191,
+        "Y2560": 193,
+        "Y2561": 242,
+        "Y2562": 196,
+        "Y2563": 180,
+        "Y2564": 203,
+        "Y2565": 213,
+        "Y2566": 166,
+        "Y2567": 253,
+        "Y2568": 262,
+        "Y2569": 58
+      }
+    },
+    {
+      "id": "PMS",
+      "name": "PMS",
+      "group": "กลุ่ม PMS",
+      "members": 117,
+      "currency": "THB",
+      "years": {
+        "Y2562": {
+          "gm": 3.9,
+          "sa": 3.1,
+          "hre": 0.5741,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": 1.67
+        },
+        "Y2563": {
+          "gm": 4.15,
+          "sa": 3.2,
+          "hre": 0.5741,
+          "pctPRG": 3.5,
+          "pctPDG": 1.9,
+          "taPDG": 1.74
+        },
+        "Y2564": {
+          "gm": 4.4,
+          "sa": 3.3,
+          "hre": 0.5741,
+          "pctPRG": 3.4,
+          "pctPDG": 2.2,
+          "taPDG": 1.82
+        },
+        "Y2565": {
+          "gm": 4.6,
+          "sa": 3.4,
+          "hre": 0.5741,
+          "pctPRG": 2.6,
+          "pctPDG": 1.5,
+          "taPDG": 1.88
+        },
+        "Y2566": {
+          "gm": 4.85,
+          "sa": 3.5,
+          "hre": 0.5741,
+          "pctPRG": 2.6,
+          "pctPDG": 1.6,
+          "taPDG": 1.95
+        },
+        "Y2567": {
+          "gm": 5.1,
+          "sa": 3.6,
+          "hre": 0.5741,
+          "pctPRG": 2.4,
+          "pctPDG": 1.8,
+          "taPDG": 2.03
+        },
+        "Y2568": {
+          "gm": 4.25,
+          "sa": 3.7,
+          "hre": 0.5741,
+          "pctPRG": -14.6,
+          "pctPDG": -15.3,
+          "taPDG": 1.66
+        },
+        "Y2569": {
+          "gm": 3.78,
+          "sa": 2.85,
+          "hre": 0.5741,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": null
+        }
+      },
+      "ytd": [
+        {
+          "month": "ม.ค.",
+          "gm": 0.45,
+          "hre": 0.45,
+          "sa": 0.58
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.55,
+          "hre": 0.42,
+          "sa": 0.55
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.52,
+          "hre": 0.45,
+          "sa": 0.45
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.76,
+          "hre": 0.46,
+          "sa": 0.49
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.91,
+          "hre": 0.49,
+          "sa": 0.58
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.75,
+          "hre": 0.5,
+          "sa": 0.55
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.04,
+          "hre": 0.05,
+          "sa": 0.06
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.0,
+          "hre": 0.0,
+          "sa": 0.0
+        }
+      ],
+      "ytd2568": [
+        {
+          "month": "ม.ค.",
+          "gm": 0.4,
+          "hre": 0.25,
+          "sa": 0.4
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.46,
+          "hre": 0.25,
+          "sa": 0.42
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.41,
+          "hre": 0.24,
+          "sa": 0.38
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.5,
+          "hre": 0.24,
+          "sa": 0.41
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.56,
+          "hre": 0.24,
+          "sa": 0.44
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.48,
+          "hre": 0.23,
+          "sa": 0.4
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.4,
+          "hre": 0.23,
+          "sa": 0.37
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.38,
+          "hre": 0.22,
+          "sa": 0.35
+        }
       ]
     },
     {
-      "id":"PMSG", "name":"PMSG (PMS+PIC+PCC+PMG)", "group":"กลุ่ม PMS", "members":245, "currency":"THB",
+      "id": "PMG",
+      "name": "PMG",
+      "group": "กลุ่ม PMS",
+      "members": 78,
+      "currency": "THB",
       "years": {
-        "Y2562":{"gm":9.50,"sa":7.40,"hre":4.1461,"pctPRG":null,"pctPDG":null,"taPDG":1.63},
-        "Y2563":{"gm":10.20,"sa":7.60,"hre":4.1461,"pctPRG":4.4,"pctPDG":1.9,"taPDG":1.70},
-        "Y2564":{"gm":10.85,"sa":7.85,"hre":4.1461,"pctPRG":4.1,"pctPDG":2.5,"taPDG":1.77},
-        "Y2565":{"gm":11.20,"sa":8.05,"hre":4.1461,"pctPRG":2.5,"pctPDG":1.4,"taPDG":1.82},
-        "Y2566":{"gm":11.85,"sa":8.30,"hre":4.1461,"pctPRG":3.1,"pctPDG":1.8,"taPDG":1.89},
-        "Y2567":{"gm":12.50,"sa":8.50,"hre":4.1461,"pctPRG":2.5,"pctPDG":2.0,"taPDG":1.95},
-        "Y2568":{"gm":10.92,"sa":10.75,"hre":4.1461,"pctPRG":-15.5,"pctPDG":-16.2,"taPDG":1.60},
-        "Y2569":{"gm":9.45,"sa":7.80,"hre":4.1461,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562": {
+          "gm": 2.5,
+          "sa": 1.95,
+          "hre": 0.9095,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": 1.57
+        },
+        "Y2563": {
+          "gm": 2.65,
+          "sa": 2.0,
+          "hre": 0.9095,
+          "pctPRG": 2.7,
+          "pctPDG": 1.6,
+          "taPDG": 1.64
+        },
+        "Y2564": {
+          "gm": 2.8,
+          "sa": 2.07,
+          "hre": 0.9095,
+          "pctPRG": 3.0,
+          "pctPDG": 1.8,
+          "taPDG": 1.71
+        },
+        "Y2565": {
+          "gm": 2.95,
+          "sa": 2.13,
+          "hre": 0.9095,
+          "pctPRG": 2.6,
+          "pctPDG": 1.6,
+          "taPDG": 1.78
+        },
+        "Y2566": {
+          "gm": 3.12,
+          "sa": 2.2,
+          "hre": 0.9095,
+          "pctPRG": 2.8,
+          "pctPDG": 1.7,
+          "taPDG": 1.85
+        },
+        "Y2567": {
+          "gm": 3.3,
+          "sa": 2.28,
+          "hre": 0.9095,
+          "pctPRG": 2.6,
+          "pctPDG": 1.9,
+          "taPDG": 1.93
+        },
+        "Y2568": {
+          "gm": 2.8,
+          "sa": 2.32,
+          "hre": 0.9095,
+          "pctPRG": -15.3,
+          "pctPDG": -16.0,
+          "taPDG": 1.58
+        },
+        "Y2569": {
+          "gm": 2.55,
+          "sa": 1.85,
+          "hre": 0.9095,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": null
+        }
       },
       "ytd": [
-        {"month":"ม.ค.","gm":1.05,"hre":1.07,"sa":1.39},
-        {"month":"ก.พ.","gm":1.33,"hre":1.00,"sa":1.32},
-        {"month":"มี.ค.","gm":1.21,"hre":1.07,"sa":1.09},
-        {"month":"เม.ย.","gm":1.81,"hre":1.11,"sa":1.17},
-        {"month":"พ.ค.","gm":2.17,"hre":1.18,"sa":1.39},
-        {"month":"มิ.ย.","gm":1.78,"hre":1.21,"sa":1.32},
-        {"month":"ก.ค.","gm":0.10,"hre":0.11,"sa":0.14},
-        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+        {
+          "month": "ม.ค.",
+          "gm": 0.28,
+          "hre": 0.28,
+          "sa": 0.36
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.35,
+          "hre": 0.26,
+          "sa": 0.34
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.32,
+          "hre": 0.28,
+          "sa": 0.28
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.48,
+          "hre": 0.29,
+          "sa": 0.3
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.58,
+          "hre": 0.31,
+          "sa": 0.36
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.47,
+          "hre": 0.32,
+          "sa": 0.34
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.03,
+          "hre": 0.03,
+          "sa": 0.04
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.0,
+          "hre": 0.0,
+          "sa": 0.0
+        }
       ],
       "ytd2568": [
-        {"month":"ม.ค.","gm":0.95,"hre":0.65,"sa":0.95},
-        {"month":"ก.พ.","gm":1.10,"hre":0.64,"sa":1.00},
-        {"month":"มี.ค.","gm":0.98,"hre":0.63,"sa":0.92},
-        {"month":"เม.ย.","gm":1.20,"hre":0.62,"sa":0.98},
-        {"month":"พ.ค.","gm":1.35,"hre":0.61,"sa":1.05},
-        {"month":"มิ.ย.","gm":1.15,"hre":0.60,"sa":0.95},
-        {"month":"ก.ค.","gm":0.95,"hre":0.59,"sa":0.88},
-        {"month":"ส.ค.","gm":0.90,"hre":0.58,"sa":0.85}
+        {
+          "month": "ม.ค.",
+          "gm": 0.25,
+          "hre": 0.16,
+          "sa": 0.25
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.29,
+          "hre": 0.16,
+          "sa": 0.26
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.26,
+          "hre": 0.16,
+          "sa": 0.24
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.32,
+          "hre": 0.16,
+          "sa": 0.26
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.36,
+          "hre": 0.15,
+          "sa": 0.28
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.3,
+          "hre": 0.15,
+          "sa": 0.25
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.25,
+          "hre": 0.15,
+          "sa": 0.23
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.24,
+          "hre": 0.15,
+          "sa": 0.22
+        }
       ]
     },
     {
-      "id":"PMS", "name":"PMS", "group":"กลุ่ม PMS", "members":117, "currency":"THB",
+      "id": "PMGI",
+      "name": "PMGI",
+      "group": "กลุ่ม PMS",
+      "members": 50,
+      "currency": "THB",
       "years": {
-        "Y2562":{"gm":3.90,"sa":3.10,"hre":0.5741,"pctPRG":null,"pctPDG":null,"taPDG":1.67},
-        "Y2563":{"gm":4.15,"sa":3.20,"hre":0.5741,"pctPRG":3.5,"pctPDG":1.9,"taPDG":1.74},
-        "Y2564":{"gm":4.40,"sa":3.30,"hre":0.5741,"pctPRG":3.4,"pctPDG":2.2,"taPDG":1.82},
-        "Y2565":{"gm":4.60,"sa":3.40,"hre":0.5741,"pctPRG":2.6,"pctPDG":1.5,"taPDG":1.88},
-        "Y2566":{"gm":4.85,"sa":3.50,"hre":0.5741,"pctPRG":2.6,"pctPDG":1.6,"taPDG":1.95},
-        "Y2567":{"gm":5.10,"sa":3.60,"hre":0.5741,"pctPRG":2.4,"pctPDG":1.8,"taPDG":2.03},
-        "Y2568":{"gm":4.25,"sa":3.70,"hre":0.5741,"pctPRG":-14.6,"pctPDG":-15.3,"taPDG":1.66},
-        "Y2569":{"gm":3.78,"sa":2.85,"hre":0.5741,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562": {
+          "gm": 1.65,
+          "sa": 1.35,
+          "hre": 0.9,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": 1.67
+        },
+        "Y2563": {
+          "gm": 1.78,
+          "sa": 1.39,
+          "hre": 0.92,
+          "pctPRG": 3.0,
+          "pctPDG": 1.8,
+          "taPDG": 1.76
+        },
+        "Y2564": {
+          "gm": 1.92,
+          "sa": 1.43,
+          "hre": 0.94,
+          "pctPRG": 3.1,
+          "pctPDG": 2.0,
+          "taPDG": 1.86
+        },
+        "Y2565": {
+          "gm": 2.02,
+          "sa": 1.47,
+          "hre": 0.96,
+          "pctPRG": 2.6,
+          "pctPDG": 1.5,
+          "taPDG": 1.94
+        },
+        "Y2566": {
+          "gm": 2.15,
+          "sa": 1.52,
+          "hre": 0.97,
+          "pctPRG": 2.8,
+          "pctPDG": 1.7,
+          "taPDG": 2.03
+        },
+        "Y2567": {
+          "gm": 2.3,
+          "sa": 1.57,
+          "hre": 0.99,
+          "pctPRG": 2.5,
+          "pctPDG": 1.9,
+          "taPDG": 2.13
+        },
+        "Y2568": {
+          "gm": 1.95,
+          "sa": 1.6,
+          "hre": 1.0,
+          "pctPRG": -14.7,
+          "pctPDG": -15.4,
+          "taPDG": 1.75
+        },
+        "Y2569": {
+          "gm": 1.78,
+          "sa": 1.32,
+          "hre": 1.18,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": null
+        }
       },
       "ytd": [
-        {"month":"ม.ค.","gm":0.45,"hre":0.45,"sa":0.58},
-        {"month":"ก.พ.","gm":0.55,"hre":0.42,"sa":0.55},
-        {"month":"มี.ค.","gm":0.52,"hre":0.45,"sa":0.45},
-        {"month":"เม.ย.","gm":0.76,"hre":0.46,"sa":0.49},
-        {"month":"พ.ค.","gm":0.91,"hre":0.49,"sa":0.58},
-        {"month":"มิ.ย.","gm":0.75,"hre":0.50,"sa":0.55},
-        {"month":"ก.ค.","gm":0.04,"hre":0.05,"sa":0.06},
-        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+        {
+          "month": "ม.ค.",
+          "gm": 0.2,
+          "hre": 0.2,
+          "sa": 0.25
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.25,
+          "hre": 0.19,
+          "sa": 0.24
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.22,
+          "hre": 0.2,
+          "sa": 0.2
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.34,
+          "hre": 0.21,
+          "sa": 0.22
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.41,
+          "hre": 0.22,
+          "sa": 0.26
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.33,
+          "hre": 0.22,
+          "sa": 0.25
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.02,
+          "hre": 0.02,
+          "sa": 0.03
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.0,
+          "hre": 0.0,
+          "sa": 0.0
+        }
       ],
       "ytd2568": [
-        {"month":"ม.ค.","gm":0.40,"hre":0.25,"sa":0.40},
-        {"month":"ก.พ.","gm":0.46,"hre":0.25,"sa":0.42},
-        {"month":"มี.ค.","gm":0.41,"hre":0.24,"sa":0.38},
-        {"month":"เม.ย.","gm":0.50,"hre":0.24,"sa":0.41},
-        {"month":"พ.ค.","gm":0.56,"hre":0.24,"sa":0.44},
-        {"month":"มิ.ย.","gm":0.48,"hre":0.23,"sa":0.40},
-        {"month":"ก.ค.","gm":0.40,"hre":0.23,"sa":0.37},
-        {"month":"ส.ค.","gm":0.38,"hre":0.22,"sa":0.35}
+        {
+          "month": "ม.ค.",
+          "gm": 0.18,
+          "hre": 0.11,
+          "sa": 0.18
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.21,
+          "hre": 0.11,
+          "sa": 0.19
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.19,
+          "hre": 0.11,
+          "sa": 0.17
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.23,
+          "hre": 0.11,
+          "sa": 0.18
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.26,
+          "hre": 0.11,
+          "sa": 0.2
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.22,
+          "hre": 0.11,
+          "sa": 0.18
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.18,
+          "hre": 0.1,
+          "sa": 0.16
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.17,
+          "hre": 0.1,
+          "sa": 0.15
+        }
       ]
     },
     {
-      "id":"PMG", "name":"PMG", "group":"กลุ่ม PMS", "members":78, "currency":"THB",
+      "id": "AAMG",
+      "name": "AAMG (AAM+PMA+EAC+PAMCO)",
+      "group": "กลุ่ม AAM",
+      "members": 156,
+      "currency": "THB",
       "years": {
-        "Y2562":{"gm":2.50,"sa":1.95,"hre":0.9095,"pctPRG":null,"pctPDG":null,"taPDG":1.57},
-        "Y2563":{"gm":2.65,"sa":2.00,"hre":0.9095,"pctPRG":2.7,"pctPDG":1.6,"taPDG":1.64},
-        "Y2564":{"gm":2.80,"sa":2.07,"hre":0.9095,"pctPRG":3.0,"pctPDG":1.8,"taPDG":1.71},
-        "Y2565":{"gm":2.95,"sa":2.13,"hre":0.9095,"pctPRG":2.6,"pctPDG":1.6,"taPDG":1.78},
-        "Y2566":{"gm":3.12,"sa":2.20,"hre":0.9095,"pctPRG":2.8,"pctPDG":1.7,"taPDG":1.85},
-        "Y2567":{"gm":3.30,"sa":2.28,"hre":0.9095,"pctPRG":2.6,"pctPDG":1.9,"taPDG":1.93},
-        "Y2568":{"gm":2.80,"sa":2.32,"hre":0.9095,"pctPRG":-15.3,"pctPDG":-16.0,"taPDG":1.58},
-        "Y2569":{"gm":2.55,"sa":1.85,"hre":0.9095,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562": {
+          "gm": 11.5,
+          "sa": 8.8,
+          "hre": 2.4794,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": 1.69
+        },
+        "Y2563": {
+          "gm": 12.3,
+          "sa": 9.05,
+          "hre": 2.4794,
+          "pctPRG": 3.6,
+          "pctPDG": 2.1,
+          "taPDG": 1.77
+        },
+        "Y2564": {
+          "gm": 13.1,
+          "sa": 9.35,
+          "hre": 2.4794,
+          "pctPRG": 3.2,
+          "pctPDG": 2.2,
+          "taPDG": 1.85
+        },
+        "Y2565": {
+          "gm": 13.78,
+          "sa": 9.6,
+          "hre": 2.4794,
+          "pctPRG": 2.4,
+          "pctPDG": 1.4,
+          "taPDG": 1.92
+        },
+        "Y2566": {
+          "gm": 14.55,
+          "sa": 9.85,
+          "hre": 2.4794,
+          "pctPRG": 2.5,
+          "pctPDG": 1.6,
+          "taPDG": 2.0
+        },
+        "Y2567": {
+          "gm": 15.4,
+          "sa": 10.1,
+          "hre": 2.4794,
+          "pctPRG": 2.5,
+          "pctPDG": 1.9,
+          "taPDG": 2.09
+        },
+        "Y2568": {
+          "gm": 12.95,
+          "sa": 10.3,
+          "hre": 2.4794,
+          "pctPRG": -15.0,
+          "pctPDG": -15.7,
+          "taPDG": 1.71
+        },
+        "Y2569": {
+          "gm": 11.2,
+          "sa": 8.65,
+          "hre": 2.4794,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": null
+        }
       },
       "ytd": [
-        {"month":"ม.ค.","gm":0.28,"hre":0.28,"sa":0.36},
-        {"month":"ก.พ.","gm":0.35,"hre":0.26,"sa":0.34},
-        {"month":"มี.ค.","gm":0.32,"hre":0.28,"sa":0.28},
-        {"month":"เม.ย.","gm":0.48,"hre":0.29,"sa":0.30},
-        {"month":"พ.ค.","gm":0.58,"hre":0.31,"sa":0.36},
-        {"month":"มิ.ย.","gm":0.47,"hre":0.32,"sa":0.34},
-        {"month":"ก.ค.","gm":0.03,"hre":0.03,"sa":0.04},
-        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+        {
+          "month": "ม.ค.",
+          "gm": 1.32,
+          "hre": 1.22,
+          "sa": 1.62
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 1.65,
+          "hre": 1.16,
+          "sa": 1.55
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 1.52,
+          "hre": 1.2,
+          "sa": 1.32
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 2.12,
+          "hre": 1.25,
+          "sa": 1.45
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 2.48,
+          "hre": 1.32,
+          "sa": 1.72
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 2.05,
+          "hre": 1.34,
+          "sa": 1.62
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.13,
+          "hre": 0.14,
+          "sa": 0.18
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.0,
+          "hre": 0.0,
+          "sa": 0.0
+        }
       ],
       "ytd2568": [
-        {"month":"ม.ค.","gm":0.25,"hre":0.16,"sa":0.25},
-        {"month":"ก.พ.","gm":0.29,"hre":0.16,"sa":0.26},
-        {"month":"มี.ค.","gm":0.26,"hre":0.16,"sa":0.24},
-        {"month":"เม.ย.","gm":0.32,"hre":0.16,"sa":0.26},
-        {"month":"พ.ค.","gm":0.36,"hre":0.15,"sa":0.28},
-        {"month":"มิ.ย.","gm":0.30,"hre":0.15,"sa":0.25},
-        {"month":"ก.ค.","gm":0.25,"hre":0.15,"sa":0.23},
-        {"month":"ส.ค.","gm":0.24,"hre":0.15,"sa":0.22}
+        {
+          "month": "ม.ค.",
+          "gm": 1.2,
+          "hre": 0.72,
+          "sa": 1.1
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 1.38,
+          "hre": 0.71,
+          "sa": 1.18
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 1.22,
+          "hre": 0.7,
+          "sa": 1.05
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 1.48,
+          "hre": 0.69,
+          "sa": 1.12
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 1.65,
+          "hre": 0.68,
+          "sa": 1.22
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 1.4,
+          "hre": 0.67,
+          "sa": 1.08
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 1.15,
+          "hre": 0.66,
+          "sa": 0.98
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 1.08,
+          "hre": 0.65,
+          "sa": 0.95
+        }
+      ],
+      "employeesByYear": {
+        "Y2559": 204,
+        "Y2560": 206,
+        "Y2561": 219,
+        "Y2562": 178,
+        "Y2563": 176,
+        "Y2564": 168,
+        "Y2565": 139,
+        "Y2566": 0,
+        "Y2567": 125,
+        "Y2568": 127,
+        "Y2569": 172
+      }
+    },
+    {
+      "id": "AAM",
+      "name": "AAM",
+      "group": "กลุ่ม AAM",
+      "members": 62,
+      "currency": "THB",
+      "years": {
+        "Y2562": {
+          "gm": 4.6,
+          "sa": 3.55,
+          "hre": 2.5,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": 1.68
+        },
+        "Y2563": {
+          "gm": 4.92,
+          "sa": 3.65,
+          "hre": 2.55,
+          "pctPRG": 3.4,
+          "pctPDG": 2.0,
+          "taPDG": 1.76
+        },
+        "Y2564": {
+          "gm": 5.25,
+          "sa": 3.75,
+          "hre": 2.6,
+          "pctPRG": 3.2,
+          "pctPDG": 2.2,
+          "taPDG": 1.85
+        },
+        "Y2565": {
+          "gm": 5.52,
+          "sa": 3.85,
+          "hre": 2.64,
+          "pctPRG": 2.5,
+          "pctPDG": 1.4,
+          "taPDG": 1.91
+        },
+        "Y2566": {
+          "gm": 5.85,
+          "sa": 3.95,
+          "hre": 2.68,
+          "pctPRG": 2.6,
+          "pctPDG": 1.6,
+          "taPDG": 2.0
+        },
+        "Y2567": {
+          "gm": 6.2,
+          "sa": 4.05,
+          "hre": 2.72,
+          "pctPRG": 2.4,
+          "pctPDG": 1.8,
+          "taPDG": 2.1
+        },
+        "Y2568": {
+          "gm": 5.2,
+          "sa": 4.15,
+          "hre": 2.75,
+          "pctPRG": -15.2,
+          "pctPDG": -15.8,
+          "taPDG": 1.73
+        },
+        "Y2569": {
+          "gm": 4.5,
+          "sa": 3.48,
+          "hre": 3.18,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": null
+        }
+      },
+      "ytd": [
+        {
+          "month": "ม.ค.",
+          "gm": 0.53,
+          "hre": 0.49,
+          "sa": 0.65
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.66,
+          "hre": 0.46,
+          "sa": 0.62
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.61,
+          "hre": 0.48,
+          "sa": 0.53
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.85,
+          "hre": 0.5,
+          "sa": 0.58
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.99,
+          "hre": 0.53,
+          "sa": 0.69
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.82,
+          "hre": 0.54,
+          "sa": 0.65
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.05,
+          "hre": 0.06,
+          "sa": 0.07
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.0,
+          "hre": 0.0,
+          "sa": 0.0
+        }
+      ],
+      "ytd2568": [
+        {
+          "month": "ม.ค.",
+          "gm": 0.48,
+          "hre": 0.29,
+          "sa": 0.44
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.55,
+          "hre": 0.28,
+          "sa": 0.47
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.49,
+          "hre": 0.28,
+          "sa": 0.42
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.59,
+          "hre": 0.28,
+          "sa": 0.45
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.66,
+          "hre": 0.27,
+          "sa": 0.49
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.56,
+          "hre": 0.27,
+          "sa": 0.43
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.46,
+          "hre": 0.26,
+          "sa": 0.39
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.43,
+          "hre": 0.26,
+          "sa": 0.38
+        }
       ]
     },
     {
-      "id":"PMGI", "name":"PMGI", "group":"กลุ่ม PMS", "members":50, "currency":"THB",
+      "id": "RPLC&RAFL",
+      "name": "RPLC&RAFL",
+      "group": "กลุ่ม RPLC",
+      "members": 28,
+      "currency": "THB",
       "years": {
-        "Y2562":{"gm":1.65,"sa":1.35,"hre":0.90,"pctPRG":null,"pctPDG":null,"taPDG":1.67},
-        "Y2563":{"gm":1.78,"sa":1.39,"hre":0.92,"pctPRG":3.0,"pctPDG":1.8,"taPDG":1.76},
-        "Y2564":{"gm":1.92,"sa":1.43,"hre":0.94,"pctPRG":3.1,"pctPDG":2.0,"taPDG":1.86},
-        "Y2565":{"gm":2.02,"sa":1.47,"hre":0.96,"pctPRG":2.6,"pctPDG":1.5,"taPDG":1.94},
-        "Y2566":{"gm":2.15,"sa":1.52,"hre":0.97,"pctPRG":2.8,"pctPDG":1.7,"taPDG":2.03},
-        "Y2567":{"gm":2.30,"sa":1.57,"hre":0.99,"pctPRG":2.5,"pctPDG":1.9,"taPDG":2.13},
-        "Y2568":{"gm":1.95,"sa":1.60,"hre":1.00,"pctPRG":-14.7,"pctPDG":-15.4,"taPDG":1.75},
-        "Y2569":{"gm":1.78,"sa":1.32,"hre":1.18,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562": {
+          "gm": 3.5,
+          "sa": 2.9,
+          "hre": 1.8,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": 1.78
+        },
+        "Y2563": {
+          "gm": 3.78,
+          "sa": 2.98,
+          "hre": 1.83,
+          "pctPRG": 4.0,
+          "pctPDG": 2.2,
+          "taPDG": 1.89
+        },
+        "Y2564": {
+          "gm": 4.05,
+          "sa": 3.06,
+          "hre": 1.86,
+          "pctPRG": 3.5,
+          "pctPDG": 2.3,
+          "taPDG": 1.99
+        },
+        "Y2565": {
+          "gm": 4.25,
+          "sa": 3.14,
+          "hre": 1.89,
+          "pctPRG": 2.6,
+          "pctPDG": 1.5,
+          "taPDG": 2.06
+        },
+        "Y2566": {
+          "gm": 4.5,
+          "sa": 3.22,
+          "hre": 1.92,
+          "pctPRG": 2.8,
+          "pctPDG": 1.7,
+          "taPDG": 2.16
+        },
+        "Y2567": {
+          "gm": 4.78,
+          "sa": 3.3,
+          "hre": 1.95,
+          "pctPRG": 2.5,
+          "pctPDG": 1.9,
+          "taPDG": 2.26
+        },
+        "Y2568": {
+          "gm": 4.1,
+          "sa": 3.36,
+          "hre": 1.98,
+          "pctPRG": -13.8,
+          "pctPDG": -14.4,
+          "taPDG": 1.87
+        },
+        "Y2569": {
+          "gm": 3.65,
+          "sa": 2.82,
+          "hre": 2.3,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": null
+        }
       },
       "ytd": [
-        {"month":"ม.ค.","gm":0.20,"hre":0.20,"sa":0.25},
-        {"month":"ก.พ.","gm":0.25,"hre":0.19,"sa":0.24},
-        {"month":"มี.ค.","gm":0.22,"hre":0.20,"sa":0.20},
-        {"month":"เม.ย.","gm":0.34,"hre":0.21,"sa":0.22},
-        {"month":"พ.ค.","gm":0.41,"hre":0.22,"sa":0.26},
-        {"month":"มิ.ย.","gm":0.33,"hre":0.22,"sa":0.25},
-        {"month":"ก.ค.","gm":0.02,"hre":0.02,"sa":0.03},
-        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+        {
+          "month": "ม.ค.",
+          "gm": 0.42,
+          "hre": 0.36,
+          "sa": 0.52
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.53,
+          "hre": 0.33,
+          "sa": 0.5
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.48,
+          "hre": 0.36,
+          "sa": 0.42
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.68,
+          "hre": 0.38,
+          "sa": 0.46
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.8,
+          "hre": 0.4,
+          "sa": 0.55
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.66,
+          "hre": 0.41,
+          "sa": 0.52
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.04,
+          "hre": 0.05,
+          "sa": 0.06
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.0,
+          "hre": 0.0,
+          "sa": 0.0
+        }
       ],
       "ytd2568": [
-        {"month":"ม.ค.","gm":0.18,"hre":0.11,"sa":0.18},
-        {"month":"ก.พ.","gm":0.21,"hre":0.11,"sa":0.19},
-        {"month":"มี.ค.","gm":0.19,"hre":0.11,"sa":0.17},
-        {"month":"เม.ย.","gm":0.23,"hre":0.11,"sa":0.18},
-        {"month":"พ.ค.","gm":0.26,"hre":0.11,"sa":0.20},
-        {"month":"มิ.ย.","gm":0.22,"hre":0.11,"sa":0.18},
-        {"month":"ก.ค.","gm":0.18,"hre":0.10,"sa":0.16},
-        {"month":"ส.ค.","gm":0.17,"hre":0.10,"sa":0.15}
+        {
+          "month": "ม.ค.",
+          "gm": 0.38,
+          "hre": 0.21,
+          "sa": 0.36
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.44,
+          "hre": 0.21,
+          "sa": 0.38
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.39,
+          "hre": 0.2,
+          "sa": 0.34
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.47,
+          "hre": 0.2,
+          "sa": 0.36
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.52,
+          "hre": 0.2,
+          "sa": 0.4
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.44,
+          "hre": 0.2,
+          "sa": 0.35
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.37,
+          "hre": 0.2,
+          "sa": 0.32
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.34,
+          "hre": 0.19,
+          "sa": 0.3
+        }
+      ],
+      "employeesByYear": {
+        "Y2559": 31,
+        "Y2560": 31,
+        "Y2561": 55,
+        "Y2562": 53,
+        "Y2563": 53,
+        "Y2564": 46,
+        "Y2565": 41,
+        "Y2566": 0,
+        "Y2567": 28,
+        "Y2568": 25,
+        "Y2569": 0
+      }
+    },
+    {
+      "id": "RAFCO&AICP",
+      "name": "RAFCO&AICP",
+      "group": "กลุ่ม RPLC",
+      "members": 29,
+      "currency": "THB",
+      "years": {
+        "Y2562": {
+          "gm": 1.95,
+          "sa": 1.6,
+          "hre": 1.0,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": 1.8
+        },
+        "Y2563": {
+          "gm": 2.1,
+          "sa": 1.64,
+          "hre": 1.02,
+          "pctPRG": 4.2,
+          "pctPDG": 2.3,
+          "taPDG": 1.91
+        },
+        "Y2564": {
+          "gm": 2.26,
+          "sa": 1.68,
+          "hre": 1.04,
+          "pctPRG": 3.5,
+          "pctPDG": 2.4,
+          "taPDG": 2.02
+        },
+        "Y2565": {
+          "gm": 2.38,
+          "sa": 1.72,
+          "hre": 1.06,
+          "pctPRG": 2.6,
+          "pctPDG": 1.6,
+          "taPDG": 2.09
+        },
+        "Y2566": {
+          "gm": 2.52,
+          "sa": 1.76,
+          "hre": 1.08,
+          "pctPRG": 2.7,
+          "pctPDG": 1.7,
+          "taPDG": 2.19
+        },
+        "Y2567": {
+          "gm": 2.68,
+          "sa": 1.8,
+          "hre": 1.1,
+          "pctPRG": 2.5,
+          "pctPDG": 1.9,
+          "taPDG": 2.28
+        },
+        "Y2568": {
+          "gm": 2.3,
+          "sa": 1.84,
+          "hre": 1.12,
+          "pctPRG": -13.6,
+          "pctPDG": -14.2,
+          "taPDG": 1.88
+        },
+        "Y2569": {
+          "gm": 2.05,
+          "sa": 1.55,
+          "hre": 1.3,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": null
+        }
+      },
+      "ytd": [
+        {
+          "month": "ม.ค.",
+          "gm": 0.24,
+          "hre": 0.2,
+          "sa": 0.3
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.3,
+          "hre": 0.19,
+          "sa": 0.28
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.27,
+          "hre": 0.2,
+          "sa": 0.24
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.39,
+          "hre": 0.21,
+          "sa": 0.26
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.45,
+          "hre": 0.22,
+          "sa": 0.31
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.37,
+          "hre": 0.23,
+          "sa": 0.29
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.02,
+          "hre": 0.03,
+          "sa": 0.03
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.0,
+          "hre": 0.0,
+          "sa": 0.0
+        }
+      ],
+      "ytd2568": [
+        {
+          "month": "ม.ค.",
+          "gm": 0.22,
+          "hre": 0.12,
+          "sa": 0.2
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.25,
+          "hre": 0.12,
+          "sa": 0.21
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.22,
+          "hre": 0.12,
+          "sa": 0.19
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.27,
+          "hre": 0.12,
+          "sa": 0.2
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.3,
+          "hre": 0.11,
+          "sa": 0.22
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.25,
+          "hre": 0.11,
+          "sa": 0.2
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.21,
+          "hre": 0.11,
+          "sa": 0.18
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.2,
+          "hre": 0.11,
+          "sa": 0.17
+        }
+      ],
+      "employeesByYear": {
+        "Y2559": 0,
+        "Y2560": 0,
+        "Y2561": 5,
+        "Y2562": 29,
+        "Y2563": 29,
+        "Y2564": 56,
+        "Y2565": 56,
+        "Y2566": 0,
+        "Y2567": 33,
+        "Y2568": 24,
+        "Y2569": 0
+      }
+    },
+    {
+      "id": "CPDG&LDC",
+      "name": "CPDG&LDC (รวม)",
+      "group": "กลุ่ม CPDG",
+      "members": 50,
+      "currency": "THB",
+      "years": {
+        "Y2562": {
+          "gm": 4.95,
+          "sa": 3.85,
+          "hre": 2.4,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": 1.88
+        },
+        "Y2563": {
+          "gm": 5.32,
+          "sa": 3.95,
+          "hre": 2.45,
+          "pctPRG": 4.0,
+          "pctPDG": 2.4,
+          "taPDG": 1.98
+        },
+        "Y2564": {
+          "gm": 5.7,
+          "sa": 4.06,
+          "hre": 2.5,
+          "pctPRG": 3.5,
+          "pctPDG": 2.3,
+          "taPDG": 2.08
+        },
+        "Y2565": {
+          "gm": 5.98,
+          "sa": 4.17,
+          "hre": 2.54,
+          "pctPRG": 2.6,
+          "pctPDG": 1.5,
+          "taPDG": 2.16
+        },
+        "Y2566": {
+          "gm": 6.32,
+          "sa": 4.28,
+          "hre": 2.58,
+          "pctPRG": 2.8,
+          "pctPDG": 1.7,
+          "taPDG": 2.26
+        },
+        "Y2567": {
+          "gm": 6.68,
+          "sa": 4.4,
+          "hre": 2.62,
+          "pctPRG": 2.6,
+          "pctPDG": 1.9,
+          "taPDG": 2.36
+        },
+        "Y2568": {
+          "gm": 5.65,
+          "sa": 4.5,
+          "hre": 2.66,
+          "pctPRG": -14.0,
+          "pctPDG": -14.6,
+          "taPDG": 1.94
+        },
+        "Y2569": {
+          "gm": 4.92,
+          "sa": 3.78,
+          "hre": 3.08,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": null
+        }
+      },
+      "ytd": [
+        {
+          "month": "ม.ค.",
+          "gm": 0.58,
+          "hre": 0.48,
+          "sa": 0.72
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.72,
+          "hre": 0.45,
+          "sa": 0.68
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.65,
+          "hre": 0.48,
+          "sa": 0.58
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.92,
+          "hre": 0.5,
+          "sa": 0.64
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 1.08,
+          "hre": 0.52,
+          "sa": 0.78
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.88,
+          "hre": 0.53,
+          "sa": 0.72
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.05,
+          "hre": 0.06,
+          "sa": 0.08
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.0,
+          "hre": 0.0,
+          "sa": 0.0
+        }
+      ],
+      "ytd2568": [
+        {
+          "month": "ม.ค.",
+          "gm": 0.52,
+          "hre": 0.28,
+          "sa": 0.48
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.6,
+          "hre": 0.28,
+          "sa": 0.5
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.53,
+          "hre": 0.28,
+          "sa": 0.45
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.64,
+          "hre": 0.27,
+          "sa": 0.48
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.71,
+          "hre": 0.27,
+          "sa": 0.53
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.6,
+          "hre": 0.27,
+          "sa": 0.47
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.5,
+          "hre": 0.26,
+          "sa": 0.42
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.47,
+          "hre": 0.26,
+          "sa": 0.4
+        }
+      ],
+      "employeesByYear": {
+        "Y2559": 0,
+        "Y2560": 0,
+        "Y2561": 0,
+        "Y2562": 15,
+        "Y2563": 15,
+        "Y2564": 0,
+        "Y2565": 0,
+        "Y2566": 0,
+        "Y2567": 51,
+        "Y2568": 72,
+        "Y2569": 45
+      }
+    },
+    {
+      "id": "CPDG",
+      "name": "CPDG (AGS+21CT+CDB)",
+      "group": "กลุ่ม CPDG",
+      "members": 44,
+      "currency": "THB",
+      "years": {
+        "Y2562": {
+          "gm": 2.95,
+          "sa": 2.3,
+          "hre": 0.1861,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": 1.86
+        },
+        "Y2563": {
+          "gm": 3.18,
+          "sa": 2.36,
+          "hre": 0.1861,
+          "pctPRG": 4.0,
+          "pctPDG": 2.4,
+          "taPDG": 1.96
+        },
+        "Y2564": {
+          "gm": 3.4,
+          "sa": 2.42,
+          "hre": 0.1861,
+          "pctPRG": 3.4,
+          "pctPDG": 2.2,
+          "taPDG": 2.05
+        },
+        "Y2565": {
+          "gm": 3.55,
+          "sa": 2.48,
+          "hre": 0.1861,
+          "pctPRG": 2.5,
+          "pctPDG": 1.4,
+          "taPDG": 2.13
+        },
+        "Y2566": {
+          "gm": 3.75,
+          "sa": 2.54,
+          "hre": 0.1861,
+          "pctPRG": 2.7,
+          "pctPDG": 1.5,
+          "taPDG": 2.23
+        },
+        "Y2567": {
+          "gm": 3.96,
+          "sa": 2.6,
+          "hre": 0.1861,
+          "pctPRG": 2.5,
+          "pctPDG": 1.7,
+          "taPDG": 2.34
+        },
+        "Y2568": {
+          "gm": 3.35,
+          "sa": 2.65,
+          "hre": 0.1861,
+          "pctPRG": -14.0,
+          "pctPDG": -14.6,
+          "taPDG": 1.92
+        },
+        "Y2569": {
+          "gm": 2.92,
+          "sa": 2.25,
+          "hre": 0.1861,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": null
+        }
+      },
+      "ytd": [
+        {
+          "month": "ม.ค.",
+          "gm": 0.35,
+          "hre": 0.29,
+          "sa": 0.42
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.42,
+          "hre": 0.27,
+          "sa": 0.4
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.38,
+          "hre": 0.29,
+          "sa": 0.34
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.54,
+          "hre": 0.3,
+          "sa": 0.38
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.64,
+          "hre": 0.31,
+          "sa": 0.46
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.52,
+          "hre": 0.32,
+          "sa": 0.42
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.03,
+          "hre": 0.04,
+          "sa": 0.05
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.0,
+          "hre": 0.0,
+          "sa": 0.0
+        }
+      ],
+      "ytd2568": [
+        {
+          "month": "ม.ค.",
+          "gm": 0.31,
+          "hre": 0.17,
+          "sa": 0.29
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.36,
+          "hre": 0.17,
+          "sa": 0.3
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.32,
+          "hre": 0.17,
+          "sa": 0.27
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.38,
+          "hre": 0.16,
+          "sa": 0.29
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.43,
+          "hre": 0.16,
+          "sa": 0.32
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.36,
+          "hre": 0.16,
+          "sa": 0.28
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.3,
+          "hre": 0.16,
+          "sa": 0.25
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.28,
+          "hre": 0.16,
+          "sa": 0.24
+        }
       ]
     },
     {
-      "id":"AAMG", "name":"AAMG (AAM+PMA+EAC+PAMCO)", "group":"กลุ่ม AAM", "members":156, "currency":"THB",
+      "id": "LDC",
+      "name": "LDC",
+      "group": "กลุ่ม CPDG",
+      "members": 6,
+      "currency": "THB",
       "years": {
-        "Y2562":{"gm":11.50,"sa":8.80,"hre":2.4794,"pctPRG":null,"pctPDG":null,"taPDG":1.69},
-        "Y2563":{"gm":12.30,"sa":9.05,"hre":2.4794,"pctPRG":3.6,"pctPDG":2.1,"taPDG":1.77},
-        "Y2564":{"gm":13.10,"sa":9.35,"hre":2.4794,"pctPRG":3.2,"pctPDG":2.2,"taPDG":1.85},
-        "Y2565":{"gm":13.78,"sa":9.60,"hre":2.4794,"pctPRG":2.4,"pctPDG":1.4,"taPDG":1.92},
-        "Y2566":{"gm":14.55,"sa":9.85,"hre":2.4794,"pctPRG":2.5,"pctPDG":1.6,"taPDG":2.00},
-        "Y2567":{"gm":15.40,"sa":10.10,"hre":2.4794,"pctPRG":2.5,"pctPDG":1.9,"taPDG":2.09},
-        "Y2568":{"gm":12.95,"sa":10.30,"hre":2.4794,"pctPRG":-15.0,"pctPDG":-15.7,"taPDG":1.71},
-        "Y2569":{"gm":11.20,"sa":8.65,"hre":2.4794,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562": {
+          "gm": 2.0,
+          "sa": 1.55,
+          "hre": 0.299,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": 1.89
+        },
+        "Y2563": {
+          "gm": 2.14,
+          "sa": 1.59,
+          "hre": 0.299,
+          "pctPRG": 4.0,
+          "pctPDG": 2.4,
+          "taPDG": 2.01
+        },
+        "Y2564": {
+          "gm": 2.3,
+          "sa": 1.64,
+          "hre": 0.299,
+          "pctPRG": 3.5,
+          "pctPDG": 2.4,
+          "taPDG": 2.12
+        },
+        "Y2565": {
+          "gm": 2.43,
+          "sa": 1.69,
+          "hre": 0.299,
+          "pctPRG": 2.6,
+          "pctPDG": 1.6,
+          "taPDG": 2.2
+        },
+        "Y2566": {
+          "gm": 2.57,
+          "sa": 1.74,
+          "hre": 0.299,
+          "pctPRG": 2.8,
+          "pctPDG": 1.7,
+          "taPDG": 2.29
+        },
+        "Y2567": {
+          "gm": 2.72,
+          "sa": 1.8,
+          "hre": 0.299,
+          "pctPRG": 2.6,
+          "pctPDG": 1.9,
+          "taPDG": 2.39
+        },
+        "Y2568": {
+          "gm": 2.3,
+          "sa": 1.85,
+          "hre": 0.299,
+          "pctPRG": -14.0,
+          "pctPDG": -14.6,
+          "taPDG": 1.96
+        },
+        "Y2569": {
+          "gm": 2.0,
+          "sa": 1.53,
+          "hre": 0.299,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": null
+        }
       },
       "ytd": [
-        {"month":"ม.ค.","gm":1.32,"hre":1.22,"sa":1.62},
-        {"month":"ก.พ.","gm":1.65,"hre":1.16,"sa":1.55},
-        {"month":"มี.ค.","gm":1.52,"hre":1.20,"sa":1.32},
-        {"month":"เม.ย.","gm":2.12,"hre":1.25,"sa":1.45},
-        {"month":"พ.ค.","gm":2.48,"hre":1.32,"sa":1.72},
-        {"month":"มิ.ย.","gm":2.05,"hre":1.34,"sa":1.62},
-        {"month":"ก.ค.","gm":0.13,"hre":0.14,"sa":0.18},
-        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+        {
+          "month": "ม.ค.",
+          "gm": 0.23,
+          "hre": 0.19,
+          "sa": 0.3
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.3,
+          "hre": 0.18,
+          "sa": 0.28
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.27,
+          "hre": 0.19,
+          "sa": 0.24
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.38,
+          "hre": 0.2,
+          "sa": 0.26
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.44,
+          "hre": 0.21,
+          "sa": 0.32
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.36,
+          "hre": 0.21,
+          "sa": 0.3
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.02,
+          "hre": 0.02,
+          "sa": 0.03
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.0,
+          "hre": 0.0,
+          "sa": 0.0
+        }
       ],
       "ytd2568": [
-        {"month":"ม.ค.","gm":1.20,"hre":0.72,"sa":1.10},
-        {"month":"ก.พ.","gm":1.38,"hre":0.71,"sa":1.18},
-        {"month":"มี.ค.","gm":1.22,"hre":0.70,"sa":1.05},
-        {"month":"เม.ย.","gm":1.48,"hre":0.69,"sa":1.12},
-        {"month":"พ.ค.","gm":1.65,"hre":0.68,"sa":1.22},
-        {"month":"มิ.ย.","gm":1.40,"hre":0.67,"sa":1.08},
-        {"month":"ก.ค.","gm":1.15,"hre":0.66,"sa":0.98},
-        {"month":"ส.ค.","gm":1.08,"hre":0.65,"sa":0.95}
+        {
+          "month": "ม.ค.",
+          "gm": 0.21,
+          "hre": 0.11,
+          "sa": 0.19
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.24,
+          "hre": 0.11,
+          "sa": 0.2
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.21,
+          "hre": 0.11,
+          "sa": 0.18
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.26,
+          "hre": 0.11,
+          "sa": 0.19
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.28,
+          "hre": 0.11,
+          "sa": 0.21
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.24,
+          "hre": 0.11,
+          "sa": 0.19
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.2,
+          "hre": 0.1,
+          "sa": 0.17
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.19,
+          "hre": 0.1,
+          "sa": 0.16
+        }
       ]
     },
     {
-      "id":"AAM", "name":"AAM", "group":"กลุ่ม AAM", "members":62, "currency":"THB",
+      "id": "TNRG",
+      "name": "TNRG",
+      "group": "TNRG",
+      "members": 0,
+      "currency": "THB",
       "years": {
-        "Y2562":{"gm":4.60,"sa":3.55,"hre":2.50,"pctPRG":null,"pctPDG":null,"taPDG":1.68},
-        "Y2563":{"gm":4.92,"sa":3.65,"hre":2.55,"pctPRG":3.4,"pctPDG":2.0,"taPDG":1.76},
-        "Y2564":{"gm":5.25,"sa":3.75,"hre":2.60,"pctPRG":3.2,"pctPDG":2.2,"taPDG":1.85},
-        "Y2565":{"gm":5.52,"sa":3.85,"hre":2.64,"pctPRG":2.5,"pctPDG":1.4,"taPDG":1.91},
-        "Y2566":{"gm":5.85,"sa":3.95,"hre":2.68,"pctPRG":2.6,"pctPDG":1.6,"taPDG":2.00},
-        "Y2567":{"gm":6.20,"sa":4.05,"hre":2.72,"pctPRG":2.4,"pctPDG":1.8,"taPDG":2.10},
-        "Y2568":{"gm":5.20,"sa":4.15,"hre":2.75,"pctPRG":-15.2,"pctPDG":-15.8,"taPDG":1.73},
-        "Y2569":{"gm":4.50,"sa":3.48,"hre":3.18,"pctPRG":null,"pctPDG":null,"taPDG":null}
+        "Y2562": {
+          "gm": 2.75,
+          "sa": 2.2,
+          "hre": 1.5,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": 1.67
+        },
+        "Y2563": {
+          "gm": 2.96,
+          "sa": 2.26,
+          "hre": 1.53,
+          "pctPRG": 4.0,
+          "pctPDG": 2.3,
+          "taPDG": 1.76
+        },
+        "Y2564": {
+          "gm": 3.18,
+          "sa": 2.32,
+          "hre": 1.56,
+          "pctPRG": 3.3,
+          "pctPDG": 2.2,
+          "taPDG": 1.86
+        },
+        "Y2565": {
+          "gm": 3.34,
+          "sa": 2.38,
+          "hre": 1.58,
+          "pctPRG": 2.5,
+          "pctPDG": 1.4,
+          "taPDG": 1.94
+        },
+        "Y2566": {
+          "gm": 3.55,
+          "sa": 2.44,
+          "hre": 1.6,
+          "pctPRG": 2.7,
+          "pctPDG": 1.6,
+          "taPDG": 2.03
+        },
+        "Y2567": {
+          "gm": 3.75,
+          "sa": 2.5,
+          "hre": 1.62,
+          "pctPRG": 2.5,
+          "pctPDG": 1.8,
+          "taPDG": 2.13
+        },
+        "Y2568": {
+          "gm": 3.2,
+          "sa": 2.55,
+          "hre": 1.65,
+          "pctPRG": -13.9,
+          "pctPDG": -14.5,
+          "taPDG": 1.76
+        },
+        "Y2569": {
+          "gm": 2.78,
+          "sa": 2.15,
+          "hre": 1.92,
+          "pctPRG": null,
+          "pctPDG": null,
+          "taPDG": null
+        }
       },
       "ytd": [
-        {"month":"ม.ค.","gm":0.53,"hre":0.49,"sa":0.65},
-        {"month":"ก.พ.","gm":0.66,"hre":0.46,"sa":0.62},
-        {"month":"มี.ค.","gm":0.61,"hre":0.48,"sa":0.53},
-        {"month":"เม.ย.","gm":0.85,"hre":0.50,"sa":0.58},
-        {"month":"พ.ค.","gm":0.99,"hre":0.53,"sa":0.69},
-        {"month":"มิ.ย.","gm":0.82,"hre":0.54,"sa":0.65},
-        {"month":"ก.ค.","gm":0.05,"hre":0.06,"sa":0.07},
-        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+        {
+          "month": "ม.ค.",
+          "gm": 0.32,
+          "hre": 0.3,
+          "sa": 0.4
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.4,
+          "hre": 0.28,
+          "sa": 0.38
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.37,
+          "hre": 0.3,
+          "sa": 0.32
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.52,
+          "hre": 0.31,
+          "sa": 0.36
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.61,
+          "hre": 0.32,
+          "sa": 0.44
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.5,
+          "hre": 0.33,
+          "sa": 0.41
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.03,
+          "hre": 0.04,
+          "sa": 0.05
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.0,
+          "hre": 0.0,
+          "sa": 0.0
+        }
       ],
       "ytd2568": [
-        {"month":"ม.ค.","gm":0.48,"hre":0.29,"sa":0.44},
-        {"month":"ก.พ.","gm":0.55,"hre":0.28,"sa":0.47},
-        {"month":"มี.ค.","gm":0.49,"hre":0.28,"sa":0.42},
-        {"month":"เม.ย.","gm":0.59,"hre":0.28,"sa":0.45},
-        {"month":"พ.ค.","gm":0.66,"hre":0.27,"sa":0.49},
-        {"month":"มิ.ย.","gm":0.56,"hre":0.27,"sa":0.43},
-        {"month":"ก.ค.","gm":0.46,"hre":0.26,"sa":0.39},
-        {"month":"ส.ค.","gm":0.43,"hre":0.26,"sa":0.38}
-      ]
-    },
-    {
-      "id":"RPLC&RAFL", "name":"RPLC&RAFL", "group":"กลุ่ม RPLC", "members":28, "currency":"THB",
-      "years": {
-        "Y2562":{"gm":3.50,"sa":2.90,"hre":1.80,"pctPRG":null,"pctPDG":null,"taPDG":1.78},
-        "Y2563":{"gm":3.78,"sa":2.98,"hre":1.83,"pctPRG":4.0,"pctPDG":2.2,"taPDG":1.89},
-        "Y2564":{"gm":4.05,"sa":3.06,"hre":1.86,"pctPRG":3.5,"pctPDG":2.3,"taPDG":1.99},
-        "Y2565":{"gm":4.25,"sa":3.14,"hre":1.89,"pctPRG":2.6,"pctPDG":1.5,"taPDG":2.06},
-        "Y2566":{"gm":4.50,"sa":3.22,"hre":1.92,"pctPRG":2.8,"pctPDG":1.7,"taPDG":2.16},
-        "Y2567":{"gm":4.78,"sa":3.30,"hre":1.95,"pctPRG":2.5,"pctPDG":1.9,"taPDG":2.26},
-        "Y2568":{"gm":4.10,"sa":3.36,"hre":1.98,"pctPRG":-13.8,"pctPDG":-14.4,"taPDG":1.87},
-        "Y2569":{"gm":3.65,"sa":2.82,"hre":2.30,"pctPRG":null,"pctPDG":null,"taPDG":null}
-      },
-      "ytd": [
-        {"month":"ม.ค.","gm":0.42,"hre":0.36,"sa":0.52},
-        {"month":"ก.พ.","gm":0.53,"hre":0.33,"sa":0.50},
-        {"month":"มี.ค.","gm":0.48,"hre":0.36,"sa":0.42},
-        {"month":"เม.ย.","gm":0.68,"hre":0.38,"sa":0.46},
-        {"month":"พ.ค.","gm":0.80,"hre":0.40,"sa":0.55},
-        {"month":"มิ.ย.","gm":0.66,"hre":0.41,"sa":0.52},
-        {"month":"ก.ค.","gm":0.04,"hre":0.05,"sa":0.06},
-        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
+        {
+          "month": "ม.ค.",
+          "gm": 0.29,
+          "hre": 0.18,
+          "sa": 0.27
+        },
+        {
+          "month": "ก.พ.",
+          "gm": 0.33,
+          "hre": 0.18,
+          "sa": 0.28
+        },
+        {
+          "month": "มี.ค.",
+          "gm": 0.29,
+          "hre": 0.17,
+          "sa": 0.25
+        },
+        {
+          "month": "เม.ย.",
+          "gm": 0.35,
+          "hre": 0.17,
+          "sa": 0.27
+        },
+        {
+          "month": "พ.ค.",
+          "gm": 0.39,
+          "hre": 0.17,
+          "sa": 0.3
+        },
+        {
+          "month": "มิ.ย.",
+          "gm": 0.33,
+          "hre": 0.17,
+          "sa": 0.26
+        },
+        {
+          "month": "ก.ค.",
+          "gm": 0.28,
+          "hre": 0.16,
+          "sa": 0.23
+        },
+        {
+          "month": "ส.ค.",
+          "gm": 0.26,
+          "hre": 0.16,
+          "sa": 0.22
+        }
       ],
-      "ytd2568": [
-        {"month":"ม.ค.","gm":0.38,"hre":0.21,"sa":0.36},
-        {"month":"ก.พ.","gm":0.44,"hre":0.21,"sa":0.38},
-        {"month":"มี.ค.","gm":0.39,"hre":0.20,"sa":0.34},
-        {"month":"เม.ย.","gm":0.47,"hre":0.20,"sa":0.36},
-        {"month":"พ.ค.","gm":0.52,"hre":0.20,"sa":0.40},
-        {"month":"มิ.ย.","gm":0.44,"hre":0.20,"sa":0.35},
-        {"month":"ก.ค.","gm":0.37,"hre":0.20,"sa":0.32},
-        {"month":"ส.ค.","gm":0.34,"hre":0.19,"sa":0.30}
-      ]
-    },
-    {
-      "id":"RAFCO&AICP", "name":"RAFCO&AICP", "group":"กลุ่ม RPLC", "members":29, "currency":"THB",
-      "years": {
-        "Y2562":{"gm":1.95,"sa":1.60,"hre":1.00,"pctPRG":null,"pctPDG":null,"taPDG":1.80},
-        "Y2563":{"gm":2.10,"sa":1.64,"hre":1.02,"pctPRG":4.2,"pctPDG":2.3,"taPDG":1.91},
-        "Y2564":{"gm":2.26,"sa":1.68,"hre":1.04,"pctPRG":3.5,"pctPDG":2.4,"taPDG":2.02},
-        "Y2565":{"gm":2.38,"sa":1.72,"hre":1.06,"pctPRG":2.6,"pctPDG":1.6,"taPDG":2.09},
-        "Y2566":{"gm":2.52,"sa":1.76,"hre":1.08,"pctPRG":2.7,"pctPDG":1.7,"taPDG":2.19},
-        "Y2567":{"gm":2.68,"sa":1.80,"hre":1.10,"pctPRG":2.5,"pctPDG":1.9,"taPDG":2.28},
-        "Y2568":{"gm":2.30,"sa":1.84,"hre":1.12,"pctPRG":-13.6,"pctPDG":-14.2,"taPDG":1.88},
-        "Y2569":{"gm":2.05,"sa":1.55,"hre":1.30,"pctPRG":null,"pctPDG":null,"taPDG":null}
-      },
-      "ytd": [
-        {"month":"ม.ค.","gm":0.24,"hre":0.20,"sa":0.30},
-        {"month":"ก.พ.","gm":0.30,"hre":0.19,"sa":0.28},
-        {"month":"มี.ค.","gm":0.27,"hre":0.20,"sa":0.24},
-        {"month":"เม.ย.","gm":0.39,"hre":0.21,"sa":0.26},
-        {"month":"พ.ค.","gm":0.45,"hre":0.22,"sa":0.31},
-        {"month":"มิ.ย.","gm":0.37,"hre":0.23,"sa":0.29},
-        {"month":"ก.ค.","gm":0.02,"hre":0.03,"sa":0.03},
-        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
-      ],
-      "ytd2568": [
-        {"month":"ม.ค.","gm":0.22,"hre":0.12,"sa":0.20},
-        {"month":"ก.พ.","gm":0.25,"hre":0.12,"sa":0.21},
-        {"month":"มี.ค.","gm":0.22,"hre":0.12,"sa":0.19},
-        {"month":"เม.ย.","gm":0.27,"hre":0.12,"sa":0.20},
-        {"month":"พ.ค.","gm":0.30,"hre":0.11,"sa":0.22},
-        {"month":"มิ.ย.","gm":0.25,"hre":0.11,"sa":0.20},
-        {"month":"ก.ค.","gm":0.21,"hre":0.11,"sa":0.18},
-        {"month":"ส.ค.","gm":0.20,"hre":0.11,"sa":0.17}
-      ]
-    },
-    {
-      "id":"CPDG&LDC", "name":"CPDG&LDC (รวม)", "group":"กลุ่ม CPDG", "members":50, "currency":"THB",
-      "years": {
-        "Y2562":{"gm":4.95,"sa":3.85,"hre":2.40,"pctPRG":null,"pctPDG":null,"taPDG":1.88},
-        "Y2563":{"gm":5.32,"sa":3.95,"hre":2.45,"pctPRG":4.0,"pctPDG":2.4,"taPDG":1.98},
-        "Y2564":{"gm":5.70,"sa":4.06,"hre":2.50,"pctPRG":3.5,"pctPDG":2.3,"taPDG":2.08},
-        "Y2565":{"gm":5.98,"sa":4.17,"hre":2.54,"pctPRG":2.6,"pctPDG":1.5,"taPDG":2.16},
-        "Y2566":{"gm":6.32,"sa":4.28,"hre":2.58,"pctPRG":2.8,"pctPDG":1.7,"taPDG":2.26},
-        "Y2567":{"gm":6.68,"sa":4.40,"hre":2.62,"pctPRG":2.6,"pctPDG":1.9,"taPDG":2.36},
-        "Y2568":{"gm":5.65,"sa":4.50,"hre":2.66,"pctPRG":-14.0,"pctPDG":-14.6,"taPDG":1.94},
-        "Y2569":{"gm":4.92,"sa":3.78,"hre":3.08,"pctPRG":null,"pctPDG":null,"taPDG":null}
-      },
-      "ytd": [
-        {"month":"ม.ค.","gm":0.58,"hre":0.48,"sa":0.72},
-        {"month":"ก.พ.","gm":0.72,"hre":0.45,"sa":0.68},
-        {"month":"มี.ค.","gm":0.65,"hre":0.48,"sa":0.58},
-        {"month":"เม.ย.","gm":0.92,"hre":0.50,"sa":0.64},
-        {"month":"พ.ค.","gm":1.08,"hre":0.52,"sa":0.78},
-        {"month":"มิ.ย.","gm":0.88,"hre":0.53,"sa":0.72},
-        {"month":"ก.ค.","gm":0.05,"hre":0.06,"sa":0.08},
-        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
-      ],
-      "ytd2568": [
-        {"month":"ม.ค.","gm":0.52,"hre":0.28,"sa":0.48},
-        {"month":"ก.พ.","gm":0.60,"hre":0.28,"sa":0.50},
-        {"month":"มี.ค.","gm":0.53,"hre":0.28,"sa":0.45},
-        {"month":"เม.ย.","gm":0.64,"hre":0.27,"sa":0.48},
-        {"month":"พ.ค.","gm":0.71,"hre":0.27,"sa":0.53},
-        {"month":"มิ.ย.","gm":0.60,"hre":0.27,"sa":0.47},
-        {"month":"ก.ค.","gm":0.50,"hre":0.26,"sa":0.42},
-        {"month":"ส.ค.","gm":0.47,"hre":0.26,"sa":0.40}
-      ]
-    },
-    {
-      "id":"CPDG", "name":"CPDG (AGS+21CT+CDB)", "group":"กลุ่ม CPDG", "members":44, "currency":"THB",
-      "years": {
-        "Y2562":{"gm":2.95,"sa":2.30,"hre":0.1861,"pctPRG":null,"pctPDG":null,"taPDG":1.86},
-        "Y2563":{"gm":3.18,"sa":2.36,"hre":0.1861,"pctPRG":4.0,"pctPDG":2.4,"taPDG":1.96},
-        "Y2564":{"gm":3.40,"sa":2.42,"hre":0.1861,"pctPRG":3.4,"pctPDG":2.2,"taPDG":2.05},
-        "Y2565":{"gm":3.55,"sa":2.48,"hre":0.1861,"pctPRG":2.5,"pctPDG":1.4,"taPDG":2.13},
-        "Y2566":{"gm":3.75,"sa":2.54,"hre":0.1861,"pctPRG":2.7,"pctPDG":1.5,"taPDG":2.23},
-        "Y2567":{"gm":3.96,"sa":2.60,"hre":0.1861,"pctPRG":2.5,"pctPDG":1.7,"taPDG":2.34},
-        "Y2568":{"gm":3.35,"sa":2.65,"hre":0.1861,"pctPRG":-14.0,"pctPDG":-14.6,"taPDG":1.92},
-        "Y2569":{"gm":2.92,"sa":2.25,"hre":0.1861,"pctPRG":null,"pctPDG":null,"taPDG":null}
-      },
-      "ytd": [
-        {"month":"ม.ค.","gm":0.35,"hre":0.29,"sa":0.42},
-        {"month":"ก.พ.","gm":0.42,"hre":0.27,"sa":0.40},
-        {"month":"มี.ค.","gm":0.38,"hre":0.29,"sa":0.34},
-        {"month":"เม.ย.","gm":0.54,"hre":0.30,"sa":0.38},
-        {"month":"พ.ค.","gm":0.64,"hre":0.31,"sa":0.46},
-        {"month":"มิ.ย.","gm":0.52,"hre":0.32,"sa":0.42},
-        {"month":"ก.ค.","gm":0.03,"hre":0.04,"sa":0.05},
-        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
-      ],
-      "ytd2568": [
-        {"month":"ม.ค.","gm":0.31,"hre":0.17,"sa":0.29},
-        {"month":"ก.พ.","gm":0.36,"hre":0.17,"sa":0.30},
-        {"month":"มี.ค.","gm":0.32,"hre":0.17,"sa":0.27},
-        {"month":"เม.ย.","gm":0.38,"hre":0.16,"sa":0.29},
-        {"month":"พ.ค.","gm":0.43,"hre":0.16,"sa":0.32},
-        {"month":"มิ.ย.","gm":0.36,"hre":0.16,"sa":0.28},
-        {"month":"ก.ค.","gm":0.30,"hre":0.16,"sa":0.25},
-        {"month":"ส.ค.","gm":0.28,"hre":0.16,"sa":0.24}
-      ]
-    },
-    {
-      "id":"LDC", "name":"LDC", "group":"กลุ่ม CPDG", "members":6, "currency":"THB",
-      "years": {
-        "Y2562":{"gm":2.00,"sa":1.55,"hre":0.2990,"pctPRG":null,"pctPDG":null,"taPDG":1.89},
-        "Y2563":{"gm":2.14,"sa":1.59,"hre":0.2990,"pctPRG":4.0,"pctPDG":2.4,"taPDG":2.01},
-        "Y2564":{"gm":2.30,"sa":1.64,"hre":0.2990,"pctPRG":3.5,"pctPDG":2.4,"taPDG":2.12},
-        "Y2565":{"gm":2.43,"sa":1.69,"hre":0.2990,"pctPRG":2.6,"pctPDG":1.6,"taPDG":2.20},
-        "Y2566":{"gm":2.57,"sa":1.74,"hre":0.2990,"pctPRG":2.8,"pctPDG":1.7,"taPDG":2.29},
-        "Y2567":{"gm":2.72,"sa":1.80,"hre":0.2990,"pctPRG":2.6,"pctPDG":1.9,"taPDG":2.39},
-        "Y2568":{"gm":2.30,"sa":1.85,"hre":0.2990,"pctPRG":-14.0,"pctPDG":-14.6,"taPDG":1.96},
-        "Y2569":{"gm":2.00,"sa":1.53,"hre":0.2990,"pctPRG":null,"pctPDG":null,"taPDG":null}
-      },
-      "ytd": [
-        {"month":"ม.ค.","gm":0.23,"hre":0.19,"sa":0.30},
-        {"month":"ก.พ.","gm":0.30,"hre":0.18,"sa":0.28},
-        {"month":"มี.ค.","gm":0.27,"hre":0.19,"sa":0.24},
-        {"month":"เม.ย.","gm":0.38,"hre":0.20,"sa":0.26},
-        {"month":"พ.ค.","gm":0.44,"hre":0.21,"sa":0.32},
-        {"month":"มิ.ย.","gm":0.36,"hre":0.21,"sa":0.30},
-        {"month":"ก.ค.","gm":0.02,"hre":0.02,"sa":0.03},
-        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
-      ],
-      "ytd2568": [
-        {"month":"ม.ค.","gm":0.21,"hre":0.11,"sa":0.19},
-        {"month":"ก.พ.","gm":0.24,"hre":0.11,"sa":0.20},
-        {"month":"มี.ค.","gm":0.21,"hre":0.11,"sa":0.18},
-        {"month":"เม.ย.","gm":0.26,"hre":0.11,"sa":0.19},
-        {"month":"พ.ค.","gm":0.28,"hre":0.11,"sa":0.21},
-        {"month":"มิ.ย.","gm":0.24,"hre":0.11,"sa":0.19},
-        {"month":"ก.ค.","gm":0.20,"hre":0.10,"sa":0.17},
-        {"month":"ส.ค.","gm":0.19,"hre":0.10,"sa":0.16}
-      ]
-    },
-    {
-      "id":"TNRG", "name":"TNRG", "group":"TNRG", "members":0, "currency":"THB",
-      "years": {
-        "Y2562":{"gm":2.75,"sa":2.20,"hre":1.50,"pctPRG":null,"pctPDG":null,"taPDG":1.67},
-        "Y2563":{"gm":2.96,"sa":2.26,"hre":1.53,"pctPRG":4.0,"pctPDG":2.3,"taPDG":1.76},
-        "Y2564":{"gm":3.18,"sa":2.32,"hre":1.56,"pctPRG":3.3,"pctPDG":2.2,"taPDG":1.86},
-        "Y2565":{"gm":3.34,"sa":2.38,"hre":1.58,"pctPRG":2.5,"pctPDG":1.4,"taPDG":1.94},
-        "Y2566":{"gm":3.55,"sa":2.44,"hre":1.60,"pctPRG":2.7,"pctPDG":1.6,"taPDG":2.03},
-        "Y2567":{"gm":3.75,"sa":2.50,"hre":1.62,"pctPRG":2.5,"pctPDG":1.8,"taPDG":2.13},
-        "Y2568":{"gm":3.20,"sa":2.55,"hre":1.65,"pctPRG":-13.9,"pctPDG":-14.5,"taPDG":1.76},
-        "Y2569":{"gm":2.78,"sa":2.15,"hre":1.92,"pctPRG":null,"pctPDG":null,"taPDG":null}
-      },
-      "ytd": [
-        {"month":"ม.ค.","gm":0.32,"hre":0.30,"sa":0.40},
-        {"month":"ก.พ.","gm":0.40,"hre":0.28,"sa":0.38},
-        {"month":"มี.ค.","gm":0.37,"hre":0.30,"sa":0.32},
-        {"month":"เม.ย.","gm":0.52,"hre":0.31,"sa":0.36},
-        {"month":"พ.ค.","gm":0.61,"hre":0.32,"sa":0.44},
-        {"month":"มิ.ย.","gm":0.50,"hre":0.33,"sa":0.41},
-        {"month":"ก.ค.","gm":0.03,"hre":0.04,"sa":0.05},
-        {"month":"ส.ค.","gm":0.00,"hre":0.00,"sa":0.00}
-      ],
-      "ytd2568": [
-        {"month":"ม.ค.","gm":0.29,"hre":0.18,"sa":0.27},
-        {"month":"ก.พ.","gm":0.33,"hre":0.18,"sa":0.28},
-        {"month":"มี.ค.","gm":0.29,"hre":0.17,"sa":0.25},
-        {"month":"เม.ย.","gm":0.35,"hre":0.17,"sa":0.27},
-        {"month":"พ.ค.","gm":0.39,"hre":0.17,"sa":0.30},
-        {"month":"มิ.ย.","gm":0.33,"hre":0.17,"sa":0.26},
-        {"month":"ก.ค.","gm":0.28,"hre":0.16,"sa":0.23},
-        {"month":"ส.ค.","gm":0.26,"hre":0.16,"sa":0.22}
-      ]
+      "employeesByYear": {
+        "Y2559": 0,
+        "Y2560": 0,
+        "Y2561": 1,
+        "Y2562": 0,
+        "Y2563": 0,
+        "Y2564": 0,
+        "Y2565": 0,
+        "Y2566": 1,
+        "Y2567": 0,
+        "Y2568": 4,
+        "Y2569": 0
+      }
     }
   ]
-}
-</script>
+}</script>
 
 <script>
 /**
@@ -1704,6 +3662,110 @@ const app = {
       </tr>`;
     });
     document.getElementById('hrCompanyTable').innerHTML = html;
+  },
+
+  // ===== TAB: สมาชิกย้อนหลัง =====
+  renderMemberChart() {
+    const years = ['Y2559','Y2560','Y2561','Y2562','Y2563','Y2564','Y2565','Y2566','Y2567','Y2568','Y2569'];
+    const metric = document.getElementById('memberMetric')?.value || 'headcount';
+    const palette = ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16','#14b8a6','#6366f1','#f97316'];
+
+    // Groups that have employeesByYear data
+    const groups = {};
+    DATA.companies.forEach(c => {
+      if (c.employeesByYear) groups[c.id] = c.employeesByYear;
+    });
+    // Also build PKG from sum if not present
+    if (!groups['PKG']) {
+      groups['PKG'] = {};
+      years.forEach(y => { groups['PKG'][y] = DATA.companies.reduce((s,c)=> s + (c.employeesByYear? (c.employeesByYear[y]||0):0), 0); });
+    }
+
+    // KPI cards: latest year (Y2569) vs first year (Y2559)
+    const kpiEl = document.getElementById('memberKpiCards');
+    if (kpiEl) {
+      const latest = years[years.length-1], first = years[0];
+      const cards = [
+        { label: 'สมาชิกปี ' + latest, value: groups['PKG'][latest]?.toLocaleString() + ' คน', color: 'from-emerald-500 to-emerald-600' },
+        { label: 'สมาชิกปี ' + first, value: groups['PKG'][first]?.toLocaleString() + ' คน', color: 'from-blue-500 to-blue-600' },
+        { label: 'เพิ่มขึ้น/ลดลง', value: ((groups['PKG'][latest]||0) - (groups['PKG'][first]||0)).toLocaleString() + ' คน', color: 'from-amber-500 to-amber-600' },
+        { label: 'จำนวนกลุ่ม', value: Object.keys(groups).length + ' กลุ่ม', color: 'from-purple-500 to-purple-600' }
+      ];
+      kpiEl.innerHTML = cards.map(c => `
+        <div class="bg-gradient-to-br ${c.color} rounded-xl p-4 text-white">
+          <p class="text-sm opacity-90">${c.label}</p>
+          <p class="text-2xl font-bold">${c.value}</p>
+        </div>`).join('');
+    }
+
+    // Build datasets
+    const datasets = Object.keys(groups).map((gid, i) => {
+      const g = groups[gid];
+      let data;
+      if (metric === 'headcount') {
+        data = years.map(y => g[y] || 0);
+      } else {
+        // HRE/GM per employee = (hre or gm in M * 1e6) / employees
+        data = years.map(y => {
+          const emp = g[y] || 0;
+          const comp = DATA.companies.find(c => c.id === gid);
+          const yr = comp?.years?.[y];
+          if (!emp || !yr) return null;
+          if (metric === 'hregm') return Math.round((yr.hre * 1_000_000) / emp);
+          return null;
+        });
+      }
+      return {
+        label: gid,
+        data,
+        borderColor: palette[i % palette.length],
+        backgroundColor: palette[i % palette.length] + '33',
+        fill: false,
+        tension: 0.1
+      };
+    });
+
+    if (window.memberChart) window.memberChart.destroy();
+    const ctx = document.getElementById('memberChart');
+    if (ctx) {
+      window.memberChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: years, datasets },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: metric === 'headcount' ? 'จำนวนสมาชิกย้อนหลัง' : 'HRE ต่อคน (บาท)' }
+          },
+          scales: { y: { beginAtZero: true } }
+        }
+      });
+    }
+
+    // Table
+    const tbl = document.getElementById('memberTable');
+    if (tbl) {
+      let html = '<table class="w-full text-sm"><thead class="bg-gray-100"><tr><th class="px-3 py-2 text-left">กลุ่มบริษัท</th>';
+      years.forEach(y => html += `<th class="px-3 py-2 text-center">${y}</th>`);
+      html += '</tr></thead><tbody>';
+      Object.keys(groups).forEach(gid => {
+        const g = groups[gid];
+        const total = years.reduce((s,y)=> s + (g[y]||0), 0);
+        html += `<tr class="border-t"><td class="px-3 py-2 font-medium">${gid}</td>`;
+        years.forEach(y => html += `<td class="px-3 py-2 text-center">${g[y]||0}</td>`);
+        html += `<td class="px-3 py-2 text-center font-semibold">${total}</td></tr>`;
+      });
+      // Total row
+      html += '<tr class="border-t bg-slate-50 font-semibold"><td class="px-3 py-2">รวม PKG</td>';
+      years.forEach(y => {
+        const sum = Object.values(groups).reduce((s,g)=> s + (g[y]||0), 0);
+        html += `<td class="px-3 py-2 text-center">${sum}</td>`;
+      });
+      const grand = Object.values(groups).reduce((s,g)=> s + years.reduce((a,y)=>a+(g[y]||0),0), 0);
+      html += `<td class="px-3 py-2 text-center">${grand}</td></tr>`;
+      html += '</tbody></table>';
+      tbl.innerHTML = html;
+    }
   }
 };
 

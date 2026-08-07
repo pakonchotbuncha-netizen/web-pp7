@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📋 Copy ข้อมูล Y2568 แก้ไข</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+body { font-family: 'Sarabun', sans-serif; }
+.copy-btn { transition: all 0.2s; }
+.copy-btn:hover { transform: scale(1.05); }
+.copy-btn:active { transform: scale(0.95); }
+</style>
+</head>
+<body class="bg-slate-50 p-4">
+<div class="max-w-3xl mx-auto">
+  <h1 class="text-2xl font-bold text-slate-800 mb-2">📋 Copy แก้ไขข้อมูล Y2568</h1>
+  <p class="text-sm text-slate-500 mb-4">แค่แถวเดียว (Y2568) — ก๊อปแล้วแปะทับในชีต "จำนวนสมาชิกย้อนหลัง"</p>
+
+  <button onclick="copyRow()" id="btn" class="copy-btn bg-indigo-600 text-white px-6 py-3 rounded-xl font-semibold text-lg shadow-lg hover:bg-indigo-700">
+    📋 Copy แถว Y2568
+  </button>
+
+  <div class="bg-white rounded-xl shadow-md overflow-x-auto mt-4">
+    <table class="w-full text-sm">
+      <thead class="bg-indigo-600 text-white">
+        <tr><th class="px-3 py-2">ปีพุทธศักราช</th><th class="px-3 py-2">ปีคศ</th><th class="px-3 py-2">AAMG</th><th class="px-3 py-2">PMSG</th><th class="px-3 py-2">PGHG</th><th class="px-3 py-2">RPLC&RAFL</th><th class="px-3 py-2">RAFCO&AICP</th><th class="px-3 py-2">CPDG&LDC</th><th class="px-3 py-2">TNRG</th><th class="px-3 py-2">ADMC</th><th class="px-3 py-2">21CT</th><th class="px-3 py-2">KKK</th><th class="px-3 py-2">อื่นๆ</th><th class="px-3 py-2">รวม PKG</th><th class="px-3 py-2">หมายเหตุ</th></tr>
+      </thead>
+      <tbody>
+        <tr class="bg-yellow-50"><td class="px-3 py-2 text-center">Y2568</td><td class="px-3 py-2 text-center">2025</td><td class="px-3 py-2 text-center font-bold">127</td><td class="px-3 py-2 text-center">262</td><td class="px-3 py-2 text-center">0</td><td class="px-3 py-2 text-center">25</td><td class="px-3 py-2 text-center">24</td><td class="px-3 py-2 text-center font-bold">72</td><td class="px-3 py-2 text-center">4</td><td class="px-3 py-2 text-center">0</td><td class="px-3 py-2 text-center">2</td><td class="px-3 py-2 text-center">0</td><td class="px-3 py-2 text-center font-bold">0</td><td class="px-3 py-2 text-center">516</td><td class="px-3 py-2">แก้ไข: AAMG=127 CPDG&LDC=72 อื่นๆ=0</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="status" class="text-center text-green-600 font-semibold text-lg hidden mt-3">✅ Copy แล้ว! ไปแปะทับแถว Y2568 ในชีตได้เลย</div>
+</div>
+
+<script>
+const row = ['Y2568','2025',127,262,0,25,24,72,4,0,2,0,0,516,'แก้ไข: AAMG=127 CPDG&LDC=72 อื่นๆ=0'];
+function copyRow() {
+  const tsv = row.join('\t');
+  navigator.clipboard.writeText(tsv).then(() => {
+    const btn = document.getElementById('btn');
+    btn.classList.add('copied');
+    setTimeout(() => btn.classList.remove('copied'), 500);
+    document.getElementById('status').classList.remove('hidden');
+    setTimeout(() => document.getElementById('status').classList.add('hidden'), 3000);
+  });
+}
+</script>
+</body>
+</html>
