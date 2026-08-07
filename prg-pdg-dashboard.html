@@ -328,22 +328,22 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white">
             <p class="text-sm opacity-90">HRE per Employee (Y2568)</p>
-            <p class="text-2xl font-bold">฿45,647</p>
+            <p id="kpiHrePerEmp" class="text-2xl font-bold">-</p>
             <p class="text-xs opacity-75">ค่าใช้จ่ายสมาชิกต่อคน/เดือน</p>
           </div>
           <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white">
             <p class="text-sm opacity-90">GM per Employee (Y2568)</p>
-            <p class="text-2xl font-bold">฿75,550</p>
+            <p id="kpiGmPerEmp" class="text-2xl font-bold">-</p>
             <p class="text-xs opacity-75">กำไรขั้นต้นต่อคน/เดือน</p>
           </div>
           <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl p-4 text-white">
             <p class="text-sm opacity-90">HRE Ratio (Y2568)</p>
-            <p class="text-2xl font-bold">60.4%</p>
+            <p id="kpiHreRatio" class="text-2xl font-bold">-</p>
             <p class="text-xs opacity-75">% ของ GM ที่ใช้กับค่าใช้จ่ายสมาชิก</p>
           </div>
           <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white">
             <p class="text-sm opacity-90">Productivity Index</p>
-            <p class="text-2xl font-bold">1.65</p>
+            <p id="kpiProdIndex" class="text-2xl font-bold">-</p>
             <p class="text-xs opacity-75">GM per Employee ÷ HRE per Employee</p>
           </div>
         </div>
@@ -1609,27 +1609,29 @@ const app = {
     }).filter(Boolean);
 
     // Render KPI cards (use PKG data)
+    // Note: hre/gm are in millions THB/month. Per-employee = (millions * 1,000,000) / emp = baht
     const pkg = hrData.find(c => c.id === 'PKG');
+    const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
     if (pkg) {
-      document.getElementById('kpiHrePerEmp').textContent = `฿${(pkg.hrePerEmp / 1000).toFixed(1)}K`;
-      document.getElementById('kpiGmPerEmp').textContent = `฿${(pkg.gmPerEmp / 1000).toFixed(1)}K`;
-      document.getElementById('kpiHreRatio').textContent = pkg.hreRatio.toFixed(1) + '%';
-      document.getElementById('kpiProdIndex').textContent = pkg.prodIndex.toFixed(2);
+      setText('kpiHrePerEmp', `฿${Math.round(pkg.hrePerEmp * 1_000_000 / 1000).toLocaleString()}K`);
+      setText('kpiGmPerEmp', `฿${Math.round(pkg.gmPerEmp * 1_000_000 / 1000).toLocaleString()}K`);
+      setText('kpiHreRatio', pkg.hreRatio.toFixed(1) + '%');
+      setText('kpiProdIndex', pkg.prodIndex.toFixed(2));
     }
 
-    // Render trend chart (8 years)
+    // Render trend chart (8 years) — values in baht per employee per month
     const years = Object.keys(DATA.companies[0].yearsPRG).slice(0, 7);
     const hreTrend = years.map(y => {
       const d = DATA.companies[0].yearsPRG[y];
       if (!d || !d.gm) return null;
       const emp = employeeCount['PKG'] || 1;
-      return d.hre / emp;
+      return (d.hre * 1_000_000) / emp;
     });
     const gmTrend = years.map(y => {
       const d = DATA.companies[0].yearsPRG[y];
       if (!d || !d.gm) return null;
       const emp = employeeCount['PKG'] || 1;
-      return d.gm / emp;
+      return (d.gm * 1_000_000) / emp;
     });
     const prodIndexTrend = hreTrend.map((hre, i) => {
       const gm = gmTrend[i];
@@ -1642,11 +1644,11 @@ const app = {
       data: {
         labels: years,
         datasets: [
-          { label: 'HRE/คน', data: hreTrend, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', fill: true },
-          { label: 'GM/คน', data: gmTrend, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true }
+          { label: 'HRE/คน (฿)', data: hreTrend, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', fill: true },
+          { label: 'GM/คน (฿)', data: gmTrend, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true }
         ]
       },
-      options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+      options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, ticks: { callback: (v) => (v/1000).toFixed(0) + 'K' } } } }
     });
 
     if (window.prodIndexChart) window.prodIndexChart.destroy();
@@ -1659,14 +1661,14 @@ const app = {
       options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
     });
 
-    // Render scatter plot
+    // Render scatter plot (values in baht per employee)
     if (window.hrScatterChart) window.hrScatterChart.destroy();
     window.hrScatterChart = new Chart(document.getElementById('hrScatterChart'), {
       type: 'scatter',
       data: {
         datasets: [{
           label: 'บริษัท',
-          data: hrData.map(c => ({ x: c.hrePerEmp, y: c.gmPerEmp, name: c.id, prodIndex: c.prodIndex })),
+          data: hrData.map(c => ({ x: c.hrePerEmp * 1_000_000, y: c.gmPerEmp * 1_000_000, name: c.id, prodIndex: c.prodIndex })),
           backgroundColor: hrData.map(c => c.prodIndex >= 1.5 ? '#10b981' : c.prodIndex >= 1.0 ? '#f59e0b' : '#ef4444'),
           pointRadius: 10
         }]
@@ -1677,7 +1679,7 @@ const app = {
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: (ctx) => `${ctx.raw.name}: HRE/คน=฿${(ctx.raw.x/1000).toFixed(1)}K, GM/คน=฿${(ctx.raw.y/1000).toFixed(1)}K, PI=${ctx.raw.prodIndex.toFixed(2)}`
+              label: (ctx) => `${ctx.raw.name}: HRE/คน=฿${Math.round(ctx.raw.x/1000).toLocaleString()}K, GM/คน=฿${Math.round(ctx.raw.y/1000).toLocaleString()}K, PI=${ctx.raw.prodIndex.toFixed(2)}`
             }
           }
         },
@@ -1695,8 +1697,8 @@ const app = {
       html += `<tr class="border-t">
         <td class="px-3 py-2 font-medium">${c.id}</td>
         <td class="px-3 py-2 text-center">${c.emp}</td>
-        <td class="px-3 py-2 text-center">฿${(c.hrePerEmp/1000).toFixed(1)}K</td>
-        <td class="px-3 py-2 text-center">฿${(c.gmPerEmp/1000).toFixed(1)}K</td>
+        <td class="px-3 py-2 text-center">฿${Math.round(c.hrePerEmp * 1_000_000 / 1000).toLocaleString()}K</td>
+        <td class="px-3 py-2 text-center">฿${Math.round(c.gmPerEmp * 1_000_000 / 1000).toLocaleString()}K</td>
         <td class="px-3 py-2 text-center">${c.hreRatio.toFixed(1)}%</td>
         <td class="px-3 py-2 text-center ${cls}">${c.prodIndex.toFixed(2)}</td>
       </tr>`;
