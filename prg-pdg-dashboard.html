@@ -1638,7 +1638,7 @@ const app = {
       return gm && hre ? gm / hre : null;
     });
 
-    if (window.hrTrendChart) window.hrTrendChart.destroy();
+    if (window.hrTrendChart && typeof window.hrTrendChart.destroy === 'function') window.hrTrendChart.destroy();
     window.hrTrendChart = new Chart(document.getElementById('hrTrendChart'), {
       type: 'line',
       data: {
@@ -1651,7 +1651,7 @@ const app = {
       options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, ticks: { callback: (v) => (v/1000).toFixed(0) + 'K' } } } }
     });
 
-    if (window.prodIndexChart) window.prodIndexChart.destroy();
+    if (window.prodIndexChart && typeof window.prodIndexChart.destroy === 'function') window.prodIndexChart.destroy();
     window.prodIndexChart = new Chart(document.getElementById('prodIndexChart'), {
       type: 'line',
       data: {
@@ -1662,7 +1662,7 @@ const app = {
     });
 
     // Render scatter plot (values in baht per employee)
-    if (window.hrScatterChart) window.hrScatterChart.destroy();
+    if (window.hrScatterChart && typeof window.hrScatterChart.destroy === 'function') window.hrScatterChart.destroy();
     window.hrScatterChart = new Chart(document.getElementById('hrScatterChart'), {
       type: 'scatter',
       data: {
