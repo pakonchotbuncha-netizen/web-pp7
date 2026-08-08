@@ -47,14 +47,11 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
 .badge-direct { background: #e8f5e9; color: #2e7d32; }
 .badge-indirect { background: #ffebee; color: #c62828; }
 
-/* Score + Rank Row */
+/* Score Row */
 .score-rank-row { display: flex; gap: 16px; align-items: center; margin: 12px 0; flex-wrap: wrap; }
 .score-input { display: flex; align-items: center; gap: 8px; }
 .score-input label { font-size: 13px; font-weight: 600; color: #555; white-space: nowrap; }
 .score-input select { width: 60px; padding: 8px; border: 2px solid #43e97b; border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; }
-.rank-input { display: flex; align-items: center; gap: 8px; }
-.rank-input label { font-size: 13px; font-weight: 600; color: #555; white-space: nowrap; }
-.rank-input select { width: 60px; padding: 8px; border: 2px solid #ffd93d; border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; }
 .weight-display { font-size: 13px; color: #999; background: #f5f5f5; padding: 4px 10px; border-radius: 8px; }
 .total-display { font-size: 14px; font-weight: bold; color: #1a237e; background: #e8eaf6; padding: 4px 10px; border-radius: 8px; }
 
@@ -118,7 +115,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
 
 <div class="header">
   <h1>🎯 แบบทดสอบ 3E3P — Total Motivation</h1>
-  <div class="subtitle">อัตนัย + เรียงลำดับ + ToE Score | รายบุคคล + รายทีม</div>
+  <div class="subtitle">อัตนัย + ให้คะแนน 1-5 + ToE Score | รายบุคคล + รายทีม</div>
 </div>
 
 <div class="container">
@@ -134,11 +131,10 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
       <div class="info-box">
         <h3>📖 วิธีทำแบบทดสอบ (3 ส่วน)</h3>
         <ul>
-          <li><strong>ส่วนที่ 1:</strong> ให้<strong>น้ำหนักความสำคัญ</strong>แต่ละข้อ <strong>1-5</strong> (1=ไม่สำคัญเลย, 5=สำคัญมากที่สุด)</li>
-          <li><strong>ส่วนที่ 2:</strong> <strong>เรียงลำดับ 1-6</strong> ความสำคัญ (1=สำคัญมากสุด)</li>
-          <li><strong>ส่วนที่ 3:</strong> <strong>เขียนอธิบาย</strong> แต่ละข้อ (อัตนัย 2-3 ประโยค)</li>
+          <li><strong>ส่วนที่ 1:</strong> ให้<strong>คะแนน</strong>แต่ละข้อ <strong>1-5</strong> (5=มากที่สุด/สำคัญมาก, 1=น้อยที่สุด/ไม่สำคัญ)</li>
+          <li><strong>ส่วนที่ 2:</strong> <strong>เขียนอธิบาย</strong> แต่ละข้อ (อัตนัย 2-3 ประโยค)</li>
           <li>ระบบจะคำนวณ <strong>ToE = Direct − Indirect</strong> อัตโนมัติ</li>
-          <li>AI จะวิเคราะห์ผลจากคะแนน + ลำดับ + คำตอบ</li>
+          <li>AI จะวิเคราะห์ผลจากคะแนน + คำตอบ</li>
         </ul>
       </div>
 
@@ -180,10 +176,9 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
     <!-- Questions -->
     <div id="questionSection" style="display:none">
       <div class="info-box" style="background:#fffde7;border:1px solid #ffd93d">
-        <h3>⚡ ทำ 3 ส่วนสำหรับแต่ละข้อ</h3>
+        <h3>⚡ ทำ 2 ส่วนสำหรับแต่ละข้อ</h3>
         <ul style="font-size:13px">
-          <li>🔢 <strong>ให้น้ำหนักความสำคัญ 1-5</strong> (1=ไม่สำคัญเลย, 5=สำคัญมากที่สุด)</li>
-          <li>📊 <strong>เรียงลำดับ 1-6</strong> (สำคัญมาก→น้อย)</li>
+          <li>🔢 <strong>ให้คะแนน 1-5</strong> (5=สำคัญมากที่สุด, 1=สำคัญน้อยที่สุด)</li>
           <li>✍️ <strong>เขียนอธิบาย</strong> (2-3 ประโยค)</li>
         </ul>
       </div>
@@ -203,7 +198,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
         </div>
         <div class="score-rank-row">
           <div class="score-input">
-            <label>น้ำหนัก:</label>
+            <label>คะแนน:</label>
             <select id="score1" onchange="calcAll()">
               <option value="">-</option>
               <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
@@ -211,13 +206,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
           </div>
           <div class="weight-display">× 10</div>
           <div class="total-display" id="total1">= -</div>
-          <div class="rank-input">
-            <label>ลำดับ:</label>
-            <select id="rank1" onchange="checkRank(1)">
-              <option value="">-</option>
-              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
-            </select>
-          </div>
         </div>
         <textarea class="q-textarea" id="answer1" placeholder="💭 เขียนอธิบาย: อะไรทำให้งานนี้สนุก? เล่าประสบการณ์ที่ทำให้คุณมีความสุขในการทำงาน... (2-3 ประโยค)"></textarea>
       </div>
@@ -235,7 +223,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
         </div>
         <div class="score-rank-row">
           <div class="score-input">
-            <label>น้ำหนัก:</label>
+            <label>คะแนน:</label>
             <select id="score2" onchange="calcAll()">
               <option value="">-</option>
               <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
@@ -243,13 +231,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
           </div>
           <div class="weight-display">× 5</div>
           <div class="total-display" id="total2">= -</div>
-          <div class="rank-input">
-            <label>ลำดับ:</label>
-            <select id="rank2" onchange="checkRank(2)">
-              <option value="">-</option>
-              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
-            </select>
-          </div>
         </div>
         <textarea class="q-textarea" id="answer2" placeholder="💭 เขียนอธิบาย: งานนี้มีจุดหมายอย่างไร? ทำไมถึงสำคัญกับคุณ? คุณเห็นคุณค่าของงานนี้อย่างไร... (2-3 ประโยค)"></textarea>
       </div>
@@ -267,7 +248,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
         </div>
         <div class="score-rank-row">
           <div class="score-input">
-            <label>น้ำหนัก:</label>
+            <label>คะแนน:</label>
             <select id="score3" onchange="calcAll()">
               <option value="">-</option>
               <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
@@ -275,13 +256,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
           </div>
           <div class="weight-display">× 1.66</div>
           <div class="total-display" id="total3">= -</div>
-          <div class="rank-input">
-            <label>ลำดับ:</label>
-            <select id="rank3" onchange="checkRank(3)">
-              <option value="">-</option>
-              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
-            </select>
-          </div>
         </div>
         <textarea class="q-textarea" id="answer3" placeholder="💭 เขียนอธิบาย: งานนี้ช่วยคุณเติบโตอย่างไร? เป้าหมายส่วนตัวของคุณคืออะไร? คุณเห็นตัวเองในอนาคตอย่างไร... (2-3 ประโยค)"></textarea>
       </div>
@@ -301,7 +275,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
         </div>
         <div class="score-rank-row">
           <div class="score-input">
-            <label>น้ำหนัก:</label>
+            <label>คะแนน:</label>
             <select id="score4" onchange="calcAll()">
               <option value="">-</option>
               <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
@@ -309,13 +283,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
           </div>
           <div class="weight-display">× 1.66</div>
           <div class="total-display" id="total4">= -</div>
-          <div class="rank-input">
-            <label>ลำดับ:</label>
-            <select id="rank4" onchange="checkRank(4)">
-              <option value="">-</option>
-              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
-            </select>
-          </div>
         </div>
         <textarea class="q-textarea" id="answer4" placeholder="💭 เขียนอธิบาย: คุณรู้สึกอย่างไรกับเรื่องนี้? มีใครที่คุณไม่ต้องการทำให้ผิดหวัง? ความกลัวนี้ส่งผลต่อคุณอย่างไร... (2-3 ประโยค)"></textarea>
       </div>
@@ -333,7 +300,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
         </div>
         <div class="score-rank-row">
           <div class="score-input">
-            <label>น้ำหนัก:</label>
+            <label>คะแนน:</label>
             <select id="score5" onchange="calcAll()">
               <option value="">-</option>
               <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
@@ -341,13 +308,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
           </div>
           <div class="weight-display">× 5</div>
           <div class="total-display" id="total5">= -</div>
-          <div class="rank-input">
-            <label>ลำดับ:</label>
-            <select id="rank5" onchange="checkRank(5)">
-              <option value="">-</option>
-              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
-            </select>
-          </div>
         </div>
         <textarea class="q-textarea" id="answer5" placeholder="💭 เขียนอธิบาย: ความมั่นคงทางเศรษฐกิจสำคัญกับคุณอย่างไร? คุณกังวลเรื่องการเงินมากแค่ไหน? คุณจัดการความกังวลนี้อย่างไร... (2-3 ประโยค)"></textarea>
       </div>
@@ -365,7 +325,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
         </div>
         <div class="score-rank-row">
           <div class="score-input">
-            <label>น้ำหนัก:</label>
+            <label>คะแนน:</label>
             <select id="score6" onchange="calcAll()">
               <option value="">-</option>
               <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
@@ -373,13 +333,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
           </div>
           <div class="weight-display">× 10</div>
           <div class="total-display" id="total6">= -</div>
-          <div class="rank-input">
-            <label>ลำดับ:</label>
-            <select id="rank6" onchange="checkRank(6)">
-              <option value="">-</option>
-              <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
-            </select>
-          </div>
         </div>
         <textarea class="q-textarea" id="answer6" placeholder="💭 เขียนอธิบาย: คุณมีเหตุผลที่ดีในการทำงานที่นี่หรือไม่? อะไรทำให้คุณอยู่ต่อ? คุณรู้สึกอย่างไรกับสถานการณ์นี้... (2-3 ประโยค)"></textarea>
       </div>
@@ -469,25 +422,11 @@ function startTest() {
   document.getElementById('questionSection').style.display = 'block';
 }
 
-function checkRank(qNum) {
-  const val = document.getElementById('rank' + qNum).value;
-  if (!val) return;
-  for (let i = 1; i <= 6; i++) {
-    if (i !== qNum && document.getElementById('rank' + i).value === val) {
-      alert(`ลำดับ ${val} ถูกใช้แล้ว!`);
-      document.getElementById('rank' + qNum).value = '';
-      return;
-    }
-  }
-  validateSubmit();
-}
-
 function calcAll() {
-  let direct = 0, indirect = 0, allScored = true, allRanked = true, allAnswered = true;
+  let direct = 0, indirect = 0, allScored = true, allAnswered = true;
   
   for (let i = 1; i <= 6; i++) {
     const score = parseFloat(document.getElementById('score' + i).value);
-    const rank = document.getElementById('rank' + i).value;
     const answer = document.getElementById('answer' + i).value.trim();
     const totalCell = document.getElementById('total' + i);
     
@@ -498,7 +437,6 @@ function calcAll() {
       if (i <= 3) direct += t; else indirect += t;
     }
     
-    if (!rank) allRanked = false;
     if (!answer) allAnswered = false;
   }
   
@@ -507,7 +445,7 @@ function calcAll() {
   const toe = direct - indirect;
   document.getElementById('liveToE').textContent = (direct > 0 && indirect > 0) ? toe.toFixed(2) : '-';
   
-  document.getElementById('submitBtn').disabled = !(allScored && allRanked && allAnswered);
+  document.getElementById('submitBtn').disabled = !(allScored && allAnswered);
 }
 
 function submitTest() {
@@ -517,14 +455,13 @@ function submitTest() {
     bu: document.getElementById('inputBU').value,
     team: document.getElementById('inputTeam').value.trim(),
     timestamp: new Date().toISOString(),
-    scores: {}, totals: {}, ranks: {}, answers: {},
+    scores: {}, totals: {}, answers: {},
     direct: 0, indirect: 0, toe: 0
   };
   
   for (let i = 1; i <= 6; i++) {
     data.scores[i] = parseFloat(document.getElementById('score' + i).value);
     data.totals[i] = data.scores[i] * weights[i];
-    data.ranks[i] = parseInt(document.getElementById('rank' + i).value);
     data.answers[i] = document.getElementById('answer' + i).value.trim();
     if (i <= 3) data.direct += data.totals[i]; else data.indirect += data.totals[i];
   }
@@ -548,8 +485,8 @@ function renderResult(data) {
   else if (data.toe >= 0) { cat = '🟡 Mixed'; cls = 'toe-neutral'; desc = 'แรงจูงใจผสม — มีทั้งภายในและภายนอก'; }
   else { cat = '🔴 Disengaged'; cls = 'toe-negative'; desc = 'แรงกดดันสูง — ทำงานเพราะต้องทำ'; }
   
-  // Rank order
-  const rankOrder = Object.entries(data.ranks).sort((a, b) => a[1] - b[1]);
+  // Rank order by score (descending)
+  const rankOrder = Object.entries(data.scores).sort((a, b) => b[1] - a[1]);
   
   let html = `
     <div class="toe-result">
@@ -571,31 +508,29 @@ function renderResult(data) {
     </div>
     
     <div class="info-box">
-      <h3>📋 ตารางคะแนน + ลำดับความสำคัญ</h3>
+      <h3>📋 ตารางคะแนน</h3>
       <table style="width:100%;font-size:13px;border-collapse:collapse">
-        <tr style="background:#f5f5f5"><th style="padding:8px;text-align:left">ข้อ</th><th style="padding:8px;text-align:center">คะแนน</th><th style="padding:8px;text-align:center">Weight</th><th style="padding:8px;text-align:center">Total</th><th style="padding:8px;text-align:center">ลำดับ</th><th style="padding:8px;text-align:center">ประเภท</th></tr>`;
+        <tr style="background:#f5f5f5"><th style="padding:8px;text-align:left">ข้อ</th><th style="padding:8px;text-align:center">คะแนน</th><th style="padding:8px;text-align:center">Weight</th><th style="padding:8px;text-align:center">Total</th><th style="padding:8px;text-align:center">ประเภท</th></tr>`;
   
   for (let i = 1; i <= 6; i++) {
     const type = i <= 3 ? 'Direct' : 'Indirect';
     const typeColor = i <= 3 ? '#2e7d32' : '#c62828';
-    const rank = data.ranks[i];
     html += `<tr style="border-bottom:1px solid #eee">
       <td style="padding:8px"><strong>${i}. ${qLabels[i]}</strong></td>
       <td style="padding:8px;text-align:center;font-weight:bold">${data.scores[i]}</td>
       <td style="padding:8px;text-align:center">×${weights[i]}</td>
       <td style="padding:8px;text-align:center;font-weight:bold">${data.totals[i].toFixed(2)}</td>
-      <td style="padding:8px;text-align:center"><span style="background:#ffd93d;padding:2px 8px;border-radius:10px;font-weight:bold">${rank}</span></td>
       <td style="padding:8px;text-align:center;color:${typeColor};font-size:12px">${type}</td>
     </tr>`;
   }
   html += `</table></div>`;
   
-  // Rank order
-  html += `<div class="info-box"><h3>📌 ลำดับความสำคัญ (จากคำตอบของคุณ)</h3>`;
-  rankOrder.forEach(([q, r]) => {
-    const stars = '★'.repeat(data.scores[q]) + '☆'.repeat(5 - data.scores[q]);
+  // Rank order by score
+  html += `<div class="info-box"><h3>📌 ลำดับความสำคัญ (จากคะแนนของคุณ สูง→ต่ำ)</h3>`;
+  rankOrder.forEach(([q, sc], idx) => {
+    const stars = '★'.repeat(sc) + '☆'.repeat(5 - sc);
     html += `<div style="padding:6px 0;border-bottom:1px solid #f0f0f0">
-      <strong>อันดับ ${r}:</strong> ข้อ ${q} — ${qLabels[q]} <span style="color:#f57c00">${stars}</span>
+      <strong>อันดับ ${idx + 1}:</strong> ข้อ ${q} — ${qLabels[q]} <span style="color:#f57c00">${stars}</span> (คะแนน ${sc})
       <div style="font-size:12px;color:#666;margin-top:2px">"${data.answers[q].substring(0, 100)}${data.answers[q].length > 100 ? '...' : ''}"</div>
     </div>`;
   });
@@ -605,7 +540,7 @@ function renderResult(data) {
   html += `<div class="ai-box">
     <h3>🤖 AI วิเคราะห์</h3>`;
   
-  // Analyze top motivation
+  // Analyze top motivation by score
   const topQ = rankOrder[0];
   const topQL = qLabels[topQ[0]];
   const bottomQ = rankOrder[rankOrder.length - 1];
@@ -613,11 +548,11 @@ function renderResult(data) {
   
   html += `<div class="ai-section">
       <h4>🔝 แรงจูงใจสูงสุด</h4>
-      <p>ข้อ ${topQ[0]} "${topQL}" (อันดับ ${topQ[1]}, คะแนน ${data.scores[topQ[0]]}) — ${getMotivationDesc(topQ[0])}</p>
+      <p>ข้อ ${topQ[0]} "${topQL}" (คะแนน ${topQ[1]}/5) — ${getMotivationDesc(topQ[0])}</p>
     </div>
     <div class="ai-section">
       <h4>⚠️ จุดที่ต้องดูแล</h4>
-      <p>ข้อ ${bottomQ[0]} "${bottomQL}" (อันดับ ${bottomQ[1]}, คะแนน ${data.scores[bottomQ[0]]}) — ${getPressureDesc(bottomQ[0])}</p>
+      <p>ข้อ ${bottomQ[0]} "${bottomQL}" (คะแนน ${bottomQ[1]}/5) — ${getPressureDesc(bottomQ[0])}</p>
     </div>`;
   
   // Pattern analysis
@@ -653,7 +588,7 @@ function renderResult(data) {
   html += `<div class="info-box"><h3>✍️ คำตอบทั้งหมด</h3>`;
   for (let i = 1; i <= 6; i++) {
     html += `<div style="padding:8px 0;border-bottom:1px solid #f0f0f0">
-      <strong>ข้อ ${i}: ${qLabels[i]}</strong> <span style="color:#999;font-size:12px">(คะแนน ${data.scores[i]} | ลำดับ ${data.ranks[i]})</span>
+      <strong>ข้อ ${i}: ${qLabels[i]}</strong> <span style="color:#999;font-size:12px">(คะแนน ${data.scores[i]}/5)</span>
       <div style="margin-top:4px;font-size:14px;line-height:1.6;color:#555">${data.answers[i]}</div>
     </div>`;
   }
@@ -692,7 +627,6 @@ function resetTest() {
   document.getElementById('resultSection').style.display = 'none';
   for (let i = 1; i <= 6; i++) {
     document.getElementById('score' + i).value = '';
-    document.getElementById('rank' + i).value = '';
     document.getElementById('answer' + i).value = '';
     document.getElementById('total' + i).textContent = '= -';
   }
