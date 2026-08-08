@@ -74,6 +74,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
 .toe-result .toe-category { font-size: 18px; margin-top: 10px; padding: 6px 18px; border-radius: 20px; display: inline-block; }
 .toe-positive { background: #43e97b; color: white; }
 .toe-neutral { background: #ffd93d; color: #333; }
+.toe-compliance { background: #ff9800; color: white; }
 .toe-negative { background: #ff6b6b; color: white; }
 
 /* AI Analysis */
@@ -475,9 +476,10 @@ function submitTest() {
 
 function renderResult(data) {
   let cat, cls, desc;
-  if (data.toe >= 30) { cat = '🟢 Self-driven'; cls = 'toe-positive'; desc = 'แรงจูงใจภายในสูง — ทำงานเพราะรักและมีจุดหมาย'; }
-  else if (data.toe >= 0) { cat = '🟡 Mixed'; cls = 'toe-neutral'; desc = 'แรงจูงใจผสม — มีทั้งภายในและภายนอก'; }
-  else { cat = '🔴 Disengaged'; cls = 'toe-negative'; desc = 'แรงกดดันสูง — ทำงานเพราะต้องทำ'; }
+  if (data.toe > 40) { cat = '🟢 Self-driven'; cls = 'toe-positive'; desc = 'ทำงานเพราะรักและมีจุดหมาย แรงจูงใจภายในสูง'; }
+  else if (data.toe >= 10) { cat = '🟡 Mixed'; cls = 'toe-neutral'; desc = 'แรงจูงใจผสม — มีทั้งภายในและภายนอก'; }
+  else if (data.toe >= -10) { cat = '🟠 Compliance'; cls = 'toe-compliance'; desc = 'ทำงานตามหน้าที่ ขาดแรงจูงใจภายใน'; }
+  else { cat = '🔴 Disengaged'; cls = 'toe-negative'; desc = 'แรงกดดันสูง — เสี่ยง burnout ต้อง intervene'; }
   
   // Rank order by score (descending)
   const rankOrder = Object.entries(data.scores).sort((a, b) => b[1] - a[1]);
@@ -557,12 +559,14 @@ function renderResult(data) {
       <h4>📈 Pattern Analysis</h4>
       <p>`;
   
-  if (data.toe >= 30) {
+  if (data.toe > 40) {
     html += `<strong>Self-driven:</strong> คุณทำงานเพราะรักและมีจุดหมาย แรงจูงใจภายในสูงมาก`;
     if (data.scores[1] >= 4) html += `<br>• งานสนุกเป็นแรงขับหลัก — เหมาะกับงานที่ต้องคิดสร้างสรรค์`;
     if (data.scores[2] >= 4) html += `<br>• มีจุดมุ่งหมายชัดเจน — เหมาะกับบทบาทผู้นำ`;
-  } else if (data.toe >= 0) {
+  } else if (data.toe >= 10) {
     html += `<strong>Mixed:</strong> คุณมีทั้งแรงจูงใจภายในและภายนอก ต้องดูแลไม่ให้แรงกดดันเพิ่มขึ้น`;
+  } else if (data.toe >= -10) {
+    html += `<strong>Compliance:</strong> คุณทำงานตามหน้าที่และความรับผิดชอบ แต่ยังขาดแรงจูงใจภายใน ควรสร้างจุดหมายและความสนุกในงาน`;
   } else {
     html += `<strong>Disengaged:</strong> แรงกดดันภายนอกสูงกว่าแรงจูงใจภายใน — เสี่ยง burnout`;
     if (data.scores[5] >= 4) html += `<br>• กังวลเรื่องการเงินสูง — ต้องมีแผนค่าตอบแทนที่ชัดเจน`;
@@ -600,8 +604,9 @@ function getPressureDesc(q) {
 }
 
 function getRecommendation(data) {
-  if (data.toe >= 30) return 'คุณมีแรงจูงใจภายในสูง เหมาะกับบทบาทที่ต้องสร้างสิ่งใหม่ เป็นผู้นำการเปลี่ยนแปลง หรืองานที่ต้องใช้ความคิดสร้างสรรค์ องค์กรควรให้อิสระและโอกาสเติบโต';
-  if (data.toe >= 0) return 'คุณมีแรงจูงใจผสม องค์กรควรเน้นเสริมแรงจูงใจภายใน (purpose, growth) และลดแรงกดดันภายนอก (KPI, ความกลัว) โดยมีการพูดคุย 1:1 เป็นประจำ';
+  if (data.toe > 40) return 'คุณมีแรงจูงใจภายในสูง เหมาะกับบทบาทที่ต้องสร้างสิ่งใหม่ เป็นผู้นำการเปลี่ยนแปลง หรืองานที่ต้องใช้ความคิดสร้างสรรค์ องค์กรควรให้อิสระและโอกาสเติบโต';
+  if (data.toe >= 10) return 'คุณมีแรงจูงใจผสม องค์กรควรเน้นเสริมแรงจูงใจภายใน (purpose, growth) และลดแรงกดดันภายนอก (KPI, ความกลัว) โดยมีการพูดคุย 1:1 เป็นประจำ';
+  if (data.toe >= -10) return 'คุณทำงานตามหน้าที่และรับผิดชอบ (Compliance) แต่ยังขาดแรงจูงใจภายใน องค์กรควรช่วยหาจุดหมายและความสนุกในงาน สร้างการมีส่วนร่วม และให้งานที่มีความหมาย';
   return '⚠️ คุณอยู่ในภาวะเสี่ยง burnout องค์กรควร: 1) คุย 1:1 หาสาเหตุ 2) ปรับ workload 3) ชัดเจนเรื่องค่าตอบแทน 4) หา purpose ใหม่ร่วมกัน';
 }
 
@@ -654,8 +659,9 @@ function renderTeam() {
   const avgToE = filtered.reduce((s, h) => s + h.toe, 0) / filtered.length;
   
   let cat, cls;
-  if (avgToE >= 30) { cat = '🟢 Self-driven Team'; cls = 'toe-positive'; }
-  else if (avgToE >= 0) { cat = '🟡 Mixed Team'; cls = 'toe-neutral'; }
+  if (avgToE > 40) { cat = '🟢 Self-driven Team'; cls = 'toe-positive'; }
+  else if (avgToE >= 10) { cat = '🟡 Mixed Team'; cls = 'toe-neutral'; }
+  else if (avgToE >= -10) { cat = '🟠 Compliance Team'; cls = 'toe-compliance'; }
   else { cat = '🔴 Pressure-driven Team'; cls = 'toe-negative'; }
   
   document.getElementById('teamSummary').innerHTML = `
@@ -672,7 +678,7 @@ function renderTeam() {
   const sorted = [...filtered].sort((a, b) => b.toe - a.toe);
   let mHtml = '<div class="info-box"><h3>👤 สมาชิก</h3>';
   sorted.forEach(h => {
-    let c = h.toe >= 30 ? 'toe-high' : h.toe >= 0 ? 'toe-mid' : 'toe-low';
+    let c = h.toe > 40 ? 'toe-high' : h.toe >= 10 ? 'toe-mid' : h.toe >= -10 ? 'toe-mid' : 'toe-low';
     mHtml += `<div class="member-row">
       <span><strong>${h.name}</strong> <span style="color:#999;font-size:12px">${h.position || ''} | ${h.bu}${h.team ? '/' + h.team : ''}</span></span>
       <span class="${c}">ToE: ${h.toe.toFixed(2)}</span>
@@ -685,7 +691,7 @@ function renderTeam() {
   let cHtml = '<div class="info-box"><h3>📊 แผนภูมิ ToE</h3>';
   sorted.forEach(h => {
     const bw = Math.max(5, Math.min(100, ((h.toe + 50) / 100) * 100));
-    const color = h.toe >= 30 ? '#43e97b' : h.toe >= 0 ? '#ffd93d' : '#ff6b6b';
+    const color = h.toe > 40 ? '#43e97b' : h.toe >= 10 ? '#ffd93d' : h.toe >= -10 ? '#ff9800' : '#ff6b6b';
     cHtml += `<div style="margin-bottom:8px">
       <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px">
         <span>${h.name}</span><span style="font-weight:bold">${h.toe.toFixed(2)}</span>
