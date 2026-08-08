@@ -120,6 +120,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
 <div class="container">
   <div class="nav-tabs">
     <div class="nav-tab active" onclick="showScreen('test')">📝 ทำแบบทดสอบ</div>
+    <div class="nav-tab" onclick="showScreen('history')">📋 ประวัติ</div>
     <div class="nav-tab" onclick="showScreen('team')">👥 ผลรวมทีม</div>
   </div>
 
@@ -389,6 +390,35 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
     </div>
   </div>
 
+  <!-- HISTORY SCREEN -->
+  <div id="screen-history" class="screen">
+    <div class="info-box">
+      <h3>📋 ประวัติแบบประเมินทั้งหมด</h3>
+      <p style="font-size:13px;color:#666">รวมผู้ทำแบบประเมินทั้งหมด — คลิกที่แถวเพื่อดูผลวิเคราะห์ย้อนหลัง</p>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>ค้นหาชื่อ / ตำแหน่ง / ทีม</label>
+        <input type="text" id="historySearch" placeholder="พิมพ์เพื่อค้นหา..." oninput="renderHistory()">
+      </div>
+      <div class="form-group">
+        <label>กรอง BU</label>
+        <select id="historyBU" onchange="renderHistory()">
+          <option value="all">ทุก BU</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="historyStats"></div>
+    <div id="historyList"></div>
+    <div id="historyDetail" style="display:none"></div>
+
+    <div style="text-align:center;margin:20px 0">
+      <button class="btn btn-danger" onclick="clearAllData()">🗑️ ล้างข้อมูลทั้งหมด</button>
+    </div>
+  </div>
+
   <!-- TEAM SCREEN -->
   <div id="screen-team" class="screen">
     <div class="info-box">
@@ -429,8 +459,10 @@ function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
-  document.querySelectorAll('.nav-tab')[name === 'test' ? 0 : 1].classList.add('active');
+  const tabIdx = name === 'test' ? 0 : name === 'history' ? 1 : 2;
+  document.querySelectorAll('.nav-tab')[tabIdx].classList.add('active');
   if (name === 'team') renderTeam();
+  if (name === 'history') renderHistory();
 }
 
 function startTest() {
@@ -497,6 +529,20 @@ function submitTest() {
 }
 
 function renderResult(data) {
+  document.getElementById('resultContent').innerHTML = buildResultHTML(data);
+  renderRadar(data, 'radarChart');
+}
+
+function buildResultHTML(data, radarCanvasId) {
+  radarCanvasId = radarCanvasId || 'radarChart';
+  // ป้องกันข้อมูลเก่าที่ไม่มี totals/direct/indirect
+  if (!data.totals || typeof data.totals !== 'object') data.totals = {};
+  for (let i = 1; i <= 6; i++) {
+    if (typeof data.totals[i] !== 'number' || isNaN(data.totals[i])) data.totals[i] = (data.scores[i] || 0) * weights[i];
+  }
+  if (typeof data.direct !== 'number' || isNaN(data.direct)) data.direct = (data.totals[1] + data.totals[2] + data.totals[3]);
+  if (typeof data.indirect !== 'number' || isNaN(data.indirect)) data.indirect = (data.totals[4] + data.totals[5] + data.totals[6]);
+  if (typeof data.toe !== 'number' || isNaN(data.toe)) data.toe = data.direct - data.indirect;
   let cat, cls, desc;
   if (data.toe > 40) { cat = '🟢 Self-driven'; cls = 'toe-positive'; desc = 'ทำงานเพราะรักและมีจุดหมาย แรงจูงใจภายในสูง'; }
   else if (data.toe >= 10) { cat = '🟡 Mixed'; cls = 'toe-neutral'; desc = 'แรงจูงใจผสม — มีทั้งภายในและภายนอก'; }
@@ -518,7 +564,7 @@ function renderResult(data) {
     
     <div class="info-box">
       <h3>🕸️ กราฟใยแมงมุมแรงจูงใจ 6 ข้อ</h3>
-      <div style="position:relative;height:320px"><canvas id="radarChart"></canvas></div>
+      <div style="position:relative;height:320px"><canvas id="${radarCanvasId}"></canvas></div>
       <p style="font-size:11px;color:#999;margin-top:4px">🟢 Direct (แรงจูงใจภายใน) 🔴 Indirect (แรงกดดันภายนอก)</p>
     </div>
     
@@ -567,12 +613,12 @@ function renderResult(data) {
     <div style="opacity:0.6;font-size:11px;margin-top:10px">* AI วิเคราะห์จากรูปแบบคะแนน 6 ข้อของคุณ (ตามหลักจิตวิทยาองค์กร) — ใช้ประกอบการพูดคุยกับ HR/หัวหน้า ไม่ใช่การวินิจฉัย</div>
   </div>`;
   
-  document.getElementById('resultContent').innerHTML = html;
-  renderRadar(data);
+  return html;
 }
 
-function renderRadar(data) {
-  const ctx = document.getElementById('radarChart');
+function renderRadar(data, canvasId) {
+  canvasId = canvasId || 'radarChart';
+  const ctx = document.getElementById(canvasId);
   if (!ctx || typeof Chart === 'undefined') return;
   if (window.radarChartInstance) window.radarChartInstance.destroy();
   const labels = ['1. งานสนุก', '2. มีจุดมุ่งหมาย', '3. เติบโต', '4. หน้าที่ทุกคน', '5. ค่าตอบแทน', '6. ไม่มีแรงจูงใจ'];
@@ -900,6 +946,105 @@ function resetTest() {
   document.getElementById('liveIndirect').textContent = '-';
   document.getElementById('liveToE').textContent = '-';
   document.getElementById('submitBtn').disabled = true;
+}
+
+// ===== ประวัติ (HISTORY) =====
+function renderHistory() {
+  const history = JSON.parse(localStorage.getItem('3e3p_history') || '[]');
+  const search = (document.getElementById('historySearch').value || '').toLowerCase().trim();
+  const filterBU = document.getElementById('historyBU').value;
+
+  // เติมตัวเลือก BU
+  const bus = [...new Set(history.map(h => h.bu).filter(Boolean))];
+  const buSel = document.getElementById('historyBU');
+  const curBU = buSel.value;
+  buSel.innerHTML = '<option value="all">ทุก BU</option>';
+  bus.forEach(b => { const o = document.createElement('option'); o.value = b; o.textContent = b; if (b === curBU) o.selected = true; buSel.appendChild(o); });
+
+  let filtered = history;
+  if (filterBU && filterBU !== 'all') filtered = filtered.filter(h => h.bu === filterBU);
+  if (search) filtered = filtered.filter(h =>
+    (h.name || '').toLowerCase().includes(search) ||
+    (h.position || '').toLowerCase().includes(search) ||
+    (h.team || '').toLowerCase().includes(search)
+  );
+
+  // สถิติ
+  const stats = document.getElementById('historyStats');
+  const avgToE = filtered.length ? filtered.reduce((s, h) => s + h.toe, 0) / filtered.length : 0;
+  let cat, cls;
+  if (avgToE > 40) { cat = '🟢 Self-driven'; cls = 'toe-positive'; }
+  else if (avgToE >= 10) { cat = '🟡 Mixed'; cls = 'toe-neutral'; }
+  else if (avgToE >= -10) { cat = '🟠 Compliance'; cls = 'toe-compliance'; }
+  else { cat = '🔴 Disengaged'; cls = 'toe-negative'; }
+  stats.innerHTML = filtered.length ? `
+    <div class="summary-box" style="padding:16px">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <span class="label">👥 ผู้ทำแบบประเมิน (${filtered.length} คน)</span>
+        <span class="value">ค่าเฉลี่ย ToE: ${avgToE.toFixed(2)} <span class="toe-category ${cls}" style="font-size:12px;padding:2px 10px">${cat}</span></span>
+      </div>
+    </div>` : '';
+
+  const list = document.getElementById('historyList');
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-state"><div style="font-size:48px">📭</div><p>ยังไม่มีข้อมูล</p></div>';
+    return;
+  }
+
+  const sorted = [...filtered].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  let h = `<div class="info-box" style="padding:0;overflow:hidden">
+    <table style="width:100%;font-size:13px;border-collapse:collapse">
+      <tr style="background:#1a237e;color:#fff">
+        <th style="padding:10px;text-align:left">ชื่อ-นามสกุล</th>
+        <th style="padding:10px;text-align:left">ตำแหน่ง</th>
+        <th style="padding:10px;text-align:left">BU/ทีม</th>
+        <th style="padding:10px;text-align:center">วันที่ทำ</th>
+        <th style="padding:10px;text-align:center">ToE</th>
+        <th style="padding:10px;text-align:center">สถานะ</th>
+      </tr>`;
+  sorted.forEach((rec, idx) => {
+    const d = new Date(rec.timestamp);
+    const dateStr = d.toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    let cat, cls;
+    if (rec.toe > 40) { cat = 'Self-driven'; cls = 'toe-high'; }
+    else if (rec.toe >= 10) { cat = 'Mixed'; cls = 'toe-mid'; }
+    else if (rec.toe >= -10) { cat = 'Compliance'; cls = 'toe-mid'; }
+    else { cat = 'Disengaged'; cls = 'toe-low'; }
+    h += `<tr style="border-bottom:1px solid #f0f0f0;cursor:pointer" onclick="showHistoryDetail(${idx})" onmouseover="this.style.background='#f6fff9'" onmouseout="this.style.background=''">
+      <td style="padding:10px;font-weight:600">${rec.name}</td>
+      <td style="padding:10px">${rec.position || '-'}</td>
+      <td style="padding:10px">${rec.bu}${rec.team ? '/' + rec.team : ''}</td>
+      <td style="padding:10px;text-align:center">${dateStr}</td>
+      <td style="padding:10px;text-align:center;font-weight:bold">${rec.toe.toFixed(2)}</td>
+      <td style="padding:10px;text-align:center" class="${cls}">${cat}</td>
+    </tr>`;
+  });
+  h += `</table></div>`;
+  h += `<p style="font-size:12px;color:#999;margin-top:8px">💡 คลิกที่แถวเพื่อดูผลวิเคราะห์ย้อนหลัง</p>`;
+  list.innerHTML = h;
+}
+
+function showHistoryDetail(idx) {
+  const history = JSON.parse(localStorage.getItem('3e3p_history') || '[]');
+  const rec = history[idx];
+  if (!rec) return;
+  const detail = document.getElementById('historyDetail');
+  detail.style.display = 'block';
+  detail.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <h3 style="color:#1a237e">📄 ผลวิเคราะห์ย้อนหลัง: ${rec.name}</h3>
+      <button class="btn btn-secondary" onclick="hideHistoryDetail()">✖ ปิด</button>
+    </div>
+    <div id="historyResultContent"></div>`;
+  document.getElementById('historyResultContent').innerHTML = buildResultHTML(rec, 'historyRadarChart');
+  renderRadar(rec, 'historyRadarChart');
+  detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function hideHistoryDetail() {
+  document.getElementById('historyDetail').style.display = 'none';
+  document.getElementById('historyDetail').innerHTML = '';
+  if (window.radarChartInstance) window.radarChartInstance.destroy();
 }
 
 // ===== TEAM =====
