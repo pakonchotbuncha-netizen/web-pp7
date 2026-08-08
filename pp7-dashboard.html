@@ -701,6 +701,9 @@ window.RESIGNATION_PIPELINE = {
     <button class="nav-item" data-tab="pp7-research" onclick="showTab('pp7-research')">
       <span class="nav-item-icon">🧪</span>งานวิจัย PP7
     </button>
+    <button class="nav-item" data-tab="p5" onclick="showTab('p5')">
+      <span class="nav-item-icon">📚</span>P5 Dashboard
+    </button>
   </div>
 </aside>
 
@@ -4610,6 +4613,71 @@ window.RESIGNATION_PIPELINE = {
 
 </main></div><!-- /.main-content --></div><!-- /.app-wrapper -->
 
+<!-- ============ TAB: P5 Dashboard ============ -->
+<section id="tab-p5" class="tab-pane fade-in hidden space-y-6">
+  <div class="flex flex-wrap items-center gap-4">
+    <h2 class="text-xl font-bold text-pp7-800 flex-1">📚 P5 Dashboard — ข้อมูลอบรม AI</h2>
+    <div class="text-sm text-slate-500">ดึงข้อมูลจาก Google Sheet ทีม P5 (nattharinee-PAD) • อัปเดตล่าสุด <span id="p5Timestamp">-</span></div>
+  </div>
+
+  <!-- Summary by company -->
+  <div class="card">
+    <h3 class="font-semibold text-pp7-800 mb-3">📊 สรุปหน่วยกิต / GPA รายบริษัท</h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-100">
+          <tr>
+            <th class="px-3 py-2 text-left">บริษัท</th>
+            <th class="px-3 py-2 text-center">จำนวนสมาชิก</th>
+            <th class="px-3 py-2 text-center">หน่วยกิตครบ 44</th>
+            <th class="px-3 py-2 text-center">ยังไม่ครบ</th>
+            <th class="px-3 py-2 text-center">% ครบ</th>
+            <th class="px-3 py-2 text-center">GPA ผ่าน</th>
+            <th class="px-3 py-2 text-center">GPA ไม่ผ่าน</th>
+            <th class="px-3 py-2 text-center">% GPA ผ่าน</th>
+          </tr>
+        </thead>
+        <tbody id="p5SummaryTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- KPIs: Training / Roleplay / Mentor / Coach -->
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">🎓 Training</h3>
+      <div id="p5Training" class="space-y-2"></div>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">🎭 Roleplay</h3>
+      <div id="p5Roleplay" class="space-y-2"></div>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">👥 Mentor</h3>
+      <div id="p5Mentor" class="space-y-2"></div>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-pp7-800 mb-3">🎯 Coach</h3>
+      <div id="p5Coach" class="space-y-2"></div>
+    </div>
+  </div>
+
+  <!-- LG Matrix -->
+  <div class="card">
+    <h3 class="font-semibold text-pp7-800 mb-3">🏛️ LG Matrix — ทุนองค์กร (Corporate Capital)</h3>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-100" id="p5LgHeader"></thead>
+        <tbody id="p5LgBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card bg-slate-50">
+    <p class="text-xs text-slate-500">🔗 แหล่งข้อมูล: <a href="https://github.com/nattharinee-PAD/P5-dashboard" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">github.com/nattharinee-PAD/P5-dashboard</a> • Google Sheet: P5 Dashboard ข้อมูลอบรม AI</p>
+  </div>
+</section>
+
 <!-- DRILL-DOWN MODAL -->
 <div class="modal-overlay" id="drillModal" onclick="if(event.target===this)closeDrill()">
   <div class="modal">
@@ -4709,6 +4777,7 @@ function showTab(name){
   el.classList.remove('fade-in');void el.offsetWidth;el.classList.add('fade-in');
   if(location.hash!==`#tab=${name}`)history.replaceState(null,'',`#tab=${name}`);
   initCharts(name);
+  if(name==='p5')renderP5();
   // close mobile sidebar
   document.getElementById('sidebar').classList.remove('open');
 }
@@ -5600,6 +5669,114 @@ function applyLogin(session){
   initDashboardData();
   checkAlerts();
 })();
+
+// ========== P5 DASHBOARD ==========
+const P5_DATA = {
+  "timestamp": "8 สิงหาคม 2569 (ดึงสดจาก Google Sheet)",
+  "sheet": "1CkBSi_votE01b0fxFFwU1EQb_7mzEJgGvWGaegocbeM",
+  "summary": [
+    {"name":"PGHg","members":0,"credit_done":0,"credit_remain":0,"credit_pct":0,"gpa_pass":0,"gpa_fail":0,"gpa_pct":0},
+    {"name":"PMSg","members":173,"credit_done":172,"credit_remain":1,"credit_pct":99.42,"gpa_pass":165,"gpa_fail":8,"gpa_pct":95.38},
+    {"name":"AAMg","members":100,"credit_done":98,"credit_remain":2,"credit_pct":98,"gpa_pass":100,"gpa_fail":0,"gpa_pct":100},
+    {"name":"RPLCg","members":31,"credit_done":13,"credit_remain":18,"credit_pct":41.94,"gpa_pass":31,"gpa_fail":0,"gpa_pct":100},
+    {"name":"RAFCOg","members":22,"credit_done":3,"credit_remain":19,"credit_pct":13.64,"gpa_pass":20,"gpa_fail":2,"gpa_pct":90.91},
+    {"name":"CPDg","members":33,"credit_done":15,"credit_remain":18,"credit_pct":45.45,"gpa_pass":26,"gpa_fail":7,"gpa_pct":78.79}
+  ],
+  "training": [
+    {"label":"แผนหลักสูตรที่เปิดอบรมประจำเดือน","value":"9","unit":"หลักสูตร"},
+    {"label":"เปิดอบรมตามแผน","value":"1","unit":"หลักสูตร"},
+    {"label":"รอส่งผลอบรม","value":"9","unit":"หลักสูตร"},
+    {"label":"สมาชิกที่เข้าอบรมแต่ละหลักสูตร (เดือนนี้)","value":"604","unit":"คน"},
+    {"label":"สมาชิกที่ได้รับการฝึกอบรม (เดือนนี้)","value":"0","unit":"คน"},
+    {"label":"สมาชิกที่ยังไม่บรรลุเป้าหมาย","value":"0","unit":"คน"},
+    {"label":"หลักสูตรที่ส่งผลแล้ว คิดเป็น","value":"11.11%","unit":""}
+  ],
+  "roleplay": [
+    {"label":"ทีม Roleplay","value":"55","unit":"ทีม"},
+    {"label":"ทีมที่ Roleplay ผ่าน","value":"2","unit":"ทีม"},
+    {"label":"ทีมที่ยังไม่ส่ง Roleplay","value":"53","unit":"ทีม"},
+    {"label":"บรรลุเป้าหมาย Roleplay คิดเป็น","value":"3.64%","unit":""}
+  ],
+  "mentor": [
+    {"label":"สมาชิกในระบบ Mentor","value":"30","unit":"คน"},
+    {"label":"วินัยส่งรายงาน > 90%","value":"8","unit":"คน"},
+    {"label":"วินัยส่งรายงาน < 90%","value":"22","unit":"คน"},
+    {"label":"วินัยส่งรายงาน > 90% คิดเป็น","value":"26.67%","unit":""}
+  ],
+  "coach": [
+    {"label":"สมาชิกในระบบ Coach","value":"58","unit":"คน"},
+    {"label":"วินัย Coach ตามเป้าหมาย","value":"58","unit":"คน"},
+    {"label":"วินัย Coach น้อยกว่าเป้าหมาย","value":"0","unit":"คน"},
+    {"label":"พี่เลี้ยงที่ยังไม่ได้โค้ชน้องเลี้ยง","value":"100%","unit":""}
+  ],
+  "lg": {
+    "headers": ["Capital","PKG","PGHg","PMSg","AAMg","RPLCg","RAFCOg","CPDg","รวม","อ้างอิงสถานะ"],
+    "rows": [
+      {"name":"ทุนมนุษย์ (Human Capital)","PKG":5,"PGHg":1,"PMSg":12,"AAMg":37,"RPLCg":5,"RAFCOg":1,"CPDg":1,"total":62,"reference":"AOE (ทุนมนุษย์ BU/FU)"},
+      {"name":"ทุนสารสนเทศ (Information Capital)","PKG":21,"PGHg":1,"PMSg":21,"AAMg":1,"RPLCg":1,"RAFCOg":1,"CPDg":6,"total":52,"reference":"ทุนสารสนเทศ"},
+      {"name":"ทุนองค์กร (Organizational Capital)","PKG":7,"PGHg":1,"PMSg":2,"AAMg":1,"RPLCg":1,"RAFCOg":1,"CPDg":1,"total":14,"reference":"Core competency (ทุนองค์กร SMC)"},
+      {"name":"ทุนองค์กร PKG","PKG":5,"PGHg":1,"PMSg":1,"AAMg":1,"RPLCg":1,"RAFCOg":1,"CPDg":1,"total":11,"reference":"หลักสูตรเลือก(PAD)"}
+    ]
+  }
+};
+
+function renderP5(){
+  const ts=document.getElementById('p5Timestamp');
+  if(ts)ts.textContent=P5_DATA.timestamp;
+  const st=document.getElementById('p5SummaryTable');
+  if(st){
+    let rows='';let tMembers=0,tDone=0,tRemain=0,tPass=0,tFail=0;
+    P5_DATA.summary.forEach(c=>{
+      tMembers+=c.members;tDone+=c.credit_done;tRemain+=c.credit_remain;tPass+=c.gpa_pass;tFail+=c.gpa_fail;
+      rows+='<tr class="border-t"><td class="px-3 py-2 font-medium">'+c.name+'</td>'+
+        '<td class="px-3 py-2 text-center">'+c.members+'</td>'+
+        '<td class="px-3 py-2 text-center">'+c.credit_done+'</td>'+
+        '<td class="px-3 py-2 text-center">'+c.credit_remain+'</td>'+
+        '<td class="px-3 py-2 text-center">'+c.credit_pct+'%</td>'+
+        '<td class="px-3 py-2 text-center">'+c.gpa_pass+'</td>'+
+        '<td class="px-3 py-2 text-center">'+c.gpa_fail+'</td>'+
+        '<td class="px-3 py-2 text-center">'+c.gpa_pct+'%</td></tr>';
+    });
+    rows+='<tr class="border-t bg-slate-50 font-semibold"><td class="px-3 py-2">รวม</td>'+
+      '<td class="px-3 py-2 text-center">'+tMembers+'</td>'+
+      '<td class="px-3 py-2 text-center">'+tDone+'</td>'+
+      '<td class="px-3 py-2 text-center">'+tRemain+'</td>'+
+      '<td class="px-3 py-2 text-center">'+(tMembers?((tDone/tMembers)*100).toFixed(2)+'%':'0%')+'</td>'+
+      '<td class="px-3 py-2 text-center">'+tPass+'</td>'+
+      '<td class="px-3 py-2 text-center">'+tFail+'</td>'+
+      '<td class="px-3 py-2 text-center">'+((tPass/(tPass+tFail||1))*100).toFixed(2)+'%</td></tr>';
+    st.innerHTML=rows;
+  }
+  const sections={training:'p5Training',roleplay:'p5Roleplay',mentor:'p5Mentor',coach:'p5Coach'};
+  Object.keys(sections).forEach(k=>{
+    const el=document.getElementById(sections[k]);
+    if(!el)return;
+    el.innerHTML=P5_DATA[k].map(item=>{
+      const color=item.value==='0'||item.value==='0.00%'?'bg-red-50 text-red-700':(parseFloat(item.value)>50?'bg-green-50 text-green-700':'bg-amber-50 text-amber-700');
+      return '<div class="flex justify-between items-center p-2 rounded-lg '+color+'">'+
+        '<span class="text-sm">'+item.label+'</span>'+
+        '<span class="font-bold">'+item.value+' '+item.unit+'</span></div>';
+    }).join('');
+  });
+  const lh=document.getElementById('p5LgHeader');
+  if(lh)lh.innerHTML='<tr>'+P5_DATA.lg.headers.map(h=>'<th class="px-3 py-2 text-left">'+h+'</th>').join('')+'</tr>';
+  const lb=document.getElementById('p5LgBody');
+  if(lb){
+    lb.innerHTML=P5_DATA.lg.rows.map(r=>{
+      return '<tr class="border-t">'+
+        '<td class="px-3 py-2 font-medium">'+r.name+'</td>'+
+        '<td class="px-3 py-2 text-center">'+r.PKG+'</td>'+
+        '<td class="px-3 py-2 text-center">'+r.PGHg+'</td>'+
+        '<td class="px-3 py-2 text-center">'+r.PMSg+'</td>'+
+        '<td class="px-3 py-2 text-center">'+r.AAMg+'</td>'+
+        '<td class="px-3 py-2 text-center">'+r.RPLCg+'</td>'+
+        '<td class="px-3 py-2 text-center">'+r.RAFCOg+'</td>'+
+        '<td class="px-3 py-2 text-center">'+r.CPDg+'</td>'+
+        '<td class="px-3 py-2 text-center font-bold">'+r.total+'</td>'+
+        '<td class="px-3 py-2 text-xs text-slate-500">'+r.reference+'</td></tr>';
+    }).join('');
+  }
+}
 </script>
 </body>
 </html>
