@@ -398,6 +398,20 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
       <p style="font-size:13px;color:#666">รวมผู้ทำแบบประเมินทั้งหมด — คลิกที่แถวเพื่อดูผลวิเคราะห์ย้อนหลัง</p>
     </div>
 
+    <div class="info-box" style="border:2px solid #667eea;background:#f8f9ff">
+      <h3>☁️ ตั้งค่าการเก็บข้อมูลรวมศูนย์ (Google Sheets)</h3>
+      <p style="font-size:13px;color:#666;line-height:1.6">
+        ใส่ Web App URL ของ Google Apps Script เพื่อให้ทุกเครื่องส่งข้อมูลมารวมกันที่ Google Sheets เดียวกัน<br>
+        <span style="font-size:12px">📄 วิธีติดตั้งอยู่ในไฟล์ <strong>3e3p-backend.gs</strong> ใน repo (สร้าง Sheet → Apps Script → Deploy Web App)</span>
+      </p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <input type="text" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec" style="flex:1;min-width:250px;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:13px">
+        <button class="btn btn-primary" onclick="saveGasUrl()">💾 บันทึก</button>
+        <button class="btn btn-secondary" onclick="testGasUrl()">🔌 ทดสอบ</button>
+      </div>
+      <div id="gasStatus" style="font-size:13px;margin-top:8px"></div>
+    </div>
+
     <div class="form-row">
       <div class="form-group">
         <label>ค้นหาชื่อ / ตำแหน่ง / ทีม</label>
@@ -529,6 +543,7 @@ function submitTest() {
   document.getElementById('questionSection').style.display = 'none';
   document.getElementById('resultSection').style.display = 'block';
   renderResult(data);
+  syncToCloud(data); // ส่งข้อมูลไป Google Sheets (ถ้าตั้งค่าไว้)
 }
 
 function renderResult(data) {
@@ -952,8 +967,28 @@ function resetTest() {
 }
 
 // ===== ประวัติ (HISTORY) =====
-function renderHistory() {
-  const history = JSON.parse(localStorage.getItem('3e3p_history') || '[]');
+let cloudHistoryCache = null;
+let cloudLoading = false;
+let cloudLoadTime = 0;
+
+async function renderHistory() {
+  // โหลดข้อมูลจาก cloud (Google Sheets) ทุกครั้งที่เปิด tab — cache ไว้ 30 วินาที
+  if (getGasUrl() && !cloudLoading && (cloudHistoryCache === null || Date.now() - cloudLoadTime > 30000)) {
+    cloudLoading = true;
+    try { cloudHistoryCache = await loadFromCloud(); cloudLoadTime = Date.now(); }
+    catch (err) { cloudHistoryCache = null; }
+    cloudLoading = false;
+  }
+  const local = JSON.parse(localStorage.getItem('3e3p_history') || '[]');
+  const cloud = cloudHistoryCache || [];
+  // รวมข้อมูล local + cloud (dedupe ด้วย timestamp+name)
+  const seen = new Set();
+  const history = [];
+  [...local, ...cloud].forEach(h => {
+    const key = (h.timestamp || '') + '|' + (h.name || '');
+    if (!seen.has(key)) { seen.add(key); history.push(h); }
+  });
+
   const search = (document.getElementById('historySearch').value || '').toLowerCase().trim();
   const filterBU = document.getElementById('historyBU').value;
 
@@ -995,6 +1030,7 @@ function renderHistory() {
   }
 
   const sorted = [...filtered].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  window.__historyMerged = sorted; // เก็บไว้ให้ showHistoryDetail ใช้
   let h = `<div class="info-box" style="padding:0;overflow:hidden">
     <table style="width:100%;font-size:13px;border-collapse:collapse">
       <tr style="background:#1a237e;color:#fff">
@@ -1028,7 +1064,7 @@ function renderHistory() {
 }
 
 function showHistoryDetail(idx) {
-  const history = JSON.parse(localStorage.getItem('3e3p_history') || '[]');
+  const history = (window.__historyMerged && window.__historyMerged.length) ? window.__historyMerged : JSON.parse(localStorage.getItem('3e3p_history') || '[]');
   const rec = history[idx];
   if (!rec) return;
   const detail = document.getElementById('historyDetail');
@@ -1048,6 +1084,65 @@ function hideHistoryDetail() {
   document.getElementById('historyDetail').style.display = 'none';
   document.getElementById('historyDetail').innerHTML = '';
   if (window.radarChartInstance) window.radarChartInstance.destroy();
+}
+
+// ===== การเก็บข้อมูลรวมศูนย์ (Google Sheets ผ่าน GAS) =====
+function getGasUrl() {
+  return localStorage.getItem('3e3p_gas_url') || '';
+}
+
+function saveGasUrl() {
+  const url = document.getElementById('gasUrlInput').value.trim();
+  if (!url) { alert('กรุณาใส่ URL ก่อน'); return; }
+  localStorage.setItem('3e3p_gas_url', url);
+  document.getElementById('gasStatus').innerHTML = '<span style="color:#2e7d32">✅ บันทึก URL แล้ว — ข้อมูลใหม่จะส่งขึ้น Google Sheets อัตโนมัติ</span>';
+  renderHistory();
+}
+
+async function testGasUrl() {
+  const url = document.getElementById('gasUrlInput').value.trim();
+  if (!url) { alert('กรุณาใส่ URL ก่อน'); return; }
+  const status = document.getElementById('gasStatus');
+  status.innerHTML = '⏳ กำลังทดสอบ...';
+  try {
+    const res = await fetch(url + '?action=ping');
+    const json = await res.json();
+    if (json.success) {
+      status.innerHTML = '<span style="color:#2e7d32">✅ เชื่อมต่อสำเร็จ! (' + (json.time || '') + ')</span>';
+    } else {
+      status.innerHTML = '<span style="color:#c62828">❌ ตอบกลับ error: ' + (json.error || 'unknown') + '</span>';
+    }
+  } catch (err) {
+    status.innerHTML = '<span style="color:#c62828">❌ ไม่สามารถเชื่อมต่อได้: ' + err.message + '</span>';
+  }
+}
+
+async function syncToCloud(data) {
+  const url = getGasUrl();
+  if (!url) return; // ยังไม่ได้ตั้งค่า
+  try {
+    await fetch(url + '?action=save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  } catch (err) {
+    console.warn('3E3P sync failed:', err);
+  }
+}
+
+async function loadFromCloud() {
+  const url = getGasUrl();
+  if (!url) return [];
+  try {
+    const res = await fetch(url + '?action=list');
+    const json = await res.json();
+    if (json.success) return json.data || [];
+    return [];
+  } catch (err) {
+    console.warn('3E3P load failed:', err);
+    return [];
+  }
 }
 
 // ===== Export ข้อมูล =====
