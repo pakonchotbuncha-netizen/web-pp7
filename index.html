@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="prg-pdg-data.js"></script>
+    <script src="prg-pdg-widget.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
         * { font-family: 'Prompt', sans-serif; }
@@ -538,10 +540,9 @@
                 <h1 class="text-4xl font-bold text-gray-800 mb-3">บทสรุปผู้บริหาร</h1>
                 <p class="text-lg text-gray-600 max-w-2xl mx-auto">Dashboard ผู้บริหาร — ภาพรวมระบบ PP7 ทั้งหมด แบบ Real-time</p>
             </div>
-            <div class="bg-white rounded-xl shadow-lg p-8">
-                <div class="flex items-center justify-center gap-3 mb-6">
-                    <span class="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-full font-semibold"><i class="fas fa-tools mr-2"></i>กำลังพัฒนา</span>
-                </div>
+
+            <!-- PP7 Modules Overview -->
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-5 rounded-lg text-center"><div class="text-3xl font-bold">P1</div><p class="text-sm opacity-90 mt-1">แสวงหา</p></div>
                     <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-5 rounded-lg text-center"><div class="text-3xl font-bold">P2</div><p class="text-sm opacity-90 mt-1">หยั่งประเมิน</p></div>
@@ -551,6 +552,13 @@
                     <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-white p-5 rounded-lg text-center"><div class="text-3xl font-bold">P6</div><p class="text-sm opacity-90 mt-1">ค่าตอบแทน</p></div>
                     <div class="bg-gradient-to-br from-green-500 to-green-600 text-white p-5 rounded-lg text-center"><div class="text-3xl font-bold">P7</div><p class="text-sm opacity-90 mt-1">คุณภาพชีวิต</p></div>
                     <div class="bg-gradient-to-br from-slate-700 to-slate-800 text-white p-5 rounded-lg text-center"><div class="text-3xl font-bold">📊</div><p class="text-sm opacity-90 mt-1">ภาพรวม</p></div>
+                </div>
+            </div>
+
+            <!-- PRG / PDG Widget (สุขภาพธุรกิจบริษัทในเครือ PKG) -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div id="prg-pdg-widget">
+                    <p class="text-sm text-gray-500">⏳ กำลังโหลดข้อมูล PRG/PDG...</p>
                 </div>
             </div>
         </div>
@@ -1660,6 +1668,11 @@
             const targetTab = document.getElementById('tab-' + tabName);
             if (targetTab) {
                 targetTab.classList.remove('hidden');
+            }
+            
+            // Re-render PRG/PDG charts when executive tab is opened
+            if (tabName === 'executive' && window.PKG_PDG_WIDGET) {
+                window.PKG_PDG_WIDGET.onShow();
             }
             
             // Update sidebar active state

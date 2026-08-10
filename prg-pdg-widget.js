@@ -1,0 +1,303 @@
+/**
+ * PRG/PDG Widget — บทสรุปผู้บริหาร (index.html tab-executive)
+ * Reuses window.PKG_PRG_DATA (from prg-pdg-data.js, same dataset as prg-pdg-dashboard.html)
+ * PRG = GM ÷ SA | PDG = GM ÷ HRE | ยิ่งสูงยิ่งดี
+ */
+(function () {
+  'use strict';
+
+  const YEARS = ['Y2562','Y2563','Y2564','Y2565','Y2566','Y2567','Y2568','Y2569'];
+  const MONTHS = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const MONTHS8 = MONTHS.slice(0, 8);
+  const palette = ['#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16','#14b8a6','#6366f1','#f97316','#a855f7','#0ea5e9'];
+
+  const fmtM = (v) => v == null ? '-' : '฿' + Number(v).toFixed(2) + 'M';
+  const fmtPct = (v) => v == null ? '-' : (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+  const fmtRatio = (v) => v == null ? '-' : v.toFixed(2);
+
+  function computeDerived(years) {
+    const out = {};
+    Object.keys(years).forEach((y) => {
+      const d = years[y];
+      out[y] = {
+        gm: d.gm, sa: d.sa, hre: d.hre,
+        prg: (d.gm != null && d.sa) ? +(d.gm / d.sa).toFixed(2) : null,
+        pdg: (d.gm != null && d.hre) ? +(d.gm / d.hre).toFixed(2) : null,
+        pctPRG: d.pctPRG, pctPDG: d.pctPDG, taPDG: d.taPDG
+      };
+    });
+    return out;
+  }
+
+  function pillClass(prg, pdg) {
+    if (prg == null && pdg == null) return 'bg-gray-100 text-gray-400';
+    const p = prg ?? 99, q = pdg ?? 99;
+    if (p >= 1.8 && q >= 1.8) return 'bg-emerald-100 text-emerald-700';
+    if (p >= 1.3 && q >= 1.3) return 'bg-amber-100 text-amber-700';
+    return 'bg-rose-100 text-rose-700';
+  }
+
+  function sumMonthly(companies, m) {
+    let gm = 0, sa = 0, hre = 0, has = false;
+    companies.forEach(c => {
+      const md = c.monthly && c.monthly[m];
+      if (md) {
+        if (md.gm) { gm += md.gm; has = true; }
+        if (md.sa) sa += md.sa;
+        if (md.hre) hre += md.hre;
+      }
+    });
+    return { gm: has ? +gm.toFixed(2) : 0, sa: has ? +sa.toFixed(2) : 0, hre: has ? +hre.toFixed(2) : 0 };
+  }
+
+  function badge(prg, pdg) {
+    return `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${pillClass(prg, pdg)}">PRG ${fmtRatio(prg)} | PDG ${fmtRatio(pdg)}</span>`;
+  }
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  // Chart registry (destroy before recreate to avoid duplicates)
+  const charts = {};
+  function makeChart(id, config) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+    charts[id] = new Chart(el.getContext('2d'), config);
+  }
+
+  function buildExecWidget(containerId) {
+    const root = document.getElementById(containerId);
+    if (!root) return;
+    if (!window.PKG_PRG_DATA) { root.innerHTML = '<p class="text-sm text-rose-600">⚠️ ข้อมูล PRG/PDG ยังไม่โหลด</p>'; return; }
+
+    const DATA = window.PKG_PRG_DATA;
+    DATA.companies.forEach(c => { c.yearsPRG = computeDerived(c.years); });
+
+    const year = 'Y2568'; // ปีฐานล่าสุดที่มีข้อมูลครบ
+    const valid = DATA.companies.filter(c => c.yearsPRG[year]?.prg != null);
+    const avgPRG = valid.length ? +(valid.reduce((s,c) => s + c.yearsPRG[year].prg, 0) / valid.length).toFixed(2) : null;
+    const avgPDG = valid.length ? +(valid.reduce((s,c) => s + c.yearsPRG[year].pdg, 0) / valid.length).toFixed(2) : null;
+    const totalGM = DATA.companies.reduce((s,c) => s + (c.yearsPRG[year]?.gm || 0), 0);
+    const totalHRE = DATA.companies.reduce((s,c) => s + (c.yearsPRG[year]?.hre || 0), 0);
+    const totalSA = DATA.companies.reduce((s,c) => s + (c.yearsPRG[year]?.sa || 0), 0);
+
+    const prevY = 'Y2567';
+    const totalGMPrev = DATA.companies.reduce((s,c) => s + (c.yearsPRG[prevY]?.gm || 0), 0);
+    const yoyDelta = totalGMPrev ? ((totalGM - totalGMPrev) / totalGMPrev) * 100 : null;
+
+    // 8-month YTD 2569 (real data Jan–Aug)
+    const ytdGM = DATA.companies.reduce((s,c) => s + (c.ytd || []).reduce((ss, m) => ss + (m.gm || 0), 0), 0);
+    const ytdHRE = DATA.companies.reduce((s,c) => s + (c.ytd || []).reduce((ss, m) => ss + (m.hre || 0), 0), 0);
+    const ytdSA = DATA.companies.reduce((s,c) => s + (c.ytd || []).reduce((ss, m) => ss + (m.sa || 0), 0), 0);
+    const ytdPRG = ytdSA ? +(ytdGM / ytdSA).toFixed(2) : null;
+    const ytdPDG = ytdHRE ? +(ytdGM / ytdHRE).toFixed(2) : null;
+
+    const best = valid.slice().sort((a,b) => b.yearsPRG[year].prg - a.yearsPRG[year].prg)[0];
+    const worst = valid.slice().sort((a,b) => a.yearsPRG[year].prg - b.yearsPRG[year].prg)[0];
+    const declining = valid.filter(c => (c.yearsPRG[year].pctPRG ?? 0) < -10).length;
+    const goodCount = valid.filter(c => c.yearsPRG[year].prg >= 1.8).length;
+    const tight = valid.filter(c => (c.yearsPRG[year].pdg ?? 99) < 1.5);
+
+    // Company table (sorted by PRG desc)
+    const rows = valid.slice().sort((a,b) => b.yearsPRG[year].prg - a.yearsPRG[year].prg).map((c, i) => {
+      const d = c.yearsPRG[year];
+      return `<tr class="border-b border-slate-100 hover:bg-slate-50">
+        <td class="px-2 py-1.5 text-xs font-semibold">${i + 1}. ${esc(c.id)}</td>
+        <td class="px-2 py-1.5 text-xs text-slate-500">${esc(c.name)}</td>
+        <td class="px-2 py-1.5 text-xs text-center">${fmtM(d.gm)}</td>
+        <td class="px-2 py-1.5 text-center">${badge(d.prg, d.pdg)}</td>
+      </tr>`;
+    }).join('');
+
+    root.innerHTML = `
+      <div class="space-y-5">
+        <!-- Header note -->
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <p class="text-sm text-slate-600">📊 <strong>PRG/PDG Dashboard</strong> — สุขภาพธุรกิจบริษัทในเครือ PKG <span class="text-slate-400">(ข้อมูลเดียวกับ prg-pdg-dashboard)</span></p>
+          <a href="prg-pdg-dashboard.html" target="_blank" class="text-xs font-medium text-indigo-600 hover:text-indigo-800">เปิด Dashboard เต็ม →</a>
+        </div>
+
+        <!-- KPI cards -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <div class="rounded-xl p-3 bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200">
+            <p class="text-xs text-emerald-600 font-semibold">💰 PRG เฉลี่ย ${year.replace('Y','')}</p>
+            <p class="text-2xl font-bold text-emerald-700">${fmtRatio(avgPRG)}</p>
+            <p class="text-[10px] text-slate-500">GM ÷ SA</p>
+          </div>
+          <div class="rounded-xl p-3 bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
+            <p class="text-xs text-blue-600 font-semibold">🛡️ PDG เฉลี่ย ${year.replace('Y','')}</p>
+            <p class="text-2xl font-bold text-blue-700">${fmtRatio(avgPDG)}</p>
+            <p class="text-[10px] text-slate-500">GM ÷ HRE</p>
+          </div>
+          <div class="rounded-xl p-3 bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200">
+            <p class="text-xs text-amber-600 font-semibold">📈 GM รวม ${year.replace('Y','')}</p>
+            <p class="text-2xl font-bold text-amber-700">${fmtM(totalGM)}</p>
+            <p class="text-[10px] text-slate-500">YoY: ${fmtPct(yoyDelta)}</p>
+          </div>
+          <div class="rounded-xl p-3 bg-gradient-to-br from-rose-50 to-rose-100 border border-rose-200">
+            <p class="text-xs text-rose-600 font-semibold">👥 HRE รวม ${year.replace('Y','')}</p>
+            <p class="text-2xl font-bold text-rose-700">${fmtM(totalHRE)}</p>
+            <p class="text-[10px] text-slate-500">ค่าใช้จ่ายสมาชิก</p>
+          </div>
+          <div class="rounded-xl p-3 bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200">
+            <p class="text-xs text-purple-600 font-semibold">🏢 SA รวม ${year.replace('Y','')}</p>
+            <p class="text-2xl font-bold text-purple-700">${fmtM(totalSA)}</p>
+            <p class="text-[10px] text-slate-500">ค่าใช้จ่ายบริหาร</p>
+          </div>
+        </div>
+
+        <!-- Charts row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="bg-white rounded-xl border border-slate-200 p-4">
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-sm font-bold text-slate-800">📈 แนวโน้ม PRG/PDG (8 ปี)</h4>
+              <select id="prgpdg-trend-mode" onchange="window.PKG_PDG_WIDGET.renderTrend()" class="text-xs px-2 py-1 border border-slate-300 rounded">
+                <option value="all">ทุกบริษัท</option>
+                <option value="pkg">เฉพาะ PKG</option>
+                <option value="top5">Top 5 PRG</option>
+              </select>
+            </div>
+            <div class="h-64"><canvas id="prgpdg-chart-trend"></canvas></div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 p-4">
+            <h4 class="text-sm font-bold text-slate-800 mb-2">📅 GM รายเดือน Y2569 (ม.ค.–ส.ค.)</h4>
+            <div class="h-64"><canvas id="prgpdg-chart-monthly"></canvas></div>
+          </div>
+        </div>
+
+        <!-- YTD + insights -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
+            <p class="text-xs font-bold text-indigo-800 mb-1">📈 YTD 2569 (ม.ค.–ส.ค.)</p>
+            <p class="text-sm text-slate-700">GM สะสม: <span class="font-bold">฿${ytdGM.toFixed(2)}M</span> | PRG: <span class="font-bold">${fmtRatio(ytdPRG)}</span> | PDG: <span class="font-bold">${fmtRatio(ytdPDG)}</span></p>
+            <p class="text-xs text-slate-500 mt-1">⚠️ ก.ค.–ส.ค. ยังเป็นข้อมูลบางส่วน (ก.ค. มีบางบริษัท, ส.ค. ยังว่าง)</p>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+            <p class="text-xs font-bold text-emerald-800 mb-1">🏆 บริษัทที่ดีที่สุด (${year.replace('Y','')})</p>
+            <p class="text-lg font-bold text-emerald-700">${esc(best.id)}</p>
+            <p class="text-xs text-slate-600">${esc(best.name)} — ${badge(best.yearsPRG[year].prg, best.yearsPRG[year].pdg)}</p>
+          </div>
+          <div class="bg-rose-50 border border-rose-200 rounded-xl p-4">
+            <p class="text-xs font-bold text-rose-800 mb-1">⚠️ ต้องจับตา (${year.replace('Y','')})</p>
+            <p class="text-lg font-bold text-rose-700">${esc(worst.id)}</p>
+            <p class="text-xs text-slate-600">${esc(worst.name)} — ${badge(worst.yearsPRG[year].prg, worst.yearsPRG[year].pdg)}</p>
+            <p class="text-xs text-slate-500 mt-1">🟢 ${goodCount} บริษัทดี | 🔴 ${declining} บริษัท PRG ลด >10% ${tight.length ? '| ⚡ ' + tight.length + ' บริษัท PDG<1.5' : ''}</p>
+          </div>
+        </div>
+
+        <!-- Company table -->
+        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+            <h4 class="text-sm font-bold text-slate-800">🏢 เปรียบเทียบรายบริษัท (${year.replace('Y','')})</h4>
+            <span class="text-xs text-slate-400">🟢 ดี ≥1.8 | 🟡 พอใช้ 1.3–1.8 | 🔴 ต่ำ &lt;1.3</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead><tr class="bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-500">
+                <th class="px-3 py-2">บริษัท</th>
+                <th class="px-3 py-2">ชื่อ</th>
+                <th class="px-3 py-2 text-center">GM</th>
+                <th class="px-3 py-2 text-center">PRG / PDG</th>
+              </tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderTrend() {
+    const DATA = window.PKG_PRG_DATA;
+    if (!DATA) return;
+    const mode = document.getElementById('prgpdg-trend-mode')?.value || 'all';
+    let chosen = DATA.companies;
+    if (mode === 'pkg') chosen = DATA.companies.filter(c => c.id === 'PKG');
+    if (mode === 'top5') chosen = DATA.companies
+      .filter(c => c.yearsPRG['Y2568']?.prg != null)
+      .sort((a,b) => b.yearsPRG['Y2568'].prg - a.yearsPRG['Y2568'].prg).slice(0, 5);
+
+    const datasets = [];
+    chosen.forEach((c, i) => {
+      const color = palette[i % palette.length];
+      datasets.push({
+        label: c.id + ' PRG',
+        data: YEARS.map(y => c.yearsPRG[y]?.prg ?? null),
+        borderColor: color, backgroundColor: color + '20',
+        tension: 0.3, pointRadius: 4, borderWidth: 2, yAxisID: 'y'
+      });
+      datasets.push({
+        label: c.id + ' PDG',
+        data: YEARS.map(y => c.yearsPRG[y]?.pdg ?? null),
+        borderColor: color, borderDash: [5, 5],
+        tension: 0.3, pointRadius: 3, borderWidth: 1.5, yAxisID: 'y'
+      });
+    });
+    makeChart('prgpdg-chart-trend', {
+      type: 'line',
+      data: { labels: YEARS, datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12 } } },
+        scales: { y: { title: { display: true, text: 'อัตราส่วน (เดือน)' }, beginAtZero: true } }
+      }
+    });
+  }
+
+  function renderMonthly() {
+    const DATA = window.PKG_PRG_DATA;
+    if (!DATA) return;
+    const companies = DATA.companies;
+    const gm = [], sa = [], hre = [];
+    MONTHS8.forEach(m => {
+      const s = sumMonthly(companies, m);
+      gm.push(s.gm); sa.push(s.sa); hre.push(s.hre);
+    });
+    makeChart('prgpdg-chart-monthly', {
+      type: 'line',
+      data: {
+        labels: MONTHS8,
+        datasets: [
+          { label: 'GM', data: gm, borderColor: '#10b981', backgroundColor: '#10b98120', tension: 0.3, borderWidth: 2.5, pointRadius: 4 },
+          { label: 'SA', data: sa, borderColor: '#3b82f6', backgroundColor: '#3b82f620', tension: 0.3, borderWidth: 2, pointRadius: 3 },
+          { label: 'HRE', data: hre, borderColor: '#f59e0b', backgroundColor: '#f59e0b20', tension: 0.3, borderWidth: 2, pointRadius: 3 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { title: { display: true, text: 'ล้านบาท' }, beginAtZero: true } }
+      }
+    });
+  }
+
+  function init() {
+    if (!window.PKG_PRG_DATA) return;
+    window.PKG_PRG_DATA.companies.forEach(c => { c.yearsPRG = computeDerived(c.years); });
+    buildExecWidget('prg-pdg-widget');
+    // Charts are created while the tab may be hidden; re-render when shown
+    window.requestAnimationFrame(() => { renderTrend(); renderMonthly(); });
+  }
+
+  function onShow() {
+    if (!window.PKG_PRG_DATA) return;
+    if (!window.PKG_PRG_DATA.companies[0].yearsPRG) {
+      window.PKG_PRG_DATA.companies.forEach(c => { c.yearsPRG = computeDerived(c.years); });
+    }
+    renderTrend();
+    renderMonthly();
+  }
+
+  window.PKG_PDG_WIDGET = { init, onShow, renderTrend, renderMonthly, buildExecWidget };
+
+  // Auto init after data + DOM ready
+  function boot() {
+    if (window.PKG_PRG_DATA && document.readyState !== 'loading') {
+      if (window.Chart) init();
+      else setTimeout(boot, 200);
+    } else {
+      setTimeout(boot, 200);
+    }
+  }
+  boot();
+})();
