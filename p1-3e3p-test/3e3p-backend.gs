@@ -21,6 +21,7 @@ const SHEET_NAME = '3E3P_Results';
 
 const HEADERS = [
   'timestamp', 'emp_id', 'name', 'position', 'bu', 'team',
+  'source_p', 'round',
   'q1', 'q2', 'q3', 'q4', 'q5', 'q6',
   'direct', 'indirect', 'toe', 'status'
 ];
@@ -128,21 +129,44 @@ function saveRecord(rec) {
   else status = 'Disengaged';
 
   const ts = rec.timestamp || new Date().toISOString();
+  
+  // แหล่งที่มา P (P1 แสวงหา / P2 หยั่งประเมิน / P4 ประเมินผล / P5 พัฒนา)
+  // auto-detect: ถ้ามี emp_id → P4 (สมาชิกปัจจุบัน), ไม่มี → P1 (ผู้สมัคร)
+  const empIdStr = String(rec.empId || rec.emp_id || '').trim();
+  let sourceP = String(rec.source_p || '').trim();
+  if (!sourceP) sourceP = empIdStr ? 'P4' : 'P1';
+  
+  // รอบที่: นับจากประวัติเดิมของคนนี้ + 1
+  const sheet = getSheet();
+  const existing = sheet.getDataRange().getValues();
+  let round = 1;
+  if (empIdStr) {
+    for (let i = 1; i < existing.length; i++) {
+      if (String(existing[i][1] || '').trim() === empIdStr) round++;
+    }
+  } else {
+    const nameKey = String(rec.name || '').trim();
+    for (let i = 1; i < existing.length; i++) {
+      if (!String(existing[i][1] || '').trim() && String(existing[i][2] || '').trim() === nameKey) round++;
+    }
+  }
+  
   const row = [
     ts,
-    String(rec.empId || rec.emp_id || ''),
+    empIdStr,
     String(rec.name || ''),
     String(rec.position || ''),
     String(rec.bu || ''),
     String(rec.team || ''),
+    sourceP,
+    round,
     scores[1] || 0, scores[2] || 0, scores[3] || 0,
     scores[4] || 0, scores[5] || 0, scores[6] || 0,
     direct, indirect, toe, status
   ];
 
-  const sheet = getSheet();
   sheet.appendRow(row);
-  return { success: true, saved: true, timestamp: ts, toe: toe, status: status };
+  return { success: true, saved: true, timestamp: ts, toe: toe, status: status, source_p: sourceP, round: round };
 }
 
 function listAll() {
@@ -159,11 +183,13 @@ function listAll() {
       position: v[3] || '',
       bu: v[4] || '',
       team: v[5] || '',
-      scores: { 1: v[6] || 0, 2: v[7] || 0, 3: v[8] || 0, 4: v[9] || 0, 5: v[10] || 0, 6: v[11] || 0 },
-      direct: v[12] || 0,
-      indirect: v[13] || 0,
-      toe: v[14] || 0,
-      status: v[15] || ''
+      source_p: v[6] || '',
+      round: v[7] || '',
+      scores: { 1: v[8] || 0, 2: v[9] || 0, 3: v[10] || 0, 4: v[11] || 0, 5: v[12] || 0, 6: v[13] || 0 },
+      direct: v[14] || 0,
+      indirect: v[15] || 0,
+      toe: v[16] || 0,
+      status: v[17] || ''
     });
   }
   return rows;
@@ -280,6 +306,22 @@ function cleanupData() {
   const rowsToDelete = [];
   const rowsToFix = [];
   
+  // Migrate: ถ้าแถวเก่ามี 16 คอลัมน์ (ก่อนเพิ่ม source_p/round) ให้แทรก 2 คอลัมน์ที่ตำแหน่ง 6-7
+  const maxCols = Math.max(...values.map(r => r.length));
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    while (row.length < maxCols) row.push('');
+    if (row.length === 16) {
+      row.splice(6, 0, '', '');
+    }
+  }
+  // Header ให้มีครบ 18
+  const header = values[0];
+  while (header.length < HEADERS.length) header.push(HEADERS[header.length]);
+  // เขียนกลับทั้งหมด (ใช้ maxCols ที่อัปเดต)
+  const finalCols = Math.max(...values.map(r => r.length));
+  sheet.getRange(1, 1, values.length, finalCols).setValues(values);
+  
   for (let i = 1; i < values.length; i++) {
     const empId = String(values[i][1] || '').trim();
     const name = String(values[i][2] || '').trim();
@@ -309,6 +351,30 @@ function cleanupData() {
   // Backfill: เติมชื่อ/ตำแหน่ง/BU/ทีม ที่ขาด จากสารบัญสมาชิก (สำหรับแถวที่เหลือ)
   const after = sheet.getDataRange().getValues();
   let backfilled = 0;
+  // 1) เติม P (default P4 ถ้ามี emp_id, P1 ถ้าไม่มี) + นับรอบตามประวัติ
+  const empCounts = {};
+  for (let i = 1; i < after.length; i++) {
+    const empId = String(after[i][1] || '').trim();
+    if (empId) empCounts[empId] = (empCounts[empId] || 0) + 1;
+  }
+  const roundSeen = {};
+  for (let i = 1; i < after.length; i++) {
+    const empId = String(after[i][1] || '').trim();
+    const p = String(after[i][6] || '').trim();
+    if (!p) {
+      sheet.getRange(i + 1, 7).setValue(empId ? 'P4' : 'P1');
+      backfilled++;
+    }
+    const r = String(after[i][7] || '').trim();
+    if (!r) {
+      roundSeen[empId] = (roundSeen[empId] || 0) + 1;
+      sheet.getRange(i + 1, 8).setValue(roundSeen[empId]);
+      backfilled++;
+    } else {
+      roundSeen[empId] = parseInt(r) || 0;
+    }
+  }
+  // 2) เติมชื่อ/ตำแหน่ง/BU/ทีม ที่ขาด จากสารบัญสมาชิก
   if (typeof MEMBERS_DIR !== 'undefined') {
     for (let i = 1; i < after.length; i++) {
       const empId = String(after[i][1] || '').trim();
