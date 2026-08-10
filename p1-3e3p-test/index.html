@@ -1108,7 +1108,7 @@ function hideHistoryDetail() {
 
 // ===== การเก็บข้อมูลรวมศูนย์ (Google Sheets ผ่าน GAS) =====
 function getGasUrl() {
-  return localStorage.getItem('3e3p_gas_url') || 'https://script.google.com/macros/s/AKfycbzeemDb7VcD0mzxWj2w0SCLu3o3CCMqJnxp49R3wrKJTjR6fg1751cmO8TJksmGDlhm/exec';
+  return localStorage.getItem('3e3p_gas_url') || 'https://script.google.com/macros/s/AKfycbxax1sQpIntJlNWkf7Wuc0yUMKnjWPMRbj_rAInQALxeiSzoXuHGh8vfqeTrGWPhsPz/exec';
 }
 
 // ===== สถานะการเชื่อมต่อ (Online / Cache) แบบเดียวกับตัวอย่าง n8n =====
@@ -1214,7 +1214,7 @@ async function syncToCloud(data) {
   try {
     await fetch(url + '?action=save', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
       body: JSON.stringify(data)
     });
   } catch (err) {

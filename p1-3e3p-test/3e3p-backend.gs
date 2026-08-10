@@ -68,7 +68,17 @@ function setupSheet() {
 
 function getSpreadsheet() {
   if (SPREADSHEET_ID) return SpreadsheetApp.openById(SPREADSHEET_ID);
-  return SpreadsheetApp.getActiveSpreadsheet();
+  const active = SpreadsheetApp.getActiveSpreadsheet();
+  if (active) return active;
+  // standalone script (ไม่ได้ผูกกับ Sheet): ค้นหาหรือสร้าง Sheet เฉพาะอัตโนมัติ
+  const props = PropertiesService.getScriptProperties();
+  const savedId = props.getProperty('SS_ID');
+  if (savedId) {
+    try { return SpreadsheetApp.openById(savedId); } catch (err) {}
+  }
+  const ss = SpreadsheetApp.create('Web PP7 — 3E3P Results');
+  props.setProperty('SS_ID', ss.getId());
+  return ss;
 }
 
 function getSheet() {
