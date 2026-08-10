@@ -133,6 +133,125 @@
       </tr>`;
     }).join('');
 
+    // ===== Multi-year matrix: PRG/PDG per year per BU + PKG total =====
+    // Sort: group by 'group' field, then put PKG first
+    const grouped = {};
+    valid.forEach(c => {
+      const g = c.group || 'อื่นๆ';
+      if (!grouped[g]) grouped[g] = [];
+      grouped[g].push(c);
+    });
+    // Order: กลุ่มแม่ (แม่/รวม) first, then alphabetically
+    const groupOrder = Object.keys(grouped).sort((a, b) => {
+      if (a === 'แม่') return -1;
+      if (b === 'แม่') return 1;
+      return a.localeCompare(b);
+    });
+
+    function cellHtml(v) {
+      if (v == null) return '<td class="px-2 py-1 text-center text-slate-300">-</td>';
+      const color = v >= 1.8 ? 'text-emerald-700 bg-emerald-50' : v >= 1.3 ? 'text-amber-700 bg-amber-50' : 'text-rose-700 bg-rose-50';
+      return `<td class="px-2 py-1 text-center text-xs font-semibold ${color}" title="PRG/PDG = ${v}">${v.toFixed(2)}</td>`;
+    }
+    function pctCellHtml(v) {
+      if (v == null) return '<td class="px-2 py-1 text-center text-slate-300">-</td>';
+      const color = v >= 0 ? 'text-emerald-600' : 'text-rose-600';
+      return `<td class="px-2 py-1 text-center text-xs font-semibold ${color}">${fmtPct(v)}</td>`;
+    }
+
+    // Group subtotals (compute PKG-equivalent per group across years)
+    const matrixHtml = groupOrder.map(g => {
+      const companies = grouped[g];
+      // Group-level aggregated PRG/PDG per year
+      const groupRows = companies.map(c => {
+        const cells = YEARS.map(y => {
+          const d = c.yearsPRG[y];
+          if (!d || d.gm == null) return '<td class="px-2 py-1 text-center text-slate-300">-</td>';
+          return `<td class="px-2 py-1 text-center text-[10px] font-mono">
+            <div class="font-semibold ${d.prg >= 1.8 ? 'text-emerald-700' : d.prg >= 1.3 ? 'text-amber-700' : 'text-rose-700'}">${d.prg.toFixed(2)}</div>
+            <div class="${d.pdg >= 1.8 ? 'text-emerald-600' : d.pdg >= 1.3 ? 'text-amber-600' : 'text-rose-600'}">${d.pdg != null ? d.pdg.toFixed(2) : '-'}</div>
+          </td>`;
+        }).join('');
+        const y2568 = c.yearsPRG['Y2568'];
+        const y2567 = c.yearsPRG['Y2567'];
+        return `<tr class="border-b border-slate-50 hover:bg-slate-50">
+          <td class="px-2 py-1 text-xs font-semibold sticky left-0 bg-white">${esc(c.id)}</td>
+          <td class="px-2 py-1 text-[10px] text-slate-500">${esc(c.name)}</td>
+          ${cells}
+          <td class="px-2 py-1 text-center text-[10px] font-semibold ${y2568?.pctPRG >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${y2568?.pctPRG != null ? fmtPct(y2568.pctPRG) : '-'}</td>
+        </tr>`;
+      }).join('');
+      // Group subtotal (sum GM/SA/HRE then compute)
+      const subtotalRow = (() => {
+        const cells = YEARS.map(y => {
+          let gG = 0, gS = 0, gH = 0, has = false;
+          companies.forEach(c => {
+            const d = c.yearsPRG[y];
+            if (d && d.gm != null) {
+              gG += d.gm; gS += d.sa; gH += d.hre; has = true;
+            }
+          });
+          if (!has) return '<td class="px-2 py-1 text-center text-slate-300">-</td>';
+          const prg = +(gG / gS).toFixed(2);
+          const pdg = +(gG / gH).toFixed(2);
+          return `<td class="px-2 py-1 text-center text-[10px] font-mono bg-indigo-50/50">
+            <div class="font-bold ${prg >= 1.8 ? 'text-emerald-700' : prg >= 1.3 ? 'text-amber-700' : 'text-rose-700'}">${prg.toFixed(2)}</div>
+            <div class="${pdg >= 1.8 ? 'text-emerald-600' : pdg >= 1.3 ? 'text-amber-600' : 'text-rose-600'}">${pdg.toFixed(2)}</div>
+          </td>`;
+        }).join('');
+        // Subtotal YoY change
+        const sumG = (y) => companies.reduce((s, c) => s + (c.yearsPRG[y]?.gm || 0), 0);
+        const sumS = (y) => companies.reduce((s, c) => s + (c.yearsPRG[y]?.sa || 0), 0);
+        const sumH = (y) => companies.reduce((s, c) => s + (c.yearsPRG[y]?.hre || 0), 0);
+        const prg68 = sumS('Y2568') ? +(sumG('Y2568') / sumS('Y2568')).toFixed(2) : null;
+        const prg67 = sumS('Y2567') ? +(sumG('Y2567') / sumS('Y2567')).toFixed(2) : null;
+        const yoyPct = (prg68 != null && prg67) ? +(((prg68 - prg67) / prg67) * 100).toFixed(1) : null;
+        return `<tr class="border-b border-indigo-200 bg-indigo-50/40">
+          <td class="px-2 py-1 text-xs font-bold text-indigo-800 sticky left-0" colspan="2">📊 รวมกลุ่ม ${esc(g)}</td>
+          ${cells}
+          <td class="px-2 py-1 text-center text-[10px] font-bold ${yoyPct >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${yoyPct != null ? fmtPct(yoyPct) : '-'}</td>
+        </tr>`;
+      })();
+      return `<tbody>
+        <tr class="bg-slate-100"><td colspan="${YEARS.length + 3}" class="px-2 py-1 text-xs font-bold text-slate-700">▸ ${esc(g)} (${companies.length} บริษัท)</td></tr>
+        ${groupRows}
+        ${subtotalRow}
+      </tbody>`;
+    }).join('');
+
+    // PKG grand total row (sum of all companies)
+    const pkgRow = (() => {
+      const cells = YEARS.map(y => {
+        let gG = 0, gS = 0, gH = 0, has = false;
+        DATA.companies.forEach(c => {
+          const d = c.yearsPRG[y];
+          if (d && d.gm != null) { gG += d.gm; gS += d.sa; gH += d.hre; has = true; }
+        });
+        if (!has) return '<td class="px-2 py-2 text-center text-slate-300">-</td>';
+        const prg = +(gG / gS).toFixed(2);
+        const pdg = +(gG / gH).toFixed(2);
+        return `<td class="px-2 py-2 text-center text-xs font-mono bg-purple-100">
+          <div class="font-bold ${prg >= 1.8 ? 'text-emerald-700' : prg >= 1.3 ? 'text-amber-700' : 'text-rose-700'}">${prg.toFixed(2)}</div>
+          <div class="${pdg >= 1.8 ? 'text-emerald-600' : pdg >= 1.3 ? 'text-amber-600' : 'text-rose-600'}">${pdg.toFixed(2)}</div>
+        </td>`;
+      }).join('');
+      const sumG = (y) => DATA.companies.reduce((s, c) => s + (c.yearsPRG[y]?.gm || 0), 0);
+      const sumS = (y) => DATA.companies.reduce((s, c) => s + (c.yearsPRG[y]?.sa || 0), 0);
+      const prg68 = sumS('Y2568') ? +(sumG('Y2568') / sumS('Y2568')).toFixed(2) : null;
+      const prg67 = sumS('Y2567') ? +(sumG('Y2567') / sumS('Y2567')).toFixed(2) : null;
+      const yoyPct = (prg68 != null && prg67) ? +(((prg68 - prg67) / prg67) * 100).toFixed(1) : null;
+      return `<tr class="bg-purple-100 border-t-2 border-purple-300">
+        <td class="px-2 py-2 text-sm font-bold text-purple-900 sticky left-0" colspan="2">🏢 รวมทั้งหมด (PKG)</td>
+        ${cells}
+        <td class="px-2 py-2 text-center text-xs font-bold ${yoyPct >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${yoyPct != null ? fmtPct(yoyPct) : '-'}</td>
+      </tr>`;
+    })();
+
+    const yearHeaders = YEARS.map(y => {
+      const isCurrent = y === 'Y2569';
+      return `<th class="px-2 py-2 text-center text-[10px] font-bold ${isCurrent ? 'bg-amber-100 text-amber-800' : 'text-slate-600'}">${y.replace('Y', '25')}${isCurrent ? '*' : ''}</th>`;
+    }).join('');
+
     root.innerHTML = `
       <div class="space-y-5">
         <!-- Header note -->
@@ -215,6 +334,28 @@
             <p class="text-lg font-bold text-rose-700">${esc(worst.id)}</p>
             <p class="text-xs text-slate-600">${esc(worst.name)} — ${badge(worst.yearsPRG[year].prg, worst.yearsPRG[year].pdg)}</p>
             <p class="text-xs text-slate-500 mt-1">🟢 ${goodCount} บริษัทดี | 🔴 ${declining} บริษัท PRG ลด >10% ${tight.length ? '| ⚡ ' + tight.length + ' บริษัท PDG<1.5' : ''}</p>
+          </div>
+        </div>
+
+        <!-- Multi-year matrix: PRG/PDG per year per BU + PKG total -->
+        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+            <h4 class="text-sm font-bold text-slate-800">📅 PRG/PDG แยก BU × ทุกปี (2562–2569) — <span class="text-purple-700">PRG/PDG</span></h4>
+            <div class="text-xs text-slate-500">* 2569 = YTD (ม.ค.–ส.ค.) | 🟢 ≥1.8 🟡 1.3–1.8 🔴 &lt;1.3 | ตัวบน=PRG, ตัวล่าง=PDG</div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="bg-slate-50 text-left text-[10px] uppercase tracking-wide text-slate-500">
+                  <th class="px-2 py-2 sticky left-0 bg-slate-50">BU</th>
+                  <th class="px-2 py-2">ชื่อ</th>
+                  ${yearHeaders}
+                  <th class="px-2 py-2 text-center text-[10px] font-bold text-slate-600">%YoY PRG</th>
+                </tr>
+              </thead>
+              ${matrixHtml}
+              <tfoot>${pkgRow}</tfoot>
+            </table>
           </div>
         </div>
 
