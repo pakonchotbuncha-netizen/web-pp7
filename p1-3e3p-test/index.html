@@ -455,23 +455,29 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
 
   <!-- HISTORY SCREEN -->
   <div id="screen-history" class="screen">
-    <div class="info-box">
-      <h3>📋 ประวัติแบบประเมินทั้งหมด</h3>
-      <p style="font-size:13px;color:#666">รวมผู้ทำแบบประเมินทั้งหมด — คลิกที่แถวเพื่อดูผลวิเคราะห์ย้อนหลัง</p>
+    <div class="info-box" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <div>
+        <h3>📋 ประวัติแบบประเมินทั้งหมด</h3>
+        <p style="font-size:13px;color:#666">รวมผู้ทำแบบประเมินทั้งหมด — คลิกที่แถวเพื่อดูผลวิเคราะห์ย้อนหลัง</p>
+      </div>
+      <button onclick="toggleAdmin()" style="padding:6px 14px;border-radius:8px;border:1px solid #ccc;background:#fff;cursor:pointer;font-size:12px;color:#888">⚙️ ผู้ดูแล</button>
     </div>
 
-    <div class="info-box" style="border:2px solid #667eea;background:#f8f9ff">
-      <h3>☁️ ตั้งค่าการเก็บข้อมูลรวมศูนย์ (Google Sheets)</h3>
-      <p style="font-size:13px;color:#666;line-height:1.6">
-        ใส่ Web App URL ของ Google Apps Script เพื่อให้ทุกเครื่องส่งข้อมูลมารวมกันที่ Google Sheets เดียวกัน<br>
-        <span style="font-size:12px">📄 วิธีติดตั้งอยู่ในไฟล์ <strong>3e3p-backend.gs</strong> ใน repo (สร้าง Sheet → Apps Script → Deploy Web App)</span>
-      </p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-        <input type="text" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec" style="flex:1;min-width:250px;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:13px">
-        <button class="btn btn-primary" onclick="saveGasUrl()">💾 บันทึก</button>
-        <button class="btn btn-secondary" onclick="testGasUrl()">🔌 ทดสอบ</button>
+    <!-- ส่วนผู้ดูแลเท่านั้น (ซ่อนไว้จนกว่าจะปลดล็อก) -->
+    <div id="adminPanel" style="display:none">
+      <div class="info-box" style="border:2px solid #667eea;background:#f8f9ff">
+        <h3>☁️ ตั้งค่าการเก็บข้อมูลรวมศูนย์ (Google Sheets) <span style="font-size:11px;color:#667eea">🔒 ผู้ดูแล</span></h3>
+        <p style="font-size:13px;color:#666;line-height:1.6">
+          ใส่ Web App URL ของ Google Apps Script เพื่อให้ทุกเครื่องส่งข้อมูลมารวมกันที่ Google Sheets เดียวกัน<br>
+          <span style="font-size:12px">📄 วิธีติดตั้งอยู่ในไฟล์ <strong>3e3p-backend.gs</strong> ใน repo (สร้าง Sheet → Apps Script → Deploy Web App)</span>
+        </p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <input type="text" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec" style="flex:1;min-width:250px;padding:10px;border:2px solid #ddd;border-radius:8px;font-size:13px">
+          <button class="btn btn-primary" onclick="saveGasUrl()">💾 บันทึก</button>
+          <button class="btn btn-secondary" onclick="testGasUrl()">🔌 ทดสอบ</button>
+        </div>
+        <div id="gasStatus" style="font-size:13px;margin-top:8px"></div>
       </div>
-      <div id="gasStatus" style="font-size:13px;margin-top:8px"></div>
     </div>
 
     <div class="form-row">
@@ -494,7 +500,7 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
     <div style="text-align:center;margin:20px 0;display:flex;justify-content:center;gap:10px;flex-wrap:wrap">
       <button class="btn btn-primary" onclick="exportCSV()">📥 Export CSV</button>
       <button class="btn btn-primary" onclick="exportExcel()">📊 Export Excel</button>
-      <button class="btn btn-danger" onclick="clearAllData()">🗑️ ล้างข้อมูลทั้งหมด</button>
+      <button class="btn btn-danger admin-only" style="display:none" onclick="clearAllData()">🗑️ ล้างข้อมูลทั้งหมด</button>
     </div>
   </div>
 
@@ -523,10 +529,6 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
     <div id="teamSummary"></div>
     <div id="teamMembers"></div>
     <div id="teamChart"></div>
-
-    <div style="text-align:center;margin:20px 0">
-      <button class="btn btn-danger" onclick="clearAllData()">🗑️ ล้างข้อมูลทั้งหมด</button>
-    </div>
   </div>
 </div>
 
@@ -1486,6 +1488,37 @@ function clearAllData() {
   if (confirm('⚠️ ต้องการล้างข้อมูลทั้งหมด?')) {
     localStorage.removeItem('3e3p_history');
     renderTeam();
+  }
+}
+
+// ===== โหมดผู้ดูแล (ซ่อนปุ่มล้างข้อมูล/ตั้งค่า URL จากสมาชิกทั่วไป) =====
+const ADMIN_KEY = '3e3p-admin-2026';
+function toggleAdmin() {
+  const panel = document.getElementById('adminPanel');
+  const adminBtns = document.querySelectorAll('.admin-only');
+  if (panel.style.display !== 'none') {
+    // ล็อกกลับ
+    panel.style.display = 'none';
+    adminBtns.forEach(b => b.style.display = 'none');
+    sessionStorage.removeItem('3e3p_admin');
+    alert('🔒 ล็อกโหมดผู้ดูแลแล้ว');
+    return;
+  }
+  // ปลดล็อกด้วยรหัส
+  const saved = sessionStorage.getItem('3e3p_admin');
+  if (saved === '1') {
+    panel.style.display = 'block';
+    adminBtns.forEach(b => b.style.display = 'inline-block');
+    return;
+  }
+  const pass = prompt('🔐 ใส่รหัสผู้ดูแลเพื่อเปิดการตั้งค่า/ล้างข้อมูล:');
+  if (pass === ADMIN_KEY) {
+    sessionStorage.setItem('3e3p_admin', '1');
+    panel.style.display = 'block';
+    adminBtns.forEach(b => b.style.display = 'inline-block');
+    alert('✅ ปลดล็อกโหมดผู้ดูแลแล้ว');
+  } else if (pass !== null) {
+    alert('❌ รหัสไม่ถูกต้อง');
   }
 }
 
