@@ -32,6 +32,7 @@ function doGet(e) {
     if (action === 'ping') return jsonOut({ success: true, message: 'pong', time: new Date().toISOString() });
     if (action === 'sheet_url') return jsonOut(getSheetUrl());
     if (action === 'lookup_member') return jsonOut(lookupMember(e.parameter && e.parameter.emp_id));
+    if (action === 'cleanup') return jsonOut(cleanupData());
     if (action === 'list') return jsonOut({ success: true, data: listAll() });
     return jsonOut({ success: false, error: 'Unknown action: ' + action });
   } catch (err) {
@@ -270,6 +271,70 @@ function deleteAll(body) {
   const last = sheet.getLastRow();
   if (last > 1) sheet.deleteRows(2, last - 1);
   return { success: true, deleted: last - 1 };
+}
+
+// แก้ไขข้อมูลผิด: ลบแถวทดสอบ + แก้ BU ของอารีย์
+function cleanupData() {
+  const sheet = getSheet();
+  const values = sheet.getDataRange().getValues();
+  const rowsToDelete = [];
+  const rowsToFix = [];
+  
+  for (let i = 1; i < values.length; i++) {
+    const empId = String(values[i][1] || '').trim();
+    const name = String(values[i][2] || '').trim();
+    const bu = String(values[i][4] || '').trim();
+    
+    // ลบแถวที่ชื่อเป็น "1" (ข้อมูลทดสอบ)
+    if (name === '1') {
+      rowsToDelete.push(i + 1);
+    }
+    // แก้ BU ของ 5001026 (อารีย์) จาก CPDG เป็น LDC
+    else if (empId === '5001026' && bu !== 'LDC') {
+      rowsToFix.push({ row: i + 1, bu: 'LDC' });
+    }
+  }
+  
+  // ลบแถว (จากล่างขึ้นบนเพื่อไม่ให้ row shift)
+  rowsToDelete.sort((a, b) => b - a);
+  for (const r of rowsToDelete) {
+    sheet.deleteRow(r);
+  }
+  
+  // แก้ไข BU
+  for (const fix of rowsToFix) {
+    sheet.getRange(fix.row, 5).setValue('LDC'); // column E = BU
+  }
+  
+  // Backfill: เติมชื่อ/ตำแหน่ง/BU/ทีม ที่ขาด จากสารบัญสมาชิก (สำหรับแถวที่เหลือ)
+  const after = sheet.getDataRange().getValues();
+  let backfilled = 0;
+  if (typeof MEMBERS_DIR !== 'undefined') {
+    for (let i = 1; i < after.length; i++) {
+      const empId = String(after[i][1] || '').trim();
+      const m = MEMBERS_DIR[empId];
+      if (!m) continue;
+      const name = String(after[i][2] || '').trim();
+      const pos = String(after[i][3] || '').trim();
+      const bu = String(after[i][4] || '').trim();
+      const team = String(after[i][5] || '').trim();
+      if (!name) { sheet.getRange(i + 1, 3).setValue(m.n); backfilled++; }
+      if (!pos && m.pos && m.pos !== 'no') { sheet.getRange(i + 1, 4).setValue(m.pos); backfilled++; }
+      if (!bu) { sheet.getRange(i + 1, 5).setValue(m.bu); backfilled++; }
+      if (!team) { sheet.getRange(i + 1, 6).setValue(m.co); backfilled++; }
+    }
+  }
+  
+  return {
+    success: true,
+    deleted: rowsToDelete.length,
+    fixed: rowsToFix.length,
+    backfilled: backfilled,
+    details: {
+      deletedRows: rowsToDelete,
+      fixedRows: rowsToFix.map(f => ({ row: f.row, newBU: f.bu }))
+    }
+  };
 }
 
 // ===== HELPERS =====
