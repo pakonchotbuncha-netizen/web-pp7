@@ -23,7 +23,8 @@ const HEADERS = [
   'timestamp', 'emp_id', 'name', 'position', 'bu', 'team',
   'source_p', 'round',
   'q1', 'q2', 'q3', 'q4', 'q5', 'q6',
-  'direct', 'indirect', 'toe', 'status'
+  'direct', 'indirect', 'toe', 'status',
+  'dev_channel', 'activity'
 ];
 
 // ===== ENTRY POINTS =====
@@ -162,7 +163,9 @@ function saveRecord(rec) {
     round,
     scores[1] || 0, scores[2] || 0, scores[3] || 0,
     scores[4] || 0, scores[5] || 0, scores[6] || 0,
-    direct, indirect, toe, status
+    direct, indirect, toe, status,
+    String(rec.dev_channel || ''),
+    String(rec.activity || '')
   ];
 
   sheet.appendRow(row);
@@ -189,7 +192,9 @@ function listAll() {
       direct: v[14] || 0,
       indirect: v[15] || 0,
       toe: v[16] || 0,
-      status: v[17] || ''
+      status: v[17] || '',
+      dev_channel: v[18] || '',
+      activity: v[19] || ''
     });
   }
   return rows;

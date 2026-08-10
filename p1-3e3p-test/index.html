@@ -187,13 +187,28 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
         </div>
         <div class="form-group">
           <label>📌 แหล่งที่มา (P ใด)</label>
-          <select id="inputSourceP">
+          <select id="inputSourceP" onchange="toggleDevFields()">
             <option value="">-- เลือกอัตโนมัติ --</option>
             <option value="P1">P1 แสวงหา (ผู้สมัคร)</option>
             <option value="P2">P2 หยั่งประเมิน</option>
             <option value="P4">P4 ประเมินผล (ทวนแรงจูงใจ)</option>
             <option value="P5">P5 พัฒนา</option>
           </select>
+        </div>
+        <div class="form-group" id="devChannelGroup" style="display:none">
+          <label>🛠️ ช่องทางพัฒนา (P5)</label>
+          <select id="inputDevChannel">
+            <option value="">-- เลือกช่องทาง --</option>
+            <option value="แผนงาน/โครงการ">แผนงาน/โครงการ</option>
+            <option value="อบรม">อบรม</option>
+            <option value="Coaching/Mentoring">Coaching/Mentoring</option>
+            <option value="หมุนเวียนงาน">หมุนเวียนงาน</option>
+            <option value="อื่นๆ">อื่นๆ</option>
+          </select>
+        </div>
+        <div class="form-group" id="activityGroup" style="display:none">
+          <label>📋 ชื่อแผนงาน/โครงการ</label>
+          <input type="text" id="inputActivity" placeholder="เช่น โครงการ PP7 Digital HR">
         </div>
         <div class="form-group">
           <label>BU / หน่วยงาน</label>
@@ -590,6 +605,13 @@ function calcAll() {
   document.getElementById('submitBtn').disabled = !allScored;
 }
 
+function toggleDevFields() {
+  const p = document.getElementById('inputSourceP').value;
+  const show = (p === 'P5' || p === 'P4');
+  document.getElementById('devChannelGroup').style.display = show ? 'block' : 'none';
+  document.getElementById('activityGroup').style.display = show ? 'block' : 'none';
+}
+
 function submitTest() {
   const data = {
     empId: document.getElementById('inputEmpId').value.trim(),
@@ -598,6 +620,8 @@ function submitTest() {
     bu: document.getElementById('inputBU').value,
     team: document.getElementById('inputTeam').value.trim(),
     source_p: document.getElementById('inputSourceP').value,
+    dev_channel: document.getElementById('inputDevChannel') ? document.getElementById('inputDevChannel').value : '',
+    activity: document.getElementById('inputActivity') ? document.getElementById('inputActivity').value.trim() : '',
     timestamp: new Date().toISOString(),
     scores: {}, totals: {},
     direct: 0, indirect: 0, toe: 0
@@ -1116,6 +1140,7 @@ async function renderHistory() {
         <th style="padding:10px;text-align:left">BU/ทีม</th>
         <th style="padding:10px;text-align:center">P</th>
         <th style="padding:10px;text-align:center">รอบ</th>
+        <th style="padding:10px;text-align:left">ช่องทาง/แผนงาน</th>
         <th style="padding:10px;text-align:center">วันที่ทำ</th>
         <th style="padding:10px;text-align:center">ToE</th>
         <th style="padding:10px;text-align:center">สถานะ</th>
@@ -1134,6 +1159,7 @@ async function renderHistory() {
       <td style="padding:10px">${rec.bu}${rec.team ? '/' + rec.team : ''}</td>
       <td style="padding:10px;text-align:center"><span style="background:#e8eaf6;color:#1a237e;padding:2px 8px;border-radius:10px;font-weight:700;font-size:12px">${rec.source_p || (rec.empId ? 'P4' : 'P1')}</span></td>
       <td style="padding:10px;text-align:center">${rec.round || '-'}</td>
+      <td style="padding:10px;font-size:12px;color:#555">${rec.dev_channel || ''}${rec.activity ? (rec.dev_channel ? ' — ' : '') + rec.activity : ''}</td>
       <td style="padding:10px;text-align:center">${dateStr}</td>
       <td style="padding:10px;text-align:center;font-weight:bold">${rec.toe.toFixed(2)}</td>
       <td style="padding:10px;text-align:center" class="${cls}">${cat}</td>
@@ -1298,7 +1324,7 @@ async function loadFromCloud() {
 }
 
 // ===== Export ข้อมูล =====
-const EXPORT_HEADERS = ['ชื่อ-นามสกุล', 'ตำแหน่ง', 'BU', 'ทีม', 'P', 'รอบ', 'วันที่ทำ', 'Q1 งานสนุก', 'Q2 มีจุดมุ่งหมาย', 'Q3 เติบโต', 'Q4 หน้าที่', 'Q5 ค่าตอบแทน', 'Q6 ไม่มีแรงจูงใจ', 'Direct', 'Indirect', 'ToE', 'สถานะ'];
+const EXPORT_HEADERS = ['ชื่อ-นามสกุล', 'ตำแหน่ง', 'BU', 'ทีม', 'P', 'รอบ', 'ช่องทางพัฒนา', 'แผนงาน/กิจกรรม', 'วันที่ทำ', 'Q1 งานสนุก', 'Q2 มีจุดมุ่งหมาย', 'Q3 เติบโต', 'Q4 หน้าที่', 'Q5 ค่าตอบแทน', 'Q6 ไม่มีแรงจูงใจ', 'Direct', 'Indirect', 'ToE', 'สถานะ'];
 
 function getExportRows() {
   const history = JSON.parse(localStorage.getItem('3e3p_history') || '[]');
@@ -1312,7 +1338,8 @@ function getExportRows() {
     const dateStr = d.toLocaleString('th-TH', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     return [
       h.name || '', h.position || '', h.bu || '', h.team || '',
-      h.source_p || (h.empId ? 'P4' : 'P1'), h.round || 1, dateStr,
+      h.source_p || (h.empId ? 'P4' : 'P1'), h.round || 1,
+      h.dev_channel || '', h.activity || '', dateStr,
       h.scores[1], h.scores[2], h.scores[3], h.scores[4], h.scores[5], h.scores[6],
       h.direct, h.indirect, h.toe, cat
     ];
