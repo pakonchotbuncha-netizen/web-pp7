@@ -92,6 +92,24 @@
     const ytdPRG = ytdSA ? +(ytdGM / ytdSA).toFixed(2) : null;
     const ytdPDG = ytdHRE ? +(ytdGM / ytdHRE).toFixed(2) : null;
 
+    // YTD same period 2568 (for YoY comparison)
+    const ytdGM68 = DATA.companies.reduce((s,c) => s + (c.ytd2568 || []).reduce((ss, m) => ss + (m.gm || 0), 0), 0);
+    const ytdHRE68 = DATA.companies.reduce((s,c) => s + (c.ytd2568 || []).reduce((ss, m) => ss + (m.hre || 0), 0), 0);
+    const ytdSA68 = DATA.companies.reduce((s,c) => s + (c.ytd2568 || []).reduce((ss, m) => ss + (m.sa || 0), 0), 0);
+    const ytdPRG68 = ytdSA68 ? +(ytdGM68 / ytdSA68).toFixed(2) : null;
+    const ytdPDG68 = ytdHRE68 ? +(ytdGM68 / ytdHRE68).toFixed(2) : null;
+    // Growth: YTD 2569 vs YTD 2568 (same 8 months)
+    const ytdGMGrowth = ytdGM68 ? +(((ytdGM - ytdGM68) / ytdGM68) * 100).toFixed(1) : null;
+    const ytdPRGGrowth = (ytdPRG != null && ytdPRG68) ? +(((ytdPRG - ytdPRG68) / ytdPRG68) * 100).toFixed(1) : null;
+    const ytdPDGGrowth = (ytdPDG != null && ytdPDG68) ? +(((ytdPDG - ytdPDG68) / ytdPDG68) * 100).toFixed(1) : null;
+    // The user's formula: เติบโตปีที่แล้ว (Y2568 YoY) ลบกับ เติบโตปีปัจจุบัน (YTD 2569 vs YTD 2568)
+    // For PKG (total): Y2568 YoY = yoyDelta (GM)
+    // YTD 2569 vs YTD 2568 = ytdGMGrowth (GM)
+    // The user asked about PRG growth comparison specifically; use PRG YoY for Y2568 vs YTD 2569 vs 2568 for current.
+    // Y2568 PRG YoY = avg pctPRG across companies (or use a representative value)
+    const avgPctPRG2568 = valid.length ? +(valid.reduce((s,c) => s + (c.yearsPRG[year].pctPRG || 0), 0) / valid.length).toFixed(1) : null;
+    const growthGapPRG = (ytdPRGGrowth != null && avgPctPRG2568 != null) ? +(avgPctPRG2568 - ytdPRGGrowth).toFixed(1) : null;
+
     const best = valid.slice().sort((a,b) => b.yearsPRG[year].prg - a.yearsPRG[year].prg)[0];
     const worst = valid.slice().sort((a,b) => a.yearsPRG[year].prg - b.yearsPRG[year].prg)[0];
     const declining = valid.filter(c => (c.yearsPRG[year].pctPRG ?? 0) < -10).length;
@@ -101,11 +119,17 @@
     // Company table (sorted by PRG desc)
     const rows = valid.slice().sort((a,b) => b.yearsPRG[year].prg - a.yearsPRG[year].prg).map((c, i) => {
       const d = c.yearsPRG[year];
+      const pctPRG = d.pctPRG;
+      const pctPDG = d.pctPDG;
+      const pctPRGClass = pctPRG == null ? 'text-gray-400' : pctPRG >= 0 ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold';
+      const pctPDGClass = pctPDG == null ? 'text-gray-400' : pctPDG >= 0 ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold';
       return `<tr class="border-b border-slate-100 hover:bg-slate-50">
         <td class="px-2 py-1.5 text-xs font-semibold">${i + 1}. ${esc(c.id)}</td>
         <td class="px-2 py-1.5 text-xs text-slate-500">${esc(c.name)}</td>
         <td class="px-2 py-1.5 text-xs text-center">${fmtM(d.gm)}</td>
         <td class="px-2 py-1.5 text-center">${badge(d.prg, d.pdg)}</td>
+        <td class="px-2 py-1.5 text-xs text-center ${pctPRGClass}">${pctPRG == null ? '-' : fmtPct(pctPRG)}</td>
+        <td class="px-2 py-1.5 text-xs text-center ${pctPDGClass}">${pctPDG == null ? '-' : fmtPct(pctPDG)}</td>
       </tr>`;
     }).join('');
 
@@ -118,7 +142,7 @@
         </div>
 
         <!-- KPI cards -->
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           <div class="rounded-xl p-3 bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200">
             <p class="text-xs text-emerald-600 font-semibold">💰 PRG เฉลี่ย ${year.replace('Y','')}</p>
             <p class="text-2xl font-bold text-emerald-700">${fmtRatio(avgPRG)}</p>
@@ -144,6 +168,11 @@
             <p class="text-2xl font-bold text-purple-700">${fmtM(totalSA)}</p>
             <p class="text-[10px] text-slate-500">ค่าใช้จ่ายบริหาร</p>
           </div>
+          <div class="rounded-xl p-3 bg-gradient-to-br ${growthGapPRG >= 0 ? 'from-emerald-50 to-emerald-100 border-emerald-200' : 'from-rose-50 to-rose-100 border-rose-200'} border">
+            <p class="text-xs font-semibold ${growthGapPRG >= 0 ? 'text-emerald-600' : 'text-rose-600'}">🔄 ความต่าง %Growth PRG</p>
+            <p class="text-2xl font-bold ${growthGapPRG >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${fmtPct(growthGapPRG)}</p>
+            <p class="text-[10px] text-slate-500">%YoY Y2568 (${fmtPct(avgPctPRG2568)}) - %YTD 2569 (${fmtPct(ytdPRGGrowth)})</p>
+          </div>
         </div>
 
         <!-- Charts row -->
@@ -168,9 +197,13 @@
         <!-- YTD + insights -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
-            <p class="text-xs font-bold text-indigo-800 mb-1">📈 YTD 2569 (ม.ค.–ส.ค.)</p>
-            <p class="text-sm text-slate-700">GM สะสม: <span class="font-bold">฿${ytdGM.toFixed(2)}M</span> | PRG: <span class="font-bold">${fmtRatio(ytdPRG)}</span> | PDG: <span class="font-bold">${fmtRatio(ytdPDG)}</span></p>
-            <p class="text-xs text-slate-500 mt-1">⚠️ ก.ค.–ส.ค. ยังเป็นข้อมูลบางส่วน (ก.ค. มีบางบริษัท, ส.ค. ยังว่าง)</p>
+            <p class="text-xs font-bold text-indigo-800 mb-2">📈 YTD 2569 vs YTD 2568 (ม.ค.–ส.ค.)</p>
+            <div class="text-sm text-slate-700 space-y-1">
+              <p>GM 2569: <span class="font-bold">฿${ytdGM.toFixed(2)}M</span> | 2568: ฿${ytdGM68.toFixed(2)}M | <span class="${ytdGMGrowth>=0?'text-emerald-700':'text-rose-700'} font-semibold">${fmtPct(ytdGMGrowth)}</span></p>
+              <p>PRG 2569: <span class="font-bold">${fmtRatio(ytdPRG)}</span> | 2568: ${fmtRatio(ytdPRG68)} | <span class="${ytdPRGGrowth>=0?'text-emerald-700':'text-rose-700'} font-semibold">${fmtPct(ytdPRGGrowth)}</span></p>
+              <p>PDG 2569: <span class="font-bold">${fmtRatio(ytdPDG)}</span> | 2568: ${fmtRatio(ytdPDG68)} | <span class="${ytdPDGGrowth>=0?'text-emerald-700':'text-rose-700'} font-semibold">${fmtPct(ytdPDGGrowth)}</span></p>
+            </div>
+            <p class="text-xs text-slate-500 mt-2">⚠️ ก.ค.–ส.ค. ยังเป็นข้อมูลบางส่วน (ก.ค. มีบางบริษัท, ส.ค. ยังว่าง)</p>
           </div>
           <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
             <p class="text-xs font-bold text-emerald-800 mb-1">🏆 บริษัทที่ดีที่สุด (${year.replace('Y','')})</p>
@@ -183,6 +216,12 @@
             <p class="text-xs text-slate-600">${esc(worst.name)} — ${badge(worst.yearsPRG[year].prg, worst.yearsPRG[year].pdg)}</p>
             <p class="text-xs text-slate-500 mt-1">🟢 ${goodCount} บริษัทดี | 🔴 ${declining} บริษัท PRG ลด >10% ${tight.length ? '| ⚡ ' + tight.length + ' บริษัท PDG<1.5' : ''}</p>
           </div>
+        </div>
+
+        <!-- Growth chart -->
+        <div class="bg-white rounded-xl border border-slate-200 p-4">
+          <h4 class="text-sm font-bold text-slate-800 mb-3">📊 % การเติบโต YoY (${year.replace('Y','')} vs ปีก่อน)</h4>
+          <div class="h-64"><canvas id="prgpdg-chart-growth"></canvas></div>
         </div>
 
         <!-- Company table -->
@@ -198,6 +237,8 @@
                 <th class="px-3 py-2">ชื่อ</th>
                 <th class="px-3 py-2 text-center">GM</th>
                 <th class="px-3 py-2 text-center">PRG / PDG</th>
+                <th class="px-3 py-2 text-center">%Δ PRG</th>
+                <th class="px-3 py-2 text-center">%Δ PDG</th>
               </tr></thead>
               <tbody>${rows}</tbody>
             </table>
@@ -282,12 +323,48 @@
     });
   }
 
+  function renderGrowth() {
+    const DATA = window.PKG_PRG_DATA;
+    if (!DATA) return;
+    // YoY growth for each company (PRG and PDG)
+    // Use the most recent year that has pctPRG (Y2568). Show same-year pct values
+    // and also a second-year for comparison if available.
+    const data = DATA.companies
+      .filter(c => c.yearsPRG['Y2568']?.pctPRG != null)
+      .sort((a, b) => a.yearsPRG['Y2568'].pctPRG - b.yearsPRG['Y2568'].pctPRG);
+    const labels = data.map(c => c.id);
+    const pctPRG = data.map(c => c.yearsPRG['Y2568'].pctPRG);
+    const pctPDG = data.map(c => c.yearsPRG['Y2568'].pctPDG);
+
+    makeChart('prgpdg-chart-growth', {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: '%Δ PRG (Y2568 vs Y2567)', data: pctPRG, backgroundColor: '#10b981' },
+          { label: '%Δ PDG (Y2568 vs Y2567)', data: pctPDG, backgroundColor: '#3b82f6' }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: {
+          x: {
+            title: { display: true, text: '% Growth / Decline' },
+            ticks: { callback: (v) => v + '%' }
+          }
+        }
+      }
+    });
+  }
+
   function init() {
     if (!window.PKG_PRG_DATA) return;
     window.PKG_PRG_DATA.companies.forEach(c => { c.yearsPRG = computeDerived(c.years); });
     buildExecWidget('prg-pdg-widget');
     // Charts are created while the tab may be hidden; re-render when shown
-    window.requestAnimationFrame(() => { renderTrend(); renderMonthly(); });
+    window.requestAnimationFrame(() => { renderTrend(); renderMonthly(); renderGrowth(); });
   }
 
   function onShow() {
@@ -297,9 +374,10 @@
     }
     renderTrend();
     renderMonthly();
+    renderGrowth();
   }
 
-  window.PKG_PDG_WIDGET = { init, onShow, renderTrend, renderMonthly, buildExecWidget };
+  window.PKG_PDG_WIDGET = { init, onShow, renderTrend, renderMonthly, renderGrowth, buildExecWidget };
 
   // Auto init after data + DOM ready
   function boot() {
