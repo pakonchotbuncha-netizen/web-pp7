@@ -116,7 +116,73 @@
     const goodCount = valid.filter(c => c.yearsPRG[year].prg >= 1.8).length;
     const tight = valid.filter(c => (c.yearsPRG[year].pdg ?? 99) < 1.5);
 
-    // Company table (sorted by PRG desc)
+    // ===== Auto-generated analysis/insights =====
+    // Generate insights from data
+    const insights = [];
+    
+    // 1. Overall trend
+    const prgTrend = valid.length ? valid.reduce((s,c) => s + (c.yearsPRG[year].prg || 0), 0) / valid.length : 0;
+    const prgPrev = valid.length ? valid.reduce((s,c) => s + (c.yearsPRG[prevY].prg || 0), 0) / valid.length : 0;
+    const prgChange = prgPrev ? ((prgTrend - prgPrev) / prgPrev) * 100 : 0;
+    
+    if (prgChange < -10) {
+      insights.push({ type: 'warning', title: '⚠️ PRG ลดลงอย่างมาก', text: `PRG เฉลี่ยลดลง ${prgChange.toFixed(1)}% จากปีก่อน (${prgPrev.toFixed(2)} → ${prgTrend.toFixed(2)}) สะท้อนว่าค่าใช้จ่ายบริหาร (SA) เพิ่มขึ้นเร็วกว่ากำไรขั้นต้น (GM)` });
+    } else if (prgChange > 5) {
+      insights.push({ type: 'success', title: '✅ PRG ฟื้นตัว', text: `PRG เฉลี่ยเพิ่มขึ้น ${prgChange.toFixed(1)}% จากปีก่อน (${prgPrev.toFixed(2)} → ${prgTrend.toFixed(2)}) แสดงว่าการควบคุมค่าใช้จ่ายบริหารมีประสิทธิภาพ` });
+    } else {
+      insights.push({ type: 'neutral', title: '📊 PRG คงที่', text: `PRG เฉลี่ยเปลี่ยนแปลงเล็กน้อย (${prgChange.toFixed(1)}%) จากปีก่อน (${prgPrev.toFixed(2)} → ${prgTrend.toFixed(2)})` });
+    }
+    
+    // 2. YTD recovery signal
+    if (ytdPRGGrowth > 0) {
+      insights.push({ type: 'success', title: '📈 สัญญาณฟื้นตัวใน 2569', text: `YTD 2569 (8 เดือน) PRG เพิ่มขึ้น ${ytdPRGGrowth.toFixed(1)}% เมื่อเทียบกับช่วงเดียวกันของ 2568 แสดงว่าแนวโน้มกำลังฟื้นตัว แต่ต้องติดตามข้อมูลครบปี` });
+    } else {
+      insights.push({ type: 'warning', title: '⚠️ ยังไม่ฟื้นตัว', text: `YTD 2569 PRG ยังลดลง ${ytdPRGGrowth.toFixed(1)}% เมื่อเทียบกับ 2568 ต้องเร่งปรับปรุงประสิทธิภาพ` });
+    }
+    
+    // 3. Best/worst groups
+    const groupPRG = {};
+    valid.forEach(c => {
+      const g = c.group || 'อื่นๆ';
+      if (!groupPRG[g]) groupPRG[g] = { sum: 0, count: 0 };
+      groupPRG[g].sum += c.yearsPRG[year].prg;
+      groupPRG[g].count++;
+    });
+    const groupAvg = Object.entries(groupPRG).map(([g, d]) => ({ group: g, avg: d.sum / d.count }));
+    const bestGroup = groupAvg.sort((a,b) => b.avg - a.avg)[0];
+    const worstGroup = groupAvg.sort((a,b) => a.avg - b.avg)[0];
+    
+    insights.push({ type: 'info', title: ' กลุ่มที่ดีที่สุด', text: `${bestGroup.group} มี PRG เฉลี่ยสูงสุด (${bestGroup.avg.toFixed(2)}) แสดงว่าจัดการค่าใช้จ่ายบริหารได้ดี` });
+    insights.push({ type: 'warning', title: '⚠️ กลุ่มที่ต้องปรับปรุง', text: `${worstGroup.group} มี PRG เฉลี่ยต่ำสุด (${worstGroup.avg.toFixed(2)}) ควรทบทวนโครงสร้างค่าใช้จ่าย` });
+    
+    // 4. PDG insight
+    const pdgAvg = valid.length ? valid.reduce((s,c) => s + (c.yearsPRG[year].pdg || 0), 0) / valid.length : 0;
+    if (pdgAvg < 1.5) {
+      insights.push({ type: 'warning', title: '⚠️ PDG ต่ำ', text: `PDG เฉลี่ย ${pdgAvg.toFixed(2)} เดือน หมายความว่า GM จ่ายค่าใช้จ่ายสมาชิกได้น้อยกว่า 1.5 เดือน — ความเสี่ยงสูงหาก GM ลดลง` });
+    } else if (pdgAvg > 3) {
+      insights.push({ type: 'success', title: '✅ PDG สูง', text: `PDG เฉลี่ย ${pdgAvg.toFixed(2)} เดือน แสดงว่า GM สามารถจ่ายค่าใช้จ่ายสมาชิกได้หลายเดือน — ความมั่นคงสูง` });
+    }
+    
+    // 5. Recommendation
+    if (ytdGMGrowth > 0 && prgChange < 0) {
+      insights.push({ type: 'info', title: '💡 ข้อแนะนำ', text: 'GM เพิ่มขึ้นแต่ PRG ลดลง แสดงว่า SA เพิ่มเร็วกว่า GM ควรทบทวนค่าใช้จ่ายบริหารที่ไม่จำเป็น และเร่งเพิ่มประสิทธิภาพการทำงาน' });
+    } else if (ytdGMGrowth < 0) {
+      insights.push({ type: 'warning', title: '💡 ข้อแนะนำ', text: 'GM ลดลง ต้องเร่งเพิ่มรายได้หรือลดค่าใช้จ่าย เพื่อรักษาอัตราส่วน PRG/PDG ให้มั่นคง' });
+    }
+    
+    const insightsHtml = insights.map(ins => {
+      const colors = {
+        success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
+        warning: 'bg-amber-50 border-amber-200 text-amber-800',
+        info: 'bg-blue-50 border-blue-200 text-blue-800',
+        neutral: 'bg-slate-50 border-slate-200 text-slate-800'
+      };
+      const color = colors[ins.type] || colors.neutral;
+      return `<div class="border-l-4 ${color} rounded-r-lg p-3">
+        <p class="font-bold text-sm mb-1">${ins.title}</p>
+        <p class="text-xs text-slate-700">${ins.text}</p>
+      </div>`;
+    }).join('');
     const rows = valid.slice().sort((a,b) => b.yearsPRG[year].prg - a.yearsPRG[year].prg).map((c, i) => {
       const d = c.yearsPRG[year];
       const pctPRG = d.pctPRG;
@@ -335,6 +401,15 @@
             <p class="text-xs text-slate-600">${esc(worst.name)} — ${badge(worst.yearsPRG[year].prg, worst.yearsPRG[year].pdg)}</p>
             <p class="text-xs text-slate-500 mt-1">🟢 ${goodCount} บริษัทดี | 🔴 ${declining} บริษัท PRG ลด >10% ${tight.length ? '| ⚡ ' + tight.length + ' บริษัท PDG<1.5' : ''}</p>
           </div>
+        </div>
+
+        <!-- Auto-generated insights -->
+        <div class="bg-white rounded-xl border border-slate-200 p-4">
+          <h4 class="text-sm font-bold text-slate-800 mb-3">📝 บทวิเคราะห์อัตโนมัติ (จากข้อมูลจริง)</h4>
+          <div class="space-y-2">
+            ${insightsHtml}
+          </div>
+          <p class="text-xs text-slate-400 mt-3 italic">* บทวิเคราะห์นี้สร้างอัตโนมัติจากข้อมูล PRG/PDG อาจไม่ครอบคลุมปัจจัยภายนอก เช่น เศรษฐกิจ, นโยบายรัฐ, การแข่งขัน</p>
         </div>
 
         <!-- Multi-year matrix: PRG/PDG per year per BU + PKG total -->
