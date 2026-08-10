@@ -33,6 +33,7 @@ function doGet(e) {
   try {
     if (action === 'ping') return jsonOut({ success: true, message: 'pong', time: new Date().toISOString() });
     if (action === 'sheet_url') return jsonOut(getSheetUrl());
+    if (action === 'share') return jsonOut(shareSheet(e.parameter && e.parameter.email));
     if (action === 'lookup_member') return jsonOut(lookupMember(e.parameter && e.parameter.emp_id));
     if (action === 'cleanup') return jsonOut(cleanupData());
     if (action === 'list') return jsonOut({ success: true, data: listAll() });
@@ -90,6 +91,20 @@ function getSheetUrl() {
   try {
     const ss = getSpreadsheet();
     return { success: true, url: ss.getUrl(), name: ss.getName(), id: ss.getId() };
+  } catch (err) {
+    return { success: false, error: String(err) };
+  }
+}
+
+// แชร์ Sheet ให้อีเมล (Editor)
+function shareSheet(email) {
+  if (!email) return { success: false, error: 'Missing email' };
+  try {
+    const ss = getSpreadsheet();
+    // ใช้ SpreadsheetApp ตั้งค่า sharing (ไม่ต้องใช้ DriveApp scope)
+    ss.addEditor(email);
+    // เพิ่มเป็นผู้ดู/แก้ไขได้ผ่านลิงก์ด้วย (ถ้าต้องการ)
+    return { success: true, shared: email, url: ss.getUrl() };
   } catch (err) {
     return { success: false, error: String(err) };
   }
