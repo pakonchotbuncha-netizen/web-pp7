@@ -20,7 +20,7 @@ const SPREADSHEET_ID = ''; // เช่น '1yP_l-WmsnlkMDCkZB7ulhe6oS_AAex8iE3L
 const SHEET_NAME = '3E3P_Results';
 
 const HEADERS = [
-  'timestamp', 'name', 'position', 'bu', 'team',
+  'timestamp', 'emp_id', 'name', 'position', 'bu', 'team',
   'q1', 'q2', 'q3', 'q4', 'q5', 'q6',
   'direct', 'indirect', 'toe', 'status'
 ];
@@ -30,6 +30,7 @@ function doGet(e) {
   const action = (e && e.parameter && e.parameter.action) || 'list';
   try {
     if (action === 'ping') return jsonOut({ success: true, message: 'pong', time: new Date().toISOString() });
+    if (action === 'lookup_member') return jsonOut(lookupMember(e.parameter && e.parameter.emp_id));
     if (action === 'list') return jsonOut({ success: true, data: listAll() });
     return jsonOut({ success: false, error: 'Unknown action: ' + action });
   } catch (err) {
@@ -107,6 +108,7 @@ function saveRecord(rec) {
   const ts = rec.timestamp || new Date().toISOString();
   const row = [
     ts,
+    String(rec.empId || rec.emp_id || ''),
     String(rec.name || ''),
     String(rec.position || ''),
     String(rec.bu || ''),
@@ -130,18 +132,59 @@ function listAll() {
     const v = values[i];
     rows.push({
       timestamp: v[0] || '',
-      name: v[1] || '',
-      position: v[2] || '',
-      bu: v[3] || '',
-      team: v[4] || '',
-      scores: { 1: v[5] || 0, 2: v[6] || 0, 3: v[7] || 0, 4: v[8] || 0, 5: v[9] || 0, 6: v[10] || 0 },
-      direct: v[11] || 0,
-      indirect: v[12] || 0,
-      toe: v[13] || 0,
-      status: v[14] || ''
+      empId: v[1] || '',
+      name: v[2] || '',
+      position: v[3] || '',
+      bu: v[4] || '',
+      team: v[5] || '',
+      scores: { 1: v[6] || 0, 2: v[7] || 0, 3: v[8] || 0, 4: v[9] || 0, 5: v[10] || 0, 6: v[11] || 0 },
+      direct: v[12] || 0,
+      indirect: v[13] || 0,
+      toe: v[14] || 0,
+      status: v[15] || ''
     });
   }
   return rows;
+}
+
+// ค้นหาสมาชิก (ลองอ่านจาก Members sheet ของ Web PP7 / ตารางแรกๆ)
+function lookupMember(empId) {
+  if (!empId) return { success: false, error: 'Missing emp_id' };
+  try {
+    const ss = getSpreadsheet();
+    const candidates = ['Members', 'members', 'P1_Recruitment', 'พนักงาน', 'Employee'];
+    for (const name of candidates) {
+      const sheet = ss.getSheetByName(name);
+      if (!sheet) continue;
+      const values = sheet.getDataRange().getValues();
+      if (values.length <= 1) continue;
+      const headers = values[0].map(h => String(h).trim());
+      const idIdx = headers.findIndex(h => /member_id|emp_id|employee_id|รหัส/i.test(h));
+      if (idIdx < 0) continue;
+      for (let i = 1; i < values.length; i++) {
+        const cell = String(values[i][idIdx] || '').trim();
+        if (cell.toLowerCase() === String(empId).toLowerCase()) {
+          const get = (re) => {
+            const idx = headers.findIndex(h => re.test(h));
+            return idx >= 0 ? String(values[i][idx] || '').trim() : '';
+          };
+          return {
+            success: true,
+            data: {
+              emp_id: cell,
+              name: get(/ชื่อ|name|full_name/i) || (get(/first_name/i) + ' ' + get(/last_name/i)).trim(),
+              position: get(/ตำแหน่ง|position/i),
+              bu: get(/BU|หน่วยธุรกิจ|bu_id|หน่วยงาน/i),
+              team: get(/ทีม|team|แผนก|department/i)
+            }
+          };
+        }
+      }
+    }
+    return { success: false, error: 'Not found' };
+  } catch (err) {
+    return { success: false, error: String(err) };
+  }
 }
 
 function deleteAll(body) {
