@@ -116,6 +116,11 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
 <div class="header">
   <h1>🎯 แบบทดสอบ 3E3P — Total Motivation</h1>
   <div class="subtitle">อัตนัย + ให้คะแนน 1-5 + ToE Score | รายบุคคล + รายทีม</div>
+  <div style="margin-top:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
+    <span id="connBadge" style="padding:3px 12px;border-radius:9999px;font-size:12px;font-weight:600;background:#e2e8f0;color:#475569">สถานะ: ตรวจสอบ...</span>
+    <span id="lastSyncBadge" style="padding:3px 12px;border-radius:9999px;font-size:12px;font-weight:600;background:#e2e8f0;color:#475569;display:none"></span>
+    <button onclick="checkConn()" style="padding:3px 12px;border-radius:9999px;font-size:12px;font-weight:600;background:rgba(255,255,255,.25);color:#fff;border:1px solid rgba(255,255,255,.5);cursor:pointer">🔄 เช็คใหม่</button>
+  </div>
 </div>
 
 <div class="container">
@@ -1091,6 +1096,43 @@ function getGasUrl() {
   return localStorage.getItem('3e3p_gas_url') || 'https://script.google.com/macros/s/AKfycbzeemDb7VcD0mzxWj2w0SCLu3o3CCMqJnxp49R3wrKJTjR6fg1751cmO8TJksmGDlhm/exec';
 }
 
+// ===== สถานะการเชื่อมต่อ (Online / Cache) แบบเดียวกับตัวอย่าง n8n =====
+async function checkConn() {
+  const badge = document.getElementById('connBadge');
+  const lastSync = document.getElementById('lastSyncBadge');
+  if (!badge) return;
+  badge.style.background = '#e2e8f0'; badge.style.color = '#475569';
+  badge.textContent = 'สถานะ: ตรวจสอบ...';
+  try {
+    const url = getGasUrl();
+    if (!url) { badge.textContent = 'สถานะ: ยังไม่ได้ตั้งค่า URL'; return; }
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 10000);
+    const res = await fetch(url + '?action=ping', { signal: ctrl.signal });
+    clearTimeout(timer);
+    const json = await res.json();
+    if (json.success) {
+      badge.style.background = '#dcfce7'; badge.style.color = '#166534';
+      badge.textContent = 'สถานะ: Online (Google Sheets)';
+      const cache = localStorage.getItem('3e3p_history');
+      const cacheCount = cache ? JSON.parse(cache).length : 0;
+      const cloud = await loadFromCloud();
+      lastSync.style.display = 'inline-block';
+      lastSync.style.background = '#dbeafe'; lastSync.style.color = '#1e40af';
+      lastSync.textContent = '☁️ Cloud: ' + cloud.length + ' รายการ | Local: ' + cacheCount + ' รายการ';
+      if (cloud.length > 0) {
+        lastSync.textContent += ' | ล่าสุด: ' + new Date(cloud[cloud.length-1].timestamp).toLocaleString('th-TH', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+      }
+    } else {
+      badge.style.background = '#fef3c7'; badge.style.color = '#92400e';
+      badge.textContent = 'สถานะ: ใช้แคช (API error)';
+    }
+  } catch (err) {
+    badge.style.background = '#fef3c7'; badge.style.color = '#92400e';
+    badge.textContent = 'สถานะ: ใช้แคช (offline)';
+  }
+}
+
 function saveGasUrl() {
   const url = document.getElementById('gasUrlInput').value.trim();
   if (!url) { alert('กรุณาใส่ URL ก่อน'); return; }
@@ -1290,6 +1332,13 @@ function clearAllData() {
     renderTeam();
   }
 }
+
+// เช็คสถานะการเชื่อมต่อตอนโหลดหน้า
+document.addEventListener('DOMContentLoaded', () => {
+  checkConn();
+  // เช็คใหม่ทุก 60 วินาที
+  setInterval(checkConn, 60000);
+});
 </script>
 </body>
 </html>

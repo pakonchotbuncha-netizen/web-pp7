@@ -77,6 +77,9 @@
             <button class="nav-item" data-tab="assess" onclick="showTab('assess')">
                 <span class="nav-item-icon">🧭</span>P2 หยั่งประเมิน
             </button>
+            <button class="nav-item" data-tab="e3p" onclick="showTab('e3p')">
+                <span class="nav-item-icon">📝</span>แบบทดสอบ 3E3P
+            </button>
             <button class="nav-item" data-tab="match" onclick="showTab('match')">
                 <span class="nav-item-icon">🤝</span>P3 จับคู่คนกับงาน
             </button>
@@ -153,6 +156,9 @@
                 </button>
                 <button onclick="showRegister()" class="bg-purple-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-purple-800 transition">
                     <i class="fas fa-rocket mr-2"></i>เริ่มสมัครงาน
+                </button>
+                <button onclick="showTab('e3p')" class="bg-emerald-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-emerald-600 transition">
+                    <i class="fas fa-tasks mr-2"></i>แบบทดสอบ 3E3P
                 </button>
             </div>
         </div>
@@ -332,6 +338,16 @@
     </footer>
 
     </div><!-- /tab-landing -->
+
+    <!-- Tab: แบบทดสอบ 3E3P (iframe เข้า p1-3e3p-test) -->
+    <div id="tab-e3p" class="hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden" style="border:1px solid #e5e7eb">
+                <iframe id="e3pFrame" src="p1-3e3p-test/index.html" style="width:100%;height:calc(100vh - 140px);min-height:700px;border:none;display:block" loading="lazy"></iframe>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">🔗 เปิดหน้าเต็ม: <a href="p1-3e3p-test/index.html" target="_blank" class="text-purple-600 hover:underline">แบบทดสอบ 3E3P (Total Motivation)</a> — ข้อมูลบันทึกลง Google Sheets รวมศูนย์</p>
+        </div>
+    </div>
 
     <!-- Tab: P1 แสวงหา (Recruitment) -->
     <div id="tab-recruit" class="hidden">
