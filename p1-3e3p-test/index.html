@@ -502,12 +502,58 @@ function showScreen(name) {
 }
 
 function startTest() {
+  const empId = document.getElementById('inputEmpId').value.trim();
   const name = document.getElementById('inputName').value.trim();
   const bu = document.getElementById('inputBU').value;
+  // ถ้าใส่รหัสสมาชิก → ดึงข้อมูลอัตโนมัติก่อนเริ่ม (ไม่ต้องกด 🔍)
+  if (empId && (!name || !bu)) {
+    doLookupAndStart(empId);
+    return;
+  }
   if (!name) { alert('กรุณากรอกชื่อ-นามสกุล'); return; }
   if (!bu) { alert('กรุณาเลือก BU'); return; }
   document.getElementById('welcomeSection').style.display = 'none';
   document.getElementById('questionSection').style.display = 'block';
+}
+
+async function doLookupAndStart(empId) {
+  const status = document.getElementById('lookupStatus');
+  status.innerHTML = '<span style="color:#f57c00">⏳ กำลังดึงข้อมูลสมาชิก...</span>';
+  const url = getGasUrl();
+  try {
+    const res = await fetch(url + '?action=lookup_member&emp_id=' + encodeURIComponent(empId));
+    const json = await res.json();
+    if (json && json.success && json.data) {
+      const m = json.data;
+      document.getElementById('inputName').value = m.name || '';
+      document.getElementById('inputPosition').value = m.position || '';
+      if (m.bu) {
+        const buSel = document.getElementById('inputBU');
+        const found = Array.from(buSel.options).find(o => o.value.toLowerCase() === String(m.bu).toLowerCase());
+        if (found) buSel.value = found.value; else buSel.value = 'Other';
+      }
+      document.getElementById('inputTeam').value = m.team || '';
+      status.innerHTML = '<span style="color:#2e7d32">✅ พบ: ' + (m.name || empId) + '</span>';
+      document.getElementById('welcomeSection').style.display = 'none';
+      document.getElementById('questionSection').style.display = 'block';
+      return;
+    }
+    status.innerHTML = '<span style="color:#c62828">⚠️ ไม่พบรหัส ' + empId + ' — กรอกชื่อ/BU เองก่อนเริ่ม</span>';
+    const n = document.getElementById('inputName').value.trim();
+    const b = document.getElementById('inputBU').value;
+    if (n && b) {
+      document.getElementById('welcomeSection').style.display = 'none';
+      document.getElementById('questionSection').style.display = 'block';
+    }
+  } catch (err) {
+    status.innerHTML = '<span style="color:#c62828">⚠️ เชื่อมต่อไม่ได้ — กรอกชื่อ/BU เองก่อนเริ่ม</span>';
+    const n = document.getElementById('inputName').value.trim();
+    const b = document.getElementById('inputBU').value;
+    if (n && b) {
+      document.getElementById('welcomeSection').style.display = 'none';
+      document.getElementById('questionSection').style.display = 'block';
+    }
+  }
 }
 
 function calcAll() {
