@@ -230,7 +230,7 @@
         label: c.id + ' PDG',
         data: YEARS.map(y => c.yearsPRG[y]?.pdg ?? null),
         borderColor: color, borderDash: [5, 5],
-        tension: 0.3, pointRadius: 3, borderWidth: 1.5, yAxisID: 'y'
+        tension: 0.3, pointRadius: 3, borderWidth: 1.5, yAxisID: 'y1'
       });
     });
     makeChart('prgpdg-chart-trend', {
@@ -239,7 +239,18 @@
       options: {
         responsive: true, maintainAspectRatio: false,
         plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12 } } },
-        scales: { y: { title: { display: true, text: 'อัตราส่วน (เดือน)' }, beginAtZero: true } }
+        scales: {
+          y: {
+            type: 'linear', display: true, position: 'left',
+            title: { display: true, text: 'PRG (เดือน)' }, beginAtZero: true,
+            suggestedMax: 2.5
+          },
+          y1: {
+            type: 'linear', display: true, position: 'right',
+            title: { display: true, text: 'PDG (เดือน)' }, beginAtZero: true,
+            grid: { drawOnChartArea: false }
+          }
+        }
       }
     });
   }
