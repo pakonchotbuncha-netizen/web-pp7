@@ -30,6 +30,7 @@ function doGet(e) {
   const action = (e && e.parameter && e.parameter.action) || 'list';
   try {
     if (action === 'ping') return jsonOut({ success: true, message: 'pong', time: new Date().toISOString() });
+    if (action === 'sheet_url') return jsonOut(getSheetUrl());
     if (action === 'lookup_member') return jsonOut(lookupMember(e.parameter && e.parameter.emp_id));
     if (action === 'list') return jsonOut({ success: true, data: listAll() });
     return jsonOut({ success: false, error: 'Unknown action: ' + action });
@@ -79,6 +80,16 @@ function getSpreadsheet() {
   const ss = SpreadsheetApp.create('Web PP7 — 3E3P Results');
   props.setProperty('SS_ID', ss.getId());
   return ss;
+}
+
+// คืนลิงก์ Google Sheets ที่เก็บข้อมูล
+function getSheetUrl() {
+  try {
+    const ss = getSpreadsheet();
+    return { success: true, url: ss.getUrl(), name: ss.getName(), id: ss.getId() };
+  } catch (err) {
+    return { success: false, error: String(err) };
+  }
 }
 
 function getSheet() {
@@ -157,9 +168,64 @@ function listAll() {
   return rows;
 }
 
-// ค้นหาสมาชิก (ลองอ่านจาก Members sheet ของ Web PP7 / ตารางแรกๆ)
+// ===== BCT — ข้อมูลสมาชิกจริง (auto-fill) =====
+const BCT_SHEET_ID = '1bclXg8KKfXFAxY1mRucRPyL2hWddRZky4TKkEP6e9B0'; // สำเนา BCT [V3.0]
+
+// ค้นหาสมาชิก: ลอง MEMBERS_DIR (สารบัญฝังใน) ก่อน → BCT → Members sheet
 function lookupMember(empId) {
   if (!empId) return { success: false, error: 'Missing emp_id' };
+  // 0) สารบัญสมาชิกฝังใน (เร็วสุด — ไม่ต้องอ่าน Sheet)
+  if (typeof MEMBERS_DIR !== 'undefined') {
+    const m = MEMBERS_DIR[String(empId).trim()];
+    if (m) {
+      return {
+        success: true,
+        source: 'Members directory',
+        data: {
+          emp_id: String(empId).trim(),
+          name: m.n || '',
+          position: (m.pos && m.pos !== 'no') ? m.pos : (m.nick || ''),
+          bu: m.bu || '',
+          team: m.co || ''
+        }
+      };
+    }
+  }
+  // 1) ลองอ่านจาก BCT (ถ้าได้รับสิทธิ์แชร์)
+  try {
+    const bct = SpreadsheetApp.openById(BCT_SHEET_ID);
+    const sheets = bct.getSheets();
+    for (const sheet of sheets) {
+      const values = sheet.getDataRange().getValues();
+      if (values.length <= 1) continue;
+      const headers = values[0].map(h => String(h).trim());
+      const idIdx = headers.findIndex(h => /รหัส|code|id|เลขที่/i.test(h));
+      if (idIdx < 0) continue;
+      for (let i = 1; i < values.length; i++) {
+        const cell = String(values[i][idIdx] || '').trim();
+        if (cell === String(empId).trim()) {
+          const get = (re) => {
+            const idx = headers.findIndex(h => re.test(h));
+            return idx >= 0 ? String(values[i][idx] || '').trim() : '';
+          };
+          return {
+            success: true,
+            source: 'BCT',
+            data: {
+              emp_id: cell,
+              name: get(/ชื่อ.*สกุล|ชื่อ|name/i),
+              position: get(/ตำแหน่ง|position/i),
+              bu: get(/BU|หน่วยธุรกิจ|หน่วยงาน|บริษัท/i),
+              team: get(/ทีม|team|แผนก|ฝ่าย|department/i)
+            }
+          };
+        }
+      }
+    }
+  } catch (err) {
+    // ไม่มีสิทธิ์อ่าน BCT — ข้ามไปใช้ Members sheet
+  }
+  // 2) Fallback: Members sheet ของตัวเอง
   try {
     const ss = getSpreadsheet();
     const candidates = ['Members', 'members', 'P1_Recruitment', 'พนักงาน', 'Employee'];
