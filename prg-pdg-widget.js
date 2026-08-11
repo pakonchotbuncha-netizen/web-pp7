@@ -193,6 +193,8 @@
         <td class="px-2 py-1.5 text-xs font-semibold">${i + 1}. ${esc(c.id)}</td>
         <td class="px-2 py-1.5 text-xs text-slate-500">${esc(c.name)}</td>
         <td class="px-2 py-1.5 text-xs text-center">${fmtM(d.gm)}</td>
+        <td class="px-2 py-1.5 text-xs text-center">${fmtM(d.sa)}</td>
+        <td class="px-2 py-1.5 text-xs text-center">${fmtM(d.hre)}</td>
         <td class="px-2 py-1.5 text-center">${badge(d.prg, d.pdg)}</td>
         <td class="px-2 py-1.5 text-xs text-center ${pctPRGClass}">${pctPRG == null ? '-' : fmtPct(pctPRG)}</td>
         <td class="px-2 py-1.5 text-xs text-center ${pctPDGClass}">${pctPDG == null ? '-' : fmtPct(pctPDG)}</td>
@@ -452,6 +454,8 @@
                 <th class="px-3 py-2">บริษัท</th>
                 <th class="px-3 py-2">ชื่อ</th>
                 <th class="px-3 py-2 text-center">GM</th>
+                <th class="px-3 py-2 text-center">S&amp;A</th>
+                <th class="px-3 py-2 text-center">HRE</th>
                 <th class="px-3 py-2 text-center">PRG / PDG</th>
                 <th class="px-3 py-2 text-center">%Δ PRG</th>
                 <th class="px-3 py-2 text-center">%Δ PDG</th>
