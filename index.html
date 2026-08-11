@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self';">
     <title>PKG Recruitment - ระบบรับสมัครงาน</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com/3.4.1" integrity="sha384-SOMLQz+nKv/ORIYXo3J3NrWJ33oBgGvkHlV9t8i70QVLq8ZtST9Np1gDsVUkk4xN" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" crossorigin="anonymous"></script>
     <script src="prg-pdg-data.js"></script>
     <script src="prg-pdg-widget.js"></script>
     <style>
@@ -875,6 +876,14 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">รหัสผ่าน</label>
                     <input type="password" id="regPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600">
                 </div>
+                <!-- PDPA / Privacy Notice -->
+                <div class="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-gray-700">
+                    <p class="font-bold text-blue-800 mb-1">🔒 แจ้งเก็บข้อมูลส่วนบุคคล (PDPA)</p>
+                    <p class="mb-1"><strong>วัตถุประสงค์:</strong> ใช้เพื่อพิจารณาการสมัครงานและกระบวนการคัดเลือกบุคลากร</p>
+                    <p class="mb-1"><strong>ประเภทข้อมูล:</strong> ชื่อ-นามสกุล เบอร์โทร อีเมล วุฒิการศึกษา ประสบการณ์</p>
+                    <p class="mb-1"><strong>สิทธิเจ้าของข้อมูล:</strong> ท่านมีสิทธิเข้าถึง แก้ไข หรือขอให้ลบข้อมูลส่วนบุคคลตาม พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562</p>
+                    <p>ติดต่อฝ่าย HR: <a href="tel:038-xxx-xxx" class="text-blue-600 underline">038-xxx-xxx</a> หรือ <a href="mailto:hr@pkg.com" class="text-blue-600 underline">hr@pkg.com</a></p>
+                </div>
                 <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold">
                     ลงทะเบียน
                 </button>
@@ -886,6 +895,9 @@
     </div>
 
     <script>
+        // ===== XSS Prevention: HTML escape function =====
+        function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
         // ===== DEMO DATA =====
         const POSITIONS = [
             { id: 'POS-001', title: 'ช่างยนต์', department: 'บริการ', level: 'Junior', salary: '15,000 - 25,000 บาท', location: 'ชลบุรี', requirements: { education: 'ปวส.', major: 'ช่างยนต์, เครื่องกล', skills: ['ซ่อมเครื่องยนต์', 'ระบบไฟฟ้า', 'การวินิจฉัยปัญหา'], experience: '0-2 ปี' }, description: 'ซ่อมบำรุงและให้บริการลูกค้าด้านเครื่องยนต์' },
@@ -951,15 +963,12 @@
                 console.error('Error loading initial data:', error);
             }
             
-            // โหลดข้อมูลผู้ใช้ demo
-            const users = JSON.parse(localStorage.getItem('pkg_users') || '[]');
-            if (!users.find(u => u.phone === '0812345678')) {
-                users.push({ id: 'HR-DEMO', phone: '0812345678', password: btoa('hr1234'), name: 'HR Manager', email: 'hr@pkg.com', role: 'hr', status: 'active' });
-            }
-            if (!users.find(u => u.phone === '0898765432')) {
-                users.push({ id: 'APP-DEMO', phone: '0898765432', password: btoa('app1234'), name: 'นายสมชาย ใจดี', email: 'somchai@test.com', role: 'applicant', status: 'active' });
-            }
-            localStorage.setItem('pkg_users', JSON.stringify(users));
+            // ⚠️ ความปลอดภัย: ไม่สร้างบัญชี demo ในโค้ดสาธารณะอีกต่อไป
+            // Admin ควรสร้างบัญชีผู้ใช้ผ่านระบบหลังบ้านที่ปลอดภัย (auth-admin-panel.html หรือ Google Sheets API)
+            // และไม่ควรฝังรหัสผ่านใน client-side JavaScript
+            // const users = JSON.parse(localStorage.getItem('pkg_users') || '[]');
+            // Removed demo accounts (HR demo + applicant demo) — credentials must not be embedded in public code
+            // — admin ต้องสร้างบัญชีด้วยตนเองผ่านวิธีที่ปลอดภัย
         }
         
         // ฟังก์ชันดึงข้อมูลผู้สมัครทั้งหมด (ข้อมูลตั้งต้น + ข้อมูลใหม่)
@@ -1337,13 +1346,13 @@
                         <div class="flex justify-between items-start">
                             <div>
                                 <p class="text-sm opacity-90 mb-1">รหัสใบสมัคร</p>
-                                <p class="text-2xl font-bold mb-2">${app.id}</p>
-                                <p class="text-lg">${app.position} - ${app.department}</p>
-                                <p class="text-sm opacity-90">${app.branch}</p>
+                                <p class="text-2xl font-bold mb-2">${esc(app.id)}</p>
+                                <p class="text-lg">${esc(app.position)} - ${esc(app.department)}</p>
+                                <p class="text-sm opacity-90">${esc(app.branch)}</p>
                             </div>
                             <div class="text-right">
                                 <p class="text-sm opacity-90">สมัครเมื่อ</p>
-                                <p class="text-sm">${new Date(app.appliedAt).toLocaleDateString('th-TH')}</p>
+                                <p class="text-sm">${esc(new Date(app.appliedAt).toLocaleDateString('th-TH'))}</p>
                             </div>
                         </div>
                     </div>
@@ -1379,7 +1388,7 @@
                                 <div class="flex justify-between items-center">
                                     <div>
                                         <p class="text-sm opacity-90">คะแนนความเหมาะสม</p>
-                                        <p class="text-3xl font-bold">${app.aiScore}/100</p>
+                                        <p class="text-3xl font-bold">${esc(app.aiScore)}/100</p>
                                     </div>
                                     <i class="fas fa-robot text-4xl opacity-50"></i>
                                 </div>
@@ -1391,10 +1400,10 @@
                         <div class="mb-6">
                             <h3 class="text-lg font-semibold text-gray-700 mb-4">คะแนนแบบทดสอบ</h3>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <div class="bg-purple-50 p-4 rounded-lg text-center"><p class="text-sm text-gray-600">ทัศนคติ</p><p class="text-2xl font-bold text-purple-600">${app.testScores.attitude}</p></div>
-                                <div class="bg-blue-50 p-4 rounded-lg text-center"><p class="text-sm text-gray-600">ทักษะ</p><p class="text-2xl font-bold text-blue-600">${app.testScores.skill}</p></div>
-                                <div class="bg-yellow-50 p-4 rounded-lg text-center"><p class="text-sm text-gray-600">CC 7 ด้าน</p><p class="text-2xl font-bold text-yellow-600">${app.testScores.cc}</p></div>
-                                <div class="bg-green-50 p-4 rounded-lg text-center"><p class="text-sm text-gray-600">3P3E</p><p class="text-2xl font-bold text-green-600">${app.testScores.e3p}</p></div>
+                                <div class="bg-purple-50 p-4 rounded-lg text-center"><p class="text-sm text-gray-600">ทัศนคติ</p><p class="text-2xl font-bold text-purple-600">${esc(app.testScores.attitude)}</p></div>
+                                <div class="bg-blue-50 p-4 rounded-lg text-center"><p class="text-sm text-gray-600">ทักษะ</p><p class="text-2xl font-bold text-blue-600">${esc(app.testScores.skill)}</p></div>
+                                <div class="bg-yellow-50 p-4 rounded-lg text-center"><p class="text-sm text-gray-600">CC 7 ด้าน</p><p class="text-2xl font-bold text-yellow-600">${esc(app.testScores.cc)}</p></div>
+                                <div class="bg-green-50 p-4 rounded-lg text-center"><p class="text-sm text-gray-600">3P3E</p><p class="text-2xl font-bold text-green-600">${esc(app.testScores.e3p)}</p></div>
                             </div>
                         </div>
                     ` : ''}
@@ -1403,8 +1412,8 @@
                         <div class="mb-6">
                             <h3 class="text-lg font-semibold text-gray-700 mb-4">นัดสัมภาษณ์</h3>
                             <div class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-lg">
-                                <p class="font-semibold text-orange-800">📅 วันที่: ${app.interviewDate}</p>
-                                <p class="text-sm text-orange-700">⏰ เวลา: ${app.interviewTime}</p>
+                                <p class="font-semibold text-orange-800">📅 วันที่: ${esc(app.interviewDate)}</p>
+                                <p class="text-sm text-orange-700">⏰ เวลา: ${esc(app.interviewTime)}</p>
                             </div>
                         </div>
                     ` : ''}
@@ -1413,7 +1422,7 @@
                         <div class="mb-6">
                             <h3 class="text-lg font-semibold text-gray-700 mb-4">วันเริ่มงาน</h3>
                             <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded-lg">
-                                <p class="font-semibold text-green-800">🎉 วันเริ่มงาน: ${app.startDate}</p>
+                                <p class="font-semibold text-green-800">🎉 วันเริ่มงาน: ${esc(app.startDate)}</p>
                             </div>
                         </div>
                     ` : ''}
@@ -1423,7 +1432,7 @@
                             <h3 class="text-lg font-semibold text-gray-700 mb-4">ผลการคัดเลือก</h3>
                             <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg">
                                 <p class="font-semibold text-red-800">❌ ไม่ผ่านการคัดเลือก</p>
-                                <p class="text-sm text-red-700">เหตุผล: ${app.rejectReason}</p>
+                                <p class="text-sm text-red-700">เหตุผล: ${esc(app.rejectReason)}</p>
                             </div>
                         </div>
                     ` : ''}
@@ -1475,45 +1484,45 @@
                             <div class="border border-gray-200 rounded-lg p-4">
                                 <div class="flex justify-between items-start mb-3">
                                     <div>
-                                        <h4 class="font-bold text-gray-800">${app.firstName} ${app.lastName}</h4>
-                                        <p class="text-sm text-gray-600">${app.position} | ${app.department} | ${app.branch}</p>
-                                        ${app.phone ? `<p class="text-xs text-gray-500">📞 ${app.phone} | ✉️ ${app.email || '-'}</p>` : ''}
+                                        <h4 class="font-bold text-gray-800">${esc(app.firstName)} ${esc(app.lastName)}</h4>
+                                        <p class="text-sm text-gray-600">${esc(app.position)} | ${esc(app.department)} | ${esc(app.branch)}</p>
+                                        ${app.phone ? `<p class="text-xs text-gray-500">📞 ${esc(app.phone)} | ✉️ ${esc(app.email || '-')}</p>` : ''}
                                     </div>
                                     <span class="px-3 py-1 ${getStatusBadgeClass(app.status)} rounded-full text-sm font-semibold">${getStatusText(app.status)}</span>
                                 </div>
                                 
                                 ${app.aiScore ? `
                                     <div class="mb-3 p-3 bg-purple-50 rounded-lg">
-                                        <p class="text-sm font-semibold text-purple-800 mb-1">🤖 คะแนน AI: ${app.aiScore}/100</p>
+                                        <p class="text-sm font-semibold text-purple-800 mb-1">🤖 คะแนน AI: ${esc(app.aiScore)}/100</p>
                                         <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-purple-600 h-2 rounded-full" style="width: ${app.aiScore}%"></div>
+                                            <div class="bg-purple-600 h-2 rounded-full" style="width: ${esc(app.aiScore)}%"></div>
                                         </div>
                                     </div>
                                 ` : ''}
                                 
                                 ${app.testScores ? `
                                     <div class="mb-3 grid grid-cols-4 gap-2 text-center">
-                                        <div class="bg-purple-50 p-2 rounded"><p class="text-xs text-gray-600">ทัศนคติ</p><p class="font-bold text-purple-600">${app.testScores.attitude}</p></div>
-                                        <div class="bg-blue-50 p-2 rounded"><p class="text-xs text-gray-600">ทักษะ</p><p class="font-bold text-blue-600">${app.testScores.skill}</p></div>
-                                        <div class="bg-yellow-50 p-2 rounded"><p class="text-xs text-gray-600">CC</p><p class="font-bold text-yellow-600">${app.testScores.cc}</p></div>
-                                        <div class="bg-green-50 p-2 rounded"><p class="text-xs text-gray-600">3P3E</p><p class="font-bold text-green-600">${app.testScores.e3p}</p></div>
+                                        <div class="bg-purple-50 p-2 rounded"><p class="text-xs text-gray-600">ทัศนคติ</p><p class="font-bold text-purple-600">${esc(app.testScores.attitude)}</p></div>
+                                        <div class="bg-blue-50 p-2 rounded"><p class="text-xs text-gray-600">ทักษะ</p><p class="font-bold text-blue-600">${esc(app.testScores.skill)}</p></div>
+                                        <div class="bg-yellow-50 p-2 rounded"><p class="text-xs text-gray-600">CC</p><p class="font-bold text-yellow-600">${esc(app.testScores.cc)}</p></div>
+                                        <div class="bg-green-50 p-2 rounded"><p class="text-xs text-gray-600">3P3E</p><p class="font-bold text-green-600">${esc(app.testScores.e3p)}</p></div>
                                     </div>
                                 ` : ''}
                                 
                                 ${app.rejectReason ? `
                                     <div class="mb-3 p-3 bg-red-50 rounded-lg">
-                                        <p class="text-sm text-red-800">❌ เหตุผลไม่ผ่าน: ${app.rejectReason}</p>
+                                        <p class="text-sm text-red-800">❌ เหตุผลไม่ผ่่าน: ${esc(app.rejectReason)}</p>
                                     </div>
                                 ` : ''}
                                 
                                 <div class="flex flex-wrap gap-2">
-                                    ${app.status === 'new' || app.status === 'pending' ? `<button onclick="screenApplicant('${app.id}')" class="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">✅ คัดกรอง</button>` : ''}
-                                    ${app.status === 'test_done' ? `<button onclick="screenApplicant('${app.id}')" class="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">✅ คัดกรอง</button>` : ''}
-                                    ${app.status === 'screened' ? `<button onclick="scheduleInterview('${app.id}')" class="px-3 py-1 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm">📅 นัดสัมภาษณ์</button>` : ''}
-                                    ${app.status === 'interview_scheduled' ? `<button onclick="markInterviewed('${app.id}')" class="px-3 py-1 bg-pink-600 text-white rounded-lg hover:bg-pink-700 text-sm">💬 สัมภาษณ์แล้ว</button>` : ''}
-                                    ${app.status === 'interviewed' ? `<button onclick="finalizeResult('${app.id}')" class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">🏆 สรุปผล (ผ่าน)</button>` : ''}
-                                    ${app.status === 'hired' ? `<button onclick="onboard('${app.id}')" class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm">🤝 นัดเริ่มงาน</button>` : ''}
-                                    <button onclick="viewApplicantDetail('${app.id}')" class="px-3 py-1 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">👁️ ดูรายละเอียด</button>
+                                    ${app.status === 'new' || app.status === 'pending' ? `<button onclick="screenApplicant('${esc(app.id)}')" class="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">✅ คัดกรอง</button>` : ''}
+                                    ${app.status === 'test_done' ? `<button onclick="screenApplicant('${esc(app.id)}')" class="px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm">✅ คัดกรอง</button>` : ''}
+                                    ${app.status === 'screened' ? `<button onclick="scheduleInterview('${esc(app.id)}')" class="px-3 py-1 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm">📅 นัดสัมภาษณ์</button>` : ''}
+                                    ${app.status === 'interview_scheduled' ? `<button onclick="markInterviewed('${esc(app.id)}')" class="px-3 py-1 bg-pink-600 text-white rounded-lg hover:bg-pink-700 text-sm">💬 สัมภาษณ์แล้ว</button>` : ''}
+                                    ${app.status === 'interviewed' ? `<button onclick="finalizeResult('${esc(app.id)}')" class="px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">🏆 สรุปผล (ผ่าน)</button>` : ''}
+                                    ${app.status === 'hired' ? `<button onclick="onboard('${esc(app.id)}')" class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm">🤝 นัดเริ่มงาน</button>` : ''}
+                                    <button onclick="viewApplicantDetail('${esc(app.id)}')" class="px-3 py-1 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">👁️ ดูรายละเอียด</button>
                                 </div>
                             </div>
                         `).join('') || '<p class="text-gray-500 text-center py-8">ยังไม่มีผู้สมัคร</p>'}
