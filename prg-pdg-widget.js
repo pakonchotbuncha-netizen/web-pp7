@@ -65,9 +65,33 @@
     charts[id] = new Chart(el.getContext('2d'), config);
   }
 
+  // ===== HR Auth Gate =====
+  // ข้อมูลธุรกิจ GM/SA/HRE/PRG/PDG เป็นข้อมูลภายใน (internal-only) — ดูได้เฉพาะกลุ่ม PKG ที่ login เป็น HR เท่านั้น
+  // TODO: ย้าย prg-pdg-data.js ไปเรียกผ่าน Google Apps Script (GAS) แบบต้อง auth ในอนาคต
+  //       แทนการฝังข้อมูลใน client-side JS ที่ public บน GitHub Pages
+  function isHR() {
+    try {
+      const u = JSON.parse(localStorage.getItem('pkg_current_user') || 'null');
+      return u && u.role === 'hr' && u.status === 'active';
+    } catch(e) { return false; }
+  }
+
   function buildExecWidget(containerId) {
     const root = document.getElementById(containerId);
     if (!root) return;
+    // Gate: ถ้าไม่ใช่ HR ให้โชว์ข้อความจำกัดการเข้าถึง
+    if (!isHR()) {
+      root.innerHTML = `
+        <div class="text-center py-12">
+          <div class="text-5xl mb-4">🔒</div>
+          <h3 class="text-xl font-bold text-slate-800 mb-2">เฉพาะผู้ดูแล PKG</h3>
+          <p class="text-sm text-slate-500 mb-4">ข้อมูล PRG/PDG เป็นข้อมูลภายใน ดูได้เฉพาะผู้ดูแลระบบ (HR) เท่านั้น</p>
+          <button onclick="showLogin()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition font-semibold">
+            <i class="fas fa-sign-in-alt mr-2"></i>เข้าสู่ระบบ HR
+          </button>
+        </div>`;
+      return;
+    }
     if (!window.PKG_PRG_DATA) { root.innerHTML = '<p class="text-sm text-rose-600">⚠️ ข้อมูล PRG/PDG ยังไม่โหลด</p>'; return; }
 
     const DATA = window.PKG_PRG_DATA;
@@ -619,7 +643,7 @@
 
   function renderTrend() {
     const DATA = window.PKG_PRG_DATA;
-    if (!DATA) return;
+    if (!DATA || !isHR()) return;
     const mode = document.getElementById('prgpdg-trend-mode')?.value || 'all';
     let chosen = DATA.companies;
     if (mode === 'pkg') chosen = DATA.companies.filter(c => c.id === 'PKG');
@@ -667,7 +691,7 @@
 
   function renderMonthly() {
     const DATA = window.PKG_PRG_DATA;
-    if (!DATA) return;
+    if (!DATA || !isHR()) return;
     const companies = DATA.companies;
     const gm = [], sa = [], hre = [];
     MONTHS8.forEach(m => {
@@ -694,7 +718,7 @@
 
   function renderGrowth() {
     const DATA = window.PKG_PRG_DATA;
-    if (!DATA) return;
+    if (!DATA || !isHR()) return;
     // YoY growth for each company (PRG and PDG)
     // Use the most recent year that has pctPRG (Y2568). Show same-year pct values
     // and also a second-year for comparison if available.
@@ -730,7 +754,7 @@
 
   function renderPRGCompare() {
     const DATA = window.PKG_PRG_DATA;
-    if (!DATA) return;
+    if (!DATA || !isHR()) return;
     const companies = DATA.companies.filter(c => c.yearsPRG['Y2568']?.prg != null || c.yearsPRG['Y2567']?.prg != null);
     const labels = companies.map(c => c.id);
     const prg2567 = companies.map(c => c.yearsPRG['Y2567']?.prg ?? null);
@@ -757,7 +781,7 @@
 
   function renderPDGCompare() {
     const DATA = window.PKG_PRG_DATA;
-    if (!DATA) return;
+    if (!DATA || !isHR()) return;
     const companies = DATA.companies.filter(c => c.yearsPRG['Y2568']?.pdg != null || c.yearsPRG['Y2567']?.pdg != null);
     const labels = companies.map(c => c.id);
     const pdg2567 = companies.map(c => c.yearsPRG['Y2567']?.pdg ?? null);

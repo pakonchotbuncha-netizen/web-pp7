@@ -8,7 +8,8 @@
     <script src="https://cdn.tailwindcss.com/3.4.1" integrity="sha384-SOMLQz+nKv/ORIYXo3J3NrWJ33oBgGvkHlV9t8i70QVLq8ZtST9Np1gDsVUkk4xN" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" crossorigin="anonymous"></script>
-    <script src="prg-pdg-data.js"></script>
+    <!-- prg-pdg-data.js: ข้อมูลภายใน — โหลด dynamically เมื่อ HR login เท่านั้น (ดู loadPRGData()) -->
+    <!-- TODO: ย้ายไปเรียกผ่าน GAS แบบ auth ในอนาคต แทนการฝังใน client-side JS -->
     <script src="prg-pdg-widget.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
@@ -1695,8 +1696,15 @@
                 targetTab.classList.remove('hidden');
             }
             
-            // Re-render PRG/PDG charts when executive tab is opened
+            // Re-render PRG/PDG charts when executive tab is opened (HR only — data is internal-only)
             if (tabName === 'executive' && window.PKG_PDG_WIDGET) {
+                // ถ้า HR login แล้วแต่ข้อมูลยังไม่โหลด ให้โหลดก่อน
+                try {
+                    const u = JSON.parse(localStorage.getItem('pkg_current_user') || 'null');
+                    if (u && u.role === 'hr' && !window.PKG_PRG_DATA) {
+                        loadPRGData();
+                    }
+                } catch(e) {}
                 window.PKG_PDG_WIDGET.onShow();
             }
             
@@ -1918,6 +1926,17 @@
             document.getElementById('actionModal').classList.add('hidden');
         }
         
+        // ===== Load PRG/PDG data (internal-only) — เรียกเมื่อ HR login เท่านั้น =====
+        // TODO: ย้ายไปเรียกผ่าน Google Apps Script (GAS) แบบต้อง auth ในอนาคต
+        function loadPRGData() {
+            if (document.querySelector('script[data-src="prg-pdg-data.js"]')) return; // already loaded
+            const s = document.createElement('script');
+            s.src = 'prg-pdg-data.js';
+            s.setAttribute('data-src', 'prg-pdg-data.js');
+            s.onload = () => { if (window.PKG_PDG_WIDGET) window.PKG_PDG_WIDGET.init(); };
+            document.head.appendChild(s);
+        }
+
         function handleLogin(event) {
             event.preventDefault();
             const phone = document.getElementById('loginPhone').value;
@@ -1929,6 +1948,7 @@
                 alert('✅ เข้าสู่ระบบสำเร็จ!\n\nชื่อ: ' + user.name + '\nบทบาท: ' + (user.role === 'hr' ? 'HR' : 'ผู้สมัคร'));
                 hideLogin();
                 if (user.role === 'hr') {
+                    loadPRGData(); // โหลดข้อมูลธุรกิจเฉพาะ HR
                     switchView('hr');
                 } else {
                     renderApplicantDashboard();
