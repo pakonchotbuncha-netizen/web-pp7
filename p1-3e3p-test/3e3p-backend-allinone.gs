@@ -84,7 +84,18 @@ function setupSheet() {
     sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold').setBackground('#1a237e').setFontColor('#ffffff');
     sheet.setFrozenRows(1);
   }
-  return '✅ สร้าง tab "' + SHEET_NAME + '" เรียบร้อย';
+  ensureShared(ss);
+  return '✅ สร้าง tab "' + SHEET_NAME + '" เรียบร้อย + แชร์ให้ ' + SHARE_EMAILS.join(', ');
+}
+
+// กฎถาวร: ทุกครั้งที่สร้าง Sheet → แชร์ให้พี่ปกรณ์ (Editor)
+const SHARE_EMAILS = ['pakonchotbuncha@gmail.com'];
+function ensureShared(ss) {
+  try {
+    for (const email of SHARE_EMAILS) {
+      ss.addEditor(email);
+    }
+  } catch (err) { /* ข้ามถ้าไม่มีสิทธิ์ */ }
 }
 
 function getSpreadsheet() {
@@ -99,6 +110,7 @@ function getSpreadsheet() {
   }
   const ss = SpreadsheetApp.create('Web PP7 — 3E3P Results');
   props.setProperty('SS_ID', ss.getId());
+  ensureShared(ss);
   return ss;
 }
 
