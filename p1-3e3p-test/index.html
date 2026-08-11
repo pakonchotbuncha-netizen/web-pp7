@@ -1218,39 +1218,141 @@ function getGasUrl() {
   return localStorage.getItem('3e3p_gas_url') || 'https://script.google.com/macros/s/AKfycbxax1sQpIntJlNWkf7Wuc0yUMKnjWPMRbj_rAInQALxeiSzoXuHGh8vfqeTrGWPhsPz/exec';
 }
 
+// ===== ระบบเสถียรภาพ: backend หลายตัว + fallback + คิวส่งซ้ำ =====
+const BACKUP_GAS_URLS = [
+  'https://script.google.com/macros/s/AKfycbxax1sQpIntJlNWkf7Wuc0yUMKnjWPMRbj_rAInQALxeiSzoXuHGh8vfqeTrGWPhsPz/exec',
+  'https://script.google.com/macros/s/AKfycbzeemDb7VcD0mzxWj2w0SCLu3o3CCMqJnxp49R3wrKJTjR6fg1751cmO8TJksmGDlhm/exec'
+];
+
+// ทดสอบว่า backend ไหนใช้งานได้ แล้วจำไว้
+async function pickBackend() {
+  const custom = localStorage.getItem('3e3p_gas_url');
+  const candidates = custom ? [custom, ...BACKUP_GAS_URLS] : [...BACKUP_GAS_URLS];
+  for (const url of candidates) {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 8000);
+      const res = await fetch(url + '?action=ping', { signal: ctrl.signal });
+      clearTimeout(t);
+      if (res.ok) {
+        const txt = await res.text();
+        if (txt.indexOf('"success":true') >= 0 || txt.indexOf('pong') >= 0) {
+          localStorage.setItem('3e3p_active_url', url);
+          return url;
+        }
+      }
+    } catch (e) { /* ลองตัวถัดไป */ }
+  }
+  return null;
+}
+
+async function getActiveBackend() {
+  const cached = localStorage.getItem('3e3p_active_url');
+  if (cached) {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 6000);
+      const res = await fetch(cached + '?action=ping', { signal: ctrl.signal });
+      clearTimeout(t);
+      if (res.ok) { const txt = await res.text(); if (txt.indexOf('pong') >= 0) return cached; }
+    } catch (e) {}
+  }
+  return await pickBackend();
+}
+
+// โหลดสารบัญสมาชิก (fallback เมื่อ backend ดับ) — lazy load
+window.MEMBERS_DIR = window.MEMBERS_DIR || null;
+async function loadMembersDir() {
+  if (window.MEMBERS_DIR) return window.MEMBERS_DIR;
+  return new Promise((resolve) => {
+    const s = document.createElement('script');
+    s.src = 'members-dir.js';
+    s.onload = () => resolve(window.MEMBERS_DIR || null);
+    s.onerror = () => resolve(null);
+    document.head.appendChild(s);
+  });
+}
+
+// ค้นหาในสารบัญท้องถิ่น (ใช้เมื่อ backend ดับ)
+function localLookup(empId) {
+  const dir = window.MEMBERS_DIR;
+  if (!dir) return null;
+  const m = dir[String(empId).trim()];
+  if (!m) return null;
+  return { emp_id: String(empId).trim(), name: m.n || '', position: (m.pos && m.pos !== 'no') ? m.pos : '', bu: m.bu || '', team: m.co || '' };
+}
+
+// คิวข้อมูลค้างส่ง (backend ดับตอน submit) — ส่งซ้ำอัตโนมัติเมื่อเชื่อมต่อได้
+function queuePending(data) {
+  const q = JSON.parse(localStorage.getItem('3e3p_pending') || '[]');
+  q.push(data);
+  localStorage.setItem('3e3p_pending', JSON.stringify(q));
+}
+async function flushPending(url) {
+  const q = JSON.parse(localStorage.getItem('3e3p_pending') || '[]');
+  if (!q.length) return;
+  const rest = [];
+  for (const item of q) {
+    try {
+      const res = await fetch(url + '?action=save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: JSON.stringify(item)
+      });
+      const txt = await res.text();
+      if (txt.indexOf('"saved":true') < 0) rest.push(item);
+    } catch (e) { rest.push(item); }
+  }
+  localStorage.setItem('3e3p_pending', JSON.stringify(rest));
+}
+
 // ===== สถานะการเชื่อมต่อ (Online / Cache) แบบเดียวกับตัวอย่าง n8n =====
 
-// ค้นหาข้อมูลสมาชิกจาก Google Sheets ผ่าน GAS (ลองหลาย endpoint)
+// ค้นหาข้อมูลสมาชิก: backend ก่อน → ถ้าดับใช้สารบัญฝังใน (ทำงานได้เสมอ)
 async function lookupMember() {
   const empId = document.getElementById('inputEmpId').value.trim();
   const status = document.getElementById('lookupStatus');
   if (!empId) { status.innerHTML = '<span style="color:#c62828">กรอกรหัสก่อน</span>'; return; }
   status.innerHTML = '⏳ กำลังค้นหา...';
-  const url = getGasUrl();
-  try {
-    // ลองเรียก action=lookup_member จาก 3e3p backend (ถ้า deploy เวอร์ชันใหม่)
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 12000);
-    const res = await fetch(url + '?action=lookup_member&emp_id=' + encodeURIComponent(empId), { signal: ctrl.signal });
-    clearTimeout(timer);
-    const json = await res.json();
-    if (json && json.success && json.data) {
-      const m = json.data;
-      document.getElementById('inputName').value = m.name || '';
-      document.getElementById('inputPosition').value = m.position || '';
-      if (m.bu) {
-        const buSel = document.getElementById('inputBU');
-        const found = Array.from(buSel.options).find(o => o.value.toLowerCase() === String(m.bu).toLowerCase());
-        if (found) buSel.value = found.value; else buSel.value = 'Other';
+  const url = await getActiveBackend();
+  if (url) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 10000);
+      const res = await fetch(url + '?action=lookup_member&emp_id=' + encodeURIComponent(empId), { signal: ctrl.signal });
+      clearTimeout(timer);
+      const json = await res.json();
+      if (json && json.success && json.data) {
+        fillMemberForm(json.data);
+        status.innerHTML = '<span style="color:#2e7d32">✅ พบข้อมูล: ' + (json.data.name || empId) + '</span>';
+        return;
       }
-      document.getElementById('inputTeam').value = m.team || '';
-      status.innerHTML = '<span style="color:#2e7d32">✅ พบข้อมูล: ' + (m.name || empId) + '</span>';
-    } else {
-      status.innerHTML = '<span style="color:#f57c00">⚠️ ไม่พบในระบบรวมศูนย์ — กรอกเองได้เลย (บันทึก empId ไว้)</span>';
-    }
-  } catch (err) {
-    status.innerHTML = '<span style="color:#f57c00">⚠️ ไม่พบ/เชื่อมต่อไม่ได้ — กรอกเองได้เลย</span>';
+      status.innerHTML = '<span style="color:#f57c00">⚠️ ไม่พบรหัสในระบบ — กรอกเองได้เลย</span>';
+      return;
+    } catch (err) { /* backend ดับ → ใช้ fallback */ }
   }
+  // Fallback: สารบัญฝังใน (offline ได้)
+  const dir = await loadMembersDir();
+  if (dir) {
+    const m = localLookup(empId);
+    if (m) {
+      fillMemberForm(m);
+      status.innerHTML = '<span style="color:#2e7d32">✅ พบข้อมูล (ออฟไลน์): ' + m.name + '</span>';
+      return;
+    }
+  }
+  status.innerHTML = '<span style="color:#f57c00">⚠️ ไม่พบรหัสในระบบ — กรอกเองได้เลย</span>';
+}
+
+function fillMemberForm(m) {
+  document.getElementById('inputName').value = m.name || '';
+  document.getElementById('inputPosition').value = m.position || '';
+  if (m.bu) {
+    const buSel = document.getElementById('inputBU');
+    const found = Array.from(buSel.options).find(o => o.value.toLowerCase() === String(m.bu).toLowerCase());
+    if (found) buSel.value = found.value; else buSel.value = 'Other';
+  }
+  document.getElementById('inputTeam').value = m.team || '';
 }
 
 async function checkConn() {
@@ -1259,33 +1361,25 @@ async function checkConn() {
   if (!badge) return;
   badge.style.background = '#e2e8f0'; badge.style.color = '#475569';
   badge.textContent = 'สถานะ: ตรวจสอบ...';
-  try {
-    const url = getGasUrl();
-    if (!url) { badge.textContent = 'สถานะ: ยังไม่ได้ตั้งค่า URL'; return; }
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 10000);
-    const res = await fetch(url + '?action=ping', { signal: ctrl.signal });
-    clearTimeout(timer);
-    const json = await res.json();
-    if (json.success) {
-      badge.style.background = '#dcfce7'; badge.style.color = '#166534';
-      badge.textContent = 'สถานะ: Online (Google Sheets)';
-      const cache = localStorage.getItem('3e3p_history');
-      const cacheCount = cache ? JSON.parse(cache).length : 0;
-      const cloud = await loadFromCloud();
-      lastSync.style.display = 'inline-block';
-      lastSync.style.background = '#dbeafe'; lastSync.style.color = '#1e40af';
-      lastSync.textContent = '☁️ Cloud: ' + cloud.length + ' รายการ | Local: ' + cacheCount + ' รายการ';
-      if (cloud.length > 0) {
-        lastSync.textContent += ' | ล่าสุด: ' + new Date(cloud[cloud.length-1].timestamp).toLocaleString('th-TH', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
-      }
-    } else {
-      badge.style.background = '#fef3c7'; badge.style.color = '#92400e';
-      badge.textContent = 'สถานะ: ใช้แคช (API error)';
-    }
-  } catch (err) {
+  const url = await getActiveBackend();
+  if (!url) {
     badge.style.background = '#fef3c7'; badge.style.color = '#92400e';
-    badge.textContent = 'สถานะ: ใช้แคช (offline)';
+    badge.textContent = 'สถานะ: ใช้งานออฟไลน์ (backend ไม่พร้อม)';
+    if (lastSync) { lastSync.style.display = 'inline-block'; lastSync.style.background = '#fef3c7'; lastSync.style.color = '#92400e'; lastSync.textContent = ' ข้อมูลจะบันทึกในเครื่องก่อน ส่งซ้ำอัตโนมัติเมื่อเชื่อมต่อได้'; }
+    return;
+  }
+  badge.style.background = '#dcfce7'; badge.style.color = '#166534';
+  badge.textContent = 'สถานะ: Online (Google Sheets)';
+  if (lastSync) {
+    lastSync.style.display = 'inline-block';
+    lastSync.style.background = '#dbeafe'; lastSync.style.color = '#1e40af';
+    const pending = JSON.parse(localStorage.getItem('3e3p_pending') || '[]');
+    if (pending.length) {
+      lastSync.textContent = ' มีข้อมูลค้างส่ง ' + pending.length + ' รายการ — กำลังส่ง...';
+      flushPending(url);
+    } else {
+      lastSync.textContent = '✅ ทุกอย่างพร้อม';
+    }
   }
 }
 
@@ -1316,21 +1410,24 @@ async function testGasUrl() {
 }
 
 async function syncToCloud(data) {
-  const url = getGasUrl();
-  if (!url) return; // ยังไม่ได้ตั้งค่า
+  const url = await getActiveBackend();
+  if (!url) { queuePending(data); return; } // backend ดับ → เข้าคิว
   try {
-    await fetch(url + '?action=save', {
+    const res = await fetch(url + '?action=save', {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
       body: JSON.stringify(data)
     });
+    const txt = await res.text();
+    if (txt.indexOf('"saved":true') < 0) queuePending(data);
+    else await flushPending(url); // ส่งค้างเดิมด้วย
   } catch (err) {
-    console.warn('3E3P sync failed:', err);
+    queuePending(data);
   }
 }
 
 async function loadFromCloud() {
-  const url = getGasUrl();
+  const url = await getActiveBackend();
   if (!url) return [];
   try {
     const res = await fetch(url + '?action=list');
