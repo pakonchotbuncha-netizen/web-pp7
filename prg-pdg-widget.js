@@ -201,6 +201,75 @@
       </tr>`;
     }).join('');
 
+    // ===== ตารางตัวเลขรายปี: GM / S&A / HRE แยกตามปี (2562–2569) =====
+    function finTable(metric) {
+      const groupBlocks = groupOrder.map(g => {
+        const comps = grouped[g];
+        const compRows = comps.map(c => {
+          const cells = YEARS.map(y => {
+            const d = c.yearsPRG[y];
+            const isCur = y === 'Y2569';
+            if (!d || d[metric] == null) return `<td class="px-2 py-1 text-center text-slate-300 ${isCur ? 'bg-amber-50' : ''}">-</td>`;
+            return `<td class="px-2 py-1 text-center text-[10px] font-mono ${isCur ? 'bg-amber-50 font-semibold' : ''}">${fmtM(d[metric])}</td>`;
+          }).join('');
+          const v68 = c.yearsPRG['Y2568']?.[metric];
+          const v67 = c.yearsPRG['Y2567']?.[metric];
+          const yoy = (v68 != null && v67) ? +(((v68 - v67) / v67) * 100).toFixed(1) : null;
+          return `<tr class="border-b border-slate-50 hover:bg-slate-50">
+            <td class="px-2 py-1 text-xs font-semibold sticky left-0 bg-white">${esc(c.id)}</td>
+            <td class="px-2 py-1 text-[10px] text-slate-500">${esc(c.name)}</td>
+            ${cells}
+            <td class="px-2 py-1 text-center text-[10px] font-semibold ${yoy == null ? 'text-slate-300' : yoy >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${yoy != null ? fmtPct(yoy) : '-'}</td>
+          </tr>`;
+        }).join('');
+        const subCells = YEARS.map(y => {
+          let sum = 0, has = false;
+          comps.forEach(c => { const d = c.yearsPRG[y]; if (d && d[metric] != null) { sum += d[metric]; has = true; } });
+          const isCur = y === 'Y2569';
+          return `<td class="px-2 py-1 text-center text-[10px] font-mono font-bold bg-indigo-50/50 ${isCur ? 'bg-amber-50' : ''}">${has ? fmtM(sum) : '-'}</td>`;
+        }).join('');
+        const sumY = (y) => comps.reduce((s, c) => s + (c.yearsPRG[y]?.[metric] || 0), 0);
+        const s68 = sumY('Y2568'), s67 = sumY('Y2567');
+        const subYoy = (s68 && s67) ? +(((s68 - s67) / s67) * 100).toFixed(1) : null;
+        const subRow = `<tr class="border-b border-indigo-200 bg-indigo-50/40">
+          <td class="px-2 py-1 text-xs font-bold text-indigo-800 sticky left-0 bg-indigo-50" colspan="2">📊 รวมกลุ่ม ${esc(g)}</td>
+          ${subCells}
+          <td class="px-2 py-1 text-center text-[10px] font-bold ${subYoy == null ? 'text-slate-300' : subYoy >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${subYoy != null ? fmtPct(subYoy) : '-'}</td>
+        </tr>`;
+        return `<tbody>
+          <tr class="bg-slate-100"><td colspan="${YEARS.length + 3}" class="px-2 py-1 text-xs font-bold text-slate-700">▸ ${esc(g)} (${comps.length} บริษัท)</td></tr>
+          ${compRows}
+          ${subRow}
+        </tbody>`;
+      }).join('');
+      // PKG grand total row
+      const totCells = YEARS.map(y => {
+        let sum = 0, has = false;
+        DATA.companies.forEach(c => { const d = c.yearsPRG[y]; if (d && d[metric] != null) { sum += d[metric]; has = true; } });
+        const isCur = y === 'Y2569';
+        return `<td class="px-2 py-2 text-center text-xs font-mono font-bold bg-purple-100 ${isCur ? 'bg-amber-100' : ''}">${has ? fmtM(sum) : '-'}</td>`;
+      }).join('');
+      const totSumY = (y) => DATA.companies.reduce((s, c) => s + (c.yearsPRG[y]?.[metric] || 0), 0);
+      const t68 = totSumY('Y2568'), t67 = totSumY('Y2567');
+      const totYoy = (t68 && t67) ? +(((t68 - t67) / t67) * 100).toFixed(1) : null;
+      const pkgTot = `<tr class="bg-purple-100 border-t-2 border-purple-300">
+        <td class="px-2 py-2 text-sm font-bold text-purple-900 sticky left-0 bg-purple-100" colspan="2">🏢 รวมทั้งหมด (PKG)</td>
+        ${totCells}
+        <td class="px-2 py-2 text-center text-xs font-bold ${totYoy == null ? 'text-slate-300' : totYoy >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${totYoy != null ? fmtPct(totYoy) : '-'}</td>
+      </tr>`;
+      return `<table class="w-full">
+        <thead><tr class="bg-slate-50 text-left text-[10px] uppercase tracking-wide text-slate-500">
+          <th class="px-2 py-2 sticky left-0 bg-slate-50">BU</th>
+          <th class="px-2 py-2">ชื่อ</th>
+          ${YEARS.map(y => `<th class="px-2 py-2 text-center text-[10px] font-bold ${y === 'Y2569' ? 'bg-amber-100 text-amber-800' : 'text-slate-600'}">${y.replace('Y', '25')}${y === 'Y2569' ? '*' : ''}</th>`).join('')}
+          <th class="px-2 py-2 text-center text-[10px] font-bold text-slate-600">%YoY 68</th>
+        </tr></thead>
+        ${groupBlocks}
+        <tfoot>${pkgTot}</tfoot>
+      </table>`;
+    }
+
+
     // ===== Multi-year matrix: PRG/PDG per year per BU + PKG total =====
     // Sort: group by 'group' field, then put PKG first
     const grouped = {};
@@ -215,6 +284,31 @@
       if (b === 'แม่') return 1;
       return a.localeCompare(b);
     });
+
+    const finTablesHtml = `
+      <div class="grid grid-cols-1 gap-4">
+        <div class="bg-white rounded-xl border border-amber-200 overflow-hidden">
+          <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+            <h4 class="text-sm font-bold text-slate-800">📈 GM (กำไรขั้นต้น) แยกตามปี 2562–2569</h4>
+            <span class="text-xs text-slate-500">หน่วย: ล้านบาท (M) | * 2569 = YTD</span>
+          </div>
+          <div class="overflow-x-auto">${finTable('gm')}</div>
+        </div>
+        <div class="bg-white rounded-xl border border-purple-200 overflow-hidden">
+          <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+            <h4 class="text-sm font-bold text-slate-800">🏢 S&amp;A (ค่าใช้จ่ายบริหาร) แยกตามปี 2562–2569</h4>
+            <span class="text-xs text-slate-500">หน่วย: ล้านบาท (M) | * 2569 = YTD</span>
+          </div>
+          <div class="overflow-x-auto">${finTable('sa')}</div>
+        </div>
+        <div class="bg-white rounded-xl border border-rose-200 overflow-hidden">
+          <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+            <h4 class="text-sm font-bold text-slate-800">👥 HRE (ค่าใช้จ่ายสมาชิก) แยกตามปี 2562–2569</h4>
+            <span class="text-xs text-slate-500">หน่วย: ล้านบาท (M) | * 2569 = YTD</span>
+          </div>
+          <div class="overflow-x-auto">${finTable('hre')}</div>
+        </div>
+      </div>`;
 
     function cellHtml(v) {
       if (v == null) return '<td class="px-2 py-1 text-center text-slate-300">-</td>';
@@ -463,6 +557,15 @@
               <tbody>${rows}</tbody>
             </table>
           </div>
+        </div>
+
+        <!-- GM / S&A / HRE แยกตามปี (2562–2569) -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <h3 class="text-base font-bold text-slate-800">💵 ตัวเลขรายปี: GM / S&amp;A / HRE (2562–2569)</h3>
+            <span class="text-xs text-slate-400">หน่วย: ล้านบาท | * 2569 = YTD ม.ค.–ส.ค. | %YoY 68 = เทียบ 2567→2568</span>
+          </div>
+          ${finTablesHtml}
         </div>
       </div>
     `;
