@@ -51,7 +51,7 @@
   }
 
   function badge(prg, pdg) {
-    return `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${pillClass(prg, pdg)}">PRG ${fmtRatio(prg)} | PDG ${fmtRatio(pdg)}</span>`;
+    return `<span class="inline-block px-2 py-0.5 rounded-full text-sm font-semibold ${pillClass(prg, pdg)}">PRG ${fmtRatio(prg)} | PDG ${fmtRatio(pdg)}</span>`;
   }
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -190,14 +190,14 @@
       const pctPRGClass = pctPRG == null ? 'text-gray-400' : pctPRG >= 0 ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold';
       const pctPDGClass = pctPDG == null ? 'text-gray-400' : pctPDG >= 0 ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold';
       return `<tr class="border-b border-slate-100 hover:bg-slate-50">
-        <td class="px-2 py-1.5 text-xs font-semibold">${i + 1}. ${esc(c.id)}</td>
-        <td class="px-2 py-1.5 text-xs text-slate-500">${esc(c.name)}</td>
-        <td class="px-2 py-1.5 text-xs text-center">${fmtM(d.gm)}</td>
-        <td class="px-2 py-1.5 text-xs text-center">${fmtM(d.sa)}</td>
-        <td class="px-2 py-1.5 text-xs text-center">${fmtM(d.hre)}</td>
+        <td class="px-2 py-1.5 text-sm font-semibold">${i + 1}. ${esc(c.id)}</td>
+        <td class="px-2 py-1.5 text-sm text-slate-500">${esc(c.name)}</td>
+        <td class="px-2 py-1.5 text-sm text-center">${fmtM(d.gm)}</td>
+        <td class="px-2 py-1.5 text-sm text-center">${fmtM(d.sa)}</td>
+        <td class="px-2 py-1.5 text-sm text-center">${fmtM(d.hre)}</td>
         <td class="px-2 py-1.5 text-center">${badge(d.prg, d.pdg)}</td>
-        <td class="px-2 py-1.5 text-xs text-center ${pctPRGClass}">${pctPRG == null ? '-' : fmtPct(pctPRG)}</td>
-        <td class="px-2 py-1.5 text-xs text-center ${pctPDGClass}">${pctPDG == null ? '-' : fmtPct(pctPDG)}</td>
+        <td class="px-2 py-1.5 text-sm text-center ${pctPRGClass}">${pctPRG == null ? '-' : fmtPct(pctPRG)}</td>
+        <td class="px-2 py-1.5 text-sm text-center ${pctPDGClass}">${pctPDG == null ? '-' : fmtPct(pctPDG)}</td>
       </tr>`;
     }).join('');
 
@@ -210,23 +210,23 @@
             const d = c.yearsPRG[y];
             const isCur = y === 'Y2569';
             if (!d || d[metric] == null) return `<td class="px-2 py-1 text-center text-slate-300 ${isCur ? 'bg-amber-50' : ''}">-</td>`;
-            return `<td class="px-2 py-1 text-center text-[10px] font-mono ${isCur ? 'bg-amber-50 font-semibold' : ''}">${fmtM(d[metric])}</td>`;
+            return `<td class="px-2 py-1 text-center text-xs font-mono ${isCur ? 'bg-amber-50 font-semibold' : ''}">${fmtM(d[metric])}</td>`;
           }).join('');
           const v68 = c.yearsPRG['Y2568']?.[metric];
           const v67 = c.yearsPRG['Y2567']?.[metric];
           const yoy = (v68 != null && v67) ? +(((v68 - v67) / v67) * 100).toFixed(1) : null;
           return `<tr class="border-b border-slate-50 hover:bg-slate-50">
             <td class="px-2 py-1 text-xs font-semibold sticky left-0 bg-white">${esc(c.id)}</td>
-            <td class="px-2 py-1 text-[10px] text-slate-500">${esc(c.name)}</td>
+            <td class="px-2 py-1 text-xs text-slate-500">${esc(c.name)}</td>
             ${cells}
-            <td class="px-2 py-1 text-center text-[10px] font-semibold ${yoy == null ? 'text-slate-300' : yoy >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${yoy != null ? fmtPct(yoy) : '-'}</td>
+            <td class="px-2 py-1 text-center text-xs font-semibold ${yoy == null ? 'text-slate-300' : yoy >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${yoy != null ? fmtPct(yoy) : '-'}</td>
           </tr>`;
         }).join('');
         const subCells = YEARS.map(y => {
           let sum = 0, has = false;
           comps.forEach(c => { const d = c.yearsPRG[y]; if (d && d[metric] != null) { sum += d[metric]; has = true; } });
           const isCur = y === 'Y2569';
-          return `<td class="px-2 py-1 text-center text-[10px] font-mono font-bold bg-indigo-50/50 ${isCur ? 'bg-amber-50' : ''}">${has ? fmtM(sum) : '-'}</td>`;
+          return `<td class="px-2 py-1 text-center text-xs font-mono font-bold bg-indigo-50/50 ${isCur ? 'bg-amber-50' : ''}">${has ? fmtM(sum) : '-'}</td>`;
         }).join('');
         const sumY = (y) => comps.reduce((s, c) => s + (c.yearsPRG[y]?.[metric] || 0), 0);
         const s68 = sumY('Y2568'), s67 = sumY('Y2567');
@@ -234,7 +234,7 @@
         const subRow = `<tr class="border-b border-indigo-200 bg-indigo-50/40">
           <td class="px-2 py-1 text-xs font-bold text-indigo-800 sticky left-0 bg-indigo-50" colspan="2">📊 รวมกลุ่ม ${esc(g)}</td>
           ${subCells}
-          <td class="px-2 py-1 text-center text-[10px] font-bold ${subYoy == null ? 'text-slate-300' : subYoy >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${subYoy != null ? fmtPct(subYoy) : '-'}</td>
+          <td class="px-2 py-1 text-center text-xs font-bold ${subYoy == null ? 'text-slate-300' : subYoy >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${subYoy != null ? fmtPct(subYoy) : '-'}</td>
         </tr>`;
         return `<tbody>
           <tr class="bg-slate-100"><td colspan="${YEARS.length + 3}" class="px-2 py-1 text-xs font-bold text-slate-700">▸ ${esc(g)} (${comps.length} บริษัท)</td></tr>
@@ -247,7 +247,7 @@
         let sum = 0, has = false;
         DATA.companies.forEach(c => { const d = c.yearsPRG[y]; if (d && d[metric] != null) { sum += d[metric]; has = true; } });
         const isCur = y === 'Y2569';
-        return `<td class="px-2 py-2 text-center text-xs font-mono font-bold bg-purple-100 ${isCur ? 'bg-amber-100' : ''}">${has ? fmtM(sum) : '-'}</td>`;
+        return `<td class="px-2 py-2 text-center text-sm font-mono font-bold bg-purple-100 ${isCur ? 'bg-amber-100' : ''}">${has ? fmtM(sum) : '-'}</td>`;
       }).join('');
       const totSumY = (y) => DATA.companies.reduce((s, c) => s + (c.yearsPRG[y]?.[metric] || 0), 0);
       const t68 = totSumY('Y2568'), t67 = totSumY('Y2567');
@@ -255,14 +255,14 @@
       const pkgTot = `<tr class="bg-purple-100 border-t-2 border-purple-300">
         <td class="px-2 py-2 text-sm font-bold text-purple-900 sticky left-0 bg-purple-100" colspan="2">🏢 รวมทั้งหมด (PKG)</td>
         ${totCells}
-        <td class="px-2 py-2 text-center text-xs font-bold ${totYoy == null ? 'text-slate-300' : totYoy >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${totYoy != null ? fmtPct(totYoy) : '-'}</td>
+        <td class="px-2 py-2 text-center text-sm font-bold ${totYoy == null ? 'text-slate-300' : totYoy >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${totYoy != null ? fmtPct(totYoy) : '-'}</td>
       </tr>`;
       return `<table class="w-full">
-        <thead><tr class="bg-slate-50 text-left text-[10px] uppercase tracking-wide text-slate-500">
+        <thead><tr class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
           <th class="px-2 py-2 sticky left-0 bg-slate-50">BU</th>
           <th class="px-2 py-2">ชื่อ</th>
-          ${YEARS.map(y => `<th class="px-2 py-2 text-center text-[10px] font-bold ${y === 'Y2569' ? 'bg-amber-100 text-amber-800' : 'text-slate-600'}">${y.replace('Y', '25')}${y === 'Y2569' ? '*' : ''}</th>`).join('')}
-          <th class="px-2 py-2 text-center text-[10px] font-bold text-slate-600">%YoY 68</th>
+          ${YEARS.map(y => `<th class="px-2 py-2 text-center text-xs font-bold ${y === 'Y2569' ? 'bg-amber-100 text-amber-800' : 'text-slate-600'}">${y.replace('Y', '25')}${y === 'Y2569' ? '*' : ''}</th>`).join('')}
+          <th class="px-2 py-2 text-center text-xs font-bold text-slate-600">%YoY 68</th>
         </tr></thead>
         ${groupBlocks}
         <tfoot>${pkgTot}</tfoot>
@@ -329,7 +329,7 @@
         const cells = YEARS.map(y => {
           const d = c.yearsPRG[y];
           if (!d || d.gm == null) return '<td class="px-2 py-1 text-center text-slate-300">-</td>';
-          return `<td class="px-2 py-1 text-center text-[10px] font-mono">
+          return `<td class="px-2 py-1 text-center text-xs font-mono">
             <div class="font-semibold ${d.prg >= 1.8 ? 'text-emerald-700' : d.prg >= 1.3 ? 'text-amber-700' : 'text-rose-700'}">${d.prg.toFixed(2)}</div>
             <div class="${d.pdg >= 1.8 ? 'text-emerald-600' : d.pdg >= 1.3 ? 'text-amber-600' : 'text-rose-600'}">${d.pdg != null ? d.pdg.toFixed(2) : '-'}</div>
           </td>`;
@@ -338,9 +338,9 @@
         const y2567 = c.yearsPRG['Y2567'];
         return `<tr class="border-b border-slate-50 hover:bg-slate-50">
           <td class="px-2 py-1 text-xs font-semibold sticky left-0 bg-white">${esc(c.id)}</td>
-          <td class="px-2 py-1 text-[10px] text-slate-500">${esc(c.name)}</td>
+          <td class="px-2 py-1 text-xs text-slate-500">${esc(c.name)}</td>
           ${cells}
-          <td class="px-2 py-1 text-center text-[10px] font-semibold ${y2568?.pctPRG >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${y2568?.pctPRG != null ? fmtPct(y2568.pctPRG) : '-'}</td>
+          <td class="px-2 py-1 text-center text-xs font-semibold ${y2568?.pctPRG >= 0 ? 'text-emerald-600' : 'text-rose-600'}">${y2568?.pctPRG != null ? fmtPct(y2568.pctPRG) : '-'}</td>
         </tr>`;
       }).join('');
       // Group subtotal (sum GM/SA/HRE then compute)
@@ -356,7 +356,7 @@
           if (!has) return '<td class="px-2 py-1 text-center text-slate-300">-</td>';
           const prg = +(gG / gS).toFixed(2);
           const pdg = +(gG / gH).toFixed(2);
-          return `<td class="px-2 py-1 text-center text-[10px] font-mono bg-indigo-50/50">
+          return `<td class="px-2 py-1 text-center text-xs font-mono bg-indigo-50/50">
             <div class="font-bold ${prg >= 1.8 ? 'text-emerald-700' : prg >= 1.3 ? 'text-amber-700' : 'text-rose-700'}">${prg.toFixed(2)}</div>
             <div class="${pdg >= 1.8 ? 'text-emerald-600' : pdg >= 1.3 ? 'text-amber-600' : 'text-rose-600'}">${pdg.toFixed(2)}</div>
           </td>`;
@@ -371,7 +371,7 @@
         return `<tr class="border-b border-indigo-200 bg-indigo-50/40">
           <td class="px-2 py-1 text-xs font-bold text-indigo-800 sticky left-0" colspan="2">📊 รวมกลุ่ม ${esc(g)}</td>
           ${cells}
-          <td class="px-2 py-1 text-center text-[10px] font-bold ${yoyPct >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${yoyPct != null ? fmtPct(yoyPct) : '-'}</td>
+          <td class="px-2 py-1 text-center text-xs font-bold ${yoyPct >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${yoyPct != null ? fmtPct(yoyPct) : '-'}</td>
         </tr>`;
       })();
       return `<tbody>
@@ -392,7 +392,7 @@
         if (!has) return '<td class="px-2 py-2 text-center text-slate-300">-</td>';
         const prg = +(gG / gS).toFixed(2);
         const pdg = +(gG / gH).toFixed(2);
-        return `<td class="px-2 py-2 text-center text-xs font-mono bg-purple-100">
+        return `<td class="px-2 py-2 text-center text-sm font-mono bg-purple-100">
           <div class="font-bold ${prg >= 1.8 ? 'text-emerald-700' : prg >= 1.3 ? 'text-amber-700' : 'text-rose-700'}">${prg.toFixed(2)}</div>
           <div class="${pdg >= 1.8 ? 'text-emerald-600' : pdg >= 1.3 ? 'text-amber-600' : 'text-rose-600'}">${pdg.toFixed(2)}</div>
         </td>`;
@@ -411,7 +411,7 @@
 
     const yearHeaders = YEARS.map(y => {
       const isCurrent = y === 'Y2569';
-      return `<th class="px-2 py-2 text-center text-[10px] font-bold ${isCurrent ? 'bg-amber-100 text-amber-800' : 'text-slate-600'}">${y.replace('Y', '25')}${isCurrent ? '*' : ''}</th>`;
+      return `<th class="px-2 py-2 text-center text-xs font-bold ${isCurrent ? 'bg-amber-100 text-amber-800' : 'text-slate-600'}">${y.replace('Y', '25')}${isCurrent ? '*' : ''}</th>`;
     }).join('');
 
     root.innerHTML = `
@@ -425,34 +425,34 @@
         <!-- KPI cards -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           <div class="rounded-xl p-3 bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200">
-            <p class="text-xs text-emerald-600 font-semibold">💰 PRG เฉลี่ย ${year.replace('Y','')}</p>
+            <p class="text-sm text-emerald-600 font-semibold">💰 PRG เฉลี่ย ${year.replace('Y','')}</p>
             <p class="text-2xl font-bold text-emerald-700">${fmtRatio(avgPRG)}</p>
-            <p class="text-[10px] text-slate-500">GM ÷ SA</p>
+            <p class="text-xs text-slate-500">GM ÷ SA</p>
           </div>
           <div class="rounded-xl p-3 bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
-            <p class="text-xs text-blue-600 font-semibold">🛡️ PDG เฉลี่ย ${year.replace('Y','')}</p>
+            <p class="text-sm text-blue-600 font-semibold">🛡️ PDG เฉลี่ย ${year.replace('Y','')}</p>
             <p class="text-2xl font-bold text-blue-700">${fmtRatio(avgPDG)}</p>
-            <p class="text-[10px] text-slate-500">GM ÷ HRE</p>
+            <p class="text-xs text-slate-500">GM ÷ HRE</p>
           </div>
           <div class="rounded-xl p-3 bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200">
-            <p class="text-xs text-amber-600 font-semibold">📈 GM รวม ${year.replace('Y','')}</p>
+            <p class="text-sm text-amber-600 font-semibold">📈 GM รวม ${year.replace('Y','')}</p>
             <p class="text-2xl font-bold text-amber-700">${fmtM(totalGM)}</p>
-            <p class="text-[10px] text-slate-500">YoY: ${fmtPct(yoyDelta)}</p>
+            <p class="text-xs text-slate-500">YoY: ${fmtPct(yoyDelta)}</p>
           </div>
           <div class="rounded-xl p-3 bg-gradient-to-br from-rose-50 to-rose-100 border border-rose-200">
-            <p class="text-xs text-rose-600 font-semibold">👥 HRE รวม ${year.replace('Y','')}</p>
+            <p class="text-sm text-rose-600 font-semibold">👥 HRE รวม ${year.replace('Y','')}</p>
             <p class="text-2xl font-bold text-rose-700">${fmtM(totalHRE)}</p>
-            <p class="text-[10px] text-slate-500">ค่าใช้จ่ายสมาชิก</p>
+            <p class="text-xs text-slate-500">ค่าใช้จ่ายสมาชิก</p>
           </div>
           <div class="rounded-xl p-3 bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200">
-            <p class="text-xs text-purple-600 font-semibold">🏢 SA รวม ${year.replace('Y','')}</p>
+            <p class="text-sm text-purple-600 font-semibold">🏢 SA รวม ${year.replace('Y','')}</p>
             <p class="text-2xl font-bold text-purple-700">${fmtM(totalSA)}</p>
-            <p class="text-[10px] text-slate-500">ค่าใช้จ่ายบริหาร</p>
+            <p class="text-xs text-slate-500">ค่าใช้จ่ายบริหาร</p>
           </div>
           <div class="rounded-xl p-3 bg-gradient-to-br ${growthGapPRG >= 0 ? 'from-emerald-50 to-emerald-100 border-emerald-200' : 'from-rose-50 to-rose-100 border-rose-200'} border">
-            <p class="text-xs font-semibold ${growthGapPRG >= 0 ? 'text-emerald-600' : 'text-rose-600'}">🔄 ความต่าง %Growth PRG</p>
+            <p class="text-sm font-semibold ${growthGapPRG >= 0 ? 'text-emerald-600' : 'text-rose-600'}">🔄 ความต่าง %Growth PRG</p>
             <p class="text-2xl font-bold ${growthGapPRG >= 0 ? 'text-emerald-700' : 'text-rose-700'}">${fmtPct(growthGapPRG)}</p>
-            <p class="text-[10px] text-slate-500">%YoY Y2568 (${fmtPct(avgPctPRG2568)}) - %YTD 2569 (${fmtPct(ytdPRGGrowth)})</p>
+            <p class="text-xs text-slate-500">%YoY Y2568 (${fmtPct(avgPctPRG2568)}) - %YTD 2569 (${fmtPct(ytdPRGGrowth)})</p>
           </div>
         </div>
 
@@ -517,11 +517,11 @@
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead>
-                <tr class="bg-slate-50 text-left text-[10px] uppercase tracking-wide text-slate-500">
+                <tr class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
                   <th class="px-2 py-2 sticky left-0 bg-slate-50">BU</th>
                   <th class="px-2 py-2">ชื่อ</th>
                   ${yearHeaders}
-                  <th class="px-2 py-2 text-center text-[10px] font-bold text-slate-600">%YoY PRG</th>
+                  <th class="px-2 py-2 text-center text-xs font-bold text-slate-600">%YoY PRG</th>
                 </tr>
               </thead>
               ${matrixHtml}
@@ -544,7 +544,7 @@
           </div>
           <div class="overflow-x-auto">
             <table class="w-full">
-              <thead><tr class="bg-slate-50 text-left text-[11px] uppercase tracking-wide text-slate-500">
+              <thead><tr class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
                 <th class="px-3 py-2">บริษัท</th>
                 <th class="px-3 py-2">ชื่อ</th>
                 <th class="px-3 py-2 text-center">GM</th>
