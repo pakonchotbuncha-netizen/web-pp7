@@ -559,6 +559,52 @@
           </div>
         </div>
 
+        <!-- สรุปสั้น PRG/PDG รายบริษัทเทียบปีก่อน -->
+        <div class="bg-white rounded-xl border border-indigo-200 overflow-hidden">
+          <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+            <h4 class="text-sm font-bold text-slate-800">📊 สรุปสั้น PRG/PDG รายบริษัท (Y2568 vs Y2567)</h4>
+            <span class="text-xs text-slate-400">▲ ดีขึ้น = เขียว | ▼ แย่ลง = แดง | 🟢≥1.8 🟡1.3–1.8 🔴<1.3</span>
+          </div>
+          <div class="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+            ${valid.map(c => {
+              const d68 = c.yearsPRG['Y2568'];
+              const d67 = c.yearsPRG['Y2567'];
+              const prg68 = d68?.prg, prg67 = d67?.prg;
+              const pdg68 = d68?.pdg, pdg67 = d67?.pdg;
+              const prgDelta = (prg68 != null && prg67) ? +(((prg68 - prg67) / prg67) * 100).toFixed(1) : null;
+              const pdgDelta = (pdg68 != null && pdg67) ? +(((pdg68 - pdg67) / pdg67) * 100).toFixed(1) : null;
+              const prgColor = prg68 == null ? 'text-slate-400' : prg68 >= 1.8 ? 'text-emerald-700' : prg68 >= 1.3 ? 'text-amber-700' : 'text-rose-700';
+              const pdgColor = pdg68 == null ? 'text-slate-400' : pdg68 >= 1.8 ? 'text-emerald-700' : pdg68 >= 1.3 ? 'text-amber-700' : 'text-rose-700';
+              const prgArrow = prgDelta == null ? '' : prgDelta >= 0 ? '▲' : '▼';
+              const pdgArrow = pdgDelta == null ? '' : pdgDelta >= 0 ? '▲' : '▼';
+              const prgArrowColor = prgDelta == null ? '' : prgDelta >= 0 ? 'text-emerald-600' : 'text-rose-600';
+              const pdgArrowColor = pdgDelta == null ? '' : pdgDelta >= 0 ? 'text-emerald-600' : 'text-rose-600';
+              return `<div class="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-bold text-slate-800 truncate">${esc(c.id)}</p>
+                  <p class="text-xs text-slate-500 truncate">${esc(c.name)}</p>
+                </div>
+                <div class="text-right ml-2">
+                  <p class="text-xs ${prgColor} font-semibold">PRG ${fmtRatio(prg68)} <span class="${prgArrowColor}">${prgArrow}${prgDelta != null ? Math.abs(prgDelta).toFixed(0) + '%' : ''}</span></p>
+                  <p class="text-xs ${pdgColor} font-semibold">PDG ${fmtRatio(pdg68)} <span class="${pdgArrowColor}">${pdgArrow}${pdgDelta != null ? Math.abs(pdgDelta).toFixed(0) + '%' : ''}</span></p>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- PRG/PDG comparison charts Y2567 vs Y2568 -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="bg-white rounded-xl border border-slate-200 p-4">
+            <h4 class="text-sm font-bold text-slate-800 mb-2">📊 PRG: Y2567 vs Y2568 รายบริษัท</h4>
+            <div class="h-72"><canvas id="prgpdg-chart-prg-compare"></canvas></div>
+          </div>
+          <div class="bg-white rounded-xl border border-slate-200 p-4">
+            <h4 class="text-sm font-bold text-slate-800 mb-2">📊 PDG: Y2567 vs Y2568 รายบริษัท</h4>
+            <div class="h-72"><canvas id="prgpdg-chart-pdg-compare"></canvas></div>
+          </div>
+        </div>
+
         <!-- GM / S&A / HRE แยกตามปี (2562–2569) -->
         <div class="space-y-4">
           <div class="flex items-center justify-between flex-wrap gap-2">
@@ -682,12 +728,66 @@
     });
   }
 
+  function renderPRGCompare() {
+    const DATA = window.PKG_PRG_DATA;
+    if (!DATA) return;
+    const companies = DATA.companies.filter(c => c.yearsPRG['Y2568']?.prg != null || c.yearsPRG['Y2567']?.prg != null);
+    const labels = companies.map(c => c.id);
+    const prg2567 = companies.map(c => c.yearsPRG['Y2567']?.prg ?? null);
+    const prg2568 = companies.map(c => c.yearsPRG['Y2568']?.prg ?? null);
+    makeChart('prgpdg-chart-prg-compare', {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'PRG Y2567', data: prg2567, backgroundColor: 'rgba(59,130,246,0.7)', borderColor: '#3b82f6', borderWidth: 1 },
+          { label: 'PRG Y2568', data: prg2568, backgroundColor: 'rgba(16,185,129,0.7)', borderColor: '#10b981', borderWidth: 1 }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: {
+          x: { title: { display: true, text: 'PRG (เดือน)' }, beginAtZero: true, suggestedMax: 3 }
+        }
+      }
+    });
+  }
+
+  function renderPDGCompare() {
+    const DATA = window.PKG_PRG_DATA;
+    if (!DATA) return;
+    const companies = DATA.companies.filter(c => c.yearsPRG['Y2568']?.pdg != null || c.yearsPRG['Y2567']?.pdg != null);
+    const labels = companies.map(c => c.id);
+    const pdg2567 = companies.map(c => c.yearsPRG['Y2567']?.pdg ?? null);
+    const pdg2568 = companies.map(c => c.yearsPRG['Y2568']?.pdg ?? null);
+    makeChart('prgpdg-chart-pdg-compare', {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'PDG Y2567', data: pdg2567, backgroundColor: 'rgba(59,130,246,0.7)', borderColor: '#3b82f6', borderWidth: 1 },
+          { label: 'PDG Y2568', data: pdg2568, backgroundColor: 'rgba(245,158,11,0.7)', borderColor: '#f59e0b', borderWidth: 1 }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: {
+          x: { title: { display: true, text: 'PDG (เดือน)' }, beginAtZero: true, suggestedMax: 6 }
+        }
+      }
+    });
+  }
+
   function init() {
     if (!window.PKG_PRG_DATA) return;
     window.PKG_PRG_DATA.companies.forEach(c => { c.yearsPRG = computeDerived(c.years); });
     buildExecWidget('prg-pdg-widget');
     // Charts are created while the tab may be hidden; re-render when shown
-    window.requestAnimationFrame(() => { renderTrend(); renderMonthly(); renderGrowth(); });
+    window.requestAnimationFrame(() => { renderTrend(); renderMonthly(); renderGrowth(); renderPRGCompare(); renderPDGCompare(); });
   }
 
   function onShow() {
@@ -698,9 +798,11 @@
     renderTrend();
     renderMonthly();
     renderGrowth();
+    renderPRGCompare();
+    renderPDGCompare();
   }
 
-  window.PKG_PDG_WIDGET = { init, onShow, renderTrend, renderMonthly, renderGrowth, buildExecWidget };
+  window.PKG_PDG_WIDGET = { init, onShow, renderTrend, renderMonthly, renderGrowth, renderPRGCompare, renderPDGCompare, buildExecWidget };
 
   // Auto init after data + DOM ready
   function boot() {
