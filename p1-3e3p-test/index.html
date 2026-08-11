@@ -477,6 +477,15 @@ body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f2f5; color: 
           <button class="btn btn-secondary" onclick="testGasUrl()">🔌 ทดสอบ</button>
         </div>
         <div id="gasStatus" style="font-size:13px;margin-top:8px"></div>
+        <div style="margin-top:12px;border-top:1px dashed #667eea;padding-top:12px">
+          <h4 style="margin:0 0 6px;font-size:14px">⬇️ ย้ายข้อมูลเก่ามารวมที่เดียว</h4>
+          <p style="font-size:12px;color:#666;line-height:1.5">
+            ดึงประวัติจาก backend ตัวสำรอง (URL เก่า) มาใส่ใน Google Sheets หลักของพี่ปกรณ์<br>
+            <span style="color:#999">กันข้อมูลหลายแหล่ง — ข้อมูลเก่าอยู่ที่ไหน ระบบจะรวบมาที่เดียว</span>
+          </p>
+          <button class="btn btn-secondary" onclick="importLegacyData()">⬇️ ย้ายข้อมูลเก่า (จาก URL สำรอง)</button>
+          <div id="importStatus" style="font-size:12px;margin-top:6px;color:#666"></div>
+        </div>
       </div>
     </div>
 
@@ -1408,6 +1417,81 @@ async function testGasUrl() {
   } catch (err) {
     status.innerHTML = '<span style="color:#c62828">❌ ไม่สามารถเชื่อมต่อได้: ' + err.message + '</span>';
   }
+}
+
+// ===== ย้ายข้อมูลเก่าจาก backend สำรอง (URL เก่า) มารวมที่ backend หลัก =====
+const LEGACY_BACKENDS = [
+  'https://script.google.com/macros/s/AKfycbxax1sQpIntJlNWkf7Wuc0yUMKnjWPMRbj_rAInQALxeiSzoXuHGh8vfqeTrGWPhsPz/exec', // บัญชี kilo20634 (เดิม — ถูกระงับ)
+  'https://script.google.com/macros/s/AKfycbx9eJJg8-Iy4Dp9adPR1Spa11dWJLBYzB6vztRT67nSmklhU4eq18Mu0OxV8iWGg-C6/exec'  // URL องค์กรตัวแรก
+];
+
+async function importLegacyData() {
+  const status = document.getElementById('importStatus');
+  const mainUrl = await getActiveBackend();
+  if (!mainUrl) { status.innerHTML = '<span style="color:#c62828">❌ backend หลักไม่พร้อม — ลองใหม่ทีหลัง</span>'; return; }
+
+  // โหลดข้อมูลปัจจุบันใน Sheet หลัก เพื่อกันซ้ำ
+  let existing = [];
+  try { existing = await loadFromCloud(); } catch (e) { existing = []; }
+  const seen = new Set(existing.map(h => (h.timestamp||'') + '|' + (h.empId||h.emp_id||'') + '|' + (h.name||'')));
+
+  let out = '';
+  let totalImported = 0;
+  for (const legacy of LEGACY_BACKENDS) {
+    if (legacy === mainUrl) continue;
+    const short = legacy.replace('https://script.google.com/macros/s/', '').slice(0, 18) + '...';
+    status.innerHTML = '⏳ กำลังดึงข้อมูลเก่าจาก ' + short;
+    let rows = [];
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 15000);
+      const res = await fetch(legacy + '?action=list', { signal: ctrl.signal });
+      clearTimeout(t);
+      if (res.ok) {
+        const txt = await res.text();
+        const json = JSON.parse(txt);
+        if (json && json.success && Array.isArray(json.data)) rows = json.data;
+      }
+    } catch (err) { /* backend เก่าเข้าไม่ได้ */ }
+
+    if (!rows.length) { out += '⏭️ ' + short + ' → ไม่มีข้อมูลหรือเข้าไม่ได้<br>'; continue; }
+
+    let imported = 0, skipped = 0;
+    for (const rec of rows) {
+      if (!rec || !rec.name) { skipped++; continue; }
+      const key = (rec.timestamp||'') + '|' + (rec.empId||rec.emp_id||'') + '|' + (rec.name||'');
+      if (seen.has(key)) { skipped++; continue; }
+      // เตรียม payload ให้ตรงกับที่ backend หลักรับ
+      const payload = {
+        empId: String(rec.empId || rec.emp_id || '').trim(),
+        name: String(rec.name || ''),
+        position: String(rec.position || ''),
+        bu: String(rec.bu || ''),
+        team: String(rec.team || ''),
+        source_p: String(rec.source_p || ''),
+        dev_channel: String(rec.dev_channel || ''),
+        activity: String(rec.activity || ''),
+        timestamp: rec.timestamp || '',
+        scores: rec.scores || {},
+        direct: rec.direct, indirect: rec.indirect, toe: rec.toe
+      };
+      try {
+        const res = await fetch(mainUrl + '?action=save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json && json.success) { imported++; seen.add(key); }
+        else skipped++;
+      } catch (e) { skipped++; }
+    }
+    totalImported += imported;
+    out += '✅ ' + short + ' → ย้าย ' + imported + ' รายการ (ข้าม ' + skipped + ' รายการที่ซ้ำ/ไม่สมบูรณ์)<br>';
+  }
+  status.innerHTML = out + (totalImported ? '<br><strong>🎉 รวมย้าย ' + totalImported + ' รายการเข้าสู่ Sheet หลักแล้ว</strong>' : '<br><span style="color:#888">ยังไม่มีข้อมูลเก่าให้ย้าย — ถ้า URL เก่ากลับมาใช้งานได้ กดปุ่มนี้อีกครั้ง</span>');
+  cloudHistoryCache = null;
+  renderHistory();
 }
 
 async function syncToCloud(data) {
