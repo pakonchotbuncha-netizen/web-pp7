@@ -136,7 +136,7 @@
 
   <!-- ===== 3) ตารางสัมภาษณ์ ===== -->
   <div class="card p-5 mb-6">
-    <div class="section-title"><span class="num">3</span> ตารางสัมภาษณ์ (เรียงตามวันที่)</div>
+    <div class="section-title"><span class="num">3</span> ผู้ผ่านการคัดกรอง รอนัดสัมภาษณ์ (ย้อนหลัง 1 เดือน)</div>
     <div class="overflow-x-auto max-h-96 overflow-y-auto rounded-lg border border-gray-200">
       <table class="w-full text-sm">
         <thead class="bg-gray-100 text-gray-700 sticky top-0">
@@ -559,10 +559,10 @@ function renderInterviewSection() {
 
 // ===== 3) ตารางสัมภาษณ์ =====
 function renderScheduleTable() {
-  // ตารางสัมภาษณ์: แสดงเฉพาะนัดที่ยังไม่เกินเวลาปัจจุบัน (รอสัมภาษณ์ = นัดแล้วยังไม่มาสัมภาษณ์)
-  // ตามคำขอ: ถ้าเกินเวลาปัจจุบันไปแล้ว (เช่น สัมภาษณ์ผ่านไปแล้ว) ไม่ต้องแสดง
-  const rows = filtered().filter(r => r.status === 'รอสัมภาษณ์')
-    .sort((a, b) => a.date.localeCompare(b.date));
+  // แสดงเฉพาะผู้ผ่านการคัดกรอง รอนัดสัมภาษณ์ (สถานะ: รอคัดเลือกใบสมัคร)
+  // กรองย้อนหลัง 1 เดือน (ตาม dateFrom ที่ตั้งไว้)
+  const rows = filtered().filter(r => r.status === 'รอคัดเลือกใบสมัคร')
+    .sort((a, b) => b.date.localeCompare(a.date));
   document.getElementById('schedule-table-body').innerHTML = rows.map(r => `
     <tr class="border-b hover:bg-indigo-50/50">
       <td class="px-3 py-2 font-medium text-gray-700">${esc(r.date.slice(0, 10)) || '—'}</td>
@@ -571,7 +571,7 @@ function renderScheduleTable() {
       <td class="px-3 py-2"><span class="badge" style="background:${STATUS_COLORS[r.status]}22;color:${STATUS_COLORS[r.status]}">${esc(r.status)}</span></td>
       <td class="px-3 py-2">${esc(r.salary) || '—'}</td>
       <td class="px-3 py-2 text-gray-500">${esc(r.reason && r.reason !== '-' ? r.reason : '')}</td>
-    </tr>`).join('') || '<tr><td colspan="6" class="px-3 py-8 text-center text-gray-400">ไม่มีนัดสัมภาษณ์ในช่วงที่เลือก</td></tr>';
+    </tr>`).join('') || '<tr><td colspan="6" class="px-3 py-8 text-center text-gray-400">ไม่มีผู้ผ่านการคัดกรองในช่วง 1 เดือนที่ผ่านมา</td></tr>';
 }
 
 // ===== 4) ผู้ที่จ้างแล้ว =====
