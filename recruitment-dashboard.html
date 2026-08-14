@@ -310,7 +310,7 @@
 
     <!-- Daily Report: ใครยังไม่ลงเวลาวันนี้ เช้า/เย็น -->
   <div class="card p-5 mb-5 border-l-4 border-l-amber-500">
-    <div class="section-title"><span class="num">📋</span> รายงานประจำวัน — <span id="att-daily-date"></span> <span class="text-sm font-normal text-gray-500">(เวลา <span id="att-daily-time"></span>)</span></div>
+    <div class="section-title"><span class="num">📋</span> สรุปการลงเวลาประจำวัน ณ เวลา 18.00 น. — <span id="att-daily-date"></span></div>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4" id="att-daily-kpi"></div>
     <div class="grid md:grid-cols-3 gap-3" id="att-daily-lists"></div>
   </div>
@@ -1105,8 +1105,6 @@ function attRenderDaily() {
   const wd = ['อา','จ','อ','พ','พฤ','ศ','ส'][(5 + today - 1) % 7];
   const thMonth = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][7];
   document.getElementById('att-daily-date').textContent = `${today} ${wd}. ${thMonth} 2569`;
-  const now = new Date();
-  document.getElementById('att-daily-time').textContent = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
 
   const absent = [], noMorn = [], noEve = [], full = [];
   for (const e of attState.emps) {
