@@ -267,18 +267,19 @@ const ACCESS_KEY = 'pkg_recruit_dash_unlocked';
 
 function unlockAccess() {
   const pin = document.getElementById('pin-input').value.trim();
-  const h = sha256(pin);
-  if (h === PIN_HASH) {
-    sessionStorage.setItem(ACCESS_KEY, '1');
-    document.getElementById('pin-gate').classList.add('hidden');
-    document.getElementById('app-shell').classList.remove('hidden');
-    startAutoRefresh();
-    loadData();
-  } else {
-    document.getElementById('pin-error').classList.remove('hidden');
-    document.getElementById('pin-input').value = '';
-    document.getElementById('pin-input').focus();
-  }
+  sha256(pin).then(h => {
+    if (h === PIN_HASH) {
+      sessionStorage.setItem(ACCESS_KEY, '1');
+      document.getElementById('pin-gate').classList.add('hidden');
+      document.getElementById('app-shell').classList.remove('hidden');
+      startAutoRefresh();
+      loadData();
+    } else {
+      document.getElementById('pin-error').classList.remove('hidden');
+      document.getElementById('pin-input').value = '';
+      document.getElementById('pin-input').focus();
+    }
+  });
 }
 function sha256(str) {
   // Web Crypto API — ปลอดภัย ไม่ต้องพึ่ง library
