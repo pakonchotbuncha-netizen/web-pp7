@@ -38,6 +38,11 @@
       </div>
     </div>
 
+    <div class="mt-5 bg-amber-400/20 border border-amber-300/40 rounded-xl px-4 py-2.5 flex items-center gap-2 text-sm text-amber-50">
+      <span>🔒</span>
+      <span>ข้อมูลนี้เป็นข้อมูลส่วนบุคคลตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA) — ใช้เพื่อการสรรหาบุคลากรภายในองค์กรเท่านั้น ห้ามนำไปเผยแพร่/ใช้เพื่อวัตถุประสงค์อื่น</span>
+    </div>
+
     <!-- Date Range Filter -->
     <div class="mt-5 bg-white/15 backdrop-blur rounded-xl p-4">
       <div class="flex flex-wrap items-center gap-3">
@@ -98,7 +103,6 @@
             <th class="px-3 py-2 text-left font-semibold">สถานะ</th>
             <th class="px-3 py-2 text-left font-semibold">วันที่สมัคร</th>
             <th class="px-3 py-2 text-left font-semibold">การศึกษา</th>
-            <th class="px-3 py-2 text-left font-semibold">เบอร์ติดต่อ / Line</th>
           </tr>
         </thead>
         <tbody id="interview-table-body"></tbody>
@@ -217,7 +221,6 @@
             <th class="px-3 py-2 text-left font-semibold">วันที่สมัคร</th>
             <th class="px-3 py-2 text-left font-semibold">การศึกษา</th>
             <th class="px-3 py-2 text-left font-semibold">เงินเดือนคาดหวัง</th>
-            <th class="px-3 py-2 text-left font-semibold">Line ID</th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
@@ -225,7 +228,7 @@
     </div>
   </div>
 
-  <p class="text-center text-xs text-gray-400 pb-4">ข้อมูลจาก RDS PPP7 Registerform · อัปเดตล่าสุด <span id="footer-date">—</span></p>
+  <p class="text-center text-xs text-gray-400 pb-4">ข้อมูลจาก RDS PPP7 Registerform · อัปเดตล่าสุด <span id="footer-date">—</span> · 🔒 ตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA) 2562</p>
 </div>
 
 <script>
@@ -280,16 +283,14 @@ function loadData() {
         date: clean(r[4]),
         prefix: clean(r[5]),
         name: clean(r[6]) + ' ' + clean(r[7]),
-        idcard: clean(r[8]),
+        // PDPA: idcard intentionally not stored/displayed (ข้อมูลอ่อนไหว)
         pos1: clean(r[9]).replace(/\(.*\)/g, '').trim(),
         pos2: clean(r[10]),
         salary: clean(r[11]),
         edu: clean(r[15]),
         major: clean(r[16]),
         school: clean(r[28]),
-        reason: clean(r[24]),
-        line: clean(r[22]),
-        url: clean(r[25])
+        reason: clean(r[24])
       }));
       badge.textContent = '🟢 ออนไลน์ — เชื่อมต่อ Google Sheets สำเร็จ';
       badge.className = 'badge bg-emerald-400/30 text-white';
@@ -392,7 +393,8 @@ function renderStatusChips() {
 
 function renderKPIs() {
   const rows = filtered();
-  const unique = new Set(rows.filter(r => r.idcard).map(r => r.idcard)).size;
+  // PDPA: นับบุคคลไม่ซ้ำด้วย ชื่อ+นามสกุล+วันที่ (ไม่ใช้เลขบัตรประชาชน)
+  const unique = new Set(rows.map(r => r.prefix + r.name + r.date.slice(0,10))).size;
   const waiting = rows.filter(r => r.status === 'รอคัดเลือกใบสมัคร').length;
   const scheduled = rows.filter(r => r.status === 'รอสัมภาษณ์').length;
   const interviewed = rows.filter(r => r.status === 'มาสัมภาษณ์').length;
@@ -487,8 +489,7 @@ function renderInterviewSection() {
       <td class="px-3 py-2"><span class="badge" style="background:${STATUS_COLORS[r.status]}22;color:${STATUS_COLORS[r.status]}">${esc(r.status)}</span></td>
       <td class="px-3 py-2 text-gray-500">${esc(r.date.slice(0, 10)) || '—'}</td>
       <td class="px-3 py-2">${esc(r.edu)}${r.school ? ' · ' + esc(r.school) : ''}</td>
-      <td class="px-3 py-2 text-gray-500">${esc(r.line) || '—'}</td>
-    </tr>`).join('') || '<tr><td colspan="6" class="px-3 py-8 text-center text-gray-400">ไม่มีข้อมูลในกลุ่มนี้</td></tr>';
+    </tr>`).join('') || '<tr><td colspan="5" class="px-3 py-8 text-center text-gray-400">ไม่มีข้อมูลในกลุ่มนี้</td></tr>';
 }
 
 // ===== 3) ตารางสัมภาษณ์ =====
@@ -634,8 +635,7 @@ function renderTable() {
       <td class="px-3 py-2 text-gray-500">${esc(r.date.slice(0, 10)) || '—'}</td>
       <td class="px-3 py-2">${esc(r.edu)}${r.school ? ' · ' + esc(r.school) : ''}</td>
       <td class="px-3 py-2">${esc(r.salary) || '—'}</td>
-      <td class="px-3 py-2 text-gray-500">${esc(r.line) || '—'}</td>
-    </tr>`).join('') || '<tr><td colspan="7" class="px-3 py-8 text-center text-gray-400">ไม่พบข้อมูล</td></tr>';
+    </tr>`).join('') || '<tr><td colspan="6" class="px-3 py-8 text-center text-gray-400">ไม่พบข้อมูล</td></tr>';
 }
 
 function exportCSV() {
@@ -643,7 +643,7 @@ function exportCSV() {
   const header = ['ชื่อ','นามสกุล','สถานะ','วันที่สมัคร','ตำแหน่งที่สมัคร','เงินเดือนคาดหวัง','ระดับการศึกษา','สาขา','โรงเรียน/มหาวิทยาลัย','เหตุผล','Line ID'];
   const lines = [header.join(',')];
   rows.forEach(r => {
-    const vals = [r.prefix + r.name, r.status, r.date.slice(0,10), r.pos1, r.salary, r.edu, r.major, r.school, r.reason, r.line];
+    const vals = [r.prefix + r.name, r.status, r.date.slice(0,10), r.pos1, r.salary, r.edu, r.major, r.school, r.reason];
     lines.push(vals.map(v => '"' + String(v || '').replace(/"/g, '""') + '"').join(','));
   });
   const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
