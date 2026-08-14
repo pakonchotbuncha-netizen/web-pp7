@@ -171,6 +171,17 @@
     </div>
   </div>
 
+  <!-- Race to Goal -->
+  <div class="card p-5 mb-6">
+    <div class="section-title"><span class="num">🏃</span> การแข่งขันวิ่งสู่เป้าหมายการมาทำงานประจำเดือน <span class="text-sm font-normal text-gray-500">(เป้าหมาย <span id="race-goal-label">—</span> วัน)</span></div>
+    <div id="race-track" class="space-y-1.5"></div>
+    <div class="mt-3 flex flex-wrap gap-4 text-xs text-gray-400">
+      <span>🏁 เส้นชัย = เป้าหมายวันทำงานของเดือน</span>
+      <span>🏃 จุดบนแถบ = จำนวนวันที่มาแล้ว</span>
+      <span>💨 = ต้องวิ่งเฉลี่ยกี่วันต่อวันจึงจะถึงเส้นชัย (ถ้าเกินวันที่เหลือจะขึ้น ❌ ไม่ทันแล้ว)</span>
+    </div>
+  </div>
+
   <!-- Calendar -->
   <div class="card p-5 mb-6">
     <div class="section-title"><span class="num">📅</span> ปฏิทินการเข้างานรายวัน (1–31 ส.ค. 2569)</div>
@@ -410,6 +421,7 @@ function attRender() {
   document.getElementById('kpi-bad').textContent = attState.emps.filter(e => e.missing_len >= 5).length;
 
   renderCalendar(list);
+  renderRace();
   renderAlerts();
   renderRanks();
   renderCharts();
@@ -470,6 +482,44 @@ function renderRanks() {
     top.map(e => `<div class="flex justify-between border-b border-gray-100 pb-0.5"><span>${esc(e.name)}</span><b>${e.presentToday}/${e.workPassed}</b></div>`).join('') +
     '<div class="font-bold text-red-600 mt-2 mb-1">⚠️ ขาดเยอะสุด (ถึงวันนี้)</div>' +
     bot.map(e => `<div class="flex justify-between border-b border-gray-100 pb-0.5"><span>${esc(e.name)}</span><b>${e.missing_len} วัน</b></div>`).join('');
+}
+
+// ===== 🏃 Race to Goal =====
+function renderRace() {
+  const goal = attState.required;
+  document.getElementById('race-goal-label').textContent = goal;
+  // วันที่เหลือของเดือน (ตั้งแต่วันพรุ่งนี้ถึงสิ้นเดือน)
+  const daysLeft = 31 - ATT_TODAY;
+
+  const sorted = [...attState.emps].sort((a, b) => b.presentToday - a.presentToday);
+  const maxVal = Math.max(goal, ...sorted.map(e => e.presentToday));
+
+  document.getElementById('race-track').innerHTML = sorted.map((e, i) => {
+    const w = (e.presentToday / maxVal * 100).toFixed(2);
+    const pctGoal = Math.round(e.presentToday * 100 / goal);
+    const needMore = Math.max(0, goal - e.presentToday);
+    const paceNeed = daysLeft > 0 ? (needMore / daysLeft).toFixed(1) : '∞';
+    const can = needMore <= daysLeft;
+    const dotPos = (e.presentToday / maxVal * 100).toFixed(2);
+    const grad = pctGoal >= 100
+      ? 'linear-gradient(90deg,#059669,#34d399)'
+      : pctGoal >= 75 ? 'linear-gradient(90deg,#10b981,#6ee7b7)'
+      : pctGoal >= 50 ? 'linear-gradient(90deg,#f59e0b,#fbbf24)'
+      : 'linear-gradient(90deg,#ef4444,#f87171)';
+    const medal = ['🥇','🥈','🥉'][i] || `${i + 1}.`;
+    return `<div class="flex items-center gap-2">
+      <div class="w-8 text-center text-xs font-bold ${i < 3 ? '' : 'text-gray-400'}">${medal}</div>
+      <div class="w-40 text-xs font-semibold truncate" title="${esc(e.name)} · ${esc(e.bu)}">${esc(e.name)} <span class="text-gray-400 font-normal">(${esc(e.bu)})</span></div>
+      <div class="flex-1 relative h-5 rounded-full bg-gray-100 overflow-hidden">
+        <div class="absolute inset-y-0 left-0 rounded-full" style="width:${w}%;background:${grad}"></div>
+        <div class="absolute inset-y-0 border-r-2 border-dashed border-emerald-600" style="left:${(goal / maxVal * 100).toFixed(2)}%"><span class="absolute -top-4 right-0 text-[9px] font-bold text-emerald-600 whitespace-nowrap">🏁 ${goal}</span></div>
+        <span class="absolute left-2 inset-y-0 flex items-center text-[10px] font-bold text-white drop-shadow">${e.presentToday} วัน</span>
+        <span class="absolute inset-y-0 flex items-center text-[10px] font-bold text-slate-600" style="left:${dotPos}%">🏃</span>
+      </div>
+      <div class="w-20 text-right text-[11px] font-bold ${pctGoal >= 100 ? 'text-emerald-600' : pctGoal >= 75 ? 'text-emerald-500' : pctGoal >= 50 ? 'text-amber-600' : 'text-red-600'}">${pctGoal}%</div>
+      <div class="w-24 text-right text-[10px] text-gray-500">${needMore > 0 ? `ต้องอีก <b>${needMore}</b> วัน (${can ? '💨 ' + paceNeed + ' วัน/วัน' : '❌ ไม่ทันแล้ว'})` : '🏆 ถึงเส้นชัย!'}</div>
+    </div>`;
+  }).join('');
 }
 
 function mkChart(id, cfg) {
