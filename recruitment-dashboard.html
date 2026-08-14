@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📊 Recruitment Status Dashboard — PKG</title>
+<script src="https://cdn.tailwindcss.com/3.4.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  * { font-family: 'Prompt', 'Sarabun', sans-serif; }
+  body { background: #f1f5f9; }
+  .card { background: #fff; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .kpi { transition: transform .2s; }
+  .kpi:hover { transform: translateY(-3px); }
+  .badge { display: inline-flex; align-items: center; gap: .35rem; padding: .2rem .6rem; border-radius: 9999px; font-size: .72rem; font-weight: 600; }
+</style>
+</head>
+<body class="min-h-screen">
+<div class="max-w-7xl mx-auto p-4 md:p-6">
+
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl p-6 mb-6 shadow-lg">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold">📊 Recruitment Status Dashboard</h1>
+        <p class="text-indigo-100 text-sm mt-1">ติดตามสถานะผู้สมัครงาน PP7 แบบ Real-time จาก Google Sheets</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="conn-badge" class="badge bg-white/20 text-white">🔄 กำลังโหลด...</span>
+        <span class="badge bg-white/20 text-white" id="data-date">—</span>
+        <button onclick="refreshData()" class="bg-white text-indigo-700 px-4 py-2 rounded-lg font-semibold hover:bg-indigo-50 transition text-sm">🔄 รีเฟรช</button>
+      </div>
+    </div>
+    <div class="flex flex-wrap gap-2 mt-4" id="status-filter">
+      <!-- status chips injected here -->
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6" id="kpi-grid">
+    <!-- injected -->
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="grid md:grid-cols-2 gap-4 mb-6">
+    <div class="card p-5">
+      <h3 class="font-bold text-gray-800 mb-3">🎯 Funnel สถานะผู้สมัคร (ทั้งหมด)</h3>
+      <div class="h-72"><canvas id="chart-funnel"></canvas></div>
+    </div>
+    <div class="card p-5">
+      <h3 class="font-bold text-gray-800 mb-3">📈 แนวโน้มใบสมัครรายเดือน</h3>
+      <div class="h-72"><canvas id="chart-trend"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Charts Row 2 -->
+  <div class="grid md:grid-cols-2 gap-4 mb-6">
+    <div class="card p-5">
+      <h3 class="font-bold text-gray-800 mb-3">💼 ตำแหน่งงานยอดนิยม (Top 10)</h3>
+      <div class="h-72"><canvas id="chart-positions"></canvas></div>
+    </div>
+    <div class="card p-5">
+      <h3 class="font-bold text-gray-800 mb-3">🎓 ระดับการศึกษา</h3>
+      <div class="h-72"><canvas id="chart-education"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Charts Row 3 -->
+  <div class="grid md:grid-cols-2 gap-4 mb-6">
+    <div class="card p-5">
+      <h3 class="font-bold text-gray-800 mb-3">💰 เงินเดือนที่คาดหวัง</h3>
+      <div class="h-72"><canvas id="chart-salary"></canvas></div>
+    </div>
+    <div class="card p-5">
+      <h3 class="font-bold text-gray-800 mb-3">❌ เหตุผลที่ไม่ผ่านการคัดเลือก</h3>
+      <div class="h-72"><canvas id="chart-reasons"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="card p-5 mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <h3 class="font-bold text-gray-800">📋 รายชื่อผู้สมัครทั้งหมด <span id="table-count" class="text-gray-500 font-normal text-sm"></span></h3>
+      <div class="flex gap-2">
+        <input id="table-search" type="text" placeholder="🔍 ค้นหา ชื่อ / ตำแหน่ง / สถานะ..." class="border border-gray-300 rounded-lg px-3 py-2 text-sm w-64 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        <button onclick="exportCSV()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-emerald-700 transition">⬇️ Export CSV</button>
+      </div>
+    </div>
+    <div class="overflow-x-auto max-h-96 overflow-y-auto rounded-lg border border-gray-200">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100 text-gray-700 sticky top-0">
+          <tr>
+            <th class="px-3 py-2 text-left font-semibold">ชื่อ-นามสกุล</th>
+            <th class="px-3 py-2 text-left font-semibold">ตำแหน่งที่สมัคร</th>
+            <th class="px-3 py-2 text-left font-semibold">สถานะ</th>
+            <th class="px-3 py-2 text-left font-semibold">วันที่สมัคร</th>
+            <th class="px-3 py-2 text-left font-semibold">การศึกษา</th>
+            <th class="px-3 py-2 text-left font-semibold">เงินเดือนคาดหวัง</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="text-center text-xs text-gray-400 pb-4">ข้อมูลจาก RDS PPP7 Registerform · อัปเดตล่าสุด <span id="footer-date">—</span></p>
+</div>
+
+<script>
+const SHEET_ID = '1cEe4EwsKKsiIzAWxpp9FgsFTqe8tpcpKm47XO0HwxjQ';
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+
+const STATUS_COLORS = {
+  'รอคัดเลือกใบสมัคร': '#f59e0b',
+  'รอสัมภาษณ์': '#3b82f6',
+  'มาสัมภาษณ์': '#8b5cf6',
+  'จ้างงาน': '#10b981',
+  'ใบสมัครซ้ำ': '#64748b',
+  'ปิดใบสมัคร': '#ef4444'
+};
+const STATUS_ORDER = ['รอคัดเลือกใบสมัคร','รอสัมภาษณ์','มาสัมภาษณ์','จ้างงาน','ใบสมัครซ้ำ','ปิดใบสมัคร'];
+const VALID_STATUS = new Set(STATUS_ORDER);
+
+let allRows = [];
+let activeFilter = 'ทั้งหมด';
+let charts = {};
+
+function parseCSV(csv) {
+  const lines = csv.split(/\r?\n/).filter(l => l.trim());
+  function parseRow(l) {
+    const out = []; let cur = '', q = false;
+    for (let i = 0; i < l.length; i++) {
+      const c = l[i];
+      if (q) { if (c === '"') { if (l[i+1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+      else { if (c === '"') q = true; else if (c === ',') { out.push(cur); cur = ''; } else cur += c; }
+    }
+    out.push(cur); return out;
+  }
+  return lines.map(parseRow);
+}
+
+function clean(s) { return String(s == null ? '' : s).trim(); }
+
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function loadData() {
+  const badge = document.getElementById('conn-badge');
+  badge.textContent = '🔄 กำลังโหลด...';
+  badge.className = 'badge bg-white/20 text-white';
+  fetch(CSV_URL)
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+    .then(csv => {
+      const rows = parseCSV(csv);
+      // header row is the one containing status_register
+      const hi = rows.findIndex(r => r[3] && r[3].includes('status_register'));
+      const data = rows.slice(hi + 1).filter(r => {
+        const s = clean(r[3]);
+        return s && s !== 'status_register' && VALID_STATUS.has(s);
+      });
+      allRows = data.map(r => ({
+        status: clean(r[3]),
+        date: clean(r[4]),
+        prefix: clean(r[5]),
+        name: clean(r[6]) + ' ' + clean(r[7]),
+        idcard: clean(r[8]),
+        pos1: clean(r[9]).replace(/\(.*\)/g, '').trim(),
+        pos2: clean(r[10]),
+        salary: clean(r[11]),
+        edu: clean(r[15]),
+        major: clean(r[16]),
+        school: clean(r[28]),
+        reason: clean(r[24]),
+        url: clean(r[25])
+      }));
+      badge.textContent = '🟢 ออนไลน์ — เชื่อมต่อ Google Sheets สำเร็จ';
+      badge.className = 'badge bg-emerald-400/30 text-white';
+      const maxDate = allRows.reduce((m, r) => r.date > m ? r.date : m, '');
+      document.getElementById('data-date').textContent = 'ข้อมูล ' + allRows.length + ' รายการ';
+      document.getElementById('footer-date').textContent = maxDate ? maxDate.slice(0, 10) : '—';
+      renderAll();
+    })
+    .catch(err => {
+      badge.textContent = '🔴 ออฟไลน์ — อ่านจากไฟล์ข้อมูลสำรอง';
+      badge.className = 'badge bg-red-400/30 text-white';
+      console.error('CSV load failed, trying fallback:', err);
+      loadFallback();
+    });
+}
+
+// Fallback: embedded snapshot (updated 2026-08-14) — ใช้เมื่อ Google Sheets ไม่ตอบสนอง
+function loadFallback() {
+  fetch('recruitment-data.json')
+    .then(r => r.json())
+    .then(data => {
+      allRows = data.rows.map(r => ({ ...r, status: clean(r.status) }));
+      document.getElementById('footer-date').textContent = data.generatedAt || '—';
+      renderAll();
+    })
+    .catch(e => {
+      badge.textContent = '⚠️ ไม่สามารถโหลดข้อมูลได้';
+      console.error(e);
+    });
+}
+
+function filtered() {
+  if (activeFilter === 'ทั้งหมด') return allRows;
+  return allRows.filter(r => r.status === activeFilter);
+}
+
+function renderAll() {
+  renderKPIs();
+  renderStatusChips();
+  renderFunnel();
+  renderTrend();
+  renderPositions();
+  renderEducation();
+  renderSalary();
+  renderReasons();
+  renderTable();
+}
+
+function renderStatusChips() {
+  const wrap = document.getElementById('status-filter');
+  const counts = {};
+  allRows.forEach(r => counts[r.status] = (counts[r.status] || 0) + 1);
+  const chips = ['ทั้งหมด', ...STATUS_ORDER.filter(s => counts[s])];
+  wrap.innerHTML = chips.map(s => `
+    <button onclick="activeFilter='${s}';renderAll()"
+      class="badge ${activeFilter === s ? 'bg-white text-indigo-700 ring-2 ring-white' : 'bg-white/15 text-white hover:bg-white/25'}"
+      style="${s !== 'ทั้งหมด' && activeFilter !== s ? 'color:#fff' : ''}">
+      ${s === 'ทั้งหมด' ? '📊 ทั้งหมด' : s} <span class="opacity-80">(${s === 'ทั้งหมด' ? allRows.length : (counts[s] || 0)})</span>
+    </button>`).join('');
+}
+
+function renderKPIs() {
+  const total = allRows.length;
+  const unique = new Set(allRows.filter(r => r.idcard).map(r => r.idcard)).size;
+  const hired = allRows.filter(r => r.status === 'จ้างงาน').length;
+  const active = allRows.filter(r => ['รอคัดเลือกใบสมัคร','รอสัมภาษณ์','มาสัมภาษณ์'].includes(r.status)).length;
+  const dup = allRows.filter(r => r.status === 'ใบสมัครซ้ำ').length;
+  const hireRate = total ? (hired / total * 100).toFixed(1) : '0';
+  const kpis = [
+    { label: 'ผู้สมัครทั้งหมด', value: total, icon: '👥', color: 'from-indigo-500 to-blue-500' },
+    { label: 'บุคคลจริง (ไม่ซ้ำ)', value: unique, icon: '🧑‍🤝‍🧑', color: 'from-sky-500 to-cyan-500' },
+    { label: 'อยู่ใน Pipeline', value: active, icon: '🔵', color: 'from-amber-500 to-orange-500' },
+    { label: 'จ้างงานแล้ว', value: hired, icon: '✅', color: 'from-emerald-500 to-green-500' },
+    { label: 'ใบสมัครซ้ำ', value: dup, icon: '🔁', color: 'from-slate-500 to-gray-500' },
+    { label: 'อัตราการจ้าง', value: hireRate + '%', icon: '📊', color: 'from-purple-500 to-fuchsia-500' }
+  ];
+  document.getElementById('kpi-grid').innerHTML = kpis.map(k => `
+    <div class="card kpi p-4 bg-gradient-to-br ${k.color} text-white">
+      <div class="text-2xl mb-1">${k.icon}</div>
+      <div class="text-2xl font-bold">${k.value}</div>
+      <div class="text-xs opacity-90 font-medium">${k.label}</div>
+    </div>`).join('');
+}
+
+function mkChart(id, cfg) {
+  if (charts[id]) charts[id].destroy();
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  charts[id] = new Chart(ctx, cfg);
+}
+
+function renderFunnel() {
+  const rows = filtered();
+  const counts = {};
+  rows.forEach(r => counts[r.status] = (counts[r.status] || 0) + 1);
+  const labels = STATUS_ORDER.filter(s => counts[s]);
+  const data = labels.map(s => counts[s]);
+  const colors = labels.map(s => STATUS_COLORS[s]);
+  mkChart('chart-funnel', {
+    type: 'bar',
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 8, maxBarThickness: 60 }] },
+    options: {
+      indexAxis: 'y',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.parsed.x + ' คน (' + (c.parsed.x / rows.length * 100).toFixed(1) + '%)' } } },
+      scales: { x: { grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } }
+    }
+  });
+}
+
+function renderTrend() {
+  const rows = filtered();
+  const monthly = {};
+  rows.forEach(r => {
+    const m = r.date.slice(0, 7);
+    if (/^\d{4}-\d{2}$/.test(m)) monthly[m] = (monthly[m] || 0) + 1;
+  });
+  const keys = Object.keys(monthly).sort();
+  const labels = keys.map(k => {
+    const [y, m] = k.split('-');
+    return m + '/' + y.slice(2);
+  });
+  mkChart('chart-trend', {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: keys.map(k => monthly[k]),
+        borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,.15)',
+        fill: true, tension: .35, pointRadius: 3, borderWidth: 2.5
+      }]
+    },
+    options: {
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.parsed.y + ' ใบสมัคร' } } },
+      scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } }, y: { grid: { color: '#f1f5f9' }, beginAtZero: true } }
+    }
+  });
+}
+
+function renderPositions() {
+  const rows = filtered();
+  const counts = {};
+  rows.forEach(r => { if (r.pos1) counts[r.pos1] = (counts[r.pos1] || 0) + 1; });
+  const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  mkChart('chart-positions', {
+    type: 'bar',
+    data: {
+      labels: top.map(([k]) => k.length > 28 ? k.slice(0, 28) + '…' : k),
+      datasets: [{ data: top.map(([, v]) => v), backgroundColor: '#8b5cf6', borderRadius: 6, maxBarThickness: 40 }]
+    },
+    options: {
+      indexAxis: 'y',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { title: items => top[items[0].dataIndex][0], label: c => ' ' + c.parsed.x + ' คน' } } },
+      scales: { x: { grid: { color: '#f1f5f9' }, beginAtZero: true }, y: { grid: { display: false } } }
+    }
+  });
+}
+
+function renderEducation() {
+  const rows = filtered();
+  const counts = {};
+  rows.forEach(r => { if (r.edu) counts[r.edu] = (counts[r.edu] || 0) + 1; });
+  const top = Object.entries(counts).filter(([k]) => !/[?à]/.test(k)).sort((a, b) => b[1] - a[1]).slice(0, 7);
+  const palette = ['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981','#3b82f6','#64748b'];
+  mkChart('chart-education', {
+    type: 'doughnut',
+    data: { labels: top.map(([k]) => k), datasets: [{ data: top.map(([, v]) => v), backgroundColor: palette, borderWidth: 2 }] },
+    options: { cutout: '55%', plugins: { legend: { position: 'right' }, tooltip: { callbacks: { label: c => ' ' + c.label + ': ' + c.parsed + ' คน' } } } }
+  });
+}
+
+function renderSalary() {
+  const rows = filtered();
+  const counts = {};
+  rows.forEach(r => { if (r.salary && r.salary.includes('บาท')) counts[r.salary] = (counts[r.salary] || 0) + 1; });
+  const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  mkChart('chart-salary', {
+    type: 'bar',
+    data: {
+      labels: top.map(([k]) => k.replace(' บาท', '')),
+      datasets: [{ data: top.map(([, v]) => v), backgroundColor: '#f59e0b', borderRadius: 6, maxBarThickness: 50 }]
+    },
+    options: {
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.parsed.y + ' คน' } } },
+      scales: { x: { grid: { display: false } }, y: { grid: { color: '#f1f5f9' }, beginAtZero: true } }
+    }
+  });
+}
+
+function renderReasons() {
+  const rows = filtered();
+  const counts = {};
+  rows.forEach(r => {
+    const rz = r.reason;
+    if (!rz || rz === '-' || rz === '') return;
+    let key = rz;
+    if (rz.includes('คุณสมบัติ')) key = 'คุณสมบัติไม่ตรง';
+    else if (rz.includes('หลักฐาน')) key = 'ไม่มีหลักฐานการสมัคร';
+    else if (rz.includes('ได้งาน')) key = 'ได้งานแล้ว';
+    else if (rz.includes('ตำแหน่ง')) key = 'ไม่มีตำแหน่งว่าง';
+    else if (rz.includes('เปลี่ยนใจ')) key = 'เปลี่ยนใจ';
+    else if (rz.includes('ติดต่อ')) key = 'ติดต่อไม่ได้';
+    else if (rz.includes('ครอบครัว')) key = 'ครอบครัวไม่สนับสนุน';
+    else if (rz.includes('ศึกษา')) key = 'ศึกษาต่อ';
+    else if (rz.includes('ส่วนตัว')) key = 'สละสิทธิ์';
+    counts[key] = (counts[key] || 0) + 1;
+  });
+  const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  mkChart('chart-reasons', {
+    type: 'pie',
+    data: {
+      labels: top.map(([k]) => k),
+      datasets: [{ data: top.map(([, v]) => v), backgroundColor: ['#ef4444','#f97316','#eab308','#84cc16','#10b981','#06b6d4','#6366f1','#a855f7'], borderWidth: 2 }]
+    },
+    options: { plugins: { legend: { position: 'right' }, tooltip: { callbacks: { label: c => ' ' + c.label + ': ' + c.parsed + ' คน' } } } }
+  });
+}
+
+function renderTable() {
+  const rows = filtered();
+  const q = document.getElementById('table-search').value.toLowerCase();
+  const list = rows.filter(r =>
+    !q || r.name.toLowerCase().includes(q) || r.pos1.toLowerCase().includes(q) ||
+    r.status.toLowerCase().includes(q) || r.edu.toLowerCase().includes(q)
+  );
+  document.getElementById('table-count').textContent = `(${list.length} / ${rows.length} รายการ)`;
+  document.getElementById('table-body').innerHTML = list.slice(0, 200).map(r => `
+    <tr class="border-b hover:bg-indigo-50/50">
+      <td class="px-3 py-2 font-medium">${esc(r.prefix)}${esc(r.name)}</td>
+      <td class="px-3 py-2">${esc(r.pos1) || '—'}</td>
+      <td class="px-3 py-2"><span class="badge" style="background:${STATUS_COLORS[r.status] || '#94a3b8'}22;color:${STATUS_COLORS[r.status] || '#94a3b8'}">${esc(r.status)}</span></td>
+      <td class="px-3 py-2 text-gray-500">${esc(r.date.slice(0, 10)) || '—'}</td>
+      <td class="px-3 py-2">${esc(r.edu)}${r.school ? ' · ' + esc(r.school) : ''}</td>
+      <td class="px-3 py-2">${esc(r.salary) || '—'}</td>
+    </tr>`).join('') || '<tr><td colspan="6" class="px-3 py-8 text-center text-gray-400">ไม่พบข้อมูล</td></tr>';
+}
+
+function exportCSV() {
+  const rows = filtered();
+  const header = ['ชื่อ','นามสกุล','สถานะ','วันที่สมัคร','ตำแหน่งที่สมัคร','เงินเดือนคาดหวัง','ระดับการศึกษา','สาขา','โรงเรียน/มหาวิทยาลัย','เหตุผล'];
+  const lines = [header.join(',')];
+  rows.forEach(r => {
+    const vals = [r.prefix + r.name, r.status, r.date.slice(0,10), r.pos1, r.salary, r.edu, r.major, r.school, r.reason];
+    lines.push(vals.map(v => '"' + String(v || '').replace(/"/g, '""') + '"').join(','));
+  });
+  const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'recruitment-status-' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
+}
+
+document.getElementById('table-search').addEventListener('input', renderTable);
+loadData();
+</script>
+</body>
+</html>
