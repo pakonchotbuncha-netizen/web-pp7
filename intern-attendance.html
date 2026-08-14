@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🕒 การลงเวลานักศึกษาฝึกงาน — PKG (สิงหาคม 2569)</title>
+<script src="https://cdn.tailwindcss.com/3.4.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  * { font-family: 'Prompt', 'Sarabun', sans-serif; }
+  body { background: #f1f5f9; }
+  .card { background: #fff; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .badge { display: inline-flex; align-items: center; gap: .35rem; padding: .2rem .6rem; border-radius: 9999px; font-size: .72rem; font-weight: 600; }
+  .section-title { display: flex; align-items: center; gap: .5rem; font-weight: 700; color: #1e293b; margin-bottom: .75rem; }
+  .section-title .num { background: #10b981; color: #fff; width: 1.6rem; height: 1.6rem; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; font-size: .8rem; flex-shrink: 0; }
+  .att-cell { width: 26px; height: 26px; border-radius: 5px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+  .att-present { background: #10b981; color: #fff; }
+  .att-absent { background: #ef4444; color: #fff; }
+  .att-off { background: #e2e8f0; color: #94a3b8; }
+  .att-half { background: #f59e0b; color: #fff; }
+  .hover-row:hover { background: #ecfdf5 !important; }
+  .kpi-card { border-radius: 1rem; padding: 1rem 1.1rem; color: #fff; }
+  @media print { .no-print { display:none !important; } }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ===== PIN GATE (PDPA) ===== -->
+<div id="pin-gate" class="fixed inset-0 bg-gradient-to-br from-emerald-950 via-teal-900 to-slate-900 flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm">
+    <div class="text-center mb-6">
+      <div class="text-4xl mb-3">🕒</div>
+      <h1 class="text-xl font-bold text-gray-800">การลงเวลานักศึกษาฝึกงาน</h1>
+      <p class="text-sm text-gray-500 mt-1">ข้อมูลส่วนบุคคลตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA)</p>
+    </div>
+    <form id="pin-form" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">กรอกรหัสผ่านเพื่อเข้าดูข้อมูล</label>
+        <input id="pin-input" type="password" autocomplete="off" placeholder="PIN" class="w-full text-center text-2xl tracking-[0.5em] px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+        <p id="pin-error" class="hidden text-red-600 text-sm mt-2">❌ รหัสไม่ถูกต้อง กรุณาลองใหม่</p>
+      </div>
+      <button type="submit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold hover:bg-emerald-700 transition">เข้าสู่ระบบ</button>
+    </form>
+    <p class="text-xs text-gray-400 mt-4 text-center">เฉพาะผู้ที่ได้รับอนุญาตจากฝ่าย HR / ผู้บริหารเท่านั้น<br>มีบันทึกการเข้าถึงตามนโยบาย PDPA</p>
+  </div>
+</div>
+
+<!-- ===== APP SHELL ===== -->
+<div id="app-shell" class="hidden">
+<div class="max-w-7xl mx-auto p-4 md:p-6">
+
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl p-6 mb-6 shadow-lg">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold">🕒 Dashboard การลงเวลานักศึกษาฝึกงาน</h1>
+        <p class="text-emerald-100 text-sm mt-1">ชีท C1_การลงเวลาเป็นรายวัน • เดือนสิงหาคม 2569 • เป้าหมายการมาทำงาน <b id="att-required-label">—</b> วัน/เดือน</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="conn-badge" class="badge bg-white/20 text-white">🔄 กำลังโหลด...</span>
+        <span class="badge bg-white/20 text-white" id="data-date">—</span>
+        <a href="recruitment-dashboard.html" class="bg-white text-emerald-700 px-4 py-2 rounded-lg font-semibold hover:bg-emerald-50 transition text-sm">📊 Recruitment Dashboard</a>
+        <button onclick="attLoad(true)" class="bg-white text-emerald-700 px-4 py-2 rounded-lg font-semibold hover:bg-emerald-50 transition text-sm">🔄 รีเฟรช</button>
+      </div>
+    </div>
+
+    <div class="mt-5 bg-amber-400/20 border border-amber-300/40 rounded-xl px-4 py-2.5 flex items-center gap-2 text-sm text-amber-50">
+      <span>🔒</span>
+      <span>ข้อมูลนี้เป็นข้อมูลส่วนบุคคลตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA) — ใช้ภายในองค์กรเท่านั้น ห้ามนำไปเผยแพร่</span>
+    </div>
+
+    <!-- KPI -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mt-5">
+      <div class="kpi-card bg-white/15 backdrop-blur">
+        <div class="text-[11px] opacity-80 font-medium">นักศึกษาฝึกงานทั้งหมด</div>
+        <div class="text-2xl font-bold" id="kpi-total">—</div>
+      </div>
+      <div class="kpi-card bg-white/15 backdrop-blur">
+        <div class="text-[11px] opacity-80 font-medium">เป้าหมายวันทำงาน/เดือน</div>
+        <div class="text-2xl font-bold" id="kpi-required">—</div>
+      </div>
+      <div class="kpi-card bg-white/15 backdrop-blur">
+        <div class="text-[11px] opacity-80 font-medium">มาถึงวันนี้ เฉลี่ย (วัน)</div>
+        <div class="text-2xl font-bold" id="kpi-avg">—</div>
+      </div>
+      <div class="kpi-card bg-white/15 backdrop-blur">
+        <div class="text-[11px] opacity-80 font-medium">อัตราการมาเฉลี่ย (ถึงวันนี้)</div>
+        <div class="text-2xl font-bold" id="kpi-pct">—</div>
+      </div>
+      <div class="kpi-card bg-white/15 backdrop-blur">
+        <div class="text-[11px] opacity-80 font-medium">⚠️ ขาดงานมาก (≥5 วัน)</div>
+        <div class="text-2xl font-bold" id="kpi-bad">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card p-4 mb-6 no-print">
+    <div class="flex flex-wrap items-end gap-4">
+      <div>
+        <label class="text-xs text-gray-500 block mb-1 font-semibold">กรอง BU</label>
+        <select id="fBU" class="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"></select>
+      </div>
+      <div>
+        <label class="text-xs text-gray-500 block mb-1 font-semibold">ประเภท</label>
+        <select id="fCat" class="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500">
+          <option value="all">ทั้งหมด</option>
+          <option value="นักศึกษาฝึกงาน">นักศึกษาฝึกงาน</option>
+          <option value="สหกิจ">สหกิจ</option>
+          <option value="ทวิภาคี">ทวิภาคี</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs text-gray-500 block mb-1 font-semibold">สถานะ</label>
+        <select id="fStatus" class="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500">
+          <option value="all">ทั้งหมด</option>
+          <option value="ok">✅ ครบ / ใกล้ครบ</option>
+          <option value="warn">⚠️ เสี่ยง (ขาด 3-5 วัน)</option>
+          <option value="bad">❌ ขาดเยอะ (≥6 วัน)</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs text-gray-500 block mb-1 font-semibold">ค้นหา</label>
+        <input id="fSearch" type="text" placeholder="ชื่อ / รหัส..." class="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500 w-44">
+      </div>
+      <div class="ml-auto flex gap-2">
+        <button onclick="attExportCSV()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-emerald-700 transition">⬇️ Export CSV</button>
+        <button onclick="window.print()" class="bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-800 transition">🖨 พิมพ์</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary table -->
+  <div class="card p-5 mb-6">
+    <div class="section-title"><span class="num">📋</span> สรุปการมาทำงานรายบุคคล <span id="count-note" class="text-sm font-normal text-gray-500"></span></div>
+    <div class="overflow-x-auto max-h-[520px] overflow-y-auto rounded-lg border border-gray-200">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100 text-gray-700 sticky top-0 z-10">
+          <tr>
+            <th class="px-3 py-2 text-left font-semibold">รหัสพนักงาน</th>
+            <th class="px-3 py-2 text-left font-semibold">ชื่อ-นามสกุล</th>
+            <th class="px-3 py-2 text-center font-semibold">สังกัด BU</th>
+            <th class="px-3 py-2 text-center font-semibold">ประเภท</th>
+            <th class="px-3 py-2 text-center font-semibold">ต้องการ<br>(วัน)</th>
+            <th class="px-3 py-2 text-center font-semibold">มาแล้วทั้งเดือน<br>(วัน)</th>
+            <th class="px-3 py-2 text-center font-semibold">มาถึงวันนี้<br>(วัน)</th>
+            <th class="px-3 py-2 text-center font-semibold">% ต่อเป้า<br>(ถึงวันนี้)</th>
+            <th class="px-3 py-2 text-center font-semibold">สถานะ</th>
+            <th class="px-3 py-2 text-left font-semibold">📅 วันไหนไม่ได้ลงเวลา</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="mt-2 text-xs text-gray-400">🔴 = วันทำงานที่ไม่ได้ลงเวลา (นับถึงวันนี้เท่านั้น) • ⚪ = วันหยุดขององค์กรตามตาราง • วันที่ยังไม่ถึงจะไม่นับ</div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid md:grid-cols-3 gap-4 mb-6">
+    <div class="card p-5">
+      <h3 class="font-bold text-gray-800 mb-3">🏢 สัดส่วนตาม BU</h3>
+      <div class="h-56"><canvas id="chart-bu"></canvas></div>
+    </div>
+    <div class="card p-5">
+      <h3 class="font-bold text-gray-800 mb-3">📊 การกระจายอัตราการมา (ถึงวันนี้)</h3>
+      <div class="h-56"><canvas id="chart-dist"></canvas></div>
+    </div>
+    <div class="card p-5">
+      <h3 class="font-bold text-gray-800 mb-3">🏆 Top 5 / Bottom 5</h3>
+      <div id="rankbox" class="text-xs space-y-1"></div>
+    </div>
+  </div>
+
+  <!-- Calendar -->
+  <div class="card p-5 mb-6">
+    <div class="section-title"><span class="num">📅</span> ปฏิทินการเข้างานรายวัน (1–31 ส.ค. 2569)</div>
+    <div class="overflow-x-auto">
+      <table class="text-xs" id="cal">
+        <thead id="cal-head"></thead>
+        <tbody id="cal-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div class="card p-5 mb-6 border-l-4 border-l-red-500">
+    <div class="section-title"><span class="num">🚨</span> รายชื่อที่ยังลงเวลาไม่ครบ + วันที่ขาด <span class="text-sm font-normal text-gray-500">(เทียบตารางวันทำงานขององค์กร)</span></div>
+    <div class="grid md:grid-cols-2 gap-3" id="alerts"></div>
+  </div>
+
+  <p class="text-center text-xs text-gray-400 pb-4">ข้อมูลจากชีท C1_การลงเวลาเป็นรายวัน · อัปเดตอัตโนมัติทุก 5 นาที · 🔒 ตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA) 2562</p>
+</div>
+</div>
+
+<script>
+const SHEET_ID = '1cEe4EwsKKsiIzAWxpp9FgsFTqe8tpcpKm47XO0HwxjQ';
+const ATT_GID = 1244228848;
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${ATT_GID}`;
+
+// ===== PDPA ACCESS GATE =====
+const PIN_HASH = '6bdf8ee386bac1afb01c7cfd5162595c08191db876b4e5da67ed583307bb50de';
+const ACCESS_KEY = 'pkg_re…cked';
+
+function unlockAccess() {
+  const pin = document.getElementById('pin-input').value.trim();
+  sha256(pin).then(h => {
+    if (h === PIN_HASH) {
+      sessionStorage.setItem(ACCESS_KEY, '1');
+      document.getElementById('pin-gate').classList.add('hidden');
+      document.getElementById('app-shell').classList.remove('hidden');
+      startAutoRefresh();
+      attLoad(true);
+    } else {
+      document.getElementById('pin-error').classList.remove('hidden');
+      document.getElementById('pin-input').value = '';
+      document.getElementById('pin-input').focus();
+    }
+  });
+}
+function sha256(str) {
+  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str))
+    .then(buf => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join(''));
+}
+document.getElementById('pin-form').addEventListener('submit', (e) => { e.preventDefault(); unlockAccess(); });
+
+function checkAccess() {
+  if (sessionStorage.getItem(ACCESS_KEY) === '1') {
+    document.getElementById('pin-gate').classList.add('hidden');
+    document.getElementById('app-shell').classList.remove('hidden');
+    startAutoRefresh();
+    attLoad(true);
+  }
+}
+checkAccess();
+
+// ===== Utilities =====
+function parseCSV(csv) {
+  const lines = csv.split(/\r?\n/).filter(l => l.trim());
+  function parseRow(l) {
+    const out = []; let cur = '', q = false;
+    for (let i = 0; i < l.length; i++) {
+      const c = l[i];
+      if (q) { if (c === '"') { if (l[i+1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+      else { if (c === '"') q = true; else if (c === ',') { out.push(cur); cur = ''; } else cur += c; }
+    }
+    out.push(cur); return out;
+  }
+  return lines.map(parseRow);
+}
+function clean(s) { return String(s == null ? '' : s).trim(); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ===== Data =====
+const ATT_FALLBACK = {"employees": [{"id": "1000461", "name": "ระพีพัฒน์ ไหมอ่อน", "bu": "PMS", "cat": "ทวิภาคี", "days": ["1", "0", "1", "0", "1", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000474", "name": "ศุภโชค วังนิล", "bu": "PMS", "cat": "ทวิภาคี", "days": ["1", "0", "1", "1", "1", "1", "1", "0", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000484", "name": "อนุทัต พินิจ", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000503", "name": "กิตติศักดิ์ ปัญจะกูล", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "1", "1", "1", "0", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000499", "name": "ศศิธร กิจภิรมย์", "bu": "PMG", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "1", "1", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000487", "name": "ปรวิท มีลาภ", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "1", "0", "0", "1", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000471", "name": "สุมิตรา เนินริมหนอง", "bu": "PMS", "cat": "ทวิภาคี", "days": ["1", "0", "1", "1", "1", "1", "1", "1", "0", "1", "1", "0", "0", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000490", "name": "พิภพ มธุลาภรังสรรค์", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "1", "1", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000463", "name": "ภัทรพงศ์ ภูวันนา", "bu": "PMS", "cat": "ทวิภาคี", "days": ["1", "0", "1", "1", "1", "1", "1", "1", "0", "0", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000476", "name": "นรวีร์ เพียงโธสง", "bu": "PMS", "cat": "ทวิภาคี", "days": ["1", "0", "0", "1", "0", "1", "1", "1", "0", "1", "1", "0", "0", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000498", "name": "วินิจศรา เจริญรุ่งเรือง", "bu": "PMG", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "1", "1", "1", "1", "1", "0", "0", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000460", "name": "ปัณณธร ในเมือง", "bu": "PMS", "cat": "ทวิภาคี", "days": ["1", "0", "1", "1", "1", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000462", "name": "กิตติ โรจนประทีป", "bu": "PMS", "cat": "ทวิภาคี", "days": ["1", "0", "1", "1", "1", "1", "1", "1", "0", "0", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000482", "name": "วีรพล มาลัยวงศ์", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "0", "1", "1", "1", "1", "0", "0", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000481", "name": "จิรัสย์ สุขทั้งโลก", "bu": "PMS", "cat": "นักศึกษาฝึกงานสหกิจ", "days": ["1", "0", "1", "1", "0", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000488", "name": "กัณฑ์อเนก ช่างหลก", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000500", "name": "วิระวรรณ ศรีบุญธรรม", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "1", "1", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000489", "name": "พนธกร ใจกล้า", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "1", "1", "1", "1", "0", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000480", "name": "ธิดารัตน์ ซ้อนรัมย์", "bu": "PMS", "cat": "นักศึกษาฝึกงานสหกิจ", "days": ["1", "0", "1", "1", "1", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000478", "name": "ฉัตรมณี นิยมศิลป์", "bu": "PMS", "cat": "นักศึกษาฝึกงานสหกิจ", "days": ["1", "0", "0", "1", "1", "1", "1", "1", "0", "1", "1", "0", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000492", "name": "ณัฐกร บูญฤทธิ์", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "1", "1", "1", "1", "1", "0", "0", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000493", "name": "พุฒิพงศ์ เกษหอม", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "1", "1", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000376", "name": "ประทีป สานะสิทธิ์", "bu": "TNR", "cat": "สมาชิกรายวันนอกระบบ", "days": ["1", "0", "0", "1", "1", "1", "0", "0", "0", "1", "1", "1", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000505", "name": "ประภาวรินทร์ จันหอม", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "1", "1", "1", "1", "1", "0", "0", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000483", "name": "กฤษกร อันธิชัย", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "1", "1", "1", "1", "0", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000472", "name": "กุลธร ศรีสวัสดิ์", "bu": "PMS", "cat": "ทวิภาคี", "days": ["1", "0", "0", "1", "1", "1", "1", "0", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000473", "name": "วรัตม์ บุญเสริมวรรณ", "bu": "PMS", "cat": "ทวิภาคี", "days": ["1", "0", "1", "1", "1", "1", "1", "0", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000502", "name": "คุณากร เซ่งย่อง", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "1", "0", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000504", "name": "มนัฐจิรา นรานนท์", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "1", "1", "1", "1", "1", "0", "0", "1", "0", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000496", "name": "วิลาวรรณ สุรพิศาลพัฒน์", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "0", "1", "1", "1", "1", "0", "1", "1", "0", "0", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000506", "name": "บัญชา เสมสฤษดิ์", "bu": "LDC", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "0", "0", "1", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000477", "name": "พิสมัย มหาปาน", "bu": "PMG", "cat": "นักศึกษาฝึกงานสหกิจ", "days": ["1", "0", "1", "1", "1", "1", "1", "0", "0", "1", "0", "0", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000497", "name": "จิราภรณ์ แก้วกูล", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["1", "0", "1", "1", "1", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000512", "name": "ณัฐนนท์ คำพุฒ", "bu": "AGS", "cat": "นักศึกษาฝึกงานสหกิจ", "days": ["0", "0", "1", "0", "1", "1", "1", "0", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000486", "name": "สบถ วอน", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["0", "0", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000501", "name": "ณัฐสุดา ศรีสวัสดิ์", "bu": "AAM", "cat": "นักศึกษาฝึกงาน", "days": ["0", "0", "1", "1", "1", "0", "1", "0", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000508", "name": "ดาราวดี อาลัย", "bu": "AGS", "cat": "นักศึกษาฝึกงาน", "days": ["0", "0", "1", "0", "1", "1", "1", "0", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000491", "name": "ภัทรพล มณีแก้ว", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["0", "0", "1", "1", "1", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000513", "name": "ธนวิชญ์ ดิษเวชชัย", "bu": "AGS", "cat": "นักศึกษาฝึกงานสหกิจ", "days": ["0", "0", "1", "1", "1", "1", "1", "0", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000494", "name": "ปุณยนุช ฟอนกิ่ง", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["0", "0", "0", "1", "1", "1", "0", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000509", "name": "พัชราวรรณ ศรีบุญ", "bu": "AGS", "cat": "นักศึกษาฝึกงาน", "days": ["0", "0", "0", "1", "1", "1", "1", "0", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}, {"id": "1000485", "name": "ฆนวันต์ โกยทา", "bu": "PMS", "cat": "นักศึกษาฝึกงาน", "days": ["0", "0", "0", "0", "0", "0", "0", "1", "0", "1", "1", "0", "1", "1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]}], "workDays": [1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 25, 26, 27], "offDays": [3, 4, 17, 18, 24, 28, 29, 30, 31], "required": 23};
+const W_SHORT = ['จ','อ','พ','พฤ','ศ','ส','อา'];
+// ATT_TODAY: 14 ส.ค. 2569 (ใช้ 14 เสมอ เพราะข้อมูลชุดนี้เป็นของ ส.ค. 2569)
+const ATT_TODAY = 14;
+let attState = null;
+let sortField = 'missing_len';
+let sortDir = -1;
+let charts = {};
+let autoRefreshTimer = null;
+
+function attParse(csv) {
+  const rows = parseCSV(csv);
+  const schedRow = rows.find(r => r.some(c => String(c).includes('วันที่ต้องทำงานทั้งหมด')));
+  let required = 23;
+  if (schedRow && clean(schedRow[9])) { const v = parseFloat(clean(schedRow[9])); if (!isNaN(v)) required = Math.round(v); }
+  const schedule = (schedRow ? schedRow.slice(13, 44) : []).map(clean);
+  const workDays = [], offDays = [];
+  schedule.forEach((v, i) => { if (v === '0.5' || v === '1' || v === '1.0') workDays.push(i + 1); else if (v === '0') offDays.push(i + 1); });
+  const employees = [];
+  for (let i = 7; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r || r.length < 40) continue;
+    const id = clean(r[1]), name = clean(r[4]);
+    if (!id || !name) continue;
+    const days = [];
+    for (let d = 1; d <= 31; d++) days.push(clean(r[13 + 2 * (d - 1)]));
+    employees.push({ id, name, bu: clean(r[5]), cat: clean(r[6]), days });
+  }
+  return { required, workDays, offDays, employees };
+}
+
+function attCompute(data) {
+  const work = new Set(data.workDays);
+  const req = data.required || 23;
+  const emps = (data.employees || []).map(e => {
+    const presentMonth = [], missing = [], missingToday = [];
+    for (let d = 1; d <= 31; d++) {
+      const v = clean(e.days[d - 1]);
+      if (v === '1' || v === '1.0') presentMonth.push(d);
+      else if (work.has(d)) {
+        missing.push(d);
+        if (d <= ATT_TODAY) missingToday.push(d);
+      }
+    }
+    const presentToday = presentMonth.filter(d => d <= ATT_TODAY).length;
+    const workPassed = [...work].filter(d => d <= ATT_TODAY).length;
+    return {
+      ...e,
+      presentMonth: presentMonth.length,
+      presentToday,
+      missing,
+      missingToday,
+      missing_len: missingToday.length,
+      pctReq: req ? Math.round(presentMonth.length * 100 / req) : 0,
+      pctPassed: workPassed ? Math.round(presentToday * 100 / workPassed) : 0,
+      workPassed,
+      required: req
+    };
+  });
+  return { emps, workDays: [...work], offDays: [...data.offDays], required: req, today: ATT_TODAY };
+}
+
+function attLoad(force) {
+  const badge = document.getElementById('conn-badge');
+  if (attState && !force) return;
+  badge.textContent = '🔄 กำลังโหลด...';
+  badge.className = 'badge bg-white/20 text-white';
+  fetch(CSV_URL)
+    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+    .then(csv => {
+      attState = attCompute(attParse(csv));
+      badge.textContent = '🟢 ออนไลน์ — เชื่อมต่อ Google Sheets สำเร็จ';
+      badge.className = 'badge bg-emerald-400/30 text-white';
+      document.getElementById('data-date').textContent = 'ข้อมูล ' + attState.emps.length + ' คน';
+      attRender();
+    })
+    .catch(() => {
+      attState = attCompute(ATT_FALLBACK);
+      badge.textContent = '🟡 ออฟไลน์ — แสดงข้อมูลสำรอง';
+      badge.className = 'badge bg-amber-400/30 text-white';
+      document.getElementById('data-date').textContent = 'ข้อมูลสำรอง ' + attState.emps.length + ' คน';
+      attRender();
+    });
+}
+
+function startAutoRefresh() {
+  stopAutoRefresh();
+  autoRefreshTimer = setInterval(() => attLoad(true), 5 * 60 * 1000);
+}
+function stopAutoRefresh() { if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; } }
+
+function attStatusOf(e) {
+  const m = e.missing_len;
+  if (m === 0) return { t: '✅ ครบ', c: 'background:#d1fae5;color:#065f46' };
+  if (m <= 2) return { t: '🟢 ใกล้ครบ', c: 'background:#d1fae5;color:#065f46' };
+  if (m <= 5) return { t: '⚠️ เสี่ยง', c: 'background:#fef3c7;color:#92400e' };
+  return { t: '❌ ขาดเยอะ', c: 'background:#fee2e2;color:#991b1b' };
+}
+function dayLabel(d) { return d + ' (' + W_SHORT[(5 + d - 1) % 7] + '.)'; }
+
+function filtered() {
+  const bu = document.getElementById('fBU').value;
+  const cat = document.getElementById('fCat').value;
+  const st = document.getElementById('fStatus').value;
+  const q = document.getElementById('fSearch').value.trim().toLowerCase();
+  return attState.emps.filter(e => {
+    if (bu !== 'all' && e.bu !== bu) return false;
+    if (cat !== 'all' && !e.cat.includes(cat)) return false;
+    if (st === 'ok' && e.missing_len > 2) return false;
+    if (st === 'warn' && (e.missing_len <= 2 || e.missing_len > 5)) return false;
+    if (st === 'bad' && e.missing_len <= 5) return false;
+    if (q && !e.name.toLowerCase().includes(q) && !e.id.includes(q)) return false;
+    return true;
+  });
+}
+
+function attRender() {
+  if (!attState) return;
+  const req = attState.required;
+  document.getElementById('att-required-label').textContent = req;
+  document.getElementById('kpi-required').textContent = req;
+
+  let list = filtered();
+  list.sort((a, b) => {
+    let va, vb;
+    if (sortField === 'id' || sortField === 'name' || sortField === 'bu') { va = a[sortField]; vb = b[sortField]; return sortDir * va.localeCompare(vb); }
+    va = a[sortField]; vb = b[sortField];
+    return sortDir * (va - vb);
+  });
+
+  document.getElementById('tbody').innerHTML = list.map(e => {
+    const stt = attStatusOf(e);
+    const pctColor = e.pctPassed >= 90 ? '#059669' : e.pctPassed >= 75 ? '#d97706' : '#dc2626';
+    const missChips = e.missingToday.length
+      ? e.missingToday.map(d => `<span class="inline-block bg-red-100 text-red-700 rounded px-1.5 mx-0.5 text-[11px] font-bold whitespace-nowrap">${dayLabel(d)}</span>`).join('')
+      : '<span class="text-green-600 font-semibold">ไม่มี ✓</span>';
+    return `<tr class="border-b hover:bg-emerald-50/40">
+      <td class="px-3 py-2 font-mono text-xs">${esc(e.id)}</td>
+      <td class="px-3 py-2 font-medium whitespace-nowrap">${esc(e.name)}</td>
+      <td class="px-3 py-2 text-center"><span class="badge" style="background:#dbeafe;color:#1e40af">${esc(e.bu)}</span></td>
+      <td class="px-3 py-2 text-center text-xs">${esc(e.cat)}</td>
+      <td class="px-3 py-2 text-center font-bold">${req}</td>
+      <td class="px-3 py-2 text-center font-bold text-blue-600">${e.presentMonth}</td>
+      <td class="px-3 py-2 text-center font-bold text-emerald-600">${e.presentToday}<span class="text-[10px] text-gray-400 font-normal">/${e.workPassed} วันทำงาน</span></td>
+      <td class="px-3 py-2 text-center"><div class="font-bold" style="color:${pctColor}">${e.pctPassed}%</div>
+        <div class="h-1.5 w-20 mx-auto rounded-full bg-gray-200 overflow-hidden"><div class="h-full rounded-full" style="width:${Math.min(100, e.pctPassed)}%;background:${pctColor}"></div></div></td>
+      <td class="px-3 py-2 text-center"><span class="badge" style="${stt.c}">${stt.t}</span></td>
+      <td class="px-3 py-2">${missChips}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="10" class="px-3 py-8 text-center text-gray-400">ไม่พบข้อมูล</td></tr>';
+
+  document.getElementById('count-note').textContent = `(${list.length} / ${attState.emps.length} คน)`;
+
+  document.getElementById('kpi-total').textContent = attState.emps.length;
+  document.getElementById('kpi-avg').textContent = (attState.emps.reduce((s, e) => s + e.presentToday, 0) / attState.emps.length).toFixed(1);
+  document.getElementById('kpi-pct').textContent = Math.round(attState.emps.reduce((s, e) => s + e.pctPassed, 0) / attState.emps.length) + '%';
+  document.getElementById('kpi-bad').textContent = attState.emps.filter(e => e.missing_len >= 5).length;
+
+  renderCalendar(list);
+  renderAlerts();
+  renderRanks();
+  renderCharts();
+}
+
+function renderCalendar(list) {
+  const head = document.getElementById('cal-head');
+  let h = '<tr class="bg-gray-100 text-gray-700"><th class="px-1.5 py-2 text-left sticky left-0 bg-gray-100 z-10 min-w-[150px]">ชื่อ / วันที่</th>';
+  for (let d = 1; d <= 31; d++) {
+    const isOff = attState.offDays.includes(d);
+    const isToday = d === ATT_TODAY;
+    h += `<th class="px-0.5 py-1 text-center ${isOff ? 'text-gray-300' : ''} ${isToday ? 'bg-emerald-200' : ''}">${d}<br><span class="text-[9px] font-normal">${W_SHORT[(5 + d - 1) % 7]}</span></th>`;
+  }
+  h += '<th class="px-1.5 py-1 text-center">มา</th><th class="px-1.5 py-1 text-center">ขาด</th></tr>';
+  head.innerHTML = h;
+
+  document.getElementById('cal-body').innerHTML = list.map(e => {
+    let r = `<tr class="border-b hover:bg-emerald-50/40"><td class="px-1.5 py-0.5 text-xs font-semibold sticky left-0 bg-white z-10 whitespace-nowrap">${esc(e.name)} <span class="text-gray-400 font-normal">(${esc(e.id)})</span></td>`;
+    for (let d = 1; d <= 31; d++) {
+      const v = clean(e.days[d - 1]);
+      let cls = 'att-off', lab = '';
+      if (d > ATT_TODAY) { cls = 'att-off'; lab = ''; }
+      else if (v === '1' || v === '1.0') { cls = 'att-present'; lab = '✓'; }
+      else if (v === '0.5') { cls = 'att-half'; lab = '½'; }
+      else if (v === '0' || v === '') { cls = attState.offDays.includes(d) ? 'att-off' : 'att-absent'; lab = attState.offDays.includes(d) ? '' : '✗'; }
+      r += `<td class="px-0.5 py-0.5 text-center"><span class="att-cell ${cls}">${lab}</span></td>`;
+    }
+    r += `<td class="px-1.5 py-0.5 text-center font-bold text-emerald-600">${e.presentToday}</td>`;
+    r += `<td class="px-1.5 py-0.5 text-center font-bold ${e.missing_len ? 'text-red-600' : 'text-gray-300'}">${e.missing_len}</td></tr>`;
+    return r;
+  }).join('');
+}
+
+function renderAlerts() {
+  const box = document.getElementById('alerts');
+  const bad = attState.emps.filter(e => e.missing_len > 0).sort((a, b) => b.missing_len - a.missing_len);
+  if (!bad.length) { box.innerHTML = '<div class="text-emerald-600 font-semibold col-span-2">🎉 ทุกคนลงเวลาครบแล้ว</div>'; return; }
+  box.innerHTML = bad.map(e => {
+    const msStr = e.missingToday.map(d => dayLabel(d)).join(', ');
+    const sev = e.missing_len >= 6 ? 'border-red-300 bg-red-50' : e.missing_len >= 3 ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200 bg-white';
+    return `<div class="rounded-xl border ${sev} p-3">
+      <div class="flex items-center justify-between gap-2 flex-wrap">
+        <div class="font-bold text-sm">${esc(e.name)} <span class="font-mono font-normal text-xs text-gray-400">${esc(e.id)}</span></div>
+        <span class="badge" style="${e.missing_len >= 6 ? 'background:#fee2e2;color:#991b1b' : e.missing_len >= 3 ? 'background:#fef3c7;color:#92400e' : 'background:#d1fae5;color:#065f46'}">${esc(e.bu)} • ขาด ${e.missing_len} วัน</span>
+      </div>
+      <div class="text-xs text-gray-600 mt-1">ไม่ได้ลงเวลา: <b>${msStr}</b></div>
+      <div class="text-xs text-gray-500 mt-0.5">มาถึงวันนี้ ${e.presentToday}/${e.workPassed} วันทำงาน (${e.pctPassed}%)</div>
+    </div>`;
+  }).join('');
+}
+
+function renderRanks() {
+  const box = document.getElementById('rankbox');
+  const sorted = [...attState.emps].sort((a, b) => b.pctPassed - a.pctPassed);
+  const top = sorted.slice(0, 5), bot = sorted.slice(-5).reverse();
+  box.innerHTML =
+    '<div class="font-bold text-emerald-600 mb-1">⭐ มาเยอะสุด (ถึงวันนี้)</div>' +
+    top.map(e => `<div class="flex justify-between border-b border-gray-100 pb-0.5"><span>${esc(e.name)}</span><b>${e.presentToday}/${e.workPassed}</b></div>`).join('') +
+    '<div class="font-bold text-red-600 mt-2 mb-1">⚠️ ขาดเยอะสุด (ถึงวันนี้)</div>' +
+    bot.map(e => `<div class="flex justify-between border-b border-gray-100 pb-0.5"><span>${esc(e.name)}</span><b>${e.missing_len} วัน</b></div>`).join('');
+}
+
+function mkChart(id, cfg) {
+  if (charts[id]) charts[id].destroy();
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  charts[id] = new Chart(ctx, cfg);
+}
+
+function renderCharts() {
+  const buCounts = {};
+  attState.emps.forEach(e => buCounts[e.bu] = (buCounts[e.bu] || 0) + 1);
+  mkChart('chart-bu', {
+    type: 'doughnut',
+    data: { labels: Object.keys(buCounts), datasets: [{ data: Object.values(buCounts),
+      backgroundColor: ['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6','#ec4899','#06b6d4'], borderWidth: 2, borderColor: '#fff' }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+  });
+  const bins = { '100%': 0, '95-99%': 0, '90-94%': 0, '80-89%': 0, '<80%': 0 };
+  attState.emps.forEach(e => {
+    if (e.pctPassed === 100) bins['100%']++;
+    else if (e.pctPassed >= 95) bins['95-99%']++;
+    else if (e.pctPassed >= 90) bins['90-94%']++;
+    else if (e.pctPassed >= 80) bins['80-89%']++;
+    else bins['<80%']++;
+  });
+  mkChart('chart-dist', {
+    type: 'bar',
+    data: { labels: Object.keys(bins), datasets: [{ label: 'จำนวนคน', data: Object.values(bins),
+      backgroundColor: ['#10b981','#34d399','#fbbf24','#f97316','#ef4444'], borderRadius: 8 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+  });
+}
+
+function doSort(f) { if (sortField === f) sortDir *= -1; else { sortField = f; sortDir = -1; } attRender(); }
+
+function attExportCSV() {
+  let csv = '\uFEFFรหัสพนักงาน,ชื่อ-นามสกุล,BU,ประเภท,ต้องการ(วัน),มาแล้วทั้งเดือน,มาถึงวันนี้,%ถึงวันนี้,วันที่ไม่ได้ลงเวลา\n';
+  [...attState.emps].sort((a, b) => a.id.localeCompare(b.id)).forEach(e => {
+    csv += `${e.id},"${e.name}",${e.bu},${e.cat},${e.required},${e.presentMonth},${e.presentToday},${e.pctPassed}%,"${e.missingToday.map(d => dayLabel(d)).join(', ')}"\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'intern-attendance-aug2569.csv';
+  a.click();
+}
+
+// init BU filter
+(function initFilters() {
+  const sel = document.getElementById('fBU');
+  sel.innerHTML = '<option value="all">ทุก BU</option>';
+  [...new Set(ATT_FALLBACK.employees.map(e => e.bu))].sort().forEach(b => {
+    const o = document.createElement('option');
+    o.value = b; o.textContent = b;
+    sel.appendChild(o);
+  });
+  ['fBU','fCat','fStatus','fSearch'].forEach(id => document.getElementById(id).addEventListener('input', attRender));
+})();
+</script>
+</body>
+</html>
