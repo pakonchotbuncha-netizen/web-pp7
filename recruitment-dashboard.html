@@ -13,6 +13,12 @@
   .kpi { transition: transform .2s; }
   .kpi:hover { transform: translateY(-3px); }
   .badge { display: inline-flex; align-items: center; gap: .35rem; padding: .2rem .6rem; border-radius: 9999px; font-size: .72rem; font-weight: 600; }
+  .section-title { display: flex; align-items: center; gap: .5rem; font-weight: 700; color: #1e293b; margin-bottom: .75rem; }
+  .section-title .num { background: #6366f1; color: #fff; width: 1.6rem; height: 1.6rem; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; font-size: .8rem; flex-shrink: 0; }
+  .tab-btn { padding: .45rem 1rem; border-radius: .6rem; font-size: .85rem; font-weight: 600; transition: all .15s; }
+  .tab-btn.active { background: #6366f1; color: #fff; }
+  .tab-btn:not(.active) { background: #fff; color: #475569; border: 1px solid #e2e8f0; }
+  .tab-btn:not(.active):hover { border-color: #6366f1; color: #6366f1; }
 </style>
 </head>
 <body class="min-h-screen">
@@ -31,20 +37,120 @@
         <button onclick="refreshData()" class="bg-white text-indigo-700 px-4 py-2 rounded-lg font-semibold hover:bg-indigo-50 transition text-sm">🔄 รีเฟรช</button>
       </div>
     </div>
-    <div class="flex flex-wrap gap-2 mt-4" id="status-filter">
-      <!-- status chips injected here -->
+
+    <!-- Date Range Filter -->
+    <div class="mt-5 bg-white/15 backdrop-blur rounded-xl p-4">
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="text-sm font-semibold text-white">📅 เลือกช่วงวันที่สมัคร:</span>
+        <input type="date" id="date-from" class="rounded-lg px-3 py-1.5 text-sm text-gray-800 border-0">
+        <span class="text-white/70">ถึง</span>
+        <input type="date" id="date-to" class="rounded-lg px-3 py-1.5 text-sm text-gray-800 border-0">
+        <div class="flex flex-wrap gap-1.5" id="preset-btns"></div>
+        <button onclick="clearDateFilter()" class="text-sm text-white/80 hover:text-white underline">✕ ล้างช่วงวันที่</button>
+      </div>
     </div>
   </div>
 
+  <!-- Status Filter Chips -->
+  <div class="flex flex-wrap gap-2 mb-4" id="status-filter"></div>
+
   <!-- KPI Cards -->
-  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6" id="kpi-grid">
-    <!-- injected -->
+  <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-6" id="kpi-grid"></div>
+
+  <!-- ===== 1) จำนวนผู้สมัครตามวัน ===== -->
+  <div class="card p-5 mb-6">
+    <div class="section-title"><span class="num">1</span> มีคนมาสมัครงานกี่คน วันไหนบ้าง <span id="applicant-count-note" class="text-sm font-normal text-gray-500"></span></div>
+    <div class="flex gap-2 mb-3">
+      <button class="tab-btn active" id="view-daily" onclick="setTrendView('daily')">รายวัน</button>
+      <button class="tab-btn" id="view-monthly" onclick="setTrendView('monthly')">รายเดือน</button>
+    </div>
+    <div class="h-72"><canvas id="chart-applicants"></canvas></div>
+    <div class="mt-3 text-xs text-gray-500" id="applicant-table-note"></div>
   </div>
 
-  <!-- Charts Row 1 -->
+  <!-- ===== 2) นัดสัมภาษณ์แล้ว / ยังไม่นัด ===== -->
+  <div class="card p-5 mb-6">
+    <div class="section-title"><span class="num">2</span> สถานะการนัดสัมภาษณ์</div>
+    <div class="grid md:grid-cols-3 gap-4 mb-4">
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div class="text-3xl font-bold text-amber-600" id="kpi-waiting-screen">0</div>
+        <div class="text-sm font-semibold text-amber-800 mt-1">🕐 ยังไม่นัดสัมภาษณ์ (รอคัดเลือกใบสมัคร)</div>
+        <div class="text-xs text-amber-700/70 mt-1">ต้องคัดเลือกและติดต่อนัดหมาย</div>
+      </div>
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+        <div class="text-3xl font-bold text-blue-600" id="kpi-scheduled">0</div>
+        <div class="text-sm font-semibold text-blue-800 mt-1">📅 นัดสัมภาษณ์แล้ว (รอสัมภาษณ์)</div>
+        <div class="text-xs text-blue-700/70 mt-1">นัดแล้ว ยังไม่มาสัมภาษณ์</div>
+      </div>
+      <div class="bg-violet-50 border border-violet-200 rounded-xl p-4">
+        <div class="text-3xl font-bold text-violet-600" id="kpi-interviewed">0</div>
+        <div class="text-sm font-semibold text-violet-800 mt-1">🎤 มาสัมภาษณ์แล้ว</div>
+        <div class="text-xs text-violet-700/70 mt-1">อยู่ระหว่างรอผล / พิจารณา</div>
+      </div>
+    </div>
+    <div class="flex flex-wrap gap-2 mb-3" id="interview-tab-btns"></div>
+    <div class="overflow-x-auto max-h-96 overflow-y-auto rounded-lg border border-gray-200">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100 text-gray-700 sticky top-0">
+          <tr>
+            <th class="px-3 py-2 text-left font-semibold">ชื่อ-นามสกุล</th>
+            <th class="px-3 py-2 text-left font-semibold">ตำแหน่งที่สมัคร</th>
+            <th class="px-3 py-2 text-left font-semibold">สถานะ</th>
+            <th class="px-3 py-2 text-left font-semibold">วันที่สมัคร</th>
+            <th class="px-3 py-2 text-left font-semibold">การศึกษา</th>
+            <th class="px-3 py-2 text-left font-semibold">เบอร์ติดต่อ / Line</th>
+          </tr>
+        </thead>
+        <tbody id="interview-table-body"></tbody>
+      </table>
+    </div>
+    <p class="mt-3 text-xs text-gray-400">⚠️ หมายเหตุ: ชีทต้นทาง (RDS PPP7 Registerform) ยังไม่มีคอลัมน์ "วันที่นัดสัมภาษณ์" — ตารางนี้แสดงตามสถานะและวันที่สมัคร แนะนำให้เพิ่มคอลัมน์วันที่สัมภาษณ์เพื่อให้ระบบนัดหมายสมบูรณ์</p>
+  </div>
+
+  <!-- ===== 3) ตารางสัมภาษณ์ ===== -->
+  <div class="card p-5 mb-6">
+    <div class="section-title"><span class="num">3</span> ตารางสัมภาษณ์ (เรียงตามวันที่)</div>
+    <div class="overflow-x-auto max-h-96 overflow-y-auto rounded-lg border border-gray-200">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100 text-gray-700 sticky top-0">
+          <tr>
+            <th class="px-3 py-2 text-left font-semibold">วันที่</th>
+            <th class="px-3 py-2 text-left font-semibold">ชื่อ-นามสกุล</th>
+            <th class="px-3 py-2 text-left font-semibold">ตำแหน่งที่สมัคร</th>
+            <th class="px-3 py-2 text-left font-semibold">สถานะ</th>
+            <th class="px-3 py-2 text-left font-semibold">เงินเดือนคาดหวัง</th>
+            <th class="px-3 py-2 text-left font-semibold">หมายเหตุ</th>
+          </tr>
+        </thead>
+        <tbody id="schedule-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 4) ผู้ที่จ้างแล้ว ===== -->
+  <div class="card p-5 mb-6">
+    <div class="section-title"><span class="num">4</span> ผู้ที่ได้รับเลือกจ้างแล้ว <span id="hired-count-note" class="text-sm font-normal text-gray-500"></span></div>
+    <div class="overflow-x-auto max-h-96 overflow-y-auto rounded-lg border border-gray-200">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100 text-gray-700 sticky top-0">
+          <tr>
+            <th class="px-3 py-2 text-left font-semibold">วันที่จ้าง</th>
+            <th class="px-3 py-2 text-left font-semibold">ชื่อ-นามสกุล</th>
+            <th class="px-3 py-2 text-left font-semibold">ตำแหน่งที่ได้รับ</th>
+            <th class="px-3 py-2 text-left font-semibold">การศึกษา</th>
+            <th class="px-3 py-2 text-left font-semibold">เงินเดือนคาดหวัง</th>
+            <th class="px-3 py-2 text-left font-semibold">สาขา/สังกัด</th>
+          </tr>
+        </thead>
+        <tbody id="hired-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Charts -->
   <div class="grid md:grid-cols-2 gap-4 mb-6">
     <div class="card p-5">
-      <h3 class="font-bold text-gray-800 mb-3">🎯 Funnel สถานะผู้สมัคร (ทั้งหมด)</h3>
+      <h3 class="font-bold text-gray-800 mb-3">🎯 Funnel สถานะผู้สมัคร (ตามช่วงที่เลือก)</h3>
       <div class="h-72"><canvas id="chart-funnel"></canvas></div>
     </div>
     <div class="card p-5">
@@ -53,7 +159,6 @@
     </div>
   </div>
 
-  <!-- Charts Row 2 -->
   <div class="grid md:grid-cols-2 gap-4 mb-6">
     <div class="card p-5">
       <h3 class="font-bold text-gray-800 mb-3">💼 ตำแหน่งงานยอดนิยม (Top 10)</h3>
@@ -65,7 +170,6 @@
     </div>
   </div>
 
-  <!-- Charts Row 3 -->
   <div class="grid md:grid-cols-2 gap-4 mb-6">
     <div class="card p-5">
       <h3 class="font-bold text-gray-800 mb-3">💰 เงินเดือนที่คาดหวัง</h3>
@@ -77,11 +181,28 @@
     </div>
   </div>
 
-  <!-- Data Table -->
+  <!-- ===== หัวข้อแนะนำ ===== -->
+  <div class="card p-5 mb-6 border-l-4 border-l-emerald-500">
+    <div class="section-title"><span class="num">💡</span> หัวข้อแนะนำที่ควรมีสำหรับติดตามผู้สมัครงาน (เพิ่มเติมจาก 4 หัวข้อหลัก)</div>
+    <div class="grid md:grid-cols-2 gap-3 text-sm">
+      <div class="bg-gray-50 rounded-xl p-3"><span class="font-semibold text-emerald-700">⏱ Time-to-Hire</span><br><span class="text-gray-600">ระยะเวลาตั้งแต่สมัคร → ถึงวันที่จ้าง (วัดประสิทธิภาพกระบวนการ)</span></div>
+      <div class="bg-gray-50 rounded-xl p-3"><span class="font-semibold text-emerald-700">🔄 อัตราการเปลี่ยนผ่านแต่ละขั้น (Conversion)</span><br><span class="text-gray-600">สมัคร → คัดเลือก → สัมภาษณ์ → จ้าง กี่ % ตกหล่นแต่ละขั้น</span></div>
+      <div class="bg-gray-50 rounded-xl p-3"><span class="font-semibold text-emerald-700">🕐 ใบสมัครค้างนาน (Aging Pipeline)</span><br><span class="text-gray-600">ใบสมัครที่ค้างในแต่ละสถานะเกิน 7/14/30 วัน — ต้องเร่งติดตาม</span></div>
+      <div class="bg-gray-50 rounded-xl p-3"><span class="font-semibold text-emerald-700">🏷 แหล่งที่มาของผู้สมัคร (Source/Channel)</span><br><span class="text-gray-600">มาจาก Job Fair / Facebook / Line / ป้ายหน้าโชว์รูม / พนักงานแนะนำ — ลงทุนช่องทางไหนคุ้ม</span></div>
+      <div class="bg-gray-50 rounded-xl p-3"><span class="font-semibold text-emerald-700">🎯 ตำแหน่งที่จ้างยาก (Hard-to-Fill)</span><br><span class="text-gray-600">ตำแหน่งที่เปิดรับนานแต่หาคนไม่ได้ + อัตราจ้างต่อผู้สมัคร</span></div>
+      <div class="bg-gray-50 rounded-xl p-3"><span class="font-semibold text-emerald-700">✅ อัตราการตอบรับ Offer (Acceptance Rate)</span><br><span class="text-gray-600">จ้างงาน 119 คน แต่มีกี่คนตอบรับจริง/ปฏิเสธ</span></div>
+      <div class="bg-gray-50 rounded-xl p-3"><span class="font-semibold text-emerald-700">🛟 อัตราการอยู่รอดของพนักงานใหม่ (90-Day Retention)</span><br><span class="text-gray-600">คนที่จ้างไป ยังอยู่ครบ 90 วันไหม — วัดคุณภาพการคัดเลือก</span></div>
+      <div class="bg-gray-50 rounded-xl p-3"><span class="font-semibold text-emerald-700">🧑‍💼 Talent Pool (ผู้สมัครสำรอง)</span><br><span class="text-gray-600">คนที่ผ่านสัมภาษณ์แต่ยังไม่มีตำแหน่งว่าง — เก็บไว้เรียกกลับได้</span></div>
+      <div class="bg-gray-50 rounded-xl p-3"><span class="font-semibold text-emerald-700">📊 ต้นทุนต่อการจ้าง (Cost per Hire)</span><br><span class="text-gray-600">งบค่าโฆษณา/จัดงาน ÷ จำนวนที่จ้างได้</span></div>
+      <div class="bg-gray-50 rounded-xl p-3"><span class="font-semibold text-emerald-700">🏢 การกระจายตามสาขา/ภูมิภาค</span><br><span class="text-gray-600">แต่ละสาขารับสมัครเท่าไหร่ จ้างได้เท่าไหร่ — วางแผนอัตรากำลัง</span></div>
+    </div>
+  </div>
+
+  <!-- All Data Table -->
   <div class="card p-5 mb-6">
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
       <h3 class="font-bold text-gray-800">📋 รายชื่อผู้สมัครทั้งหมด <span id="table-count" class="text-gray-500 font-normal text-sm"></span></h3>
-      <div class="flex gap-2">
+      <div class="flex gap-2 flex-wrap">
         <input id="table-search" type="text" placeholder="🔍 ค้นหา ชื่อ / ตำแหน่ง / สถานะ..." class="border border-gray-300 rounded-lg px-3 py-2 text-sm w-64 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
         <button onclick="exportCSV()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-emerald-700 transition">⬇️ Export CSV</button>
       </div>
@@ -96,6 +217,7 @@
             <th class="px-3 py-2 text-left font-semibold">วันที่สมัคร</th>
             <th class="px-3 py-2 text-left font-semibold">การศึกษา</th>
             <th class="px-3 py-2 text-left font-semibold">เงินเดือนคาดหวัง</th>
+            <th class="px-3 py-2 text-left font-semibold">Line ID</th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
@@ -123,6 +245,8 @@ const VALID_STATUS = new Set(STATUS_ORDER);
 
 let allRows = [];
 let activeFilter = 'ทั้งหมด';
+let dateFrom = null, dateTo = null;
+let trendView = 'daily';
 let charts = {};
 
 function parseCSV(csv) {
@@ -140,25 +264,17 @@ function parseCSV(csv) {
 }
 
 function clean(s) { return String(s == null ? '' : s).trim(); }
-
-function esc(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 function loadData() {
   const badge = document.getElementById('conn-badge');
   badge.textContent = '🔄 กำลังโหลด...';
-  badge.className = 'badge bg-white/20 text-white';
   fetch(CSV_URL)
     .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
     .then(csv => {
       const rows = parseCSV(csv);
-      // header row is the one containing status_register
       const hi = rows.findIndex(r => r[3] && r[3].includes('status_register'));
-      const data = rows.slice(hi + 1).filter(r => {
-        const s = clean(r[3]);
-        return s && s !== 'status_register' && VALID_STATUS.has(s);
-      });
+      const data = rows.slice(hi + 1).filter(r => VALID_STATUS.has(clean(r[3])));
       allRows = data.map(r => ({
         status: clean(r[3]),
         date: clean(r[4]),
@@ -172,6 +288,7 @@ function loadData() {
         major: clean(r[16]),
         school: clean(r[28]),
         reason: clean(r[24]),
+        line: clean(r[22]),
         url: clean(r[25])
       }));
       badge.textContent = '🟢 ออนไลน์ — เชื่อมต่อ Google Sheets สำเร็จ';
@@ -179,41 +296,80 @@ function loadData() {
       const maxDate = allRows.reduce((m, r) => r.date > m ? r.date : m, '');
       document.getElementById('data-date').textContent = 'ข้อมูล ' + allRows.length + ' รายการ';
       document.getElementById('footer-date').textContent = maxDate ? maxDate.slice(0, 10) : '—';
+      initPresets();
       renderAll();
     })
     .catch(err => {
-      badge.textContent = '🔴 ออฟไลน์ — อ่านจากไฟล์ข้อมูลสำรอง';
+      badge.textContent = '🔴 ออฟไลน์ — อ่านจากข้อมูลสำรอง';
       badge.className = 'badge bg-red-400/30 text-white';
-      console.error('CSV load failed, trying fallback:', err);
+      console.error(err);
       loadFallback();
     });
 }
 
-// Fallback: embedded snapshot (updated 2026-08-14) — ใช้เมื่อ Google Sheets ไม่ตอบสนอง
 function loadFallback() {
   fetch('recruitment-data.json')
     .then(r => r.json())
     .then(data => {
       allRows = data.rows.map(r => ({ ...r, status: clean(r.status) }));
       document.getElementById('footer-date').textContent = data.generatedAt || '—';
+      initPresets();
       renderAll();
     })
-    .catch(e => {
-      badge.textContent = '⚠️ ไม่สามารถโหลดข้อมูลได้';
-      console.error(e);
-    });
+    .catch(e => { badge.textContent = '⚠️ โหลดข้อมูลไม่สำเร็จ'; console.error(e); });
+}
+
+function initPresets() {
+  const wrap = document.getElementById('preset-btns');
+  const presets = [
+    { label: 'ทั้งหมด', fn: () => { dateFrom = null; dateTo = null; } },
+    { label: 'ปี 2564', fn: () => { dateFrom = '2021-01-01'; dateTo = '2021-12-31'; } },
+    { label: 'ปี 2565', fn: () => { dateFrom = '2022-01-01'; dateTo = '2022-12-31'; } },
+    { label: '3 เดือนล่าสุด', fn: () => { const t = new Date(); dateTo = toISO(t); t.setMonth(t.getMonth() - 3); dateFrom = toISO(t); } },
+    { label: '6 เดือนล่าสุด', fn: () => { const t = new Date(); dateTo = toISO(t); t.setMonth(t.getMonth() - 6); dateFrom = toISO(t); } }
+  ];
+  wrap.innerHTML = presets.map((p, i) => `<button onclick="applyPreset(${i})" class="bg-white/15 hover:bg-white/25 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition">${p.label}</button>`).join('');
+  window._presets = presets;
+}
+
+function applyPreset(i) {
+  window._presets[i].fn();
+  document.getElementById('date-from').value = dateFrom || '';
+  document.getElementById('date-to').value = dateTo || '';
+  renderAll();
+}
+
+function toISO(d) { return d.toISOString().slice(0, 10); }
+
+function onDateChange() {
+  dateFrom = document.getElementById('date-from').value || null;
+  dateTo = document.getElementById('date-to').value || null;
+  renderAll();
+}
+
+function clearDateFilter() {
+  dateFrom = null; dateTo = null;
+  document.getElementById('date-from').value = '';
+  document.getElementById('date-to').value = '';
+  renderAll();
 }
 
 function filtered() {
-  if (activeFilter === 'ทั้งหมด') return allRows;
-  return allRows.filter(r => r.status === activeFilter);
+  let rows = allRows;
+  if (activeFilter !== 'ทั้งหมด') rows = rows.filter(r => r.status === activeFilter);
+  if (dateFrom) rows = rows.filter(r => r.date.slice(0, 10) >= dateFrom);
+  if (dateTo) rows = rows.filter(r => r.date.slice(0, 10) <= dateTo);
+  return rows;
 }
 
 function renderAll() {
   renderKPIs();
   renderStatusChips();
+  renderApplicantTrend();
+  renderInterviewSection();
+  renderScheduleTable();
+  renderHiredTable();
   renderFunnel();
-  renderTrend();
   renderPositions();
   renderEducation();
   renderSalary();
@@ -223,38 +379,47 @@ function renderAll() {
 
 function renderStatusChips() {
   const wrap = document.getElementById('status-filter');
+  const base = allRows;
   const counts = {};
-  allRows.forEach(r => counts[r.status] = (counts[r.status] || 0) + 1);
+  base.forEach(r => counts[r.status] = (counts[r.status] || 0) + 1);
   const chips = ['ทั้งหมด', ...STATUS_ORDER.filter(s => counts[s])];
   wrap.innerHTML = chips.map(s => `
     <button onclick="activeFilter='${s}';renderAll()"
-      class="badge ${activeFilter === s ? 'bg-white text-indigo-700 ring-2 ring-white' : 'bg-white/15 text-white hover:bg-white/25'}"
-      style="${s !== 'ทั้งหมด' && activeFilter !== s ? 'color:#fff' : ''}">
-      ${s === 'ทั้งหมด' ? '📊 ทั้งหมด' : s} <span class="opacity-80">(${s === 'ทั้งหมด' ? allRows.length : (counts[s] || 0)})</span>
+      class="badge ${activeFilter === s ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 shadow-sm hover:bg-indigo-50 border border-gray-200'}">
+      ${s === 'ทั้งหมด' ? '📊 ทั้งหมด' : s} <span class="opacity-70">(${s === 'ทั้งหมด' ? base.length : (counts[s] || 0)})</span>
     </button>`).join('');
 }
 
 function renderKPIs() {
-  const total = allRows.length;
-  const unique = new Set(allRows.filter(r => r.idcard).map(r => r.idcard)).size;
-  const hired = allRows.filter(r => r.status === 'จ้างงาน').length;
-  const active = allRows.filter(r => ['รอคัดเลือกใบสมัคร','รอสัมภาษณ์','มาสัมภาษณ์'].includes(r.status)).length;
-  const dup = allRows.filter(r => r.status === 'ใบสมัครซ้ำ').length;
-  const hireRate = total ? (hired / total * 100).toFixed(1) : '0';
+  const rows = filtered();
+  const unique = new Set(rows.filter(r => r.idcard).map(r => r.idcard)).size;
+  const waiting = rows.filter(r => r.status === 'รอคัดเลือกใบสมัคร').length;
+  const scheduled = rows.filter(r => r.status === 'รอสัมภาษณ์').length;
+  const interviewed = rows.filter(r => r.status === 'มาสัมภาษณ์').length;
+  const hired = rows.filter(r => r.status === 'จ้างงาน').length;
+  const dup = rows.filter(r => r.status === 'ใบสมัครซ้ำ').length;
+  const closed = rows.filter(r => r.status === 'ปิดใบสมัคร').length;
+  const hireRate = rows.length ? (hired / rows.length * 100).toFixed(1) : '0';
   const kpis = [
-    { label: 'ผู้สมัครทั้งหมด', value: total, icon: '👥', color: 'from-indigo-500 to-blue-500' },
-    { label: 'บุคคลจริง (ไม่ซ้ำ)', value: unique, icon: '🧑‍🤝‍🧑', color: 'from-sky-500 to-cyan-500' },
-    { label: 'อยู่ใน Pipeline', value: active, icon: '🔵', color: 'from-amber-500 to-orange-500' },
+    { label: 'สมัครทั้งหมด', value: rows.length, icon: '👥', color: 'from-indigo-500 to-blue-500' },
+    { label: 'บุคคลไม่ซ้ำ', value: unique, icon: '🧑‍🤝‍🧑', color: 'from-sky-500 to-cyan-500' },
+    { label: 'รอคัดเลือก', value: waiting, icon: '🕐', color: 'from-amber-500 to-orange-500' },
+    { label: 'นัดสัมภาษณ์แล้ว', value: scheduled, icon: '📅', color: 'from-blue-500 to-indigo-500' },
+    { label: 'มาสัมภาษณ์แล้ว', value: interviewed, icon: '🎤', color: 'from-violet-500 to-purple-500' },
     { label: 'จ้างงานแล้ว', value: hired, icon: '✅', color: 'from-emerald-500 to-green-500' },
-    { label: 'ใบสมัครซ้ำ', value: dup, icon: '🔁', color: 'from-slate-500 to-gray-500' },
-    { label: 'อัตราการจ้าง', value: hireRate + '%', icon: '📊', color: 'from-purple-500 to-fuchsia-500' }
+    { label: 'ปิด/ซ้ำ', value: closed + dup, icon: '🚫', color: 'from-slate-500 to-gray-500' },
+    { label: 'อัตราการจ้าง', value: hireRate + '%', icon: '📊', color: 'from-fuchsia-500 to-pink-500' }
   ];
   document.getElementById('kpi-grid').innerHTML = kpis.map(k => `
-    <div class="card kpi p-4 bg-gradient-to-br ${k.color} text-white">
-      <div class="text-2xl mb-1">${k.icon}</div>
-      <div class="text-2xl font-bold">${k.value}</div>
-      <div class="text-xs opacity-90 font-medium">${k.label}</div>
+    <div class="card kpi p-3 bg-gradient-to-br ${k.color} text-white">
+      <div class="text-lg mb-0.5">${k.icon}</div>
+      <div class="text-xl font-bold leading-tight">${k.value}</div>
+      <div class="text-[11px] opacity-90 font-medium">${k.label}</div>
     </div>`).join('');
+  document.getElementById('kpi-waiting-screen').textContent = waiting;
+  document.getElementById('kpi-scheduled').textContent = scheduled;
+  document.getElementById('kpi-interviewed').textContent = interviewed;
+  document.getElementById('hired-count-note').textContent = `(${hired} คน ในช่วงที่เลือก)`;
 }
 
 function mkChart(id, cfg) {
@@ -262,6 +427,98 @@ function mkChart(id, cfg) {
   const ctx = document.getElementById(id);
   if (!ctx) return;
   charts[id] = new Chart(ctx, cfg);
+}
+
+function setTrendView(v) {
+  trendView = v;
+  document.getElementById('view-daily').classList.toggle('active', v === 'daily');
+  document.getElementById('view-monthly').classList.toggle('active', v === 'monthly');
+  renderApplicantTrend();
+}
+
+// ===== 1) จำนวนผู้สมัครตามวัน/เดือน =====
+function renderApplicantTrend() {
+  const rows = filtered();
+  const keyLen = trendView === 'daily' ? 10 : 7;
+  const counts = {};
+  rows.forEach(r => {
+    const k = r.date.slice(0, keyLen);
+    if (k && !/^\d{4}-\d{2}/.test(k) === false && k.length >= keyLen) counts[k] = (counts[k] || 0) + 1;
+  });
+  const keys = Object.keys(counts).sort();
+  const labels = keys.map(k => trendView === 'daily' ? k.slice(5) : k.slice(0, 7));
+  document.getElementById('applicant-count-note').textContent = `— รวม ${rows.length} รายการ ในช่วงที่เลือก`;
+  document.getElementById('applicant-table-note').textContent =
+    trendView === 'daily'
+      ? `วันที่มีผู้สมัครมากสุด: ${keys.length ? keys[keys.length - 1] : '-'} (${keys.length ? counts[keys[keys.length - 1]] : 0} คน) · ดูรายวันได้จากกราฟด้านบน`
+      : 'สลับเป็นรายวันเพื่อดูจำนวนผู้สมัครในแต่ละวัน';
+  mkChart('chart-applicants', {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ data: keys.map(k => counts[k]), backgroundColor: '#6366f1', borderRadius: 4, maxBarThickness: trendView === 'daily' ? 16 : 40 }]
+    },
+    options: {
+      plugins: { legend: { display: false }, tooltip: { callbacks: { title: items => keys[items[0].dataIndex], label: c => ' ' + c.parsed.y + ' คน' } } },
+      scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 20, font: { size: 10 } } }, y: { grid: { color: '#f1f5f9' }, beginAtZero: true } }
+    }
+  });
+}
+
+// ===== 2) สถานะการนัดสัมภาษณ์ =====
+let interviewTab = 'scheduled';
+function renderInterviewSection() {
+  const rows = filtered();
+  const notScheduled = rows.filter(r => r.status === 'รอคัดเลือกใบสมัคร');
+  const scheduled = rows.filter(r => r.status === 'รอสัมภาษณ์');
+  const interviewed = rows.filter(r => r.status === 'มาสัมภาษณ์');
+  const tabs = [
+    { key: 'scheduled', label: `📅 นัดแล้ว (${scheduled.length})` },
+    { key: 'interviewed', label: `🎤 สัมภาษณ์แล้ว (${interviewed.length})` },
+    { key: 'notscheduled', label: `🕐 ยังไม่นัด (${notScheduled.length})` }
+  ];
+  document.getElementById('interview-tab-btns').innerHTML = tabs.map(t =>
+    `<button class="tab-btn ${interviewTab === t.key ? 'active' : ''}" onclick="interviewTab='${t.key}';renderInterviewSection()">${t.label}</button>`).join('');
+  const list = interviewTab === 'scheduled' ? scheduled : interviewTab === 'interviewed' ? interviewed : notScheduled;
+  document.getElementById('interview-table-body').innerHTML = list.map(r => `
+    <tr class="border-b hover:bg-indigo-50/50">
+      <td class="px-3 py-2 font-medium">${esc(r.prefix)}${esc(r.name)}</td>
+      <td class="px-3 py-2">${esc(r.pos1) || '—'}</td>
+      <td class="px-3 py-2"><span class="badge" style="background:${STATUS_COLORS[r.status]}22;color:${STATUS_COLORS[r.status]}">${esc(r.status)}</span></td>
+      <td class="px-3 py-2 text-gray-500">${esc(r.date.slice(0, 10)) || '—'}</td>
+      <td class="px-3 py-2">${esc(r.edu)}${r.school ? ' · ' + esc(r.school) : ''}</td>
+      <td class="px-3 py-2 text-gray-500">${esc(r.line) || '—'}</td>
+    </tr>`).join('') || '<tr><td colspan="6" class="px-3 py-8 text-center text-gray-400">ไม่มีข้อมูลในกลุ่มนี้</td></tr>';
+}
+
+// ===== 3) ตารางสัมภาษณ์ =====
+function renderScheduleTable() {
+  const rows = filtered().filter(r => r.status === 'รอสัมภาษณ์' || r.status === 'มาสัมภาษณ์')
+    .sort((a, b) => a.date.localeCompare(b.date));
+  document.getElementById('schedule-table-body').innerHTML = rows.map(r => `
+    <tr class="border-b hover:bg-indigo-50/50">
+      <td class="px-3 py-2 font-medium text-gray-700">${esc(r.date.slice(0, 10)) || '—'}</td>
+      <td class="px-3 py-2 font-medium">${esc(r.prefix)}${esc(r.name)}</td>
+      <td class="px-3 py-2">${esc(r.pos1) || '—'}</td>
+      <td class="px-3 py-2"><span class="badge" style="background:${STATUS_COLORS[r.status]}22;color:${STATUS_COLORS[r.status]}">${esc(r.status)}</span></td>
+      <td class="px-3 py-2">${esc(r.salary) || '—'}</td>
+      <td class="px-3 py-2 text-gray-500">${esc(r.reason && r.reason !== '-' ? r.reason : '')}</td>
+    </tr>`).join('') || '<tr><td colspan="6" class="px-3 py-8 text-center text-gray-400">ไม่มีข้อมูลในช่วงที่เลือก</td></tr>';
+}
+
+// ===== 4) ผู้ที่จ้างแล้ว =====
+function renderHiredTable() {
+  const rows = filtered().filter(r => r.status === 'จ้างงาน')
+    .sort((a, b) => b.date.localeCompare(a.date));
+  document.getElementById('hired-table-body').innerHTML = rows.map(r => `
+    <tr class="border-b hover:bg-emerald-50/50">
+      <td class="px-3 py-2 font-medium text-emerald-700">${esc(r.date.slice(0, 10)) || '—'}</td>
+      <td class="px-3 py-2 font-medium">${esc(r.prefix)}${esc(r.name)}</td>
+      <td class="px-3 py-2">${esc(r.pos1) || '—'}</td>
+      <td class="px-3 py-2">${esc(r.edu)}${r.school ? ' · ' + esc(r.school) : ''}</td>
+      <td class="px-3 py-2">${esc(r.salary) || '—'}</td>
+      <td class="px-3 py-2 text-gray-500">${esc(r.pos2) || '—'}</td>
+    </tr>`).join('') || '<tr><td colspan="6" class="px-3 py-8 text-center text-gray-400">ยังไม่มีผู้ที่จ้างงานในช่วงที่เลือก</td></tr>';
 }
 
 function renderFunnel() {
@@ -278,35 +535,6 @@ function renderFunnel() {
       indexAxis: 'y',
       plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.parsed.x + ' คน (' + (c.parsed.x / rows.length * 100).toFixed(1) + '%)' } } },
       scales: { x: { grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } }
-    }
-  });
-}
-
-function renderTrend() {
-  const rows = filtered();
-  const monthly = {};
-  rows.forEach(r => {
-    const m = r.date.slice(0, 7);
-    if (/^\d{4}-\d{2}$/.test(m)) monthly[m] = (monthly[m] || 0) + 1;
-  });
-  const keys = Object.keys(monthly).sort();
-  const labels = keys.map(k => {
-    const [y, m] = k.split('-');
-    return m + '/' + y.slice(2);
-  });
-  mkChart('chart-trend', {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        data: keys.map(k => monthly[k]),
-        borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,.15)',
-        fill: true, tension: .35, pointRadius: 3, borderWidth: 2.5
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.parsed.y + ' ใบสมัคร' } } },
-      scales: { x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } }, y: { grid: { color: '#f1f5f9' }, beginAtZero: true } }
     }
   });
 }
@@ -406,15 +634,16 @@ function renderTable() {
       <td class="px-3 py-2 text-gray-500">${esc(r.date.slice(0, 10)) || '—'}</td>
       <td class="px-3 py-2">${esc(r.edu)}${r.school ? ' · ' + esc(r.school) : ''}</td>
       <td class="px-3 py-2">${esc(r.salary) || '—'}</td>
-    </tr>`).join('') || '<tr><td colspan="6" class="px-3 py-8 text-center text-gray-400">ไม่พบข้อมูล</td></tr>';
+      <td class="px-3 py-2 text-gray-500">${esc(r.line) || '—'}</td>
+    </tr>`).join('') || '<tr><td colspan="7" class="px-3 py-8 text-center text-gray-400">ไม่พบข้อมูล</td></tr>';
 }
 
 function exportCSV() {
   const rows = filtered();
-  const header = ['ชื่อ','นามสกุล','สถานะ','วันที่สมัคร','ตำแหน่งที่สมัคร','เงินเดือนคาดหวัง','ระดับการศึกษา','สาขา','โรงเรียน/มหาวิทยาลัย','เหตุผล'];
+  const header = ['ชื่อ','นามสกุล','สถานะ','วันที่สมัคร','ตำแหน่งที่สมัคร','เงินเดือนคาดหวัง','ระดับการศึกษา','สาขา','โรงเรียน/มหาวิทยาลัย','เหตุผล','Line ID'];
   const lines = [header.join(',')];
   rows.forEach(r => {
-    const vals = [r.prefix + r.name, r.status, r.date.slice(0,10), r.pos1, r.salary, r.edu, r.major, r.school, r.reason];
+    const vals = [r.prefix + r.name, r.status, r.date.slice(0,10), r.pos1, r.salary, r.edu, r.major, r.school, r.reason, r.line];
     lines.push(vals.map(v => '"' + String(v || '').replace(/"/g, '""') + '"').join(','));
   });
   const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
@@ -425,6 +654,8 @@ function exportCSV() {
 }
 
 document.getElementById('table-search').addEventListener('input', renderTable);
+document.getElementById('date-from').addEventListener('change', onDateChange);
+document.getElementById('date-to').addEventListener('change', onDateChange);
 loadData();
 </script>
 </body>
