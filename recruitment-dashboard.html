@@ -458,7 +458,6 @@ function checkAccess() {
     loadData();
   }
 }
-checkAccess();
 
 const STATUS_COLORS = {
   'รอคัดเลือกใบสมัคร': '#f59e0b',
@@ -1267,6 +1266,9 @@ function switchTab(name) {
   });
   ['att-fBU','att-fCat','att-fStatus','att-fSearch'].forEach(id => document.getElementById(id).addEventListener('input', attRender));
 })();
+
+// เรียก checkAccess หลังประกาศตัวแปรครบทุกตัว (แก้ TDZ error สำหรับผู้ใช้ที่ปลดล็อกแล้ว)
+checkAccess();
 
 </script>
 </body>
