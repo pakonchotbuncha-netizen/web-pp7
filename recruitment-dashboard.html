@@ -405,6 +405,14 @@
     <!-- Calendar -->
     <div class="card p-5 mb-5">
       <div class="section-title"><span class="num">📅</span> ปฏิทินการเข้างานรายวัน (1–31 ส.ค. 2569)</div>
+      <div class="mb-3 flex flex-wrap gap-3 text-xs text-gray-500">
+        <span><span class="att-cell att-present" style="width:18px;height:18px">✓</span> ลงครบ ช+ย (1 วัน)</span>
+        <span><span class="att-cell att-half" style="width:18px;height:18px">ช</span> ลงเช้าอย่างเดียว</span>
+        <span><span class="att-cell att-half" style="width:18px;height:18px">ย</span> ลงเย็นอย่างเดียว</span>
+        <span><span class="att-cell att-absent" style="width:18px;height:18px">✗</span> ไม่ลงเวลา</span>
+        <span><span class="att-cell att-off" style="width:18px;height:18px"></span> วันหยุด</span>
+        <span><span class="att-cell" style="width:18px;height:18px;background:#a7f3d0"></span> วันนี้</span>
+      </div>
       <div class="overflow-x-auto">
         <table class="text-xs" id="att-cal">
           <thead id="att-cal-head"></thead>
@@ -1278,7 +1286,8 @@ function attRenderCalendar(list) {
       let cls = 'att-off', lab = '';
       if (d > ATT_TODAY) { cls = 'att-off'; lab = ''; }
       else if (m > 0 && ev > 0) { cls = 'att-present'; lab = '✓'; }
-      else if (m > 0 || ev > 0) { cls = 'att-half'; lab = '½'; }
+      else if (m > 0) { cls = 'att-half'; lab = 'ช'; }   // ลงเช้า 0.5 แต่ไม่ลงเย็น
+      else if (ev > 0) { cls = 'att-half'; lab = 'ย'; }  // ลงเย็น 0.5 แต่ไม่ลงเช้า
       else { cls = attState.offDays.includes(d) ? 'att-off' : 'att-absent'; lab = attState.offDays.includes(d) ? '' : '✗'; }
       r += `<td class="px-0.5 py-0.5 text-center" title="d${d}: ช=${m} ย=${ev}"><span class="att-cell ${cls}">${lab}</span></td>`;
     }
