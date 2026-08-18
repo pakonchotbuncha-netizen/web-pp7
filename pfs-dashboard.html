@@ -111,6 +111,19 @@
     </div>
   </div>
 
+  <!-- TAB: CHECK -->
+  <div id="tab-check" class="tab-page hidden">
+    <div class="card p-4 mb-3">
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="font-bold text-sm">🔍 ตรวจสอบข้อมูลสมาชิกรายคน (PFS รายคน)</div>
+        <input id="ck-search" oninput="renderCheck()" placeholder="🔍 ใส่รหัสสมาชิก / ชื่อ" class="border rounded-lg px-2 py-1 text-xs ml-auto w-56">
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3" id="ck-kpis"></div>
+      <div class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-3">⚠️ PFS รายคน = ค่าประมาณการจากสัดส่วนฐานเงินเดือนตามคู่มือ (ยังไม่รวมสูตร exponential) · พี่ปกรณ์จะนำข้อมูล PFS ปัจจุบันมาใส่ภายหลัง</div>
+    </div>
+    <div class="card p-4"><div class="scrollbox"><table class="dt" id="tb-check"></table></div></div>
+  </div>
+
   <!-- TAB: GUIDE -->
   <div id="tab-guide" class="tab-page hidden">
     <div class="card p-4"><div class="font-bold text-sm mb-2">📖 คู่มือและเงื่อนไข PFS</div>
@@ -126,7 +139,7 @@
 const SHEET_ID='1CRVrDu3mkKBxzeZNBny7pEhcR2XcW-X6udM6bShW75w';
 const PIN_HASH='6bdf8ee386bac1afb01c7cfd5162595c08191db876b4e5da67ed583307bb50de';
 const ACCESS_KEY='pkg_pfs_unlocked';
-const GID={guide:1961309868,sum:316331600,c1:0,c2:1147412245,c5:293096161,c7:2054111321,c8:393472951};
+const GID={guide:1961309868,sum:316331600,c1:0,c2:1147412245,c5:293096161,c7:2054111321,c8:393472951,c4:1273553717};
 let D={};
 const charts={};
 
@@ -138,7 +151,7 @@ function unlockAccess(){sha256(document.getElementById('pin-input').value.trim()
 function checkAccess(){if(sessionStorage.getItem(ACCESS_KEY)==='1')show();}
 function show(){document.getElementById('pin-gate').classList.add('hidden');document.getElementById('app-shell').classList.remove('hidden');buildTabs();loadAll();}
 
-const TABS=[['exec','📊 ภาพรวม'],['summary','💰 สรุปวงเงิน'],['c1','🎯 C1 เครดิต'],['c2','🏛️ C2 BMC&SMC'],['c5','👥 C5 สมาชิก'],['c7','🤝 C7 รับผิดชอบ'],['c8','✂️ C8 หัก CU'],['guide','📖 คู่มือ']];
+const TABS=[['exec','📊 ภาพรวม'],['summary','💰 สรุปวงเงิน'],['check','🔍 ตรวจสอบรายคน'],['c1','🎯 C1 เครดิต'],['c2','🏛️ C2 BMC&SMC'],['c5','👥 C5 สมาชิก'],['c7','🤝 C7 รับผิดชอบ'],['c8','✂️ C8 หัก CU'],['guide','📖 คู่มือ']];
 function buildTabs(){
   document.getElementById('tabbar').innerHTML=TABS.map(([id,l],i)=>`<button class="tab-btn ${i===0?'active':''}" data-t="${id}" onclick="switchTab('${id}',this)">${l}</button>`).join('');
 }
@@ -164,10 +177,10 @@ const esc=s=>String(s??'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp
 async function loadAll(){
   document.getElementById('footer-date').textContent=new Date().toLocaleString('th-TH');
   try{
-    const [sum,c1,c2,c5,c7,c8,guide]=await Promise.all([
-      fetchSheet(GID.sum),fetchSheet(GID.c1),fetchSheet(GID.c2),fetchSheet(GID.c5),fetchSheet(GID.c7),fetchSheet(GID.c8),fetchSheet(GID.guide)]);
-    D={sum,c1,c2,c5,c7,c8,guide};
-    renderExec();renderSummary();renderC1();renderC2();renderC5();renderC7();renderC8();renderGuide();
+    const [sum,c1,c2,c5,c7,c8,guide,c4]=await Promise.all([
+      fetchSheet(GID.sum),fetchSheet(GID.c1),fetchSheet(GID.c2),fetchSheet(GID.c5),fetchSheet(GID.c7),fetchSheet(GID.c8),fetchSheet(GID.guide),fetchSheet(GID.c4)]);
+    D={sum,c1,c2,c5,c7,c8,guide,c4};CK=null;
+    renderExec();renderSummary();renderCheck();renderC1();renderC2();renderC5();renderC7();renderC8();renderGuide();
   }catch(e){console.error(e);alert('โหลดข้อมูลไม่สำเร็จ: '+e.message);}
 }
 
@@ -245,6 +258,44 @@ function renderC8(){
   const rows=D.c8.rows.filter(r=>r[1]);
   document.getElementById('tb-c8').innerHTML='<tr><th>รหัส</th><th>ชื่อ-นามสกุล</th><th>สัญญา</th><th>รายละเอียด</th><th>%หัก</th><th>LINE</th></tr>'+
     rows.map(r=>`<tr><td>${esc(r[1])}</td><td>${esc(r[2])} ${esc(r[3])}</td><td>${esc(r[4])}</td><td>${esc(r[5])}</td><td><b>${esc(r[6])}</b></td><td>${esc(r[7])}</td></tr>`).join('');
+}
+
+function buildCheck(){
+  // BU pools จาก สรุปวงเงิน PFS — บล็อก "สรุปข้อมูลการจ่าย PFS1" เท่านั้น (กันชื่อ BU ซ้ำกับบล็อก PFS-2)
+  const pool={};
+  const rs=D.sum.rows;
+  let s=rs.findIndex(r=>String(r[0]).includes('สรุปข้อมูลการจ่าย PFS1'));
+  let e=rs.findIndex(r=>String(r[0]).includes('สรุปการจ่าย PFS-2')); if(e<0)e=rs.length;
+  for(let i=Math.max(0,s);i<e;i++){ const b=String(rs[i][0]).trim(); if(['PMSgr','AAMgr','RPLCgr','RAFCOgr','CPDgr','PGHgr','PKG'].includes(b)) pool[b]=num(rs[i][8]); }
+  const sal={}; D.c4.rows.forEach(r=>{ if(r[0]) sal[String(r[0]).trim()]={total:num(r[16]),months:num(r[17]),avg:num(r[18])}; });
+  const cu={}; D.c8.rows.forEach(r=>{ if(r[1]){ const m=String(r[6]).match(/(\d+(?:\.\d+)?)/); cu[String(r[1]).trim()]=m?num(m[1]):0; } });
+  const resp={}; D.c7.rows.forEach(r=>{ if(r[2]) resp[String(r[2]).trim()]=num(r[6]); });
+  const sumSal={};
+  D.c1.rows.forEach(r=>{ const id=String(r[0]).trim(), bu=String(r[5]).trim(); if(sal[id]&&pool[bu]!=null) sumSal[bu]=(sumSal[bu]||0)+sal[id].total; });
+  const list=D.c1.rows.filter(r=>r[0]).map(r=>{
+    const id=String(r[0]).trim(), bu=String(r[5]).trim(), s=sal[id];
+    const est=(s&&pool[bu]!=null&&sumSal[bu])? s.total/sumSal[bu]*pool[bu] : null;
+    const cup=cu[id]||0, cut=est!=null? est*cup/100 : null;
+    return {id,name:String(r[1]+' '+r[2]).trim(),bu,team:String(r[3]).trim(),score:num(r[20]),ev:num(r[21]),
+      salTotal:s?s.total:null,months:s?s.months:null,salAvg:s?s.avg:null,
+      est,cu:cup,cut,net:est!=null? est-cut : null,resp:resp[id]||0};
+  });
+  return {list,pool};
+}
+let CK=null;
+function renderCheck(){
+  CK=CK||buildCheck();
+  const q=(document.getElementById('ck-search').value||'').toLowerCase();
+  const withEst=CK.list.filter(e=>e.est!=null);
+  const totEst=withEst.reduce((s,e)=>s+e.est,0), totNet=withEst.reduce((s,e)=>s+e.net,0), cuCnt=CK.list.filter(e=>e.cu>0).length;
+  document.getElementById('ck-kpis').innerHTML=[
+    ['👥 สมาชิกมีคะแนน',CK.list.length,'#0284c7'],['💰 PFS ประมาณการรวม',Math.round(totEst).toLocaleString('th-TH'),'#059669'],['🧾 สุทธิหลังหัก CU',Math.round(totNet).toLocaleString('th-TH'),'#7c3aed'],['✂️ ถูกหัก CU (คน)',cuCnt,'#dc2626']
+  ].map(([l,v,c])=>`<div class="kpi" style="background:${c}"><div class="text-[11px]">${l}</div><div class="text-lg font-bold">${v}</div></div>`).join('');
+  let f=CK.list.filter(e=>!q||String(e.id+' '+e.name+' '+e.bu).toLowerCase().includes(q));
+  f.sort((a,b)=>(b.est||0)-(a.est||0));
+  f=f.slice(0,300);
+  document.getElementById('tb-check').innerHTML='<tr><th>รหัส</th><th>ชื่อ-นามสกุล</th><th>บริษัท</th><th>คะแนนรวม</th><th>เงินเดือน/ปี</th><th>PFS ประมาณ</th><th>หัก CU</th><th>สุทธิประมาณ</th><th>รับผิดชอบ(บาท)</th></tr>'+
+    f.map(e=>`<tr><td class="font-mono">${esc(e.id)}</td><td>${esc(e.name)}</td><td><span class="badge" style="background:#dbeafe;color:#1e40af">${esc(e.bu)}</span></td><td>${e.score?e.score.toFixed(2):'—'}</td><td>${e.salTotal?fmt(e.salTotal):'—'}</td><td><b style="color:#059669">${e.est!=null?fmt(e.est):'รอข้อมูล'}</b></td><td>${e.cu?e.cu+'% ('+fmt(e.cut)+')':'—'}</td><td><b>${e.net!=null?fmt(e.net):'—'}</b></td><td>${e.resp?fmt(e.resp):'—'}</td></tr>`).join('')||'<tr><td colspan="9" class="text-center text-gray-400 py-6">ไม่พบข้อมูล</td></tr>';
 }
 
 function renderGuide(){
