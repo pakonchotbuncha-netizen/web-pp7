@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📊 PFS Dashboard — ส่วนแบ่งผลกำไร (Profit Share)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  body{font-family:'Sarabun','Bai Jamjuree',sans-serif;background:#f1f5f9}
+  .card{background:#fff;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .tab-btn{padding:.5rem 1rem;border-radius:10px;font-size:.8rem;font-weight:600;white-space:nowrap;cursor:pointer;border:1px solid #e2e8f0;background:#fff;color:#475569}
+  .tab-btn.active{background:#059669;color:#fff;border-color:#059669}
+  .kpi{border-radius:14px;padding:1rem;color:#fff}
+  table.dt{width:100%;border-collapse:collapse;font-size:.75rem}
+  table.dt th{background:#f1f5f9;position:sticky;top:0;padding:.4rem .5rem;text-align:left;font-weight:700;color:#334155}
+  table.dt td{padding:.35rem .5rem;border-bottom:1px solid #f1f5f9}
+  table.dt tr:hover td{background:#ecfdf5}
+  .badge{display:inline-block;border-radius:999px;padding:.1rem .55rem;font-size:.68rem;font-weight:700}
+  .scrollbox{max-height:520px;overflow:auto;border:1px solid #e2e8f0;border-radius:10px}
+</style>
+</head>
+<body>
+
+<!-- PIN GATE -->
+<div id="pin-gate" class="min-h-screen flex items-center justify-center">
+  <div class="card p-8 w-80 text-center">
+    <div class="text-4xl mb-2">🔐</div>
+    <h1 class="font-bold text-lg text-gray-800">PFS Dashboard</h1>
+    <p class="text-xs text-gray-500 mb-4">ส่วนแบ่งผลกำไร (Profit Share) · ตาม พ.ร.บ. PDPA 2562</p>
+    <input id="pin-input" type="password" placeholder="รหัส PIN" class="w-full border rounded-lg px-3 py-2 text-center mb-2" onkeydown="if(event.key==='Enter')unlockAccess()">
+    <div id="pin-error" class="hidden text-red-600 text-xs mb-2">❌ รหัสไม่ถูกต้อง</div>
+    <button onclick="unlockAccess()" class="w-full bg-emerald-600 text-white rounded-lg py-2 font-semibold hover:bg-emerald-700">เข้าสู่ระบบ</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-shell" class="hidden">
+<div class="max-w-7xl mx-auto p-4">
+  <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
+    <div>
+      <h1 class="text-xl font-bold text-gray-800">📊 PFS Dashboard — ส่วนแบ่งผลกำไร</h1>
+      <p class="text-xs text-gray-500">BCT ::: ข้อมูลประกอบการคำนวณ PFS · อัปเดต <span id="footer-date">—</span></p>
+    </div>
+    <button onclick="loadAll()" class="text-xs bg-white border rounded-lg px-3 py-1.5 hover:bg-gray-50">🔄 รีเฟรช</button>
+  </div>
+
+  <!-- TABS -->
+  <div class="flex gap-2 overflow-x-auto pb-2 mb-4" id="tabbar"></div>
+
+  <!-- TAB: EXEC -->
+  <div id="tab-exec" class="tab-page">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4" id="exec-kpis"></div>
+    <div class="grid md:grid-cols-2 gap-4 mb-4">
+      <div class="card p-4"><div class="font-bold text-sm mb-2">💰 วงเงิน PFS ตามกลุ่ม BU</div><div style="height:260px"><canvas id="ch-bu"></canvas></div></div>
+      <div class="card p-4"><div class="font-bold text-sm mb-2">📈 %Perf ตามกลุ่ม BU</div><div style="height:260px"><canvas id="ch-perf"></canvas></div></div>
+    </div>
+    <div class="card p-4 mb-4">
+      <div class="font-bold text-sm mb-2">🎯 เงื่อนไข ROE → วงเงิน PFS (ส่วนที่ 1)</div>
+      <div class="grid md:grid-cols-4 gap-2 text-center text-xs" id="roe-cond"></div>
+    </div>
+    <div class="card p-4 border-l-4 border-l-amber-400">
+      <div class="font-bold text-sm mb-1">📌 หมายเหตุผู้บริหาร</div>
+      <div class="text-xs text-gray-600">เป้าหมาย EBITDA จะนำมาใส่ภายหลัง (ต้องดึงข้อมูลจริง) · ปัจจุบันแสดงวงเงินที่คำนวณได้จากข้อมูลในชีท</div>
+    </div>
+  </div>
+
+  <!-- TAB: SUMMARY -->
+  <div id="tab-summary" class="tab-page hidden">
+    <div class="card p-4"><div class="font-bold text-sm mb-2">💰 สรุปวงเงิน PFS รายกลุ่ม</div>
+      <div class="scrollbox"><table class="dt" id="tb-summary"></table></div>
+    </div>
+  </div>
+
+  <!-- TAB: C1 -->
+  <div id="tab-c1" class="tab-page hidden">
+    <div class="card p-4 mb-3">
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="font-bold text-sm">🎯 C1 คะแนนประเมินเครดิต</div>
+        <input id="c1-search" oninput="renderC1()" placeholder="🔍 ค้นหา ชื่อ/รหัส" class="border rounded-lg px-2 py-1 text-xs ml-auto">
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3" id="c1-kpis"></div>
+    </div>
+    <div class="card p-4"><div class="scrollbox"><table class="dt" id="tb-c1"></table></div></div>
+  </div>
+
+  <!-- TAB: C2 -->
+  <div id="tab-c2" class="tab-page hidden">
+    <div class="card p-4"><div class="font-bold text-sm mb-2">🏛️ C2 คะแนน BMC & SMC</div>
+      <div class="scrollbox"><table class="dt" id="tb-c2"></table></div>
+    </div>
+  </div>
+
+  <!-- TAB: C5 -->
+  <div id="tab-c5" class="tab-page hidden">
+    <div class="card p-4 mb-3"><div class="grid grid-cols-2 md:grid-cols-4 gap-2" id="c5-kpis"></div></div>
+    <div class="card p-4"><div class="scrollbox"><table class="dt" id="tb-c5"></table></div></div>
+  </div>
+
+  <!-- TAB: C7 -->
+  <div id="tab-c7" class="tab-page hidden">
+    <div class="card p-4"><div class="font-bold text-sm mb-2">🤝 C7 ความรับผิดชอบต่อผล (Likepoint)</div>
+      <div class="scrollbox"><table class="dt" id="tb-c7"></table></div>
+    </div>
+  </div>
+
+  <!-- TAB: C8 -->
+  <div id="tab-c8" class="tab-page hidden">
+    <div class="card p-4"><div class="font-bold text-sm mb-2">✂️ C8 ข้อมูลหัก CU</div>
+      <div class="scrollbox"><table class="dt" id="tb-c8"></table></div>
+    </div>
+  </div>
+
+  <!-- TAB: GUIDE -->
+  <div id="tab-guide" class="tab-page hidden">
+    <div class="card p-4"><div class="font-bold text-sm mb-2">📖 คู่มือและเงื่อนไข PFS</div>
+      <div class="scrollbox"><table class="dt" id="tb-guide"></table></div>
+    </div>
+  </div>
+
+  <p class="text-center text-xs text-gray-400 py-4">ข้อมูลจาก BCT ::: ข้อมูลประกอบการคำนวณ PFS · 🔒 PDPA 2562</p>
+</div>
+</div>
+
+<script>
+const SHEET_ID='1CRVrDu3mkKBxzeZNBny7pEhcR2XcW-X6udM6bShW75w';
+const PIN_HASH='6bdf8ee386bac1afb01c7cfd5162595c08191db876b4e5da67ed583307bb50de';
+const ACCESS_KEY='pkg_pfs_unlocked';
+const GID={guide:1961309868,sum:316331600,c1:0,c2:1147412245,c5:293096161,c7:2054111321,c8:393472951};
+let D={};
+const charts={};
+
+function sha256(s){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)).then(b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''));}
+function unlockAccess(){sha256(document.getElementById('pin-input').value.trim()).then(h=>{
+  if(h===PIN_HASH){sessionStorage.setItem(ACCESS_KEY,'1');show();}
+  else{document.getElementById('pin-error').classList.remove('hidden');}
+});}
+function checkAccess(){if(sessionStorage.getItem(ACCESS_KEY)==='1')show();}
+function show(){document.getElementById('pin-gate').classList.add('hidden');document.getElementById('app-shell').classList.remove('hidden');buildTabs();loadAll();}
+
+const TABS=[['exec','📊 ภาพรวม'],['summary','💰 สรุปวงเงิน'],['c1','🎯 C1 เครดิต'],['c2','🏛️ C2 BMC&SMC'],['c5','👥 C5 สมาชิก'],['c7','🤝 C7 รับผิดชอบ'],['c8','✂️ C8 หัก CU'],['guide','📖 คู่มือ']];
+function buildTabs(){
+  document.getElementById('tabbar').innerHTML=TABS.map(([id,l],i)=>`<button class="tab-btn ${i===0?'active':''}" data-t="${id}" onclick="switchTab('${id}',this)">${l}</button>`).join('');
+}
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-page').forEach(p=>p.classList.add('hidden'));
+  document.getElementById('tab-'+id).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+async function fetchSheet(gid){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${gid}`;
+  const r=await fetch(url);const t=await r.text();
+  const j=JSON.parse(t.substring(t.indexOf('{'),t.lastIndexOf('}')+1));
+  const cols=j.table.cols.map(c=>c.label||'');
+  const rows=j.table.rows.map(r=>(r.c||[]).map(c=>c? (c.f!=null?c.f:(c.v!=null?c.v:'')) :''));
+  return {cols,rows};
+}
+const num=v=>{ if(v==null||v==='')return 0; const n=parseFloat(String(v).replace(/[,฿\s]/g,'')); return isNaN(n)?0:n; };
+const fmt=v=>num(v).toLocaleString('th-TH',{maximumFractionDigits:0});
+const esc=s=>String(s??'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+
+async function loadAll(){
+  document.getElementById('footer-date').textContent=new Date().toLocaleString('th-TH');
+  try{
+    const [sum,c1,c2,c5,c7,c8,guide]=await Promise.all([
+      fetchSheet(GID.sum),fetchSheet(GID.c1),fetchSheet(GID.c2),fetchSheet(GID.c5),fetchSheet(GID.c7),fetchSheet(GID.c8),fetchSheet(GID.guide)]);
+    D={sum,c1,c2,c5,c7,c8,guide};
+    renderExec();renderSummary();renderC1();renderC2();renderC5();renderC7();renderC8();renderGuide();
+  }catch(e){console.error(e);alert('โหลดข้อมูลไม่สำเร็จ: '+e.message);}
+}
+
+function renderExec(){
+  const rows=D.sum.rows;
+  // find Total row (สมาชิกประจำ) row20 and Net Total row40
+  const get=(idx)=>rows[idx]||[];
+  const totalReg=get(19), netTotal=get(39);
+  const pfs1=get(45), pfs2=get(47);
+  const kpis=[
+    ['👥 สมาชิกประจำ (คน)', fmt(totalReg[1]), '#059669'],
+    ['💰 Net Total PFS (บาท)', fmt(netTotal[3]), '#0284c7'],
+    ['🥇 PFS ส่วนที่ 1 (8% EBITDA)', fmt(pfs1[3]), '#7c3aed'],
+    ['🥈 PFS ส่วนที่ 2 (1% EBITDA)', fmt(pfs2[3]), '#d97706'],
+  ];
+  document.getElementById('exec-kpis').innerHTML=kpis.map(([l,v,c])=>`<div class="kpi" style="background:${c}"><div class="text-[11px] opacity-90">${l}</div><div class="text-xl font-bold">${v}</div></div>`).join('');
+  // BU table rows 1-3 (PMSgr,AAMgr,PGHgr) + 18 ADM
+  const buRows=[0,1,2,17].map(i=>rows[i]).filter(Boolean);
+  mkChart('ch-bu',{type:'doughnut',data:{labels:buRows.map(r=>esc(r[0])),datasets:[{data:buRows.map(r=>num(r[10])),backgroundColor:['#059669','#0284c7','#7c3aed','#d97706']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+  mkChart('ch-perf',{type:'bar',data:{labels:buRows.map(r=>esc(r[0])),datasets:[{label:'%Perf',data:buRows.map(r=>parseFloat(String(r[6]).replace('%',''))||0),backgroundColor:['#059669','#0284c7','#7c3aed','#d97706']}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});
+  document.getElementById('roe-cond').innerHTML=[
+    ['ROE ≥ 12%','จ่าย 10%','#059669'],['ROE 10–11.99%','จ่าย 9%','#65a30d'],['ROE 8–9.99%','จ่าย 8%','#d97706'],['ROE < 8%','จ่าย 7%','#dc2626']
+  ].map(([c,p,col])=>`<div class="rounded-xl p-3 text-white" style="background:${col}"><div class="font-bold">${c}</div><div class="text-[11px]">ของ EBITDA PKG</div><div class="text-lg font-bold mt-1">${p}</div></div>`).join('');
+}
+
+function mkChart(id,cfg){ if(charts[id])charts[id].destroy(); charts[id]=new Chart(document.getElementById(id),cfg); }
+
+function renderSummary(){
+  const rows=D.sum.rows.slice(0,21);
+  const head=['กลุ่ม','คน','Total Salary','Base Salary','Budget Perf','%Perf','PFS Perf','หักค่าเสียหาย','PFS สุทธิ','PFS/BS'];
+  const idx=[0,1,2,3,4,6,7,8,10,11];
+  document.getElementById('tb-summary').innerHTML='<tr>'+head.map(h=>`<th>${h}</th>`).join('')+'</tr>'+
+    rows.filter(r=>r.some(c=>String(c).trim())).map(r=>'<tr>'+idx.map(i=>`<td>${esc(r[i])}</td>`).join('')+'</tr>').join('');
+}
+
+function renderC1(){
+  const q=(document.getElementById('c1-search').value||'').toLowerCase();
+  const rows=D.c1.rows.filter(r=>r[0]);
+  const avg=r=>num(r[20]);
+  const all=rows.map(avg);
+  const mean=all.reduce((a,b)=>a+b,0)/(all.length||1);
+  const hi=rows.filter(r=>avg(r)>=90).length, mid=rows.filter(r=>avg(r)>=80&&avg(r)<90).length, lo=rows.filter(r=>avg(r)<80).length;
+  document.getElementById('c1-kpis').innerHTML=[
+    ['👥 ทั้งหมด',rows.length,'#0284c7'],['⭐ ≥90',hi,'#059669'],['👍 80–89',mid,'#d97706'],['⚠️ <80',lo,'#dc2626']
+  ].map(([l,v,c])=>`<div class="kpi" style="background:${c}"><div class="text-[11px]">${l}</div><div class="text-lg font-bold">${v}</div></div>`).join('');
+  const f=rows.filter(r=>!q||String(r[1]+' '+r[2]+' '+r[0]).toLowerCase().includes(q)).slice(0,200);
+  document.getElementById('tb-c1').innerHTML='<tr><th>รหัส</th><th>ชื่อ-นามสกุล</th><th>ทีม</th><th>บริษัท</th><th>พฤติกรรม</th><th>ทุนองค์กร</th><th>ภาวะผู้รับใช้</th><th>รวมเฉลี่ย</th></tr>'+
+    f.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])} ${esc(r[2])}</td><td>${esc(r[3])}</td><td>${esc(r[5])}</td><td>${esc(r[8])}</td><td>${esc(r[11])}</td><td>${esc(r[14])}</td><td><b>${esc(r[20])}</b></td></tr>`).join('');
+}
+
+function renderC2(){
+  const rows=D.c2.rows.filter(r=>r[2]);
+  document.getElementById('tb-c2').innerHTML='<tr><th>#</th><th>รหัส</th><th>ชื่อ-นามสกุล</th><th>เริ่ม</th><th>สิ้นสุด</th><th>คะแนน</th><th>เดือน</th><th>BU</th></tr>'+
+    rows.map(r=>`<tr><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${esc(r[3])} ${esc(r[4])}</td><td>${esc(r[5])}</td><td>${esc(r[6])}</td><td><b>${esc(r[7])}</b></td><td>${esc(r[8])}</td><td><span class="badge" style="background:#dbeafe;color:#1e40af">${esc(r[9])}</span></td></tr>`).join('');
+}
+
+function renderC5(){
+  const rows=D.c5.rows.filter(r=>r[0]);
+  const reg=rows.filter(r=>String(r[5]).includes('ประจำ')).length;
+  const avgYr=rows.reduce((s,r)=>s+num(r[6]),0)/(rows.length||1);
+  document.getElementById('c5-kpis').innerHTML=[
+    ['👥 สมาชิกทั้งหมด',rows.length,'#0284c7'],['✅ สมาชิกประจำ',reg,'#059669'],['📋 อื่นๆ',rows.length-reg,'#d97706'],['🕰️ อายุงานเฉลี่ย (ปี)',avgYr.toFixed(1),'#7c3aed']
+  ].map(([l,v,c])=>`<div class="kpi" style="background:${c}"><div class="text-[11px]">${l}</div><div class="text-lg font-bold">${v}</div></div>`).join('');
+  document.getElementById('tb-c5').innerHTML='<tr><th>รหัส</th><th>ชื่อ-นามสกุล</th><th>เริ่มงาน</th><th>บรรจุ</th><th>สถานะ</th><th>อายุงาน(ปี)</th></tr>'+
+    rows.slice(0,200).map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])} ${esc(r[2])}</td><td>${esc(r[3])}</td><td>${esc(r[4])}</td><td>${esc(r[5])}</td><td>${esc(r[6])}</td></tr>`).join('');
+}
+
+function renderC7(){
+  const rows=D.c7.rows.filter(r=>r[2]);
+  document.getElementById('tb-c7').innerHTML='<tr><th>บริษัท</th><th>รหัส</th><th>ชื่อ-นามสกุล</th><th>Likepoint</th><th>แปลงเป็นบาท</th></tr>'+
+    rows.slice(0,200).map(r=>`<tr><td>${esc(r[1])}</td><td>${esc(r[2])}</td><td>${esc(r[3])} ${esc(r[4])}</td><td>${esc(r[5])}</td><td><b>${esc(r[6])}</b></td></tr>`).join('');
+}
+
+function renderC8(){
+  const rows=D.c8.rows.filter(r=>r[1]);
+  document.getElementById('tb-c8').innerHTML='<tr><th>รหัส</th><th>ชื่อ-นามสกุล</th><th>สัญญา</th><th>รายละเอียด</th><th>%หัก</th><th>LINE</th></tr>'+
+    rows.map(r=>`<tr><td>${esc(r[1])}</td><td>${esc(r[2])} ${esc(r[3])}</td><td>${esc(r[4])}</td><td>${esc(r[5])}</td><td><b>${esc(r[6])}</b></td><td>${esc(r[7])}</td></tr>`).join('');
+}
+
+function renderGuide(){
+  const rows=D.guide.rows.filter(r=>r.some(c=>String(c).trim()));
+  document.getElementById('tb-guide').innerHTML=rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c).replace(/↵/g,'<br>')}</td>`).join('')}</tr>`).join('');
+}
+
+checkAccess();
+</script>
+</body>
+</html>
