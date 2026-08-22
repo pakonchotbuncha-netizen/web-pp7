@@ -473,15 +473,15 @@
         <div class="grid md:grid-cols-2 gap-4">
           <div>
             <label class="form-label">รหัสหลักสูตร</label>
-            <input type="text" class="form-input" placeholder="TRN-001">
+            <input type="text" id="courseId" class="form-input" placeholder="TRN-007">
           </div>
           <div>
             <label class="form-label">ชื่อหลักสูตร</label>
-            <input type="text" class="form-input" placeholder="เช่น Innovation Workshop">
+            <input type="text" id="courseName" class="form-input" placeholder="เช่น Innovation Workshop">
           </div>
           <div>
             <label class="form-label">ประเภท</label>
-            <select class="form-select">
+            <select id="courseType" class="form-select">
               <option>Technical</option>
               <option>Leadership</option>
               <option>Soft Skills</option>
@@ -490,36 +490,44 @@
           </div>
           <div>
             <label class="form-label">จำนวนชั่วโมง</label>
-            <input type="number" class="form-input" placeholder="8">
+            <input type="number" id="courseHours" class="form-input" placeholder="8">
           </div>
-          <div class="md:col-span-2">
+          <div>
             <label class="form-label">CC ที่พัฒนา</label>
-            <select class="form-select" multiple>
-              <option>CC1: Servant Leadership</option>
-              <option>CC2: Adaptive Innovation</option>
-              <option>CC3: Trust-Based Value</option>
-              <option>CC4: Consensus Teamwork</option>
-              <option>CC5: Disciplined Professionalism</option>
-              <option>CC6: Technology Mastery</option>
-              <option>CC7: Humor & Joy</option>
+            <select id="courseCC" class="form-select">
+              <option>CC1</option>
+              <option>CC2</option>
+              <option>CC3</option>
+              <option>CC4</option>
+              <option>CC5</option>
+              <option>CC6</option>
+              <option>CC7</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">สถานะ</label>
+            <select id="courseStatus" class="form-select">
+              <option value="active">เปิดรับ</option>
+              <option value="upcoming">เตรียมเปิด</option>
             </select>
           </div>
           <div class="md:col-span-2">
             <label class="form-label">รายละเอียด</label>
-            <textarea class="form-input" rows="3" placeholder="วัตถุประสงค์, เนื้อหา, กลุ่มเป้าหมาย"></textarea>
+            <textarea id="courseDesc" class="form-input" rows="3" placeholder="วัตถุประสงค์, เนื้อหา, กลุ่มเป้าหมาย"></textarea>
           </div>
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline" onclick="closeModal('newCourse')">ยกเลิก</button>
-        <button class="btn btn-primary" onclick="saveCourse()">บันทึก</button>
+        <button class="btn btn-primary" onclick="saveCourse()">💾 บันทึก</button>
       </div>
     </div>
   </div>
 
   <script>
-    // Mock Data
-    const courses = [
+    // ===== localStorage Persistence (PP7_P5) =====
+    const STORAGE_KEY = 'PP7_…_V1';
+    const seedCourses = [
       { id: 'TRN-001', name: 'Innovation Workshop', type: 'Leadership', hours: 16, cc: 'CC2', status: 'active' },
       { id: 'TRN-002', name: 'Leadership Excellence', type: 'Leadership', hours: 24, cc: 'CC1', status: 'active' },
       { id: 'TRN-003', name: 'Digital Tools Mastery', type: 'Technical', hours: 12, cc: 'CC6', status: 'active' },
@@ -527,51 +535,63 @@
       { id: 'TRN-005', name: 'Design Thinking', type: 'Technical', hours: 16, cc: 'CC2', status: 'upcoming' },
       { id: 'TRN-006', name: 'Coaching Skills', type: 'Leadership', hours: 20, cc: 'CC1', status: 'upcoming' },
     ];
-
-    const training = [
+    const seedTraining = [
       { id: 'T-001', course: 'Innovation Workshop', batch: 'รุ่น 1', date: '2026-07-15', participants: 18, trainer: 'ดร.สมชาย', status: 'ongoing' },
       { id: 'T-002', course: 'Leadership Excellence', batch: 'รุ่น 3', date: '2026-07-20', participants: 12, trainer: 'อ.พิมพ์ใจ', status: 'upcoming' },
       { id: 'T-003', course: 'Digital Tools', batch: 'รุ่น 2', date: '2026-06-28', participants: 25, trainer: 'คุณวิชัย', status: 'completed' },
     ];
 
-    const groups = [
+    const seedGroups = [
       { id: 'GRP-001', name: 'Leadership Track', type: 'Development', members: 12, cc: 'CC1', status: 'active' },
       { id: 'GRP-002', name: 'Innovation Squad', type: 'Project', members: 18, cc: 'CC2', status: 'active' },
       { id: 'GRP-003', name: 'Tech Upskill', type: 'Training', members: 25, cc: 'CC6', status: 'active' },
     ];
 
-    const mentors = [
+    const seedMentors = [
       { mentor: 'ดร.สมชาย ใจดี', mentee: 'วรรณ์วิภา จันทร์เพ็ญ', cc: 'CC1, CC2', duration: '6 เดือน', dta: 4.2, status: 'active' },
       { mentor: 'อ.พิมพ์ใจ รุ่งเรือง', mentee: 'กิตติชัย ศรีจันทร์', cc: 'CC2', duration: '3 เดือน', dta: 3.8, status: 'active' },
       { mentor: 'คุณวิชัย ทองดี', mentee: 'พิชัย ใจดี', cc: 'CC6', duration: '4 เดือน', dta: 4.5, status: 'active' },
     ];
 
-    const idps = [
+    const seedIdps = [
       { name: 'วรรณ์วิภา จันทร์เพ็ญ', position: 'Senior Officer', cc: 'CC1, CC2', plan: 'Leadership Workshop + Mentoring', target: 'CC1 ≥ 4.0', progress: 65 },
       { name: 'กิตติชัย ศรีจันทร์', position: 'Supervisor', cc: 'CC2', plan: 'Innovation Workshop + Project', target: 'CC2 ≥ 4.0', progress: 45 },
       { name: 'วิไลวรรณ แก้วประเสริฐ', position: 'Manager', cc: 'CC6', plan: 'Digital Upskilling', target: 'CC6 ≥ 4.0', progress: 80 },
     ];
 
-    const msp = [
+    const seedMsp = [
       { name: 'สมชาย ใจดี', received: 100, used: 60, balance: 40, date: '2026-01-15', expiry: '2026-12-31' },
       { name: 'พิมพ์ใจ รุ่งเรือง', received: 80, used: 45, balance: 35, date: '2026-02-01', expiry: '2026-12-31' },
       { name: 'วิชัย ทองดี', received: 120, used: 80, balance: 40, date: '2026-03-10', expiry: '2026-12-31' },
     ];
 
+    let db = loadDB();
+    function loadDB() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) { console.warn('loadDB error', e); }
+      return { courses: seedCourses, training: seedTraining, groups: seedGroups, mentors: seedMentors, idps: seedIdps, msp: seedMsp };
+    }
+    function saveDB() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); } catch (e) { console.warn('saveDB error', e); }
+    }
+    function esc(s) { return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
     // Render Tables
     function renderCourses() {
       const tbody = document.getElementById('coursesTable');
-      tbody.innerHTML = courses.map(c => `
+      tbody.innerHTML = db.courses.map(c => `
         <tr>
-          <td class="font-mono text-xs">${c.id}</td>
-          <td class="font-medium">${c.name}</td>
-          <td><span class="badge badge-blue">${c.type}</span></td>
-          <td>${c.hours} ชม.</td>
-          <td><span class="badge badge-pink">${c.cc}</span></td>
+          <td class="font-mono text-xs">${esc(c.id)}</td>
+          <td class="font-medium">${esc(c.name)}</td>
+          <td><span class="badge badge-blue">${esc(c.type)}</span></td>
+          <td>${esc(c.hours)} ชม.</td>
+          <td><span class="badge badge-pink">${esc(c.cc)}</span></td>
           <td><span class="badge badge-${c.status === 'active' ? 'green' : 'amber'}">${c.status === 'active' ? 'เปิดรับ' : 'เตรียมเปิด'}</span></td>
           <td>
-            <button class="text-blue-600 hover:underline text-xs">แก้ไข</button>
-            <button class="text-red-600 hover:underline text-xs ml-2">ลบ</button>
+            <button class="text-blue-600 hover:underline text-xs" onclick="editCourse('${esc(c.id)}')">แก้ไข</button>
+            <button class="text-red-600 hover:underline text-xs ml-2" onclick="deleteCourse('${esc(c.id)}')">ลบ</button>
           </td>
         </tr>
       `).join('');
@@ -579,22 +599,23 @@
 
     function renderTraining() {
       const tbody = document.getElementById('trainingTable');
-      tbody.innerHTML = training.map(t => `
+      tbody.innerHTML = db.training.map(t => `
         <tr>
-          <td class="font-mono text-xs">${t.id}</td>
-          <td class="font-medium">${t.course}</td>
-          <td>${t.batch}</td>
-          <td>${t.date}</td>
-          <td>${t.participants} คน</td>
-          <td>${t.trainer}</td>
+          <td class="font-mono text-xs">${esc(t.id)}</td>
+          <td class="font-medium">${esc(t.course)}</td>
+          <td>${esc(t.batch)}</td>
+          <td>${esc(t.date)}</td>
+          <td>${esc(t.participants)} คน</td>
+          <td>${esc(t.trainer)}</td>
           <td><span class="badge badge-${t.status === 'completed' ? 'green' : t.status === 'ongoing' ? 'blue' : 'amber'}">${t.status === 'completed' ? 'เสร็จสิ้น' : t.status === 'ongoing' ? 'กำลังดำเนินการ' : 'เตรียมเปิด'}</span></td>
+          <td><button class="text-red-600 hover:underline text-xs" onclick="deleteTraining('${esc(t.id)}')">ลบ</button></td>
         </tr>
       `).join('');
     }
 
     function renderGroups() {
       const tbody = document.getElementById('groupsTable');
-      tbody.innerHTML = groups.map(g => `
+      tbody.innerHTML = db.groups.map(g => `
         <tr>
           <td class="font-mono text-xs">${g.id}</td>
           <td class="font-medium">${g.name}</td>
@@ -608,7 +629,7 @@
 
     function renderMentors() {
       const tbody = document.getElementById('mentorTable');
-      tbody.innerHTML = mentors.map(m => `
+      tbody.innerHTML = db.mentors.map(m => `
         <tr>
           <td class="font-medium">${m.mentor}</td>
           <td>${m.mentee}</td>
@@ -622,7 +643,7 @@
 
     function renderIDPs() {
       const tbody = document.getElementById('idpTable');
-      tbody.innerHTML = idps.map(i => `
+      tbody.innerHTML = db.idps.map(i => `
         <tr>
           <td class="font-medium">${i.name}</td>
           <td>${i.position}</td>
@@ -643,7 +664,7 @@
 
     function renderMSP() {
       const tbody = document.getElementById('mspTable');
-      tbody.innerHTML = msp.map(m => `
+      tbody.innerHTML = db.msp.map(m => `
         <tr>
           <td class="font-medium">${m.name}</td>
           <td class="text-green-600 font-bold">+${m.received}</td>
@@ -672,13 +693,77 @@
       document.getElementById('modal-' + name).classList.remove('open');
     }
 
+    let editingCourseId = null;
+    function resetCourseForm() {
+      ['courseId','courseName','courseHours','courseDesc'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('courseType').value = 'Technical';
+      document.getElementById('courseCC').value = 'CC1';
+      document.getElementById('courseStatus').value = 'active';
+    }
+
     function saveCourse() {
-      alert('บันทึกหลักสูตรสำเร็จ!');
-      closeModal('newCourse');
+      const id = document.getElementById('courseId').value.trim();
+      const name = document.getElementById('courseName').value.trim();
+      const hours = parseInt(document.getElementById('courseHours').value, 10);
+      if (!id || !name || !hours) { alert('กรุณากรอกรหัสหลักสูตร ชื่อ และจำนวนชั่วโมงให้ครบ'); return; }
+      const record = {
+        id, name,
+        type: document.getElementById('courseType').value,
+        hours,
+        cc: document.getElementById('courseCC').value,
+        status: document.getElementById('courseStatus').value,
+        desc: document.getElementById('courseDesc').value.trim()
+      };
+      if (editingCourseId) {
+        const idx = db.courses.findIndex(c => c.id === editingCourseId);
+        if (idx >= 0) db.courses[idx] = record;
+        editingCourseId = null;
+      } else {
+        if (db.courses.some(c => c.id === id)) { alert('รหัสหลักสูตรนี้มีอยู่แล้ว'); return; }
+        db.courses.push(record);
+      }
+      saveDB(); renderCourses(); updateCourseStats();
+      resetCourseForm(); closeModal('newCourse');
+    }
+
+    function editCourse(id) {
+      const c = db.courses.find(x => x.id === id);
+      if (!c) return;
+      editingCourseId = c.id;
+      document.getElementById('courseId').value = c.id;
+      document.getElementById('courseName').value = c.name;
+      document.getElementById('courseType').value = c.type;
+      document.getElementById('courseHours').value = c.hours;
+      document.getElementById('courseCC').value = c.cc;
+      document.getElementById('courseStatus').value = c.status;
+      document.getElementById('courseDesc').value = c.desc || '';
+      openModal('newCourse');
+    }
+
+    function deleteCourse(id) {
+      if (!confirm('ลบหลักสูตร ' + id + ' ใช่ไหม?')) return;
+      db.courses = db.courses.filter(c => c.id !== id);
+      saveDB(); renderCourses(); updateCourseStats();
+    }
+
+    function deleteTraining(id) {
+      if (!confirm('ลบการอบรม ' + id + ' ใช่ไหม?')) return;
+      db.training = db.training.filter(t => t.id !== id);
+      saveDB(); renderTraining();
+    }
+
+    function updateCourseStats() {
+      const el = document.getElementById('statCourses');
+      if (el) el.textContent = db.courses.length;
     }
 
     function exportData() {
-      alert('ส่งออกข้อมูลสำเร็จ!');
+      const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'pp7-p5-data-' + new Date().toISOString().slice(0,10) + '.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
     }
 
     // Charts
@@ -737,6 +822,7 @@
       renderMentors();
       renderIDPs();
       renderMSP();
+      updateCourseStats();
       initCharts();
     });
   </script>
