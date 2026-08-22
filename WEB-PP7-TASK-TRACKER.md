@@ -36,6 +36,7 @@
 14. 🔶 **Authentication & Authorization** (User roles)
 
 ### Phase 2: P5 สร้างระบบใหม่ (57 tasks) ⏱️ 3-4 ชม.
+> 🦾 คืบหน้า 2026-08-22: หลักสูตร/การฝึกอบรมมี CRUD จริงแล้ว (localStorage: PP7_P5_DATA_V1) — commit c6e6bc9
 1. 🔶 ระบบพี่เลี้ยงและน้องเลี้ยง (LDC-PAD-PM-001)
 2. 🔶 ศูนย์พัฒนาฝีมือแรงงาน (LDC-PAD-PM-002)
 3. 🔶 ระบบ 3 ผ่าน PKG (LDC-PAD-PM-004)
