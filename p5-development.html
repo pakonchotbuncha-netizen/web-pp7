@@ -38,6 +38,7 @@
     .badge-blue { background: #dbeafe; color: #1e40af; }
     .badge-pink { background: #fce7f3; color: #9d174d; }
     .badge-purple { background: #f3e8ff; color: #7c3aed; }
+    .badge-gray { background: #e2e8f0; color: #475569; }
 
     .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
     .btn-primary { background: #ec4899; color: #fff; }
@@ -121,23 +122,23 @@
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div class="card stat-card pink">
           <div class="text-sm text-slate-500">หลักสูตรทั้งหมด</div>
-          <div class="text-3xl font-bold text-pink-600 mt-2">48</div>
-          <div class="text-xs text-slate-400 mt-1">+8 หลักสูตรใหม่ Q2</div>
+          <div class="text-3xl font-bold text-pink-600 mt-2" id="statCourses">0</div>
+          <div class="text-xs text-slate-400 mt-1">หลักสูตรในระบบ</div>
         </div>
         <div class="card stat-card purple">
           <div class="text-sm text-slate-500">กำลังฝึกอบรม</div>
-          <div class="text-3xl font-bold text-purple-600 mt-2">156</div>
-          <div class="text-xs text-slate-400 mt-1">คน</div>
+          <div class="text-3xl font-bold text-purple-600 mt-2" id="statTraining">0</div>
+          <div class="text-xs text-slate-400 mt-1">คน (รุ่นที่กำลัง/เตรียมอบรม)</div>
         </div>
         <div class="card stat-card blue">
-          <div class="text-sm text-slate-500">Completion Rate</div>
-          <div class="text-3xl font-bold text-blue-600 mt-2">92%</div>
-          <div class="text-xs text-slate-400 mt-1">+5% จาก Q1</div>
+          <div class="text-sm text-slate-500">IDP ที่กำลังดำเนินการ</div>
+          <div class="text-3xl font-bold text-blue-600 mt-2" id="statIDP">0</div>
+          <div class="text-xs text-slate-400 mt-1">แผนพัฒนารายบุคคล</div>
         </div>
         <div class="card stat-card green">
-          <div class="text-sm text-slate-500">งบประมาณใช้ไป</div>
-          <div class="text-3xl font-bold text-green-600 mt-2">78%</div>
-          <div class="text-xs text-slate-400 mt-1">฿1.2M / ฿1.5M</div>
+          <div class="text-sm text-slate-500">คู่พี่เลี้ยง-น้องเลี้ยง</div>
+          <div class="text-3xl font-bold text-green-600 mt-2" id="statMentor">0</div>
+          <div class="text-xs text-slate-400 mt-1">คู่ที่ active</div>
         </div>
       </div>
 
@@ -299,6 +300,7 @@
                 <th>ผู้เข้าอบรม</th>
                 <th>วิทยากร</th>
                 <th>สถานะ</th>
+                <th>จัดการ</th>
               </tr>
             </thead>
             <tbody id="trainingTable">
@@ -326,6 +328,7 @@
                 <th>จำนวนสมาชิก</th>
                 <th>CC Focus</th>
                 <th>สถานะ</th>
+                <th>จัดการ</th>
               </tr>
             </thead>
             <tbody id="groupsTable">
@@ -353,6 +356,7 @@
                 <th>ระยะเวลา</th>
                 <th>DTA Score</th>
                 <th>สถานะ</th>
+                <th>จัดการ</th>
               </tr>
             </thead>
             <tbody id="mentorTable">
@@ -380,6 +384,7 @@
                 <th>แผนพัฒนา</th>
                 <th>เป้าหมาย</th>
                 <th>Progress</th>
+                <th>จัดการ</th>
               </tr>
             </thead>
             <tbody id="idpTable">
@@ -524,9 +529,205 @@
     </div>
   </div>
 
+  <!-- Modal: New Training -->
+  <div id="modal-newTraining" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="font-bold text-lg">🎯 เพิ่มการฝึกอบรม</h3>
+        <button onclick="closeModal('newTraining')" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="form-label">รหัสการอบรม</label>
+            <input type="text" id="trainingId" class="form-input" placeholder="T-004">
+          </div>
+          <div>
+            <label class="form-label">หลักสูตร</label>
+            <select id="trainingCourse" class="form-select"></select>
+          </div>
+          <div>
+            <label class="form-label">รุ่น</label>
+            <input type="text" id="trainingBatch" class="form-input" placeholder="รุ่น 2">
+          </div>
+          <div>
+            <label class="form-label">วันที่อบรม</label>
+            <input type="date" id="trainingDate" class="form-input">
+          </div>
+          <div>
+            <label class="form-label">ผู้เข้าอบรม (คน)</label>
+            <input type="number" id="trainingParticipants" class="form-input" placeholder="20">
+          </div>
+          <div>
+            <label class="form-label">วิทยากร</label>
+            <input type="text" id="trainingTrainer" class="form-input" placeholder="ชื่อวิทยากร">
+          </div>
+          <div>
+            <label class="form-label">สถานะ</label>
+            <select id="trainingStatus" class="form-select">
+              <option value="upcoming">เตรียมเปิด</option>
+              <option value="ongoing">กำลังดำเนินการ</option>
+              <option value="completed">เสร็จสิ้น</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('newTraining')">ยกเลิก</button>
+        <button class="btn btn-primary" onclick="saveTraining()">💾 บันทึก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: New Group -->
+  <div id="modal-newGroup" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="font-bold text-lg">👥 สร้างกลุ่มพัฒนา</h3>
+        <button onclick="closeModal('newGroup')" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="form-label">รหัสกลุ่ม</label>
+            <input type="text" id="groupId" class="form-input" placeholder="GRP-004">
+          </div>
+          <div>
+            <label class="form-label">ชื่อกลุ่ม</label>
+            <input type="text" id="groupName" class="form-input" placeholder="เช่น Leadership Track">
+          </div>
+          <div>
+            <label class="form-label">ประเภท</label>
+            <select id="groupType" class="form-select">
+              <option>Development</option>
+              <option>Project</option>
+              <option>Training</option>
+              <option>Community</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">จำนวนสมาชิก</label>
+            <input type="number" id="groupMembers" class="form-input" placeholder="12">
+          </div>
+          <div>
+            <label class="form-label">CC Focus</label>
+            <select id="groupCC" class="form-select">
+              <option>CC1</option>
+              <option>CC2</option>
+              <option>CC3</option>
+              <option>CC4</option>
+              <option>CC5</option>
+              <option>CC6</option>
+              <option>CC7</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">สถานะ</label>
+            <select id="groupStatus" class="form-select">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('newGroup')">ยกเลิก</button>
+        <button class="btn btn-primary" onclick="saveGroup()">💾 บันทึก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: New Mentor -->
+  <div id="modal-newMentor" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="font-bold text-lg">🤝 จับคู่พี่เลี้ยง-น้องเลี้ยง</h3>
+        <button onclick="closeModal('newMentor')" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="form-label">พี่เลี้ยง (Mentor)</label>
+            <input type="text" id="mentorName" class="form-input" placeholder="ชื่อพี่เลี้ยง">
+          </div>
+          <div>
+            <label class="form-label">น้องเลี้ยง (Mentee)</label>
+            <input type="text" id="menteeName" class="form-input" placeholder="ชื่อน้องเลี้ยง">
+          </div>
+          <div>
+            <label class="form-label">CC ที่พัฒนา</label>
+            <input type="text" id="mentorCC" class="form-input" placeholder="CC1, CC2">
+          </div>
+          <div>
+            <label class="form-label">ระยะเวลา</label>
+            <input type="text" id="mentorDuration" class="form-input" placeholder="6 เดือน">
+          </div>
+          <div>
+            <label class="form-label">DTA Score</label>
+            <input type="number" step="0.1" min="0" max="5" id="mentorDTA" class="form-input" placeholder="4.0">
+          </div>
+          <div>
+            <label class="form-label">สถานะ</label>
+            <select id="mentorStatus" class="form-select">
+              <option value="active">Active</option>
+              <option value="completed">เสร็จสิ้น</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('newMentor')">ยกเลิก</button>
+        <button class="btn btn-primary" onclick="saveMentor()">💾 บันทึก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: New IDP -->
+  <div id="modal-newIDP" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="font-bold text-lg">📋 สร้างแผนพัฒนา (IDP)</h3>
+        <button onclick="closeModal('newIDP')" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="form-label">พนักงาน</label>
+            <input type="text" id="idpName" class="form-input" placeholder="ชื่อ-นามสกุล">
+          </div>
+          <div>
+            <label class="form-label">ตำแหน่ง</label>
+            <input type="text" id="idpPosition" class="form-input" placeholder="Supervisor">
+          </div>
+          <div>
+            <label class="form-label">CC ที่ต้องพัฒนา</label>
+            <input type="text" id="idpCC" class="form-input" placeholder="CC1, CC2">
+          </div>
+          <div>
+            <label class="form-label">Progress (%)</label>
+            <input type="number" min="0" max="100" id="idpProgress" class="form-input" placeholder="50">
+          </div>
+          <div class="md:col-span-2">
+            <label class="form-label">แผนพัฒนา</label>
+            <input type="text" id="idpPlan" class="form-input" placeholder="Leadership Workshop + Mentoring">
+          </div>
+          <div class="md:col-span-2">
+            <label class="form-label">เป้าหมาย</label>
+            <input type="text" id="idpTarget" class="form-input" placeholder="CC1 ≥ 4.0">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('newIDP')">ยกเลิก</button>
+        <button class="btn btn-primary" onclick="saveIDP()">💾 บันทึก</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ===== localStorage Persistence (PP7_P5) =====
-    const STORAGE_KEY = 'PP7_…_V1';
+    const STORAGE_KEY = 'PP7_P5_DATA_V1';
+    const LEGACY_STORAGE_KEY = 'PP7_…_V1'; // key เก่าที่เคยใช้ (มีอักขระ … ปน) — migrate ข้อมูลเดิม
     const seedCourses = [
       { id: 'TRN-001', name: 'Innovation Workshop', type: 'Leadership', hours: 16, cc: 'CC2', status: 'active' },
       { id: 'TRN-002', name: 'Leadership Excellence', type: 'Leadership', hours: 24, cc: 'CC1', status: 'active' },
@@ -570,6 +771,14 @@
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (raw) return JSON.parse(raw);
+        // migrate จาก key เก่า
+        const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (legacy) {
+          const data = JSON.parse(legacy);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+          localStorage.removeItem(LEGACY_STORAGE_KEY);
+          return data;
+        }
       } catch (e) { console.warn('loadDB error', e); }
       return { courses: seedCourses, training: seedTraining, groups: seedGroups, mentors: seedMentors, idps: seedIdps, msp: seedMsp };
     }
@@ -608,7 +817,10 @@
           <td>${esc(t.participants)} คน</td>
           <td>${esc(t.trainer)}</td>
           <td><span class="badge badge-${t.status === 'completed' ? 'green' : t.status === 'ongoing' ? 'blue' : 'amber'}">${t.status === 'completed' ? 'เสร็จสิ้น' : t.status === 'ongoing' ? 'กำลังดำเนินการ' : 'เตรียมเปิด'}</span></td>
-          <td><button class="text-red-600 hover:underline text-xs" onclick="deleteTraining('${esc(t.id)}')">ลบ</button></td>
+          <td>
+            <button class="text-blue-600 hover:underline text-xs" onclick="editTraining('${esc(t.id)}')">แก้ไข</button>
+            <button class="text-red-600 hover:underline text-xs ml-2" onclick="deleteTraining('${esc(t.id)}')">ลบ</button>
+          </td>
         </tr>
       `).join('');
     }
@@ -617,46 +829,58 @@
       const tbody = document.getElementById('groupsTable');
       tbody.innerHTML = db.groups.map(g => `
         <tr>
-          <td class="font-mono text-xs">${g.id}</td>
-          <td class="font-medium">${g.name}</td>
-          <td><span class="badge badge-purple">${g.type}</span></td>
-          <td>${g.members} คน</td>
-          <td><span class="badge badge-pink">${g.cc}</span></td>
-          <td><span class="badge badge-green">Active</span></td>
+          <td class="font-mono text-xs">${esc(g.id)}</td>
+          <td class="font-medium">${esc(g.name)}</td>
+          <td><span class="badge badge-purple">${esc(g.type)}</span></td>
+          <td>${esc(g.members)} คน</td>
+          <td><span class="badge badge-pink">${esc(g.cc)}</span></td>
+          <td><span class="badge badge-${g.status === 'active' ? 'green' : 'gray'}">${g.status === 'active' ? 'Active' : 'Inactive'}</span></td>
+          <td>
+            <button class="text-blue-600 hover:underline text-xs" onclick="editGroup('${esc(g.id)}')">แก้ไข</button>
+            <button class="text-red-600 hover:underline text-xs ml-2" onclick="deleteGroup('${esc(g.id)}')">ลบ</button>
+          </td>
         </tr>
       `).join('');
     }
 
     function renderMentors() {
       const tbody = document.getElementById('mentorTable');
-      tbody.innerHTML = db.mentors.map(m => `
+      tbody.innerHTML = db.mentors.map((m, i) => `
         <tr>
-          <td class="font-medium">${m.mentor}</td>
-          <td>${m.mentee}</td>
-          <td><span class="badge badge-pink">${m.cc}</span></td>
-          <td>${m.duration}</td>
-          <td><span class="font-bold text-blue-600">${m.dta}</span></td>
-          <td><span class="badge badge-green">Active</span></td>
+          <td class="font-medium">${esc(m.mentor)}</td>
+          <td>${esc(m.mentee)}</td>
+          <td><span class="badge badge-pink">${esc(m.cc)}</span></td>
+          <td>${esc(m.duration)}</td>
+          <td><span class="font-bold text-blue-600">${esc(m.dta)}</span></td>
+          <td><span class="badge badge-${m.status === 'active' ? 'green' : 'gray'}">${m.status === 'active' ? 'Active' : 'เสร็จสิ้น'}</span></td>
+          <td>
+            <button class="text-blue-600 hover:underline text-xs" onclick="editMentor(${i})">แก้ไข</button>
+            <button class="text-red-600 hover:underline text-xs ml-2" onclick="deleteMentor(${i})">ลบ</button>
+          </td>
         </tr>
       `).join('');
     }
 
     function renderIDPs() {
       const tbody = document.getElementById('idpTable');
-      tbody.innerHTML = db.idps.map(i => `
+      tbody.innerHTML = db.idps.map((i, idx) => `
         <tr>
-          <td class="font-medium">${i.name}</td>
-          <td>${i.position}</td>
-          <td><span class="badge badge-pink">${i.cc}</span></td>
-          <td>${i.plan}</td>
-          <td class="text-xs">${i.target}</td>
+          <td class="font-medium">${esc(i.name)}</td>
+          <td>${esc(i.position)}</td>
+          <td><span class="badge badge-pink">${esc(i.cc)}</span></td>
+          <td>${esc(i.plan)}</td>
+          <td class="text-xs">${esc(i.target)}</td>
           <td>
             <div class="flex items-center gap-2">
               <div class="progress-bar flex-1">
-                <div class="progress-fill bg-pink-500" style="width: ${i.progress}%"></div>
+                <div class="progress-fill bg-pink-500" style="width: ${Number(i.progress) || 0}%"></div>
               </div>
-              <span class="text-xs font-bold">${i.progress}%</span>
+              <span class="text-xs font-bold">${Number(i.progress) || 0}%</span>
             </div>
+          </td>
+          <td>
+            <button class="text-blue-600 hover:underline text-xs" onclick="editIDP(${idx})">แก้ไข</button>
+            <button class="text-red-600 hover:underline text-xs ml-2" onclick="deleteIDP(${idx})">ลบ</button>
           </td>
         </tr>
       `).join('');
@@ -700,20 +924,12 @@
       document.getElementById('courseCC').value = 'CC1';
       document.getElementById('courseStatus').value = 'active';
     }
-
     function saveCourse() {
       const id = document.getElementById('courseId').value.trim();
       const name = document.getElementById('courseName').value.trim();
       const hours = parseInt(document.getElementById('courseHours').value, 10);
       if (!id || !name || !hours) { alert('กรุณากรอกรหัสหลักสูตร ชื่อ และจำนวนชั่วโมงให้ครบ'); return; }
-      const record = {
-        id, name,
-        type: document.getElementById('courseType').value,
-        hours,
-        cc: document.getElementById('courseCC').value,
-        status: document.getElementById('courseStatus').value,
-        desc: document.getElementById('courseDesc').value.trim()
-      };
+      const record = { id, name, type: document.getElementById('courseType').value, hours, cc: document.getElementById('courseCC').value, status: document.getElementById('courseStatus').value, desc: document.getElementById('courseDesc').value.trim() };
       if (editingCourseId) {
         const idx = db.courses.findIndex(c => c.id === editingCourseId);
         if (idx >= 0) db.courses[idx] = record;
@@ -722,10 +938,9 @@
         if (db.courses.some(c => c.id === id)) { alert('รหัสหลักสูตรนี้มีอยู่แล้ว'); return; }
         db.courses.push(record);
       }
-      saveDB(); renderCourses(); updateCourseStats();
+      saveDB(); renderCourses(); updateAllStats();
       resetCourseForm(); closeModal('newCourse');
     }
-
     function editCourse(id) {
       const c = db.courses.find(x => x.id === id);
       if (!c) return;
@@ -739,23 +954,199 @@
       document.getElementById('courseDesc').value = c.desc || '';
       openModal('newCourse');
     }
-
     function deleteCourse(id) {
       if (!confirm('ลบหลักสูตร ' + id + ' ใช่ไหม?')) return;
       db.courses = db.courses.filter(c => c.id !== id);
-      saveDB(); renderCourses(); updateCourseStats();
+      saveDB(); renderCourses(); updateAllStats();
     }
 
+    // ===== Training CRUD =====
+    let editingTrainingId = null;
+    function populateCourseSelect() {
+      const sel = document.getElementById('trainingCourse');
+      if (!sel) return;
+      sel.innerHTML = db.courses.map(c => `<option value="${esc(c.name)}">${esc(c.name)}</option>`).join('');
+    }
+    function resetTrainingForm() {
+      ['trainingId','trainingBatch','trainingDate','trainingParticipants','trainingTrainer'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('trainingStatus').value = 'upcoming';
+      populateCourseSelect();
+    }
+    function saveTraining() {
+      const id = document.getElementById('trainingId').value.trim();
+      const course = document.getElementById('trainingCourse').value;
+      const batch = document.getElementById('trainingBatch').value.trim();
+      const date = document.getElementById('trainingDate').value;
+      const participants = parseInt(document.getElementById('trainingParticipants').value, 10) || 0;
+      const trainer = document.getElementById('trainingTrainer').value.trim();
+      if (!id || !course || !batch || !date || !trainer) { alert('กรุณากรอกข้อมูลให้ครบ'); return; }
+      const record = { id, course, batch, date, participants, trainer, status: document.getElementById('trainingStatus').value };
+      if (editingTrainingId) {
+        const idx = db.training.findIndex(t => t.id === editingTrainingId);
+        if (idx >= 0) db.training[idx] = record;
+        editingTrainingId = null;
+      } else {
+        if (db.training.some(t => t.id === id)) { alert('รหัสการอบรมนี้มีอยู่แล้ว'); return; }
+        db.training.push(record);
+      }
+      saveDB(); renderTraining(); updateAllStats();
+      resetTrainingForm(); closeModal('newTraining');
+    }
+    function editTraining(id) {
+      const t = db.training.find(x => x.id === id);
+      if (!t) return;
+      editingTrainingId = t.id;
+      populateCourseSelect();
+      document.getElementById('trainingId').value = t.id;
+      document.getElementById('trainingCourse').value = t.course;
+      document.getElementById('trainingBatch').value = t.batch;
+      document.getElementById('trainingDate').value = t.date;
+      document.getElementById('trainingParticipants').value = t.participants;
+      document.getElementById('trainingTrainer').value = t.trainer;
+      document.getElementById('trainingStatus').value = t.status;
+      openModal('newTraining');
+    }
     function deleteTraining(id) {
       if (!confirm('ลบการอบรม ' + id + ' ใช่ไหม?')) return;
       db.training = db.training.filter(t => t.id !== id);
-      saveDB(); renderTraining();
+      saveDB(); renderTraining(); updateAllStats();
     }
 
-    function updateCourseStats() {
-      const el = document.getElementById('statCourses');
-      if (el) el.textContent = db.courses.length;
+    // ===== Group CRUD =====
+    let editingGroupId = null;
+    function resetGroupForm() {
+      ['groupId','groupName','groupMembers'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('groupType').value = 'Development';
+      document.getElementById('groupCC').value = 'CC1';
+      document.getElementById('groupStatus').value = 'active';
     }
+    function saveGroup() {
+      const id = document.getElementById('groupId').value.trim();
+      const name = document.getElementById('groupName').value.trim();
+      const members = parseInt(document.getElementById('groupMembers').value, 10) || 0;
+      if (!id || !name || !members) { alert('กรุณากรอกรหัสกลุ่ม ชื่อ และจำนวนสมาชิกให้ครบ'); return; }
+      const record = { id, name, type: document.getElementById('groupType').value, members, cc: document.getElementById('groupCC').value, status: document.getElementById('groupStatus').value };
+      if (editingGroupId) {
+        const idx = db.groups.findIndex(g => g.id === editingGroupId);
+        if (idx >= 0) db.groups[idx] = record;
+        editingGroupId = null;
+      } else {
+        if (db.groups.some(g => g.id === id)) { alert('รหัสกลุ่มนี้มีอยู่แล้ว'); return; }
+        db.groups.push(record);
+      }
+      saveDB(); renderGroups(); updateAllStats();
+      resetGroupForm(); closeModal('newGroup');
+    }
+    function editGroup(id) {
+      const g = db.groups.find(x => x.id === id);
+      if (!g) return;
+      editingGroupId = g.id;
+      document.getElementById('groupId').value = g.id;
+      document.getElementById('groupName').value = g.name;
+      document.getElementById('groupType').value = g.type;
+      document.getElementById('groupMembers').value = g.members;
+      document.getElementById('groupCC').value = g.cc;
+      document.getElementById('groupStatus').value = g.status;
+      openModal('newGroup');
+    }
+    function deleteGroup(id) {
+      if (!confirm('ลบกลุ่ม ' + id + ' ใช่ไหม?')) return;
+      db.groups = db.groups.filter(g => g.id !== id);
+      saveDB(); renderGroups(); updateAllStats();
+    }
+
+    // ===== Mentor CRUD =====
+    let editingMentorIdx = null;
+    function resetMentorForm() {
+      ['mentorName','menteeName','mentorCC','mentorDuration','mentorDTA'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('mentorStatus').value = 'active';
+    }
+    function saveMentor() {
+      const mentor = document.getElementById('mentorName').value.trim();
+      const mentee = document.getElementById('menteeName').value.trim();
+      const cc = document.getElementById('mentorCC').value.trim();
+      const duration = document.getElementById('mentorDuration').value.trim();
+      const dta = parseFloat(document.getElementById('mentorDTA').value) || 0;
+      if (!mentor || !mentee || !cc || !duration) { alert('กรุณากรอกข้อมูลให้ครบ'); return; }
+      const record = { mentor, mentee, cc, duration, dta, status: document.getElementById('mentorStatus').value };
+      if (editingMentorIdx !== null) {
+        db.mentors[editingMentorIdx] = record;
+        editingMentorIdx = null;
+      } else {
+        db.mentors.push(record);
+      }
+      saveDB(); renderMentors(); updateAllStats();
+      resetMentorForm(); closeModal('newMentor');
+    }
+    function editMentor(idx) {
+      const m = db.mentors[idx];
+      if (!m) return;
+      editingMentorIdx = idx;
+      document.getElementById('mentorName').value = m.mentor;
+      document.getElementById('menteeName').value = m.mentee;
+      document.getElementById('mentorCC').value = m.cc;
+      document.getElementById('mentorDuration').value = m.duration;
+      document.getElementById('mentorDTA').value = m.dta;
+      document.getElementById('mentorStatus').value = m.status;
+      openModal('newMentor');
+    }
+    function deleteMentor(idx) {
+      if (!confirm('ลบคู่พี่เลี้ยง-น้องเลี้ยงนี้ใช่ไหม?')) return;
+      db.mentors.splice(idx, 1);
+      saveDB(); renderMentors(); updateAllStats();
+    }
+
+    // ===== IDP CRUD =====
+    let editingIDPIdx = null;
+    function resetIDPForm() {
+      ['idpName','idpPosition','idpCC','idpPlan','idpTarget','idpProgress'].forEach(id => document.getElementById(id).value = '');
+    }
+    function saveIDP() {
+      const name = document.getElementById('idpName').value.trim();
+      const position = document.getElementById('idpPosition').value.trim();
+      const cc = document.getElementById('idpCC').value.trim();
+      const plan = document.getElementById('idpPlan').value.trim();
+      const target = document.getElementById('idpTarget').value.trim();
+      const progress = parseInt(document.getElementById('idpProgress').value, 10) || 0;
+      if (!name || !position || !cc || !plan || !target) { alert('กรุณากรอกข้อมูลให้ครบ'); return; }
+      const record = { name, position, cc, plan, target, progress };
+      if (editingIDPIdx !== null) {
+        db.idps[editingIDPIdx] = record;
+        editingIDPIdx = null;
+      } else {
+        db.idps.push(record);
+      }
+      saveDB(); renderIDPs(); updateAllStats();
+      resetIDPForm(); closeModal('newIDP');
+    }
+    function editIDP(idx) {
+      const i = db.idps[idx];
+      if (!i) return;
+      editingIDPIdx = idx;
+      document.getElementById('idpName').value = i.name;
+      document.getElementById('idpPosition').value = i.position;
+      document.getElementById('idpCC').value = i.cc;
+      document.getElementById('idpPlan').value = i.plan;
+      document.getElementById('idpTarget').value = i.target;
+      document.getElementById('idpProgress').value = i.progress;
+      openModal('newIDP');
+    }
+    function deleteIDP(idx) {
+      if (!confirm('ลบ IDP นี้ใช่ไหม?')) return;
+      db.idps.splice(idx, 1);
+      saveDB(); renderIDPs(); updateAllStats();
+    }
+
+    // ===== Stats =====
+    function updateAllStats() {
+      const el = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+      el('statCourses', db.courses.length);
+      el('statTraining', db.training.reduce((s, t) => s + (Number(t.participants) || 0), 0));
+      el('statIDP', db.idps.length);
+      el('statMentor', db.mentors.filter(m => m.status === 'active').length);
+    }
+    // backward compat
+    function updateCourseStats() { updateAllStats(); }
 
     function exportData() {
       const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
@@ -822,7 +1213,7 @@
       renderMentors();
       renderIDPs();
       renderMSP();
-      updateCourseStats();
+      updateAllStats();
       initCharts();
     });
   </script>
