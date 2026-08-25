@@ -986,25 +986,56 @@
 
         async function pushAllToCloud() {
             if (!BACKEND_URL) return false;
-            // Tasks
+            // ดึงข้อมูลปัจจุบันจาก cloud ก่อน เพื่อเช็คว่ามีอะไรอยู่แล้ว (กัน push ซ้ำ)
+            const existing = await apiGet('getAll');
+            const cloudTasks = (existing.success && existing.data.tasks) ? existing.data.tasks : [];
+            const cloudBudget = (existing.success && existing.data.budget) ? existing.data.budget : [];
+            const cloudLogs = (existing.success && existing.data.logs) ? existing.data.logs : [];
+            const cloudLinks = (existing.success && existing.data.links) ? existing.data.links : [];
+
+            // Tasks — saveTask upsert โดย id (ปลอดภัย)
             for (const t of state.tasks) {
-                await apiPost('saveTask', { id: t.id, week: t.week, task: t.task, owner: t.owner, priority: t.priority, status: t.status });
+                const exists = cloudTasks.some(c => String(c.id) === String(t.id));
+                if (!exists) {
+                    await apiPost('saveTask', { id: t.id, week: t.week, task: t.task, owner: t.owner, priority: t.priority, status: t.status });
+                }
             }
-            // Equipment
+            // Equipment — upsert โดย id
             for (const e of state.equipment) {
-                await apiPost('saveEquipment', { id: e.id, type: e.type, brand: e.brand, location: e.location, expire: e.expire, status: e.status, action: e.action });
+                const exists = cloudTasks.some(c => false); // equipment ต่างตาราง ดูด้านล่าง
             }
-            // Budget
+            // Equipment (ใช้ getEquipment แยก)
+            const eqRes = await apiGet('getEquipment');
+            const cloudEquip = (eqRes.success && eqRes.data) ? eqRes.data : [];
+            for (const e of state.equipment) {
+                const exists = cloudEquip.some(c => String(c.id) === String(e.id));
+                if (!exists) {
+                    await apiPost('saveEquipment', { id: e.id, type: e.type, brand: e.brand, location: e.location, expire: e.expire, status: e.status, action: e.action });
+                }
+            }
+            // Budget — push เฉพาะรายการที่ยังไม่มี (key = item|qty|price)
             for (const b of state.budget) {
-                await apiPost('saveBudget', { item: b.item, qty: b.qty, price: b.price, spent: b.spent, date: b.date, note: b.note });
+                const key = b.item + '|' + b.qty + '|' + b.price;
+                const exists = cloudBudget.some(c => (c.item + '|' + c.qty + '|' + c.price) === key);
+                if (!exists) {
+                    await apiPost('saveBudget', { item: b.item, qty: b.qty, price: b.price, spent: b.spent, date: b.date, note: b.note });
+                }
             }
-            // Logs & Links
+            // Logs — push เฉพาะที่ยังไม่มี (key = taskId|date|detail)
             for (const t of state.tasks) {
                 for (const l of (t.logs || [])) {
-                    await apiPost('saveLog', { taskId: t.id, date: l.date, detail: l.detail });
+                    const key = String(t.id) + '|' + (l.date || '') + '|' + (l.detail || '');
+                    const exists = cloudLogs.some(c => (String(c.taskId) + '|' + (c.date || '') + '|' + (c.detail || '')) === key);
+                    if (!exists) {
+                        await apiPost('saveLog', { taskId: t.id, date: l.date, detail: l.detail });
+                    }
                 }
                 for (const l of (t.links || [])) {
-                    await apiPost('saveLink', { taskId: t.id, label: l.label, url: l.url });
+                    const key = String(t.id) + '|' + (l.label || '') + '|' + (l.url || '');
+                    const exists = cloudLinks.some(c => (String(c.taskId) + '|' + (c.label || '') + '|' + (c.url || '')) === key);
+                    if (!exists) {
+                        await apiPost('saveLink', { taskId: t.id, label: l.label, url: l.url });
+                    }
                 }
             }
             LAST_SYNC = new Date();
