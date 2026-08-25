@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แผนซ่อมบำรุงระบบดับเพลิง 2567 - PKG Group จันทบุรี</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Prompt', sans-serif; }
+        .tab-active { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; }
+        .tab-inactive { background: #f3f4f6; color: #374151; }
+        .tab-inactive:hover { background: #e5e7eb; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-progress { background: #dbeafe; color: #1e40af; }
+        .status-done { background: #d1fae5; color: #065f46; }
+        .priority-high { background: #fee2e2; color: #991b1b; }
+        .priority-medium { background: #fef3c7; color: #92400e; }
+        .priority-low { background: #e0e7ff; color: #3730a3; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <div class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <h1 class="text-2xl font-bold text-gray-800">🔥 แผนซ่อมบำรุงระบบดับเพลิง 2567</h1>
+            <p class="text-sm text-gray-600">PKG Group จันทบุรี — เริ่ม 25 ส.ค. 2567</p>
+        </div>
+        <!-- Tabs -->
+        <div class="max-w-7xl mx-auto px-4 pb-3 flex gap-2 overflow-x-auto">
+            <button onclick="showTab('overview')" id="tab-overview" class="tab-active px-4 py-2 rounded-lg font-medium whitespace-nowrap transition">📊 สรุปโครงการ</button>
+            <button onclick="showTab('plan')" id="tab-plan" class="tab-inactive px-4 py-2 rounded-lg font-medium whitespace-nowrap transition">📅 แผนงาน</button>
+            <button onclick="showTab('equipment')" id="tab-equipment" class="tab-inactive px-4 py-2 rounded-lg font-medium whitespace-nowrap transition">🧯 ทะเบียนอุปกรณ์</button>
+            <button onclick="showTab('contacts')" id="tab-contacts" class="tab-inactive px-4 py-2 rounded-lg font-medium whitespace-nowrap transition">📞 ผู้ติดต่อ</button>
+            <button onclick="showTab('budget')" id="tab-budget" class="tab-inactive px-4 py-2 rounded-lg font-medium whitespace-nowrap transition">💰 งบประมาณ</button>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Tab 1: Overview -->
+        <div id="content-overview">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="card p-4 border-l-4 border-red-600">
+                    <p class="text-sm text-gray-600">ระยะเวลาโครงการ</p>
+                    <p class="text-2xl font-bold text-gray-800">60 วัน</p>
+                    <p class="text-xs text-gray-500">25 ส.ค. – 24 ต.ค. 2567</p>
+                </div>
+                <div class="card p-4 border-l-4 border-orange-600">
+                    <p class="text-sm text-gray-600">งานทั้งหมด</p>
+                    <p class="text-2xl font-bold text-gray-800">25 งาน</p>
+                    <p class="text-xs text-gray-500">สำรวจ + ซ่อม + ทดสอบ</p>
+                </div>
+                <div class="card p-4 border-l-4 border-yellow-600">
+                    <p class="text-sm text-gray-600">งบประมาณรวม</p>
+                    <p class="text-2xl font-bold text-gray-800">฿150,000</p>
+                    <p class="text-xs text-gray-500">ประมาณการ</p>
+                </div>
+                <div class="card p-4 border-l-4 border-green-600">
+                    <p class="text-sm text-gray-600">หน่วยงานหลัก</p>
+                    <p class="text-lg font-bold text-gray-800">เทศบาลท่าช้าง</p>
+                    <p class="text-xs text-gray-500">จ.จันทบุรี</p>
+                </div>
+            </div>
+
+            <div class="card p-6 mb-6">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">🎯 เป้าหมายโครงการ</h2>
+                <ul class="space-y-2 text-gray-700">
+                    <li>✅ สำรวจและประเมินสถานะระบบดับเพลิงทั้งหมด</li>
+                    <li>✅ ซ่อมบำรุงอุปกรณ์ที่ชำรุด/หมดอายุ</li>
+                    <li>✅ ทดสอบระบบทั้งหมดให้พร้อมใช้งาน</li>
+                    <li>✅ ประสานงานกับเทศบาลท่าช้าง (เจ้าหน้าที่ดับเพลิง)</li>
+                    <li>✅ จัดอบรมพนักงานเรื่องการใช้อุปกรณ์ดับเพลิง</li>
+                    <li>✅ สร้างทะเบียนอุปกรณ์และแผนบำรุงรักษาประจำปี</li>
+                </ul>
+            </div>
+
+            <div class="card p-6">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">📈 ความคืบหน้า</h2>
+                <canvas id="progressChart" height="100"></canvas>
+            </div>
+        </div>
+
+        <!-- Tab 2: Plan -->
+        <div id="content-plan" class="hidden">
+            <div class="card p-6 mb-6">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">📅 แผนงานโครงการ (Gantt Chart)</h2>
+                <canvas id="ganttChart" height="200"></canvas>
+            </div>
+
+            <div class="card p-6">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">📋 รายละเอียดงาน</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left">สัปดาห์</th>
+                                <th class="px-3 py-2 text-left">งาน</th>
+                                <th class="px-3 py-2 text-left">ผู้รับผิดชอบ</th>
+                                <th class="px-3 py-2 text-left">สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="taskTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Equipment -->
+        <div id="content-equipment" class="hidden">
+            <div class="card p-6 mb-6">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">🧯 ทะเบียนอุปกรณ์ดับเพลิง</h2>
+                <button onclick="addEquipment()" class="bg-red-600 text-white px-4 py-2 rounded-lg mb-4 hover:bg-red-700">+ เพิ่มอุปกรณ์</button>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left">จุดที่</th>
+                                <th class="px-3 py-2 text-left">ประเภท</th>
+                                <th class="px-3 py-2 text-left">ยี่ห้อ/รุ่น</th>
+                                <th class="px-3 py-2 text-left">วันหมดอายุ</th>
+                                <th class="px-3 py-2 text-left">สถานะ</th>
+                                <th class="px-3 py-2 text-left">การดำเนินการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="equipmentTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Contacts -->
+        <div id="content-contacts" class="hidden">
+            <div class="card p-6">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">📞 รายชื่อผู้ติดต่อ</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="border-l-4 border-red-600 p-4 bg-red-50">
+                        <h3 class="font-bold text-lg text-gray-800">🏛️ เทศบาลท่าช้าง</h3>
+                        <p class="text-sm text-gray-600 mt-2">เจ้าหน้าที่ดับเพลิง</p>
+                        <p class="text-sm mt-1"><strong>ที่อยู่:</strong> อ.ท่าใหม่ จ.จันทบุรี</p>
+                        <p class="text-sm mt-1"><strong>โทร:</strong> 039-XXX-XXXX</p>
+                        <p class="text-sm mt-1"><strong>ติดต่อ:</strong> ประสานงานตรวจสอบ/อบรม</p>
+                    </div>
+                    <div class="border-l-4 border-orange-600 p-4 bg-orange-50">
+                        <h3 class="font-bold text-lg text-gray-800">🧯 Supplier ถังดับเพลิง</h3>
+                        <p class="text-sm text-gray-600 mt-2">บริษัท XXX จำกัด</p>
+                        <p class="text-sm mt-1"><strong>โทร:</strong> 0XX-XXX-XXXX</p>
+                        <p class="text-sm mt-1"><strong>บริการ:</strong> อัดถัง/เปลี่ยนถังใหม่</p>
+                        <p class="text-sm mt-1"><strong>ราคา:</strong> อัด ฿300-800/ถัง, ใหม่ ฿1,500-3,500</p>
+                    </div>
+                    <div class="border-l-4 border-yellow-600 p-4 bg-yellow-50">
+                        <h3 class="font-bold text-lg text-gray-800">🔧 ช่างซ่อมระบบดับเพลิง</h3>
+                        <p class="text-sm text-gray-600 mt-2">บริษัท XXX จำกัด</p>
+                        <p class="text-sm mt-1"><strong>โทร:</strong> 0XX-XXX-XXXX</p>
+                        <p class="text-sm mt-1"><strong>บริการ:</strong> ซ่อม Fire Alarm/Sprinkler/Pump</p>
+                    </div>
+                    <div class="border-l-4 border-green-600 p-4 bg-green-50">
+                        <h3 class="font-bold text-lg text-gray-800">👷 ผู้รับผิดชอบภายใน</h3>
+                        <p class="text-sm text-gray-600 mt-2">ฝ่ายอาคาร/ความปลอดภัย</p>
+                        <p class="text-sm mt-1"><strong>ชื่อ:</strong> XXX</p>
+                        <p class="text-sm mt-1"><strong>โทร:</strong> 0XX-XXX-XXXX</p>
+                        <p class="text-sm mt-1"><strong>หน้าที่:</strong> สำรวจ/ติดตามงาน</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Budget -->
+        <div id="content-budget" class="hidden">
+            <div class="card p-6">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">💰 งบประมาณโครงการ</h2>
+                <canvas id="budgetChart" height="100"></canvas>
+                <div class="overflow-x-auto mt-6">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left">รายการ</th>
+                                <th class="px-3 py-2 text-right">จำนวน</th>
+                                <th class="px-3 py-2 text-right">ราคา/หน่วย</th>
+                                <th class="px-3 py-2 text-right">รวม</th>
+                            </tr>
+                        </thead>
+                        <tbody id="budgetTable"></tbody>
+                        <tfoot class="bg-gray-100 font-bold">
+                            <tr>
+                                <td class="px-3 py-2" colspan="3">รวมทั้งหมด</td>
+                                <td class="px-3 py-2 text-right" id="totalBudget">฿0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const tasks = [
+            { week: 1, task: 'สำรวจถังดับเพลิงพกพา', owner: 'ฝ่ายอาคาร', status: 'pending' },
+            { week: 1, task: 'สำรวจระบบ Fire Alarm', owner: 'ช่างไฟฟ้า', status: 'pending' },
+            { week: 1, task: 'สำรวจระบบ Sprinkler', owner: 'ช่างประปา', status: 'pending' },
+            { week: 1, task: 'สำรวจ Fire Pump', owner: 'ช่างเครื่องกล', status: 'pending' },
+            { week: 2, task: 'ประสานงานเทศบาลท่าช้าง', owner: 'Admin', status: 'pending' },
+            { week: 2, task: 'ติดต่อ Supplier ถังดับเพลิง', owner: 'Admin', status: 'pending' },
+            { week: 2, task: 'จัดลำดับความสำคัญ', owner: 'PM', status: 'pending' },
+            { week: 3, task: 'ส่งถังดับเพลิงอัดใหม่', owner: 'Supplier', status: 'pending' },
+            { week: 3, task: 'ซ่อม Detector ที่เสีย', owner: 'ช่างไฟฟ้า', status: 'pending' },
+            { week: 3, task: 'ซ่อม Fire Pump', owner: 'ช่างเครื่องกล', status: 'pending' },
+            { week: 4, task: 'ซ่อมท่อ/วาล์ว Sprinkler', owner: 'ช่างประปา', status: 'pending' },
+            { week: 4, task: 'ทดสอบ Fire Alarm', owner: 'ช่างไฟฟ้า', status: 'pending' },
+            { week: 5, task: 'ทดสอบ Fire Pump', owner: 'ช่างเครื่องกล', status: 'pending' },
+            { week: 5, task: 'ทดสอบ Flow Test Sprinkler', owner: 'ช่างประปา', status: 'pending' },
+            { week: 6, task: 'อบรมพนักงาน (ร่วมกับเทศบาล)', owner: 'เทศบาล + HR', status: 'pending' },
+            { week: 6, task: 'ทำรายงานสรุป', owner: 'PM', status: 'pending' },
+            { week: 6, task: 'อัปเดตทะเบียนอุปกรณ์', owner: 'Admin', status: 'pending' },
+        ];
+
+        const equipment = [
+            { id: 'T-001', type: 'ถัง ABC 5 กก.', brand: 'Golden Lion', expire: '2024-12-31', status: 'good', action: '-' },
+            { id: 'T-002', type: 'ถัง CO2 5 กก.', brand: 'Pyrene', expire: '2024-06-30', status: 'expired', action: 'ส่งอัดใหม่' },
+            { id: 'D-001', type: 'Smoke Detector', brand: 'Hochiki', expire: '-', status: 'faulty', action: 'เปลี่ยนใหม่' },
+            { id: 'S-001', type: 'Sprinkler Head', brand: 'Tyco', expire: '-', status: 'good', action: '-' },
+            { id: 'P-001', type: 'Fire Pump', brand: 'Grundfos', expire: '-', status: 'maintenance', action: 'เปลี่ยนน้ำมัน' },
+        ];
+
+        const budget = [
+            { item: 'อัดถังดับเพลิง (20 ถัง)', qty: 20, price: 500 },
+            { item: 'เปลี่ยนถังใหม่ (5 ถัง)', qty: 5, price: 2500 },
+            { item: 'เปลี่ยน Smoke Detector', qty: 10, price: 1200 },
+            { item: 'ซ่อม Fire Pump', qty: 1, price: 15000 },
+            { item: 'ซ่อมท่อ/วาล์ว', qty: 1, price: 8000 },
+            { item: 'ค่าประสานงานเทศบาล', qty: 1, price: 5000 },
+            { item: 'ค่าอบรมพนักงาน', qty: 1, price: 10000 },
+            { item: 'ค่าแรงช่าง', qty: 1, price: 20000 },
+            { item: 'อื่นๆ (ป้าย, ทาสี)', qty: 1, price: 5000 },
+        ];
+
+        // Tab switching
+        function showTab(tabName) {
+            ['overview', 'plan', 'equipment', 'contacts', 'budget'].forEach(t => {
+                document.getElementById(`content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('tab-active');
+                document.getElementById(`tab-${t}`).classList.add('tab-inactive');
+            });
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}`).classList.remove('tab-inactive');
+            document.getElementById(`tab-${tabName}`).classList.add('tab-active');
+        }
+
+        // Render tasks
+        function renderTasks() {
+            const tbody = document.getElementById('taskTable');
+            tbody.innerHTML = tasks.map(t => `
+                <tr class="border-t">
+                    <td class="px-3 py-2">สัปดาห์ที่ ${t.week}</td>
+                    <td class="px-3 py-2">${t.task}</td>
+                    <td class="px-3 py-2">${t.owner}</td>
+                    <td class="px-3 py-2"><span class="status-${t.status} px-2 py-1 rounded text-xs">${t.status === 'pending' ? 'รอเริ่ม' : t.status === 'progress' ? 'กำลังทำ' : 'เสร็จ'}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // Render equipment
+        function renderEquipment() {
+            const tbody = document.getElementById('equipmentTable');
+            tbody.innerHTML = equipment.map(e => `
+                <tr class="border-t">
+                    <td class="px-3 py-2">${e.id}</td>
+                    <td class="px-3 py-2">${e.type}</td>
+                    <td class="px-3 py-2">${e.brand}</td>
+                    <td class="px-3 py-2">${e.expire}</td>
+                    <td class="px-3 py-2"><span class="status-${e.status === 'good' ? 'done' : e.status === 'expired' ? 'pending' : 'progress'} px-2 py-1 rounded text-xs">${e.status === 'good' ? 'ปกติ' : e.status === 'expired' ? 'หมดอายุ' : 'ชำรุด'}</span></td>
+                    <td class="px-3 py-2">${e.action}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Render budget
+        function renderBudget() {
+            const tbody = document.getElementById('budgetTable');
+            let total = 0;
+            tbody.innerHTML = budget.map(b => {
+                const sum = b.qty * b.price;
+                total += sum;
+                return `
+                    <tr class="border-t">
+                        <td class="px-3 py-2">${b.item}</td>
+                        <td class="px-3 py-2 text-right">${b.qty}</td>
+                        <td class="px-3 py-2 text-right">฿${b.price.toLocaleString()}</td>
+                        <td class="px-3 py-2 text-right">฿${sum.toLocaleString()}</td>
+                    </tr>
+                `;
+            }).join('');
+            document.getElementById('totalBudget').textContent = `฿${total.toLocaleString()}`;
+        }
+
+        // Charts
+        function initCharts() {
+            // Progress chart
+            new Chart(document.getElementById('progressChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['เสร็จแล้ว', 'กำลังทำ', 'รอเริ่ม'],
+                    datasets: [{
+                        data: [0, 0, 25],
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            // Gantt chart (simplified as bar chart)
+            new Chart(document.getElementById('ganttChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['สำรวจ', 'วางแผน', 'ซ่อม', 'ทดสอบ', 'อบรม', 'รายงาน'],
+                    datasets: [{
+                        label: 'สัปดาห์ที่เริ่ม',
+                        data: [1, 2, 3, 4, 6, 6],
+                        backgroundColor: '#dc2626'
+                    }]
+                },
+                options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } }
+            });
+
+            // Budget chart
+            const budgetLabels = budget.map(b => b.item);
+            const budgetData = budget.map(b => b.qty * b.price);
+            new Chart(document.getElementById('budgetChart'), {
+                type: 'pie',
+                data: {
+                    labels: budgetLabels,
+                    datasets: [{ data: budgetData, backgroundColor: ['#dc2626', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#6b7280'] }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'right' } } }
+            });
+        }
+
+        function addEquipment() {
+            alert('ฟีเจอร์เพิ่มอุปกรณ์ — พัฒนาเพิ่มเติมได้ครับ');
+        }
+
+        // Init
+        renderTasks();
+        renderEquipment();
+        renderBudget();
+        initCharts();
+    </script>
+</body>
+</html>
