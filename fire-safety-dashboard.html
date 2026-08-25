@@ -6,6 +6,13 @@
     <title>Dashboard แผนซ่อมบำรุงระบบดับเพลิง ธ.ค. 2569 - PKG Group จันทบุรี</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // ===== Backend config (Google Sheets) =====
+        let BACKEND_URL = localStorage.getItem('FS_BACKEND_URL') || '';
+        let CLOUD_MODE = false;
+        let LAST_SYNC = null;
+        let SYNC_INTERVAL = null;
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Prompt', sans-serif; }
@@ -50,6 +57,7 @@
             </div>
             <div class="flex gap-2">
                 <button onclick="exportJSON()" class="btn-secondary text-sm">📤 Export JSON</button>
+                <button onclick="openBackendSettings()" class="btn-secondary text-sm" id="btnCloudStatus">☁️ ยังไม่เชื่อมต่อ</button>
                 <button onclick="resetData()" class="btn-secondary text-sm">🔄 รีเซ็ตข้อมูล</button>
             </div>
         </div>
@@ -896,11 +904,135 @@
             showToast('🔄 รีเซ็ตข้อมูลแล้ว');
         }
 
+        // ---------- Backend (Google Sheets sync) ----------
+        function openBackendSettings() {
+            openModal('☁️ เชื่อมต่อ Google Sheets', `
+                <div class="space-y-3">
+                    <p class="text-sm text-gray-600">วาง URL Web App (ลงท้าย /exec) จากขั้นตอน Deploy ใน Apps Script</p>
+                    <div><label class="text-sm text-gray-600">Web App URL</label><input id="f-backend-url" class="w-full" placeholder="https://script.google.com/macros/s/.../exec" value="${esc(BACKEND_URL)}"></div>
+                    <div id="backend-status" class="text-sm"></div>
+                </div>
+            `, async () => {
+                const url = fieldVal('f-backend-url');
+                if (!url) { showToast('⚠️ กรอก URL ก่อน'); return; }
+                BACKEND_URL = url.replace(/\/$/, '');
+                localStorage.setItem('FS_BACKEND_URL', BACKEND_URL);
+                const ok = await testBackend();
+                if (ok) {
+                    await pushAllToCloud();
+                    await loadFromCloud();
+                    showToast('✅ เชื่อมต่อแล้ว + ซิงก์ข้อมูล');
+                } else {
+                    showToast('❌ เชื่อมต่อไม่ได้ ตรวจ URL');
+                }
+                updateCloudUI();
+            });
+            updateCloudUI();
+        }
+
+        async function testBackend() {
+            if (!BACKEND_URL) return false;
+            try {
+                const r = await fetch(BACKEND_URL + '?action=ping', { method: 'GET' });
+                const j = await r.json();
+                return j.success === true;
+            } catch (e) { return false; }
+        }
+
+        async function apiGet(action) {
+            try {
+                const r = await fetch(BACKEND_URL + '?action=' + action, { method: 'GET' });
+                return await r.json();
+            } catch (e) { return { success: false, error: String(e) }; }
+        }
+
+        async function apiPost(action, data) {
+            try {
+                const r = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: action, data: data })
+                });
+                return await r.json();
+            } catch (e) { return { success: false, error: String(e) }; }
+        }
+
+        async function loadFromCloud() {
+            if (!BACKEND_URL) return false;
+            const res = await apiGet('getAll');
+            if (res.success && res.data) {
+                const d = res.data;
+                // Rebuild state from cloud (merge tasks by id)
+                if (Array.isArray(d.tasks) && d.tasks.length) {
+                    state.tasks = d.tasks.map(t => {
+                        // logs/links อยู่แยกตาราง → attach
+                        const logs = (d.logs || []).filter(l => String(l.taskId) === String(t.id));
+                        const links = (d.links || []).filter(l => String(l.taskId) === String(t.id));
+                        return { ...t, logs: logs.map(l => ({ date: l.date, detail: l.detail, ts: l.timestamp })), links: links.map(l => ({ label: l.label, url: l.url })) };
+                    });
+                }
+                if (Array.isArray(d.equipment) && d.equipment.length) state.equipment = d.equipment;
+                if (Array.isArray(d.budget) && d.budget.length) state.budget = d.budget;
+                saveState();
+                renderTasks(); renderEquipment(); renderBudget(); renderGantt();
+                LAST_SYNC = new Date();
+                updateCloudUI();
+                return true;
+            }
+            return false;
+        }
+
+        async function pushAllToCloud() {
+            if (!BACKEND_URL) return false;
+            // Tasks
+            for (const t of state.tasks) {
+                await apiPost('saveTask', { id: t.id, week: t.week, task: t.task, owner: t.owner, priority: t.priority, status: t.status });
+            }
+            // Equipment
+            for (const e of state.equipment) {
+                await apiPost('saveEquipment', { id: e.id, type: e.type, brand: e.brand, location: e.location, expire: e.expire, status: e.status, action: e.action });
+            }
+            // Budget
+            for (const b of state.budget) {
+                await apiPost('saveBudget', { item: b.item, qty: b.qty, price: b.price, spent: b.spent, date: b.date, note: b.note });
+            }
+            // Logs & Links
+            for (const t of state.tasks) {
+                for (const l of (t.logs || [])) {
+                    await apiPost('saveLog', { taskId: t.id, date: l.date, detail: l.detail });
+                }
+                for (const l of (t.links || [])) {
+                    await apiPost('saveLink', { taskId: t.id, label: l.label, url: l.url });
+                }
+            }
+            LAST_SYNC = new Date();
+            updateCloudUI();
+            return true;
+        }
+
+        function updateCloudUI() {
+            const btn = document.getElementById('btnCloudStatus');
+            if (!btn) return;
+            if (BACKEND_URL) {
+                const time = LAST_SYNC ? ' • ซิงก์ ' + LAST_SYNC.toLocaleTimeString('th-TH') : '';
+                btn.textContent = '☁️ เชื่อมต่อแล้ว' + time;
+                btn.className = 'btn-primary text-sm';
+            } else {
+                btn.textContent = '☁️ ยังไม่เชื่อมต่อ';
+                btn.className = 'btn-secondary text-sm';
+            }
+        }
+
         // ---------- Init ----------
         renderTasks();
         renderEquipment();
         renderBudget();
         renderGantt();
+        updateCloudUI();
+        // Auto-connect ถ้ามี URL เก็บไว้
+        if (BACKEND_URL) {
+            (async () => { const ok = await loadFromCloud(); if (ok) CLOUD_MODE = true; })();
+        }
     </script>
 </body>
 </html>
