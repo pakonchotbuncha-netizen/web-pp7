@@ -47,6 +47,7 @@ function doPost(e) {
     if (action === 'deleteEquipment') return jsonOut(deleteRow('Equipment', body.id));
     if (action === 'saveBudget') return jsonOut(saveBudget(body.data));
     if (action === 'deleteBudget') return jsonOut(deleteRow('Budget', body.idx));
+    if (action === 'cleanupBudget') return jsonOut(cleanupBudget());
     if (action === 'saveLog') return jsonOut(saveLog(body.data));
     if (action === 'deleteLog') return jsonOut(deleteRow('Logs', body.id));
     if (action === 'saveLink') return jsonOut(saveLink(body.data));
@@ -260,6 +261,41 @@ function saveLink(data) {
   sheet.appendRow([id, data.taskId, data.label, data.url, now]);
   
   return { success: true, id: id };
+}
+
+function cleanupBudget() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName('Budget');
+  if (!sheet) return { success: false, error: 'Budget sheet not found' };
+  
+  const data = sheet.getDataRange().getValues();
+  if (data.length < 2) return { success: true, removed: 0 };
+  
+  const headers = data[0];
+  // หา index ของคอลัมน์ item / qty / price
+  const idxItem = headers.indexOf('item');
+  const idxQty = headers.indexOf('qty');
+  const idxPrice = headers.indexOf('price');
+  
+  const seen = {}; // key: item|qty|price
+  let removed = 0;
+  
+  // วนจากล่างขึ้นบน เพื่อให้ deleteRow ไม่กระทบ index
+  for (let i = data.length - 1; i >= 1; i--) {
+    const item = String(data[i][idxItem] || '');
+    const qty = data[i][idxQty];
+    const price = data[i][idxPrice];
+    const key = item + '|' + qty + '|' + price;
+    
+    if (seen[key]) {
+      sheet.deleteRow(i + 1);
+      removed++;
+    } else {
+      seen[key] = true;
+    }
+  }
+  
+  return { success: true, removed: removed };
 }
 
 function deleteRow(sheetName, id) {
