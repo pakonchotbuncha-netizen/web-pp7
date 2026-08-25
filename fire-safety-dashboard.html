@@ -46,7 +46,7 @@
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
             <div>
                 <h1 class="text-2xl font-bold text-gray-800">🔥 Dashboard แผนซ่อมบำรุงระบบดับเพลิง ธ.ค. 2569</h1>
-                <p class="text-sm text-gray-600">PKG Group จันทบุรี — 1 – 31 ธ.ค. 2569 (เทศบาลท่าช้างเข้าซ่อม)</p>
+                <p class="text-sm text-gray-600">PKG Group จันทบุรี — เตรียมงาน พ.ย. / เทศบาลเข้าซ่อม ต้น ธ.ค. 2569</p>
             </div>
             <div class="flex gap-2">
                 <button onclick="exportJSON()" class="btn-secondary text-sm">📤 Export JSON</button>
@@ -69,13 +69,13 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div class="card p-4 border-l-4 border-red-600">
                     <p class="text-sm text-gray-600">ระยะเวลาโครงการ</p>
-                    <p class="text-2xl font-bold text-gray-800">31 วัน</p>
-                    <p class="text-xs text-gray-500">1 – 31 ธ.ค. 2569</p>
+                    <p class="text-2xl font-bold text-gray-800">6 สัปดาห์</p>
+                    <p class="text-xs text-gray-500">พ.ย. – ต้น ธ.ค. 2569</p>
                 </div>
                 <div class="card p-4 border-l-4 border-orange-600">
                     <p class="text-sm text-gray-600">งานทั้งหมด</p>
                     <p class="text-2xl font-bold text-gray-800">17 งาน</p>
-                    <p class="text-xs text-gray-500" id="taskProgressLabel">4 สัปดาห์</p>
+                    <p class="text-xs text-gray-500" id="taskProgressLabel">6 สัปดาห์</p>
                 </div>
                 <div class="card p-4 border-l-4 border-yellow-600">
                     <p class="text-sm text-gray-600">งบประมาณรวม</p>
@@ -119,9 +119,9 @@
                     <h2 class="text-xl font-bold mb-4 text-gray-800">🎯 เป้าหมายโครงการ</h2>
                     <ul class="space-y-2 text-gray-700 text-sm">
                         <li>✅ สำรวจและประเมินสถานะระบบดับเพลิง 4 ระบบ (ถังพกพา / Fire Alarm / Sprinkler / Fire Pump)</li>
-                        <li>✅ ซ่อมบำรุงอุปกรณ์ที่ชำรุด/หมดอายุตามลำดับความสำคัญ</li>
+                        <li>✅ <strong>เตรียมงานล่วงหน้าก่อนเทศบาลเข้าซ่อม (พ.ย.)</strong></li>
+                        <li>✅ <strong>เทศบาลท่าช้างเข้าซ่อมระบบดับเพลิง (สัปดาห์แรก ธ.ค. 2569)</strong></li>
                         <li>✅ ทดสอบระบบทั้งหมดให้พร้อมใช้งาน</li>
-                        <li>✅ <strong>เทศบาลท่าช้างเข้าซ่อมระบบดับเพลิง (ธ.ค. 2569)</strong></li>
                         <li>✅ จัดอบรมพนักงานเรื่องการใช้อุปกรณ์ดับเพลิง (ร่วมกับเทศบาล)</li>
                         <li>✅ สร้างทะเบียนอุปกรณ์ + แผนบำรุงรักษาประจำปี</li>
                     </ul>
@@ -275,7 +275,7 @@
 
     <script>
         'use strict';
-        const STORAGE_KEY = 'PP7_FIRE_SAFETY_V1';
+        const STORAGE_KEY = 'PP7_FIRE_SAFETY_DEC2569_V2';
 
         function esc(s) {
             return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -285,21 +285,21 @@
         const defaultTasks = [
             { id: 1,  week: 1, task: 'สำรวจถังดับเพลิงพกพา',      owner: 'ฝ่ายอาคาร',   priority: 'high',   status: 'pending' },
             { id: 2,  week: 1, task: 'สำรวจระบบ Fire Alarm',       owner: 'ช่างไฟฟ้า',   priority: 'high',   status: 'pending' },
-            { id: 3,  week: 1, task: 'สำรวจระบบ Sprinkler',        owner: 'ช่างประปา',   priority: 'high',   status: 'pending' },
-            { id: 4,  week: 1, task: 'สำรวจ Fire Pump',            owner: 'ช่างเครื่องกล', priority: 'high', status: 'pending' },
-            { id: 5,  week: 1, task: 'ประสานงานเทศบาลท่าช้าง (นัดวันเข้าซ่อม)', owner: 'Admin', priority: 'high', status: 'pending' },
-            { id: 6,  week: 2, task: 'เทศบาลท่าช้างเข้าซ่อมระบบดับเพลิง', owner: 'เทศบาลท่าช้าง', priority: 'high', status: 'pending' },
-            { id: 7,  week: 2, task: 'ติดต่อ Supplier ถังดับเพลิง', owner: 'Admin',       priority: 'medium', status: 'pending' },
-            { id: 8,  week: 2, task: 'ส่งถังดับเพลิงอัดใหม่',       owner: 'Supplier',    priority: 'high',   status: 'pending' },
-            { id: 9,  week: 2, task: 'ซ่อม/เปลี่ยน Detector ที่เสีย', owner: 'ช่างไฟฟ้า',  priority: 'high',   status: 'pending' },
-            { id: 10, week: 3, task: 'ซ่อม Fire Pump',             owner: 'ช่างเครื่องกล', priority: 'high', status: 'pending' },
-            { id: 11, week: 3, task: 'ซ่อมท่อ/วาล์ว Sprinkler',     owner: 'ช่างประปา',   priority: 'medium', status: 'pending' },
-            { id: 12, week: 3, task: 'ทดสอบ Fire Alarm',           owner: 'ช่างไฟฟ้า',   priority: 'high',   status: 'pending' },
-            { id: 13, week: 3, task: 'ทดสอบ Fire Pump',            owner: 'ช่างเครื่องกล', priority: 'high', status: 'pending' },
-            { id: 14, week: 4, task: 'ทดสอบ Flow Test Sprinkler',  owner: 'ช่างประปา',   priority: 'medium', status: 'pending' },
-            { id: 15, week: 4, task: 'อบรมพนักงาน (ร่วมกับเทศบาล)', owner: 'เทศบาล + HR', priority: 'high', status: 'pending' },
-            { id: 16, week: 4, task: 'ทำรายงานสรุป + ตรวจรับงาน',  owner: 'PM',          priority: 'medium', status: 'pending' },
-            { id: 17, week: 4, task: 'อัปเดตทะเบียนอุปกรณ์ + แผนรายปี', owner: 'Admin',  priority: 'medium', status: 'pending' },
+            { id: 3,  week: 2, task: 'สำรวจระบบ Sprinkler',        owner: 'ช่างประปา',   priority: 'high',   status: 'pending' },
+            { id: 4,  week: 2, task: 'สำรวจ Fire Pump',            owner: 'ช่างเครื่องกล', priority: 'high', status: 'pending' },
+            { id: 5,  week: 2, task: 'ประสานงานเทศบาลท่าช้าง (นัดวันเข้าซ่อม)', owner: 'Admin', priority: 'high', status: 'pending' },
+            { id: 6,  week: 3, task: 'ติดต่อ Supplier ถังดับเพลิง', owner: 'Admin',       priority: 'medium', status: 'pending' },
+            { id: 7,  week: 3, task: 'ส่งถังดับเพลิงอัดใหม่',       owner: 'Supplier',    priority: 'high',   status: 'pending' },
+            { id: 8,  week: 3, task: 'เตรียมอะไหล่/อุปกรณ์ที่ชำรุด', owner: 'ฝ่ายอาคาร',  priority: 'high',   status: 'pending' },
+            { id: 9,  week: 4, task: 'ซ่อม/เปลี่ยน Detector ที่เสีย', owner: 'ช่างไฟฟ้า',  priority: 'high',   status: 'pending' },
+            { id: 10, week: 4, task: 'เตรียมระบบก่อนเทศบาลเข้า',    owner: 'ฝ่ายอาคาร',   priority: 'high',   status: 'pending' },
+            { id: 11, week: 5, task: '🔥 เทศบาลท่าช้างเข้าซ่อมระบบดับเพลิง', owner: 'เทศบาลท่าช้าง', priority: 'high', status: 'pending' },
+            { id: 12, week: 5, task: 'ซ่อม Fire Pump (ร่วมกับเทศบาล)', owner: 'ช่างเครื่องกล', priority: 'high', status: 'pending' },
+            { id: 13, week: 5, task: 'ซ่อมท่อ/วาล์ว Sprinkler',     owner: 'ช่างประปา',   priority: 'medium', status: 'pending' },
+            { id: 14, week: 6, task: 'ทดสอบระบบทั้งหมด',           owner: 'เทศบาล + ช่าง', priority: 'high', status: 'pending' },
+            { id: 15, week: 6, task: 'อบรมพนักงาน (ร่วมกับเทศบาล)', owner: 'เทศบาล + HR', priority: 'high', status: 'pending' },
+            { id: 16, week: 6, task: 'ทำรายงานสรุป + ตรวจรับงาน',  owner: 'PM',          priority: 'medium', status: 'pending' },
+            { id: 17, week: 6, task: 'อัปเดตทะเบียนอุปกรณ์ + แผนรายปี', owner: 'Admin',  priority: 'medium', status: 'pending' },
         ];
 
         const defaultEquipment = [
@@ -525,11 +525,11 @@
             const ctx = document.getElementById('ganttChart');
             if (ganttChart) ganttChart.destroy();
             const phases = [
-                { label: 'สำรวจ (ส.1)', week: 1 },
-                { label: 'วางแผน/ประสานเทศบาล (ส.1-2)', week: 2 },
-                { label: 'เทศบาลเข้าซ่อม (ส.2-3)', week: 3 },
-                { label: 'ทดสอบระบบ (ส.3-4)', week: 4 },
-                { label: 'อบรม/ตรวจรับ (ส.4)', week: 4 },
+                { label: 'สำรวจระบบ (ส.1-2 พ.ย.)', week: 1 },
+                { label: 'เตรียมงาน/ประสานเทศบาล (ส.2-3 พ.ย.)', week: 2 },
+                { label: 'เตรียมอุปกรณ์/ส่งอัดถัง (ส.3-4 พ.ย.)', week: 3 },
+                { label: 'เทศบาลเข้าซ่อม (ส.1 ธ.ค.)', week: 5 },
+                { label: 'ทดสอบ/อบรม/ตรวจรับ (ส.2 ธ.ค.)', week: 6 },
             ];
             ganttChart = new Chart(ctx, {
                 type: 'bar',
@@ -578,7 +578,7 @@
                 <div class="space-y-3">
                     <div><label class="text-sm text-gray-600">งาน *</label><input id="f-task" class="w-full" placeholder="เช่น ทดสอบ Fire Alarm"></div>
                     <div class="grid grid-cols-2 gap-3">
-                        <div><label class="text-sm text-gray-600">สัปดาห์</label><select id="f-week" class="w-full">${[1,2,3,4].map(w => `<option value="${w}">สัปดาห์ ${w}</option>`).join('')}</select></div>
+                        <div><label class="text-sm text-gray-600">สัปดาห์</label><select id="f-week" class="w-full">${[1,2,3,4,5,6].map(w => `<option value="${w}">สัปดาห์ ${w}</option>`).join('')}</select></div>
                         <div><label class="text-sm text-gray-600">ผู้รับผิดชอบ</label><input id="f-owner" class="w-full" placeholder="ช่างไฟฟ้า"></div>
                     </div>
                     <div><label class="text-sm text-gray-600">ลำดับความสำคัญ</label><select id="f-priority" class="w-full"><option value="high">🔴 ด่วน</option><option value="medium">🟡 กลาง</option><option value="low">🔵 ต่ำ</option></select></div>
@@ -599,7 +599,7 @@
                 <div class="space-y-3">
                     <div><label class="text-sm text-gray-600">งาน</label><input id="f-task" class="w-full" value="${esc(t.task)}"></div>
                     <div class="grid grid-cols-2 gap-3">
-                        <div><label class="text-sm text-gray-600">สัปดาห์</label><select id="f-week" class="w-full">${[1,2,3,4].map(w => `<option value="${w}" ${w === t.week ? 'selected' : ''}>สัปดาห์ ${w}</option>`).join('')}</select></div>
+                        <div><label class="text-sm text-gray-600">สัปดาห์</label><select id="f-week" class="w-full">${[1,2,3,4,5,6].map(w => `<option value="${w}" ${w === t.week ? 'selected' : ''}>สัปดาห์ ${w}</option>`).join('')}</select></div>
                         <div><label class="text-sm text-gray-600">ผู้รับผิดชอบ</label><input id="f-owner" class="w-full" value="${esc(t.owner)}"></div>
                     </div>
                     <div><label class="text-sm text-gray-600">ลำดับความสำคัญ</label><select id="f-priority" class="w-full"><option value="high" ${t.priority === 'high' ? 'selected' : ''}>🔴 ด่วน</option><option value="medium" ${t.priority === 'medium' ? 'selected' : ''}>🟡 กลาง</option><option value="low" ${t.priority === 'low' ? 'selected' : ''}>🔵 ต่ำ</option></select></div>
