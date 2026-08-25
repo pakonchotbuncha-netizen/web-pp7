@@ -94,8 +94,8 @@ function setupAllSheets() {
   let logsSheet = ss.getSheetByName('Logs');
   if (!logsSheet) {
     logsSheet = ss.insertSheet('Logs');
-    logsSheet.appendRow(['id', 'taskId', 'date', 'detail', 'timestamp']);
-    logsSheet.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#22c55e').setFontColor('#ffffff');
+    logsSheet.appendRow(['id', 'taskId', 'taskName', 'date', 'detail', 'timestamp']);
+    logsSheet.getRange(1, 1, 1, 6).setFontWeight('bold').setBackground('#22c55e').setFontColor('#ffffff');
     logsSheet.setFrozenRows(1);
   }
   
@@ -230,11 +230,24 @@ function saveLog(data) {
   const sheet = ss.getSheetByName('Logs');
   if (!sheet) setupAllSheets();
   
+  // หาชื่อ task จาก Tasks sheet
+  let taskName = '';
+  const tasksSheet = ss.getSheetByName('Tasks');
+  if (tasksSheet) {
+    const tasksData = tasksSheet.getDataRange().getValues();
+    for (let i = 1; i < tasksData.length; i++) {
+      if (String(tasksData[i][0]) === String(data.taskId)) {
+        taskName = tasksData[i][2] || ''; // คอลัมน์ C = task
+        break;
+      }
+    }
+  }
+  
   const id = new Date().getTime();
   const now = new Date().toISOString();
-  sheet.appendRow([id, data.taskId, data.date, data.detail, now]);
+  sheet.appendRow([id, data.taskId, taskName, data.date, data.detail, now]);
   
-  return { success: true, id: id };
+  return { success: true, id: id, taskName: taskName };
 }
 
 function saveLink(data) {
