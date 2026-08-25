@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard แผนซ่อมบำรุงระบบดับเพลิง 2569 - PKG Group จันทบุรี</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Prompt', sans-serif; }
+        .tab-active { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; box-shadow: 0 2px 8px rgba(220,38,38,0.3); }
+        .tab-inactive { background: #f3f4f6; color: #374151; }
+        .tab-inactive:hover { background: #e5e7eb; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .status-pending { background: #fef3c7; color: #92400e; cursor: pointer; }
+        .status-progress { background: #dbeafe; color: #1e40af; cursor: pointer; }
+        .status-done { background: #d1fae5; color: #065f46; cursor: pointer; }
+        .status-paused { background: #f3e8ff; color: #6b21a8; cursor: pointer; }
+        .status-badge { padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 500; transition: all .15s; }
+        .status-badge:hover { filter: brightness(0.95); transform: scale(1.03); }
+        .eq-status-good { background: #d1fae5; color: #065f46; }
+        .eq-status-expired { background: #fee2e2; color: #991b1b; }
+        .eq-status-faulty { background: #fef3c7; color: #92400e; }
+        .eq-status-maint { background: #dbeafe; color: #1e40af; }
+        input, select { border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 10px; font-size: 14px; }
+        input:focus, select:focus { outline: 2px solid #dc2626; outline-offset: 1px; }
+        .btn-primary { background: #dc2626; color: white; padding: 8px 16px; border-radius: 8px; font-weight: 500; transition: all .15s; }
+        .btn-primary:hover { background: #b91c1c; }
+        .btn-secondary { background: #f3f4f6; color: #374151; padding: 8px 16px; border-radius: 8px; font-weight: 500; transition: all .15s; }
+        .btn-secondary:hover { background: #e5e7eb; }
+        .btn-danger { background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 6px; font-size: 12px; transition: all .15s; }
+        .btn-danger:hover { background: #fecaca; }
+        .btn-sm { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; transition: all .15s; }
+        .btn-edit { background: #e0e7ff; color: #3730a3; }
+        .btn-edit:hover { background: #c7d2fe; }
+        .toast { position: fixed; bottom: 24px; right: 24px; background: #111827; color: white; padding: 12px 20px; border-radius: 10px; font-size: 14px; opacity: 0; transition: opacity .3s; pointer-events: none; z-index: 100; }
+        .toast.show { opacity: 1; }
+        .progress-bar { height: 10px; border-radius: 5px; background: #e5e7eb; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, #22c55e, #16a34a); transition: width .5s; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Header -->
+    <div class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">🔥 Dashboard แผนซ่อมบำรุงระบบดับเพลิง 2569</h1>
+                <p class="text-sm text-gray-600">PKG Group จันทบุรี — 25 ส.ค. – 23 ต.ค. 2569 (60 วัน)</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="exportJSON()" class="btn-secondary text-sm">📤 Export JSON</button>
+                <button onclick="resetData()" class="btn-secondary text-sm">🔄 รีเซ็ตข้อมูล</button>
+            </div>
+        </div>
+        <!-- Tabs -->
+        <div class="max-w-7xl mx-auto px-4 pb-3 flex gap-2 overflow-x-auto">
+            <button onclick="showTab('overview')" id="tab-overview" class="tab-active px-4 py-2 rounded-lg font-medium whitespace-nowrap transition">📊 สรุปโครงการ</button>
+            <button onclick="showTab('plan')" id="tab-plan" class="tab-inactive px-4 py-2 rounded-lg font-medium whitespace-nowrap transition">📅 แผนงาน</button>
+            <button onclick="showTab('equipment')" id="tab-equipment" class="tab-inactive px-4 py-2 rounded-lg font-medium whitespace-nowrap transition">🧯 ทะเบียนอุปกรณ์</button>
+            <button onclick="showTab('contacts')" id="tab-contacts" class="tab-inactive px-4 py-2 rounded-lg font-medium whitespace-nowrap transition">📞 ผู้ติดต่อ</button>
+            <button onclick="showTab('budget')" id="tab-budget" class="tab-inactive px-4 py-2 rounded-lg font-medium whitespace-nowrap transition">💰 งบประมาณ</button>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Tab 1: Overview -->
+        <div id="content-overview">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="card p-4 border-l-4 border-red-600">
+                    <p class="text-sm text-gray-600">ระยะเวลาโครงการ</p>
+                    <p class="text-2xl font-bold text-gray-800">60 วัน</p>
+                    <p class="text-xs text-gray-500">25 ส.ค. – 23 ต.ค. 2569</p>
+                </div>
+                <div class="card p-4 border-l-4 border-orange-600">
+                    <p class="text-sm text-gray-600">งานทั้งหมด</p>
+                    <p class="text-2xl font-bold text-gray-800">17 งาน</p>
+                    <p class="text-xs text-gray-500" id="taskProgressLabel">6 สัปดาห์</p>
+                </div>
+                <div class="card p-4 border-l-4 border-yellow-600">
+                    <p class="text-sm text-gray-600">งบประมาณรวม</p>
+                    <p class="text-2xl font-bold text-gray-800">฿107,500</p>
+                    <p class="text-xs text-gray-500">ประมาณการ</p>
+                </div>
+                <div class="card p-4 border-l-4 border-green-600">
+                    <p class="text-sm text-gray-600">หน่วยงานหลัก</p>
+                    <p class="text-lg font-bold text-gray-800">เทศบาลท่าช้าง</p>
+                    <p class="text-xs text-gray-500">จ.จันทบุรี</p>
+                </div>
+            </div>
+
+            <!-- Progress summary -->
+            <div class="card p-6 mb-6">
+                <div class="flex flex-wrap items-center justify-between mb-3 gap-2">
+                    <h2 class="text-xl font-bold text-gray-800">📈 ความคืบหน้าโครงการ</h2>
+                    <div class="flex gap-2 text-sm">
+                        <span class="status-badge status-done" id="statDone">เสร็จ 0</span>
+                        <span class="status-badge status-progress" id="statProgress">กำลังทำ 0</span>
+                        <span class="status-badge status-pending" id="statPending">รอเริ่ม 0</span>
+                        <span class="status-badge status-paused" id="statPaused">พักรอ 0</span>
+                    </div>
+                </div>
+                <div class="progress-bar mb-1">
+                    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+                </div>
+                <p class="text-xs text-gray-500 mb-4" id="progressPercent">ความสำเร็จ 0%</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <canvas id="progressChart" height="160"></canvas>
+                    </div>
+                    <div>
+                        <canvas id="weekChart" height="160"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="card p-6">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">🎯 เป้าหมายโครงการ</h2>
+                    <ul class="space-y-2 text-gray-700 text-sm">
+                        <li>✅ สำรวจและประเมินสถานะระบบดับเพลิง 4 ระบบ (ถังพกพา / Fire Alarm / Sprinkler / Fire Pump)</li>
+                        <li>✅ ซ่อมบำรุงอุปกรณ์ที่ชำรุด/หมดอายุตามลำดับความสำคัญ</li>
+                        <li>✅ ทดสอบระบบทั้งหมดให้พร้อมใช้งาน</li>
+                        <li>✅ ประสานงานเทศบาลท่าช้าง (ตรวจสอบ + อบรม + ตรวจรับ)</li>
+                        <li>✅ จัดอบรมพนักงานเรื่องการใช้อุปกรณ์ดับเพลิง</li>
+                        <li>✅ สร้างทะเบียนอุปกรณ์ + แผนบำรุงรักษาประจำปี</li>
+                    </ul>
+                </div>
+                <div class="card p-6">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">⚡ งานสำคัญช่วงนี้ (สัปดาห์ 1-2)</h2>
+                    <ul class="space-y-2 text-sm" id="upcomingTasks"></ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Plan -->
+        <div id="content-plan" class="hidden">
+            <div class="card p-6 mb-6">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">📅 แผนงานโครงการ (Gantt Chart)</h2>
+                <canvas id="ganttChart" height="200"></canvas>
+            </div>
+            <div class="card p-6">
+                <div class="flex flex-wrap items-center justify-between mb-4 gap-2">
+                    <h2 class="text-xl font-bold text-gray-800">📋 รายละเอียดงาน <span class="text-sm font-normal text-gray-500">(คลิกที่สถานะเพื่อเปลี่ยน)</span></h2>
+                    <button onclick="addTask()" class="btn-primary text-sm">+ เพิ่มงาน</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left">สัปดาห์</th>
+                                <th class="px-3 py-2 text-left">งาน</th>
+                                <th class="px-3 py-2 text-left">ผู้รับผิดชอบ</th>
+                                <th class="px-3 py-2 text-left">ลำดับความสำคัญ</th>
+                                <th class="px-3 py-2 text-left">สถานะ</th>
+                                <th class="px-3 py-2 text-left">การดำเนินการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="taskTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Equipment -->
+        <div id="content-equipment" class="hidden">
+            <div class="card p-6">
+                <div class="flex flex-wrap items-center justify-between mb-4 gap-2">
+                    <h2 class="text-xl font-bold text-gray-800">🧯 ทะเบียนอุปกรณ์ดับเพลิง <span class="text-sm font-normal text-gray-500">(บันทึกอัตโนมัติในเครื่อง)</span></h2>
+                    <button onclick="addEquipment()" class="btn-primary text-sm">+ เพิ่มอุปกรณ์</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left">รหัส</th>
+                                <th class="px-3 py-2 text-left">ประเภท</th>
+                                <th class="px-3 py-2 text-left">ยี่ห้อ/รุ่น</th>
+                                <th class="px-3 py-2 text-left">จุดติดตั้ง</th>
+                                <th class="px-3 py-2 text-left">วันหมดอายุ</th>
+                                <th class="px-3 py-2 text-left">สถานะ</th>
+                                <th class="px-3 py-2 text-left">การดำเนินการ</th>
+                                <th class="px-3 py-2 text-left"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="equipmentTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Contacts -->
+        <div id="content-contacts" class="hidden">
+            <div class="card p-6">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">📞 รายชื่อผู้ติดต่อ</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="border-l-4 border-red-600 p-4 bg-red-50 rounded-r-lg">
+                        <h3 class="font-bold text-lg text-gray-800">🏛️ เทศบาลท่าช้าง</h3>
+                        <p class="text-sm text-gray-600 mt-2">เจ้าหน้าที่ดับเพลิง</p>
+                        <p class="text-sm mt-1"><strong>ที่อยู่:</strong> อ.ท่าใหม่ จ.จันทบุรี</p>
+                        <p class="text-sm mt-1"><strong>โทร:</strong> 039-XXX-XXXX <span class="text-xs text-red-500">(รอข้อมูลจริง)</span></p>
+                        <p class="text-sm mt-1"><strong>ติดต่อ:</strong> ตรวจสอบ + อบรม + ตรวจรับ</p>
+                    </div>
+                    <div class="border-l-4 border-orange-600 p-4 bg-orange-50 rounded-r-lg">
+                        <h3 class="font-bold text-lg text-gray-800">🧯 Supplier ถังดับเพลิง</h3>
+                        <p class="text-sm text-gray-600 mt-2">บริษัท XXX จำกัด <span class="text-xs text-orange-500">(รอข้อมูลจริง)</span></p>
+                        <p class="text-sm mt-1"><strong>โทร:</strong> 0XX-XXX-XXXX</p>
+                        <p class="text-sm mt-1"><strong>บริการ:</strong> อัดถัง / เปลี่ยนถังใหม่</p>
+                        <p class="text-sm mt-1"><strong>ราคา:</strong> อัด ฿300-800/ถัง, ใหม่ ฿1,500-3,500</p>
+                    </div>
+                    <div class="border-l-4 border-yellow-600 p-4 bg-yellow-50 rounded-r-lg">
+                        <h3 class="font-bold text-lg text-gray-800">🔧 ช่างซ่อมระบบดับเพลิง</h3>
+                        <p class="text-sm text-gray-600 mt-2">บริษัท XXX จำกัด <span class="text-xs text-yellow-600">(รอข้อมูลจริง)</span></p>
+                        <p class="text-sm mt-1"><strong>โทร:</strong> 0XX-XXX-XXXX</p>
+                        <p class="text-sm mt-1"><strong>บริการ:</strong> ซ่อม Fire Alarm / Sprinkler / Fire Pump</p>
+                    </div>
+                    <div class="border-l-4 border-green-600 p-4 bg-green-50 rounded-r-lg">
+                        <h3 class="font-bold text-lg text-gray-800">👷 ผู้รับผิดชอบภายใน</h3>
+                        <p class="text-sm text-gray-600 mt-2">ฝ่ายอาคาร/ความปลอดภัย</p>
+                        <p class="text-sm mt-1"><strong>ชื่อ:</strong> XXX <span class="text-xs text-green-600">(รอข้อมูลจริง)</span></p>
+                        <p class="text-sm mt-1"><strong>โทร:</strong> 0XX-XXX-XXXX</p>
+                        <p class="text-sm mt-1"><strong>หน้าที่:</strong> สำรวจ / ติดตามงาน</p>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-400 mt-4">💡 เบอร์โทรและชื่อ Supplier/ช่าง ยังเป็น placeholder — พี่ปกรณ์ส่งข้อมูลจริงมาให้ได้เลยครับ จะเติมให้ครบ</p>
+            </div>
+        </div>
+
+        <!-- Tab 5: Budget -->
+        <div id="content-budget" class="hidden">
+            <div class="card p-6">
+                <div class="flex flex-wrap items-center justify-between mb-4 gap-2">
+                    <h2 class="text-xl font-bold text-gray-800">💰 งบประมาณโครงการ</h2>
+                    <button onclick="addBudgetItem()" class="btn-primary text-sm">+ เพิ่มรายการ</button>
+                </div>
+                <canvas id="budgetChart" height="100" class="mb-6"></canvas>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-2 text-left">รายการ</th>
+                                <th class="px-3 py-2 text-right">จำนวน</th>
+                                <th class="px-3 py-2 text-right">ราคา/หน่วย</th>
+                                <th class="px-3 py-2 text-right">รวม</th>
+                                <th class="px-3 py-2 text-left"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="budgetTable"></tbody>
+                        <tfoot class="bg-gray-100 font-bold">
+                            <tr>
+                                <td class="px-3 py-2" colspan="3">รวมทั้งหมด</td>
+                                <td class="px-3 py-2 text-right" id="totalBudget">฿0</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md">
+            <h3 class="text-xl font-bold mb-4 text-gray-800" id="modalTitle">เพิ่มรายการ</h3>
+            <div id="modalBody"></div>
+            <div class="flex justify-end gap-2 mt-6">
+                <button onclick="closeModal()" class="btn-secondary">ยกเลิก</button>
+                <button onclick="saveModal()" class="btn-primary" id="modalSaveBtn">บันทึก</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        'use strict';
+        const STORAGE_KEY = 'PP7_FIRE_SAFETY_V1';
+
+        function esc(s) {
+            return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        // ---------- Default data ----------
+        const defaultTasks = [
+            { id: 1,  week: 1, task: 'สำรวจถังดับเพลิงพกพา',      owner: 'ฝ่ายอาคาร',   priority: 'high',   status: 'pending' },
+            { id: 2,  week: 1, task: 'สำรวจระบบ Fire Alarm',       owner: 'ช่างไฟฟ้า',   priority: 'high',   status: 'pending' },
+            { id: 3,  week: 1, task: 'สำรวจระบบ Sprinkler',        owner: 'ช่างประปา',   priority: 'high',   status: 'pending' },
+            { id: 4,  week: 1, task: 'สำรวจ Fire Pump',            owner: 'ช่างเครื่องกล', priority: 'high', status: 'pending' },
+            { id: 5,  week: 2, task: 'ประสานงานเทศบาลท่าช้าง',     owner: 'Admin',       priority: 'high',   status: 'pending' },
+            { id: 6,  week: 2, task: 'ติดต่อ Supplier ถังดับเพลิง', owner: 'Admin',       priority: 'medium', status: 'pending' },
+            { id: 7,  week: 2, task: 'จัดลำดับความสำคัญการซ่อม',   owner: 'PM',          priority: 'high',   status: 'pending' },
+            { id: 8,  week: 3, task: 'ส่งถังดับเพลิงอัดใหม่',       owner: 'Supplier',    priority: 'high',   status: 'pending' },
+            { id: 9,  week: 3, task: 'ซ่อม/เปลี่ยน Detector ที่เสีย', owner: 'ช่างไฟฟ้า',  priority: 'high',   status: 'pending' },
+            { id: 10, week: 3, task: 'ซ่อม Fire Pump',             owner: 'ช่างเครื่องกล', priority: 'high', status: 'pending' },
+            { id: 11, week: 4, task: 'ซ่อมท่อ/วาล์ว Sprinkler',     owner: 'ช่างประปา',   priority: 'medium', status: 'pending' },
+            { id: 12, week: 4, task: 'ทดสอบ Fire Alarm',           owner: 'ช่างไฟฟ้า',   priority: 'high',   status: 'pending' },
+            { id: 13, week: 5, task: 'ทดสอบ Fire Pump',            owner: 'ช่างเครื่องกล', priority: 'high', status: 'pending' },
+            { id: 14, week: 5, task: 'ทดสอบ Flow Test Sprinkler',  owner: 'ช่างประปา',   priority: 'medium', status: 'pending' },
+            { id: 15, week: 6, task: 'อบรมพนักงาน (ร่วมกับเทศบาล)', owner: 'เทศบาล + HR', priority: 'high', status: 'pending' },
+            { id: 16, week: 6, task: 'ทำรายงานสรุป',               owner: 'PM',          priority: 'medium', status: 'pending' },
+            { id: 17, week: 6, task: 'อัปเดตทะเบียนอุปกรณ์ + แผนรายปี', owner: 'Admin',  priority: 'medium', status: 'pending' },
+        ];
+
+        const defaultEquipment = [
+            { id: 'T-001', type: 'ถัง ABC 5 กก.',   brand: 'Golden Lion', location: 'อาคารผลิต',  expire: '2026-12-31', status: 'good',  action: '-' },
+            { id: 'T-002', type: 'ถัง ABC 5 กก.',   brand: 'Golden Lion', location: 'สำนักงาน',   expire: '2026-06-30', status: 'expired', action: 'ส่งอัดใหม่' },
+            { id: 'T-003', type: 'ถัง CO2 5 กก.',   brand: 'Pyrene',      location: 'ห้องไฟฟ้า',  expire: '2026-09-30', status: 'maint',  action: 'ชั่งน้ำหนัก/เช็ค' },
+            { id: 'T-004', type: 'ถัง ABC 15 กก.',  brand: 'FirePro',     location: 'โกดัง',      expire: '2027-03-31', status: 'good',  action: '-' },
+            { id: 'D-001', type: 'Smoke Detector',  brand: 'Hochiki',     location: 'สำนักงาน',   expire: '-', status: 'faulty', action: 'เปลี่ยนใหม่' },
+            { id: 'D-002', type: 'Heat Detector',   brand: 'Hochiki',     location: 'ห้องครัว',   expire: '-', status: 'good',  action: '-' },
+            { id: 'S-001', type: 'Sprinkler Head',  brand: 'Tyco',        location: 'อาคารผลิต',  expire: '-', status: 'good',  action: '-' },
+            { id: 'P-001', type: 'Fire Pump',       brand: 'Grundfos',    location: 'ห้องปั๊ม',   expire: '-', status: 'maint',  action: 'เปลี่ยนน้ำมัน/ซีล' },
+        ];
+
+        const defaultBudget = [
+            { item: 'อัดถังดับเพลิง (20 ถัง)',      qty: 20, price: 500 },
+            { item: 'เปลี่ยนถังใหม่ (5 ถัง)',       qty: 5,  price: 2500 },
+            { item: 'เปลี่ยน Smoke/Heat Detector',  qty: 10, price: 1200 },
+            { item: 'ซ่อม Fire Pump',               qty: 1,  price: 15000 },
+            { item: 'ซ่อมท่อ/วาล์ว Sprinkler',      qty: 1,  price: 8000 },
+            { item: 'ค่าประสานงานเทศบาล',           qty: 1,  price: 5000 },
+            { item: 'ค่าอบรมพนักงาน',               qty: 1,  price: 10000 },
+            { item: 'ค่าแรงช่าง',                   qty: 1,  price: 20000 },
+            { item: 'อื่นๆ (ป้าย, ทาสี)',           qty: 1,  price: 5000 },
+            { item: 'ค่าตรวจสอบ/รับรองระบบ',        qty: 1,  price: 10000 },
+        ];
+
+        // ---------- State ----------
+        let state = loadState();
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const s = JSON.parse(raw);
+                    if (s.tasks && s.equipment && s.budget) return s;
+                }
+            } catch (e) { console.warn('loadState failed', e); }
+            return { tasks: JSON.parse(JSON.stringify(defaultTasks)), equipment: JSON.parse(JSON.stringify(defaultEquipment)), budget: JSON.parse(JSON.stringify(defaultBudget)) };
+        }
+
+        function saveState() {
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { console.warn('saveState failed', e); }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(t._timer);
+            t._timer = setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        // ---------- Tab switching ----------
+        function showTab(tabName) {
+            ['overview', 'plan', 'equipment', 'contacts', 'budget'].forEach(t => {
+                document.getElementById('content-' + t).classList.add('hidden');
+                document.getElementById('tab-' + t).classList.remove('tab-active');
+                document.getElementById('tab-' + t).classList.add('tab-inactive');
+            });
+            document.getElementById('content-' + tabName).classList.remove('hidden');
+            document.getElementById('tab-' + tabName).classList.remove('tab-inactive');
+            document.getElementById('tab-' + tabName).classList.add('tab-active');
+        }
+
+        // ---------- Task rendering ----------
+        const statusMap = {
+            pending:  { label: '⏳ รอเริ่ม', cls: 'status-pending' },
+            progress: { label: '🔧 กำลังทำ', cls: 'status-progress' },
+            done:     { label: '✅ เสร็จ',   cls: 'status-done' },
+            paused:   { label: '⏸ พักรอ',   cls: 'status-paused' },
+        };
+        const statusOrder = ['pending', 'progress', 'paused', 'done'];
+        const priorityMap = { high: { label: '🔴 ด่วน', cls: 'priority-high' }, medium: { label: '🟡 กลาง', cls: 'priority-medium' }, low: { label: '🔵 ต่ำ', cls: 'priority-low' } };
+
+        function nextStatus(s) { return statusOrder[(statusOrder.indexOf(s) + 1) % statusOrder.length]; }
+
+        function renderTasks() {
+            const tbody = document.getElementById('taskTable');
+            tbody.innerHTML = state.tasks.map(t => `
+                <tr class="border-t">
+                    <td class="px-3 py-2">สัปดาห์ที่ ${t.week}</td>
+                    <td class="px-3 py-2 font-medium">${esc(t.task)}</td>
+                    <td class="px-3 py-2">${esc(t.owner)}</td>
+                    <td class="px-3 py-2"><span class="status-badge ${priorityMap[t.priority] ? priorityMap[t.priority].cls : 'priority-medium'}">${priorityMap[t.priority] ? priorityMap[t.priority].label : '🟡 กลาง'}</span></td>
+                    <td class="px-3 py-2"><span class="status-badge ${statusMap[t.status].cls}" onclick="cycleTaskStatus(${t.id})" title="คลิกเพื่อเปลี่ยนสถานะ">${statusMap[t.status].label}</span></td>
+                    <td class="px-3 py-2">
+                        <button class="btn-sm btn-edit mr-1" onclick="editTask(${t.id})">แก้ไข</button>
+                        <button class="btn-sm btn-danger" onclick="deleteTask(${t.id})">ลบ</button>
+                    </td>
+                </tr>
+            `).join('');
+            updateOverview();
+        }
+
+        function cycleTaskStatus(id) {
+            const t = state.tasks.find(x => x.id === id);
+            if (!t) return;
+            t.status = nextStatus(t.status);
+            saveState(); renderTasks(); showToast('อัปเดตสถานะ: ' + t.task + ' → ' + statusMap[t.status].label);
+        }
+
+        function updateOverview() {
+            const counts = { pending: 0, progress: 0, done: 0, paused: 0 };
+            state.tasks.forEach(t => { if (counts[t.status] !== undefined) counts[t.status]++; });
+            const total = state.tasks.length || 1;
+            const donePct = Math.round((counts.done / total) * 100);
+            document.getElementById('statDone').textContent = '✅ เสร็จ ' + counts.done;
+            document.getElementById('statProgress').textContent = '🔧 กำลังทำ ' + counts.progress;
+            document.getElementById('statPending').textContent = '⏳ รอเริ่ม ' + counts.pending;
+            document.getElementById('statPaused').textContent = '⏸ พักรอ ' + counts.paused;
+            document.getElementById('taskProgressLabel').textContent = counts.done + '/' + state.tasks.length + ' เสร็จแล้ว';
+            document.getElementById('progressFill').style.width = donePct + '%';
+            document.getElementById('progressPercent').textContent = 'ความสำเร็จ ' + donePct + '% (' + counts.done + '/' + state.tasks.length + ' งาน)';
+
+            // Upcoming tasks (pending/progress in earliest weeks)
+            const upcoming = state.tasks.filter(t => t.status !== 'done').sort((a, b) => a.week - b.week).slice(0, 6);
+            document.getElementById('upcomingTasks').innerHTML = upcoming.length
+                ? upcoming.map(t => `<li class="flex items-start gap-2"><span class="mt-0.5">${statusMap[t.status].label}</span><span><strong>สัปดาห์ ${t.week}:</strong> ${esc(t.task)} <span class="text-gray-500">(${esc(t.owner)})</span></span></li>`).join('')
+                : '<li class="text-green-600 font-medium">🎉 งานครบทุกอย่างแล้ว!</li>';
+
+            // Charts
+            updateProgressChart(counts);
+            updateWeekChart();
+        }
+
+        let progressChart = null, weekChart = null, ganttChart = null, budgetChart = null;
+
+        function updateProgressChart(counts) {
+            const ctx = document.getElementById('progressChart');
+            if (progressChart) progressChart.destroy();
+            progressChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['✅ เสร็จ', '🔧 กำลังทำ', '⏸ พักรอ', '⏳ รอเริ่ม'],
+                    datasets: [{ data: [counts.done, counts.progress, counts.paused, counts.pending], backgroundColor: ['#10b981', '#3b82f6', '#a855f7', '#f59e0b'] }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        function updateWeekChart() {
+            const ctx = document.getElementById('weekChart');
+            const weeks = [1, 2, 3, 4, 5, 6];
+            const doneByWeek = weeks.map(w => state.tasks.filter(t => t.week === w && t.status === 'done').length);
+            const totalByWeek = weeks.map(w => state.tasks.filter(t => t.week === w).length);
+            if (weekChart) weekChart.destroy();
+            weekChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: weeks.map(w => 'สัปดาห์ ' + w),
+                    datasets: [
+                        { label: 'เสร็จแล้ว', data: doneByWeek, backgroundColor: '#10b981' },
+                        { label: 'งานทั้งหมด', data: totalByWeek, backgroundColor: '#e5e7eb' }
+                    ]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        // ---------- Equipment ----------
+        const eqStatusMap = {
+            good:    { label: '🟢 ปกติ',   cls: 'eq-status-good' },
+            expired: { label: '🔴 หมดอายุ', cls: 'eq-status-expired' },
+            faulty:  { label: '🟡 ชำรุด',  cls: 'eq-status-faulty' },
+            maint:   { label: '🔵 ซ่อมบำรุง', cls: 'eq-status-maint' },
+        };
+
+        function renderEquipment() {
+            const tbody = document.getElementById('equipmentTable');
+            tbody.innerHTML = state.equipment.map(e => `
+                <tr class="border-t">
+                    <td class="px-3 py-2 font-mono text-xs">${esc(e.id)}</td>
+                    <td class="px-3 py-2">${esc(e.type)}</td>
+                    <td class="px-3 py-2">${esc(e.brand)}</td>
+                    <td class="px-3 py-2">${esc(e.location)}</td>
+                    <td class="px-3 py-2">${esc(e.expire)}</td>
+                    <td class="px-3 py-2"><span class="status-badge ${eqStatusMap[e.status] ? eqStatusMap[e.status].cls : 'eq-status-good'}">${eqStatusMap[e.status] ? eqStatusMap[e.status].label : '🟢 ปกติ'}</span></td>
+                    <td class="px-3 py-2">${esc(e.action)}</td>
+                    <td class="px-3 py-2 whitespace-nowrap">
+                        <button class="btn-sm btn-edit mr-1" onclick="editEquipment('${esc(e.id)}')">แก้ไข</button>
+                        <button class="btn-sm btn-danger" onclick="deleteEquipment('${esc(e.id)}')">ลบ</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ---------- Budget ----------
+        function renderBudget() {
+            const tbody = document.getElementById('budgetTable');
+            let total = 0;
+            tbody.innerHTML = state.budget.map((b, i) => {
+                const sum = b.qty * b.price;
+                total += sum;
+                return `
+                    <tr class="border-t">
+                        <td class="px-3 py-2">${esc(b.item)}</td>
+                        <td class="px-3 py-2 text-right">${b.qty}</td>
+                        <td class="px-3 py-2 text-right">฿${Number(b.price).toLocaleString()}</td>
+                        <td class="px-3 py-2 text-right font-medium">฿${sum.toLocaleString()}</td>
+                        <td class="px-3 py-2"><button class="btn-sm btn-danger" onclick="deleteBudgetItem(${i})">ลบ</button></td>
+                    </tr>
+                `;
+            }).join('');
+            document.getElementById('totalBudget').textContent = '฿' + total.toLocaleString();
+            updateBudgetChart();
+        }
+
+        function updateBudgetChart() {
+            const ctx = document.getElementById('budgetChart');
+            if (budgetChart) budgetChart.destroy();
+            budgetChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: state.budget.map(b => b.item),
+                    datasets: [{ data: state.budget.map(b => b.qty * b.price), backgroundColor: ['#dc2626', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#6b7280', '#a3e635', '#f43f5e', '#0ea5e9'] }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'right' } } }
+            });
+        }
+
+        // ---------- Gantt ----------
+        function renderGantt() {
+            const ctx = document.getElementById('ganttChart');
+            if (ganttChart) ganttChart.destroy();
+            const phases = [
+                { label: 'สำรวจ (ส.1)', week: 1 },
+                { label: 'วางแผน/ประสาน (ส.2)', week: 2 },
+                { label: 'ซ่อม (ส.3-4)', week: 3 },
+                { label: 'ทดสอบ (ส.4-5)', week: 5 },
+                { label: 'อบรม/ตรวจรับ (ส.6)', week: 6 },
+            ];
+            ganttChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: phases.map(p => p.label),
+                    datasets: [{
+                        label: 'สัปดาห์เริ่มต้น',
+                        data: phases.map(p => p.week),
+                        backgroundColor: '#dc2626',
+                        borderRadius: 6
+                    }]
+                },
+                options: { indexAxis: 'y', responsive: true, scales: { x: { min: 0, max: 7, ticks: { stepSize: 1 }, title: { display: true, text: 'สัปดาห์' } } }, plugins: { legend: { display: false } } }
+            });
+        }
+
+        // ---------- Modal helpers ----------
+        let modalCallback = null;
+
+        function openModal(title, bodyHtml, cb) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalBody').innerHTML = bodyHtml;
+            modalCallback = cb;
+            const m = document.getElementById('modal');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+
+        function closeModal() {
+            const m = document.getElementById('modal');
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+            modalCallback = null;
+        }
+
+        function saveModal() {
+            if (modalCallback) modalCallback();
+            closeModal();
+        }
+
+        function fieldVal(id) { return document.getElementById(id).value.trim(); }
+
+        // ---------- Task CRUD ----------
+        function addTask() {
+            openModal('➕ เพิ่มงานใหม่', `
+                <div class="space-y-3">
+                    <div><label class="text-sm text-gray-600">งาน *</label><input id="f-task" class="w-full" placeholder="เช่น ทดสอบ Fire Alarm"></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="text-sm text-gray-600">สัปดาห์</label><select id="f-week" class="w-full">${[1,2,3,4,5,6].map(w => `<option value="${w}">สัปดาห์ ${w}</option>`).join('')}</select></div>
+                        <div><label class="text-sm text-gray-600">ผู้รับผิดชอบ</label><input id="f-owner" class="w-full" placeholder="ช่างไฟฟ้า"></div>
+                    </div>
+                    <div><label class="text-sm text-gray-600">ลำดับความสำคัญ</label><select id="f-priority" class="w-full"><option value="high">🔴 ด่วน</option><option value="medium">🟡 กลาง</option><option value="low">🔵 ต่ำ</option></select></div>
+                </div>
+            `, () => {
+                const name = fieldVal('f-task');
+                if (!name) { showToast('⚠️ กรุณากรอกชื่องาน'); return; }
+                const maxId = state.tasks.reduce((m, t) => Math.max(m, t.id), 0);
+                state.tasks.push({ id: maxId + 1, week: parseInt(fieldVal('f-week')) || 1, task: name, owner: fieldVal('f-owner') || '-', priority: fieldVal('f-priority'), status: 'pending' });
+                saveState(); renderTasks(); renderGantt(); showToast('✅ เพิ่มงานแล้ว');
+            });
+        }
+
+        function editTask(id) {
+            const t = state.tasks.find(x => x.id === id);
+            if (!t) return;
+            openModal('✏️ แก้ไขงาน', `
+                <div class="space-y-3">
+                    <div><label class="text-sm text-gray-600">งาน</label><input id="f-task" class="w-full" value="${esc(t.task)}"></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="text-sm text-gray-600">สัปดาห์</label><select id="f-week" class="w-full">${[1,2,3,4,5,6].map(w => `<option value="${w}" ${w === t.week ? 'selected' : ''}>สัปดาห์ ${w}</option>`).join('')}</select></div>
+                        <div><label class="text-sm text-gray-600">ผู้รับผิดชอบ</label><input id="f-owner" class="w-full" value="${esc(t.owner)}"></div>
+                    </div>
+                    <div><label class="text-sm text-gray-600">ลำดับความสำคัญ</label><select id="f-priority" class="w-full"><option value="high" ${t.priority === 'high' ? 'selected' : ''}>🔴 ด่วน</option><option value="medium" ${t.priority === 'medium' ? 'selected' : ''}>🟡 กลาง</option><option value="low" ${t.priority === 'low' ? 'selected' : ''}>🔵 ต่ำ</option></select></div>
+                </div>
+            `, () => {
+                t.task = fieldVal('f-task') || t.task;
+                t.week = parseInt(fieldVal('f-week')) || t.week;
+                t.owner = fieldVal('f-owner') || t.owner;
+                t.priority = fieldVal('f-priority');
+                saveState(); renderTasks(); renderGantt(); showToast('✅ บันทึกแล้ว');
+            });
+        }
+
+        function deleteTask(id) {
+            if (!confirm('ลบงานนี้?')) return;
+            state.tasks = state.tasks.filter(t => t.id !== id);
+            saveState(); renderTasks(); renderGantt(); showToast('🗑️ ลบงานแล้ว');
+        }
+
+        // ---------- Equipment CRUD ----------
+        function addEquipment() {
+            openModal('➕ เพิ่มอุปกรณ์', `
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="text-sm text-gray-600">รหัส</label><input id="f-id" class="w-full" placeholder="T-005"></div>
+                        <div><label class="text-sm text-gray-600">ประเภท</label><input id="f-type" class="w-full" placeholder="ถัง ABC 5 กก."></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="text-sm text-gray-600">ยี่ห้อ/รุ่น</label><input id="f-brand" class="w-full" placeholder="Golden Lion"></div>
+                        <div><label class="text-sm text-gray-600">จุดติดตั้ง</label><input id="f-location" class="w-full" placeholder="อาคารผลิต"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="text-sm text-gray-600">วันหมดอายุ</label><input id="f-expire" class="w-full" placeholder="2027-12-31"></div>
+                        <div><label class="text-sm text-gray-600">สถานะ</label><select id="f-status" class="w-full"><option value="good">🟢 ปกติ</option><option value="expired">🔴 หมดอายุ</option><option value="faulty">🟡 ชำรุด</option><option value="maint">🔵 ซ่อมบำรุง</option></select></div>
+                    </div>
+                    <div><label class="text-sm text-gray-600">การดำเนินการ</label><input id="f-action" class="w-full" placeholder="ส่งอัดใหม่"></div>
+                </div>
+            `, () => {
+                const id = fieldVal('f-id');
+                if (!id) { showToast('⚠️ กรุณากรอกรหัสอุปกรณ์'); return; }
+                state.equipment.push({ id, type: fieldVal('f-type') || '-', brand: fieldVal('f-brand') || '-', location: fieldVal('f-location') || '-', expire: fieldVal('f-expire') || '-', status: fieldVal('f-status'), action: fieldVal('f-action') || '-' });
+                saveState(); renderEquipment(); showToast('✅ เพิ่มอุปกรณ์แล้ว');
+            });
+        }
+
+        function editEquipment(id) {
+            const e = state.equipment.find(x => x.id === id);
+            if (!e) return;
+            openModal('✏️ แก้ไขอุปกรณ์', `
+                <div class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="text-sm text-gray-600">รหัส</label><input id="f-id" class="w-full" value="${esc(e.id)}"></div>
+                        <div><label class="text-sm text-gray-600">ประเภท</label><input id="f-type" class="w-full" value="${esc(e.type)}"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="text-sm text-gray-600">ยี่ห้อ/รุ่น</label><input id="f-brand" class="w-full" value="${esc(e.brand)}"></div>
+                        <div><label class="text-sm text-gray-600">จุดติดตั้ง</label><input id="f-location" class="w-full" value="${esc(e.location)}"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="text-sm text-gray-600">วันหมดอายุ</label><input id="f-expire" class="w-full" value="${esc(e.expire)}"></div>
+                        <div><label class="text-sm text-gray-600">สถานะ</label><select id="f-status" class="w-full"><option value="good" ${e.status === 'good' ? 'selected' : ''}>🟢 ปกติ</option><option value="expired" ${e.status === 'expired' ? 'selected' : ''}>🔴 หมดอายุ</option><option value="faulty" ${e.status === 'faulty' ? 'selected' : ''}>🟡 ชำรุด</option><option value="maint" ${e.status === 'maint' ? 'selected' : ''}>🔵 ซ่อมบำรุง</option></select></div>
+                    </div>
+                    <div><label class="text-sm text-gray-600">การดำเนินการ</label><input id="f-action" class="w-full" value="${esc(e.action)}"></div>
+                </div>
+            `, () => {
+                e.id = fieldVal('f-id') || e.id;
+                e.type = fieldVal('f-type') || e.type;
+                e.brand = fieldVal('f-brand') || e.brand;
+                e.location = fieldVal('f-location') || e.location;
+                e.expire = fieldVal('f-expire') || e.expire;
+                e.status = fieldVal('f-status');
+                e.action = fieldVal('f-action') || e.action;
+                saveState(); renderEquipment(); showToast('✅ บันทึกแล้ว');
+            });
+        }
+
+        function deleteEquipment(id) {
+            if (!confirm('ลบอุปกรณ์ ' + id + '?')) return;
+            state.equipment = state.equipment.filter(e => e.id !== id);
+            saveState(); renderEquipment(); showToast('🗑️ ลบอุปกรณ์แล้ว');
+        }
+
+        // ---------- Budget CRUD ----------
+        function addBudgetItem() {
+            openModal('➕ เพิ่มรายการงบ', `
+                <div class="space-y-3">
+                    <div><label class="text-sm text-gray-600">รายการ</label><input id="f-item" class="w-full" placeholder="เช่น ค่าจ้างตรวจสอบระบบ"></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="text-sm text-gray-600">จำนวน</label><input id="f-qty" type="number" class="w-full" value="1"></div>
+                        <div><label class="text-sm text-gray-600">ราคา/หน่วย (บาท)</label><input id="f-price" type="number" class="w-full" value="0"></div>
+                    </div>
+                </div>
+            `, () => {
+                const item = fieldVal('f-item');
+                if (!item) { showToast('⚠️ กรุณากรอกรายการ'); return; }
+                state.budget.push({ item, qty: parseInt(document.getElementById('f-qty').value) || 1, price: parseInt(document.getElementById('f-price').value) || 0 });
+                saveState(); renderBudget(); showToast('✅ เพิ่มรายการแล้ว');
+            });
+        }
+
+        function deleteBudgetItem(idx) {
+            if (!confirm('ลบรายการนี้?')) return;
+            state.budget.splice(idx, 1);
+            saveState(); renderBudget(); showToast('🗑️ ลบรายการแล้ว');
+        }
+
+        // ---------- Export / Reset ----------
+        function exportJSON() {
+            const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'fire-safety-project-' + new Date().toISOString().slice(0, 10) + '.json';
+            a.click();
+            URL.revokeObjectURL(a.href);
+            showToast('📤 Export ข้อมูลเรียบร้อย');
+        }
+
+        function resetData() {
+            if (!confirm('รีเซ็ตข้อมูลทั้งหมดกลับเป็นค่าเริ่มต้น?')) return;
+            localStorage.removeItem(STORAGE_KEY);
+            state = loadState();
+            renderTasks(); renderEquipment(); renderBudget(); renderGantt();
+            showToast('🔄 รีเซ็ตข้อมูลแล้ว');
+        }
+
+        // ---------- Init ----------
+        renderTasks();
+        renderEquipment();
+        renderBudget();
+        renderGantt();
+    </script>
+</body>
+</html>
