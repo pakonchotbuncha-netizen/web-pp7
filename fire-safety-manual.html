@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คู่มือการใช้งาน Dashboard แผนซ่อมบำรุงระบบดับเพลิง ธ.ค. 2569</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Prompt', sans-serif; }
+        .section { scroll-margin-top: 80px; }
+        .code-block { background: #1e293b; color: #e2e8f0; padding: 12px 16px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 14px; overflow-x: auto; }
+        .tip-box { background: #dbeafe; border-left: 4px solid #3b82f6; padding: 12px 16px; border-radius: 0 8px 8px 0; }
+        .warning-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 0 8px 8px 0; }
+        .success-box { background: #d1fae5; border-left: 4px solid #10b981; padding: 12px 16px; border-radius: 0 8px 8px 0; }
+        @media print {
+            .no-print { display: none; }
+            .section { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow-md sticky top-0 z-50 no-print">
+        <div class="max-w-5xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">📖 คู่มือการใช้งาน</h1>
+                    <p class="text-sm text-gray-600">Dashboard แผนซ่อมบำรุงระบบดับเพลิง ธ.ค. 2569</p>
+                </div>
+                <button onclick="window.print()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                    🖨️ พิมพ์เป็น PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-5xl mx-auto px-4 py-8">
+        <!-- Cover -->
+        <div class="bg-gradient-to-br from-red-600 to-red-800 text-white rounded-2xl p-8 mb-8 shadow-xl">
+            <h1 class="text-4xl font-bold mb-4">🔥 คู่มือการใช้งาน</h1>
+            <h2 class="text-2xl font-semibold mb-6">Dashboard แผนซ่อมบำรุงระบบดับเพลิง ธ.ค. 2569</h2>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="font-semibold">เวอร์ชัน:</p>
+                    <p>1.0 (25 สิงหาคม 2569)</p>
+                </div>
+                <div>
+                    <p class="font-semibold">ผู้จัดทำ:</p>
+                    <p>KiloClaw (PM + Developer)</p>
+                </div>
+                <div>
+                    <p class="font-semibold">Executive Sponsor:</p>
+                    <p>ปกรณ์ (PKG-ปกรณ์(หนึ่ง))</p>
+                </div>
+                <div>
+                    <p class="font-semibold">หน่วยงาน:</p>
+                    <p>PKG Group จันทบุรี</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="bg-white rounded-xl p-6 mb-8 shadow">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">📋 สารบัญ</h2>
+            <ol class="space-y-2 text-gray-700">
+                <li><a href="#overview" class="text-blue-600 hover:underline">1. ภาพรวมระบบ</a></li>
+                <li><a href="#access" class="text-blue-600 hover:underline">2. การเข้าถึง Dashboard</a></li>
+                <li><a href="#features" class="text-blue-600 hover:underline">3. ฟีเจอร์หลัก</a></li>
+                <li><a href="#howto" class="text-blue-600 hover:underline">4. วิธีใช้งานแต่ละฟีเจอร์</a></li>
+                <li><a href="#cloud" class="text-blue-600 hover:underline">5. การเชื่อมต่อ Google Sheets</a></li>
+                <li><a href="#faq" class="text-blue-600 hover:underline">6. คำถามที่พบบ่อย</a></li>
+                <li><a href="#contact" class="text-blue-600 hover:underline">7. ติดต่อสอบถาม</a></li>
+            </ol>
+        </div>
+
+        <!-- Section 1: Overview -->
+        <div id="overview" class="section bg-white rounded-xl p-6 mb-8 shadow">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">🎯 1. ภาพรวมระบบ</h2>
+            <p class="text-gray-700 mb-4">
+                Dashboard แผนซ่อมบำรุงระบบดับเพลิง ธ.ค. 2569 เป็นระบบจัดการโครงการแบบ interactive ที่ช่วยให้ทีมงาน:
+            </p>
+            <ul class="list-disc list-inside space-y-2 text-gray-700 mb-4">
+                <li>✅ ติดตามความคืบหน้างาน 17 งาน ใน 6 สัปดาห์</li>
+                <li>✅ บันทึกผลการปฏิบัติงานจริง (วันที่ + รายละเอียด)</li>
+                <li>✅ แนบลิงก์เอกสาร/รูปถ่าย/รายงาน</li>
+                <li>✅ จัดการงบประมาณ (วางแผน + ใช้จริง)</li>
+                <li>✅ บันทึกทะเบียนอุปกรณ์ดับเพลิง</li>
+                <li>✅ Sync ข้อมูลข้ามเครื่อง/ข้ามคน ผ่าน Google Sheets</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold mt-6 mb-3 text-gray-800">📅 Timeline โครงการ</h3>
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="space-y-2 text-sm">
+                    <div class="flex gap-3">
+                        <span class="font-semibold text-red-600">สัปดาห์ 1-2 (พ.ย.):</span>
+                        <span>สำรวจระบบ + ประสานเทศบาล</span>
+                    </div>
+                    <div class="flex gap-3">
+                        <span class="font-semibold text-orange-600">สัปดาห์ 3-4 (พ.ย.):</span>
+                        <span>เตรียมงาน + ส่งอัดถัง</span>
+                    </div>
+                    <div class="flex gap-3">
+                        <span class="font-semibold text-red-600">สัปดาห์ 5 (ต้น ธ.ค.):</span>
+                        <span>🔥 เทศบาลท่าช้างเข้าซ่อม</span>
+                    </div>
+                    <div class="flex gap-3">
+                        <span class="font-semibold text-green-600">สัปดาห์ 6 (กลาง ธ.ค.):</span>
+                        <span>ทดสอบ + อบรม + ตรวจรับ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Access -->
+        <div id="access" class="section bg-white rounded-xl p-6 mb-8 shadow">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">🌐 2. การเข้าถึง Dashboard</h2>
+            
+            <h3 class="text-xl font-semibold mb-3 text-gray-800">วิธีเปิด Dashboard</h3>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700 mb-4">
+                <li>เปิดเบราว์เซอร์ (Chrome, Firefox, Safari, Edge)</li>
+                <li>ไปที่: <a href="https://pakonchotbuncha-netizen.github.io/web-pp7/fire-safety-dashboard.html" class="text-blue-600 hover:underline font-mono text-sm">https://pakonchotbuncha-netizen.github.io/web-pp7/fire-safety-dashboard.html</a></li>
+                <li>ระบบจะโหลดข้อมูลจาก Google Sheets อัตโนมัติ</li>
+            </ol>
+
+            <div class="tip-box">
+                <p class="text-sm"><strong>💡 แนะนำ:</strong> Bookmark ลิงก์นี้ไว้ เพื่อเปิดได้รวดเร็ว</p>
+            </div>
+
+            <h3 class="text-xl font-semibold mt-6 mb-3 text-gray-800">🔗 ลิงก์สำคัญ</h3>
+            <div class="space-y-2">
+                <div class="bg-blue-50 border-l-4 border-blue-600 p-3 rounded-r-lg">
+                    <p class="font-semibold text-sm">Dashboard หลัก:</p>
+                    <p class="text-sm font-mono break-all">https://pakonchotbuncha-netizen.github.io/web-pp7/fire-safety-dashboard.html</p>
+                </div>
+                <div class="bg-green-50 border-l-4 border-green-600 p-3 rounded-r-lg">
+                    <p class="font-semibold text-sm">Google Sheet (ข้อมูลจริง):</p>
+                    <p class="text-sm font-mono break-all">https://docs.google.com/spreadsheets/d/1gq0KajkWw5_rOd6U_f6lLQETc4CP5cZ0lxXSVWFm_tY/edit</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Features -->
+        <div id="features" class="section bg-white rounded-xl p-6 mb-8 shadow">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">🎨 3. ฟีเจอร์หลัก</h2>
+            <p class="text-gray-700 mb-4">Dashboard ประกอบด้วย 5 แท็บ:</p>
+
+            <div class="space-y-4">
+                <div class="border-l-4 border-red-600 bg-red-50 p-4 rounded-r-lg">
+                    <h3 class="font-bold text-lg">📊 1. สรุปโครงการ (Overview)</h3>
+                    <ul class="list-disc list-inside text-sm mt-2 space-y-1">
+                        <li>การ์ด KPI: ระยะเวลา, จำนวนงาน, งบประมาณ, หน่วยงานหลัก</li>
+                        <li>กราฟความคืบหน้า (doughnut + bar chart)</li>
+                        <li>สรุปงบประมาณ: วางแผน / ใช้จริง / คงเหลือ</li>
+                        <li>งานสำคัญช่วงนี้</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-orange-600 bg-orange-50 p-4 rounded-r-lg">
+                    <h3 class="font-bold text-lg">📅 2. แผนงาน (Plan)</h3>
+                    <ul class="list-disc list-inside text-sm mt-2 space-y-1">
+                        <li>Gantt Chart 6 สัปดาห์</li>
+                        <li>ตาราง 17 งาน พร้อมสถานะ (รอเริ่ม / กำลังทำ / พักรอ / เสร็จ)</li>
+                        <li>ปุ่ม <strong>📝 บันทึกผล</strong> — บันทึกรายละเอียดการลงมือทำ</li>
+                        <li>ปุ่ม <strong>🔗 แนบลิงก์</strong> — แนบเอกสาร/รูปถ่าย/รายงาน</li>
+                        <li>ปุ่ม <strong>แก้ไข/ลบ</strong> — แก้ไขงานได้</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-yellow-600 bg-yellow-50 p-4 rounded-r-lg">
+                    <h3 class="font-bold text-lg">🧯 3. ทะเบียนอุปกรณ์ (Equipment)</h3>
+                    <ul class="list-disc list-inside text-sm mt-2 space-y-1">
+                        <li>ตารางอุปกรณ์ดับเพลิง (ถัง, Detector, Sprinkler, Fire Pump)</li>
+                        <li>สถานะ: ปกติ / หมดอายุ / ชำรุด / ซ่อมบำรุง</li>
+                        <li>เพิ่ม/แก้ไข/ลบอุปกรณ์ได้</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-blue-600 bg-blue-50 p-4 rounded-r-lg">
+                    <h3 class="font-bold text-lg">📞 4. ผู้ติดต่อ (Contacts)</h3>
+                    <ul class="list-disc list-inside text-sm mt-2 space-y-1">
+                        <li>เทศบาลท่าช้าง</li>
+                        <li>Supplier ถังดับเพลิง</li>
+                        <li>ช่างซ่อมระบบดับเพลิง</li>
+                        <li>ผู้รับผิดชอบภายใน</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-green-600 bg-green-50 p-4 rounded-r-lg">
+                    <h3 class="font-bold text-lg">💰 5. งบประมาณ (Budget)</h3>
+                    <ul class="list-disc list-inside text-sm mt-2 space-y-1">
+                        <li>ตารางงบประมาณ 10 รายการ</li>
+                        <li>คอลัมน์: ประมาณการ / ใช้จริง / วันที่ / หมายเหตุ</li>
+                        <li>เพิ่ม/แก้ไข/ลบรายการได้</li>
+                        <li>สรุปท้ายตาราง: งบรวม / ใช้จริง / คงเหลือ</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: How-to -->
+        <div id="howto" class="section bg-white rounded-xl p-6 mb-8 shadow">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">📝 4. วิธีใช้งานแต่ละฟีเจอร์</h2>
+
+            <!-- 4.1 Change Status -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold mb-3 text-gray-800">🎯 4.1 การเปลี่ยนสถานะงาน</h3>
+                <ol class="list-decimal list-inside space-y-2 text-gray-700 mb-4">
+                    <li>ไปที่แท็บ <strong>📅 แผนงาน</strong></li>
+                    <li>คลิกที่ <strong>badge สถานะ</strong> (เช่น ⏳ รอเริ่ม)</li>
+                    <li>สถานะจะเปลี่ยนเป็น: รอเริ่ม → กำลังทำ → พักรอ → เสร็จ → วนกลับ</li>
+                    <li>ข้อมูลบันทึกอัตโนมัติ</li>
+                </ol>
+            </div>
+
+            <!-- 4.2 Record Work -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold mb-3 text-gray-800">📝 4.2 การบันทึกผลการปฏิบัติงาน</h3>
+                <ol class="list-decimal list-inside space-y-2 text-gray-700 mb-4">
+                    <li>ไปที่แท็บ <strong>📅 แผนงาน</strong></li>
+                    <li>คลิกปุ่ม <strong>📝 บันทึกผล</strong> ในคอลัมน์ "ผลการปฏิบัติงาน"</li>
+                    <li>กรอก:
+                        <ul class="list-disc list-inside ml-6 mt-1 space-y-1">
+                            <li><strong>วันที่ลงมือทำ</strong> (เลือกจากปฏิทิน)</li>
+                            <li><strong>รายละเอียด</strong> (เช่น "ตรวจถังดับเพลิงทั้งหมด 20 ถัง — ใช้งานได้ 15 ถัง / หมดอายุ 5 ถัง")</li>
+                        </ul>
+                    </li>
+                    <li>กด <strong>บันทึก</strong></li>
+                    <li>ระบบจะบันทึก + เปลี่ยนสถานะเป็น "กำลังทำ" อัตโนมัติ</li>
+                    <li>สามารถบันทึกได้หลายครั้งต่องาน (ระบบเก็บประวัติ)</li>
+                </ol>
+
+                <div class="success-box">
+                    <p class="font-semibold text-sm mb-2">✅ ตัวอย่างการบันทึก:</p>
+                    <div class="text-sm space-y-1">
+                        <p><strong>งาน:</strong> สำรวจถังดับเพลิงพกพา</p>
+                        <p><strong>วันที่:</strong> 2026-11-02</p>
+                        <p><strong>รายละเอียด:</strong> ตรวจถังดับเพลิงพกพาทั้งหมด 20 ถัง</p>
+                        <ul class="list-disc list-inside ml-6">
+                            <li>ใช้งานได้: 15 ถัง</li>
+                            <li>หมดอายุ: 5 ถัง (ต้องส่งอัดใหม่)</li>
+                            <li>ต้องซื้อเพิ่ม: 3 ถัง</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4.3 Attach Links -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold mb-3 text-gray-800">🔗 4.3 การแนบลิงก์เอกสาร</h3>
+                <ol class="list-decimal list-inside space-y-2 text-gray-700 mb-4">
+                    <li>ไปที่แท็บ <strong>📅 แผนงาน</strong></li>
+                    <li>คลิกปุ่ม <strong>🔗 แนบลิงก์</strong> ในคอลัมน์ "แนบลิงก์"</li>
+                    <li>กรอก:
+                        <ul class="list-disc list-inside ml-6 mt-1 space-y-1">
+                            <li><strong>ชื่อลิงก์</strong> (เช่น "รูปถังที่หมดอายุ", "รายงานสำรวจ")</li>
+                            <li><strong>URL</strong> (https://...)</li>
+                        </ul>
+                    </li>
+                    <li>กด <strong>บันทึก</strong></li>
+                    <li>ลิงก์จะแสดงเป็นปุ่มสีฟ้า คลิกเปิดแท็บใหม่ได้</li>
+                    <li>สามารถแนบได้หลายลิงก์ต่องาน</li>
+                </ol>
+
+                <div class="tip-box">
+                    <p class="font-semibold text-sm mb-2">💡 ตัวอย่างลิงก์ที่ควรแนบ:</p>
+                    <ul class="list-disc list-inside text-sm">
+                        <li>รูปถ่ายหน้างาน (Google Drive, Dropbox)</li>
+                        <li>รายงานสำรวจ (PDF, Google Docs)</li>
+                        <li>ใบแจ้งซ่อม/ใบเสนอราคา</li>
+                        <li>SOP/คู่มือการใช้งาน</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 4.4 Budget -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold mb-3 text-gray-800">💰 4.4 การจัดการงบประมาณ</h3>
+                
+                <h4 class="font-semibold mt-4 mb-2">เพิ่มรายการงบประมาณ</h4>
+                <ol class="list-decimal list-inside space-y-2 text-gray-700 mb-4">
+                    <li>ไปที่แท็บ <strong>💰 งบประมาณ</strong></li>
+                    <li>กดปุ่ม <strong>+ เพิ่มรายการ</strong></li>
+                    <li>กรอก:
+                        <ul class="list-disc list-inside ml-6 mt-1 space-y-1">
+                            <li><strong>รายการ</strong> (เช่น "ค่าจ้างตรวจสอบระบบ")</li>
+                            <li><strong>จำนวน</strong> (เช่น 1)</li>
+                            <li><strong>ราคา/หน่วย</strong> (เช่น 10000)</li>
+                            <li><strong>ใช้จริง</strong> (เช่น 9500) — กรอกเมื่อจ่ายเงินแล้ว</li>
+                            <li><strong>วันที่ใช้</strong> (เลือกจากปฏิทิน)</li>
+                            <li><strong>หมายเหตุ</strong> (เช่น "ใบเสร็จเลขที่ 12345")</li>
+                        </ul>
+                    </li>
+                    <li>กด <strong>บันทึก</strong></li>
+                </ol>
+
+                <h4 class="font-semibold mt-4 mb-2">แก้ไข/ลบรายการ</h4>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 mb-4">
+                    <li><strong>แก้ไข:</strong> กดปุ่ม <strong>แก้ไข</strong> → แก้ไขข้อมูล → <strong>บันทึก</strong></li>
+                    <li><strong>ลบ:</strong> กดปุ่ม <strong>ลบ</strong> → ยืนยัน</li>
+                </ul>
+
+                <h4 class="font-semibold mt-4 mb-2">ดูสรุปงบประมาณ</h4>
+                <div class="bg-gray-50 rounded-lg p-4 text-sm">
+                    <p><strong>ประมาณการรวม:</strong> ฿107,500</p>
+                    <p><strong>ใช้จริงรวม:</strong> (อัปเดตอัตโนมัติ)</p>
+                    <p><strong>คงเหลือ:</strong> งบประมาณ - ใช้จริง</p>
+                    <p class="text-xs text-gray-600 mt-2">สีเขียว = เหลือ / สีแดง = เกินงบ</p>
+                </div>
+            </div>
+
+            <!-- 4.5 Equipment -->
+            <div>
+                <h3 class="text-xl font-semibold mb-3 text-gray-800">🧯 4.5 การจัดการทะเบียนอุปกรณ์</h3>
+                
+                <h4 class="font-semibold mt-4 mb-2">เพิ่มอุปกรณ์</h4>
+                <ol class="list-decimal list-inside space-y-2 text-gray-700 mb-4">
+                    <li>ไปที่แท็บ <strong>🧯 ทะเบียนอุปกรณ์</strong></li>
+                    <li>กดปุ่ม <strong>+ เพิ่มอุปกรณ์</strong></li>
+                    <li>กรอก:
+                        <ul class="list-disc list-inside ml-6 mt-1 space-y-1">
+                            <li><strong>รหัส</strong> (เช่น T-005)</li>
+                            <li><strong>ประเภท</strong> (เช่น ถัง ABC 5 กก.)</li>
+                            <li><strong>ยี่ห้อ/รุ่น</strong> (เช่น Golden Lion)</li>
+                            <li><strong>จุดติดตั้ง</strong> (เช่น อาคารผลิต)</li>
+                            <li><strong>วันหมดอายุ</strong> (เช่น 2027-12-31)</li>
+                            <li><strong>สถานะ</strong> (ปกติ / หมดอายุ / ชำรุด / ซ่อมบำรุง)</li>
+                            <li><strong>การดำเนินการ</strong> (เช่น ส่งอัดใหม่)</li>
+                        </ul>
+                    </li>
+                    <li>กด <strong>บันทึก</strong></li>
+                </ol>
+
+                <h4 class="font-semibold mt-4 mb-2">แก้ไข/ลบอุปกรณ์</h4>
+                <ul class="list-disc list-inside space-y-2 text-gray-700">
+                    <li>กดปุ่ม <strong>แก้ไข</strong> หรือ <strong>ลบ</strong> ในคอลัมน์สุดท้าย</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 5: Cloud -->
+        <div id="cloud" class="section bg-white rounded-xl p-6 mb-8 shadow">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">☁️ 5. การเชื่อมต่อ Google Sheets</h2>
+
+            <h3 class="text-xl font-semibold mb-3 text-gray-800">สถานะการเชื่อมต่อ</h3>
+            <p class="text-gray-700 mb-4">
+                Dashboard จะเชื่อมต่อ Google Sheets อัตโนมัติ (URL ฝังไว้แล้ว)
+            </p>
+
+            <div class="success-box mb-4">
+                <p class="font-semibold text-sm">✅ วิธีเช็ค:</p>
+                <ul class="list-disc list-inside text-sm mt-2">
+                    <li>ดูปุ่มมุมขวาบน: <strong>☁️ เชื่อมต่อแล้ว</strong> (สีน้ำเงิน) = ทำงานปกติ</li>
+                    <li>ถ้าเห็น <strong>☁️ ยังไม่เชื่อมต่อ</strong> (สีเทา) = ต้องตั้งค่า</li>
+                </ul>
+            </div>
+
+            <h3 class="text-xl font-semibold mb-3 text-gray-800">วิธี Sync ข้อมูล</h3>
+            <ul class="list-disc list-inside space-y-2 text-gray-700 mb-4">
+                <li><strong>Auto-sync:</strong> ข้อมูลบันทึกอัตโนมัติเมื่อเปลี่ยนสถานะ/บันทึกผล/แนบลิงก์</li>
+                <li><strong>Manual sync:</strong> กดปุ่ม <strong>🔄 รีเซ็ตข้อมูล</strong> แล้วเลือก <strong>โหลดจาก Cloud</strong></li>
+            </ul>
+
+            <h3 class="text-xl font-semibold mb-3 text-gray-800">ข้อมูลอยู่ที่ไหน?</h3>
+            <div class="bg-gray-50 rounded-lg p-4 text-sm">
+                <p><strong>Google Sheet:</strong> <a href="https://docs.google.com/spreadsheets/d/1gq0KajkWw5_rOd6U_f6lLQETc4CP5cZ0lxXSVWFm_tY/edit" class="text-blue-600 hover:underline break-all">https://docs.google.com/spreadsheets/d/1gq0KajkWw5_rOd6U_f6lLQETc4CP5cZ0lxXSVWFm_tY/edit</a></p>
+                <p class="mt-2"><strong>Tabs:</strong> Tasks, Equipment, Budget, Logs, Links</p>
+                <p><strong>แชร์ให้:</strong> pakonchotbuncha@gmail.com (Editor)</p>
+            </div>
+        </div>
+
+        <!-- Section 6: FAQ -->
+        <div id="faq" class="section bg-white rounded-xl p-6 mb-8 shadow">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">❓ 6. คำถามที่พบบ่อย</h2>
+
+            <div class="space-y-4">
+                <div class="border-l-4 border-blue-600 bg-blue-50 p-4 rounded-r-lg">
+                    <p class="font-semibold">Q: ข้อมูลหายไปไหน?</p>
+                    <p class="text-sm mt-2">
+                        <strong>A:</strong> ข้อมูลบันทึกใน 2 ที่:
+                    </p>
+                    <ol class="list-decimal list-inside text-sm ml-4 mt-1">
+                        <li><strong>localStorage</strong> (เฉพาะเครื่องที่เปิด) — สำหรับ cache</li>
+                        <li><strong>Google Sheets</strong> (รวมศูนย์) — สำหรับ sync ข้ามเครื่อง</li>
+                    </ol>
+                    <p class="text-sm mt-2">ถ้าข้อมูลหาย ให้กดปุ่ม <strong>☁️ เชื่อมต่อแล้ว</strong> แล้วเลือก <strong>โหลดจาก Cloud</strong></p>
+                </div>
+
+                <div class="border-l-4 border-green-600 bg-green-50 p-4 rounded-r-lg">
+                    <p class="font-semibold">Q: ทำไมคนอื่นไม่เห็นข้อมูลที่ฉันบันทึก?</p>
+                    <p class="text-sm mt-2"><strong>A:</strong> ตรวจสอบว่า:</p>
+                    <ol class="list-decimal list-inside text-sm ml-4 mt-1">
+                        <li>Dashboard เชื่อมต่อ Google Sheets แล้ว (ดูปุ่มมุมขวาบน)</li>
+                        <li>กด <strong>บันทึก</strong> แล้ว (ไม่ใช่แค่กรอกข้อมูล)</li>
+                        <li>ให้คนอื่นกด <strong>🔄 รีเซ็ตข้อมูล → โหลดจาก Cloud</strong> เพื่อดึงข้อมูลล่าสุด</li>
+                    </ol>
+                </div>
+
+                <div class="border-l-4 border-yellow-600 bg-yellow-50 p-4 rounded-r-lg">
+                    <p class="font-semibold">Q: สามารถอัปโหลดไฟล์จริงได้ไหม?</p>
+                    <p class="text-sm mt-2">
+                        <strong>A:</strong> ไม่ได้ — Dashboard รองรับเฉพาะ <strong>แนบลิงก์</strong> (Google Drive, Dropbox, etc.)<br>
+                        ถ้าต้องการอัปโหลดไฟล์จริง ต้องใช้ฟีเจอร์อื่น (เช่น Google Forms + Drive)
+                    </p>
+                </div>
+
+                <div class="border-l-4 border-purple-600 bg-purple-50 p-4 rounded-r-lg">
+                    <p class="font-semibold">Q: Export ข้อมูลเป็น Excel ได้ไหม?</p>
+                    <p class="text-sm mt-2"><strong>A:</strong> ได้ 2 วิธี:</p>
+                    <ol class="list-decimal list-inside text-sm ml-4 mt-1">
+                        <li>กดปุ่ม <strong>📤 Export JSON</strong> ใน Dashboard → ได้ไฟล์ JSON (เปิดใน Excel ได้)</li>
+                        <li>เปิด Google Sheet → File → Download → Excel (.xlsx)</li>
+                    </ol>
+                </div>
+
+                <div class="border-l-4 border-red-600 bg-red-50 p-4 rounded-r-lg">
+                    <p class="font-semibold">Q: ใช้บนมือถือได้ไหม?</p>
+                    <p class="text-sm mt-2">
+                        <strong>A:</strong> ได้ — Dashboard responsive รองรับมือถือ/แท็บเล็ต<br>
+                        แต่แนะนำใช้บน <strong>คอมพิวเตอร์</strong> เพื่อความสะดวกในการกรอกข้อมูล
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 7: Contact -->
+        <div id="contact" class="section bg-white rounded-xl p-6 mb-8 shadow">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">📞 7. ติดต่อสอบถาม</h2>
+
+            <div class="space-y-4">
+                <div class="border-l-4 border-blue-600 bg-blue-50 p-4 rounded-r-lg">
+                    <p class="font-semibold">ปัญหาทางเทคนิค:</p>
+                    <p class="text-sm mt-1">KiloClaw (AI Assistant) — ส่งข้อความใน Telegram group: PADClaw (beta)</p>
+                </div>
+
+                <div class="border-l-4 border-green-600 bg-green-50 p-4 rounded-r-lg">
+                    <p class="font-semibold">ปัญหาการใช้งาน:</p>
+                    <p class="text-sm mt-1">ปกรณ์ (Executive Sponsor) — pakonchotbuncha@gmail.com</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-800 text-white rounded-xl p-6 text-center">
+            <p class="text-sm">📚 เอกสารเพิ่มเติม:</p>
+            <div class="mt-2 space-y-1 text-xs">
+                <p><strong>Source Code:</strong> <a href="https://github.com/pakonchotbuncha-netizen/web-pp7" class="text-blue-400 hover:underline">https://github.com/pakonchotbuncha-netizen/web-pp7</a></p>
+                <p><strong>Dashboard URL:</strong> <a href="https://pakonchotbuncha-netizen.github.io/web-pp7/fire-safety-dashboard.html" class="text-blue-400 hover:underline">https://pakonchotbuncha-netizen.github.io/web-pp7/fire-safety-dashboard.html</a></p>
+            </div>
+            <p class="text-xs text-gray-400 mt-4">อัปเดตล่าสุด: 25 สิงหาคม 2569 | เวอร์ชัน 1.0 | ผู้จัดทำ: KiloClaw 🦾</p>
+        </div>
+    </div>
+</body>
+</html>
