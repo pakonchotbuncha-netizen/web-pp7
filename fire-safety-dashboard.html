@@ -89,6 +89,25 @@
                 </div>
             </div>
 
+            <!-- Budget summary cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="card p-4 border-l-4 border-blue-600">
+                    <p class="text-sm text-gray-600">💰 งบประมาณที่วางแผน</p>
+                    <p class="text-2xl font-bold text-gray-800" id="ovPlanBudget">฿0</p>
+                    <p class="text-xs text-gray-500">รวม 10 รายการ</p>
+                </div>
+                <div class="card p-4 border-l-4 border-red-600">
+                    <p class="text-sm text-gray-600">🧾 ใช้จริงแล้ว</p>
+                    <p class="text-2xl font-bold text-gray-800" id="ovSpentBudget">฿0</p>
+                    <p class="text-xs text-gray-500">จากงบที่วางแผน</p>
+                </div>
+                <div class="card p-4 border-l-4 border-green-600">
+                    <p class="text-sm text-gray-600">✅ คงเหลือ</p>
+                    <p class="text-2xl font-bold text-gray-800" id="ovRemainBudget">฿0</p>
+                    <p class="text-xs text-gray-500">งบประมาณ - ใช้จริง</p>
+                </div>
+            </div>
+
             <!-- Progress summary -->
             <div class="card p-6 mb-6">
                 <div class="flex flex-wrap items-center justify-between mb-3 gap-2">
@@ -153,6 +172,7 @@
                                 <th class="px-3 py-2 text-left">ผู้รับผิดชอบ</th>
                                 <th class="px-3 py-2 text-left">ลำดับความสำคัญ</th>
                                 <th class="px-3 py-2 text-left">สถานะ</th>
+                                <th class="px-3 py-2 text-left">ผลการปฏิบัติงาน</th>
                                 <th class="px-3 py-2 text-left">การดำเนินการ</th>
                             </tr>
                         </thead>
@@ -230,7 +250,7 @@
         <div id="content-budget" class="hidden">
             <div class="card p-6">
                 <div class="flex flex-wrap items-center justify-between mb-4 gap-2">
-                    <h2 class="text-xl font-bold text-gray-800">💰 งบประมาณโครงการ</h2>
+                    <h2 class="text-xl font-bold text-gray-800">💰 งบประมาณโครงการ <span class="text-sm font-normal text-gray-500">(แก้ไข/เพิ่ม/ลบ + บันทึกยอดใช้จริง)</span></h2>
                     <button onclick="addBudgetItem()" class="btn-primary text-sm">+ เพิ่มรายการ</button>
                 </div>
                 <canvas id="budgetChart" height="100" class="mb-6"></canvas>
@@ -241,7 +261,10 @@
                                 <th class="px-3 py-2 text-left">รายการ</th>
                                 <th class="px-3 py-2 text-right">จำนวน</th>
                                 <th class="px-3 py-2 text-right">ราคา/หน่วย</th>
-                                <th class="px-3 py-2 text-right">รวม</th>
+                                <th class="px-3 py-2 text-right">ประมาณการ</th>
+                                <th class="px-3 py-2 text-right">ใช้จริง (บาท)</th>
+                                <th class="px-3 py-2 text-left">วันที่ใช้</th>
+                                <th class="px-3 py-2 text-left">หมายเหตุ</th>
                                 <th class="px-3 py-2 text-left"></th>
                             </tr>
                         </thead>
@@ -250,6 +273,8 @@
                             <tr>
                                 <td class="px-3 py-2" colspan="3">รวมทั้งหมด</td>
                                 <td class="px-3 py-2 text-right" id="totalBudget">฿0</td>
+                                <td class="px-3 py-2 text-right" id="totalSpent">฿0</td>
+                                <td class="px-3 py-2" colspan="2"><span id="budgetRemainLabel">คงเหลือ ฿0</span></td>
                                 <td></td>
                             </tr>
                         </tfoot>
@@ -283,23 +308,23 @@
 
         // ---------- Default data ----------
         const defaultTasks = [
-            { id: 1,  week: 1, task: 'สำรวจถังดับเพลิงพกพา',      owner: 'ฝ่ายอาคาร',   priority: 'high',   status: 'pending' },
-            { id: 2,  week: 1, task: 'สำรวจระบบ Fire Alarm',       owner: 'ช่างไฟฟ้า',   priority: 'high',   status: 'pending' },
-            { id: 3,  week: 2, task: 'สำรวจระบบ Sprinkler',        owner: 'ช่างประปา',   priority: 'high',   status: 'pending' },
-            { id: 4,  week: 2, task: 'สำรวจ Fire Pump',            owner: 'ช่างเครื่องกล', priority: 'high', status: 'pending' },
-            { id: 5,  week: 2, task: 'ประสานงานเทศบาลท่าช้าง (นัดวันเข้าซ่อม)', owner: 'Admin', priority: 'high', status: 'pending' },
-            { id: 6,  week: 3, task: 'ติดต่อ Supplier ถังดับเพลิง', owner: 'Admin',       priority: 'medium', status: 'pending' },
-            { id: 7,  week: 3, task: 'ส่งถังดับเพลิงอัดใหม่',       owner: 'Supplier',    priority: 'high',   status: 'pending' },
-            { id: 8,  week: 3, task: 'เตรียมอะไหล่/อุปกรณ์ที่ชำรุด', owner: 'ฝ่ายอาคาร',  priority: 'high',   status: 'pending' },
-            { id: 9,  week: 4, task: 'ซ่อม/เปลี่ยน Detector ที่เสีย', owner: 'ช่างไฟฟ้า',  priority: 'high',   status: 'pending' },
-            { id: 10, week: 4, task: 'เตรียมระบบก่อนเทศบาลเข้า',    owner: 'ฝ่ายอาคาร',   priority: 'high',   status: 'pending' },
-            { id: 11, week: 5, task: '🔥 เทศบาลท่าช้างเข้าซ่อมระบบดับเพลิง', owner: 'เทศบาลท่าช้าง', priority: 'high', status: 'pending' },
-            { id: 12, week: 5, task: 'ซ่อม Fire Pump (ร่วมกับเทศบาล)', owner: 'ช่างเครื่องกล', priority: 'high', status: 'pending' },
-            { id: 13, week: 5, task: 'ซ่อมท่อ/วาล์ว Sprinkler',     owner: 'ช่างประปา',   priority: 'medium', status: 'pending' },
-            { id: 14, week: 6, task: 'ทดสอบระบบทั้งหมด',           owner: 'เทศบาล + ช่าง', priority: 'high', status: 'pending' },
-            { id: 15, week: 6, task: 'อบรมพนักงาน (ร่วมกับเทศบาล)', owner: 'เทศบาล + HR', priority: 'high', status: 'pending' },
-            { id: 16, week: 6, task: 'ทำรายงานสรุป + ตรวจรับงาน',  owner: 'PM',          priority: 'medium', status: 'pending' },
-            { id: 17, week: 6, task: 'อัปเดตทะเบียนอุปกรณ์ + แผนรายปี', owner: 'Admin',  priority: 'medium', status: 'pending' },
+            { id: 1,  week: 1, task: 'สำรวจถังดับเพลิงพกพา',      owner: 'ฝ่ายอาคาร',   priority: 'high',   status: 'pending', logs: [{ date: '2026-11-02', detail: 'ตรวจถังดับเพลิงพกพาทั้งหมด 20 ถัง — ใช้งานได้ 15 ถัง / หมดอายุ 5 ถัง (ต้องส่งอัดใหม่) / ต้องซื้อเพิ่ม 3 ถัง' }] },
+            { id: 2,  week: 1, task: 'สำรวจระบบ Fire Alarm',       owner: 'ช่างไฟฟ้า',   priority: 'high',   status: 'pending', logs: [] },
+            { id: 3,  week: 2, task: 'สำรวจระบบ Sprinkler',        owner: 'ช่างประปา',   priority: 'high',   status: 'pending', logs: [] },
+            { id: 4,  week: 2, task: 'สำรวจ Fire Pump',            owner: 'ช่างเครื่องกล', priority: 'high', status: 'pending', logs: [] },
+            { id: 5,  week: 2, task: 'ประสานงานเทศบาลท่าช้าง (นัดวันเข้าซ่อม)', owner: 'Admin', priority: 'high', status: 'pending', logs: [] },
+            { id: 6,  week: 3, task: 'ติดต่อ Supplier ถังดับเพลิง', owner: 'Admin',       priority: 'medium', status: 'pending', logs: [] },
+            { id: 7,  week: 3, task: 'ส่งถังดับเพลิงอัดใหม่',       owner: 'Supplier',    priority: 'high',   status: 'pending', logs: [] },
+            { id: 8,  week: 3, task: 'เตรียมอะไหล่/อุปกรณ์ที่ชำรุด', owner: 'ฝ่ายอาคาร',  priority: 'high',   status: 'pending', logs: [] },
+            { id: 9,  week: 4, task: 'ซ่อม/เปลี่ยน Detector ที่เสีย', owner: 'ช่างไฟฟ้า',  priority: 'high',   status: 'pending', logs: [] },
+            { id: 10, week: 4, task: 'เตรียมระบบก่อนเทศบาลเข้า',    owner: 'ฝ่ายอาคาร',   priority: 'high',   status: 'pending', logs: [] },
+            { id: 11, week: 5, task: '🔥 เทศบาลท่าช้างเข้าซ่อมระบบดับเพลิง', owner: 'เทศบาลท่าช้าง', priority: 'high', status: 'pending', logs: [] },
+            { id: 12, week: 5, task: 'ซ่อม Fire Pump (ร่วมกับเทศบาล)', owner: 'ช่างเครื่องกล', priority: 'high', status: 'pending', logs: [] },
+            { id: 13, week: 5, task: 'ซ่อมท่อ/วาล์ว Sprinkler',     owner: 'ช่างประปา',   priority: 'medium', status: 'pending', logs: [] },
+            { id: 14, week: 6, task: 'ทดสอบระบบทั้งหมด',           owner: 'เทศบาล + ช่าง', priority: 'high', status: 'pending', logs: [] },
+            { id: 15, week: 6, task: 'อบรมพนักงาน (ร่วมกับเทศบาล)', owner: 'เทศบาล + HR', priority: 'high', status: 'pending', logs: [] },
+            { id: 16, week: 6, task: 'ทำรายงานสรุป + ตรวจรับงาน',  owner: 'PM',          priority: 'medium', status: 'pending', logs: [] },
+            { id: 17, week: 6, task: 'อัปเดตทะเบียนอุปกรณ์ + แผนรายปี', owner: 'Admin',  priority: 'medium', status: 'pending', logs: [] },
         ];
 
         const defaultEquipment = [
@@ -314,16 +339,16 @@
         ];
 
         const defaultBudget = [
-            { item: 'อัดถังดับเพลิง (20 ถัง)',      qty: 20, price: 500 },
-            { item: 'เปลี่ยนถังใหม่ (5 ถัง)',       qty: 5,  price: 2500 },
-            { item: 'เปลี่ยน Smoke/Heat Detector',  qty: 10, price: 1200 },
-            { item: 'ซ่อม Fire Pump',               qty: 1,  price: 15000 },
-            { item: 'ซ่อมท่อ/วาล์ว Sprinkler',      qty: 1,  price: 8000 },
-            { item: 'ค่าประสานงานเทศบาล',           qty: 1,  price: 5000 },
-            { item: 'ค่าอบรมพนักงาน',               qty: 1,  price: 10000 },
-            { item: 'ค่าแรงช่าง',                   qty: 1,  price: 20000 },
-            { item: 'อื่นๆ (ป้าย, ทาสี)',           qty: 1,  price: 5000 },
-            { item: 'ค่าตรวจสอบ/รับรองระบบ',        qty: 1,  price: 10000 },
+            { item: 'อัดถังดับเพลิง (20 ถัง)',      qty: 20, price: 500,  spent: '', date: '', note: '' },
+            { item: 'เปลี่ยนถังใหม่ (5 ถัง)',       qty: 5,  price: 2500, spent: '', date: '', note: '' },
+            { item: 'เปลี่ยน Smoke/Heat Detector',  qty: 10, price: 1200, spent: '', date: '', note: '' },
+            { item: 'ซ่อม Fire Pump',               qty: 1,  price: 15000, spent: '', date: '', note: '' },
+            { item: 'ซ่อมท่อ/วาล์ว Sprinkler',      qty: 1,  price: 8000, spent: '', date: '', note: '' },
+            { item: 'ค่าประสานงานเทศบาล',           qty: 1,  price: 5000, spent: '', date: '', note: '' },
+            { item: 'ค่าอบรมพนักงาน',               qty: 1,  price: 10000, spent: '', date: '', note: '' },
+            { item: 'ค่าแรงช่าง',                   qty: 1,  price: 20000, spent: '', date: '', note: '' },
+            { item: 'อื่นๆ (ป้าย, ทาสี)',           qty: 1,  price: 5000, spent: '', date: '', note: '' },
+            { item: 'ค่าตรวจสอบ/รับรองระบบ',        qty: 1,  price: 10000, spent: '', date: '', note: '' },
         ];
 
         // ---------- State ----------
@@ -334,7 +359,12 @@
                 const raw = localStorage.getItem(STORAGE_KEY);
                 if (raw) {
                     const s = JSON.parse(raw);
-                    if (s.tasks && s.equipment && s.budget) return s;
+                    if (s.tasks && s.equipment && s.budget) {
+                        // Backfill missing fields (logs / spent / date / note)
+                        s.tasks.forEach(t => { if (!Array.isArray(t.logs)) t.logs = []; });
+                        s.budget.forEach(b => { if (b.spent === undefined) b.spent = ''; if (b.date === undefined) b.date = ''; if (b.note === undefined) b.note = ''; });
+                        return s;
+                    }
                 }
             } catch (e) { console.warn('loadState failed', e); }
             return { tasks: JSON.parse(JSON.stringify(defaultTasks)), equipment: JSON.parse(JSON.stringify(defaultEquipment)), budget: JSON.parse(JSON.stringify(defaultBudget)) };
@@ -378,19 +408,26 @@
 
         function renderTasks() {
             const tbody = document.getElementById('taskTable');
-            tbody.innerHTML = state.tasks.map(t => `
-                <tr class="border-t">
+            tbody.innerHTML = state.tasks.map(t => {
+                const logCount = (t.logs || []).length;
+                const lastLog = logCount > 0 ? (t.logs[t.logs.length - 1].detail || '') : '';
+                return `
+                <tr class="border-t align-top">
                     <td class="px-3 py-2">สัปดาห์ที่ ${t.week}</td>
                     <td class="px-3 py-2 font-medium">${esc(t.task)}</td>
                     <td class="px-3 py-2">${esc(t.owner)}</td>
                     <td class="px-3 py-2"><span class="status-badge ${priorityMap[t.priority] ? priorityMap[t.priority].cls : 'priority-medium'}">${priorityMap[t.priority] ? priorityMap[t.priority].label : '🟡 กลาง'}</span></td>
                     <td class="px-3 py-2"><span class="status-badge ${statusMap[t.status].cls}" onclick="cycleTaskStatus(${t.id})" title="คลิกเพื่อเปลี่ยนสถานะ">${statusMap[t.status].label}</span></td>
                     <td class="px-3 py-2">
+                        <button class="btn-sm btn-edit" onclick="openTaskLog(${t.id})">📝 บันทึกผล</button>
+                        ${logCount > 0 ? `<div class="text-xs text-gray-600 mt-1"><strong>${logCount} ครั้ง</strong>${lastLog ? '<br>' + esc(lastLog) : ''}</div>` : '<div class="text-xs text-gray-400 mt-1">ยังไม่มีบันทึก</div>'}
+                    </td>
+                    <td class="px-3 py-2 whitespace-nowrap">
                         <button class="btn-sm btn-edit mr-1" onclick="editTask(${t.id})">แก้ไข</button>
                         <button class="btn-sm btn-danger" onclick="deleteTask(${t.id})">ลบ</button>
                     </td>
                 </tr>
-            `).join('');
+            `;}).join('');
             updateOverview();
         }
 
@@ -489,21 +526,41 @@
         // ---------- Budget ----------
         function renderBudget() {
             const tbody = document.getElementById('budgetTable');
-            let total = 0;
+            let total = 0, totalSpent = 0;
             tbody.innerHTML = state.budget.map((b, i) => {
                 const sum = b.qty * b.price;
+                const spent = Number(b.spent) || 0;
                 total += sum;
+                totalSpent += spent;
+                const over = spent > sum;
                 return `
                     <tr class="border-t">
-                        <td class="px-3 py-2">${esc(b.item)}</td>
+                        <td class="px-3 py-2 font-medium">${esc(b.item)}</td>
                         <td class="px-3 py-2 text-right">${b.qty}</td>
                         <td class="px-3 py-2 text-right">฿${Number(b.price).toLocaleString()}</td>
-                        <td class="px-3 py-2 text-right font-medium">฿${sum.toLocaleString()}</td>
-                        <td class="px-3 py-2"><button class="btn-sm btn-danger" onclick="deleteBudgetItem(${i})">ลบ</button></td>
+                        <td class="px-3 py-2 text-right">฿${sum.toLocaleString()}</td>
+                        <td class="px-3 py-2 text-right">${b.spent !== '' && b.spent !== undefined ? `<span class="${over ? 'text-red-600 font-bold' : 'text-gray-800'}">฿${spent.toLocaleString()}</span>` : '<span class="text-gray-400">-</span>'}</td>
+                        <td class="px-3 py-2">${esc(b.date || '')}</td>
+                        <td class="px-3 py-2 text-xs text-gray-600 max-w-[160px]">${esc(b.note || '')}</td>
+                        <td class="px-3 py-2 whitespace-nowrap">
+                            <button class="btn-sm btn-edit mr-1" onclick="editBudgetItem(${i})">แก้ไข</button>
+                            <button class="btn-sm btn-danger" onclick="deleteBudgetItem(${i})">ลบ</button>
+                        </td>
                     </tr>
                 `;
             }).join('');
             document.getElementById('totalBudget').textContent = '฿' + total.toLocaleString();
+            document.getElementById('totalSpent').textContent = '฿' + totalSpent.toLocaleString();
+            const remain = total - totalSpent;
+            const remainLabel = document.getElementById('budgetRemainLabel');
+            remainLabel.textContent = 'คงเหลือ ฿' + remain.toLocaleString();
+            remainLabel.className = remain < 0 ? 'text-red-600 font-bold' : 'text-green-600';
+            // Overview cards
+            document.getElementById('ovPlanBudget').textContent = '฿' + total.toLocaleString();
+            document.getElementById('ovSpentBudget').textContent = '฿' + totalSpent.toLocaleString();
+            document.getElementById('ovRemainBudget').textContent = '฿' + remain.toLocaleString();
+            document.getElementById('ovSpentBudget').className = 'text-2xl font-bold ' + (totalSpent > 0 ? 'text-red-600' : 'text-gray-800');
+            document.getElementById('ovRemainBudget').className = 'text-2xl font-bold ' + (remain < 0 ? 'text-red-600' : 'text-green-600');
             updateBudgetChart();
         }
 
@@ -572,6 +629,45 @@
 
         function fieldVal(id) { return document.getElementById(id).value.trim(); }
 
+        // ---------- Task log (รายละเอียดการลงมือทำ) ----------
+        function openTaskLog(id) {
+            const t = state.tasks.find(x => x.id === id);
+            if (!t) return;
+            if (!Array.isArray(t.logs)) t.logs = [];
+            const today = new Date().toISOString().slice(0, 10);
+            const logList = t.logs.length
+                ? t.logs.map((l, i) => `<div class="border rounded-lg p-2 mb-2 text-sm bg-gray-50">
+                        <div class="flex justify-between items-center gap-2">
+                            <span class="font-medium">📅 ${esc(l.date || '-')}</span>
+                            <button class="btn-sm btn-danger" onclick="deleteTaskLog(${t.id}, ${i})">ลบ</button>
+                        </div>
+                        <div class="mt-1 text-gray-800 whitespace-pre-wrap">${esc(l.detail || '')}</div>
+                    </div>`).join('')
+                : '<p class="text-sm text-gray-400 mb-2">ยังไม่มีบันทึก</p>';
+            openModal('📝 บันทึกผล: ' + t.task, `
+                <div class="max-h-56 overflow-y-auto mb-3">${logList}</div>
+                <div class="space-y-3">
+                    <div><label class="text-sm text-gray-600">วันที่ลงมือทำ</label><input id="f-date" type="date" class="w-full" value="${today}"></div>
+                    <div><label class="text-sm text-gray-600">รายละเอียดการลงมือทำ *</label><textarea id="f-detail" rows="4" class="w-full border border-gray-200 rounded-lg p-2 text-sm" placeholder="เช่น ตรวจถังดับเพลิงทั้งหมด 20 ถัง พบใช้งานได้ 15 ถัง หมดอายุ 5 ถัง ต้องซื้อเพิ่ม 3 ถัง"></textarea></div>
+                </div>
+            `, () => {
+                const detail = fieldVal('f-detail');
+                if (!detail) { showToast('⚠️ กรอกรายละเอียดการลงมือทำ'); return; }
+                t.logs.push({ date: fieldVal('f-date') || today, detail, ts: Date.now() });
+                if (t.status === 'pending') t.status = 'progress';
+                saveState(); renderTasks(); showToast('✅ บันทึกผลแล้ว');
+            });
+        }
+
+        function deleteTaskLog(taskId, logIdx) {
+            const t = state.tasks.find(x => x.id === taskId);
+            if (!t || !t.logs) return;
+            if (!confirm('ลบบันทึกนี้?')) return;
+            t.logs.splice(logIdx, 1);
+            saveState(); renderTasks(); showToast('🗑️ ลบบันทึกแล้ว');
+            openTaskLog(taskId);
+        }
+
         // ---------- Task CRUD ----------
         function addTask() {
             openModal('➕ เพิ่มงานใหม่', `
@@ -587,7 +683,7 @@
                 const name = fieldVal('f-task');
                 if (!name) { showToast('⚠️ กรุณากรอกชื่องาน'); return; }
                 const maxId = state.tasks.reduce((m, t) => Math.max(m, t.id), 0);
-                state.tasks.push({ id: maxId + 1, week: parseInt(fieldVal('f-week')) || 1, task: name, owner: fieldVal('f-owner') || '-', priority: fieldVal('f-priority'), status: 'pending' });
+                state.tasks.push({ id: maxId + 1, week: parseInt(fieldVal('f-week')) || 1, task: name, owner: fieldVal('f-owner') || '-', priority: fieldVal('f-priority'), status: 'pending', logs: [] });
                 saveState(); renderTasks(); renderGantt(); showToast('✅ เพิ่มงานแล้ว');
             });
         }
@@ -686,17 +782,49 @@
         function addBudgetItem() {
             openModal('➕ เพิ่มรายการงบ', `
                 <div class="space-y-3">
-                    <div><label class="text-sm text-gray-600">รายการ</label><input id="f-item" class="w-full" placeholder="เช่น ค่าจ้างตรวจสอบระบบ"></div>
+                    <div><label class="text-sm text-gray-600">รายการ *</label><input id="f-item" class="w-full" placeholder="เช่น ค่าจ้างตรวจสอบระบบ"></div>
                     <div class="grid grid-cols-2 gap-3">
                         <div><label class="text-sm text-gray-600">จำนวน</label><input id="f-qty" type="number" class="w-full" value="1"></div>
                         <div><label class="text-sm text-gray-600">ราคา/หน่วย (บาท)</label><input id="f-price" type="number" class="w-full" value="0"></div>
                     </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="text-sm text-gray-600">ใช้จริง (บาท)</label><input id="f-spent" type="number" class="w-full" value=""></div>
+                        <div><label class="text-sm text-gray-600">วันที่ใช้</label><input id="f-date" type="date" class="w-full"></div>
+                    </div>
+                    <div><label class="text-sm text-gray-600">หมายเหตุ</label><input id="f-note" class="w-full" placeholder="เช่น ใบเสร็จเลขที่..."></div>
                 </div>
             `, () => {
                 const item = fieldVal('f-item');
                 if (!item) { showToast('⚠️ กรุณากรอกรายการ'); return; }
-                state.budget.push({ item, qty: parseInt(document.getElementById('f-qty').value) || 1, price: parseInt(document.getElementById('f-price').value) || 0 });
+                state.budget.push({ item, qty: parseInt(document.getElementById('f-qty').value) || 1, price: parseInt(document.getElementById('f-price').value) || 0, spent: fieldVal('f-spent'), date: fieldVal('f-date'), note: fieldVal('f-note') });
                 saveState(); renderBudget(); showToast('✅ เพิ่มรายการแล้ว');
+            });
+        }
+
+        function editBudgetItem(idx) {
+            const b = state.budget[idx];
+            if (!b) return;
+            openModal('✏️ แก้ไขรายการงบ', `
+                <div class="space-y-3">
+                    <div><label class="text-sm text-gray-600">รายการ</label><input id="f-item" class="w-full" value="${esc(b.item)}"></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="text-sm text-gray-600">จำนวน</label><input id="f-qty" type="number" class="w-full" value="${b.qty}"></div>
+                        <div><label class="text-sm text-gray-600">ราคา/หน่วย (บาท)</label><input id="f-price" type="number" class="w-full" value="${b.price}"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><label class="text-sm text-gray-600">ใช้จริง (บาท)</label><input id="f-spent" type="number" class="w-full" value="${b.spent !== '' && b.spent !== undefined ? b.spent : ''}"></div>
+                        <div><label class="text-sm text-gray-600">วันที่ใช้</label><input id="f-date" type="date" class="w-full" value="${esc(b.date || '')}"></div>
+                    </div>
+                    <div><label class="text-sm text-gray-600">หมายเหตุ</label><input id="f-note" class="w-full" value="${esc(b.note || '')}"></div>
+                </div>
+            `, () => {
+                b.item = fieldVal('f-item') || b.item;
+                b.qty = parseInt(document.getElementById('f-qty').value) || b.qty;
+                b.price = parseInt(document.getElementById('f-price').value) || b.price;
+                b.spent = fieldVal('f-spent');
+                b.date = fieldVal('f-date');
+                b.note = fieldVal('f-note');
+                saveState(); renderBudget(); showToast('✅ บันทึกแล้ว');
             });
         }
 
