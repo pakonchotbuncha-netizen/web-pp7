@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PP7 People Management — สรุปแนวทางการบริหารงานบุคคล | Web PP7</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Sarabun', sans-serif; }
+  html { scroll-behavior: smooth; }
+  .hero-bg { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #3b82f6 100%); }
+  .gold-text { background: linear-gradient(90deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .card { transition: all .25s ease; }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(15,23,42,.12); }
+  .flow-arrow { font-size: 1.4rem; }
+  .tab-btn.active { background:#1d4ed8; color:#fff; }
+  .kpi-card { border-left: 4px solid; }
+  .section-title { position: relative; padding-left: 14px; }
+  .section-title::before { content:''; position:absolute; left:0; top:6px; bottom:6px; width:5px; border-radius:4px; background:linear-gradient(180deg,#2563eb,#7c3aed); }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+<!-- ===== HERO ===== -->
+<header class="hero-bg text-white">
+  <div class="max-w-7xl mx-auto px-6 py-14">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <div>
+        <p class="text-sky-300 font-semibold tracking-widest text-sm uppercase mb-2">Web PP7 · People Management System</p>
+        <h1 class="text-3xl md:text-5xl font-extrabold leading-tight">สรุปแนวทางการบริหารงานบุคคล<br><span class="gold-text">PP7 — คนคือหัวใจขององค์กร</span></h1>
+        <p class="mt-4 text-sky-100/90 max-w-2xl leading-relaxed">
+          เอกสารฉบับนี้สรุปภาพรวมระบบบริหารทรัพยากรบุคคล PKG ตั้งแต่ P1–P7 เจาะลึก <b>P6 ค่าตอบแทนและแรงจูงใจ</b>
+          โดยออกแบบตามหลักคิดของบริษัทชั้นนำระดับโลก (WorldatWork, Google, Netflix, Toyota, Microsoft)
+        </p>
+      </div>
+      <div class="bg-white/10 backdrop-blur rounded-2xl p-5 border border-white/20 min-w-[240px]">
+        <p class="text-sm text-sky-200">หลักคิดสำคัญ</p>
+        <p class="text-lg font-bold mt-1">“Pay for the Person,<br>not just the Position”</p>
+        <p class="text-xs text-sky-200/80 mt-2">จ่ายค่าตอบแทนตามคุณค่าของคน (CC) ไม่ใช่แค่ตามตำแหน่งงาน</p>
+      </div>
+    </div>
+    <div class="mt-8 flex flex-wrap gap-3 text-sm">
+      <a href="#overview" class="bg-white/15 hover:bg-white/25 px-4 py-2 rounded-full transition">🏢 ภาพรวม PP1–P7</a>
+      <a href="#p6" class="bg-amber-400 text-slate-900 hover:bg-amber-300 px-4 py-2 rounded-full font-semibold transition">💰 P6 ค่าตอบแทน</a>
+      <a href="#best" class="bg-white/15 hover:bg-white/25 px-4 py-2 rounded-full transition">🌍 เรียนแบบบริษัทชั้นนำ</a>
+      <a href="#kpi" class="bg-white/15 hover:bg-white/25 px-4 py-2 rounded-full transition">📊 KPI / OKR</a>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 1. ภาพรวม PP1-P7 ===== -->
+<section id="overview" class="max-w-7xl mx-auto px-6 py-12">
+  <h2 class="section-title text-2xl md:text-3xl font-extrabold text-slate-900 mb-2">🏢 ภาพรวมระบบ PP1–P7</h2>
+  <p class="text-slate-500 mb-8">ทุกกระบวนการขับเคลื่อนด้วย <b class="text-blue-700">CC (Core Competency)</b> — สมรรถนะหลักของคนที่องค์กรต้องการ</p>
+
+  <!-- Flow -->
+  <div class="grid grid-cols-1 md:grid-cols-7 gap-2 items-stretch mb-8">
+    <div class="card bg-white rounded-2xl p-4 border-t-4 border-blue-500 shadow-sm">
+      <p class="text-2xl mb-1">🔍</p><p class="font-bold text-blue-700">P1 แสวงหา</p>
+      <p class="text-xs text-slate-500">ค้นหาคนที่มี CC ตรงกับองค์กร</p>
+    </div>
+    <div class="flex items-center justify-center text-blue-500 flow-arrow">→</div>
+    <div class="card bg-white rounded-2xl p-4 border-t-4 border-indigo-500 shadow-sm">
+      <p class="text-2xl mb-1">🧪</p><p class="font-bold text-indigo-700">P2 หยั่งประเมิน</p>
+      <p class="text-xs text-slate-500">“ประเมินก่อนรบ” — วัด CC ก่อนรับเข้า</p>
+    </div>
+    <div class="flex items-center justify-center text-indigo-500 flow-arrow">→</div>
+    <div class="card bg-white rounded-2xl p-4 border-t-4 border-violet-500 shadow-sm">
+      <p class="text-2xl mb-1">🤝</p><p class="font-bold text-violet-700">P3 จับคู่คนกับงาน</p>
+      <p class="text-xs text-slate-500">“ประเมินก่อนทำงาน” — คนไหนเหมาะงานไหน</p>
+    </div>
+    <div class="flex items-center justify-center text-violet-500 flow-arrow">→</div>
+    <div class="card bg-white rounded-2xl p-4 border-t-4 border-fuchsia-500 shadow-sm">
+      <p class="text-2xl mb-1">📝</p><p class="font-bold text-fuchsia-700">P4 ประเมินผล</p>
+      <p class="text-xs text-slate-500">“ประเมินหลังรบ” — วัดผลตาม CC รายปี 360°</p>
+    </div>
+    <div class="flex items-center justify-center text-fuchsia-500 flow-arrow">→</div>
+    <div class="card bg-white rounded-2xl p-4 border-t-4 border-rose-500 shadow-sm">
+      <p class="text-2xl mb-1">🌱</p><p class="font-bold text-rose-700">P5 พัฒนา</p>
+      <p class="text-xs text-slate-500">พัฒนาตามช่องว่าง CC จากผล P4</p>
+    </div>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+    <div class="card bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-2xl p-6 shadow-lg">
+      <p class="text-3xl mb-2">💰</p>
+      <h3 class="text-xl font-extrabold">P6 ค่าตอบแทนและแรงจูงใจ</h3>
+      <p class="text-amber-100 text-sm mt-2 leading-relaxed">ตอบแทนตาม CC ของสมาชิก — จ่ายให้คุ้มค่า ยุติธรรม และสร้างแรงจูงใจให้รักษาคนเก่งไว้กับองค์กร (เจาะลึกด้านล่าง)</p>
+    </div>
+    <div class="card bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-2xl p-6 shadow-lg">
+      <p class="text-3xl mb-2">💚</p>
+      <h3 class="text-xl font-extrabold">P7 คุณภาพชีวิต</h3>
+      <p class="text-emerald-100 text-sm mt-2 leading-relaxed">ดูแลสมาชิกในฐานะ “คนคนหนึ่ง” — 5 องค์ประกอบ: สุขภาพ · ความมั่งคั่ง · บรรยากาศ · เวลา · อารมณ์ขัน<br><span class="text-xs">(Health · Wealth · Well-being · Time · Fun)</span></p>
+    </div>
+  </div>
+
+  <!-- CC Cards -->
+  <h3 class="text-xl font-bold text-slate-800 mb-4">🧠 Core Competency (CC) — สมรรถนะหลัก 7 ข้อของ PKG</h3>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="card bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+      <p class="font-bold text-blue-700">CC1</p><p class="text-sm font-semibold">ผู้นำผู้รับใช้</p><p class="text-xs text-slate-500">Servant Leadership · 6 รับ · 8 อุปนิสัย</p>
+    </div>
+    <div class="card bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+      <p class="font-bold text-blue-700">CC2</p><p class="text-sm font-semibold">ปรับตัว & นวัตกรรม</p><p class="text-xs text-slate-500">Adaptive Innovation · เปลี่ยนแปลงก่อนถูกบังคับ</p>
+    </div>
+    <div class="card bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+      <p class="font-bold text-blue-700">CC3</p><p class="text-sm font-semibold">คุณค่าบนความไว้วางใจ</p><p class="text-xs text-slate-500">Trust-Based Value Creation</p>
+    </div>
+    <div class="card bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+      <p class="font-bold text-blue-700">CC4</p><p class="text-sm font-semibold">ทำงานทีมด้วยฉันทมติ</p><p class="text-xs text-slate-500">Consensus-Driven Teamwork</p>
+    </div>
+    <div class="card bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+      <p class="font-bold text-blue-700">CC5</p><p class="text-sm font-semibold">วิชาชีพ & วินัย</p><p class="text-xs text-slate-500">Disciplined Professionalism</p>
+    </div>
+    <div class="card bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+      <p class="font-bold text-blue-700">CC6</p><p class="text-sm font-semibold">เทคโนโลยี</p><p class="text-xs text-slate-500">Technology Mastery</p>
+    </div>
+    <div class="card bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+      <p class="font-bold text-blue-700">CC7</p><p class="text-sm font-semibold">อารมณ์ขัน & ความเบิกบาน</p><p class="text-xs text-slate-500">Humor & Joy</p>
+    </div>
+    <div class="card bg-amber-50 rounded-xl p-4 shadow-sm border border-amber-300">
+      <p class="font-bold text-amber-700">📌 วงจร CC</p><p class="text-xs text-amber-800 leading-relaxed">P2 วัดก่อนรับเข้า → P4 วัดหลังทำงาน → P5 พัฒนาต่อเนื่อง → P6 ตอบแทนตาม CC</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 2. P6 ค่าตอบแทน เจาะลึก ===== -->
+<section id="p6" class="bg-white py-12 border-y border-slate-200">
+  <div class="max-w-7xl mx-auto px-6">
+    <h2 class="section-title text-2xl md:text-3xl font-extrabold text-slate-900 mb-2">💰 P6 — ค่าตอบแทนและแรงจูงใจ (เจาะลึก)</h2>
+    <p class="text-slate-500 mb-8">ออกแบบตามกรอบ <b class="text-amber-600">Total Rewards (WorldatWork)</b> — บริษัทชั้นนำไม่ได้ “จ่ายเงินเดือน” แต่บริหาร “คุณค่าที่พนักงานได้รับทั้งหมด”</p>
+
+    <!-- Total Rewards 5 องค์ประกอบ -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-10">
+      <div class="card bg-gradient-to-b from-blue-50 to-white rounded-2xl p-5 border border-blue-200 text-center">
+        <p class="text-3xl mb-2">💵</p><p class="font-bold text-blue-800">Compensation</p><p class="text-xs text-slate-500 mt-1">ค่าจ้าง เงินเดือน โบนัส<br>ตอบแทนตามผลงาน</p>
+      </div>
+      <div class="card bg-gradient-to-b from-emerald-50 to-white rounded-2xl p-5 border border-emerald-200 text-center">
+        <p class="text-3xl mb-2">🛡️</p><p class="font-bold text-emerald-800">Benefits</p><p class="text-xs text-slate-500 mt-1">สวัสดิการ ประกันสังคม<br>ประกันสุขภาพ กองทุน</p>
+      </div>
+      <div class="card bg-gradient-to-b from-violet-50 to-white rounded-2xl p-5 border border-violet-200 text-center">
+        <p class="text-3xl mb-2">📈</p><p class="font-bold text-violet-800">Development</p><p class="text-xs text-slate-500 mt-1">โอกาสเติบโต อบรม<br>เส้นทางอาชีพ</p>
+      </div>
+      <div class="card bg-gradient-to-b from-amber-50 to-white rounded-2xl p-5 border border-amber-200 text-center">
+        <p class="text-3xl mb-2">🎉</p><p class="font-bold text-amber-800">Recognition</p><p class="text-xs text-slate-500 mt-1">การชื่นชม ยกย่อง<br>พนักงานดีเด่น</p>
+      </div>
+      <div class="card bg-gradient-to-b from-rose-50 to-white rounded-2xl p-5 border border-rose-200 text-center">
+        <p class="text-3xl mb-2">⚖️</p><p class="font-bold text-rose-800">Work-Life</p><p class="text-xs text-slate-500 mt-1">สมดุลชีวิต เวลางาน<br>ยืดหยุ่น สุขภาวะ</p>
+      </div>
+    </div>
+
+    <!-- หลักการออกแบบ P6 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+      <div class="lg:col-span-2 space-y-4">
+        <h3 class="text-xl font-bold text-slate-800">หลักการออกแบบค่าตอบแทน PKG</h3>
+        <div class="card bg-slate-50 rounded-2xl p-5 border border-slate-200">
+          <p class="font-bold text-slate-800 mb-3">🔺 โครงสร้าง 3 ชั้น (3P Framework)</p>
+          <div class="space-y-3">
+            <div class="flex items-start gap-3"><span class="bg-blue-600 text-white rounded-lg px-2.5 py-1 text-sm font-bold shrink-0">P1</span><div><p class="font-semibold text-sm">Pay for Position — ค่าตามตำแหน่ง</p><p class="text-xs text-slate-500">ฐานเงินเดือนอ้างอิงตลาด + ค่างาน (Job Evaluation)</p></div></div>
+            <div class="flex items-start gap-3"><span class="bg-indigo-600 text-white rounded-lg px-2.5 py-1 text-sm font-bold shrink-0">P2</span><div><p class="font-semibold text-sm">Pay for Person — ค่าตามคน</p><p class="text-xs text-slate-500">ปรับตาม CC / ทักษะ / ศักยภาพของแต่ละคน (PKG ให้ความสำคัญข้อนี้)</p></div></div>
+            <div class="flex items-start gap-3"><span class="bg-amber-500 text-white rounded-lg px-2.5 py-1 text-sm font-bold shrink-0">P3</span><div><p class="font-semibold text-sm">Pay for Performance — ค่าตามผลงาน</p><p class="text-xs text-slate-500">โบนัส / Incentive ผูกกับผลลัพธ์จาก P4 และ KPI รายบุคคล-ทีม</p></div></div>
+          </div>
+        </div>
+        <div class="card bg-slate-50 rounded-2xl p-5 border border-slate-200">
+          <p class="font-bold text-slate-800 mb-3">🎯 เป้าหมาย 4 ข้อของระบบค่าตอบแทน</p>
+          <ul class="space-y-2 text-sm">
+            <li class="flex gap-2"><span class="text-green-600">✅</span><b>ดึงดูด (Attract)</b> — ต้องแข่งขันกับตลาดได้ ไม่งั้นคนเก่งไม่มา</li>
+            <li class="flex gap-2"><span class="text-green-600">✅</span><b>รักษา (Retain)</b> — คนเก่งอยู่กับเรานาน ไม่อยากย้ายออก</li>
+            <li class="flex gap-2"><span class="text-green-600">✅</span><b>กระตุ้น (Motivate)</b> — ทำดีแล้วได้ดี ทำดีกว่าได้มากกว่า (Pay for Performance)</li>
+            <li class="flex gap-2"><span class="text-green-600">✅</span><b>คุ้มค่า (Cost-Effective)</b> — งบประมาณจำกัด ต้องจ่ายอย่างฉลาด ตรวจสอบได้ (ข้อมูลจริง)</li>
+          </ul>
+        </div>
+      </div>
+      <!-- Charts -->
+      <div class="space-y-4">
+        <div class="card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <p class="font-semibold text-sm text-slate-700 mb-3">📊 องค์ประกอบค่าตอบแทนรวม (ตัวอย่าง)</p>
+          <canvas id="payMixChart" height="180"></canvas>
+        </div>
+        <div class="card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+          <p class="font-semibold text-sm text-slate-700 mb-3">📊 ตำแหน่งเงินเดือนเทียบตลาด (Market Positioning)</p>
+          <canvas id="marketChart" height="180"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- แนวคิดตอบแทนตาม CC -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="card bg-gradient-to-br from-blue-700 to-indigo-800 text-white rounded-2xl p-6 shadow-xl">
+        <p class="text-2xl mb-2">🧬</p>
+        <h4 class="text-lg font-extrabold mb-3">ค่าตอบแทนตาม CC — จุดเด่นของ PKG</h4>
+        <ul class="space-y-2.5 text-sm text-blue-100">
+          <li class="flex gap-2"><span>1️⃣</span>CC เป็น “ภาษากลาง” เชื่อม P2 → P4 → P6 (วัดด้วยมาตรฐานเดียวกันทั้งองค์กร)</li>
+          <li class="flex gap-2"><span>2️⃣</span>คนที่พัฒนา CC สูงขึ้น จะเข้าสู่ช่วงเงินเดือนที่สูงขึ้น (Career & Pay Progression)</li>
+          <li class="flex gap-2"><span>3️⃣</span>ลดอคติจาก “ความรู้สึก” — ใช้ข้อมูลจริงจากการประเมิน 360° ประกอบการขึ้นเงินเดือน</li>
+          <li class="flex gap-2"><span>4️⃣</span>โปร่งใส ยุติธรรม พนักงานเห็นเกณฑ์ชัดเจน = เพิ่มความเชื่อมั่นในองค์กร</li>
+        </ul>
+      </div>
+      <div class="card bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+        <p class="font-bold text-slate-800 mb-3">🔗 P6 เชื่อมโยงกับ P อื่นอย่างไร</p>
+        <div class="space-y-3 text-sm">
+          <div class="flex items-center gap-3 bg-slate-50 rounded-xl p-3"><span class="text-xl">📥</span><p><b>จาก P1–P3:</b> กำหนดช่วงเงินเดือนตามตำแหน่งที่รับเข้า (Pay Range)</p></div>
+          <div class="flex items-center gap-3 bg-slate-50 rounded-xl p-3"><span class="text-xl">📊</span><p><b>จาก P4:</b> ผลประเมิน CC + KPI เป็นตัวตั้งโบนัส / ขึ้นเงินเดือน</p></div>
+          <div class="flex items-center gap-3 bg-slate-50 rounded-xl p-3"><span class="text-xl">🌱</span><p><b>ไป P5:</b> ถ้าค่าตอบแทนสูงแต่ CC ยังไม่ถึง → จัดทำแผนพัฒนารายบุคคล (IDP)</p></div>
+          <div class="flex items-center gap-3 bg-slate-50 rounded-xl p-3"><span class="text-xl">💚</span><p><b>ไป P7:</b> นอกเหนือเงินเดือน — สวัสดิการคุณภาพชีวิต (5 องค์ประกอบ) เป็นส่วนหนึ่งของ Total Rewards</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 3. เรียนแบบบริษัทชั้นนำ ===== -->
+<section id="best" class="max-w-7xl mx-auto px-6 py-12">
+  <h2 class="section-title text-2xl md:text-3xl font-extrabold text-slate-900 mb-2">🌍 เรียนแบบบริษัทชั้นนำของโลก</h2>
+  <p class="text-slate-500 mb-8">“เรียนแบบ” ≠ “เลียนแบบ” — ศึกษาหลักการที่พิสูจน์แล้ว แล้วปรับใช้ให้เข้ากับบริบท PKG</p>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div class="card bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200">
+      <div class="bg-gradient-to-r from-red-500 to-red-700 text-white px-5 py-3 font-bold">Google</div>
+      <div class="p-5 space-y-2 text-sm">
+        <p class="font-semibold text-slate-800">🔬 ใช้ข้อมูลตัดสินใจ (Data-Driven)</p>
+        <p class="text-slate-500 text-xs leading-relaxed">Project Oxygen / Project Aristotle — วิเคราะห์ข้อมูลคนจริงเพื่อหาว่าผู้นำที่ดีและทีมที่ดีมีคุณสมบัติอะไร แล้วนำไปใช้ประเมิน พัฒนา และตอบแทน</p>
+        <p class="text-xs bg-red-50 text-red-700 rounded-lg p-2">💡 ปรับใช้: ใช้ผล P4 + ข้อมูล HR วิเคราะห์หาคุณสมบัติคนเก่งของ PKG แล้วออกแบบค่าตอบแทนตามนั้น</p>
+      </div>
+    </div>
+    <div class="card bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200">
+      <div class="bg-gradient-to-r from-red-600 to-red-900 text-white px-5 py-3 font-bold">Netflix</div>
+      <div class="p-5 space-y-2 text-sm">
+        <p class="font-semibold text-slate-800">💎 จ่ายสูงสุดในตลาด (Top of Market)</p>
+        <p class="text-slate-500 text-xs leading-relaxed">จ่ายค่าตอบแทนเท่ากับ “จุดสูงสุดของตลาด” สำหรับคนที่ใช่ (A-player) เพราะคนเก่ง 1 คนทำงานได้เท่าคนทั่วไปหลายคน</p>
+        <p class="text-xs bg-red-50 text-red-700 rounded-lg p-2">💡 ปรับใช้: ระบุตำแหน่ง “สมรรถนะสูง” ที่ PKG ต้องรักษาไว้ แล้วจัดงบรักษาคนกลุ่มนี้เป็นพิเศษ</p>
+      </div>
+    </div>
+    <div class="card bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200">
+      <div class="bg-gradient-to-r from-sky-600 to-blue-800 text-white px-5 py-3 font-bold">Microsoft</div>
+      <div class="p-5 space-y-2 text-sm">
+        <p class="font-semibold text-slate-800">🌱 Growth Mindset</p>
+        <p class="text-slate-500 text-xs leading-relaxed">Satya Nadella เปลี่ยนวัฒนธรรม — จาก “รู้ทุกอย่าง” เป็น “เรียนรู้ทุกอย่าง” วัดผลที่การเติบโต ไม่ใช่แค่ผลงานนิ่ง ๆ</p>
+        <p class="text-xs bg-sky-50 text-sky-700 rounded-lg p-2">💡 ปรับใช้: ผูกการขึ้นเงินเดือนส่วนหนึ่งกับ “การพัฒนาข้ามสายงาน/ทักษะใหม่” (CC2, CC6)</p>
+      </div>
+    </div>
+    <div class="card bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200">
+      <div class="bg-gradient-to-r from-emerald-600 to-green-800 text-white px-5 py-3 font-bold">Toyota</div>
+      <div class="p-5 space-y-2 text-sm">
+        <p class="font-semibold text-slate-800">🤝 Respect for People</p>
+        <p class="text-slate-500 text-xs leading-relaxed">Toyota Way — “สร้างคนก่อนสร้างรถ” เคารพคนเป็นฐาน ให้พนักงานเสนอไอเดียปรับปรุงงาน (Kaizen) ต่อเนื่อง</p>
+        <p class="text-xs bg-emerald-50 text-emerald-700 rounded-lg p-2">💡 ปรับใช้: ให้รางวัล “ไอเดียปรับปรุงงาน” (Recognition) ผูกกับวัฒนธรรม CC2 — ไม่ใช่แค่ KPI ตัวเลข</p>
+      </div>
+    </div>
+    <div class="card bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200">
+      <div class="bg-gradient-to-r from-green-600 to-emerald-800 text-white px-5 py-3 font-bold">Starbucks</div>
+      <div class="p-5 space-y-2 text-sm">
+        <p class="font-semibold text-slate-800">💚 Partners First</p>
+        <p class="text-slate-500 text-xs leading-relaxed">เรียกพนักงานว่า “Partner” ให้สิทธิ์หุ้น (Bean Stock) + สวัสดิการสุขภาพครอบคลุมแม้พนักงานพาร์ทไทม์ = สร้างความผูกพันระยะยาว</p>
+        <p class="text-xs bg-green-50 text-green-700 rounded-lg p-2">💡 ปรับใช้: ขยาย “สวัสดิการ” (P7) ให้ตอบโจทย์ชีวิตจริงของสมาชิก — เงินเดือนอย่างเดียวไม่พอให้อยู่ยาว</p>
+      </div>
+    </div>
+    <div class="card bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200">
+      <div class="bg-gradient-to-r from-amber-500 to-orange-700 text-white px-5 py-3 font-bold">Haier / SEMCO</div>
+      <div class="p-5 space-y-2 text-sm">
+        <p class="font-semibold text-slate-800">🧩 จ่ายตามคุณค่า (Pay by Value)</p>
+        <p class="text-slate-500 text-xs leading-relaxed">Haier ใช้ “คนจ่ายตามผลงานกับตลาด” (Marketplace ภายใน) — SEMCO ให้พนักงานตั้งเงินเดือนตัวเองตามผลงานจริง</p>
+        <p class="text-xs bg-amber-50 text-amber-700 rounded-lg p-2">💡 ปรับใช้: ทดลอง “ค่าตอบแทนผันแปรตามผลงาน” ในทีมขาย/บริการ ก่อนขยายทั้งองค์กร</p>
+      </div>
+    </div>
+  </div>
+  <div class="mt-8 card bg-slate-900 text-white rounded-2xl p-6">
+    <p class="font-bold text-lg mb-3">🎓 บทเรียนรวม 5 ข้อ สำหรับนักศึกษา</p>
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 text-center text-sm">
+      <div class="bg-white/10 rounded-xl p-4"><p class="text-2xl mb-1">1️⃣</p>ค่าตอบแทนไม่ใช่แค่เงินเดือน — คือ “Total Rewards” ทั้งหมด</div>
+      <div class="bg-white/10 rounded-xl p-4"><p class="text-2xl mb-1">2️⃣</p>จ่ายตามผลงานและศักยภาพ ไม่ใช่ตามอายุงานอย่างเดียว</div>
+      <div class="bg-white/10 rounded-xl p-4"><p class="text-2xl mb-1">3️⃣</p>ใช้ข้อมูล (Data) ลดอคติความเห็นส่วนตัว</div>
+      <div class="bg-white/10 rounded-xl p-4"><p class="text-2xl mb-1">4️⃣</p>โปร่งใส ยุติธรรม = พนักงานเชื่อใจ</div>
+      <div class="bg-white/10 rounded-xl p-4"><p class="text-2xl mb-1">5️⃣</p>ค่าตอบแทนต้องเชื่อมกับวัฒนธรรมองค์กร (CC)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 4. KPI / OKR ===== -->
+<section id="kpi" class="bg-white border-y border-slate-200 py-12">
+  <div class="max-w-7xl mx-auto px-6">
+    <h2 class="section-title text-2xl md:text-3xl font-extrabold text-slate-900 mb-2">📊 KPI vs OKR</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="card bg-sky-50 rounded-2xl p-6 border border-sky-200">
+        <p class="font-bold text-sky-800 text-lg mb-2">KPI — Keep the business running</p>
+        <p class="text-sm text-slate-600 leading-relaxed">ตัววัดผลการดำเนินงานประจำ เพื่อรักษามาตรฐานและประสิทธิภาพ เช่น อัตราการลาออก ≤ 10%, เวลารับคนเข้าทำงาน ≤ 30 วัน, ความถูกต้องของเงินเดือน 100%</p>
+      </div>
+      <div class="card bg-amber-50 rounded-2xl p-6 border border-amber-200">
+        <p class="font-bold text-amber-800 text-lg mb-2">OKR — Move the business forward</p>
+        <p class="text-sm text-slate-600 leading-relaxed">กรอบเป้าหมายเชิงกลยุทธ์ ประกอบด้วย Objective + Key Results เพื่อขับเคลื่อนการเปลี่ยนแปลง เช่น ลดงาน Manual HR 60%, ใช้ระบบ Self-Service 90%</p>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="kpi-card card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm" style="border-left-color:#2563eb">
+        <p class="text-xs text-slate-400 font-semibold">อัตราการลาออก</p>
+        <p class="text-2xl font-extrabold text-blue-700">≤ 10%</p>
+        <p class="text-xs text-slate-500">เป้าหมายรายปี (Retention)</p>
+      </div>
+      <div class="kpi-card card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm" style="border-left-color:#7c3aed">
+        <p class="text-xs text-slate-400 font-semibold">เวลารับคน (Time-to-Hire)</p>
+        <p class="text-2xl font-extrabold text-violet-700">≤ 30 วัน</p>
+        <p class="text-xs text-slate-500">P1–P3 มีประสิทธิภาพ</p>
+      </div>
+      <div class="kpi-card card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm" style="border-left-color:#059669">
+        <p class="text-xs text-slate-400 font-semibold">ความแม่นยำ Payroll</p>
+        <p class="text-2xl font-extrabold text-emerald-700">100%</p>
+        <p class="text-xs text-slate-500">P6 ลด Human Error</p>
+      </div>
+      <div class="kpi-card card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm" style="border-left-color:#d97706">
+        <p class="text-xs text-slate-400 font-semibold">Engagement / Wellbeing</p>
+        <p class="text-2xl font-extrabold text-amber-600">≥ 90%</p>
+        <p class="text-xs text-slate-500">P7 ความผูกพันพนักงาน</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="bg-slate-900 text-slate-300">
+  <div class="max-w-7xl mx-auto px-6 py-8 text-sm">
+    <p class="font-bold text-white mb-1">Web PP7 — People Management System · PKG Group</p>
+    <p>จัดทำโดย KiloClaw (PM + Developer) สำหรับใช้ในการเรียนรู้นักศึกษา · อ้างอิงแนวคิด WorldatWork Total Rewards, Google Project Oxygen, Netflix Culture Deck, Toyota Way, Microsoft Growth Mindset</p>
+    <p class="text-slate-500 text-xs mt-2">© 2569 PKG Group · ระบบบริหารทรัพยากรบุคคล 3 ประเทศ (ไทย · ลาว · กัมพูชา)</p>
+  </div>
+</footer>
+
+<script>
+// ===== Charts =====
+// 1. Pay Mix — องค์ประกอบค่าตอบแทน
+new Chart(document.getElementById('payMixChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['เงินเดือน (Base)', 'โบนัส/Incentive', 'สวัสดิการ (Benefits)', 'การพัฒนา (Dev)', 'อื่นๆ'],
+    datasets: [{
+      data: [55, 20, 15, 6, 4],
+      backgroundColor: ['#2563eb', '#f59e0b', '#10b981', '#8b5cf6', '#94a3b8'],
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '55%',
+    plugins: { legend: { position: 'bottom', labels: { font: { family: 'Sarabun', size: 11 }, boxWidth: 12 } } }
+  }
+});
+
+// 2. Market Positioning — เงินเดือน PKG เทียบตลาด (ตัวอย่าง)
+new Chart(document.getElementById('marketChart'), {
+  type: 'bar',
+  data: {
+    labels: ['ระดับปฏิบัติการ', 'ระดับหัวหน้างาน', 'ระดับผู้จัดการ', 'ระดับบริหาร'],
+    datasets: [
+      { label: 'ตลาด (Market P50)', data: [15, 30, 55, 90], backgroundColor: '#94a3b8', borderRadius: 6 },
+      { label: 'PKG ปัจจุบัน', data: [14, 29, 58, 88], backgroundColor: '#2563eb', borderRadius: 6 },
+      { label: 'PKG เป้าหมาย', data: [16, 33, 62, 98], backgroundColor: '#f59e0b', borderRadius: 6 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: { y: { beginAtZero: true, title: { display: true, text: 'พันบาท/เดือน', font: { family: 'Sarabun' } } } },
+    plugins: { legend: { position: 'bottom', labels: { font: { family: 'Sarabun', size: 11 }, boxWidth: 12 } } }
+  }
+});
+</script>
+</body>
+</html>
