@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com/3.4.1"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" integrity="sha384-9nhczxUqK87bcKHh20fSQcTGD4qq5GhayNYSYWqwBkINBhOfQLg/P5HG5lF1urn4" crossorigin="anonymous"></script>
-    <!-- prg-pdg-data.js: ข้อมูลภายใน — โหลด dynamically เมื่อ HR login เท่านั้น (ดู loadPRGData()) -->
+    <!-- prg-pdg-data.js: ข้อมูลภายใน — โหลด dynamically เมื่อ PAC login เท่านั้น (ดู loadPRGData()) -->
     <!-- TODO: ย้ายไปเรียกผ่าน GAS แบบ auth ในอนาคต แทนการฝังใน client-side JS -->
     <script src="prg-pdg-widget.js"></script>
     <style>
@@ -228,7 +228,7 @@
                     <i class="fas fa-user mr-2"></i>ผู้สมัคร
                 </button>
                 <button onclick="switchView('hr')" id="view-hr" class="flex-1 py-3 rounded-lg font-semibold bg-gray-200 text-gray-700">
-                    <i class="fas fa-user-tie mr-2"></i>HR
+                    <i class="fas fa-user-tie mr-2"></i>PAC
                 </button>
             </div>
         </div>
@@ -883,7 +883,7 @@
                     <p class="mb-1"><strong>วัตถุประสงค์:</strong> ใช้เพื่อพิจารณาการสมัครงานและกระบวนการคัดเลือกบุคลากร</p>
                     <p class="mb-1"><strong>ประเภทข้อมูล:</strong> ชื่อ-นามสกุล เบอร์โทร อีเมล วุฒิการศึกษา ประสบการณ์</p>
                     <p class="mb-1"><strong>สิทธิเจ้าของข้อมูล:</strong> ท่านมีสิทธิเข้าถึง แก้ไข หรือขอให้ลบข้อมูลส่วนบุคคลตาม พ.ร.บ.คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562</p>
-                    <p>ติดต่อฝ่าย HR: <a href="tel:038-xxx-xxx" class="text-blue-600 underline">038-xxx-xxx</a> หรือ <a href="mailto:hr@pkg.com" class="text-blue-600 underline">hr@pkg.com</a></p>
+                    <p>ติดต่อทีม PAC: <a href="tel:038-xxx-xxx" class="text-blue-600 underline">038-xxx-xxx</a> หรือ <a href="mailto:hr@pkg.com" class="text-blue-600 underline">hr@pkg.com</a></p>
                 </div>
                 <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition font-semibold">
                     ลงทะเบียน
@@ -968,7 +968,7 @@
             // Admin ควรสร้างบัญชีผู้ใช้ผ่านระบบหลังบ้านที่ปลอดภัย (auth-admin-panel.html หรือ Google Sheets API)
             // และไม่ควรฝังรหัสผ่านใน client-side JavaScript
             // const users = JSON.parse(localStorage.getItem('pkg_users') || '[]');
-            // Removed demo accounts (HR demo + applicant demo) — credentials must not be embedded in public code
+            // Removed demo accounts (PAC demo + applicant demo) — credentials must not be embedded in public code
             // — admin ต้องสร้างบัญชีด้วยตนเองผ่านวิธีที่ปลอดภัย
         }
         
@@ -1175,7 +1175,7 @@
                     ` : `
                         <div class="flex space-x-4">
                             <button onclick="backToPositions()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition">← เลือกตำแหน่งอื่น</button>
-                            <button onclick="switchView('hr')" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition">👔 ดูมุมมอง HR</button>
+                            <button onclick="switchView('hr')" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition">👔 ดูมุมมอง PAC</button>
                         </div>
                     `}
                 </div>
@@ -1304,7 +1304,7 @@
                         </div>
                         
                         <div class="bg-blue-50 border-l-4 border-blue-400 p-4 text-left mb-8">
-                            <div class="flex items-start"><i class="fas fa-info-circle text-blue-600 mr-2 mt-1"></i><div class="text-sm text-blue-700"><p class="font-semibold mb-2">ขั้นตอนถัดไป:</p><ol class="list-decimal list-inside space-y-1"><li>HR จะประเมินผลแบบทดสอบของคุณ</li><li>หากผ่านเกณฑ์ คุณจะได้รับการนัดสัมภาษณ์</li><li>ติดตามสถานะได้ที่หน้า Dashboard</li></ol></div></div>
+                            <div class="flex items-start"><i class="fas fa-info-circle text-blue-600 mr-2 mt-1"></i><div class="text-sm text-blue-700"><p class="font-semibold mb-2">ขั้นตอนถัดไป:</p><ol class="list-decimal list-inside space-y-1"><li>PAC จะประเมินผลแบบทดสอบของคุณ</li><li>หากผ่านเกณฑ์ คุณจะได้รับการนัดสัมภาษณ์</li><li>ติดตามสถานะได้ที่หน้า Dashboard</li></ol></div></div>
                         </div>
                         
                         <button onclick="renderApplicantDashboard()" class="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition font-semibold"><i class="fas fa-tachometer-alt mr-2"></i>ดูสถานะใบสมัคร</button>
@@ -1328,7 +1328,7 @@
             const statusSteps = [
                 { key: 'new', label: 'ส่งใบสมัคร', icon: '📝' },
                 { key: 'test_done', label: 'ทำแบบทดสอบ', icon: '📋' },
-                { key: 'screened', label: 'HR คัดกรอง', icon: '🎯' },
+                { key: 'screened', label: 'PAC คัดกรอง', icon: '🎯' },
                 { key: 'interview_scheduled', label: 'นัดสัมภาษณ์', icon: '📅' },
                 { key: 'interviewed', label: 'สัมภาษณ์แล้ว', icon: '💬' },
                 { key: 'assessed', label: 'ประเมิน CC (P2)', icon: '🧭' },
@@ -1440,7 +1440,7 @@
                     
                     <div class="flex space-x-4">
                         <button onclick="renderPositionsList()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition"><i class="fas fa-briefcase mr-2"></i>สมัครตำแหน่งอื่น</button>
-                        <button onclick="switchView('hr')" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition"><i class="fas fa-user-tie mr-2"></i>ดูมุมมอง HR</button>
+                        <button onclick="switchView('hr')" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition"><i class="fas fa-user-tie mr-2"></i>ดูมุมมอง PAC</button>
                     </div>
                 </div>
             `;
@@ -1450,7 +1450,7 @@
             const descriptions = {
                 'new': `ส่งใบสมัครเมื่อ ${new Date(app.appliedAt).toLocaleDateString('th-TH')}`,
                 'test_done': `ทำแบบทดสอบเสร็จสิ้น คะแนนรวม: ${app.testScores?.overall || '-'}`,
-                'screened': 'HR คัดกรองผ่าน กำลังรอนัดสัมภาษณ์',
+                'screened': 'PAC คัดกรองผ่าน กำลังรอนัดสัมภาษณ์',
                 'interview_scheduled': `นัดสัมภาษณ์วันที่ ${app.interviewDate} เวลา ${app.interviewTime}`,
                 'interviewed': `สัมภาษณ์เสร็จสิ้น ${app.interviewNotes ? '- ' + app.interviewNotes : ''}`,
                 'assessed': `ประเมิน CC เสร็จสิ้น คะแนน CC: ${app.ccScore || '-'}`,
@@ -1461,14 +1461,14 @@
             return descriptions[stepKey] || '';
         }
 
-        // ===== RENDER HR VIEW =====
+        // ===== RENDER HR VIEW (PAC) =====
         function renderHRView() {
             const content = document.getElementById('content-area');
             const applications = getAllApplicants(); // ดึงข้อมูลทั้งหมด (ตั้งต้น + ใหม่)
             
             content.innerHTML = `
                 <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fas fa-user-tie text-purple-600 mr-2"></i>มุมมอง HR - Dashboard</h2>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fas fa-user-tie text-purple-600 mr-2"></i>มุมมอง PAC - Dashboard</h2>
                     
                     <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
                         <div class="bg-blue-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-gray-800">${applications.length}</p><p class="text-xs text-gray-600">ทั้งหมด</p></div>
@@ -1563,7 +1563,7 @@
             const app = applications.find(a => a.id === appId);
             if (app) {
                 app.status = 'screened';
-                app.history.push({ action: 'คัดกรอง', timestamp: new Date().toISOString(), note: 'HR คัดกรองผ่าน' });
+                app.history.push({ action: 'คัดกรอง', timestamp: new Date().toISOString(), note: 'PAC คัดกรองผ่าน' });
                 saveApplicantData(app);
                 alert('✅ คัดกรองผู้สมัครแล้ว!');
                 renderHRView();
@@ -1696,9 +1696,9 @@
                 targetTab.classList.remove('hidden');
             }
             
-            // Re-render PRG/PDG charts when executive tab is opened (HR only — data is internal-only)
+            // Re-render PRG/PDG charts when executive tab is opened (PAC only — data is internal-only)
             if (tabName === 'executive' && window.PKG_PDG_WIDGET) {
-                // ถ้า HR login แล้วแต่ข้อมูลยังไม่โหลด ให้โหลดก่อน
+                // ถ้า PAC login แล้วแต่ข้อมูลยังไม่โหลด ให้โหลดก่อน
                 try {
                     const u = JSON.parse(localStorage.getItem('pkg_current_user') || 'null');
                     if (u && u.role === 'hr' && !window.PKG_PRG_DATA) {
@@ -1926,7 +1926,7 @@
             document.getElementById('actionModal').classList.add('hidden');
         }
         
-        // ===== Load PRG/PDG data (internal-only) — เรียกเมื่อ HR login เท่านั้น =====
+        // ===== Load PRG/PDG data (internal-only) — เรียกเมื่อ PAC login เท่านั้น =====
         // TODO: ย้ายไปเรียกผ่าน Google Apps Script (GAS) แบบต้อง auth ในอนาคต
         function loadPRGData() {
             if (document.querySelector('script[data-src="prg-pdg-data.js"]')) return; // already loaded
@@ -1945,10 +1945,10 @@
             const user = users.find(u => u.phone === phone && u.password === btoa(password));
             if (user) {
                 localStorage.setItem('pkg_current_user', JSON.stringify(user));
-                alert('✅ เข้าสู่ระบบสำเร็จ!\n\nชื่อ: ' + user.name + '\nบทบาท: ' + (user.role === 'hr' ? 'HR' : 'ผู้สมัคร'));
+                alert('✅ เข้าสู่ระบบสำเร็จ!\n\nชื่อ: ' + user.name + '\nบทบาท: ' + (user.role === 'hr' ? 'PAC' : 'ผู้สมัคร'));
                 hideLogin();
                 if (user.role === 'hr') {
-                    loadPRGData(); // โหลดข้อมูลธุรกิจเฉพาะ HR
+                    loadPRGData(); // โหลดข้อมูลธุรกิจเฉพาะ PAC
                     switchView('hr');
                 } else {
                     renderApplicantDashboard();
@@ -2057,9 +2057,9 @@
             const samples = [
                 { id:'P2-SAMPLE-001', firstName:'สมชาย', lastName:'ใจดี', position:'ช่างยนต์', department:'บริการ', branch:'ชลบุรี', status:'test_done', phone:'0810000001', email:'somchai@test.com', education:'ปวส.', major:'ช่างยนต์', skills:'ซ่อมเครื่องยนต์, ระบบไฟฟ้า, การวินิจฉัยปัญหา', experience:'3', aiScore:82, appliedAt:'2026-07-20T08:00:00Z', testScores:{attitude:85,skill:80,cc:85,e3p:78,overall:82}, history:[{action:'สมัครงาน',timestamp:'2026-07-20T08:00:00Z',note:'ส่งใบสมัคร'},{action:'ทำแบบทดสอบ',timestamp:'2026-07-21T10:00:00Z',note:'คะแนนรวม: 82'}] },
                 { id:'P2-SAMPLE-002', firstName:'พิมพ์ใจ', lastName:'รักดี', position:'ที่ปรึกษางานขาย', department:'ขาย', branch:'ชลบุรี', status:'test_done', phone:'0810000002', email:'pimjai@test.com', education:'ปริญญาตรี', major:'บริหารธุรกิจ', skills:'การสื่อสาร, การเจรจา, CRM, Microsoft Office', experience:'2', aiScore:90, appliedAt:'2026-07-19T09:00:00Z', testScores:{attitude:95,skill:88,cc:92,e3p:90,overall:91}, history:[{action:'สมัครงาน',timestamp:'2026-07-19T09:00:00Z',note:'ส่งใบสมัคร'},{action:'ทำแบบทดสอบ',timestamp:'2026-07-20T11:00:00Z',note:'คะแนนรวม: 91'}] },
-                { id:'P2-SAMPLE-003', firstName:'ณัฐพล', lastName:'เก่งกาจ', position:'ช่างเทคนิคคอมพิวเตอร์', department:'IT', branch:'ชลบุรี', status:'screened', phone:'0810000003', email:'nuttapon@test.com', education:'ปวส.', major:'คอมพิวเตอร์', skills:'ซ่อมคอมพิวเตอร์, Network, ติดตั้งระบบ, Linux', experience:'1', aiScore:75, appliedAt:'2026-07-18T07:00:00Z', testScores:{attitude:78,skill:82,cc:78,e3p:74,overall:78}, history:[{action:'สมัครงาน',timestamp:'2026-07-18T07:00:00Z',note:'ส่งใบสมัคร'},{action:'ทำแบบทดสอบ',timestamp:'2026-07-19T09:00:00Z',note:'คะแนนรวม: 78'},{action:'คัดกรอง',timestamp:'2026-07-20T14:00:00Z',note:'HR คัดกรองผ่าน'}] },
+                { id:'P2-SAMPLE-003', firstName:'ณัฐพล', lastName:'เก่งกาจ', position:'ช่างเทคนิคคอมพิวเตอร์', department:'IT', branch:'ชลบุรี', status:'screened', phone:'0810000003', email:'nuttapon@test.com', education:'ปวส.', major:'คอมพิวเตอร์', skills:'ซ่อมคอมพิวเตอร์, Network, ติดตั้งระบบ, Linux', experience:'1', aiScore:75, appliedAt:'2026-07-18T07:00:00Z', testScores:{attitude:78,skill:82,cc:78,e3p:74,overall:78}, history:[{action:'สมัครงาน',timestamp:'2026-07-18T07:00:00Z',note:'ส่งใบสมัคร'},{action:'ทำแบบทดสอบ',timestamp:'2026-07-19T09:00:00Z',note:'คะแนนรวม: 78'},{action:'คัดกรอง',timestamp:'2026-07-20T14:00:00Z',note:'PAC คัดกรองผ่าน'}] },
                 { id:'P2-SAMPLE-004', firstName:'กัลยา', lastName:'ชาญชัย', position:'feel well', department:'บริการ', branch:'ชลบุรี', status:'test_done', phone:'0810000004', email:'kanlaya@test.com', education:'มัธยมศึกษา', major:'ไม่จำกัด', skills:'การสื่อสาร, การบริการ, ความเป็นมิตร, First Aid', experience:'4', aiScore:86, appliedAt:'2026-07-17T10:00:00Z', testScores:{attitude:92,skill:80,cc:88,e3p:85,overall:86}, history:[{action:'สมัครงาน',timestamp:'2026-07-17T10:00:00Z',note:'ส่งใบสมัคร'},{action:'ทำแบบทดสอบ',timestamp:'2026-07-18T13:00:00Z',note:'คะแนนรวม: 86'}] },
-                { id:'P2-SAMPLE-005', firstName:'วริศ', lastName:'มั่นคง', position:'ช่างยนต์', department:'บริการ', branch:'ชลบุรี', status:'screened', phone:'0810000005', email:'warit@test.com', education:'ปวส.', major:'ช่างยนต์', skills:'ซ่อมเครื่องยนต์, ระบบไฟฟ้า, ไฮบริด, EV, การวินิจฉัยปัญหา', experience:'5', aiScore:94, appliedAt:'2026-07-16T08:00:00Z', testScores:{attitude:96,skill:95,cc:95,e3p:93,overall:95}, history:[{action:'สมัครงาน',timestamp:'2026-07-16T08:00:00Z',note:'ส่งใบสมัคร'},{action:'ทำแบบทดสอบ',timestamp:'2026-07-17T10:00:00Z',note:'คะแนนรวม: 95'},{action:'คัดกรอง',timestamp:'2026-07-18T15:00:00Z',note:'HR คัดกรองผ่าน'}] }
+                { id:'P2-SAMPLE-005', firstName:'วริศ', lastName:'มั่นคง', position:'ช่างยนต์', department:'บริการ', branch:'ชลบุรี', status:'screened', phone:'0810000005', email:'warit@test.com', education:'ปวส.', major:'ช่างยนต์', skills:'ซ่อมเครื่องยนต์, ระบบไฟฟ้า, ไฮบริด, EV, การวินิจฉัยปัญหา', experience:'5', aiScore:94, appliedAt:'2026-07-16T08:00:00Z', testScores:{attitude:96,skill:95,cc:95,e3p:93,overall:95}, history:[{action:'สมัครงาน',timestamp:'2026-07-16T08:00:00Z',note:'ส่งใบสมัคร'},{action:'ทำแบบทดสอบ',timestamp:'2026-07-17T10:00:00Z',note:'คะแนนรวม: 95'},{action:'คัดกรอง',timestamp:'2026-07-18T15:00:00Z',note:'PAC คัดกรองผ่าน'}] }
             ];
             // Add only if not already present
             samples.forEach(s => {

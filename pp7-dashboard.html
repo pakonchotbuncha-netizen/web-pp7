@@ -162,7 +162,7 @@
 /* ===== EMP_STATS — ตัวเลขบุคลากร ===== */
 const EMP_STATS = {
   total: 1247,
-  byDept: { Tech:210, Sales:340, Operations:280, Finance:120, HR:85, 'R&D':212 },
+  byDept: { Tech:210, Sales:340, Operations:280, Finance:120, PAC:85, 'R&D':212 },
   byLevel: { Top:180, Solid:420, Develop:480, Exceeds:95, Meets:72 },
   newThisMonth: 12,
   resignedThisMonth: 3,
@@ -196,7 +196,7 @@ const RECRUIT_CLEAN_DATA = {
     { running:'A1-001', fullNameNoPrefix:'สมชาย ใจดี', jobPosition1:'Software Engineer', schoolName:'Referral', status_register:'จ้างงาน', employmentStatus:'พบใน employee', applicationDate:'2026-03-15' },
     { running:'A1-002', fullNameNoPrefix:'สมหญิง รักเรียน', jobPosition1:'Sales Executive', schoolName:'LinkedIn', status_register:'จ้างงาน', employmentStatus:'พบใน employee', applicationDate:'2026-03-18' },
     { running:'A1-003', fullNameNoPrefix:'วิชัย สุขสมบูรณ์', jobPosition1:'Operations Supervisor', schoolName:'Job Board', status_register:'มาสัมภาษณ์', employmentStatus:'', applicationDate:'2026-04-01' },
-    { running:'A1-004', fullNameNoPrefix:'นภา แสงจันทร์', jobPosition1:'HR Coordinator', schoolName:'Website', status_register:'มาสัมภาษณ์', employmentStatus:'', applicationDate:'2026-04-05' },
+    { running:'A1-004', fullNameNoPrefix:'นภา แสงจันทร์', jobPosition1:'PAC Coordinator', schoolName:'Website', status_register:'มาสัมภาษณ์', employmentStatus:'', applicationDate:'2026-04-05' },
     { running:'A1-005', fullNameNoPrefix:'ธนกร เจริญทรัพย์', jobPosition1:'Financial Analyst', schoolName:'Agency', status_register:'รอสัมภาษณ์', employmentStatus:'', applicationDate:'2026-04-10' },
     { running:'A1-006', fullNameNoPrefix:'พิมพ์ใจ ดีงาม', jobPosition1:'UX Designer', schoolName:'LinkedIn', status_register:'รอสัมภาษณ์', employmentStatus:'', applicationDate:'2026-04-12' },
     { running:'A1-007', fullNameNoPrefix:'ประเสริฐ มั่นคง', jobPosition1:'Data Scientist', schoolName:'Referral', status_register:'รอคัดเลือกใบสมัคร', employmentStatus:'', applicationDate:'2026-04-15' },
@@ -759,7 +759,7 @@ window.RESIGNATION_PIPELINE = {
     <select id="filter-dept" onchange="applyFilters()" title="Filter by Department">
       <option value="">🏢 <span data-i18n="allDept">ทุกฝ่าย</span></option>
       <option value="Tech">Tech</option><option value="Sales">Sales</option><option value="Operations">Operations</option>
-      <option value="Finance">Finance</option><option value="HR">HR</option><option value="R&D">R&D</option>
+      <option value="Finance">Finance</option><option value="HR">PAC</option><option value="R&D">R&D</option>
     </select>
     <select id="filter-level" onchange="applyFilters()" title="Filter by Level">
       <option value="">📊 <span data-i18n="allLevels">ทุกระดับ</span></option>
@@ -1184,7 +1184,7 @@ window.RESIGNATION_PIPELINE = {
       </div>
       <div class="p-3 rounded-lg bg-white border border-indigo-100">
         <div class="font-semibold text-sm text-indigo-800 mb-2">💬 LINE Notify</div>
-        <div class="text-xs text-slate-600">แจ้งเตือนไปยัง LINE Group ของทีม HR และ BMC</div>
+        <div class="text-xs text-slate-600">แจ้งเตือนไปยัง LINE Group ของทีม PAC และ BMC</div>
         <div class="mt-2"><span class="badge badge-green">เปิดใช้งาน</span></div>
       </div>
     </div>
@@ -1402,7 +1402,7 @@ window.RESIGNATION_PIPELINE = {
 <section id="tab-data-exchange" class="tab-pane fade-in hidden space-y-6">
   <div class="flex flex-wrap items-center gap-4">
     <h2 class="text-xl font-bold text-pp7-800 flex-1">🔄 Data Exchange Center</h2>
-    <div class="text-sm text-slate-500">ศูนย์กลางการนำเข้าและส่งออกข้อมูลสำหรับ HR, Operation และผู้บริหาร</div>
+    <div class="text-sm text-slate-500">ศูนย์กลางการนำเข้าและส่งออกข้อมูลสำหรับ PAC, Operation และผู้บริหาร</div>
   </div>
 
   <div class="grid md:grid-cols-4 gap-4">
@@ -1420,7 +1420,7 @@ window.RESIGNATION_PIPELINE = {
         <tbody>
           <tr><td>Recruitment Update</td><td>สถานะผู้สมัคร, วันนัด, ผลสัมภาษณ์, เหตุผลไม่ผ่าน, วันที่เริ่มงาน</td><td>running / personalID</td><td><span class="badge badge-blue">Ready to design</span></td></tr>
           <tr><td>Assessment Result</td><td>คะแนน Roleplay, Skill Test, Behavior, Comment ผู้ประเมิน</td><td>candidate_id</td><td><span class="badge badge-blue">Ready to design</span></td></tr>
-          <tr><td>Placement Update</td><td>ตำแหน่งแนะนำ, match score, หมายเหตุ HR/AI</td><td>candidate_id + job_code</td><td><span class="badge badge-blue">Ready to design</span></td></tr>
+          <tr><td>Placement Update</td><td>ตำแหน่งแนะนำ, match score, หมายเหตุ PAC/AI</td><td>candidate_id + job_code</td><td><span class="badge badge-blue">Ready to design</span></td></tr>
           <tr><td>Operation Feed</td><td>KPI รายวัน, output, attendance, activity summary</td><td>employee_id + date</td><td><span class="badge badge-amber">Need source mapping</span></td></tr>
           <tr><td>Master Data</td><td>JD/LIA, team structure, code reference</td><td>job_code / team_code</td><td><span class="badge badge-blue">Ready to design</span></td></tr>
         </tbody>
@@ -1433,10 +1433,10 @@ window.RESIGNATION_PIPELINE = {
         <thead><tr><th>ประเภท</th><th>สิ่งที่ส่งออก</th><th>Format</th><th>ผู้ใช้งานหลัก</th></tr></thead>
         <tbody>
           <tr><td>Executive Report</td><td>PP7 Summary, KPI, Traffic-light status</td><td>PDF / Excel</td><td>ผู้บริหาร</td></tr>
-          <tr><td>Operation Report</td><td>Applicant list, pipeline, daily action list</td><td>Excel / CSV</td><td>Operation / HR</td></tr>
-          <tr><td>Assessment Export</td><td>คะแนนประเมิน, roleplay, skill, behavior</td><td>Excel / CSV</td><td>HR / Assessor</td></tr>
-          <tr><td>Placement Export</td><td>Match result, recommended role, gap analysis</td><td>Excel / PDF</td><td>HR / Line manager</td></tr>
-          <tr><td>Compensation Summary</td><td>productivity, incentive base, cost per performance</td><td>Excel</td><td>HR / Finance</td></tr>
+          <tr><td>Operation Report</td><td>Applicant list, pipeline, daily action list</td><td>Excel / CSV</td><td>Operation / PAC</td></tr>
+          <tr><td>Assessment Export</td><td>คะแนนประเมิน, roleplay, skill, behavior</td><td>Excel / CSV</td><td>PAC / Assessor</td></tr>
+          <tr><td>Placement Export</td><td>Match result, recommended role, gap analysis</td><td>Excel / PDF</td><td>PAC / Line manager</td></tr>
+          <tr><td>Compensation Summary</td><td>productivity, incentive base, cost per performance</td><td>Excel</td><td>PAC / Finance</td></tr>
         </tbody>
       </table>
     </div>
@@ -1483,7 +1483,7 @@ window.RESIGNATION_PIPELINE = {
       <thead><tr><th>Role</th><th>Import</th><th>Export</th><th>ขอบเขต</th></tr></thead>
       <tbody>
         <tr><td>Admin</td><td>ทุกชุดข้อมูล</td><td>ทุกชุดข้อมูล</td><td>จัดการ master data และ audit log</td></tr>
-        <tr><td>HR</td><td>Recruitment / Assessment / Placement</td><td>รายงาน HR และผู้สมัคร</td><td>งานสรรหาและประเมิน</td></tr>
+        <tr><td>PAC</td><td>Recruitment / Assessment / Placement</td><td>รายงาน PAC และผู้สมัคร</td><td>งานสรรหาและประเมิน</td></tr>
         <tr><td>Operation</td><td>Operation feed / daily update</td><td>รายงานหน้างาน</td><td>ข้อมูลปฏิบัติการประจำวัน</td></tr>
         <tr><td>Executive</td><td>ไม่มี</td><td>รายงานสรุป</td><td>ดูภาพรวมเพื่อการตัดสินใจ</td></tr>
       </tbody>
@@ -1539,7 +1539,7 @@ window.RESIGNATION_PIPELINE = {
 <section id="tab-labor-law" class="tab-pane fade-in hidden space-y-6">
   <div class="flex flex-wrap items-center gap-4">
     <h2 class="text-xl font-bold text-pp7-800 flex-1">⚖️ กฎหมายสวัสดิการคุ้มครองแรงงาน</h2>
-    <div class="text-sm text-slate-500">อัปเดตข้อมูลจริงรอบแรกจากแหล่งภาครัฐ แยกตามประเทศและหมวดใช้งาน HR</div>
+    <div class="text-sm text-slate-500">อัปเดตข้อมูลจริงรอบแรกจากแหล่งภาครัฐ แยกตามประเทศและหมวดใช้งาน PAC</div>
   </div>
   <div class="grid md:grid-cols-4 gap-4">
     <div class="card text-center"><div class="text-sm text-slate-400">ช่วงเวลาทบทวน</div><div class="kpi-num text-blue-600">5 ปี</div></div>
@@ -1586,7 +1586,7 @@ window.RESIGNATION_PIPELINE = {
         <thead><tr><th>ประเทศ</th><th>หมวด</th><th>สาระสำคัญ</th><th>ผลต่อการบริหารคน</th><th>แหล่งอ้างอิง</th></tr></thead>
         <tbody>
           <tr><td>THAI</td><td>เวลาทำงานและเวลาพัก</td><td>งานทั่วไปไม่เกิน 8 ชม./วัน, 48 ชม./สัปดาห์ และต้องมีเวลาพักตามเกณฑ์</td><td>ใช้กำหนดกติกาเวลางานและการลงเวลาในองค์กรไทย</td><td>lb.mol.go.th / mol.go.th</td></tr>
-          <tr><td>THAI</td><td>วันหยุด / วันลา / ค่าจ้าง</td><td>มีเกณฑ์วันหยุดประจำสัปดาห์, วันหยุดตามประเพณี, ลาป่วย, ลากิจ และค่าจ้างขั้นต่ำ/OT</td><td>เกี่ยวกับ policy HR, payroll และ compliance</td><td>lb.mol.go.th</td></tr>
+          <tr><td>THAI</td><td>วันหยุด / วันลา / ค่าจ้าง</td><td>มีเกณฑ์วันหยุดประจำสัปดาห์, วันหยุดตามประเพณี, ลาป่วย, ลากิจ และค่าจ้างขั้นต่ำ/OT</td><td>เกี่ยวกับ policy PAC, payroll และ compliance</td><td>lb.mol.go.th</td></tr>
           <tr><td>RPLC</td><td>เวลาทำงาน / งานอันตราย</td><td>เวลางานปกติ 48 ชม./สัปดาห์, งานอันตราย 36 ชม./สัปดาห์ และมีเวลาพักขั้นต่ำ</td><td>ใช้กำหนดเวลางานและข้อจำกัดหน้างานในลาว</td><td>Lao Labour Law 2013 (official law text used in practice)</td></tr>
           <tr><td>RPLC</td><td>วันลา / ค่าแรงขั้นต่ำ / OT</td><td>มีสิทธิลาป่วย, ลาส่วนตัว, วันหยุด และค่าจ้างขั้นต่ำตามที่รัฐประกาศ</td><td>ใช้กำกับสิทธิแรงงานและต้นทุนแรงงาน</td><td>Lao Labour Law 2013 / Ministry of Labour and Social Welfare references</td></tr>
           <tr><td>RAFCO</td><td>เวลาทำงาน / OT / วันหยุด</td><td>เวลางาน 8 ชม./วัน 48 ชม./สัปดาห์, OT สมัครใจและรวมไม่เกิน 10 ชม./วัน, มีวันหยุดประจำสัปดาห์</td><td>ใช้ควบคุมตารางงานและ OT ให้ตรงกฎหมายกัมพูชา</td><td>cdc.gov.kh Labour Law / Employment and Labor</td></tr>
@@ -1736,7 +1736,7 @@ window.RESIGNATION_PIPELINE = {
         <ul class="list-disc pl-5 space-y-1">
           <li>พบข้อมูลอ้างอิงแล้วว่า <strong>ลงเวลาไม่เกิน 08:15 น.</strong></li>
           <li>หมวดนี้จะเชื่อมกับการมาปฏิบัติงาน, การขาด ลา มาสาย, และการควบคุมวินัยการทำงาน</li>
-          <li>เหมาะทำเป็นจุดตรวจสำหรับ HR และ operation ใช้อ้างอิงร่วมกัน</li>
+          <li>เหมาะทำเป็นจุดตรวจสำหรับ PAC และ operation ใช้อ้างอิงร่วมกัน</li>
         </ul>
       </div>
       <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50">
@@ -2441,12 +2441,12 @@ window.RESIGNATION_PIPELINE = {
     </div>
   </div>
 
-  <!-- ==================== ระบบรับสมัครงาน (สลับมุมมอง ผู้สมัคร/HR) ==================== -->
+  <!-- ==================== ระบบรับสมัครงาน (สลับมุมมอง ผู้สมัคร/PAC) ==================== -->
   <div class="mt-10 pt-8 border-t-4 border-purple-300">
     <div class="flex items-center gap-3 mb-6">
       <span class="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold">🎯</span>
       <h2 class="text-2xl font-bold text-pp7-800">ระบบรับสมัครงาน PKG</h2>
-      <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs">สลับมุมมอง ผู้สมัคร / HR</span>
+      <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs">สลับมุมมอง ผู้สมัคร / PAC</span>
     </div>
 
     <!-- View Switcher -->
@@ -2456,7 +2456,7 @@ window.RESIGNATION_PIPELINE = {
           👤 ผู้สมัคร
         </button>
         <button onclick="p1SwitchView('hr')" id="p1-view-hr" class="flex-1 py-3 rounded-lg font-semibold bg-gray-200 text-gray-700 transition-all">
-          👔 HR
+          👔 PAC
         </button>
       </div>
     </div>
@@ -2773,7 +2773,7 @@ window.RESIGNATION_PIPELINE = {
         <div class="flow-step bg-slate-100 rounded-lg p-3 min-w-[140px] text-center">
           <div class="text-xs font-bold text-slate-500">S1</div>
           <div class="text-sm font-semibold">จับคู่มือ</div>
-          <div class="text-xs text-slate-500 mt-1">HR เลือกเองจากความรู้สึก</div>
+          <div class="text-xs text-slate-500 mt-1">PAC เลือกเองจากความรู้สึก</div>
         </div>
         <div class="text-slate-400">→</div>
         <div class="flow-step bg-blue-50 rounded-lg p-3 min-w-[140px] text-center border border-blue-200">
@@ -3956,14 +3956,14 @@ window.RESIGNATION_PIPELINE = {
 <tr><td>EMP-0082</td><td>ชัยยศ ทองดี</td><td>Finance</td><td>3.6</td><td>4.9</td><td>3.9 (สูง)</td><td>64</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
 <tr><td>EMP-0083</td><td>ชัยวัฒน์ สุขสมบูรณ์</td><td>Finance</td><td>3.5</td><td>4.5</td><td>1.3 (ต่ำ)</td><td>78</td><td><span class="badge badge-green">ดี</span></td></tr>
 <tr><td>EMP-0084</td><td>ชัยณรงค์ จันทร์สว่าง</td><td>Finance</td><td>2.4</td><td>2.9</td><td>3.9 (สูง)</td><td>43</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
-<tr><td>EMP-0085</td><td>ชัยวัฒน์ รุ่งโรจน์</td><td>HR</td><td>2.9</td><td>2.1</td><td>2.5 (ต่ำ)</td><td>50</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
-<tr><td>EMP-0086</td><td>ประจวบ แก้วมณี</td><td>HR</td><td>4.0</td><td>2.3</td><td>4.4 (สูง)</td><td>46</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
-<tr><td>EMP-0087</td><td>พรชิตา สมบูรณ์</td><td>HR</td><td>4.2</td><td>3.9</td><td>3.7 (สูง)</td><td>63</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
-<tr><td>EMP-0088</td><td>ธนากร วงศ์สุวรรณ</td><td>HR</td><td>2.1</td><td>2.6</td><td>3.8 (สูง)</td><td>39</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
-<tr><td>EMP-0089</td><td>สมศักดิ์ แสงจันทร์</td><td>HR</td><td>3.3</td><td>3.2</td><td>2.5 (ต่ำ)</td><td>60</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
-<tr><td>EMP-0090</td><td>ธนากร พุ่มน้อย</td><td>HR</td><td>4.0</td><td>2.9</td><td>3.1 (ปานกลาง)</td><td>59</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
-<tr><td>EMP-0091</td><td>ชัยณรงค์ จันทร์สว่าง</td><td>HR</td><td>4.4</td><td>4.0</td><td>4.3 (สูง)</td><td>61</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
-<tr><td>EMP-0092</td><td>วรรณ์วิภา แก้วประเสริฐ</td><td>HR</td><td>3.3</td><td>2.2</td><td>1.5 (ต่ำ)</td><td>60</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
+<tr><td>EMP-0085</td><td>ชัยวัฒน์ รุ่งโรจน์</td><td>PAC</td><td>2.9</td><td>2.1</td><td>2.5 (ต่ำ)</td><td>50</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
+<tr><td>EMP-0086</td><td>ประจวบ แก้วมณี</td><td>PAC</td><td>4.0</td><td>2.3</td><td>4.4 (สูง)</td><td>46</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
+<tr><td>EMP-0087</td><td>พรชิตา สมบูรณ์</td><td>PAC</td><td>4.2</td><td>3.9</td><td>3.7 (สูง)</td><td>63</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
+<tr><td>EMP-0088</td><td>ธนากร วงศ์สุวรรณ</td><td>PAC</td><td>2.1</td><td>2.6</td><td>3.8 (สูง)</td><td>39</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
+<tr><td>EMP-0089</td><td>สมศักดิ์ แสงจันทร์</td><td>PAC</td><td>3.3</td><td>3.2</td><td>2.5 (ต่ำ)</td><td>60</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
+<tr><td>EMP-0090</td><td>ธนากร พุ่มน้อย</td><td>PAC</td><td>4.0</td><td>2.9</td><td>3.1 (ปานกลาง)</td><td>59</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
+<tr><td>EMP-0091</td><td>ชัยณรงค์ จันทร์สว่าง</td><td>PAC</td><td>4.4</td><td>4.0</td><td>4.3 (สูง)</td><td>61</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
+<tr><td>EMP-0092</td><td>วรรณ์วิภา แก้วประเสริฐ</td><td>PAC</td><td>3.3</td><td>2.2</td><td>1.5 (ต่ำ)</td><td>60</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
 <tr><td>EMP-0093</td><td>วราภรณ์ ทองประเสริฐ</td><td>R&D</td><td>3.8</td><td>4.1</td><td>4.5 (สูง)</td><td>56</td><td><span class="badge badge-red">ต้องติดตาม</span></td></tr>
 <tr><td>EMP-0094</td><td>สุรัติยา แก้วมณี</td><td>R&D</td><td>4.1</td><td>4.1</td><td>1.6 (ต่ำ)</td><td>77</td><td><span class="badge badge-green">ดี</span></td></tr>
 <tr><td>EMP-0095</td><td>ปิยาภรณ์ รุ่งเรือง</td><td>R&D</td><td>3.2</td><td>4.2</td><td>2.7 (ปานกลาง)</td><td>65</td><td><span class="badge badge-amber">ควรดูแล</span></td></tr>
@@ -4932,7 +4932,7 @@ const drillData={
     <div class="sparkline" style="height:60px">${[60,65,72,78,83,90].map(h=>`<span style="height:${h}%"></span>`).join('')}</div></div>
     <div class="mt-4"><h4 class="font-semibold mb-2">By Dept</h4>
     <table><thead><tr><th>Dept</th><th>Count</th><th>Growth</th></tr></thead>
-    <tbody><tr><td>Tech</td><td>312</td><td style="color:#10b981">+5</td></tr><tr><td>Sales</td><td>285</td><td style="color:#ef4444">-2</td></tr><tr><td>Operations</td><td>241</td><td style="color:#10b981">+3</td></tr><tr><td>Finance</td><td>178</td><td>0</td></tr><tr><td>HR</td><td>131</td><td style="color:#10b981">+2</td></tr><tr><td>R&D</td><td>100</td><td style="color:#10b981">+4</td></tr></tbody></table></div>`},
+    <tbody><tr><td>Tech</td><td>312</td><td style="color:#10b981">+5</td></tr><tr><td>Sales</td><td>285</td><td style="color:#ef4444">-2</td></tr><tr><td>Operations</td><td>241</td><td style="color:#10b981">+3</td></tr><tr><td>Finance</td><td>178</td><td>0</td></tr><tr><td>PAC</td><td>131</td><td style="color:#10b981">+2</td></tr><tr><td>R&D</td><td>100</td><td style="color:#10b981">+4</td></tr></tbody></table></div>`},
   match:{title:'🤝 Match Detail',body:`
     <div class="detail-grid">
       <div class="detail-item"><div class="label">Match Rate</div><div class="value" style="color:#10b981">87%</div></div>
@@ -4960,11 +4960,11 @@ const drillData={
     </div>
     <div class="mt-4"><h4 class="font-semibold mb-2">ตำแหน่งเร่งด่วน</h4>
     <table><thead><tr><th>ตำแหน่ง</th><th>ฝ่าย</th><th>ผู้สมัคร</th><th>สถานะ</th></tr></thead>
-    <tbody><tr><td>Senior Developer</td><td>Tech</td><td>34</td><td style="color:#10b981">สัมภาษณ์</td></tr><tr><td>Data Scientist</td><td>Tech</td><td>28</td><td style="color:#f59e0b">กำลัง filter</td></tr><tr><td>UX Researcher</td><td>R&D</td><td>19</td><td style="color:#3b82f6">เปิดรับ</td></tr><tr><td>Sales Manager</td><td>Sales</td><td>42</td><td style="color:#10b981">สัมภาษณ์</td></tr><tr><td>HRBP</td><td>HR</td><td>15</td><td style="color:#3b82f6">เปิดรับ</td></tr></tbody></table></div>`},
+    <tbody><tr><td>Senior Developer</td><td>Tech</td><td>34</td><td style="color:#10b981">สัมภาษณ์</td></tr><tr><td>Data Scientist</td><td>Tech</td><td>28</td><td style="color:#f59e0b">กำลัง filter</td></tr><tr><td>UX Researcher</td><td>R&D</td><td>19</td><td style="color:#3b82f6">เปิดรับ</td></tr><tr><td>Sales Manager</td><td>Sales</td><td>42</td><td style="color:#10b981">สัมภาษณ์</td></tr><tr><td>HRBP</td><td>PAC</td><td>15</td><td style="color:#3b82f6">เปิดรับ</td></tr></tbody></table></div>`},
   pipeline:{title:'Recruitment Pipeline',body:`
     <div class="detail-grid">
       <div class="detail-item"><div class="label">ใน Pipeline</div><div class="value" style="color:#3b82f6">186</div></div>
-      <div class="detail-item"><div class="label">HR Screen</div><div class="value">78</div></div>
+      <div class="detail-item"><div class="label">PAC Screen</div><div class="value">78</div></div>
       <div class="detail-item"><div class="label">Technical Interview</div><div class="value">58</div></div>
       <div class="detail-item"><div class="label">Final Round</div><div class="value">34</div></div>
     </div>
@@ -5085,7 +5085,7 @@ function initCharts(tab){
     new Chart(document.getElementById('chart-source'),{type:'doughnut',data:{labels:['LinkedIn','Website','Referral','Job Board','Agency'],datasets:[{data:[28,22,18,16,16],backgroundColor:[chartColors.blue,chartColors.emerald,chartColors.violet,chartColors.amber,chartColors.slate]}]},options:{...defaults,scales:{x:{display:false},y:{display:false}},plugins:{...defaults.plugins,legend:{...defaults.plugins.legend,position:'bottom'}}}});
   }
   if(tab==='recruit'){
-    new Chart(document.getElementById('chart-ttf'),{type:'bar',data:{labels:['Tech','Sales','Ops','Finance','HR','R&D'],datasets:[{label:'Avg Days',data:[28,22,18,35,20,25],backgroundColor:[chartColors.blue,chartColors.emerald,chartColors.violet,chartColors.amber,chartColors.slate,chartColors.indigo]}]},options:{...defaults,scales:{...defaults.scales,y:{...defaults.scales.y,ticks:{...defaults.scales.y.ticks,callback:v=>v+' วัน'}}}}});
+    new Chart(document.getElementById('chart-ttf'),{type:'bar',data:{labels:['Tech','Sales','Ops','Finance','PAC','R&D'],datasets:[{label:'Avg Days',data:[28,22,18,35,20,25],backgroundColor:[chartColors.blue,chartColors.emerald,chartColors.violet,chartColors.amber,chartColors.slate,chartColors.indigo]}]},options:{...defaults,scales:{...defaults.scales,y:{...defaults.scales.y,ticks:{...defaults.scales.y.ticks,callback:v=>v+' วัน'}}}}});
     new Chart(document.getElementById('chart-funnel'),{type:'bar',data:{labels:['Submitted','Screened','Interviewed','Offered','Hired'],datasets:[{label:'จำนวน',data:[186,112,58,34,19],backgroundColor:[chartColors.blue,chartColors.indigo,chartColors.violet,chartColors.amber,chartColors.emerald]}]},options:{...defaults,indexAxis:'y',scales:{x:{beginAtZero:true,ticks:{font:{family:'Prompt',size:11}}},y:{ticks:{font:{family:'Prompt',size:12}}}}}});
   }
   if(tab==='assess'){
@@ -5099,7 +5099,7 @@ function initCharts(tab){
     new Chart(document.getElementById('chart-perf-dist'),{type:'doughnut',data:{labels:['Exceeds','Meets','Develop','PIP'],datasets:[{data:[28,58,11,3],backgroundColor:[chartColors.emerald,chartColors.blue,chartColors.amber,chartColors.red]}]},options:{...defaults,scales:{x:{display:false},y:{display:false}},plugins:{...defaults.plugins,legend:{...defaults.plugins.legend,position:'bottom'}}}});
   }
   if(tab==='develop'){
-    new Chart(document.getElementById('chart-training-hrs'),{type:'bar',data:{labels:['Tech','Sales','Ops','Finance','HR','R&D'],datasets:[{label:'ชั่วโมง/คน',data:[38,24,28,20,22,42],backgroundColor:[chartColors.blue,chartColors.red,chartColors.violet,chartColors.amber,chartColors.slate,chartColors.emerald]}]},options:{...defaults,scales:{...defaults.scales,y:{...defaults.scales.y,title:{display:true,text:'ชั่วโมง',font:{family:'Prompt'}}}}}});
+    new Chart(document.getElementById('chart-training-hrs'),{type:'bar',data:{labels:['Tech','Sales','Ops','Finance','PAC','R&D'],datasets:[{label:'ชั่วโมง/คน',data:[38,24,28,20,22,42],backgroundColor:[chartColors.blue,chartColors.red,chartColors.violet,chartColors.amber,chartColors.slate,chartColors.emerald]}]},options:{...defaults,scales:{...defaults.scales,y:{...defaults.scales.y,title:{display:true,text:'ชั่วโมง',font:{family:'Prompt'}}}}}});
   }
   if(tab==='welfare'){
     new Chart(document.getElementById('chart-welfare-cost'),{type:'bar',data:{labels:['ต.ค.','พ.ย.','ธ.ค.','ม.ค.','ก.พ.','มี.ค.'],datasets:[{label:'ค่าจ้าง (M)',data:[2.1,2.1,2.2,2.2,2.3,2.4],backgroundColor:chartColors.blue},{label:'สวัสดิการ (M)',data:[0.3,0.32,0.31,0.35,0.33,0.38],backgroundColor:chartColors.emerald}]},options:{...defaults,scales:{...defaults.scales,y:{...defaults.scales.y,stacked:true},x:{...defaults.scales.x,stacked:true}}}});
@@ -5372,13 +5372,13 @@ function p1RenderAIResult(aiResult) {
 
       ${aiResult.isSuitable ? `
         <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded-lg mb-6">
-          <div class="flex items-start"><div class="text-green-600 mr-2 mt-1">✅</div><div><p class="font-semibold text-green-800 mb-1">ยินดีด้วย! คุณสมบัติของคุณเหมาะสมกับตำแหน่งนี้</p><p class="text-sm text-green-700">ขั้นตอนถัดไป: HR จะติดต่อกลับภายใน 3-5 วันทำการ</p></div></div>
+          <div class="flex items-start"><div class="text-green-600 mr-2 mt-1">✅</div><div><p class="font-semibold text-green-800 mb-1">ยินดีด้วย! คุณสมบัติของคุณเหมาะสมกับตำแหน่งนี้</p><p class="text-sm text-green-700">ขั้นตอนถัดไป: PAC จะติดต่อกลับภายใน 3-5 วันทำการ</p></div></div>
         </div>
         <button onclick="p1RenderApplicantView()" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold">🏠 กลับหน้าตำแหน่งงาน</button>
       ` : `
         <div class="flex space-x-4">
           <button onclick="p1RenderApplicantView()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-400 transition">← เลือกตำแหน่งอื่น</button>
-          <button onclick="p1SwitchView('hr')" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition">👔 ดูมุมมอง HR</button>
+          <button onclick="p1SwitchView('hr')" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition">👔 ดูมุมมอง PAC</button>
         </div>
       `}
     </div>
@@ -5390,10 +5390,10 @@ function p1RenderHRView() {
   const applications = JSON.parse(localStorage.getItem('pkg_applications') || '[]');
   content.innerHTML = `
     <div class="card">
-      <h3 class="text-2xl font-bold text-gray-800 mb-6">👔 มุมมอง HR</h3>
+      <h3 class="text-2xl font-bold text-gray-800 mb-6">👔 มุมมอง PAC</h3>
       <div class="space-y-6">
         <div class="border border-gray-200 rounded-lg p-4">
-          <h4 class="font-semibold text-gray-700 mb-3">📊 HR Dashboard</h4>
+          <h4 class="font-semibold text-gray-700 mb-3">📊 PAC Dashboard</h4>
           <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
             <div class="bg-blue-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-gray-800">${applications.length}</p><p class="text-xs text-gray-600">ผู้สมัครทั้งหมด</p></div>
             <div class="bg-blue-50 p-4 rounded-lg text-center"><p class="text-2xl font-bold text-blue-600">${applications.filter(a => a.status === 'new').length}</p><p class="text-xs text-gray-600">ใหม่</p></div>
