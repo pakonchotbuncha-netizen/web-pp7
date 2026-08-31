@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P1 สรรหา — ช่องทาง & โอนย้าย & ส่งต่อ | PP7</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Prompt', sans-serif; }
+  body { background: #f1f5f9; color: #1e293b; margin: 0; }
+  .sidebar { width: 260px; background: #0f172a; color: #e2e8f0; min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 40; overflow-y: auto; }
+  .sidebar .brand { padding: 1.25rem 1.25rem 0.75rem; border-bottom: 1px solid #1e293b; }
+  .sidebar .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.25rem; color: #94a3b8; text-decoration: none; font-size: 0.875rem; border-radius: 0.5rem; margin: 0.15rem 0.75rem; transition: all 0.15s; cursor: pointer; }
+  .sidebar .nav-link:hover { background: #1e293b; color: #e2e8f0; }
+  .sidebar .nav-link.active { background: #ec4899; color: #fff; font-weight: 500; }
+  .sidebar .nav-section { padding: 0.5rem 1.25rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-top: 0.75rem; }
+  .main-content { margin-left: 260px; padding: 1.5rem; }
+  .card { background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(15,23,42,.07); padding: 1.5rem; margin-bottom: 1.5rem; }
+  .stat-card { position: relative; overflow: hidden; }
+  .stat-card::before { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; border-radius: 0 0 0 80px; opacity: 0.1; }
+  .stat-card.pink::before { background: #ec4899; }
+  .stat-card.blue::before { background: #3b82f6; }
+  .stat-card.green::before { background: #10b981; }
+  .stat-card.amber::before { background: #f59e0b; }
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 0.7rem 1rem; font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; background: #f8fafc; }
+  td { padding: 0.7rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.875rem; }
+  tr:hover td { background: #f8fafc; }
+  .badge { display: inline-flex; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-amber { background: #fef3c7; color: #92400e; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-purple { background: #f3e8ff; color: #7c3aed; }
+  .badge-gray { background: #e2e8f0; color: #475569; }
+  .badge-pink { background: #fce7f3; color: #9d174d; }
+  .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn-primary { background: #ec4899; color: #fff; }
+  .btn-primary:hover { background: #db2777; }
+  .btn-outline { background: #fff; border: 1px solid #e2e8f0; color: #64748b; }
+  .btn-outline:hover { background: #f8fafc; }
+  .btn-success { background: #10b981; color: #fff; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.4); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #fff; border-radius: 1rem; max-width: 850px; width: 100%; max-height: 90vh; overflow-y: auto; }
+  .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: #fff; }
+  .modal-body { padding: 1.5rem; }
+  .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.5rem; }
+  .form-label { display: block; font-size: 0.8rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem; }
+  .form-input, .form-select, .form-textarea { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; background: #fff; }
+  .form-input:focus, .form-select:focus { border-color: #ec4899; box-shadow: 0 0 0 3px rgba(236,72,153,.12); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .fade-in { animation: fadeIn .3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .progress-bar { height: 8px; background: #e2e8f0; border-radius: 9999px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #ec4899, #8b5cf6); border-radius: 9999px; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="text-white font-bold text-lg">🧲 P1 สรรหา</div>
+    <div class="text-xs text-slate-500 mt-1">PP7 · ช่องทาง & โอนย้าย & ส่งต่อ · ตาม SMC_HOCC_PM_002</div>
+  </div>
+  <nav>
+    <div class="nav-section">ภาพรวม</div>
+    <a class="nav-link active" onclick="showTab('overview')">📊 Dashboard</a>
+    <div class="nav-section">P1 ขั้น 3–4</div>
+    <a class="nav-link" onclick="showTab('channels')">📣 ช่องทางสรรหา (Tracking)</a>
+    <a class="nav-link" onclick="showTab('transfer')">📄 ใบโอนย้ายภายใน (4.1)</a>
+    <a class="nav-link" onclick="showTab('application')">📝 ใบสมัคร (4.2)</a>
+    <div class="nav-section">P2–P3 เชื่อมต่อ</div>
+    <a class="nav-link" onclick="showTab('forward')">🔄 ส่งต่อผู้สมัครข้าม BU</a>
+    <div class="nav-section">อื่น ๆ</div>
+    <a class="nav-link" onclick="location.href='index.html'">🏠 กลับหน้าแรก</a>
+  </nav>
+</aside>
+
+<!-- Main -->
+<main class="main-content">
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800">🧲 P1 — ช่องทางสรรหา · โอนย้าย · ส่งต่อ</h1>
+      <p class="text-sm text-slate-500 mt-1">สอดคล้อง SMC_HOCC_PM_002 ขั้นตอน 2–8 — แสวงหา คัดเลือก ส่งต่อ</p>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <button class="btn btn-outline" onclick="exportCSV()">📥 ส่งออก CSV</button>
+      <button class="btn btn-primary" onclick="openModal('newApplicant')">+ เพิ่มใบสมัคร</button>
+    </div>
+  </div>
+
+  <!-- ===== TAB: OVERVIEW ===== -->
+  <div id="tab-overview" class="tab-content active fade-in">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="card stat-card pink"><div class="text-sm text-slate-500">ผู้สมัครทั้งหมด</div><div class="text-3xl font-bold text-pink-600 mt-2" id="ovTotal">0</div><div class="text-xs text-slate-400 mt-1">คน</div></div>
+      <div class="card stat-card blue"><div class="text-sm text-slate-500">ช่องทางที่ใช้</div><div class="text-3xl font-bold text-blue-600 mt-2" id="ovChannels">0</div><div class="text-xs text-slate-400 mt-1">ช่องทาง</div></div>
+      <div class="card stat-card amber"><div class="text-sm text-slate-500">ใบโอนย้าย</div><div class="text-3xl font-bold text-amber-600 mt-2" id="ovTransfers">0</div><div class="text-xs text-slate-400 mt-1">รายการ</div></div>
+      <div class="card stat-card green"><div class="text-sm text-slate-500">ส่งต่อข้าม BU</div><div class="text-3xl font-bold text-green-600 mt-2" id="ovForwarded">0</div><div class="text-xs text-slate-400 mt-1">รายการ</div></div>
+    </div>
+    <div class="grid lg:grid-cols-2 gap-6">
+      <div class="card">
+        <h3 class="font-semibold text-slate-800 mb-4">📣 ประสิทธิภาพช่องทางสรรหา</h3>
+        <div style="height: 280px;"><canvas id="chartChannel"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="font-semibold text-slate-800 mb-4">🔄 สถานะผู้สมัคร (funnel)</h3>
+        <div style="height: 280px;"><canvas id="chartFunnel"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: CHANNELS ===== -->
+  <div id="tab-channels" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">📣 ขั้นตอน 3 — ติดตามช่องทางสรรหา</h3>
+      <p class="text-sm text-slate-500 mb-4">ประกาศรับสมัครตามช่องทางต่าง ๆ ภายใน 45 วัน — บันทึกที่มาของผู้สมัครทุกช่องทางเพื่อวิเคราะห์ประสิทธิภาพ</p>
+      <div class="grid lg:grid-cols-3 gap-3 mb-4 text-sm">
+        <div class="border rounded-xl p-3 bg-pink-50"><div class="font-semibold text-pink-800">🖥️ Website / เวที L&G</div><div class="text-xs text-pink-600">เว็บไซต์บริษัท + เวที L&G (สรรหาภายใน)</div></div>
+        <div class="border rounded-xl p-3 bg-blue-50"><div class="font-semibold text-blue-800">📱 Social Media / FB</div><div class="text-xs text-blue-600">FB กลุ่มหางาน สมัครงานจันทบุรี, TikTok, IG</div></div>
+        <div class="border rounded-xl p-3 bg-amber-50"><div class="font-semibold text-amber-800">🏢 อื่น ๆ</div><div class="text-xs text-amber-600">สำนักงานจัดหางาน, ป้ายรับสมัคร, แนะนำภายใน, Walk-in, สถานศึกษา</div></div>
+      </div>
+      <table>
+        <thead><tr><th>ช่องทาง</th><th>จำนวนผู้สมัคร</th><th>ผ่านคัดเลือก</th><th>อัตราผ่าน</th><th>สัดส่วน</th></tr></thead>
+        <tbody id="channelTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== TAB: TRANSFER (4.1) ===== -->
+  <div id="tab-transfer" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">📄 ขั้นตอน 4.1 — ใบโอนย้ายภายใน</h3>
+      <p class="text-sm text-slate-500 mb-4">สำหรับการสรรหาภายใน (โอนย้าย กับ จัดคนให้ถูกกับงาน) — คีย์ใบโอนย้าย เพื่อย้ายสมาชิกระหว่างหน่วยงาน</p>
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <button class="btn btn-primary" onclick="openModal('newTransfer')">+ คีย์ใบโอนย้าย</button>
+        <a class="btn btn-outline" href="http://webdev.prachakij.com/appformPKG/formtransfer1.php" target="_blank">🔗 เปิดฟอร์มโอนย้ายเดิม</a>
+      </div>
+      <table>
+        <thead><tr><th>เลขที่</th><th>ผู้ย้าย</th><th>จากหน่วยงาน</th><th>ไปหน่วยงาน</th><th>ตำแหน่งใหม่</th><th>วันที่ย้าย</th><th>สถานะ</th><th>การจัดการ</th></tr></thead>
+        <tbody id="transferTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== TAB: APPLICATION (4.2) ===== -->
+  <div id="tab-application" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">📝 ขั้นตอน 4.2 — ใบสมัคร & คัดเลือก</h3>
+      <p class="text-sm text-slate-500 mb-4">รับใบสมัครจากช่องทางต่าง ๆ → คัดเลือกใบสมัคร → ไม่คัดเลือก: ปิดใบสมัคร / ผ่าน: ส่งต่อ P2 หยั่งประเมิน</p>
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <select id="filterChannel" class="form-select w-56" onchange="renderApplicants()"></select>
+        <select id="filterStatus" class="form-select w-48" onchange="renderApplicants()">
+          <option value="">ทุกสถานะ</option>
+          <option>รอคัดเลือก</option><option>ผ่านคัดเลือก</option><option>ไม่คัดเลือก</option><option>ส่งต่อ BU อื่น</option><option>ผ่าน P2</option>
+        </select>
+      </div>
+      <table>
+        <thead><tr><th>ชื่อ</th><th>ตำแหน่ง</th><th>ช่องทาง</th><th>วันที่สมัคร</th><th>สถานะ</th><th>การจัดการ</th></tr></thead>
+        <tbody id="applicantTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== TAB: FORWARD ===== -->
+  <div id="tab-forward" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">🔄 ส่งต่อผู้สมัครข้าม BU (P2 → P3)</h3>
+      <p class="text-sm text-slate-500 mb-4">หากผู้สมัครไม่เหมาะกับตำแหน่งปัจจุบัน แต่เหมาะกับตำแหน่งอื่น → ส่งต่อให้หน่วยงานอื่นพูดคุย/นัดสัมภาษณ์ใหม่ หรือหากไม่ผ่านแบบไม่เข้าหลักเกณฑ์ → ปิดใบสมัคร</p>
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <button class="btn btn-primary" onclick="openModal('newForward')">+ ส่งต่อผู้สมัคร</button>
+      </div>
+      <table>
+        <thead><tr><th>ผู้สมัคร</th><th>จากตำแหน่ง</th><th>ส่งต่อ BU</th><th>ตำแหน่งใหม่</th><th>วันที่ส่งต่อ</th><th>ผลการสัมภาษณ์</th><th>สถานะ</th><th>การจัดการ</th></tr></thead>
+        <tbody id="forwardTable"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- ===== MODAL: NEW APPLICANT ===== -->
+<div id="modal-newApplicant" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><h3 class="font-bold text-lg">📝 เพิ่มใบสมัคร</h3><button onclick="closeModal('newApplicant')" class="text-slate-400 hover:text-slate-600">✕</button></div>
+    <div class="modal-body">
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="form-label">ชื่อ-นามสกุล *</label><input id="apName" class="form-input" placeholder="ชื่อ นามสกุล"></div>
+        <div><label class="form-label">ตำแหน่งที่สมัคร *</label><input id="apPosition" class="form-input" placeholder="ช่างเทคนิค"></div>
+        <div><label class="form-label">ช่องทางที่สมัคร *</label><select id="apChannel" class="form-select">
+          <option>Website</option><option>เวที L&G</option><option>FB สรรหา</option><option>Social Media</option>
+          <option>สำนักงานจัดหางาน</option><option>ป้ายรับสมัคร</option><option>แนะนำจากสมาชิกภายใน</option><option>Walk-in</option><option>สถานศึกษา</option>
+        </select></div>
+        <div><label class="form-label">วันที่สมัคร</label><input id="apDate" type="date" class="form-input"></div>
+        <div><label class="form-label">สถานะ</label><select id="apStatus" class="form-select"><option>รอคัดเลือก</option><option>ผ่านคัดเลือก</option><option>ไม่คัดเลือก</option><option>ส่งต่อ BU อื่น</option><option>ผ่าน P2</option></select></div>
+        <div><label class="form-label">หมายเหตุ</label><input id="apNote" class="form-input" placeholder="หมายเหตุ"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('newApplicant')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveApplicant()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: NEW TRANSFER ===== -->
+<div id="modal-newTransfer" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><h3 class="font-bold text-lg">📄 คีย์ใบโอนย้าย</h3><button onclick="closeModal('newTransfer')" class="text-slate-400 hover:text-slate-600">✕</button></div>
+    <div class="modal-body">
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="form-label">รหัสสมาชิก *</label><input id="trMemberId" class="form-input" placeholder="EMP-0001"></div>
+        <div><label class="form-label">ชื่อ-นามสกุล *</label><input id="trName" class="form-input" placeholder="ชื่อ นามสกุล"></div>
+        <div><label class="form-label">จากหน่วยงาน *</label><select id="trFrom" class="form-select"><option>PGH</option><option>PMS</option><option>AAM</option><option>ส่วนกลาง</option></select></div>
+        <div><label class="form-label">ไปหน่วยงาน *</label><select id="trTo" class="form-select"><option>PGH</option><option>PMS</option><option>AAM</option><option>ส่วนกลาง</option></select></div>
+        <div><label class="form-label">ตำแหน่งใหม่</label><input id="trPosition" class="form-input" placeholder="หัวหน้างาน"></div>
+        <div><label class="form-label">วันที่ย้าย</label><input id="trDate" type="date" class="form-input"></div>
+        <div><label class="form-label">เหตุผลการโอนย้าย</label><input id="trReason" class="form-input" placeholder="จัดคนให้ถูกกับงาน"></div>
+        <div><label class="form-label">สถานะ</label><select id="trStatus" class="form-select"><option>รออนุมัติ</option><option>อนุมัติแล้ว</option><option>ยกเลิก</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('newTransfer')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveTransfer()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: NEW FORWARD ===== -->
+<div id="modal-newForward" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><h3 class="font-bold text-lg">🔄 ส่งต่อผู้สมัครข้าม BU</h3><button onclick="closeModal('newForward')" class="text-slate-400 hover:text-slate-600">✕</button></div>
+    <div class="modal-body">
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="form-label">ผู้สมัคร *</label><select id="fwApplicant" class="form-select"></select></div>
+        <div><label class="form-label">จากตำแหน่ง</label><input id="fwFromPos" class="form-input" readonly></div>
+        <div><label class="form-label">ส่งต่อ BU *</label><select id="fwToBU" class="form-select"><option>PGH</option><option>PMS</option><option>AAM</option><option>ส่วนกลาง</option></select></div>
+        <div><label class="form-label">ตำแหน่งใหม่ *</label><input id="fwPosition" class="form-input" placeholder="ตำแหน่งที่ส่งต่อ"></div>
+        <div><label class="form-label">วันที่ส่งต่อ</label><input id="fwDate" type="date" class="form-input"></div>
+        <div><label class="form-label">ผลการสัมภาษณ์</label><select id="fwResult" class="form-select"><option>รอสัมภาษณ์</option><option>ผ่านสัมภาษณ์</option><option>ไม่ผ่าน</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('newForward')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveForward()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ DATA ============
+const LS_KEY = 'pp7_sourcing_v1';
+const todayISO = () => new Date().toISOString().slice(0,10);
+
+function seedDB() {
+  return {
+    applicants: [
+      { id: 1, name: 'สมชาย ใจดี', position: 'ช่างเทคนิค', channel: 'FB สรรหา', date: '2026-08-20', status: 'ผ่านคัดเลือก', note: '' },
+      { id: 2, name: 'สมหญิง รักงาน', position: 'เจ้าหน้าที่บัญชี', channel: 'Website', date: '2026-08-21', status: 'รอคัดเลือก', note: '' },
+      { id: 3, name: 'วิชัย ทองดี', position: 'วิศวกร', channel: 'แนะนำจากสมาชิกภายใน', date: '2026-08-22', status: 'ผ่าน P2', note: '' },
+      { id: 4, name: 'นภัสสร แก้วใส', position: 'พนักงานธุรการ', channel: 'Walk-in', date: '2026-08-23', status: 'ไม่คัดเลือก', note: 'คุณสมบัติไม่ตรง' },
+      { id: 5, name: 'ธนพล มีสุข', position: 'ช่างเชื่อม', channel: 'สำนักงานจัดหางาน', date: '2026-08-24', status: 'ส่งต่อ BU อื่น', note: 'ส่งต่อ AAM' },
+      { id: 6, name: 'กิตติชัย ศรีจันทร์', position: 'เจ้าหน้าที่บุคคล', channel: 'Social Media', date: '2026-08-25', status: 'ผ่านคัดเลือก', note: '' },
+      { id: 7, name: 'นภา ลาออก', position: 'พนักงานผลิต', channel: 'ป้ายรับสมัคร', date: '2026-08-26', status: 'รอคัดเลือก', note: '' },
+      { id: 8, name: 'พิชัย ใจดี', position: 'ช่างไฟฟ้า', channel: 'สถานศึกษา', date: '2026-08-27', status: 'ผ่านคัดเลือก', note: '' },
+      { id: 9, name: 'มานะ ขยัน', position: 'พนักงานคลัง', channel: 'FB สรรหา', date: '2026-08-28', status: 'รอคัดเลือก', note: '' },
+      { id: 10, name: 'ศรีสุดา ใจงาม', position: 'เจ้าหน้าที่การเงิน', channel: 'Website', date: '2026-08-29', status: 'ผ่านคัดเลือก', note: '' }
+    ],
+    transfers: [
+      { id: 'TR-001', memberId: 'EMP-0101', name: 'ประเสริฐ มีชัย', from: 'PMS', to: 'PGH', position: 'หัวหน้าช่าง', date: '2026-08-15', reason: 'จัดคนให้ถูกกับงาน', status: 'อนุมัติแล้ว' },
+      { id: 'TR-002', memberId: 'EMP-0102', name: 'อรทัย สุขสันต์', from: 'AAM', to: 'ส่วนกลาง', position: 'เจ้าหน้าที่ IT', date: '2026-08-20', reason: 'โอนย้ายตามความสมัครใจ', status: 'รออนุมัติ' }
+    ],
+    forwards: [
+      { id: 1, applicant: 'ธนพล มีสุข', fromPos: 'ช่างเชื่อม', toBU: 'AAM', position: 'ช่างซ่อมบำรุง', date: '2026-08-25', result: 'รอสัมภาษณ์' },
+      { id: 2, applicant: 'ศรีสุดา ใจงาม', fromPos: 'เจ้าหน้าที่การเงิน', toBU: 'ส่วนกลาง', position: 'เจ้าหน้าที่บัญชี', date: '2026-08-29', result: 'รอสัมภาษณ์' }
+    ]
+  };
+}
+function loadDB() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) { const d = seedDB(); localStorage.setItem(LS_KEY, JSON.stringify(d)); return d; }
+    return JSON.parse(raw);
+  } catch (e) { return seedDB(); }
+}
+let db = loadDB();
+function saveDB() { localStorage.setItem(LS_KEY, JSON.stringify(db)); }
+
+// ============ HELPERS ============
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function $(id) { return document.getElementById(id); }
+function badge(status) {
+  const map = {
+    'รอคัดเลือก': '<span class="badge badge-amber">รอคัดเลือก</span>',
+    'ผ่านคัดเลือก': '<span class="badge badge-blue">ผ่านคัดเลือก</span>',
+    'ไม่คัดเลือก': '<span class="badge badge-red">ไม่คัดเลือก</span>',
+    'ส่งต่อ BU อื่น': '<span class="badge badge-purple">ส่งต่อ BU อื่น</span>',
+    'ผ่าน P2': '<span class="badge badge-green">ผ่าน P2</span>',
+    'รออนุมัติ': '<span class="badge badge-amber">รออนุมัติ</span>',
+    'อนุมัติแล้ว': '<span class="badge badge-green">อนุมัติแล้ว</span>',
+    'ยกเลิก': '<span class="badge badge-gray">ยกเลิก</span>',
+    'รอสัมภาษณ์': '<span class="badge badge-amber">รอสัมภาษณ์</span>',
+    'ผ่านสัมภาษณ์': '<span class="badge badge-green">ผ่านสัมภาษณ์</span>',
+    'ไม่ผ่าน': '<span class="badge badge-red">ไม่ผ่าน</span>'
+  };
+  return map[status] || `<span class="badge badge-gray">${esc(status)}</span>`;
+}
+
+// ============ TABS ============
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  const tab = $('tab-' + name);
+  if (tab) tab.classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => {
+    if (l.getAttribute('onclick') && l.getAttribute('onclick').includes("'"+name+"'")) l.classList.add('active');
+  });
+  renderAll();
+}
+
+// ============ MODALS ============
+function openModal(name) {
+  if (name === 'newForward') {
+    const opts = db.applicants.map(a => `<option value="${a.id}">${esc(a.name)} (${esc(a.position)})</option>`).join('');
+    $('fwApplicant').innerHTML = opts;
+    $('fwDate').value = todayISO();
+  }
+  if (name === 'newApplicant') $('apDate').value = todayISO();
+  if (name === 'newTransfer') $('trDate').value = todayISO();
+  $(`modal-${name}`).classList.add('open');
+}
+function closeModal(name) { $(`modal-${name}`).classList.remove('open'); }
+$('fwApplicant')?.addEventListener?.('change', () => {
+  const a = db.applicants.find(x => x.id === Number($('fwApplicant').value));
+  if (a) $('fwFromPos').value = a.position;
+});
+
+function saveApplicant() {
+  const d = { name: $('apName').value.trim(), position: $('apPosition').value.trim(), channel: $('apChannel').value, date: $('apDate').value, status: $('apStatus').value, note: $('apNote').value.trim() };
+  if (!d.name || !d.position) { alert('กรุณากรอกชื่อและตำแหน่ง'); return; }
+  d.id = Date.now(); db.applicants.push(d); saveDB(); closeModal('newApplicant'); renderAll();
+}
+function setAppStatus(i, status) {
+  db.applicants[i].status = status;
+  saveDB(); renderAll();
+}
+function deleteApplicant(i) { if (confirm('ลบใบสมัครนี้?')) { db.applicants.splice(i,1); saveDB(); renderAll(); } }
+
+function saveTransfer() {
+  const d = { id: 'TR-' + String(db.transfers.length + 1).padStart(3,'0'), memberId: $('trMemberId').value.trim(), name: $('trName').value.trim(), from: $('trFrom').value, to: $('trTo').value, position: $('trPosition').value.trim(), date: $('trDate').value, reason: $('trReason').value.trim(), status: $('trStatus').value };
+  if (!d.name || !d.memberId) { alert('กรุณากรอกรหัสและชื่อสมาชิก'); return; }
+  db.transfers.push(d); saveDB(); closeModal('newTransfer'); renderAll();
+}
+function setTransferStatus(i, s) { db.transfers[i].status = s; saveDB(); renderAll(); }
+function deleteTransfer(i) { if (confirm('ลบใบโอนย้ายนี้?')) { db.transfers.splice(i,1); saveDB(); renderAll(); } }
+
+function saveForward() {
+  const a = db.applicants.find(x => x.id === Number($('fwApplicant').value));
+  if (!a) { alert('เลือกผู้สมัครก่อน'); return; }
+  const d = { applicant: a.name, fromPos: a.position, toBU: $('fwToBU').value, position: $('fwPosition').value.trim(), date: $('fwDate').value, result: $('fwResult').value };
+  if (!d.position) { alert('กรุณากรอกตำแหน่งใหม่'); return; }
+  d.id = Date.now(); db.forwards.push(d);
+  a.status = 'ส่งต่อ BU อื่น'; a.note = `ส่งต่อ ${d.toBU} (${d.position})`;
+  saveDB(); closeModal('newForward'); renderAll();
+}
+function setForwardResult(i, r) { db.forwards[i].result = r; saveDB(); renderAll(); }
+function deleteForward(i) { if (confirm('ลบรายการส่งต่อ?')) { db.forwards.splice(i,1); saveDB(); renderAll(); } }
+
+// ============ RENDER ============
+function renderOverview() {
+  $('ovTotal').textContent = db.applicants.length;
+  $('ovChannels').textContent = new Set(db.applicants.map(a => a.channel)).size;
+  $('ovTransfers').textContent = db.transfers.length;
+  $('ovForwarded').textContent = db.forwards.length;
+}
+
+function renderChannels() {
+  const counts = {};
+  db.applicants.forEach(a => { counts[a.channel] = (counts[a.channel] || 0) + 1; });
+  const total = db.applicants.length || 1;
+  const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+  $('channelTable').innerHTML = sorted.map(([ch, cnt]) => {
+    const passed = db.applicants.filter(a => a.channel === ch && (a.status === 'ผ่านคัดเลือก' || a.status === 'ผ่าน P2')).length;
+    const pct = Math.round(passed / cnt * 100);
+    const share = Math.round(cnt / total * 100);
+    return `<tr>
+      <td class="font-medium">${esc(ch)}</td>
+      <td>${cnt}</td><td>${passed}</td>
+      <td><span class="badge ${pct >= 50 ? 'badge-green' : pct >= 20 ? 'badge-amber' : 'badge-red'}">${pct}%</span></td>
+      <td><div class="flex items-center gap-2"><div class="progress-bar flex-1"><div class="progress-fill" style="width:${share}%"></div></div><span class="text-xs text-slate-500">${share}%</span></div></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" class="text-center text-slate-400 py-4">ไม่มีข้อมูล</td></tr>';
+}
+
+function renderTransfers() {
+  $('transferTable').innerHTML = db.transfers.map((t, i) => `
+    <tr>
+      <td class="font-mono text-xs">${esc(t.id)}</td>
+      <td class="font-medium">${esc(t.name)} <span class="text-xs text-slate-400">(${esc(t.memberId)})</span></td>
+      <td><span class="badge badge-gray">${esc(t.from)}</span></td>
+      <td><span class="badge badge-blue">${esc(t.to)}</span></td>
+      <td>${esc(t.position || '-')}</td>
+      <td>${esc(t.date)}</td>
+      <td>${badge(t.status)}</td>
+      <td class="whitespace-nowrap">
+        ${t.status === 'รออนุมัติ' ? `<button class="text-green-600 hover:underline text-xs" onclick="setTransferStatus(${i},'อนุมัติแล้ว')">✓ อนุมัติ</button>` : ''}
+        <button class="text-red-600 hover:underline text-xs ml-2" onclick="deleteTransfer(${i})">ลบ</button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="8" class="text-center text-slate-400 py-4">ยังไม่มีใบโอนย้าย</td></tr>';
+}
+
+function renderApplicants() {
+  const chSel = $('filterChannel');
+  const channels = [...new Set(db.applicants.map(a => a.channel))].sort();
+  const cur = chSel.value || '';
+  if (!channels.includes(cur) && cur !== '') chSel.value = '';
+  chSel.innerHTML = '<option value="">ทุกช่องทาง</option>' + channels.map(c => `<option>${esc(c)}</option>`).join('');
+  const st = $('filterStatus').value;
+  let list = db.applicants;
+  if (chSel.value) list = list.filter(a => a.channel === chSel.value);
+  if (st) list = list.filter(a => a.status === st);
+  $('applicantTable').innerHTML = list.map((a, i) => {
+    const origIdx = db.applicants.indexOf(a);
+    return `<tr>
+      <td class="font-medium">${esc(a.name)}</td>
+      <td>${esc(a.position)}</td>
+      <td><span class="badge badge-pink">${esc(a.channel)}</span></td>
+      <td>${esc(a.date)}</td>
+      <td>${badge(a.status)} ${a.note ? `<div class="text-xs text-slate-400 mt-1">${esc(a.note)}</div>` : ''}</td>
+      <td class="whitespace-nowrap">
+        ${a.status === 'รอคัดเลือก' ? `<button class="text-green-600 hover:underline text-xs" onclick="setAppStatus(${origIdx},'ผ่านคัดเลือก')">✓ ผ่าน</button>
+        <button class="text-red-600 hover:underline text-xs ml-1" onclick="setAppStatus(${origIdx},'ไม่คัดเลือก')">✗ ไม่ผ่าน</button>` : ''}
+        <button class="text-purple-600 hover:underline text-xs ml-1" onclick="setAppStatus(${origIdx},'ส่งต่อ BU อื่น')">🔄 ส่งต่อ</button>
+        <button class="text-red-600 hover:underline text-xs ml-1" onclick="deleteApplicant(${origIdx})">ลบ</button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" class="text-center text-slate-400 py-4">ไม่พบข้อมูล</td></tr>';
+}
+
+function renderForwards() {
+  $('forwardTable').innerHTML = db.forwards.map((f, i) => `
+    <tr>
+      <td class="font-medium">${esc(f.applicant)}</td>
+      <td>${esc(f.fromPos)}</td>
+      <td><span class="badge badge-blue">${esc(f.toBU)}</span></td>
+      <td>${esc(f.position)}</td>
+      <td>${esc(f.date)}</td>
+      <td>${badge(f.result)}</td>
+      <td class="whitespace-nowrap">
+        ${f.result === 'รอสัมภาษณ์' ? `<button class="text-green-600 hover:underline text-xs" onclick="setForwardResult(${i},'ผ่านสัมภาษณ์')">✓ ผ่าน</button>
+        <button class="text-red-600 hover:underline text-xs ml-1" onclick="setForwardResult(${i},'ไม่ผ่าน')">✗ ไม่ผ่าน</button>` : ''}
+        <button class="text-red-600 hover:underline text-xs ml-2" onclick="deleteForward(${i})">ลบ</button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="8" class="text-center text-slate-400 py-4">ยังไม่มีการส่งต่อ</td></tr>';
+}
+
+// ============ CHARTS ============
+let chartChannel = null, chartFunnel = null;
+function renderCharts() {
+  const counts = {};
+  db.applicants.forEach(a => { counts[a.channel] = (counts[a.channel] || 0) + 1; });
+  const ctx1 = $('chartChannel');
+  if (chartChannel) chartChannel.destroy();
+  if (ctx1) chartChannel = new Chart(ctx1, {
+    type: 'doughnut',
+    data: { labels: Object.keys(counts), datasets: [{ data: Object.values(counts), backgroundColor: ['#ec4899','#8b5cf6','#3b82f6','#10b981','#f59e0b','#06b6d4','#f43f5e','#84cc16','#a855f7'] }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+  });
+  const statuses = ['รอคัดเลือก','ผ่านคัดเลือก','ส่งต่อ BU อื่น','ผ่าน P2','ไม่คัดเลือก'];
+  const ctx2 = $('chartFunnel');
+  if (chartFunnel) chartFunnel.destroy();
+  if (ctx2) chartFunnel = new Chart(ctx2, {
+    type: 'bar',
+    data: { labels: statuses, datasets: [{ label: 'จำนวน', data: statuses.map(s => db.applicants.filter(a => a.status === s).length), backgroundColor: ['#f59e0b','#3b82f6','#8b5cf6','#10b981','#ef4444'], borderRadius: 8 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+  });
+}
+
+// ============ EXPORT ============
+function exportCSV() {
+  const rows = [['ประเภท','ชื่อ','รายละเอียด','วันที่','สถานะ']];
+  db.applicants.forEach(a => rows.push(['ใบสมัคร', a.name, `${a.position} (${a.channel})`, a.date, a.status]));
+  db.transfers.forEach(t => rows.push(['โอนย้าย', t.name, `${t.from} → ${t.to} (${t.position})`, t.date, t.status]));
+  db.forwards.forEach(f => rows.push(['ส่งต่อ', f.applicant, `${f.fromPos} → ${f.toBU} (${f.position})`, f.date, f.result]));
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pp7-p1-sourcing.csv';
+  a.click();
+}
+
+// ============ RENDER ALL ============
+function renderAll() {
+  renderOverview(); renderChannels(); renderTransfers(); renderApplicants(); renderForwards(); renderCharts();
+}
+document.addEventListener('DOMContentLoaded', () => renderAll());
+</script>
+</body>
+</html>

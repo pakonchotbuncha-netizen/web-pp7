@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payroll Workflow | PP7 P6</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Prompt', sans-serif; }
+  body { background: #f1f5f9; color: #1e293b; margin: 0; }
+  .sidebar { width: 260px; background: #0f172a; color: #e2e8f0; min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 40; overflow-y: auto; }
+  .sidebar .brand { padding: 1.25rem 1.25rem 0.75rem; border-bottom: 1px solid #1e293b; }
+  .sidebar .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.25rem; color: #94a3b8; text-decoration: none; font-size: 0.875rem; border-radius: 0.5rem; margin: 0.15rem 0.75rem; transition: all 0.15s; cursor: pointer; }
+  .sidebar .nav-link:hover { background: #1e293b; color: #e2e8f0; }
+  .sidebar .nav-link.active { background: #8b5cf6; color: #fff; font-weight: 500; }
+  .sidebar .nav-section { padding: 0.5rem 1.25rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-top: 0.75rem; }
+  .main-content { margin-left: 260px; padding: 1.5rem; }
+  .card { background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(15,23,42,.07); padding: 1.5rem; margin-bottom: 1.5rem; }
+  .stat-card { position: relative; overflow: hidden; }
+  .stat-card::before { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; border-radius: 0 0 0 80px; opacity: 0.1; }
+  .stat-card.purple::before { background: #8b5cf6; }
+  .stat-card.blue::before { background: #3b82f6; }
+  .stat-card.green::before { background: #10b981; }
+  .stat-card.amber::before { background: #f59e0b; }
+  .stat-card.red::before { background: #ef4444; }
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 0.7rem 1rem; font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; background: #f8fafc; }
+  td { padding: 0.7rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.875rem; }
+  tr:hover td { background: #f8fafc; }
+  .badge { display: inline-flex; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-amber { background: #fef3c7; color: #92400e; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-purple { background: #f3e8ff; color: #7c3aed; }
+  .badge-gray { background: #e2e8f0; color: #475569; }
+  .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn-primary { background: #8b5cf6; color: #fff; }
+  .btn-primary:hover { background: #7c3aed; }
+  .btn-outline { background: #fff; border: 1px solid #e2e8f0; color: #64748b; }
+  .btn-outline:hover { background: #f8fafc; }
+  .btn-danger { background: #ef4444; color: #fff; }
+  .btn-success { background: #10b981; color: #fff; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.4); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #fff; border-radius: 1rem; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; }
+  .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: #fff; border-radius: 1rem 1rem 0 0; }
+  .modal-body { padding: 1.5rem; }
+  .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.5rem; }
+  .form-label { display: block; font-size: 0.8rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem; }
+  .form-input, .form-select, .form-textarea { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; background: #fff; }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,.12); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .fade-in { animation: fadeIn .3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .step-badge { width: 34px; height: 34px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; flex-shrink: 0; }
+  .flow-row { display: flex; gap: 1rem; align-items: flex-start; padding: 0.85rem 0; border-bottom: 1px dashed #e2e8f0; }
+  .flow-row:last-child { border-bottom: none; }
+  .progress-bar { height: 8px; background: #e2e8f0; border-radius: 9999px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #8b5cf6, #3b82f6); border-radius: 9999px; transition: width .4s; }
+  .progress-fill.green { background: linear-gradient(90deg, #10b981, #22d3ee); }
+  .progress-fill.amber { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+  .num-input { text-align: right; }
+  .currency { text-align: right; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="text-white font-bold text-lg">💰 Payroll Workflow</div>
+    <div class="text-xs text-slate-500 mt-1">PP7 · P6 ค่าตอบแทน · ตาม SMC_HOCC_PM_002</div>
+  </div>
+  <nav>
+    <div class="nav-section">ภาพรวม</div>
+    <a class="nav-link active" onclick="showTab('overview')">📊 Dashboard</a>
+    <div class="nav-section">รอบเดือนปัจจุบัน</div>
+    <a class="nav-link" onclick="showTab('cycle')">🗓️ วงรอบ Payroll</a>
+    <a class="nav-link" onclick="showTab('members')">👥 เพิ่มสมาชิก (step 30)</a>
+    <a class="nav-link" onclick="showTab('prepare')">📋 เตรียมข้อมูล (step 31)</a>
+    <a class="nav-link" onclick="showTab('tax')">🧮 คำนวณภาษี (step 32)</a>
+    <a class="nav-link" onclick="showTab('verify')">🔍 ตรวจสอบเงินเดือน (step 33)</a>
+    <a class="nav-link" onclick="showTab('eslip')">📱 e-Slip + Line (step 34)</a>
+    <a class="nav-link" onclick="showTab('vc')">🧾 ใบ VC & กระทบยอด (step 35)</a>
+    <div class="nav-section">การเงิน</div>
+    <a class="nav-link" onclick="showTab('finance')">🏦 การเงินตรวจสอบ (step 36)</a>
+    <a class="nav-link" onclick="showTab('transfer')">💸 โอนเงิน (step 37)</a>
+    <div class="nav-section">อื่น ๆ</div>
+    <a class="nav-link" onclick="location.href='index.html'">🏠 กลับหน้าแรก</a>
+  </nav>
+</aside>
+
+<!-- Main -->
+<main class="main-content">
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800">💰 Payroll Workflow (P6)</h1>
+      <p class="text-sm text-slate-500 mt-1">สอดคล้อง SMC_HOCC_PM_002 ขั้นตอน 30–37 — วงรอบเงินเดือนครบวงจร</p>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <select id="cycleSelect" class="form-select w-52" onchange="switchCycle(this.value)"></select>
+      <button class="btn btn-outline" onclick="exportCSV()">📥 ส่งออก CSV</button>
+      <button class="btn btn-primary" onclick="runAllSteps()">⚡ จำลองรันทั้งวงรอบ</button>
+    </div>
+  </div>
+
+  <!-- ===== TAB: OVERVIEW ===== -->
+  <div id="tab-overview" class="tab-content active fade-in">
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+      <div class="card stat-card purple"><div class="text-sm text-slate-500">สมาชิกในวงรอบ</div><div class="text-3xl font-bold text-purple-600 mt-2" id="ovMembers">0</div><div class="text-xs text-slate-400 mt-1">คน</div></div>
+      <div class="card stat-card blue"><div class="text-sm text-slate-500">ยอดจ่ายรวม</div><div class="text-3xl font-bold text-blue-600 mt-2" id="ovTotal">฿0</div><div class="text-xs text-slate-400 mt-1">ก่อนหัก</div></div>
+      <div class="card stat-card amber"><div class="text-sm text-slate-500">ภาษีรวม</div><div class="text-3xl font-bold text-amber-600 mt-2" id="ovTax">฿0</div><div class="text-xs text-slate-400 mt-1">หัก ณ ที่จ่าย</div></div>
+      <div class="card stat-card green"><div class="text-sm text-slate-500">โอนสุทธิ</div><div class="text-3xl font-bold text-green-600 mt-2" id="ovNet">฿0</div><div class="text-xs text-slate-400 mt-1">ยอดโอนจริง</div></div>
+      <div class="card stat-card red"><div class="text-sm text-slate-500">สถานะวงรอบ</div><div class="text-3xl font-bold text-red-600 mt-2" id="ovStatus">—</div><div class="text-xs text-slate-400 mt-1">ขั้นตอนล่าสุด</div></div>
+    </div>
+
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-4">🔄 ขั้นตอน Payroll (30–37) & สถานะ</h3>
+      <div id="flowSteps"></div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+      <div class="card">
+        <h3 class="font-semibold text-slate-800 mb-4">📊 สรุปเงินเดือนราย BU</h3>
+        <div style="height: 280px;"><canvas id="chartByBU"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="font-semibold text-slate-800 mb-4">⚠️ รายการที่ต้องตรวจสอบ</h3>
+        <div id="issueList" class="space-y-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: CYCLE ===== -->
+  <div id="tab-cycle" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">🗓️ วงรอบ Payroll ประจำเดือน</h3>
+      <p class="text-sm text-slate-500 mb-4">ตาม BCT Payroll: เพิ่มสมาชิกใหม่ในระบบภายในวันที่ 1–10 ของเดือนที่จะจ่าย → เตรียมข้อมูล → คำนวณภาษี → ตรวจสอบ → e-slip → VC → การเงิน → โอน</p>
+      <div class="grid lg:grid-cols-4 gap-3 mb-4 text-sm">
+        <div class="border rounded-xl p-3 bg-purple-50"><div class="font-semibold text-purple-800">วันที่ 1–10</div><div class="text-xs text-purple-600">step 30: เพิ่มสมาชิกเข้าใหม่/ลาออก/ปรับเงินเดือน/บรรจุ ในบอร์ด Payroll</div></div>
+        <div class="border rounded-xl p-3 bg-purple-50"><div class="font-semibold text-purple-800">วันที่ 11–15</div><div class="text-xs text-purple-600">step 31–32: เตรียมข้อมูลทำเงินเดือน + คำนวณภาษี (C1, B1, B6)</div></div>
+        <div class="border rounded-xl p-3 bg-purple-50"><div class="font-semibold text-purple-800">วันที่ 16–20</div><div class="text-xs text-purple-600">step 33–35: ตรวจสอบเงินเดือน, e-slip + ส่ง Line, ปริ้นใบ VC</div></div>
+        <div class="border rounded-xl p-3 bg-purple-50"><div class="font-semibold text-purple-800">วันที่ 21–25</div><div class="text-xs text-purple-600">step 36–37: การเงินตรวจสอบ VC, กระทบยอด, โอนเงิน</div></div>
+      </div>
+      <div class="text-xs text-slate-500 mb-4">📎 อ้างอิง: <a class="text-blue-600 underline" href="https://docs.google.com/spreadsheets/d/15PfJD9288xIV6TKCxxL5sDH0AWY8-6BoT6fxGb-Nb9Q/edit#gid=441980863" target="_blank">BCT Payroll :: [step_2] เพิ่มสมาชิกใหม่</a> · <a class="text-blue-600 underline" href="https://docs.google.com/spreadsheets/d/114VEqcHoYNHqUYy_lAo6fOYfY89d2H90n5dc_HyWG5c/edit#gid=1378494768" target="_blank">[step_3.2] เตรียมข้อมูล</a> · <a class="text-blue-600 underline" href="https://docs.google.com/spreadsheets/d/1m2l--P7Xaii31BGId3lziLIOSHkKZyDic8Co2zzciK4/edit#gid=1170447717" target="_blank">[step_3.3] คำนวณภาษี</a> · <a class="text-blue-600 underline" href="https://docs.google.com/spreadsheets/d/1QZPijvAX-7OxFHttLRMif6JtcmiMDPy_pYOBujwJsNI/edit#gid=272710145" target="_blank">[step_4] ตรวจสอบเงินเดือน</a></div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: MEMBERS (step 30) ===== -->
+  <div id="tab-members" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">👥 step 30 — เพิ่มสมาชิกในระบบ Payroll</h3>
+      <p class="text-sm text-slate-500 mb-4">บันทึกข้อมูลสมาชิกเข้าใหม่ / จับคู่คนกับงานใหม่ / สมาชิกลาออก / ปรับเงินเดือน / บรรจุ ภายในวันที่ 1–10 ของเดือนที่จะจ่าย</p>
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <button class="btn btn-primary" onclick="openModal('newMember')">+ เพิ่ม/แก้ไขสมาชิก</button>
+      </div>
+      <table>
+        <thead><tr><th>รหัส</th><th>ชื่อ-นามสกุล</th><th>BU</th><th>เงินเดือน</th><th>เหตุการณ์</th><th>สถานะ</th><th>การจัดการ</th></tr></thead>
+        <tbody id="memberTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== TAB: PREPARE (step 31) ===== -->
+  <div id="tab-prepare" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">📋 step 31 — เตรียมข้อมูลทำเงินเดือน</h3>
+      <p class="text-sm text-slate-500 mb-4">ดึงข้อมูลรายได้/หัก (ค่าโอที, ค่าเบี้ยเลี้ยง, ค่าล่วงเวลา, ประกันสังคม, กองทุนฯ) ตาม BCT Payroll step_3.2</p>
+      <table>
+        <thead><tr><th>รหัส</th><th>ชื่อ</th><th>เงินเดือน</th><th>โอที</th><th>เบี้ยเลี้ยง</th><th>โบนัส/อื่น ๆ</th><th>หัก (สปส./กยผ.)</th><th>รวมรายได้</th></tr></thead>
+        <tbody id="prepareTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== TAB: TAX (step 32) ===== -->
+  <div id="tab-tax" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">🧮 step 32 — คำนวณภาษีเงินได้</h3>
+      <p class="text-sm text-slate-500 mb-4">ดึงข้อมูล C1_ข้อมูลเงินได้สะสม → คำนวณภาษี (B1) → สรุปจ่ายเงินเดือน (B6) ตาม BCT Payroll step_3.3</p>
+      <div class="grid lg:grid-cols-2 gap-4 mb-4">
+        <div class="border rounded-xl p-4 bg-slate-50 text-sm">
+          <div class="font-semibold text-slate-700 mb-2">📐 เกณฑ์ภาษีเงินได้บุคคลธรรมดา (ใช้ประมาณการ)</div>
+          <div class="text-xs text-slate-500">0–150k: 0% · 150k–300k: 5% · 300k–500k: 10% · 500k–750k: 15% · 750k–1M: 20% · 1M–2M: 25% · 2M–5M: 30% · >5M: 35%<br>หักค่าใช้จ่าย 50% (ไม่เกิน 100k) + ค่าลดหย่อนส่วนตัว 60k</div>
+        </div>
+        <div class="border rounded-xl p-4 bg-slate-50 text-sm">
+          <div class="font-semibold text-slate-700 mb-2">📐 ประกันสังคม</div>
+          <div class="text-xs text-slate-500">ลูกจ้างจ่าย 5% ของค่าจ้าง (สูงสุด 750 บาท/เดือน) — นายจ้าง 5% (สูงสุด 750 บาท)</div>
+        </div>
+      </div>
+      <table>
+        <thead><tr><th>รหัส</th><th>ชื่อ</th><th>รายได้รวม/เดือน</th><th>รายได้สุทธิต่อปี (โดยประมาณ)</th><th>ภาษีทั้งปี</th><th>หัก ณ ที่จ่าย/เดือน</th></tr></thead>
+        <tbody id="taxTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== TAB: VERIFY (step 33) ===== -->
+  <div id="tab-verify" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">🔍 step 33 — ตรวจสอบเงินเดือน</h3>
+      <p class="text-sm text-slate-500 mb-4">กดดึงข้อมูล C1_ย้อนหลัง 2 → C2_ย้อนหลัง 1 → C3_เงินค้ำประกัน → C5_ตรวจเงินเดือน (เลือกทีละ BU หรือทั้งหมด) → ตรวจ E1_เงินเดือน emp (แก้ไขให้ถูกต้องก่อนจ่ายเดือนถัดไป)</p>
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <select id="verifyBU" class="form-select w-56" onchange="renderVerify()"></select>
+        <button class="btn btn-outline" onclick="runVerify()">🔍 รันตรวจสอบ</button>
+      </div>
+      <table>
+        <thead><tr><th>รหัส</th><th>ชื่อ</th><th>BU</th><th>เงินเดือน</th><th>รวมรายได้</th><th>ภาษี</th><th>สปส.</th><th>หักอื่น</th><th>สุทธิ</th><th>ผลตรวจ</th></tr></thead>
+        <tbody id="verifyTable"></tbody>
+      </table>
+      <div id="verifySummary" class="mt-3 text-sm"></div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: E-SLIP (step 34) ===== -->
+  <div id="tab-eslip" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">📱 step 34 — บันทึกข้อมูลเข้า e-slip และส่ง Line</h3>
+      <p class="text-sm text-slate-500 mb-4">บันทึกข้อมูล e-slip (eslipdata #ST) → ส่งไลน์ให้สมาชิกตรวจสอบข้อมูลเงินเดือน → ถ้ามีการแจ้งข้อมูลผิด ให้กลับไปแก้ไขที่ชีท E2_ข้อมูลการจ่ายเงินเดือนปัจจุบัน</p>
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <button class="btn btn-primary" onclick="generateSlips()">📱 สร้าง e-Slip ทั้งหมด</button>
+        <button class="btn btn-outline" onclick="sendLineAll()">💬 ส่ง Line แจ้งสมาชิก</button>
+      </div>
+      <div id="lineResult" class="text-xs mb-3 text-green-600"></div>
+      <table>
+        <thead><tr><th>รหัส</th><th>ชื่อ</th><th>เดือน</th><th>รายได้</th><th>หัก</th><th>สุทธิ</th><th>e-Slip</th><th>ส่ง Line</th><th>การจัดการ</th></tr></thead>
+        <tbody id="eslipTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== TAB: VC (step 35) ===== -->
+  <div id="tab-vc" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">🧾 step 35 — ปริ้นใบ VC และรายงานกระทบยอด</h3>
+      <p class="text-sm text-slate-500 mb-4">ปริ้นใบ VC แต่ละ BU/BV, ใบ VC จ่ายเงินเดือนนอกระบบ, รายงานกระทบยอดภาษีและประกันสังคม, รายงานกระทบยอดเงินเดือน + ทำ VC ค่าบ้านพักสมาชิก ค่าผ่อนบ้าน ธอส. เพื่อส่งให้ทางการเงิน</p>
+      <div class="grid lg:grid-cols-3 gap-4 mb-4">
+        <div class="border rounded-xl p-4 bg-slate-50 text-center">
+          <div class="text-3xl mb-1">🧾</div><div class="font-semibold text-sm">ใบ VC ราย BU/BV</div>
+          <button class="btn btn-outline mt-2 w-full" onclick="printVC('bu')">🖨️ ปริ้นใบ VC</button>
+        </div>
+        <div class="border rounded-xl p-4 bg-slate-50 text-center">
+          <div class="text-3xl mb-1">💵</div><div class="font-semibold text-sm">VC จ่ายนอกระบบ</div>
+          <button class="btn btn-outline mt-2 w-full" onclick="printVC('outside')">🖨️ ปริ้นใบ VC นอกระบบ</button>
+        </div>
+        <div class="border rounded-xl p-4 bg-slate-50 text-center">
+          <div class="text-3xl mb-1">🏦</div><div class="font-semibold text-sm">กระทบยอดภาษี/สปส./เงินเดือน</div>
+          <button class="btn btn-outline mt-2 w-full" onclick="printVC('reconcile')">🖨️ ปริ้นรายงานกระทบยอด</button>
+        </div>
+      </div>
+      <div id="vcPreview" class="border rounded-xl p-4 bg-white hidden"></div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: FINANCE (step 36) ===== -->
+  <div id="tab-finance" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">🏦 step 36 — การเงินตรวจสอบ VC และกระทบยอด</h3>
+      <p class="text-sm text-slate-500 mb-4">ทางการเงินตรวจสอบ VC, กระทบยอดเงินเดือน, รายงานกระทบยอดภาษีและประกันสังคม, ตรวจสอบ VC ค่าบ้านพักสมาชิก ค่าผ่อนบ้าน ธอส. — หากพบข้อผิดพลาดให้ส่งกลับแก้ไขที่ step 33–35</p>
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <button class="btn btn-primary" onclick="runFinanceCheck()">🏦 รันตรวจสอบโดยการเงิน</button>
+      </div>
+      <table>
+        <thead><tr><th>รายการตรวจ</th><th>ยอดระบบ</th><th>ยอด VC/เอกสาร</th><th>ผลต่าง</th><th>สถานะ</th></tr></thead>
+        <tbody id="financeTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== TAB: TRANSFER (step 37) ===== -->
+  <div id="tab-transfer" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">💸 step 37 — โอนเงินให้สมาชิก</h3>
+      <p class="text-sm text-slate-500 mb-4">ถ้าข้อมูลถูกต้อง ทีม PAO ดำเนินการดึงข้อมูลมาตั้งโอนเงินให้กับทีมการเงิน ทำการโอนเงินให้กับสมาชิก</p>
+      <div class="grid lg:grid-cols-3 gap-4 mb-4">
+        <div class="card stat-card green !mb-0"><div class="text-sm text-slate-500">ยอดโอนรวม</div><div class="text-3xl font-bold text-green-600 mt-2" id="trTotal">฿0</div></div>
+        <div class="card stat-card blue !mb-0"><div class="text-sm text-slate-500">จำนวนสมาชิก</div><div class="text-3xl font-bold text-blue-600 mt-2" id="trCount">0</div></div>
+        <div class="card stat-card purple !mb-0"><div class="text-sm text-slate-500">สถานะ</div><div class="text-3xl font-bold text-purple-600 mt-2" id="trStatus">—</div></div>
+      </div>
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <button class="btn btn-primary" onclick="prepareTransfer()">💸 เตรียมข้อมูลโอนเงิน</button>
+        <button class="btn btn-success" onclick="confirmTransfer()">✅ ยืนยันโอนเงิน (เสร็จสิ้น)</button>
+      </div>
+      <div id="transferPreview" class="border rounded-xl p-4 bg-slate-50 text-sm mb-4"></div>
+      <table>
+        <thead><tr><th>รหัส</th><th>ชื่อ</th><th>ธนาคาร</th><th>เลขบัญชี</th><th>ยอดโอน</th><th>สถานะ</th></tr></thead>
+        <tbody id="transferTable"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- ===== MODAL: NEW MEMBER ===== -->
+<div id="modal-newMember" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><h3 class="font-bold text-lg">👥 เพิ่ม/แก้ไขสมาชิก Payroll</h3><button onclick="closeModal('newMember')" class="text-slate-400 hover:text-slate-600">✕</button></div>
+    <div class="modal-body">
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="form-label">รหัสสมาชิก *</label><input id="mbId" class="form-input" placeholder="EMP-0001"></div>
+        <div><label class="form-label">ชื่อ-นามสกุล *</label><input id="mbName" class="form-input" placeholder="ชื่อ นามสกุล"></div>
+        <div><label class="form-label">BU *</label><select id="mbBU" class="form-select"><option>PGH</option><option>PMS</option><option>AAM</option><option>ส่วนกลาง</option></select></div>
+        <div><label class="form-label">เงินเดือน (บาท) *</label><input id="mbSalary" type="number" class="form-input num-input" value="15000"></div>
+        <div><label class="form-label">เหตุการณ์ *</label><select id="mbEvent" class="form-select"><option>สมาชิกเข้าใหม่</option><option>จับคู่คนกับงานใหม่</option><option>สมาชิกลาออก</option><option>ปรับเงินเดือน</option><option>บรรจุ</option></select></div>
+        <div><label class="form-label">ธนาคาร</label><select id="mbBank" class="form-select"><option>ธ.กสิกรไทย</option><option>ธ.กรุงไทย</option><option>ธ.ไทยพาณิชย์</option><option>ธ.กรุงเทพ</option></select></div>
+        <div><label class="form-label">เลขบัญชี</label><input id="mbAccount" class="form-input" placeholder="XXX-X-XXXXX-X"></div>
+        <div><label class="form-label">สถานะ</label><select id="mbStatus" class="form-select"><option value="active">ทำงานอยู่</option><option value="resigned">ลาออก</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('newMember')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveMember()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ DATA LAYER ============
+const LS_KEY = 'pp7_payroll_v1';
+const currentMonth = () => new Date().toISOString().slice(0,7);
+
+function seedDB() {
+  const m = currentMonth();
+  const members = [
+    { id: 'EMP-0001', name: 'สมชาย ใจดี', bu: 'PGH', salary: 45000, event: '', bank: 'ธ.กสิกรไทย', account: '001-2-34567-8', status: 'active' },
+    { id: 'EMP-0002', name: 'สมหญิง รักงาน', bu: 'PMS', salary: 32000, event: '', bank: 'ธ.กรุงไทย', account: '123-4-56789-0', status: 'active' },
+    { id: 'EMP-0003', name: 'วิชัย ทองดี', bu: 'PMS', salary: 38000, event: '', bank: 'ธ.ไทยพาณิชย์', account: '234-5-67890-1', status: 'active' },
+    { id: 'EMP-0004', name: 'นภัสสร แก้วใส', bu: 'AAM', salary: 25000, event: 'สมาชิกเข้าใหม่', bank: 'ธ.กสิกรไทย', account: '345-6-78901-2', status: 'active' },
+    { id: 'EMP-0005', name: 'ธนพล มีสุข', bu: 'ส่วนกลาง', salary: 28000, event: 'ปรับเงินเดือน', bank: 'ธ.กรุงเทพ', account: '456-7-89012-3', status: 'active' },
+    { id: 'EMP-0006', name: 'กิตติชัย ศรีจันทร์', bu: 'PGH', salary: 22000, event: 'บรรจุ', bank: 'ธ.กสิกรไทย', account: '567-8-90123-4', status: 'active' },
+    { id: 'EMP-0007', name: 'นภา ลาออก', bu: 'PMS', salary: 18000, event: 'สมาชิกลาออก', bank: 'ธ.กรุงไทย', account: '678-9-01234-5', status: 'resigned' },
+    { id: 'EMP-0008', name: 'พิชัย ใจดี', bu: 'AAM', salary: 30000, event: '', bank: 'ธ.ไทยพาณิชย์', account: '789-0-12345-6', status: 'active' }
+  ];
+  return {
+    config: { currentCycle: m, announcedSlips: false },
+    members,
+    payslips: members.filter(x => x.status === 'active').map((x, i) => ({
+      id: x.id, name: x.name, bu: x.bu, salary: x.salary, cycle: m,
+      ot: [800, 0, 1200, 500, 0, 300, 0, 200][i] || 0,
+      allowance: [0, 1000, 500, 800, 1200, 0, 0, 600][i] || 0,
+      bonus: 0, ssf: Math.min(750, Math.round(x.salary * 0.05)), provident: 0, otherDeduction: 0,
+      slipSent: false, lineSent: false, vcPrinted: false, financeChecked: false, transferred: false,
+      issues: []
+    })),
+    financeChecks: [
+      { item: 'VC รวมราย BU', system: 0, doc: 0, status: 'pending' },
+      { item: 'รายงานกระทบยอดภาษี', system: 0, doc: 0, status: 'pending' },
+      { item: 'รายงานกระทบยอดประกันสังคม', system: 0, doc: 0, status: 'pending' },
+      { item: 'รายงานกระทบยอดเงินเดือน', system: 0, doc: 0, status: 'pending' },
+      { item: 'VC ค่าบ้านพักสมาชิก / ค่าผ่อนบ้าน ธอส.', system: 0, doc: 0, status: 'pending' }
+    ],
+    transferPrepared: false
+  };
+}
+
+function loadDB() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) { const d = seedDB(); localStorage.setItem(LS_KEY, JSON.stringify(d)); return d; }
+    return JSON.parse(raw);
+  } catch (e) { return seedDB(); }
+}
+let db = loadDB();
+function saveDB() { localStorage.setItem(LS_KEY, JSON.stringify(db)); }
+
+// ============ HELPERS ============
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function $(id) { return document.getElementById(id); }
+function fmtMoney(n) { return '฿' + Number(n || 0).toLocaleString('th-TH'); }
+function badge(status) {
+  const map = {
+    'active': '<span class="badge badge-green">ทำงานอยู่</span>',
+    'resigned': '<span class="badge badge-gray">ลาออก</span>',
+    'done': '<span class="badge badge-green">✓ เสร็จ</span>',
+    'pending': '<span class="badge badge-amber">รอดำเนินการ</span>',
+    'waiting': '<span class="badge badge-amber">รอตรวจ</span>',
+    'error': '<span class="badge badge-red">พบข้อผิดพลาด</span>',
+    'ok': '<span class="badge badge-green">ถูกต้อง</span>'
+  };
+  return map[status] || `<span class="badge badge-gray">${esc(status)}</span>`;
+}
+
+// ============ TABS ============
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  const tab = $('tab-' + name);
+  if (tab) tab.classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => {
+    if (l.getAttribute('onclick') && l.getAttribute('onclick').includes("'"+name+"'")) l.classList.add('active');
+  });
+  renderAll();
+}
+
+// ============ MODALS ============
+function openModal(name) { $(`modal-${name}`).classList.add('open'); }
+function closeModal(name) { $(`modal-${name}`).classList.remove('open'); }
+let editingMember = null;
+function saveMember() {
+  const d = { id: $('mbId').value.trim(), name: $('mbName').value.trim(), bu: $('mbBU').value, salary: Number($('mbSalary').value), event: $('mbEvent').value, bank: $('mbBank').value, account: $('mbAccount').value.trim(), status: $('mbStatus').value };
+  if (!d.id || !d.name || !d.salary) { alert('กรุณากรอก รหัส ชื่อ เงินเดือน'); return; }
+  if (editingMember != null) {
+    db.members[editingMember] = { ...db.members[editingMember], ...d };
+    const ps = db.payslips.find(p => p.id === d.id);
+    if (ps) { ps.salary = d.salary; ps.name = d.name; ps.bu = d.bu; }
+  } else {
+    db.members.push(d);
+    db.payslips.push({ id: d.id, name: d.name, bu: d.bu, salary: d.salary, cycle: currentMonth(), ot: 0, allowance: 0, bonus: 0, ssf: Math.min(750, Math.round(d.salary*0.05)), provident: 0, otherDeduction: 0, slipSent: false, lineSent: false, vcPrinted: false, financeChecked: false, transferred: false, issues: [] });
+  }
+  saveDB(); closeModal('newMember'); renderAll();
+}
+function editMember(i) {
+  editingMember = i; const m = db.members[i];
+  $('mbId').value = m.id; $('mbName').value = m.name; $('mbBU').value = m.bu; $('mbSalary').value = m.salary;
+  $('mbEvent').value = m.event || 'สมาชิกเข้าใหม่'; $('mbBank').value = m.bank; $('mbAccount').value = m.account; $('mbStatus').value = m.status;
+  openModal('newMember');
+}
+function deleteMember(i) { if (confirm('ลบสมาชิกนี้?')) { db.members.splice(i,1); saveDB(); renderAll(); } }
+
+// ============ CALC ============
+function calcSlip(p) {
+  const gross = p.salary + p.ot + p.allowance + p.bonus;
+  const ssf = p.ssf;
+  // ภาษีโดยประมาณ: รายได้สุทธิต่อปี = (gross - ssf)*12 - ค่าใช้จ่าย50%(max100k) - ลดหย่อน60k
+  const annualGross = (gross - ssf) * 12;
+  const expense = Math.min(100000, annualGross * 0.5);
+  const taxable = Math.max(0, annualGross - expense - 60000);
+  const brackets = [[150000,0],[150000,0.05],[200000,0.10],[250000,0.15],[250000,0.20],[1000000,0.25],[3000000,0.30],[Infinity,0.35]];
+  let tax = 0, remain = taxable;
+  for (const [lim, rate] of brackets) {
+    const slice = Math.min(remain, lim);
+    if (slice <= 0) break;
+    tax += slice * rate;
+    remain -= slice;
+  }
+  const monthlyTax = Math.round(tax / 12);
+  const net = gross - ssf - monthlyTax - p.otherDeduction;
+  return { gross, ssf, tax: monthlyTax, net };
+}
+
+// ============ RENDER ============
+function renderCycleSelect() {
+  const sel = $('cycleSelect');
+  const cycles = [...new Set(db.payslips.map(p => p.cycle))].sort().reverse();
+  const cur = db.config.currentCycle;
+  if (!cycles.includes(cur)) cycles.unshift(cur);
+  sel.innerHTML = cycles.map(c => `<option value="${c}">รอบ ${c}</option>`).join('');
+  sel.value = cur;
+}
+function switchCycle(v) { db.config.currentCycle = v; saveDB(); renderAll(); }
+function getCycleSlips() { return db.payslips.filter(p => p.cycle === db.config.currentCycle); }
+
+function renderOverview() {
+  const slips = getCycleSlips();
+  $('ovMembers').textContent = slips.length;
+  const grossSum = slips.reduce((s,p) => s + calcSlip(p).gross, 0);
+  const taxSum = slips.reduce((s,p) => s + calcSlip(p).tax, 0);
+  const netSum = slips.reduce((s,p) => s + calcSlip(p).net, 0);
+  $('ovTotal').textContent = fmtMoney(grossSum);
+  $('ovTax').textContent = fmtMoney(taxSum);
+  $('ovNet').textContent = fmtMoney(netSum);
+  const done = slips.filter(p => p.transferred).length;
+  $('ovStatus').textContent = done === slips.length ? 'โอนเงินแล้ว ✓' : (done > 0 ? `โอน ${done}/${slips.length}` : 'รอดำเนินการ');
+
+  const steps = [
+    { n: 30, t: 'เพิ่มสมาชิกในระบบ Payroll (วันที่ 1–10)', ok: true, d: `${db.members.filter(m => m.event).length} รายการเปลี่ยนแปลงเดือนนี้` },
+    { n: 31, t: 'เตรียมข้อมูลทำเงินเดือน (step_3.2)', ok: true, d: `ดึงข้อมูล ${slips.length} คน` },
+    { n: 32, t: 'คำนวณภาษี (step_3.3)', ok: true, d: `ภาษีรวม ${fmtMoney(taxSum)}/เดือน` },
+    { n: 33, t: 'ตรวจสอบเงินเดือน (step_4)', ok: slips.every(p => p.issues.length === 0), d: slips.some(p => p.issues.length) ? '⚠️ พบรายการต้องแก้ไข' : '✓ ผ่านการตรวจ' },
+    { n: 34, t: 'บันทึก e-slip + ส่ง Line ให้สมาชิก', ok: slips.every(p => p.slipSent && p.lineSent), d: `${slips.filter(p => p.lineSent).length}/${slips.length} ส่งแล้ว` },
+    { n: 35, t: 'ปริ้นใบ VC + รายงานกระทบยอด', ok: slips.every(p => p.vcPrinted), d: slips.every(p => p.vcPrinted) ? '✓ ปริ้นครบ' : 'รอปริ้น' },
+    { n: 36, t: 'การเงินตรวจสอบ VC และกระทบยอด', ok: db.financeChecks.every(c => c.status === 'ok'), d: db.financeChecks.filter(c => c.status === 'ok').length + '/' + db.financeChecks.length + ' รายการผ่าน' },
+    { n: 37, t: 'ทีม PAO โอนเงินให้สมาชิก', ok: slips.every(p => p.transferred), d: `${slips.filter(p => p.transferred).length}/${slips.length} โอนแล้ว` }
+  ];
+  $('flowSteps').innerHTML = steps.map(s => `
+    <div class="flow-row">
+      <div class="step-badge ${s.ok ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">${s.n}</div>
+      <div class="flex-1">
+        <div class="font-medium text-slate-800 text-sm">${s.t}</div>
+        <div class="text-xs text-slate-500">${s.d}</div>
+      </div>
+      <div>${s.ok ? '<span class="badge badge-green">เสร็จ</span>' : '<span class="badge badge-amber">รอ</span>'}</div>
+    </div>`).join('');
+
+  // Issues
+  const issues = [];
+  slips.forEach(p => p.issues.forEach(iss => issues.push({ lv: 'red', t: `🔴 ${esc(p.name)} (${esc(p.id)}): ${esc(iss)}` })));
+  const resigned = db.members.filter(m => m.status === 'resigned');
+  if (resigned.length) issues.push({ lv: 'amber', t: `⚠️ สมาชิกลาออก ${resigned.length} คน — ตรวจสอบการจ่ายรอบสุดท้าย` });
+  if (!db.transferPrepared && !slips.every(p => p.transferred)) issues.push({ lv: 'amber', t: '⚠️ ยังไม่ได้เตรียมข้อมูลโอนเงิน (step 37)' });
+  if (!issues.length) issues.push({ lv: 'green', t: '✅ ไม่พบรายการที่ต้องตรวจสอบ' });
+  const lvClass = { amber: 'border-amber-200 bg-amber-50 text-amber-800', red: 'border-red-200 bg-red-50 text-red-800', green: 'border-green-200 bg-green-50 text-green-700' };
+  $('issueList').innerHTML = issues.map(i => `<div class="border rounded-lg p-3 text-sm ${lvClass[i.lv]}">${i.t}</div>`).join('');
+}
+
+function renderMembers() {
+  $('memberTable').innerHTML = db.members.map((m, i) => `
+    <tr>
+      <td class="font-mono text-xs">${esc(m.id)}</td>
+      <td class="font-medium">${esc(m.name)}</td>
+      <td><span class="badge badge-blue">${esc(m.bu)}</span></td>
+      <td class="currency">${fmtMoney(m.salary)}</td>
+      <td>${m.event ? `<span class="badge badge-amber">${esc(m.event)}</span>` : '<span class="badge badge-gray">—</span>'}</td>
+      <td>${badge(m.status)}</td>
+      <td class="whitespace-nowrap"><button class="text-blue-600 hover:underline text-xs" onclick="editMember(${i})">แก้ไข</button><button class="text-red-600 hover:underline text-xs ml-2" onclick="deleteMember(${i})">ลบ</button></td>
+    </tr>`).join('');
+}
+
+function renderPrepare() {
+  const slips = getCycleSlips();
+  $('prepareTable').innerHTML = slips.map(p => {
+    const c = calcSlip(p);
+    return `<tr>
+      <td class="font-mono text-xs">${esc(p.id)}</td><td class="font-medium">${esc(p.name)}</td>
+      <td class="currency">${fmtMoney(p.salary)}</td><td class="currency">${fmtMoney(p.ot)}</td>
+      <td class="currency">${fmtMoney(p.allowance)}</td><td class="currency">${fmtMoney(p.bonus)}</td>
+      <td class="currency text-red-600">-${fmtMoney(p.ssf + p.otherDeduction)}</td>
+      <td class="currency font-semibold">${fmtMoney(c.gross)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderTax() {
+  const slips = getCycleSlips();
+  $('taxTable').innerHTML = slips.map(p => {
+    const c = calcSlip(p);
+    const annual = (c.gross - c.ssf) * 12;
+    return `<tr>
+      <td class="font-mono text-xs">${esc(p.id)}</td><td class="font-medium">${esc(p.name)}</td>
+      <td class="currency">${fmtMoney(c.gross)}</td><td class="currency">${fmtMoney(annual)}</td>
+      <td class="currency">${fmtMoney(c.tax * 12)}</td>
+      <td class="currency font-semibold text-amber-600">-${fmtMoney(c.tax)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderVerify() {
+  const buSel = $('verifyBU');
+  const bus = [...new Set(getCycleSlips().map(p => p.bu))];
+  const cur = buSel.value || 'ทั้งหมด';
+  if (!bus.includes(cur) && cur !== 'ทั้งหมด') buSel.value = 'ทั้งหมด';
+  buSel.innerHTML = ['ทั้งหมด', ...bus].map(b => `<option>${b}</option>`).join('');
+  const slips = getCycleSlips().filter(p => cur === 'ทั้งหมด' || p.bu === cur);
+  $('verifyTable').innerHTML = slips.map(p => {
+    const c = calcSlip(p);
+    const hasIssue = p.issues.length > 0;
+    return `<tr class="${hasIssue ? 'bg-red-50' : ''}">
+      <td class="font-mono text-xs">${esc(p.id)}</td><td class="font-medium">${esc(p.name)}</td>
+      <td><span class="badge badge-blue">${esc(p.bu)}</span></td>
+      <td class="currency">${fmtMoney(p.salary)}</td><td class="currency">${fmtMoney(c.gross)}</td>
+      <td class="currency text-amber-600">-${fmtMoney(c.tax)}</td><td class="currency text-red-600">-${fmtMoney(c.ssf)}</td>
+      <td class="currency text-red-600">-${fmtMoney(p.otherDeduction)}</td>
+      <td class="currency font-semibold">${fmtMoney(c.net)}</td>
+      <td>${hasIssue ? badge('error') : badge('ok')}</td>
+    </tr>`;
+  }).join('');
+  const sumNet = slips.reduce((s,p) => s + calcSlip(p).net, 0);
+  $('verifySummary').innerHTML = `<span class="text-slate-500">รวมสุทธิ ${slips.length} คน (${esc(cur)}):</span> <b class="text-slate-800">${fmtMoney(sumNet)}</b>`;
+}
+
+function runVerify() {
+  // สุ่มจำลองการตรวจพบข้อผิดพลาด (เฉพาะรายการที่มีอยู่แล้ว)
+  const slips = getCycleSlips();
+  const some = slips.find(p => p.issues.length > 0);
+  if (some) { alert('⚠️ พบรายการต้องแก้ไข: ' + some.issues.join(', ')); return; }
+  alert('✅ ตรวจสอบแล้ว ไม่พบข้อผิดพลาด — สามารถดำเนินการขั้นตอนถัดไปได้');
+}
+
+function renderEslip() {
+  const slips = getCycleSlips();
+  $('eslipTable').innerHTML = slips.map((p, i) => {
+    const c = calcSlip(p);
+    const orig = db.payslips.indexOf(p);
+    return `<tr>
+      <td class="font-mono text-xs">${esc(p.id)}</td><td class="font-medium">${esc(p.name)}</td>
+      <td>${esc(p.cycle)}</td><td class="currency">${fmtMoney(c.gross)}</td>
+      <td class="currency text-red-600">-${fmtMoney(c.tax + c.ssf + p.otherDeduction)}</td>
+      <td class="currency font-semibold">${fmtMoney(c.net)}</td>
+      <td>${p.slipSent ? badge('done') : '<span class="badge badge-gray">ยังไม่สร้าง</span>'}</td>
+      <td>${p.lineSent ? badge('done') : '<span class="badge badge-gray">ยังไม่ส่ง</span>'}</td>
+      <td class="whitespace-nowrap">
+        ${p.slipSent ? `<button class="text-blue-600 hover:underline text-xs" onclick="viewSlip(${orig})">ดูสลิป</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function generateSlips() {
+  const slips = getCycleSlips();
+  if (!slips.length) { alert('ไม่มีข้อมูล'); return; }
+  slips.forEach(p => p.slipSent = true);
+  saveDB(); renderAll();
+  $('lineResult').textContent = '';
+  alert(`✅ สร้าง e-Slip แล้ว ${slips.length} ฉบับ (eslipdata #ST)`);
+}
+function viewSlip(i) {
+  const p = db.payslips[i];
+  const c = calcSlip(p);
+  const win = window.open('', '_blank', 'width=420,height=600');
+  win.document.write(`<html><head><title>e-Slip ${p.id}</title><style>body{font-family:'Prompt',sans-serif;padding:24px;background:#f8fafc} .slip{background:#fff;border-radius:12px;padding:24px;box-shadow:0 4px 12px rgba(0,0,0,.08)} h2{margin:0 0 4px} .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e2e8f0;font-size:14px} .total{font-weight:700;font-size:18px;color:#7c3aed;border-bottom:none}</style></head><body><div class="slip">
+  <div style="text-align:center;margin-bottom:16px"><h2>🧾 e-Slip เงินเดือน</h2><div style="color:#64748b;font-size:12px">${p.cycle} · ${p.bu}</div></div>
+  <div class="row"><span>รหัสสมาชิก</span><b>${p.id}</b></div>
+  <div class="row"><span>ชื่อ-นามสกุล</span><b>${p.name}</b></div>
+  <div class="row"><span>เงินเดือน</span><span>${fmtMoney(p.salary)}</span></div>
+  <div class="row"><span>ค่าโอที</span><span>${fmtMoney(p.ot)}</span></div>
+  <div class="row"><span>เบี้ยเลี้ยง</span><span>${fmtMoney(p.allowance)}</span></div>
+  <div class="row"><span>โบนัส/อื่น ๆ</span><span>${fmtMoney(p.bonus)}</span></div>
+  <div class="row"><span>ประกันสังคม</span><span style="color:#dc2626">-${fmtMoney(c.ssf)}</span></div>
+  <div class="row"><span>ภาษีหัก ณ ที่จ่าย</span><span style="color:#dc2626">-${fmtMoney(c.tax)}</span></div>
+  <div class="row"><span>หักอื่น ๆ</span><span style="color:#dc2626">-${fmtMoney(p.otherDeduction)}</span></div>
+  <div class="row total"><span>เงินสุทธิ</span><span>${fmtMoney(c.net)}</span></div>
+  </div></body></html>`);
+}
+function sendLineAll() {
+  const slips = getCycleSlips();
+  if (!slips.some(p => p.slipSent)) { alert('กรุณาสร้าง e-Slip ก่อน (step 34)'); return; }
+  slips.forEach(p => p.lineSent = true);
+  saveDB(); renderAll();
+  $('lineResult').textContent = `💬 ส่ง Line แจ้งสมาชิกแล้ว ${slips.length} คน ให้ตรวจสอบข้อมูลเงินเดือน (หากพบข้อมูลผิด แจ้งกลับเพื่อแก้ไขที่ชีท E2)`;
+}
+
+function printVC(kind) {
+  const slips = getCycleSlips();
+  if (!slips.length) return;
+  slips.forEach(p => p.vcPrinted = true);
+  saveDB();
+  const sum = slips.reduce((s,p) => s + calcSlip(p).net, 0);
+  const win = window.open('', '_blank', 'width=600,height=700');
+  const title = kind === 'bu' ? 'ใบ VC ราย BU/BV' : kind === 'outside' ? 'ใบ VC จ่ายเงินเดือนนอกระบบ' : 'รายงานกระทบยอดภาษี และ ประกันสังคม';
+  let body = '';
+  if (kind === 'reconcile') {
+    const tax = slips.reduce((s,p) => s + calcSlip(p).tax, 0);
+    const ssf = slips.reduce((s,p) => s + calcSlip(p).ssf, 0);
+    body = `<div class="row"><span>ภาษีหัก ณ ที่จ่ายรวม</span><b>${fmtMoney(tax)}</b></div>
+    <div class="row"><span>ประกันสังคมรวม (ลูกจ้าง)</span><b>${fmtMoney(ssf)}</b></div>
+    <div class="row"><span>ยอดเงินเดือนสุทธิรวม</span><b>${fmtMoney(sum)}</b></div>
+    <div class="row"><span>VC ค่าบ้านพักสมาชิก</span><b>${fmtMoney(0)}</b></div>
+    <div class="row"><span>VC ค่าผ่อนบ้าน ธอส.</span><b>${fmtMoney(0)}</b></div>`;
+  } else {
+    body = slips.map(p => `<div class="row"><span>${p.id} ${p.name} (${p.bu})</span><b>${fmtMoney(calcSlip(p).net)}</b></div>`).join('');
+  }
+  win.document.write(`<html><head><title>${title}</title><style>body{font-family:'Prompt',sans-serif;padding:24px;background:#f8fafc} .slip{background:#fff;border-radius:12px;padding:24px;box-shadow:0 4px 12px rgba(0,0,0,.08)} h2{margin:0 0 4px} .row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #e2e8f0;font-size:13px} .total{font-weight:700;border-bottom:none;font-size:16px}</style></head><body><div class="slip">
+  <div style="text-align:center;margin-bottom:16px"><h2>🧾 ${title}</h2><div style="color:#64748b;font-size:12px">${db.config.currentCycle} · PP7 P6</div></div>
+  ${body}
+  <div class="row total"><span>รวมทั้งสิ้น</span><span>${fmtMoney(kind === 'reconcile' ? sum : sum)}</span></div>
+  </div></body></html>`);
+  renderAll();
+  alert('🖨️ ปริ้นเอกสารเรียบร้อย — ส่งให้ทางการเงินตรวจสอบ (step 36)');
+}
+
+function renderFinance() {
+  const slips = getCycleSlips();
+  const sumNet = slips.reduce((s,p) => s + calcSlip(p).net, 0);
+  const sumTax = slips.reduce((s,p) => s + calcSlip(p).tax, 0);
+  const sumSsf = slips.reduce((s,p) => s + calcSlip(p).ssf, 0);
+  const expected = [
+    { item: 'VC รวมราย BU', system: sumNet, doc: db.financeChecks[0].doc },
+    { item: 'รายงานกระทบยอดภาษี', system: sumTax, doc: db.financeChecks[1].doc },
+    { item: 'รายงานกระทบยอดประกันสังคม', system: sumSsf, doc: db.financeChecks[2].doc },
+    { item: 'รายงานกระทบยอดเงินเดือน', system: sumNet, doc: db.financeChecks[3].doc },
+    { item: 'VC ค่าบ้านพักสมาชิก / ค่าผ่อนบ้าน ธอส.', system: 0, doc: db.financeChecks[4].doc }
+  ];
+  $('financeTable').innerHTML = expected.map((e, i) => {
+    const diff = e.system - e.doc;
+    const st = db.financeChecks[i].status;
+    return `<tr>
+      <td class="font-medium">${esc(e.item)}</td>
+      <td class="currency">${fmtMoney(e.system)}</td>
+      <td class="currency">${fmtMoney(e.doc)}</td>
+      <td class="currency ${diff !== 0 ? 'text-red-600 font-semibold' : 'text-green-600'}">${diff === 0 ? '0' : fmtMoney(diff)}</td>
+      <td>${badge(st === 'ok' ? 'ok' : st === 'error' ? 'error' : 'pending')}</td>
+    </tr>`;
+  }).join('');
+}
+function runFinanceCheck() {
+  const slips = getCycleSlips();
+  const sumNet = slips.reduce((s,p) => s + calcSlip(p).net, 0);
+  const sumTax = slips.reduce((s,p) => s + calcSlip(p).tax, 0);
+  const sumSsf = slips.reduce((s,p) => s + calcSlip(p).ssf, 0);
+  const vals = [sumNet, sumTax, sumSsf, sumNet, 0];
+  let allOk = true;
+  db.financeChecks.forEach((c, i) => {
+    c.system = vals[i];
+    c.doc = vals[i];
+    c.status = 'ok';
+  });
+  // จำลอง: ถ้ามี payslip ที่ยังไม่ได้ปริ้น VC ให้ถือว่ายังตรวจไม่ครบ
+  if (slips.some(p => !p.vcPrinted)) { db.financeChecks[0].status = 'error'; allOk = false; }
+  saveDB(); renderAll();
+  alert(allOk ? '✅ การเงินตรวจสอบแล้ว เอกสารครบถ้วน ถูกต้อง — พร้อมโอนเงิน (step 37)' : '⚠️ ยังมีรายการที่ตรวจไม่ผ่าน (ปริ้นใบ VC ให้ครบก่อน)');
+}
+
+function renderTransfer() {
+  const slips = getCycleSlips();
+  const total = slips.reduce((s,p) => s + calcSlip(p).net, 0);
+  $('trTotal').textContent = fmtMoney(total);
+  $('trCount').textContent = slips.length;
+  const done = slips.filter(p => p.transferred).length;
+  $('trStatus').textContent = done === slips.length ? 'โอนครบ ✓' : (db.transferPrepared ? 'เตรียมข้อมูลแล้ว' : 'ยังไม่เตรียม');
+  $('transferTable').innerHTML = slips.map(p => {
+    const m = db.members.find(x => x.id === p.id) || {};
+    return `<tr>
+      <td class="font-mono text-xs">${esc(p.id)}</td><td class="font-medium">${esc(p.name)}</td>
+      <td>${esc(m.bank || '-')}</td><td class="font-mono text-xs">${esc(m.account || '-')}</td>
+      <td class="currency font-semibold">${fmtMoney(calcSlip(p).net)}</td>
+      <td>${p.transferred ? badge('done') : '<span class="badge badge-gray">รอโอน</span>'}</td>
+    </tr>`;
+  }).join('');
+  $('transferPreview').innerHTML = db.transferPrepared
+    ? `✅ เตรียมไฟล์โอนเงินแล้ว: ${slips.length} รายการ รวม <b>${fmtMoney(total)}</b> — ส่งให้ทีมการเงินดำเนินการโอน`
+    : 'ยังไม่ได้เตรียมข้อมูลโอน — กด "💸 เตรียมข้อมูลโอนเงิน"';
+}
+function prepareTransfer() {
+  const slips = getCycleSlips();
+  if (!slips.length) { alert('ไม่มีข้อมูล'); return; }
+  if (slips.some(p => !p.financeChecked)) {
+    // ถ้ายังไม่ได้รัน finance check ให้รันให้
+    runFinanceCheck();
+    if (db.financeChecks.some(c => c.status !== 'ok')) { alert('⚠️ การเงินยังตรวจไม่ผ่าน — แก้ไขก่อนเตรียมโอน'); return; }
+  }
+  db.transferPrepared = true; saveDB(); renderAll();
+  const total = slips.reduce((s,p) => s + calcSlip(p).net, 0);
+  alert(`💸 เตรียมข้อมูลโอนเงินแล้ว ${slips.length} รายการ รวม ${fmtMoney(total)}`);
+}
+function confirmTransfer() {
+  if (!db.transferPrepared) { alert('กรุณาเตรียมข้อมูลโอนเงินก่อน (step 37)'); return; }
+  const slips = getCycleSlips();
+  slips.forEach(p => p.transferred = true);
+  saveDB(); renderAll();
+  alert('✅ โอนเงินให้สมาชิกเรียบร้อย — ปิดวงรอบ Payroll');
+}
+
+// ============ AUTO RUN ============
+function runAllSteps() {
+  const slips = getCycleSlips();
+  if (!slips.length) { alert('ไม่มีข้อมูล'); return; }
+  slips.forEach(p => { p.slipSent = true; p.lineSent = true; p.vcPrinted = true; p.financeChecked = true; });
+  const sumNet = slips.reduce((s,p) => s + calcSlip(p).net, 0);
+  db.financeChecks.forEach(c => { c.system = sumNet; c.doc = sumNet; c.status = 'ok'; });
+  db.transferPrepared = true;
+  slips.forEach(p => p.transferred = true);
+  saveDB(); renderAll();
+  alert('⚡ จำลองรันวงรอบ Payroll ครบทุกขั้นตอน (30–37) สำเร็จ — ข้อมูลพร้อมสาธิต');
+}
+
+// ============ EXPORT ============
+function exportCSV() {
+  const slips = getCycleSlips();
+  const rows = [['รหัส','ชื่อ','BU','เงินเดือน','โอที','เบี้ยเลี้ยง','รวมรายได้','ภาษี','สปส.','สุทธิ','สถานะ']];
+  slips.forEach(p => {
+    const c = calcSlip(p);
+    rows.push([p.id, p.name, p.bu, p.salary, p.ot, p.allowance, c.gross, c.tax, c.ssf, c.net, p.transferred ? 'โอนแล้ว' : 'รอโอน']);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `pp7-payroll-${db.config.currentCycle}.csv`;
+  a.click();
+}
+
+// ============ CHARTS ============
+let chartByBU = null;
+function renderCharts() {
+  const slips = getCycleSlips();
+  const bus = [...new Set(slips.map(p => p.bu))];
+  const sums = bus.map(b => slips.filter(p => p.bu === b).reduce((s,p) => s + calcSlip(p).net, 0));
+  const ctx = $('chartByBU');
+  if (chartByBU) chartByBU.destroy();
+  if (ctx) chartByBU = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: bus, datasets: [{ label: 'ยอดสุทธิ', data: sums, backgroundColor: ['#8b5cf6','#3b82f6','#10b981','#f59e0b'], borderRadius: 8 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { y: { ticks: { callback: v => (v/1000) + 'k' } } } }
+  });
+}
+
+// ============ RENDER ALL ============
+function renderAll() {
+  renderCycleSelect(); renderOverview(); renderMembers(); renderPrepare();
+  renderTax(); renderVerify(); renderEslip(); renderFinance(); renderTransfer(); renderCharts();
+}
+
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', () => renderAll());
+</script>
+</body>
+</html>

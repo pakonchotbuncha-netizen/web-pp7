@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบพี่เลี้ยง (Mentoring System) | PP7 P5</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7"></script>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Prompt', sans-serif; }
+  body { background: #f1f5f9; color: #1e293b; margin: 0; }
+  .sidebar { width: 260px; background: #0f172a; color: #e2e8f0; min-height: 100vh; position: fixed; left: 0; top: 0; z-index: 40; overflow-y: auto; }
+  .sidebar .brand { padding: 1.25rem 1.25rem 0.75rem; border-bottom: 1px solid #1e293b; }
+  .sidebar .nav-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1.25rem; color: #94a3b8; text-decoration: none; font-size: 0.875rem; border-radius: 0.5rem; margin: 0.15rem 0.75rem; transition: all 0.15s; cursor: pointer; }
+  .sidebar .nav-link:hover { background: #1e293b; color: #e2e8f0; }
+  .sidebar .nav-link.active { background: #ec4899; color: #fff; font-weight: 500; }
+  .sidebar .nav-section { padding: 0.5rem 1.25rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-top: 0.75rem; }
+  .main-content { margin-left: 260px; padding: 1.5rem; }
+  .card { background: #fff; border-radius: 1rem; box-shadow: 0 4px 24px rgba(15,23,42,.07); padding: 1.5rem; margin-bottom: 1.5rem; }
+  .stat-card { position: relative; overflow: hidden; }
+  .stat-card::before { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; border-radius: 0 0 0 80px; opacity: 0.1; }
+  .stat-card.pink::before { background: #ec4899; }
+  .stat-card.purple::before { background: #8b5cf6; }
+  .stat-card.blue::before { background: #3b82f6; }
+  .stat-card.green::before { background: #10b981; }
+  .stat-card.amber::before { background: #f59e0b; }
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 0.7rem 1rem; font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; background: #f8fafc; }
+  td { padding: 0.7rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.875rem; }
+  tr:hover td { background: #f8fafc; }
+  .badge { display: inline-flex; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-amber { background: #fef3c7; color: #92400e; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-pink { background: #fce7f3; color: #9d174d; }
+  .badge-purple { background: #f3e8ff; color: #7c3aed; }
+  .badge-gray { background: #e2e8f0; color: #475569; }
+  .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn-primary { background: #ec4899; color: #fff; }
+  .btn-primary:hover { background: #db2777; }
+  .btn-outline { background: #fff; border: 1px solid #e2e8f0; color: #64748b; }
+  .btn-outline:hover { background: #f8fafc; }
+  .btn-danger { background: #ef4444; color: #fff; }
+  .btn-danger:hover { background: #dc2626; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.4); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #fff; border-radius: 1rem; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; }
+  .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: #fff; border-radius: 1rem 1rem 0 0; }
+  .modal-body { padding: 1.5rem; }
+  .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 0.5rem; }
+  .form-label { display: block; font-size: 0.8rem; font-weight: 500; color: #374151; margin-bottom: 0.35rem; }
+  .form-input, .form-select, .form-textarea { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.875rem; outline: none; background: #fff; }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #ec4899; box-shadow: 0 0 0 3px rgba(236,72,153,.12); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .fade-in { animation: fadeIn .3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .timeline-step { display: flex; gap: 1rem; position: relative; padding-bottom: 1.5rem; }
+  .timeline-step::before { content: ''; position: absolute; left: 15px; top: 34px; bottom: 0; width: 2px; background: #e2e8f0; }
+  .timeline-step:last-child::before { display: none; }
+  .timeline-dot { width: 32px; height: 32px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+  .progress-bar { height: 8px; background: #e2e8f0; border-radius: 9999px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #ec4899, #8b5cf6); border-radius: 9999px; transition: width .4s; }
+  .progress-fill.green { background: linear-gradient(90deg, #10b981, #22d3ee); }
+  .progress-fill.amber { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="text-white font-bold text-lg">🤝 ระบบพี่เลี้ยง</div>
+    <div class="text-xs text-slate-500 mt-1">PP7 · P5 พัฒนา · ตาม SMC_HOCC_PM_002</div>
+  </div>
+  <nav>
+    <div class="nav-section">ภาพรวม</div>
+    <a class="nav-link active" onclick="showTab('overview')">📊 Dashboard</a>
+    <div class="nav-section">ขั้นตอนที่ 21–22</div>
+    <a class="nav-link" onclick="showTab('setup')">📋 ตั้งค่าระบบพี่เลี้ยง</a>
+    <a class="nav-link" onclick="showTab('channels')">📢 ช่องทางรายงาน (Line/E-mail)</a>
+    <div class="nav-section">ขั้นตอนที่ 23–24</div>
+    <a class="nav-link" onclick="showTab('reports')">📝 รายงานน้องเลี้ยง (DTA)</a>
+    <a class="nav-link" onclick="showTab('coach')">🎯 การ Coach ของพี่เลี้ยง</a>
+    <div class="nav-section">ขั้นตอนที่ 25–27</div>
+    <a class="nav-link" onclick="showTab('discipline')">📏 วินัย & คะแนน (เกณฑ์ 80%)</a>
+    <a class="nav-link" onclick="showTab('cards')">🟡🔴 ใบเหลือง/ใบแดง (4C)</a>
+    <div class="nav-section">ขั้นตอนที่ 28–29</div>
+    <a class="nav-link" onclick="showTab('evaluate')">📊 ประเมินระบบพี่เลี้ยง</a>
+    <div class="nav-section">อื่น ๆ</div>
+    <a class="nav-link" onclick="showTab('reports2')">📈 รายงาน & ส่งออก</a>
+    <a class="nav-link" onclick="location.href='index.html'">🏠 กลับหน้าแรก</a>
+  </nav>
+</aside>
+
+<!-- Main -->
+<main class="main-content">
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800">🤝 ระบบพี่เลี้ยง (Mentoring System)</h1>
+      <p class="text-sm text-slate-500 mt-1">สอดคล้อง SMC_HOCC_PM_002 ขั้นตอน 21–29 — ระบบพี่เลี้ยง/น้องเลี้ยง ครบวงจร</p>
+    </div>
+    <div class="flex gap-2 flex-wrap">
+      <button class="btn btn-outline" onclick="exportJSON()">📥 ส่งออก JSON</button>
+      <button class="btn btn-outline" onclick="importJSON()">📤 นำเข้า</button>
+      <button class="btn btn-primary" onclick="openModal('newPair')">+ ตั้งค่าระบบพี่เลี้ยง</button>
+    </div>
+  </div>
+
+  <!-- ===== TAB: OVERVIEW ===== -->
+  <div id="tab-overview" class="tab-content active fade-in">
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+      <div class="card stat-card pink"><div class="text-sm text-slate-500">คู่พี่เลี้ยง</div><div class="text-3xl font-bold text-pink-600 mt-2" id="statPairs">0</div><div class="text-xs text-slate-400 mt-1">ใช้งานอยู่</div></div>
+      <div class="card stat-card blue"><div class="text-sm text-slate-500">น้องเลี้ยง</div><div class="text-3xl font-bold text-blue-600 mt-2" id="statMentees">0</div><div class="text-xs text-slate-400 mt-1">ในระบบ</div></div>
+      <div class="card stat-card purple"><div class="text-sm text-slate-500">รายงาน DTA</div><div class="text-3xl font-bold text-purple-600 mt-2" id="statReports">0</div><div class="text-xs text-slate-400 mt-1">ส่งแล้วเดือนนี้</div></div>
+      <div class="card stat-card green"><div class="text-sm text-slate-500">วินัยส่งรายงาน</div><div class="text-3xl font-bold text-green-600 mt-2" id="statDiscipline">0%</div><div class="text-xs text-slate-400 mt-1">เกณฑ์ ≥ 80%</div></div>
+      <div class="card stat-card amber"><div class="text-sm text-slate-500">ใบเหลือง/แดง</div><div class="text-3xl font-bold text-amber-600 mt-2" id="statCards">0</div><div class="text-xs text-slate-400 mt-1">เดือนนี้</div></div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+      <div class="card">
+        <h3 class="font-semibold text-slate-800 mb-4">🔄 กระบวนการระบบพี่เลี้ยง (ขั้น 21–29)</h3>
+        <div id="processTimeline"></div>
+      </div>
+      <div class="card">
+        <h3 class="font-semibold text-slate-800 mb-4">📊 วินัยการส่งรายงานของน้องเลี้ยง</h3>
+        <div style="height: 260px;"><canvas id="chartDiscipline"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-4">⚠️ ความเสี่ยง / สิ่งที่ต้องติดตาม</h3>
+      <div id="riskList" class="space-y-2"></div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: SETUP (ขั้น 21) ===== -->
+  <div id="tab-setup" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">📋 ขั้นตอน 21 — ทีม PAD ตั้งค่าระบบพี่เลี้ยง</h3>
+      <p class="text-sm text-slate-500 mb-4">รับข้อมูลสมาชิกเข้าระบบน้องเลี้ยงจาก PA (สมาชิกใหม่ / สัญญาจ้าง 6 เดือน / จับคู่คนกับงาน / ปรับเปลี่ยนบทบาท) → ตรวจสอบข้อมูลให้ครบถ้วนภายใน 3 วัน</p>
+      <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-4 text-sm">
+        <div class="border rounded-lg p-3 bg-slate-50"><div class="font-medium">รหัสสมาชิก</div><div class="text-xs text-slate-500">Member ID</div></div>
+        <div class="border rounded-lg p-3 bg-slate-50"><div class="font-medium">ชื่อ-นามสกุล</div><div class="text-xs text-slate-500">Full name</div></div>
+        <div class="border rounded-lg p-3 bg-slate-50"><div class="font-medium">ประเภทการจ้าง</div><div class="text-xs text-slate-500">ใหม่ / 6 เดือน / ย้าย</div></div>
+        <div class="border rounded-lg p-3 bg-slate-50"><div class="font-medium">ID Line</div><div class="text-xs text-slate-500">ช่องทางรายงาน</div></div>
+        <div class="border rounded-lg p-3 bg-slate-50"><div class="font-medium">พี่เลี้ยง + สายงาน</div><div class="text-xs text-slate-500">และทุนองค์กร</div></div>
+      </div>
+      <table>
+        <thead><tr><th>รหัส</th><th>น้องเลี้ยง</th><th>ประเภท</th><th>พี่เลี้ยง</th><th>สายงาน</th><th>วันที่รับเข้า</th><th>ตรวจสอบ 3 วัน</th><th>สถานะ</th><th>การจัดการ</th></tr></thead>
+        <tbody id="pairTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== TAB: CHANNELS (ขั้น 22) ===== -->
+  <div id="tab-channels" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">📢 ขั้นตอน 22 — สร้างแหล่งส่งรายงานให้น้องเลี้ยง</h3>
+      <p class="text-sm text-slate-500 mb-4">เมื่อตั้งค่าระบบพี่เลี้ยงเสร็จ สมาชิกจะได้รับข้อมูลช่องทางรายงานผ่าน Line กลุ่มรับใช้สมาชิก และ E-mail</p>
+      <div class="grid lg:grid-cols-2 gap-4 mb-4">
+        <div class="border rounded-xl p-4 bg-green-50">
+          <div class="font-semibold text-green-800 mb-1">💬 Line กลุ่มรับใช้สมาชิก</div>
+          <div class="text-sm text-green-700">กลุ่มหลักสำหรับส่งรายงานประจำวัน/ประจำสัปดาห์</div>
+          <input type="text" id="lineGroupUrl" class="form-input mt-2" placeholder="ลิงก์ Line OA / กลุ่ม">
+          <button class="btn btn-primary mt-2" onclick="saveChannel('line')">บันทึกช่องทาง Line</button>
+          <div id="lineChannelStatus" class="text-xs mt-1 text-green-600"></div>
+        </div>
+        <div class="border rounded-xl p-4 bg-blue-50">
+          <div class="font-semibold text-blue-800 mb-1">📧 E-mail</div>
+          <div class="text-sm text-blue-700">อีเมลสำหรับส่งรายงานและเอกสาร</div>
+          <input type="text" id="emailAddr" class="form-input mt-2" placeholder="report@pracha.kij">
+          <button class="btn btn-primary mt-2" onclick="saveChannel('email')">บันทึกช่องทาง E-mail</button>
+          <div id="emailChannelStatus" class="text-xs mt-1 text-blue-600"></div>
+        </div>
+      </div>
+      <div class="border rounded-xl p-4 bg-slate-50">
+        <div class="font-semibold text-slate-700 mb-2">📨 สถานะการแจ้งช่องทางให้สมาชิก</div>
+        <table>
+          <thead><tr><th>น้องเลี้ยง</th><th>Line</th><th>E-mail</th><th>แจ้งแล้ว</th><th>การจัดการ</th></tr></thead>
+          <tbody id="channelTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: REPORTS (ขั้น 23) ===== -->
+  <div id="tab-reports" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">📝 ขั้นตอน 23 — สมาชิกรายงานการปฏิบัติงาน</h3>
+      <p class="text-sm text-slate-500 mb-4">น้องเลี้ยงรายงานการปฏิบัติงานตามที่ PAD กำหนด (DTA_น้องเลี้ยง1 / DTA_น้องเลี้ยง2 / DTA_น้องเลี้ยง4)</p>
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <button class="btn btn-primary" onclick="openModal('newReport')">+ บันทึกรายงาน (รับจาก Line/E-mail)</button>
+        <select id="filterReportMonth" class="form-select w-48" onchange="renderReports()"></select>
+      </div>
+      <table>
+        <thead><tr><th>วันที่</th><th>น้องเลี้ยง</th><th>ประเภท DTA</th><th>ช่องทาง</th><th>หัวข้อ</th><th>สถานะ</th><th>การจัดการ</th></tr></thead>
+        <tbody id="reportTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== TAB: COACH (ขั้น 24) ===== -->
+  <div id="tab-coach" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">🎯 ขั้นตอน 24 — พี่เลี้ยง Coach น้องเลี้ยง</h3>
+      <p class="text-sm text-slate-500 mb-4">พี่เลี้ยงอ่านรายงานการปฏิบัติงานของน้องเลี้ยง และ Coach โดยใช้ Form Coach อย่างน้อยเดือนละ 1 ครั้ง</p>
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <button class="btn btn-primary" onclick="openModal('newCoach')">+ บันทึกการ Coach (Form Coach)</button>
+      </div>
+      <table>
+        <thead><tr><th>เดือน</th><th>พี่เลี้ยง</th><th>น้องเลี้ยง</th><th>หัวข้อ Coach</th><th>ประเด็นหลัก</th><th>ข้อเสนอแนะ</th><th>สถานะ</th><th>การจัดการ</th></tr></thead>
+        <tbody id="coachTable"></tbody>
+      </table>
+      <div class="mt-4 text-sm text-slate-600">📎 อ้างอิง: <a class="text-blue-600 underline" href="https://docs.google.com/forms/d/e/1FAIpQLSfTIaKpfxqOvsdTMlj0daQHl1UPaJMr4eGge2AnG8OdUwioIA/viewform" target="_blank">Form Coach (Google Form)</a></div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: DISCIPLINE (ขั้น 25 & 27) ===== -->
+  <div id="tab-discipline" class="tab-content fade-in">
+    <div class="grid lg:grid-cols-2 gap-6">
+      <div class="card">
+        <h3 class="font-semibold text-slate-800 mb-2">📏 ขั้นตอน 25 — วินัยการส่งรายงานของน้องเลี้ยง</h3>
+        <p class="text-sm text-slate-500 mb-4">PAD ตรวจสอบข้อมูลวินัยส่งรายงาน สรุปคะแนน เกณฑ์ 80% — หากส่งรายงานไม่ถึง 80% ประกาศคะแนนและสรุปความรับผิดชอบต่อผล</p>
+        <table>
+          <thead><tr><th>น้องเลี้ยง</th><th>ส่งแล้ว</th><th>ทั้งหมด</th><th>%</th><th>ผล</th></tr></thead>
+          <tbody id="disciplineMenteeTable"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h3 class="font-semibold text-slate-800 mb-2">📏 ขั้นตอน 27 — วินัยการ Coach ของพี่เลี้ยง</h3>
+        <p class="text-sm text-slate-500 mb-4">PAD ตรวจสอบข้อมูลวินัยการ Coach ของพี่เลี้ยง สรุปคะแนน และประกาศความรับผิดชอบกรณีไม่ Coach ตามเงื่อนไข</p>
+        <table>
+          <thead><tr><th>พี่เลี้ยง</th><th>Coach แล้ว</th><th>ต้องทำ/เดือน</th><th>%</th><th>ผล</th></tr></thead>
+          <tbody id="disciplineMentorTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: CARDS (ขั้น 26) ===== -->
+  <div id="tab-cards" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">🟡🔴 ขั้นตอน 26 — 4C บันทึกใบเหลือง/ใบแดง</h3>
+      <p class="text-sm text-slate-500 mb-4">4C รับข้อมูลและบันทึกข้อมูลใบเหลือง/ใบแดง และประกาศใบเหลือง/ใบแดงประจำเดือน</p>
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <button class="btn btn-primary" onclick="openModal('newCard')">+ บันทึกใบเหลือง/ใบแดง</button>
+        <button class="btn btn-outline" onclick="announceCards()">📣 ประกาศใบเหลือง/ใบแดงประจำเดือน</button>
+      </div>
+      <div id="announcementBanner" class="hidden mb-4 border rounded-lg p-3 bg-amber-50 text-amber-800 text-sm"></div>
+      <table>
+        <thead><tr><th>วันที่</th><th>สมาชิก</th><th>ประเภท</th><th>เหตุผล</th><th>ผู้บันทึก (4C)</th><th>เดือนที่ประกาศ</th><th>การจัดการ</th></tr></thead>
+        <tbody id="cardTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== TAB: EVALUATE (ขั้น 28 & 29) ===== -->
+  <div id="tab-evaluate" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">📊 ขั้นตอน 28 — สมาชิกประเมินระบบพี่เลี้ยง</h3>
+      <p class="text-sm text-slate-500 mb-4">ประเมินเมื่อสิ้นสุดการเป็นน้องเลี้ยง (คะแนน 1–5 พร้อมข้อเสนอแนะ)</p>
+      <div class="flex gap-2 mb-4 flex-wrap">
+        <button class="btn btn-primary" onclick="openModal('newEval')">+ บันทึกการประเมิน</button>
+      </div>
+      <table>
+        <thead><tr><th>วันที่</th><th>น้องเลี้ยง</th><th>พี่เลี้ยง</th><th>คะแนน</th><th>ข้อเสนอแนะ</th><th>การจัดการ</th></tr></thead>
+        <tbody id="evalTable"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-2">📊 ขั้นตอน 29 — PAD สรุปและประกาศผลประเมิน</h3>
+      <p class="text-sm text-slate-500 mb-4">PAD สรุปและประกาศคะแนนประเมินระบบพี่เลี้ยง และนำข้อมูลจากข้อเสนอแนะมาปรับปรุงและพัฒนาระบบ</p>
+      <div class="grid lg:grid-cols-2 gap-4">
+        <div style="height: 260px;"><canvas id="chartEval"></canvas></div>
+        <div>
+          <h4 class="font-semibold text-slate-700 mb-2">💡 สรุปข้อเสนอแนะเพื่อการปรับปรุง</h4>
+          <div id="evalSuggestions" class="space-y-2"></div>
+          <div class="mt-4">
+            <button class="btn btn-primary" onclick="announceEvalSummary()">📣 ประกาศสรุปผลประเมิน</button>
+            <div id="evalAnnounce" class="text-xs mt-2 text-purple-600"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TAB: REPORTS2 ===== -->
+  <div id="tab-reports2" class="tab-content fade-in">
+    <div class="card">
+      <h3 class="font-semibold text-slate-800 mb-4">📈 รายงาน & ส่งออก</h3>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div class="border rounded-xl p-4 bg-slate-50"><div class="text-sm text-slate-500">คู่พี่เลี้ยงทั้งหมด</div><div class="text-2xl font-bold" id="rptPairs">0</div></div>
+        <div class="border rounded-xl p-4 bg-slate-50"><div class="text-sm text-slate-500">รายงาน DTA ทั้งหมด</div><div class="text-2xl font-bold" id="rptReports">0</div></div>
+        <div class="border rounded-xl p-4 bg-slate-50"><div class="text-sm text-slate-500">Coach ทั้งหมด</div><div class="text-2xl font-bold" id="rptCoach">0</div></div>
+        <div class="border rounded-xl p-4 bg-slate-50"><div class="text-sm text-slate-500">ใบเหลือง/แดง</div><div class="text-2xl font-bold" id="rptCards">0</div></div>
+      </div>
+      <div class="flex gap-2 flex-wrap">
+        <button class="btn btn-primary" onclick="exportJSON()">📥 ส่งออกข้อมูล (JSON)</button>
+        <button class="btn btn-outline" onclick="exportCSV()">📊 ส่งออก CSV (รายงาน)</button>
+        <button class="btn btn-outline" onclick="resetDemo()">🔄 รีเซ็ตข้อมูลตัวอย่าง</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ===== MODAL: NEW PAIR (ขั้น 21) ===== -->
+<div id="modal-newPair" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><h3 class="font-bold text-lg">📋 ตั้งค่าระบบพี่เลี้ยง</h3><button onclick="closeModal('newPair')" class="text-slate-400 hover:text-slate-600">✕</button></div>
+    <div class="modal-body">
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="form-label">รหัสสมาชิก (น้องเลี้ยง) *</label><input id="pairMemberId" class="form-input" placeholder="EMP-0001"></div>
+        <div><label class="form-label">ชื่อ-นามสกุล น้องเลี้ยง *</label><input id="pairMentee" class="form-input" placeholder="ชื่อ นามสกุล"></div>
+        <div><label class="form-label">ประเภทการจ้างงาน *</label>
+          <select id="pairType" class="form-select"><option>สมาชิกใหม่</option><option>สัญญาจ้าง 6 เดือน</option><option>จับคู่คนกับงาน</option><option>ปรับเปลี่ยนบทบาท</option></select>
+        </div>
+        <div><label class="form-label">ID Line</label><input id="pairLine" class="form-input" placeholder="@lineid"></div>
+        <div><label class="form-label">พี่เลี้ยง *</label><input id="pairMentor" class="form-input" placeholder="ชื่อพี่เลี้ยง"></div>
+        <div><label class="form-label">สายงานพี่เลี้ยง</label><input id="pairMentorDept" class="form-input" placeholder="สายงาน"></div>
+        <div><label class="form-label">ทุนองค์กรพี่เลี้ยง</label><input id="pairMentorCapital" class="form-input" placeholder="CC1, CC2 ..."></div>
+        <div><label class="form-label">วันที่เริ่ม (รับเข้า)</label><input id="pairStart" type="date" class="form-input"></div>
+        <div><label class="form-label">ระยะเวลา</label><select id="pairDuration" class="form-select"><option>3 เดือน</option><option>6 เดือน</option><option>12 เดือน</option></select></div>
+        <div><label class="form-label">สถานะ</label><select id="pairStatus" class="form-select"><option value="active">ใช้งานอยู่</option><option value="pending">รอตรวจสอบข้อมูล</option><option value="completed">สิ้นสุดแล้ว</option></select></div>
+      </div>
+      <div class="mt-4 text-xs text-slate-500">* มาตรฐาน: ทีม PAD ตรวจสอบข้อมูลให้ครบถ้วนภายใน 3 วันทำการ</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('newPair')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="savePair()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: NEW REPORT (ขั้น 23) ===== -->
+<div id="modal-newReport" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><h3 class="font-bold text-lg">📝 บันทึกรายงานน้องเลี้ยง</h3><button onclick="closeModal('newReport')" class="text-slate-400 hover:text-slate-600">✕</button></div>
+    <div class="modal-body">
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="form-label">น้องเลี้ยง *</label><select id="reportMentee" class="form-select"></select></div>
+        <div><label class="form-label">ประเภท DTA *</label><select id="reportType" class="form-select"><option>DTA_น้องเลี้ยง1</option><option>DTA_น้องเลี้ยง2</option><option>DTA_น้องเลี้ยง4</option></select></div>
+        <div><label class="form-label">วันที่รายงาน *</label><input id="reportDate" type="date" class="form-input"></div>
+        <div><label class="form-label">ช่องทาง</label><select id="reportChannel" class="form-select"><option>Line กลุ่มรับใช้สมาชิก</option><option>E-mail</option><option>อื่น ๆ</option></select></div>
+        <div class="col-span-2"><label class="form-label">หัวข้อ / สรุปการปฏิบัติงาน *</label><textarea id="reportTopic" class="form-textarea" rows="3" placeholder="สรุปงานที่ปฏิบัติ..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('newReport')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveReport()">💾 บันทึกรายงาน</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: NEW COACH (ขั้น 24) ===== -->
+<div id="modal-newCoach" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><h3 class="font-bold text-lg">🎯 บันทึกการ Coach (Form Coach)</h3><button onclick="closeModal('newCoach')" class="text-slate-400 hover:text-slate-600">✕</button></div>
+    <div class="modal-body">
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="form-label">พี่เลี้ยง *</label><select id="coachMentor" class="form-select"></select></div>
+        <div><label class="form-label">น้องเลี้ยง *</label><select id="coachMentee" class="form-select"></select></div>
+        <div><label class="form-label">เดือนที่ Coach *</label><input id="coachMonth" type="month" class="form-input"></div>
+        <div><label class="form-label">หัวข้อ Coach *</label><select id="coachTopic" class="form-select"><option>ทักษะงาน</option><option>Core Competency</option><option>วินัยการทำงาน</option><option>การปรับตัว</option><option>อื่น ๆ</option></select></div>
+        <div class="col-span-2"><label class="form-label">ประเด็นหลักที่พูดคุย *</label><textarea id="coachIssue" class="form-textarea" rows="2" placeholder="ประเด็นหลัก..."></textarea></div>
+        <div class="col-span-2"><label class="form-label">ข้อเสนอแนะ / แนวทางพัฒนา</label><textarea id="coachAdvice" class="form-textarea" rows="2" placeholder="แนวทางพัฒนา..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('newCoach')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveCoach()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: NEW CARD (ขั้น 26) ===== -->
+<div id="modal-newCard" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><h3 class="font-bold text-lg">🟡🔴 บันทึกใบเหลือง/ใบแดง (4C)</h3><button onclick="closeModal('newCard')" class="text-slate-400 hover:text-slate-600">✕</button></div>
+    <div class="modal-body">
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="form-label">สมาชิก *</label><select id="cardMember" class="form-select"></select></div>
+        <div><label class="form-label">ประเภท *</label><select id="cardType" class="form-select"><option value="yellow">🟡 ใบเหลือง</option><option value="red">🔴 ใบแดง</option></select></div>
+        <div><label class="form-label">วันที่ออกใบ *</label><input id="cardDate" type="date" class="form-input"></div>
+        <div><label class="form-label">เดือนที่ประกาศ</label><input id="cardAnnounceMonth" type="month" class="form-input"></div>
+        <div class="col-span-2"><label class="form-label">เหตุผล *</label><textarea id="cardReason" class="form-textarea" rows="2" placeholder="สาเหตุ..."></textarea></div>
+        <div><label class="form-label">ผู้บันทึก (4C)</label><input id="cardRecorder" class="form-input" placeholder="ชื่อ 4C"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('newCard')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveCard()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: NEW EVAL (ขั้น 28) ===== -->
+<div id="modal-newEval" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><h3 class="font-bold text-lg">📊 ประเมินระบบพี่เลี้ยง</h3><button onclick="closeModal('newEval')" class="text-slate-400 hover:text-slate-600">✕</button></div>
+    <div class="modal-body">
+      <div class="grid grid-cols-2 gap-4">
+        <div><label class="form-label">น้องเลี้ยง *</label><select id="evalMentee" class="form-select"></select></div>
+        <div><label class="form-label">พี่เลี้ยง</label><select id="evalMentor" class="form-select"></select></div>
+        <div><label class="form-label">คะแนนภาพรวม (1–5) *</label><input id="evalScore" type="number" min="1" max="5" step="0.5" class="form-input" value="4"></div>
+        <div><label class="form-label">วันที่ประเมิน</label><input id="evalDate" type="date" class="form-input"></div>
+        <div class="col-span-2"><label class="form-label">ข้อเสนอแนะ *</label><textarea id="evalSuggestion" class="form-textarea" rows="3" placeholder="สิ่งที่ชอบ / ควรปรับปรุง..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('newEval')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveEval()">💾 บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ DATA LAYER (localStorage) ============
+const LS_KEY = 'pp7_mentoring_v1';
+const todayISO = () => new Date().toISOString().slice(0,10);
+const currentMonth = () => todayISO().slice(0,7);
+
+function seedDB() {
+  const m = currentMonth();
+  return {
+    config: { lineGroupUrl: '', emailAddr: '', announcedMonth: '' },
+    pairs: [
+      { id: 1, memberId: 'EMP-0101', mentee: 'วรรณ์วิภา จันทร์เพ็ญ', type: 'สมาชิกใหม่', line: '@wanvipa', mentor: 'ดร.สมชาย ใจดี', mentorDept: 'สายงาน HR', mentorCapital: 'CC1, CC3', start: '2026-07-01', duration: '6 เดือน', status: 'active', verified: true, channelNotified: true },
+      { id: 2, memberId: 'EMP-0102', mentee: 'กิตติชัย ศรีจันทร์', type: 'สัญญาจ้าง 6 เดือน', line: '@kittichai', mentor: 'อ.พิมพ์ใจ รุ่งเรือง', mentorDept: 'สายงานบัญชี', mentorCapital: 'CC2', start: '2026-07-15', duration: '6 เดือน', status: 'active', verified: true, channelNotified: false },
+      { id: 3, memberId: 'EMP-0103', mentee: 'พิชัย ใจดี', type: 'จับคู่คนกับงาน', line: '@phichai', mentor: 'คุณวิชัย ทองดี', mentorDept: 'สายงานวิศวกรรม', mentorCapital: 'CC6', start: '2026-08-01', duration: '3 เดือน', status: 'active', verified: false, channelNotified: false },
+      { id: 4, memberId: 'EMP-0104', mentee: 'นภัสสร แก้วใส', type: 'สมาชิกใหม่', line: '@napatsorn', mentor: 'คุณวิชัย ทองดี', mentorDept: 'สายงานวิศวกรรม', mentorCapital: 'CC6', start: '2026-06-01', duration: '3 เดือน', status: 'completed', verified: true, channelNotified: true },
+      { id: 5, memberId: 'EMP-0105', mentee: 'ธนพล มีสุข', type: 'ปรับเปลี่ยนบทบาท', line: '@thanapol', mentor: 'ดร.สมชาย ใจดี', mentorDept: 'สายงาน HR', mentorCapital: 'CC1, CC3', start: '2026-08-20', duration: '6 เดือน', status: 'pending', verified: false, channelNotified: false }
+    ],
+    reports: [
+      { id: 1, mentee: 'วรรณ์วิภา จันทร์เพ็ญ', type: 'DTA_น้องเลี้ยง1', date: m + '-05', channel: 'Line กลุ่มรับใช้สมาชิก', topic: 'เรียนรู้งาน HR ครบทุกกระบวนการ P1-P3', status: 'ส่งแล้ว' },
+      { id: 2, mentee: 'วรรณ์วิภา จันทร์เพ็ญ', type: 'DTA_น้องเลี้ยง2', date: m + '-12', channel: 'Line กลุ่มรับใช้สมาชิก', topic: 'ฝึกปฏิบัติการคัดกรองใบสมัคร', status: 'ส่งแล้ว' },
+      { id: 3, mentee: 'กิตติชัย ศรีจันทร์', type: 'DTA_น้องเลี้ยง1', date: m + '-06', channel: 'E-mail', topic: 'เรียนรู้ระบบบัญชีและงบประมาณ', status: 'ส่งแล้ว' },
+      { id: 4, mentee: 'พิชัย ใจดี', type: 'DTA_น้องเลี้ยง1', date: m + '-10', channel: 'Line กลุ่มรับใช้สมาชิก', topic: 'อบรมความปลอดภัยหน้างาน', status: 'ส่งแล้ว' },
+      { id: 5, mentee: 'ธนพล มีสุข', type: 'DTA_น้องเลี้ยง1', date: m + '-15', channel: 'Line กลุ่มรับใช้สมาชิก', topic: 'ปฐมนิเทศบทบาทใหม่', status: 'รอตรวจ' }
+    ],
+    coachings: [
+      { id: 1, mentor: 'ดร.สมชาย ใจดี', mentee: 'วรรณ์วิภา จันทร์เพ็ญ', month: m, topic: 'ทักษะงาน', issue: 'ทบทวนกระบวนการสรรหาให้ครบถ้วน', advice: 'ฝึกจับประเด็นจากใบสมัครให้เร็วขึ้น', status: 'บันทึกแล้ว' },
+      { id: 2, mentor: 'อ.พิมพ์ใจ รุ่งเรือง', mentee: 'กิตติชัย ศรีจันทร์', month: m, topic: 'Core Competency', issue: 'การสื่อสารกับทีมการเงิน', advice: 'ใช้หลักรับฟัง รับความจริง', status: 'บันทึกแล้ว' }
+    ],
+    cards: [
+      { id: 1, member: 'กิตติชัย ศรีจันทร์', type: 'yellow', date: m + '-08', reason: 'ส่งรายงานล่าช้า 2 ครั้งติดต่อกัน', recorder: '4C ทีม PAD', announceMonth: m },
+      { id: 2, member: 'ธนพล มีสุข', type: 'yellow', date: m + '-14', reason: 'ไม่เข้าร่วมกิจกรรมทีมตามกำหนด', recorder: '4C ทีม PAD', announceMonth: m }
+    ],
+    evals: [
+      { id: 1, mentee: 'นภัสสร แก้วใส', mentor: 'คุณวิชัย ทองดี', score: 4.5, date: '2026-08-28', suggestion: 'พี่เลี้ยงให้คำแนะนำดีมาก อยากให้มีตัวอย่างกรณีศึกษาจริงเพิ่ม' },
+      { id: 2, mentee: 'วรรณ์วิภา จันทร์เพ็ญ', mentor: 'ดร.สมชาย ใจดี', score: 4.0, date: '2026-08-30', suggestion: 'อยากให้กำหนดหัวข้อรายงานรายสัปดาห์ให้ชัดเจนขึ้น' }
+    ]
+  };
+}
+
+function loadDB() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) { const d = seedDB(); localStorage.setItem(LS_KEY, JSON.stringify(d)); return d; }
+    return JSON.parse(raw);
+  } catch (e) { return seedDB(); }
+}
+let db = loadDB();
+function saveDB() { localStorage.setItem(LS_KEY, JSON.stringify(db)); }
+
+// ============ HELPERS ============
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function $(id) { return document.getElementById(id); }
+function fmtDate(d) { if (!d) return '-'; const p = d.split('-'); return p.length === 3 ? `${p[2]}/${p[1]}/${Number(p[0])+543}` : d; }
+function monthLabel(m) { if (!m) return '-'; const [y, mo] = m.split('-'); const names = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.']; return `${names[Number(mo)-1]} ${Number(y)+543}`; }
+function badge(status) {
+  const map = {
+    'active': '<span class="badge badge-green">ใช้งานอยู่</span>',
+    'pending': '<span class="badge badge-amber">รอตรวจสอบ</span>',
+    'completed': '<span class="badge badge-blue">สิ้นสุดแล้ว</span>',
+    'ส่งแล้ว': '<span class="badge badge-green">ส่งแล้ว</span>',
+    'รอตรวจ': '<span class="badge badge-amber">รอตรวจ</span>',
+    'บันทึกแล้ว': '<span class="badge badge-green">บันทึกแล้ว</span>',
+    'yellow': '<span class="badge badge-amber">🟡 ใบเหลือง</span>',
+    'red': '<span class="badge badge-red">🔴 ใบแดง</span>'
+  };
+  return map[status] || `<span class="badge badge-gray">${esc(status)}</span>`;
+}
+
+// ============ TABS ============
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  const tab = $('tab-' + name);
+  if (tab) tab.classList.add('active');
+  const links = document.querySelectorAll('.nav-link');
+  links.forEach(l => { if (l.getAttribute('onclick') && l.getAttribute('onclick').includes("'"+name+"'")) l.classList.add('active'); });
+  renderAll();
+}
+
+// ============ MODALS ============
+function openModal(name) { $(`modal-${name}`).classList.add('open'); fillModalOptions(name); }
+function closeModal(name) { $(`modal-${name}`).classList.remove('open'); }
+
+function fillModalOptions(name) {
+  const activeMentees = db.pairs.filter(p => p.status === 'active' || p.status === 'completed').map(p => p.mentee);
+  const mentors = [...new Set(db.pairs.map(p => p.mentor))];
+  const members = [...new Set(db.pairs.map(p => p.mentee))];
+  const opts = arr => arr.map(v => `<option>${esc(v)}</option>`).join('');
+  if (name === 'newReport') { $('reportMentee').innerHTML = opts(activeMentees); $('reportDate').value = todayISO(); }
+  if (name === 'newCoach') {
+    $('coachMentor').innerHTML = opts(mentors);
+    $('coachMentee').innerHTML = opts(activeMentees);
+    $('coachMonth').value = currentMonth();
+  }
+  if (name === 'newCard') { $('cardMember').innerHTML = opts(members); $('cardDate').value = todayISO(); $('cardAnnounceMonth').value = currentMonth(); }
+  if (name === 'newEval') {
+    $('evalMentee').innerHTML = opts(members);
+    $('evalMentor').innerHTML = opts(mentors);
+    $('evalDate').value = todayISO();
+  }
+  if (name === 'newPair') { $('pairStart').value = todayISO(); }
+}
+
+// ============ CRUD: PAIRS (ขั้น 21) ============
+let editingPair = null;
+function savePair() {
+  const data = {
+    memberId: $('pairMemberId').value.trim(), mentee: $('pairMentee').value.trim(), type: $('pairType').value,
+    line: $('pairLine').value.trim(), mentor: $('pairMentor').value.trim(), mentorDept: $('pairMentorDept').value.trim(),
+    mentorCapital: $('pairMentorCapital').value.trim(), start: $('pairStart').value, duration: $('pairDuration').value,
+    status: $('pairStatus').value, verified: true, channelNotified: false
+  };
+  if (!data.mentee || !data.mentor) { alert('กรุณากรอกชื่อน้องเลี้ยงและพี่เลี้ยง'); return; }
+  if (editingPair != null) { db.pairs[editingPair] = { ...db.pairs[editingPair], ...data }; editingPair = null; }
+  else { data.id = Date.now(); db.pairs.push(data); }
+  saveDB(); closeModal('newPair'); renderAll();
+  updatePairSelects();
+}
+function editPair(i) {
+  editingPair = i; const p = db.pairs[i];
+  $('pairMemberId').value = p.memberId; $('pairMentee').value = p.mentee; $('pairType').value = p.type;
+  $('pairLine').value = p.line; $('pairMentor').value = p.mentor; $('pairMentorDept').value = p.mentorDept;
+  $('pairMentorCapital').value = p.mentorCapital; $('pairStart').value = p.start; $('pairDuration').value = p.duration;
+  $('pairStatus').value = p.status;
+  openModal('newPair');
+}
+function deletePair(i) { if (confirm('ลบคู่พี่เลี้ยงนี้?')) { db.pairs.splice(i,1); saveDB(); renderAll(); } }
+function toggleVerified(i) { db.pairs[i].verified = !db.pairs[i].verified; saveDB(); renderAll(); }
+function toggleNotified(i) { db.pairs[i].channelNotified = !db.pairs[i].channelNotified; saveDB(); renderAll(); }
+
+// ============ CRUD: REPORTS (ขั้น 23) ============
+function saveReport() {
+  const d = { mentee: $('reportMentee').value, type: $('reportType').value, date: $('reportDate').value, channel: $('reportChannel').value, topic: $('reportTopic').value.trim(), status: 'ส่งแล้ว' };
+  if (!d.topic) { alert('กรุณากรอกหัวข้อ/สรุปงาน'); return; }
+  d.id = Date.now(); db.reports.push(d); saveDB(); closeModal('newReport'); renderAll();
+}
+function deleteReport(i) { db.reports.splice(i,1); saveDB(); renderAll(); }
+
+// ============ CRUD: COACH (ขั้น 24) ============
+function saveCoach() {
+  const d = { mentor: $('coachMentor').value, mentee: $('coachMentee').value, month: $('coachMonth').value, topic: $('coachTopic').value, issue: $('coachIssue').value.trim(), advice: $('coachAdvice').value.trim(), status: 'บันทึกแล้ว' };
+  if (!d.issue) { alert('กรุณากรอกประเด็นหลัก'); return; }
+  d.id = Date.now(); db.coachings.push(d); saveDB(); closeModal('newCoach'); renderAll();
+}
+function deleteCoach(i) { db.coachings.splice(i,1); saveDB(); renderAll(); }
+
+// ============ CRUD: CARDS (ขั้น 26) ============
+function saveCard() {
+  const d = { member: $('cardMember').value, type: $('cardType').value, date: $('cardDate').value, reason: $('cardReason').value.trim(), recorder: $('cardRecorder').value.trim() || '4C ทีม PAD', announceMonth: $('cardAnnounceMonth').value };
+  if (!d.reason) { alert('กรุณากรอกเหตุผล'); return; }
+  d.id = Date.now(); db.cards.push(d); saveDB(); closeModal('newCard'); renderAll();
+}
+function deleteCard(i) { db.cards.splice(i,1); saveDB(); renderAll(); }
+function announceCards() {
+  const month = currentMonth();
+  const cards = db.cards.filter(c => c.announceMonth === month);
+  const banner = $('announcementBanner');
+  if (!cards.length) { banner.classList.remove('hidden'); banner.innerHTML = '📣 ไม่มีใบเหลือง/ใบแดงในเดือนนี้'; return; }
+  db.config.announcedMonth = month; saveDB();
+  const lines = cards.map(c => `${c.type === 'yellow' ? '🟡' : '🔴'} ${esc(c.member)} — ${esc(c.reason)}`).join('<br>');
+  banner.classList.remove('hidden');
+  banner.innerHTML = `<b>📣 ประกาศใบเหลือง/ใบแดง ประจำเดือน ${monthLabel(month)}</b><br>${lines}`;
+}
+
+// ============ CRUD: EVAL (ขั้น 28) ============
+function saveEval() {
+  const d = { mentee: $('evalMentee').value, mentor: $('evalMentor').value, score: Number($('evalScore').value), date: $('evalDate').value, suggestion: $('evalSuggestion').value.trim() };
+  if (!d.suggestion) { alert('กรุณากรอกข้อเสนอแนะ'); return; }
+  d.id = Date.now(); db.evals.push(d); saveDB(); closeModal('newEval'); renderAll();
+}
+function deleteEval(i) { db.evals.splice(i,1); saveDB(); renderAll(); }
+function announceEvalSummary() {
+  if (!db.evals.length) { $('evalAnnounce').textContent = 'ยังไม่มีการประเมิน'; return; }
+  const avg = (db.evals.reduce((s,e) => s + e.score, 0) / db.evals.length).toFixed(2);
+  $('evalAnnounce').textContent = `📣 PAD ประกาศสรุปผลประเมินระบบพี่เลี้ยง: คะแนนเฉลี่ย ${avg}/5 จาก ${db.evals.length} ราย — อยู่ระหว่างนำข้อเสนอแนะไปปรับปรุงระบบ`;
+}
+
+// ============ RENDER ============
+function renderPairs() {
+  const tbody = $('pairTable');
+  tbody.innerHTML = db.pairs.map((p, i) => {
+    const verified = p.verified
+      ? '<span class="badge badge-green">ครบถ้วน ✓</span>'
+      : '<span class="badge badge-red">รอข้อมูล</span>';
+    return `<tr>
+      <td class="font-mono text-xs">${esc(p.memberId || '-')}</td>
+      <td class="font-medium">${esc(p.mentee)}</td>
+      <td>${esc(p.type)}</td>
+      <td>${esc(p.mentor)}</td>
+      <td>${esc(p.mentorDept || '-')}<br><span class="text-xs text-slate-400">${esc(p.mentorCapital || '')}</span></td>
+      <td>${fmtDate(p.start)}</td>
+      <td>${verified} <button class="text-xs text-blue-600 hover:underline ml-1" onclick="toggleVerified(${i})">สลับ</button></td>
+      <td>${badge(p.status)}</td>
+      <td class="whitespace-nowrap">
+        <button class="text-blue-600 hover:underline text-xs" onclick="editPair(${i})">แก้ไข</button>
+        <button class="text-red-600 hover:underline text-xs ml-2" onclick="deletePair(${i})">ลบ</button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="9" class="text-center text-slate-400 py-4">ยังไม่มีข้อมูล — กด "+ ตั้งค่าระบบพี่เลี้ยง"</td></tr>';
+}
+
+function renderChannels() {
+  $('lineGroupUrl').value = db.config.lineGroupUrl;
+  $('emailAddr').value = db.config.emailAddr;
+  $('lineChannelStatus').textContent = db.config.lineGroupUrl ? '✅ บันทึกแล้ว' : '';
+  $('emailChannelStatus').textContent = db.config.emailAddr ? '✅ บันทึกแล้ว' : '';
+  const tbody = $('channelTable');
+  tbody.innerHTML = db.pairs.map((p, i) => `
+    <tr>
+      <td class="font-medium">${esc(p.mentee)}</td>
+      <td>${esc(p.line || '-')}</td>
+      <td>${esc(p.memberId + '@pracha.kij' || '-')}</td>
+      <td>${p.channelNotified ? '<span class="badge badge-green">แจ้งแล้ว</span>' : '<span class="badge badge-amber">ยังไม่แจ้ง</span>'}</td>
+      <td><button class="text-xs text-blue-600 hover:underline" onclick="toggleNotified(${i})">${p.channelNotified ? 'ยกเลิก' : '✅ แจ้งแล้ว'}</button></td>
+    </tr>`).join('');
+}
+
+function renderReports() {
+  const monthSel = $('filterReportMonth');
+  const months = [...new Set(db.reports.map(r => r.date.slice(0,7)))].sort().reverse();
+  const current = monthSel.value || currentMonth();
+  if (!months.includes(current)) months.unshift(current);
+  monthSel.innerHTML = months.map(m => `<option value="${m}">${monthLabel(m)}</option>`).join('');
+  monthSel.value = current;
+  const filtered = db.reports.filter(r => r.date.startsWith(current)).sort((a,b) => b.date.localeCompare(a.date));
+  $('reportTable').innerHTML = filtered.map((r, i) => {
+    const origIdx = db.reports.indexOf(r);
+    return `<tr>
+      <td>${fmtDate(r.date)}</td>
+      <td class="font-medium">${esc(r.mentee)}</td>
+      <td><span class="badge badge-purple">${esc(r.type)}</span></td>
+      <td>${esc(r.channel)}</td>
+      <td class="max-w-xs">${esc(r.topic)}</td>
+      <td>${badge(r.status)}</td>
+      <td><button class="text-red-600 hover:underline text-xs" onclick="deleteReport(${origIdx})">ลบ</button></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" class="text-center text-slate-400 py-4">ยังไม่มีรายงานในเดือนนี้</td></tr>';
+}
+
+function renderCoach() {
+  const sorted = [...db.coachings].sort((a,b) => b.month.localeCompare(a.month));
+  $('coachTable').innerHTML = sorted.map((c, i) => {
+    const origIdx = db.coachings.indexOf(c);
+    return `<tr>
+      <td>${monthLabel(c.month)}</td>
+      <td class="font-medium">${esc(c.mentor)}</td>
+      <td>${esc(c.mentee)}</td>
+      <td><span class="badge badge-blue">${esc(c.topic)}</span></td>
+      <td class="max-w-xs">${esc(c.issue)}</td>
+      <td class="max-w-xs">${esc(c.advice || '-')}</td>
+      <td>${badge(c.status)}</td>
+      <td><button class="text-red-600 hover:underline text-xs" onclick="deleteCoach(${origIdx})">ลบ</button></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="8" class="text-center text-slate-400 py-4">ยังไม่มีการ Coach</td></tr>';
+}
+
+function renderDiscipline() {
+  const m = currentMonth();
+  // วินัยน้องเลี้ยง: จำนวนรายงานที่ควรส่ง = 4 ครั้ง/เดือน (รายสัปดาห์) — ใช้อัตราจริงจาก DTA ที่คาดหวัง
+  const mentees = db.pairs.filter(p => p.status === 'active');
+  const tbody1 = $('disciplineMenteeTable');
+  tbody1.innerHTML = mentees.map(p => {
+    const sent = db.reports.filter(r => r.mentee === p.mentee && r.date.startsWith(m)).length;
+    const expected = 4; // รายงานรายสัปดาห์ตามที่ PAD กำหนด
+    const pct = Math.round(sent / expected * 100);
+    const pass = pct >= 80;
+    return `<tr>
+      <td class="font-medium">${esc(p.mentee)}</td>
+      <td>${sent}</td><td>${expected}</td>
+      <td>
+        <div class="flex items-center gap-2">
+          <div class="progress-bar flex-1"><div class="progress-fill ${pass ? 'green' : 'amber'}" style="width:${Math.min(pct,100)}%"></div></div>
+          <span class="text-sm font-semibold ${pass ? 'text-green-600' : 'text-red-600'}">${pct}%</span>
+        </div>
+      </td>
+      <td>${pass ? '<span class="badge badge-green">ผ่านเกณฑ์</span>' : '<span class="badge badge-red">ต่ำกว่า 80% → รับผิดชอบต่อผล</span>'}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" class="text-center text-slate-400 py-4">ไม่มีน้องเลี้ยงที่ใช้งานอยู่</td></tr>';
+
+  // วินัยพี่เลี้ยง: ต้อง Coach อย่างน้อยเดือนละ 1 ครั้ง
+  const mentors = [...new Set(db.pairs.filter(p => p.status === 'active').map(p => p.mentor))];
+  const tbody2 = $('disciplineMentorTable');
+  tbody2.innerHTML = mentors.map(mentor => {
+    const done = db.coachings.filter(c => c.mentor === mentor && c.month === m).length;
+    const expected = 1;
+    const pct = Math.min(100, Math.round(done / expected * 100));
+    const pass = done >= expected;
+    return `<tr>
+      <td class="font-medium">${esc(mentor)}</td>
+      <td>${done}</td><td>${expected}</td>
+      <td><span class="text-sm font-semibold ${pass ? 'text-green-600' : 'text-red-600'}">${pct}%</span></td>
+      <td>${pass ? '<span class="badge badge-green">ครบตามเงื่อนไข</span>' : '<span class="badge badge-red">ยังไม่ Coach → สรุปความรับผิดชอบ</span>'}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" class="text-center text-slate-400 py-4">ไม่มีพี่เลี้ยง</td></tr>';
+}
+
+function renderCards() {
+  const sorted = [...db.cards].sort((a,b) => b.date.localeCompare(a.date));
+  $('cardTable').innerHTML = sorted.map(c => {
+    const origIdx = db.cards.indexOf(c);
+    return `<tr>
+      <td>${fmtDate(c.date)}</td>
+      <td class="font-medium">${esc(c.member)}</td>
+      <td>${badge(c.type)}</td>
+      <td class="max-w-xs">${esc(c.reason)}</td>
+      <td>${esc(c.recorder)}</td>
+      <td>${monthLabel(c.announceMonth)}</td>
+      <td><button class="text-red-600 hover:underline text-xs" onclick="deleteCard(${origIdx})">ลบ</button></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" class="text-center text-slate-400 py-4">ยังไม่มีใบเหลือง/ใบแดง</td></tr>';
+}
+
+function renderEval() {
+  const sorted = [...db.evals].sort((a,b) => b.date.localeCompare(a.date));
+  $('evalTable').innerHTML = sorted.map(e => {
+    const origIdx = db.evals.indexOf(e);
+    return `<tr>
+      <td>${fmtDate(e.date)}</td>
+      <td class="font-medium">${esc(e.mentee)}</td>
+      <td>${esc(e.mentor)}</td>
+      <td><span class="badge ${e.score >= 4 ? 'badge-green' : e.score >= 3 ? 'badge-amber' : 'badge-red'}">${e.score}/5</span></td>
+      <td class="max-w-sm">${esc(e.suggestion)}</td>
+      <td><button class="text-red-600 hover:underline text-xs" onclick="deleteEval(${origIdx})">ลบ</button></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" class="text-center text-slate-400 py-4">ยังไม่มีการประเมิน</td></tr>';
+  // Suggestions
+  $('evalSuggestions').innerHTML = db.evals.map(e => `
+    <div class="border rounded-lg p-3 bg-purple-50 text-sm">
+      <span class="font-medium">${esc(e.mentee)}</span> <span class="text-slate-400">(${e.score}/5)</span>
+      <div class="text-slate-600 mt-1">💡 ${esc(e.suggestion)}</div>
+    </div>`).join('') || '<div class="text-sm text-slate-400">ยังไม่มีข้อเสนอแนะ</div>';
+}
+
+function renderOverview() {
+  const m = currentMonth();
+  const active = db.pairs.filter(p => p.status === 'active' || p.status === 'pending');
+  $('statPairs').textContent = active.length;
+  $('statMentees').textContent = db.pairs.length;
+  const monthReports = db.reports.filter(r => r.date.startsWith(m));
+  $('statReports').textContent = monthReports.length;
+  const sent = monthReports.length, expected = active.length * 4;
+  const pct = expected > 0 ? Math.round(sent / expected * 100) : 0;
+  $('statDiscipline').textContent = pct + '%';
+  $('statCards').textContent = db.cards.filter(c => (c.announceMonth || c.date.slice(0,7)) === m).length;
+
+  // Timeline
+  const steps = [
+    { n: 21, t: 'ทีม PAD ตั้งค่าระบบพี่เลี้ยง', d: `คู่พี่เลี้ยง ${db.pairs.length} คู่ (${active.length} ใช้งาน)` },
+    { n: 22, t: 'สร้างช่องทางรายงาน Line + E-mail', d: db.config.lineGroupUrl ? '✅ ตั้งค่า Line แล้ว' : '⏳ ยังไม่ตั้งค่า Line' },
+    { n: 23, t: 'น้องเลี้ยงรายงานการปฏิบัติงาน', d: `ส่งแล้ว ${monthReports.length} ครั้ง เดือนนี้` },
+    { n: 24, t: 'พี่เลี้ยง Coach (เดือนละ 1 ครั้ง)', d: `Coach แล้ว ${db.coachings.filter(c => c.month === m).length} ครั้ง เดือนนี้` },
+    { n: 25, t: 'PAD ตรวจวินัยส่งรายงาน (≥80%)', d: `อัตราปัจจุบัน ${pct}%` },
+    { n: 26, t: '4C บันทึกใบเหลือง/ใบแดง', d: `เดือนนี้ ${db.cards.filter(c => (c.announceMonth || c.date.slice(0,7)) === m).length} รายการ` },
+    { n: 27, t: 'PAD ตรวจวินัยการ Coach', d: `พี่เลี้ยง ${db.coachings.filter(c => c.month === m).length}/${new Set(db.pairs.map(p=>p.mentor)).size} คน Coach ครบ` },
+    { n: 28, t: 'สมาชิกประเมินระบบพี่เลี้ยง', d: `ประเมินแล้ว ${db.evals.length} ราย` },
+    { n: 29, t: 'PAD สรุปประกาศ + ปรับปรุงระบบ', d: db.evals.length ? `คะแนนเฉลี่ย ${(db.evals.reduce((s,e)=>s+e.score,0)/db.evals.length).toFixed(2)}/5` : 'รอผลประเมิน' }
+  ];
+  $('processTimeline').innerHTML = steps.map(s => `
+    <div class="timeline-step">
+      <div class="timeline-dot ${s.n >= 26 ? 'bg-purple-100 text-purple-700' : 'bg-pink-100 text-pink-700'}">${s.n}</div>
+      <div>
+        <div class="font-medium text-slate-800 text-sm">${s.t}</div>
+        <div class="text-xs text-slate-500">${s.d}</div>
+      </div>
+    </div>`).join('');
+
+  // Risks
+  const risks = [];
+  const unverified = db.pairs.filter(p => !p.verified);
+  if (unverified.length) risks.push({ lv: 'amber', t: `⚠️ มี ${unverified.length} คู่ที่ข้อมูลยังไม่ครบถ้วน (ต้องตรวจสอบภายใน 3 วัน)` });
+  const notNotified = db.pairs.filter(p => !p.channelNotified);
+  if (notNotified.length) risks.push({ lv: 'amber', t: `⚠️ ยังไม่ได้แจ้งช่องทางรายงานให้ ${notNotified.length} คน` });
+  if (pct < 80) risks.push({ lv: 'red', t: `🔴 วินัยการส่งรายงาน ${pct}% ต่ำกว่าเกณฑ์ 80% — ต้องประกาศความรับผิดชอบต่อผล` });
+  const noCoachMentors = [...new Set(db.pairs.filter(p => p.status === 'active').map(p => p.mentor))].filter(mm => !db.coachings.some(c => c.mentor === mm && c.month === m));
+  if (noCoachMentors.length) risks.push({ lv: 'amber', t: `⚠️ พี่เลี้ยง ${noCoachMentors.length} คนยังไม่ Coach เดือนนี้` });
+  const reds = db.cards.filter(c => c.type === 'red');
+  if (reds.length) risks.push({ lv: 'red', t: `🔴 มีใบแดง ${reds.length} ใบ — ต้องติดตามกรณีวิกฤต` });
+  if (!risks.length) risks.push({ lv: 'green', t: '✅ ไม่พบความเสี่ยง — ระบบพี่เลี้ยงเป็นไปตามเกณฑ์' });
+  const lvClass = { amber: 'border-amber-200 bg-amber-50 text-amber-800', red: 'border-red-200 bg-red-50 text-red-800', green: 'border-green-200 bg-green-50 text-green-700' };
+  $('riskList').innerHTML = risks.map(r => `<div class="border rounded-lg p-3 text-sm ${lvClass[r.lv]}">${r.t}</div>`).join('');
+}
+
+function renderReportStats() {
+  $('rptPairs').textContent = db.pairs.length;
+  $('rptReports').textContent = db.reports.length;
+  $('rptCoach').textContent = db.coachings.length;
+  $('rptCards').textContent = db.cards.length;
+}
+
+// ============ CHARTS ============
+let chartDiscipline = null, chartEval = null;
+function renderCharts() {
+  const m = currentMonth();
+  const mentees = db.pairs.filter(p => p.status === 'active');
+  const labels = mentees.map(p => p.mentee.length > 12 ? p.mentee.slice(0,12) + '…' : p.mentee);
+  const pcts = mentees.map(p => {
+    const sent = db.reports.filter(r => r.mentee === p.mentee && r.date.startsWith(m)).length;
+    return Math.round(sent / 4 * 100);
+  });
+  const ctx1 = $('chartDiscipline');
+  if (chartDiscipline) chartDiscipline.destroy();
+  if (ctx1) chartDiscipline = new Chart(ctx1, {
+    type: 'bar',
+    data: { labels, datasets: [{ label: '% ส่งรายงาน', data: pcts, backgroundColor: pcts.map(p => p >= 80 ? '#10b981' : '#ef4444'), borderRadius: 8 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, annotation: undefined },
+      scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' } } } }
+  });
+  const ctx2 = $('chartEval');
+  if (chartEval) chartEval.destroy();
+  if (ctx2) chartEval = new Chart(ctx2, {
+    type: 'bar',
+    data: { labels: db.evals.map(e => e.mentee.length > 12 ? e.mentee.slice(0,12) + '…' : e.mentee), datasets: [{ label: 'คะแนนประเมิน', data: db.evals.map(e => e.score), backgroundColor: '#8b5cf6', borderRadius: 8 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 5 } } }
+  });
+}
+
+// ============ EXPORT / IMPORT ============
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pp7-mentoring-system.json';
+  a.click();
+}
+function importJSON() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try { const d = JSON.parse(ev.target.result); db = d; saveDB(); renderAll(); alert('✅ นำเข้าข้อมูลสำเร็จ'); }
+      catch (err) { alert('ไฟล์ JSON ไม่ถูกต้อง'); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+function exportCSV() {
+  const rows = [['ประเภท','ชื่อ','รายละเอียด','วันที่','สถานะ']];
+  db.pairs.forEach(p => rows.push(['คู่พี่เลี้ยง', `${p.mentee} ↔ ${p.mentor}`, p.type, p.start, p.status]));
+  db.reports.forEach(r => rows.push(['รายงาน', r.mentee, `${r.type}: ${r.topic}`, r.date, r.status]));
+  db.coachings.forEach(c => rows.push(['Coach', `${c.mentor} → ${c.mentee}`, c.issue, c.month, c.status]));
+  db.cards.forEach(c => rows.push([c.type === 'yellow' ? 'ใบเหลือง' : 'ใบแดง', c.member, c.reason, c.date, c.announceMonth]));
+  db.evals.forEach(e => rows.push(['ประเมิน', e.mentee, e.suggestion, e.date, e.score]));
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pp7-mentoring-report.csv';
+  a.click();
+}
+function resetDemo() { if (confirm('รีเซ็ตข้อมูลตัวอย่างทั้งหมด?')) { db = seedDB(); saveDB(); renderAll(); } }
+
+// ============ CHANNEL SAVE ============
+function saveChannel(kind) {
+  if (kind === 'line') db.config.lineGroupUrl = $('lineGroupUrl').value.trim();
+  if (kind === 'email') db.config.emailAddr = $('emailAddr').value.trim();
+  saveDB(); renderChannels(); renderAll();
+}
+
+// ============ SELECTS ============
+function updatePairSelects() {
+  const mentees = db.pairs.map(p => p.mentee);
+  const mentors = [...new Set(db.pairs.map(p => p.mentor))];
+  const opts = arr => arr.map(v => `<option>${esc(v)}</option>`).join('');
+  ['reportMentee','coachMentee','cardMember','evalMentee'].forEach(id => { const el = $(id); if (el && mentees.length) el.innerHTML = opts(mentees); });
+  ['coachMentor','evalMentor'].forEach(id => { const el = $(id); if (el && mentors.length) el.innerHTML = opts(mentors); });
+}
+
+// ============ RENDER ALL ============
+function renderAll() {
+  renderPairs(); renderChannels(); renderReports(); renderCoach();
+  renderDiscipline(); renderCards(); renderEval(); renderOverview();
+  renderReportStats(); renderCharts(); updatePairSelects();
+}
+
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', () => {
+  renderAll();
+});
+</script>
+</body>
+</html>
