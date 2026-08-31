@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📋 PP7 Process Overview — ภาพรวมทั้งหมด (AI + เดิม) สำหรับทีม PAC</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Prompt', sans-serif; box-sizing: border-box; }
+  body { background: #f8fafc; color: #1e293b; margin: 0; line-height: 1.6; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+  header { background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%); color: #fff; padding: 2.5rem 2rem; border-radius: 1rem; margin-bottom: 1.5rem; box-shadow: 0 10px 40px rgba(139,92,246,.2); }
+  header h1 { font-size: 1.6rem; margin: 0 0 .4rem; }
+  header p { margin: 0; opacity: .9; font-size: .9rem; }
+  header .meta { margin-top: .5rem; font-size: .75rem; opacity: .7; }
+  .legend-bar { background: #fff; border-radius: .75rem; padding: .8rem 1.25rem; margin-bottom: 1.5rem; box-shadow: 0 2px 12px rgba(15,23,42,.06); display: flex; gap: 1.25rem; flex-wrap: wrap; align-items: center; }
+  .legend-bar .title { font-weight: 600; color: #64748b; font-size: .8rem; }
+  .legend-item { display: flex; align-items: center; gap: .35rem; font-size: .8rem; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 4px; }
+  .legend-dot.orig { background: #fbbf24; border: 2px solid #d97706; }
+  .legend-dot.ai { background: #c084fc; border: 2px solid #7c3aed; }
+  .legend-dot.decision { background: #f87171; border: 2px solid #dc2626; }
+  .diagram-section { background: #fff; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(15,23,42,.06); }
+  .diagram-section h2 { color: #8b5cf6; font-size: 1.15rem; margin: 0 0 .25rem; }
+  .diagram-section .sub { color: #94a3b8; font-size: .8rem; margin-bottom: .75rem; }
+  .mermaid { background: #fafbff; border: 1px solid #e2e8f0; border-radius: .75rem; padding: 1rem; text-align: center; overflow-x: auto; }
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .summary-card { background: #fff; border-radius: .75rem; padding: 1.25rem; box-shadow: 0 2px 12px rgba(15,23,42,.06); border-left: 4px solid; }
+  .summary-card.p1 { border-color: #ec4899; }
+  .summary-card.p2 { border-color: #f59e0b; }
+  .summary-card.p3 { border-color: #10b981; }
+  .summary-card.p4 { border-color: #3b82f6; }
+  .summary-card.p5 { border-color: #8b5cf6; }
+  .summary-card.p6 { border-color: #ef4444; }
+  .summary-card.p7 { border-color: #06b6d4; }
+  .summary-card h3 { margin: 0 0 .5rem; font-size: .95rem; }
+  .summary-card .orig { font-size: .8rem; color: #64748b; margin-bottom: .35rem; }
+  .summary-card .ai { font-size: .8rem; color: #7c3aed; }
+  .summary-card .ai b { color: #6d28d9; }
+  table { width: 100%; border-collapse: collapse; margin: .75rem 0; font-size: .8rem; }
+  th { background: #f8fafc; padding: .5rem .7rem; text-align: left; font-weight: 600; color: #64748b; border-bottom: 2px solid #e2e8f0; }
+  td { padding: .5rem .7rem; border-bottom: 1px solid #f1f5f9; }
+  tr:hover td { background: #f8fafc; }
+  .badge { display: inline-block; padding: .1rem .4rem; border-radius: 9999px; font-size: .7rem; font-weight: 500; }
+  .badge-high { background: #fee2e2; color: #991b1b; }
+  .badge-med { background: #fef3c7; color: #92400e; }
+  footer { text-align: center; padding: 1.5rem; color: #94a3b8; font-size: .75rem; }
+  @media (max-width: 768px) { header h1 { font-size: 1.2rem; } .summary-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>📋 PP7 Process Overview — ภาพรวมทั้งหมด (AI + เดิม)</h1>
+  <p>สำหรับทีม PAC — ดูภาพรวมกระบวนการ PP7 ทั้งหมด ตั้งแต่ P1 ถึง P7 พร้อมจุดที่ AI เข้ามาช่วย</p>
+  <div class="meta">อ้างอิง: SMC_HOCC_PM_002_การบริหารระบบ_PP7 (draw.io) · 31 ส.ค. 2569 · KiloClaw (PM + Developer)</div>
+</header>
+
+<div class="legend-bar">
+  <div class="title">สัญลักษณ์:</div>
+  <div class="legend-item"><span class="legend-dot orig"></span> กระบวนการเดิม</div>
+  <div class="legend-item"><span class="legend-dot ai"></span> 🤖 AI เข้ามาช่วย</div>
+  <div class="legend-item"><span class="legend-dot decision"></span> 🔶 จุดตัดสินใจ</div>
+</div>
+
+<!-- ============ DIAGRAM ภาพรวมใหญ่ ============ -->
+<div class="diagram-section">
+  <h2>🔄 Flowchart ภาพรวม PP7 ทั้งหมด (P1 → P7) พร้อม AI Touchpoints</h2>
+  <div class="sub">ดูภาพเดียวเห็นทุกกระบวนการ — ตั้งแต่ Start จนจบ พร้อมจุดที่ AI เข้ามาช่วยในแต่ละขั้น</div>
+  <div class="mermaid">
+flowchart TB
+    START(["▶️ START"]) --> P1_1
+
+    %% ===== P1 =====
+    subgraph P1["🧲 P1 แสวงหา (Recruit)"]
+        P1_1["🟨 1. หน่วยงานแจ้งขออัตรากำลัง<br/>กรอกแบบฟอร์ม (idea.prachakij.com)"]
+        P1_1 --> AI1{{"🤖 AI วิเคราะห์คำขอ<br/>ตรวจอัตราซ้ำ + แนะนำสมรรถนะ"}}
+        AI1 --> P1_2["🟨 2. P1 แสวงหา<br/>ภายใน / ภายนอก"]
+        P1_2 --> P1_3{"🟨 3. ประกาศรับสมัคร<br/>ภายใน 45 วัน"}
+        P1_3 -->|"ภายใน"| P1_31["🟨 3.1 ภายใน<br/>โอนย้าย / จัดคนให้ถูกกับงาน"]
+        P1_3 -->|"ภายนอก"| P1_32["🟨 3.2 ภายนอก<br/>Website/FB/Social/จัดหางาน/Walk-in/สถานศึกษา"]
+        P1_31 --> AI_POST{{"🤖 AI Auto-Post<br/>+ Tracking ช่องทาง"}}
+        P1_32 --> AI_POST
+        AI_POST --> P1_41["🟨 4.1 คีย์ใบโอนย้าย"]
+        AI_POST --> P1_42["🟨 4.2 ใบสมัคร"]
+        P1_42 --> AI_SCREEN{{"🤖 AI Screening<br/>ให้คะแนนใบสมัครอัตโนมัติ"}}
+        P1_41 --> P1_SEL["🟨 คัดเลือก"]
+        AI_SCREEN --> P1_SEL
+        P1_SEL -->|"ไม่คัดเลือก"| AI_NOTIFY{{"🤖 AI แจ้งผล<br/>ข้อความสุภาพ/อบอุ่น"}}
+        AI_NOTIFY --> P1_END(["🔚 ปิดใบสมัคร"])
+    end
+
+    P1_SEL -->|"ผ่าน"| P2_7
+
+    %% ===== P2+P3 =====
+    subgraph P2P3["🎯 P2 หยั่งประเมิน + P3 จับคู่คนกับงาน"]
+        P2_7["🟨 7. P2 หยั่งประเมิน<br/>สัมภาษณ์ / ทดสอบทักษะ"]
+        P2_7 --> AI_INT{{"🤖 AI ช่วยสัมภาษณ์<br/>แนะนำคำถาม CC1-CC7<br/>วิเคราะห์คำตอบ + สรุปคะแนน"}}
+        AI_INT --> P3_8{"🟨 8. P3 คัดเลือกจับคู่คน"}
+        P3_8 -->|"เหมาะกับตำแหน่ง"| P3_PASS["✅ ผ่าน"]
+        P3_8 -->|"เหมาะกับ BU อื่น"| P3_FWD["🟨 ส่งต่อหน่วยงานอื่น"]
+        P3_8 -->|"ไม่ผ่านหลักเกณฑ์"| P3_CLOSE["🟨 ปิดใบสมัคร"]
+        P3_FWD --> AI_FWD{{"🤖 AI หา BU เหมาะสุด<br/>+ สร้างใบส่งต่ออัตโนมัติ"}}
+        P3_CLOSE --> AI_POOL{{"🤖 AI สร้าง Talent Pool"}}
+        AI_FWD --> P2_7
+    end
+
+    P3_PASS --> P4
+
+    %% ===== P4 =====
+    subgraph P4_SEC["📈 P4 ประเมินผล (Performance)"]
+        P4["🟨 ประเมินเครดิตประจำปี 360°<br/>ตนเอง/หัวหน้า/เพื่อน/ลูกน้อง/ลูกค้า"]
+        P4 --> AI_360{{"🤖 AI วิเคราะห์ผล 360<br/>จับ bias ข้ามมุมมอง<br/>แปลงความรู้สึกเป็นข้อมูลเชิงประจักษ์"}}
+        AI_360 --> P4_SUM["🟨 สรุปคะแนนเครดิต"]
+    end
+
+    P4_SUM --> P5_21
+    P4_SUM --> P6_30
+
+    %% ===== P5 =====
+    subgraph P5_SEC["🎓 P5 พัฒนา (Mentoring System)"]
+        P5_21["🟨 21. PAD set ระบบพี่เลี้ยง<br/>ตรวจสอบข้อมูลภายใน 3 วัน"]
+        P5_21 --> AI21{{"🤖 AI ตรวจข้อมูล<br/>flag ไม่ครบอัตโนมัติ"}}
+        AI21 --> P5_22["🟨 22. สร้างช่องทางรายงาน<br/>Line + E-mail"]
+        P5_22 --> AI22{{"🤖 AI ส่งข้อความแจ้ง<br/>+ ติดตามสถานะ"}}
+        AI22 --> P5_23["🟨 23. น้องเลี้ยงรายงาน DTA"]
+        P5_23 --> AI23{{"🤖 Line Bot รับรายงาน<br/>แยกหมวด + เตือนไม่ส่ง"}}
+        AI23 --> P5_24["🟨 24. พี่เลี้ยง Coach<br/>Form Coach เดือนละ 1 ครั้ง"]
+        P5_24 --> AI24{{"🤖 AI ช่วย Coach<br/>สรุปประเด็น + แนะนำหัวข้อ"}}
+        AI24 --> P5_25["🟨 25. PAD ตรวจวินัยส่งรายงาน<br/>เกณฑ์ ≥ 80%"]
+        P5_25 --> AI25{{"🤖 AI คำนวณวินัย<br/>เตือนก่อนหลุด 80%"}}
+        AI25 --> P5_CHK{"🔶 ผ่าน 80%?"}
+        P5_CHK -->|"ต่ำกว่า"| P5_26["🟨 26. 4C ใบเหลือง/ใบแดง<br/>+ ประกาศรายเดือน"]
+        P5_CHK -->|"มากกว่า"| P5_27["🟨 27. PAD ตรวจวินัย Coach<br/>พี่เลี้ยง"]
+        P5_26 --> AI26{{"🤖 AI เสนอระดับใบ<br/>+ ร่างประกาศ"}}
+        P5_27 --> AI27{{"🤖 AI เตือนพี่เลี้ยง<br/>ที่ไม่ Coach ครบ"}}
+        AI27 --> P5_28["🟨 28. สมาชิกประเมิน<br/>ระบบพี่เลี้ยง"]
+        P5_28 --> P5_29["🟨 29. PAD สรุปประกาศ<br/>+ ปรับปรุงระบบ"]
+        P5_29 --> AI29{{"🤖 AI วิเคราะห์ผล<br/>sentiment + ข้อเสนอแนะ"}}
+        AI29 --> P5_END(["🔚 END P5"])
+    end
+
+    P5_29 -.->|"ข้อมูลพัฒนา"| P4
+
+    %% ===== P6 =====
+    subgraph P6_SEC["💰 P6 ค่าตอบแทน (Payroll)"]
+        P6_30["🟨 30. เพิ่มสมาชิก PayRoll<br/>วันที่ 1-10 ของเดือน"]
+        P6_30 --> AI30{{"🤖 AI ดึงเหตุการณ์<br/>จาก P1/P3 อัตโนมัติ"}}
+        AI30 --> P6_31["🟨 31. เตรียมข้อมูลเงินเดือน"]
+        P6_31 --> AI31{{"🤖 AI ดึงรายได้/หัก<br/>โอที/เบี้ยเลี้ยง/สปส."}}
+        AI31 --> P6_32["🟨 32. คำนวณภาษีเงินได้<br/>C1→B1→B6"]
+        P6_32 --> AI32{{"🤖 AI คำนวณภาษี<br/>ขั้นบันได + ลดหย่อน"}}
+        AI32 --> P6_33["🟨 33. ตรวจสอบเงินเดือน<br/>C1/C2 ย้อนหลัง, C3, C5, E1"]
+        P6_33 --> AI33{{"🤖 AI ตรวจ anomaly<br/>ผิดปกติ/ติดลบ/ซ้ำซ้อน"}}
+        AI33 --> P6_34["🟨 34. e-slip + ส่ง Line<br/>ให้สมาชิกตรวจสอบ"]
+        P6_34 --> AI34{{"🤖 AI สร้าง e-slip<br/>+ รับคำแจ้งผิด"}}
+        AI34 --> P6_35["🟨 35. ปริ้นใบ VC<br/>+ รายงานกระทบยอด"]
+        P6_35 --> AI35{{"🤖 AI สร้างเอกสาร<br/>VC + กระทบยอดอัตโนมัติ"}}
+        AI35 --> P6_36["🟨 36. การเงินตรวจสอบ"]
+        P6_36 --> AI36{{"🤖 AI กระทบยอด<br/>เทียบระบบ vs เอกสาร"}}
+        AI36 --> P6_CHK{"🔶 ถูกต้อง?"}
+        P6_CHK -->|"ไม่ถูกต้อง"| P6_33
+        P6_CHK -->|"ถูกต้อง"| P6_37["🟨 37. PAO ตั้งโอนเงิน<br/>การเงินโอนให้สมาชิก"]
+        P6_37 --> AI37{{"🤖 AI เตรียมไฟล์โอน<br/>+ ตรวจซ้ำ"}}
+        AI37 --> P6_END(["🔚 END P6"])
+    end
+
+    %% ===== P7 =====
+    subgraph P7_SEC["🌿 P7 คุณภาพชีวิต"]
+        P7["🟨 ดูแลสมาชิก 5 มิติ<br/>สุขภาพ/ความมั่งคั่ง/บรรยากาศ/เวลา/อารมณ์ขัน"]
+        P7 --> AI_WB{{"🤖 AI Wellbeing Tracker<br/>+ Chatbot HR 24 ชม."}}
+        AI_WB --> P7_END(["🔚 END P7"])
+    end
+
+    P5_29 -.->|"ข้อมูล CC"| P7
+    P4_SUM -.->|"ผลประเมิน"| P6_30
+  </div>
+</div>
+
+<!-- ============ สรุปแต่ละ P ============ -->
+<div class="summary-grid">
+  <div class="summary-card p1">
+    <h3>🧲 P1 แสวงหา</h3>
+    <div class="orig">📌 เดิม: HR อ่านใบสมัครเอง, โพสต์ทีละช่องทาง, คัดเลือกด้วยดุลยพินิจ</div>
+    <div class="ai">🤖 AI: <b>วิเคราะห์คำขอ</b> + <b>Auto-Post</b> + <b>Screening ให้คะแนน</b> + <b>แจ้งผลอัตโนมัติ</b></div>
+  </div>
+  <div class="summary-card p2">
+    <h3>🎯 P2 หยั่งประเมิน</h3>
+    <div class="orig">📌 เดิม: คณะกรรมการตั้งคำถามเอง, ประเมินด้วยความรู้สึก</div>
+    <div class="ai">🤖 AI: <b>แนะนำคำถาม CC1-CC7</b> + <b>วิเคราะห์คำตอบ</b> + <b>สรุปคะแนนอัตโนมัติ</b></div>
+  </div>
+  <div class="summary-card p3">
+    <h3>🤝 P3 จับคู่คนกับงาน</h3>
+    <div class="orig">📌 เดิม: จับคู่จากดุลยพินิจ, ส่งต่อ BU ด้วยเอกสาร</div>
+    <div class="ai">🤖 AI: <b>Matching 50/30/20</b> + <b>หา BU เหมาะสุด</b> + <b>Talent Pool</b></div>
+  </div>
+  <div class="summary-card p4">
+    <h3>📈 P4 ประเมินผล</h3>
+    <div class="orig">📌 เดิม: ประเมินด้วยความรู้สึก, สรุปผลช้า</div>
+    <div class="ai">🤖 AI: <b>วิเคราะห์ 360°</b> + <b>จับ bias</b> + <b>แปลงเป็นข้อมูลเชิงประจักษ์</b></div>
+  </div>
+  <div class="summary-card p5">
+    <h3>🎓 P5 พัฒนา (พี่เลี้ยง)</h3>
+    <div class="orig">📌 เดิม: PAD ตรวจข้อมูล 3 วัน, นับวินัยเอง, 4C ตัดสินเอง</div>
+    <div class="ai">🤖 AI: <b>ตรวจข้อมูล flag</b> + <b>Line Bot รับ DTA</b> + <b>AI Coach</b> + <b>วินัย 80%</b> + <b>ใบเหลือง/แดง</b></div>
+  </div>
+  <div class="summary-card p6">
+    <h3>💰 P6 ค่าตอบแทน</h3>
+    <div class="orig">📌 เดิม: คีย์เอง, คำนวณ Excel, ตรวจด้วยสายตา</div>
+    <div class="ai">🤖 AI: <b>ดึงเหตุการณ์ P1/P3</b> + <b>คำนวณภาษี</b> + <b>ตรวจ anomaly</b> + <b>e-slip</b> + <b>กระทบยอด</b></div>
+  </div>
+  <div class="summary-card p7">
+    <h3>🌿 P7 คุณภาพชีวิต</h3>
+    <div class="orig">📌 เดิม: ดูแลตามเหตุการณ์, ตอบคำถามซ้ำ</div>
+    <div class="ai">🤖 AI: <b>Wellbeing Tracker</b> + <b>Chatbot HR 24 ชม.</b> + <b>วิเคราะห์ Engagement</b></div>
+  </div>
+</div>
+
+<!-- ============ ตารางสรุป ============ -->
+<div class="diagram-section">
+  <h2>📊 ตารางสรุป AI Touchpoints ทั้งระบบ (22 จุด)</h2>
+  <table>
+    <thead><tr><th>P</th><th>ขั้น</th><th>กระบวนการเดิม</th><th>🤖 AI เข้ามาช่วย</th><th>ระดับ</th></tr></thead>
+    <tbody>
+      <tr><td>P1</td><td>1</td><td>แจ้งขออัตรากำลัง</td><td>AI วิเคราะห์คำขอ + เช็คอัตราซ้ำ</td><td><span class="badge badge-high">สูง</span></td></tr>
+      <tr><td>P1</td><td>3</td><td>ประกาศรับสมัคร</td><td>AI Auto-Post + Tracking ช่องทาง</td><td><span class="badge badge-med">กลาง</span></td></tr>
+      <tr><td>P1</td><td>4.2</td><td>คัดเลือกใบสมัคร</td><td>AI Screening ให้คะแนนอัตโนมัติ</td><td><span class="badge badge-high">สูง</span></td></tr>
+      <tr><td>P2</td><td>7</td><td>สัมภาษณ์/ทดสอบ</td><td>AI แนะนำคำถาม CC + วิเคราะห์คำตอบ</td><td><span class="badge badge-high">สูง</span></td></tr>
+      <tr><td>P3</td><td>8</td><td>จับคู่คนกับงาน</td><td>AI Matching Engine (50/30/20)</td><td><span class="badge badge-high">สูง</span></td></tr>
+      <tr><td>P3</td><td>—</td><td>ส่งต่อ BU อื่น</td><td>AI หา BU เหมาะสุด + ติดตามอัตโนมัติ</td><td><span class="badge badge-med">กลาง</span></td></tr>
+      <tr><td>P4</td><td>—</td><td>ประเมิน 360°</td><td>AI วิเคราะห์ + จับ bias</td><td><span class="badge badge-high">สูง</span></td></tr>
+      <tr><td>P5</td><td>21</td><td>set ระบบพี่เลี้ยง ตรวจ 3 วัน</td><td>AI ตรวจข้อมูล + flag ไม่ครบ</td><td><span class="badge badge-high">สูง</span></td></tr>
+      <tr><td>P5</td><td>22</td><td>สร้างช่องทาง Line/E-mail</td><td>AI ส่งข้อความแจ้ง + ติดตาม</td><td><span class="badge badge-med">กลาง</span></td></tr>
+      <tr><td>P5</td><td>23</td><td>น้องเลี้ยงรายงาน DTA</td><td>Line Bot รับรายงาน + แยกหมวด</td><td><span class="badge badge-high">สูง</span></td></tr>
+      <tr><td>P5</td><td>24</td><td>พี่เลี้ยง Coach</td><td>AI สรุปประเด็น + แนะนำหัวข้อ</td><td><span class="badge badge-high">สูง</span></td></tr>
+      <tr><td>P5</td><td>25</td><td>ตรวจวินัย ≥ 80%</td><td>AI คำนวณ + เตือนก่อนหลุด</td><td><span class="badge badge-high">สูง</span></td></tr>
+      <tr><td>P5</td><td>26</td><td>4C ใบเหลือง/แดง</td><td>AI เสนอระดับใบ + ร่างประกาศ</td><td><span class="badge badge-med">กลาง</span></td></tr>
+      <tr><td>P5</td><td>27</td><td>ตรวจวินัย Coach</td><td>AI เตือนพี่เลี้ยงไม่ครบ</td><td><span class="badge badge-med">กลาง</span></td></tr>
+      <tr><td>P5</td><td>29</td><td>สรุปประเมิน + ปรับปรุง</td><td>AI วิเคราะห์ sentiment</td><td><span class="badge badge-med">กลาง</span></td></tr>
+      <tr><td>P6</td><td>30</td><td>เพิ่มสมาชิก Payroll</td><td>AI ดึงเหตุการณ์ P1/P3</td><td><span class="badge badge-high">สูง</span></td></tr>
+      <tr><td>P6</td><td>31-32</td><td>เตรียมข้อมูล + คำนวณภาษี</td><td>AI ดึงรายได้ + คำนวณภาษี/สปส.</td><td><span class="badge badge-high">สูง</span></td></tr>
+      <tr><td>P6</td><td>33</td><td>ตรวจสอบเงินเดือน</td><td>AI ตรวจ anomaly</td><td><span class="badge badge-high">สูง</span></td></tr>
+      <tr><td>P6</td><td>34</td><td>e-slip + ส่ง Line</td><td>AI สร้างสลิป + รับแจ้งผิด</td><td><span class="badge badge-high">สูง</span></td></tr>
+      <tr><td>P6</td><td>35-36</td><td>ปริ้น VC + การเงินตรวจ</td><td>AI สร้างกระทบยอด + flag ผลต่าง</td><td><span class="badge badge-med">กลาง</span></td></tr>
+      <tr><td>P6</td><td>37</td><td>PAO ตั้งโอนเงิน</td><td>AI เตรียมไฟล์โอน + ตรวจซ้ำ</td><td><span class="badge badge-high">สูง</span></td></tr>
+      <tr><td>P7</td><td>—</td><td>คุณภาพชีวิต 5 มิติ</td><td>AI Wellbeing Tracker + Chatbot HR</td><td><span class="badge badge-med">กลาง</span></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============ หลักการ ============ -->
+<div class="diagram-section">
+  <h2>🎯 หลักการปรับปรุงสำหรับทีม PAC</h2>
+  <table>
+    <thead><tr><th>#</th><th>หลักการ</th><th>รายละเอียด</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><b>AI แนะนำ / มนุษย์ตัดสินใจ</b></td><td>AI ช่วยร่าง/เตือน/คำนวณ แต่การตัดสินใจสุดท้ายอยู่ที่คน (PAD/HR/การเงิน)</td></tr>
+      <tr><td>2</td><td><b>ข้อมูลไหลข้ามขั้นตอน</b></td><td>P1→P2→P3→P4→P5→P6/P7 ข้อมูลไหลต่อเนื่อง ไม่ต้องคีย์ซ้ำ</td></tr>
+      <tr><td>3</td><td><b>ลดงาน Manual ≥ 60%</b></td><td>งานที่ทำซ้ำๆ ทุกเดือน ให้ AI ทำแทน</td></tr>
+      <tr><td>4</td><td><b>ลด Human Error ≥ 80%</b></td><td>AI ตรวจ anomaly ก่อนจ่าย/ก่อนประกาศ</td></tr>
+      <tr><td>5</td><td><b>Audit Log 100%</b></td><td>ทุกการตัดสินใจของ AI + มนุษย์ บันทึกย้อนกลับได้</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<footer>
+  📋 <strong>เอกสารสำหรับทีม PAC</strong> — ภาพรวมกระบวนการ PP7 ทั้งหมด + AI Touchpoints<br/>
+  อ้างอิง: SMC_HOCC_PM_002_การบริหารระบบ_PP7 (draw.io) · 31 สิงหาคม 2569<br/>
+  จัดทำโดย KiloClaw (PM + Developer Web PP7)
+</footer>
+
+</div>
+
+<script>
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'default',
+  flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+  securityLevel: 'loose'
+});
+</script>
+</body>
+</html>
