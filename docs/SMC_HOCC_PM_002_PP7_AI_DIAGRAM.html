@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🤖 Diagram PP7 ใหม่ — นำ AI เข้ามาช่วย</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Prompt', sans-serif; box-sizing: border-box; }
+  body { background: #f8fafc; color: #1e293b; margin: 0; line-height: 1.6; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+  header { background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); color: #fff; padding: 3rem 1.5rem; border-radius: 1rem; margin-bottom: 2rem; box-shadow: 0 10px 40px rgba(139,92,246,.2); }
+  header h1 { font-size: 2rem; margin: 0 0 .5rem; }
+  header p { margin: 0; opacity: .9; font-size: .95rem; }
+  .toc { background: #fff; border-radius: 1rem; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 4px 20px rgba(15,23,42,.06); }
+  .toc h2 { margin: 0 0 1rem; font-size: 1.2rem; color: #8b5cf6; }
+  .toc ul { list-style: none; padding: 0; margin: 0; columns: 2; column-gap: 2rem; }
+  .toc li { margin: .35rem 0; break-inside: avoid; }
+  .toc a { color: #475569; text-decoration: none; font-size: .9rem; transition: color .15s; }
+  .toc a:hover { color: #ec4899; }
+  section { background: #fff; border-radius: 1rem; padding: 2rem; margin-bottom: 2rem; box-shadow: 0 4px 20px rgba(15,23,42,.06); }
+  section h2 { color: #8b5cf6; font-size: 1.5rem; margin: 0 0 .5rem; border-bottom: 2px solid #f1f5f9; padding-bottom: .5rem; }
+  section h3 { color: #ec4899; font-size: 1.15rem; margin: 1.5rem 0 .75rem; }
+  section h4 { color: #64748b; font-size: 1rem; margin: 1.25rem 0 .5rem; }
+  section p { color: #475569; font-size: .95rem; }
+  .mermaid { background: #fff; border: 1px solid #e2e8f0; border-radius: .75rem; padding: 1.5rem; margin: 1rem 0; text-align: center; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .875rem; }
+  th { background: #f8fafc; padding: .75rem 1rem; text-align: left; font-weight: 600; color: #64748b; border-bottom: 2px solid #e2e8f0; }
+  td { padding: .75rem 1rem; border-bottom: 1px solid #f1f5f9; }
+  tr:hover td { background: #f8fafc; }
+  .badge { display: inline-block; padding: .15rem .5rem; border-radius: 9999px; font-size: .75rem; font-weight: 500; }
+  .badge-high { background: #fee2e2; color: #991b1b; }
+  .badge-med { background: #fef3c7; color: #92400e; }
+  .badge-low { background: #dcfce7; color: #166534; }
+  .legend { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0; padding: 1rem; background: #f8fafc; border-radius: .75rem; }
+  .legend-item { display: flex; align-items: center; gap: .5rem; font-size: .85rem; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .legend-dot.orig { background: #fbbf24; }
+  .legend-dot.ai { background: #8b5cf6; }
+  .legend-dot.new { background: #10b981; }
+  blockquote { border-left: 4px solid #ec4899; background: #fdf2f8; padding: 1rem 1.5rem; margin: 1rem 0; border-radius: 0 .75rem .75rem 0; color: #831843; font-size: .9rem; }
+  ul, ol { padding-left: 1.5rem; }
+  li { margin: .35rem 0; }
+  footer { text-align: center; padding: 2rem; color: #94a3b8; font-size: .85rem; }
+  @media (max-width: 768px) {
+    .toc ul { columns: 1; }
+    header h1 { font-size: 1.5rem; }
+    section { padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🤖 Diagram กระบวนการ PP7 ใหม่ — นำ AI เข้ามาช่วย</h1>
+  <p>แปลงจาก <code>SMC_HOCC_PM_002_การบริหารระบบ_PP7 (draw.io)</code> → Mermaid Diagram + AI Touchpoints</p>
+  <p style="margin-top:.5rem; opacity:.8;">Web PP7 · 31 สิงหาคม 2569 · KiloClaw (PM + Developer)</p>
+</header>
+
+<div class="legend">
+  <div class="legend-item"><span class="legend-dot orig"></span>🟨 กระบวนการเดิม</div>
+  <div class="legend-item"><span class="legend-dot ai"></span>🤖 จุดที่ AI เข้ามาช่วย</div>
+  <div class="legend-item"><span class="legend-dot new"></span>🟩 กระบวนการใหม่</div>
+</div>
+
+<div class="toc">
+  <h2>📑 สารบัญ</h2>
+  <ul>
+    <li><a href="#overview">1. ภาพรวมระบบ PP7</a></li>
+    <li><a href="#p1">2. P1 แสวงหา</a></li>
+    <li><a href="#p2p3">3. P2 หยั่งประเมิน + P3 จับคู่คนกับงาน</a></li>
+    <li><a href="#p4">4. P4 ประเมินผล</a></li>
+    <li><a href="#p5">5. P5 พัฒนา — ระบบพี่เลี้ยง (ขั้น 21–29)</a></li>
+    <li><a href="#p6">6. P6 ค่าตอบแทน — Payroll Workflow (ขั้น 30–37)</a></li>
+    <li><a href="#p7">7. P7 คุณภาพชีวิต</a></li>
+    <li><a href="#summary">8. ตารางสรุป AI Touchpoints</a></li>
+    <li><a href="#architecture">9. แนวทางออกแบบ Web PP7</a></li>
+  </ul>
+</div>
+
+<section id="overview">
+  <h2>1. ภาพรวมระบบ PP7 (Flowchart ใหญ่)</h2>
+  <p>ทุก P ขับเคลื่อนด้วย CC (Core Competency) — AI Talent Intelligence คุมทุกขั้นตอน P1–P7</p>
+  <div class="mermaid">
+flowchart TD
+    START(["▶️ Start"]) --> P1["🧲 P1 แสวงหา<br/>สรรหาอัตรากำลังคน"]
+    P1 --> P2["🎯 P2 หยั่งประเมิน<br/>ประเมินก่อนรบ (CC)"]
+    P2 --> P3["🤝 P3 จับคู่คนกับงาน<br/>ประเมินก่อนทำงาน"]
+    P3 --> P4["📈 P4 ประเมินผล<br/>ประเมินหลังรบ (CC)"]
+    P4 --> P5["🎓 P5 พัฒนา<br/>พัฒนาสมาชิกตาม CC"]
+    P5 --> P6["💰 P6 ค่าตอบแทน<br/>ตอบแทนตาม CC"]
+    P5 --> P7["🌿 P7 คุณภาพชีวิต<br/>ดูแลสมาชิก 5 มิติ"]
+    P6 --> P4
+    P7 --> P4
+    P2 -->|"ไม่ผ่านเกณฑ์"| END1(["🔚 ปิดใบสมัคร"])
+    P3 -->|"เหมาะกับ BU อื่น"| FWD["🔄 ส่งต่อข้าม BU"]
+
+    AI1{{"🤖 AI Talent Intelligence<br/>วิเคราะห์ทุกขั้น P1-P7"}} -.-> P1
+    AI1 -.-> P2
+    AI1 -.-> P3
+    AI1 -.-> P4
+    AI1 -.-> P5
+    AI1 -.-> P6
+    AI1 -.-> P7
+  </div>
+</section>
+
+<section id="p1">
+  <h2>2. P1 แสวงหา (Recruit / People Sourcing)</h2>
+  <h3>2.1 กระบวนการ (เดิม + AI)</h3>
+  <div class="mermaid">
+flowchart TD
+    A["📋 หน่วยงานแจ้งขออัตรากำลังคน"] --> B["📝 กรอกใบขออัตรากำลัง<br/>(idea.prachakij.com/requestMember)"]
+    B --> C["🗄️ ข้อมูลวิ่งเข้า BCT PPP7<br/>P1_Step4 งานสรรหา"]
+    C --> AI1{{"🤖 AI วิเคราะห์คำขอ<br/>- ตรวจความซ้ำซ้อนกับอัตราที่เปิดอยู่<br/>- แนะนำตำแหน่ง/สมรรถนะที่ควรระบุ<br/>- คาดการณ์เวลาปิดอัตรา"}}
+    AI1 --> D["📣 ประกาศรับสมัครตามช่องทาง<br/>ภายใน 45 วัน"]
+
+    D --> D1["🟨 3.1 ภายใน<br/>โอนย้าย / จัดคนให้ถูกกับงาน<br/>- Website<br/>- เวที L&G"]
+    D --> D2["🟨 3.2 ภายนอก<br/>- Website / FB สรรหา<br/>- Social Media<br/>- สำนักงานจัดหางาน<br/>- ป้ายรับสมัคร<br/>- แนะนำจากสมาชิก<br/>- Walk-in / สถานศึกษา"]
+
+    D1 --> T1["📄 4.1 คีย์ใบโอนย้าย"]
+    D2 --> T2["📝 4.2 ใบสมัคร"]
+
+    AI2{{"🤖 AI Auto-Post & Tracking ช่องทาง<br/>- โพสต์ประกาศงานหลายช่องทางอัตโนมัติ<br/>- วิเคราะห์ช่องทางให้ผู้สมัครคุณภาพสูงสุด<br/>- แท็กที่มาผู้สมัคร (source tracking)"}}
+    D1 -.-> AI2
+    D2 -.-> AI2
+
+    T1 --> S1["🔍 คัดเลือกใบโอนย้าย"]
+    T2 --> S2["🔍 คัดเลือกใบสมัคร"]
+    AI3{{"🤖 AI Screening ใบสมัคร<br/>- อ่านเรซูเม่/ใบสมัครอัตโนมัติ<br/>- ให้คะแนนตรงตามคุณสมบัติ<br/>- เรียงลำดับผู้สมัครที่น่าจะผ่าน"}}
+    S2 -.-> AI3
+
+    S1 -->|"ผ่าน"| P2["➡️ ส่ง P2 หยั่งประเมิน"]
+    S2 -->|"ผ่าน"| P2
+    S1 -->|"ไม่ผ่าน"| X1["🔚 ปิดใบสมัคร"]
+    S2 -->|"ไม่ผ่าน"| X1
+
+    AI4{{"🤖 AI แจ้งผลผู้สมัคร<br/>- ส่งข้อความสุภาพ/อบอุ่นอัตโนมัติ<br/>- ใช้ template มาตรฐาน HR-PKG<br/>- เก็บประวัติไว้พิจารณาอนาคต"}}
+    X1 -.-> AI4
+  </div>
+
+  <h3>2.2 จุดที่ AI เข้ามาช่วย (P1)</h3>
+  <table>
+    <thead><tr><th>#</th><th>กระบวนการเดิม</th><th>AI เข้ามาช่วย</th><th>ผลลัพธ์</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>HR อ่านใบขออัตรากำลังเอง</td><td>AI วิเคราะห์คำขอ + เช็คอัตราซ้ำ</td><td>ลดเวลาเตรียมประกาศ 50%</td></tr>
+      <tr><td>2</td><td>โพสต์ประกาศงานทีละช่องทาง</td><td>AI Auto-Post หลายช่องทาง + แท็กที่มา</td><td>รู้ช่องทาง effective ที่สุด</td></tr>
+      <tr><td>3</td><td>HR อ่านใบสมัครทีละใบ</td><td>AI Screening ให้คะแนน + เรียงลำดับ</td><td>ลดเวลาคัดกรอง 70%</td></tr>
+      <tr><td>4</td><td>ส่งจดหมาย/ไลน์แจ้งผลเอง</td><td>AI ส่งข้อความแจ้งผลสุภาพอัตโนมัติ</td><td>ผู้สมัครได้ feedback เร็วขึ้น</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="p2p3">
+  <h2>3. P2 หยั่งประเมิน + P3 จับคู่คนกับงาน</h2>
+  <h3>3.1 กระบวนการ (เดิม + AI)</h3>
+  <div class="mermaid">
+flowchart TD
+    A["📥 รับผู้สมัครจาก P1"] --> P2["🎯 7. P2 หยั่งประเมิน<br/>สัมภาษณ์ / ทดสอบทักษะ"]
+    AI1{{"🤖 AI ช่วยสัมภาษณ์<br/>- แนะนำชุดคำถามตาม CC (CC1-CC7)<br/>- วิเคราะห์คำตอบแบบเรียลไทม์<br/>- สรุปคะแนน CC อัตโนมัติ"}}
+    P2 -.-> AI1
+
+    P2 --> P3["🤝 8. P3 คัดเลือกจับคู่คนกับงาน"]
+    AI2{{"🤖 AI Matching Engine<br/>- ทักษะ 50% + CC 30% + เป้าหมาย 20%<br/>- เทียบคู่กับสมรรถนะตำแหน่ง<br/>- แสดง % เหมาะสมรายตำแหน่ง"}}
+    P3 -.-> AI2
+
+    P3 -->|"เหมาะกับตำแหน่ง"| OK["✅ ผ่าน → ส่งต่อขั้นถัดไป (P4/P5)"]
+    P3 -->|"เหมาะกับตำแหน่งอื่น"| FWD["🔄 ส่งต่อหน่วยงานอื่น<br/>พูดคุย/นัดสัมภาษณ์ใหม่"]
+    P3 -->|"ไม่ผ่านแบบไม่เข้าหลักเกณฑ์"| X["🔚 ปิดใบสมัคร"]
+
+    AI3{{"🤖 AI แนะนำการส่งต่อ<br/>- หา BU/ตำแหน่งที่คะแนนสูงสุด<br/>- สร้างใบส่งต่ออัตโนมัติ<br/>- ตามสถานะสัมภาษณ์ BU ใหม่"}}
+    FWD -.-> AI3
+
+    AI4{{"🤖 AI วิเคราะห์คนไม่ผ่าน<br/>- บันทึกเหตุผลเชิงหลักเกณฑ์<br/>- แนะนำ talent pool อนาคต"}}
+    X -.-> AI4
+  </div>
+
+  <h3>3.2 จุดที่ AI เข้ามาช่วย (P2–P3)</h3>
+  <table>
+    <thead><tr><th>#</th><th>กระบวนการเดิม</th><th>AI เข้ามาช่วย</th><th>ผลลัพธ์</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>คณะกรรมการตั้งคำถามเอง</td><td>AI แนะนำคำถามตาม CC + วิเคราะห์คำตอบ</td><td>ประเมินตรง CC ลดอคติ</td></tr>
+      <tr><td>2</td><td>จับคู่คนกับงานจากดุลยพินิจ</td><td>AI Matching Engine (ทักษะ+CC+เป้าหมาย)</td><td>คู่คน-งานแม่นยำขึ้น</td></tr>
+      <tr><td>3</td><td>ส่งต่อ BU อื่นด้วยเอกสาร</td><td>AI หา BU เหมาะสุด + ใบส่งต่ออัตโนมัติ</td><td>ผู้สมัครไม่หลุดจากระบบ</td></tr>
+      <tr><td>4</td><td>เก็บข้อมูลคนไม่ผ่านกระจัดกระจาย</td><td>AI สร้าง Talent Pool สำหรับอนาคต</td><td>ฐานข้อมูลสรรหาในองค์กร</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="p4">
+  <h2>4. P4 ประเมินผล (Performance)</h2>
+  <h3>4.1 กระบวนการ (เดิม + AI)</h3>
+  <div class="mermaid">
+flowchart TD
+    A["📥 สมาชิกทำงานครบรอบ"] --> P4["📈 P4 ประเมินหลังรบ<br/>ประเมินตาม CC (CC1-CC7)"]
+    P4 --> E["⭐ ประเมินเครดิตประจำปี 360 องศา<br/>1. ตนเอง 2. หัวหน้า 3. เพื่อน 4. ลูกน้อง 5. ลูกค้า"]
+    AI1{{"🤖 AI ช่วยออกแบบ/รันประเมิน<br/>- สร้างชุดคำถามตามกลุ่มงาน<br/>- กันการประเมินซ้ำซ้อน<br/>- แจ้งเตือนผู้ประเมินครบ 360"}}
+    E -.-> AI1
+
+    E --> SUM["📊 สรุปคะแนนเครดิต"]
+    AI2{{"🤖 AI วิเคราะห์ผล 360<br/>- เปรียบเทียบมุมมอง 5 ด้าน<br/>- จับความเห็นไม่ตรงกัน (bias)<br/>- แปลงความรู้สึกเป็นข้อมูลเชิงประจักษ์"}}
+    SUM -.-> AI2
+    SUM --> P5["➡️ ส่งผลเข้าสู่ P5 พัฒนา"]
+  </div>
+
+  <h3>4.2 จุดที่ AI เข้ามาช่วย (P4)</h3>
+  <table>
+    <thead><tr><th>#</th><th>กระบวนการเดิม</th><th>AI เข้ามาช่วย</th><th>ผลลัพธ์</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>ออกแบบประเมินด้วยมือทุกปี</td><td>AI สร้างชุดคำถามตามกลุ่มงาน (เรียนแบบ ไม่ใช่เลียนแบบ)</td><td>ลดภาระ HR อย่างมาก</td></tr>
+      <tr><td>2</td><td>ประเมินด้วยความรู้สึก/อารมณ์</td><td>AI วิเคราะห์แนวโน้ม + จับ bias ข้ามมุมมอง</td><td>ประเมินตรงข้อมูลจริง</td></tr>
+      <tr><td>3</td><td>สรุปผลช้า</td><td>AI สรุปผล + แนะนำจุดพัฒนารายคน</td><td>ส่งต่อ P5 ได้ทันที</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="p5">
+  <h2>5. P5 พัฒนา — ระบบพี่เลี้ยง (Mentoring System) ขั้น 21–29</h2>
+  <h3>5.1 กระบวนการ (เดิม + AI)</h3>
+  <div class="mermaid">
+flowchart TD
+    S21["21. ทีม PAD set ระบบพี่เลี้ยง<br/>สมาชิกใหม่ / สัญญา 6 เดือน / จับคู่ / ปรับบทบาท"]
+    AI21{{"🤖 AI ตรวจสอบข้อมูล 3 วัน<br/>- รหัสสมาชิก ชื่อ ประเภทจ้าง ID Line<br/>- พี่เลี้ยง สายงาน ทุนองค์กร<br/>- flag ข้อมูลไม่ครบอัตโนมัติ"}}
+    S21 --> AI21
+    AI21 --> S22["22. สร้างแหล่งส่งรายงาน<br/>Line กลุ่มรับใช้สมาชิก + E-mail"]
+    AI22{{"🤖 AI ส่งข้อความแจ้งช่องทาง<br/>- สร้างข้อความแจ้งรายบุคคล<br/>- ติดตามสถานะได้รับ/ยังไม่ได้รับ"}}
+    S22 -.-> AI22
+
+    S22 --> S23["23. น้องเลี้ยงรายงานการปฏิบัติงาน<br/>DTA_1 / DTA_2 / DTA_4"]
+    AI23{{"🤖 AI รับรายงานผ่าน Line Bot<br/>- แยกหมวด DTA อัตโนมัติ<br/>- เช็คความครบถ้วนของรายงาน<br/>- แจ้งเตือนเมื่อไม่ส่งตามรอบ"}}
+    S23 -.-> AI23
+
+    S23 --> S24["24. พี่เลี้ยงอ่านรายงาน + Coach<br/>Form Coach อย่างน้อยเดือนละ 1 ครั้ง"]
+    AI24{{"🤖 AI ช่วย Coach<br/>- สรุปประเด็นจากรายงานน้องเลี้ยง<br/>- แนะนำหัวข้อ Coach ตาม CC ที่อ่อน<br/>- ร่างข้อเสนอแนะแนวทางพัฒนา"}}
+    S24 -.-> AI24
+
+    S24 --> S25["25. PAD ตรวจวินัยส่งรายงาน<br/>เกณฑ์ ≥ 80%"]
+    AI25{{"🤖 AI คำนวณคะแนนวินัยอัตโนมัติ<br/>- นับรายงาน vs รอบที่กำหนด<br/>- แจ้งเตือนก่อนต่ำกว่า 80%<br/>- เตรียมสรุปความรับผิดชอบ"}}
+    S25 -.-> AI25
+
+    S25 --> CHK{"📏 ผ่าน 80% ?"}
+    CHK -->|"ต่ำกว่า 80%"| S26["26. 4C บันทึกใบเหลือง/ใบแดง<br/>+ ประกาศรายเดือน"]
+    CHK -->|"มากกว่า 80% ขึ้นไป"| S27["27. PAD ตรวจวินัยการ Coach พี่เลี้ยง"]
+    AI26{{"🤖 AI ช่วย 4C<br/>- สรุปเหตุการณ์/ความถี่<br/>- เสนอระดับใบ (เหลือง/แดง)<br/>- ร่างประกาศรายเดือน"}}
+    S26 -.-> AI26
+
+    S27 --> AI27{{"🤖 AI ตรวจวินัย Coach<br/>- เช็คพี่เลี้ยงที่ยังไม่ Coach ครบ<br/>- เตือนอัตโนมัติก่อนสิ้นเดือน<br/>- สรุปความรับผิดชอบต่อผล"}}
+    S27 --> S28["28. สมาชิกประเมินระบบพี่เลี้ยง<br/>เมื่อสิ้นสุดการเป็นน้องเลี้ยง"]
+    S28 --> S29["29. PAD สรุปประกาศ + ปรับปรุงระบบ"]
+    AI29{{"🤖 AI วิเคราะห์ผลประเมิน<br/>- สรุปคะแนนเฉลี่ยรายด้าน<br/>- วิเคราะห์ข้อเสนอแนะ (sentiment)<br/>- เสนอแนวทางปรับปรุงระบบ"}}
+    S29 -.-> AI29
+    S29 --> END2(["🔚 END"])
+  </div>
+
+  <h3>5.2 จุดที่ AI เข้ามาช่วย (P5)</h3>
+  <table>
+    <thead><tr><th>#</th><th>กระบวนการเดิม</th><th>AI เข้ามาช่วย</th><th>ผลลัพธ์</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>PAD ตรวจข้อมูลมือ 3 วัน</td><td>AI ตรวจสอบ + flag ข้อมูลไม่ครบทันที</td><td>ลดเวลาเหลือไม่ถึง 1 วัน</td></tr>
+      <tr><td>2</td><td>ส่งช่องทางรายงานด้วยมือ</td><td>AI สร้าง/ส่งข้อความแจ้ง + ติดตามสถานะ</td><td>น้องเลี้ยงทราบช่องทางเร็ว</td></tr>
+      <tr><td>3</td><td>น้องเลี้ยงส่งรายงานหลายช่องทาง</td><td>Line Bot รับรายงาน + แยก DTA อัตโนมัติ</td><td>รายงานรวมศูนย์ครบถ้วน</td></tr>
+      <tr><td>4</td><td>พี่เลี้ยงอ่านรายงานเอง</td><td>AI สรุปประเด็น + แนะนำหัวข้อ Coach</td><td>Coach ตรงจุด มีคุณภาพ</td></tr>
+      <tr><td>5</td><td>PAD นับวินัยเอง</td><td>AI คำนวณ % + เตือนก่อนหลุดเกณฑ์</td><td>ไม่พลาดเกณฑ์ 80%</td></tr>
+      <tr><td>6</td><td>4C ตัดสินใบเหลือง/แดงเอง</td><td>AI เสนอระดับใบตามความรุนแรง</td><td>ประกาศสม่ำเสมอ เป็นธรรม</td></tr>
+      <tr><td>7</td><td>PAD ไล่เช็คพี่เลี้ยง Coach</td><td>AI เช็ค + เตือนอัตโนมัติ</td><td>พี่เลี้ยง Coach ครบ 100%</td></tr>
+      <tr><td>8</td><td>สรุปผลประเมินด้วยมือ</td><td>AI วิเคราะห์คะแนน + ข้อเสนอแนะ</td><td>ปรับปรุงระบบต่อเนื่อง</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="p6">
+  <h2>6. P6 ค่าตอบแทน — Payroll Workflow ขั้น 30–37</h2>
+  <h3>6.1 กระบวนการ (เดิม + AI)</h3>
+  <div class="mermaid">
+flowchart TD
+    S30["30. คีย์ข้อมูลเข้าระบบ Payroll<br/>วันที่ 1-10 ของเดือน<br/>เข้าใหม่ / จับคู่ใหม่ / ลาออก / ปรับเงินเดือน / บรรจุ"]
+    AI30{{"🤖 AI ตรวจจับการเปลี่ยนแปลง<br/>- ดึงเหตุการณ์จาก P1/P3 อัตโนมัติ<br/>- เสนอรายการเพิ่ม/แก้ในบอร์ด Payroll<br/>- เช็คเลขบัญชีซ้ำ/ผิดพลาด"}}
+    S30 --> AI30
+    AI30 --> S31["31. เตรียมข้อมูลทำเงินเดือน<br/>(BCT step_3.2)"]
+    AI31{{"🤖 AI ดึงข้อมูลรายได้/หัก<br/>- โอที/เบี้ยเลี้ยง/ค่าล่วงเวลา<br/>- ประกันสังคม/กองทุน<br/>- ตรวจความครบถ้วนก่อนคิดเงิน"}}
+    S31 -.-> AI31
+
+    S31 --> S32["32. คำนวณภาษีเงินได้<br/>C1 เงินได้สะสม → B1 ภาษี → B6 สรุปจ่าย"]
+    AI32{{"🤖 AI คำนวณภาษีอัตโนมัติ<br/>- คำนวณขั้นบันไดภาษี + ลดหย่อน<br/>- ประกันสังคม 5% (สูงสุด 750)<br/>- ตรวจสอบกับข้อมูลปีก่อนหน้า"}}
+    S32 -.-> AI32
+
+    S32 --> S33["33. ตรวจสอบเงินเดือน<br/>C1/C2 ย้อนหลัง, C3 เงินค้ำ, C5 ตรวจ, E1 เงินเดือน"]
+    AI33{{"🤖 AI ตรวจสอบ anomaly<br/>- เงินเดือนผิดปกติ/ติดลบ/ซ้ำซ้อน<br/>- เทียบย้อนหลัง 2 เดือน<br/>- flag รายการต้องแก้ไข"}}
+    S33 -.-> AI33
+
+    S33 --> S34["34. บันทึก e-slip + ส่ง Line ให้สมาชิกตรวจสอบ"]
+    AI34{{"🤖 AI สร้าง e-slip + ส่ง Line<br/>- สร้างสลิปรายบุคคลอัตโนมัติ<br/>- ส่ง Line พร้อมปุ่มแจ้งข้อมูลผิด<br/>- รวมรวมคำแจ้งผิดส่งกลับ HR"}}
+    S34 -.-> AI34
+
+    S34 --> S35["35. ปริ้นใบ VC + รายงานกระทบยอด<br/>ภาษี / ประกันสังคม / เงินเดือน<br/>VC ค่าบ้านพัก / ค่าผ่อนบ้าน ธอส."]
+    AI35{{"🤖 AI สร้างเอกสารกระทบยอดอัตโนมัติ<br/>- ใบ VC ราย BU/BV<br/>- รายงานกระทบยอดภาษี-สปส.<br/>- พร้อมส่งการเงิน"}}
+    S35 -.-> AI35
+
+    S35 --> S36["36. การเงินตรวจสอบ VC + กระทบยอด"]
+    AI36{{"🤖 AI กระทบยอดอัตโนมัติ<br/>- เทียบยอดระบบ vs เอกสาร<br/>- flag ผลต่างทุกรายการ<br/>- ลดงานตรวจสอบด้วยมือ"}}
+    S36 -.-> AI36
+
+    S36 --> CHK{"✅ ข้อมูลถูกต้อง ?"}
+    CHK -->|"ไม่ถูกต้อง"| S35
+    CHK -->|"ถูกต้อง"| S37["37. ทีม PAO ตั้งโอนเงิน<br/>ทีมการเงินโอนให้สมาชิก"]
+    AI37{{"🤖 AI เตรียมไฟล์โอนเงิน<br/>- รายชื่อ-บัญชี-ยอด ตรวจซ้ำ<br/>- แนบไฟล์พร้อมส่งการเงิน<br/>- อัปเดตสถานะจ่ายอัตโนมัติ"}}
+    S37 -.-> AI37
+    S37 --> END3(["🔚 END"])
+  </div>
+
+  <h3>6.2 จุดที่ AI เข้ามาช่วย (P6)</h3>
+  <table>
+    <thead><tr><th>#</th><th>กระบวนการเดิม</th><th>AI เข้ามาช่วย</th><th>ผลลัพธ์</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>HR คีย์เหตุการณ์เองทุกเดือน</td><td>AI ดึงจาก P1/P3 + เสนอรายการ</td><td>ลด Human Error ด้าน Payroll ≥ 80%</td></tr>
+      <tr><td>2</td><td>ดึงข้อมูลโอที/เบี้ยเลี้ยงด้วยมือ</td><td>AI ดึง + ตรวจความครบถ้วน</td><td>เตรียมข้อมูลเร็วขึ้น</td></tr>
+      <tr><td>3</td><td>คำนวณภาษีใน Excel</td><td>AI คำนวณขั้นบันได + ลดหย่อนอัตโนมัติ</td><td>ถูกต้อง ตรวจสอบย้อนกลับได้</td></tr>
+      <tr><td>4</td><td>ตรวจเงินเดือนด้วยสายตา</td><td>AI ตรวจ anomaly + เทียบย้อนหลัง</td><td>จับผิดก่อนจ่าย</td></tr>
+      <tr><td>5</td><td>ทำสลิป + ส่งทีละคน</td><td>AI สร้าง e-slip + ส่ง Line + รับคำแจ้งผิด</td><td>สมาชิกตรวจสอบเองได้</td></tr>
+      <tr><td>6</td><td>จัดทำกระทบยอดด้วยมือ</td><td>AI สร้างรายงานกระทบยอดอัตโนมัติ</td><td>การเงินตรวจไวขึ้น</td></tr>
+      <tr><td>7</td><td>ตั้งโอนเงินคีย์ซ้ำ</td><td>AI เตรียมไฟล์โอน + ตรวจซ้ำ</td><td>โอนตรงเวลา ปลอดภัย</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="p7">
+  <h2>7. P7 คุณภาพชีวิต (Quality of Life)</h2>
+  <div class="mermaid">
+flowchart TD
+    P7["🌿 P7 คุณภาพชีวิต 5 องค์ประกอบ<br/>สุขภาพ / ความมั่งคั่ง / บรรยากาศ / เวลา / อารมณ์ขัน"]
+    AI1{{"🤖 AI Wellbeing Tracker<br/>- ติดตามสุขภาวะสมาชิก ≥ 90%<br/>- แจ้งเตือนสวัสดิการรายบุคคล<br/>- วิเคราะห์ความเสี่ยง burnout"}}
+    P7 -.-> AI1
+    AI2{{"🤖 AI Chatbot HR<br/>- ตอบคำถามซ้ำซ้อนอัตโนมัติ<br/>- ลดการสอบถาม HR ≥ 50%<br/>- 24 ชม. หลายภาษา (ไทย/ลาว/เขมร)"}}
+    P7 -.-> AI2
+    AI3{{"🤖 AI วิเคราะห์ความผูกพัน<br/>- Engagement Score ราย BU<br/>- แนวโน้มการลาออก<br/>- แนะนำกิจกรรมสร้างความสุข"}}
+    P7 -.-> AI3
+  </div>
+</section>
+
+<section id="summary">
+  <h2>8. ตารางสรุป AI Touchpoints ทั้งระบบ</h2>
+  <table>
+    <thead><tr><th>ขั้นตอน</th><th>กระบวนการเดิม</th><th>AI เข้ามาช่วย (Web PP7 ใหม่)</th><th>ระดับ</th></tr></thead>
+    <tbody>
+      <tr><td>P1-2</td><td>หน่วยงานแจ้งขออัตรากำลัง</td><td>AI วิเคราะห์คำขอ + เช็คอัตราซ้ำ</td><td><span class="badge badge-high">🔴 สูง</span></td></tr>
+      <tr><td>P1-3</td><td>ประกาศรับสมัครหลายช่องทาง 45 วัน</td><td>AI Auto-Post + Tracking ช่องทาง</td><td><span class="badge badge-med">🟡 กลาง</span></td></tr>
+      <tr><td>P1-4.2</td><td>คัดเลือกใบสมัครด้วยมือ</td><td>AI Screening ให้คะแนนอัตโนมัติ</td><td><span class="badge badge-high">🔴 สูง</span></td></tr>
+      <tr><td>P1-4.1</td><td>คีย์ใบโอนย้ายภายใน</td><td>AI แนะนำ internal mobility</td><td><span class="badge badge-med">🟡 กลาง</span></td></tr>
+      <tr><td>P2-7</td><td>สัมภาษณ์/ทดสอบทักษะ</td><td>AI ช่วยคำถามตาม CC + วิเคราะห์คำตอบ</td><td><span class="badge badge-high">🔴 สูง</span></td></tr>
+      <tr><td>P3-8</td><td>จับคู่คนกับงาน</td><td>AI Matching Engine (50/30/20)</td><td><span class="badge badge-high">🔴 สูง</span></td></tr>
+      <tr><td>P3</td><td>ส่งต่อผู้สมัคร BU อื่น</td><td>AI หา BU เหมาะสุด + ตามสถานะอัตโนมัติ</td><td><span class="badge badge-med">🟡 กลาง</span></td></tr>
+      <tr><td>P4</td><td>ประเมินเครดิต 360 องศา</td><td>AI สร้างชุดคำถาม + จับ bias</td><td><span class="badge badge-high">🔴 สูง</span></td></tr>
+      <tr><td>P5-21</td><td>PAD set ระบบพี่เลี้ยง ตรวจ 3 วัน</td><td>AI ตรวจสอบข้อมูล + flag ไม่ครบ</td><td><span class="badge badge-high">🔴 สูง</span></td></tr>
+      <tr><td>P5-22</td><td>สร้างช่องทาง Line/E-mail</td><td>AI ส่งข้อความแจ้ง + ติดตามสถานะ</td><td><span class="badge badge-med">🟡 กลาง</span></td></tr>
+      <tr><td>P5-23</td><td>น้องเลี้ยงรายงาน DTA</td><td>Line Bot รับรายงาน + แยกหมวด</td><td><span class="badge badge-high">🔴 สูง</span></td></tr>
+      <tr><td>P5-24</td><td>พี่เลี้ยง Coach เดือนละครั้ง</td><td>AI สรุปประเด็น + แนะนำหัวข้อ Coach</td><td><span class="badge badge-high">🔴 สูง</span></td></tr>
+      <tr><td>P5-25</td><td>ตรวจวินัยส่งรายงาน ≥ 80%</td><td>AI คำนวณ + เตือนก่อนหลุดเกณฑ์</td><td><span class="badge badge-high">🔴 สูง</span></td></tr>
+      <tr><td>P5-26</td><td>4C ใบเหลือง/ใบแดง</td><td>AI เสนอระดับใบ + ร่างประกาศ</td><td><span class="badge badge-med">🟡 กลาง</span></td></tr>
+      <tr><td>P5-27</td><td>ตรวจวินัย Coach พี่เลี้ยง</td><td>AI เช็ค + เตือนพี่เลี้ยงไม่ครบ</td><td><span class="badge badge-med">🟡 กลาง</span></td></tr>
+      <tr><td>P5-28/29</td><td>ประเมินระบบพี่เลี้ยง + ปรับปรุง</td><td>AI วิเคราะห์คะแนน + sentiment</td><td><span class="badge badge-med">🟡 กลาง</span></td></tr>
+      <tr><td>P6-30</td><td>เพิ่มสมาชิก Payroll (1–10)</td><td>AI ดึงเหตุการณ์จาก P1/P3 + เช็คบัญชี</td><td><span class="badge badge-high">🔴 สูง</span></td></tr>
+      <tr><td>P6-31/32</td><td>เตรียมข้อมูล + คำนวณภาษี</td><td>AI ดึงรายได้ + คำนวณภาษี/สปส.</td><td><span class="badge badge-high">🔴 สูง</span></td></tr>
+      <tr><td>P6-33</td><td>ตรวจสอบเงินเดือน</td><td>AI ตรวจ anomaly เทียบย้อนหลัง</td><td><span class="badge badge-high">🔴 สูง</span></td></tr>
+      <tr><td>P6-34</td><td>e-slip + ส่ง Line</td><td>AI สร้างสลิป + ส่ง Line + รับแจ้งผิด</td><td><span class="badge badge-high">🔴 สูง</span></td></tr>
+      <tr><td>P6-35/36</td><td>ปริ้น VC + การเงินตรวจสอบ</td><td>AI สร้างกระทบยอด + flag ผลต่าง</td><td><span class="badge badge-med">🟡 กลาง</span></td></tr>
+      <tr><td>P6-37</td><td>PAO ตั้งโอนเงิน</td><td>AI เตรียมไฟล์โอน + ตรวจซ้ำ</td><td><span class="badge badge-high">🔴 สูง</span></td></tr>
+      <tr><td>P7</td><td>คุณภาพชีวิต 5 องค์ประกอบ</td><td>AI Wellbeing Tracker + Chatbot HR</td><td><span class="badge badge-med">🟡 กลาง</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="architecture">
+  <h2>9. แนวทางออกแบบโครงสร้าง Web PP7 (ต่อท้าย)</h2>
+  <h3>9.1 หลักการ</h3>
+  <ul>
+    <li><strong>ทุก P ขับเคลื่อนด้วย CC (Core Competency)</strong> — AI ทุกจุดวัด/พัฒนาบน CC1–CC7</li>
+    <li><strong>ข้อมูลไหลต่อเนื่อง P1→P7</strong> — AI ดึงข้อมูลข้ามขั้นตอน (เช่น P1/P3 → P6 Payroll) ลดการคีย์ซ้ำ</li>
+    <li><strong>มนุษย์ยืนยันเสมอ</strong> — AI แนะนำ/ร่าง/เตือน แต่การตัดสินใจ final อยู่ที่คน (PAD/HR/การเงิน)</li>
+  </ul>
+
+  <h3>9.2 สถาปัตยกรรม Web PP7</h3>
+  <div class="mermaid">
+flowchart LR
+    subgraph UI["🖥️ Web PP7 (Frontend)"]
+        DASH["📊 Dashboard ผู้บริหาร"]
+        P1M["🧲 P1 สรรหา + AI Screening"]
+        P2M["🎯 P2 ประเมิน CC"]
+        P3M["🤝 P3 AI Matching"]
+        P4M["📈 P4 ประเมิน 360"]
+        P5M["🎓 P5 พี่เลี้ยง + Coach"]
+        P6M["💰 P6 Payroll Workflow"]
+        P7M["🌿 P7 Wellbeing"]
+    end
+    subgraph AI["🤖 AI Layer"]
+        NLP["NLU/NLP ภาษาไทย"]
+        SCORE["Scoring Engine (CC)"]
+        MATCH["Matching Engine 50/30/20"]
+        DETECT["Anomaly Detection"]
+        CHAT["Chatbot HR"]
+    end
+    subgraph DATA["🗄️ Data Layer"]
+        SHEET["Google Sheets (BCT)"]
+        GAS["Google Apps Script"]
+        LOG["Audit Log 100%"]
+    end
+    UI --> AI
+    AI --> DATA
+  </div>
+
+  <h3>9.3 ลำดับการพัฒนา (Roadmap)</h3>
+  <table>
+    <thead><tr><th>ระยะ</th><th>สิ่งที่พัฒนา</th><th>สถานะ</th></tr></thead>
+    <tbody>
+      <tr><td>✅ เสร็จแล้ว</td><td>P1 ช่องทาง/โอนย้าย/ส่งต่อ (<code>p1-sourcing-transfer.html</code>)</td><td>✅</td></tr>
+      <tr><td>✅ เสร็จแล้ว</td><td>P5 ระบบพี่เลี้ยงครบวงจร (<code>p5-mentoring-system.html</code>)</td><td>✅</td></tr>
+      <tr><td>✅ เสร็จแล้ว</td><td>P6 Payroll Workflow (<code>p6-payroll-workflow.html</code>)</td><td>✅</td></tr>
+      <tr><td>⏳ ถัดไป</td><td>ผูก AI Screening/Matching เข้ากับ module ใหม่</td><td>⏳</td></tr>
+      <tr><td>⏳ ถัดไป</td><td>หน้า 2 ของ diagram (P4/P7) ทบทวนเพิ่มเติม</td><td>⏳</td></tr>
+      <tr><td>⏳ ถัดไป</td><td>เชื่อม Google Sheets จริง + Deploy</td><td>⏳</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  📄 <strong>เอกสารนี้จัดทำโดย KiloClaw (PM + Developer Web PP7)</strong><br/>
+  31 สิงหาคม 2569 · อัปเดตตามคำขอ: "ช่วยเขียน Diagram ใหม่ ที่นำ AI เข้ามาช่วย"<br/>
+  Repo: <a href="https://github.com/pakonchotbuncha-netizen/web-pp7" target="_blank">github.com/pakonchotbuncha-netizen/web-pp7</a>
+</footer>
+
+</div>
+
+<script>
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'default',
+  flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+  securityLevel: 'loose'
+});
+</script>
+</body>
+</html>
