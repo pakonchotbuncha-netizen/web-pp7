@@ -47,6 +47,12 @@
     .cell-none { color:#cbd5e1; }
     .sym { font-size:0.7em; margin-right:2px; }
 
+    #monthlyMatrix { overflow-x:visible; }
+    #monthlyMatrix table { width:100%; table-layout:fixed; border-collapse:collapse; }
+    #monthlyMatrix th, #monthlyMatrix td { padding:2px 1px; font-size:10px; line-height:1.15; word-break:break-all; }
+    #monthlyMatrix .sym { display:block; font-size:8px; margin:0; }
+    #monthlyMatrix td:first-child, #monthlyMatrix th:first-child { width:64px; font-size:10px; }
+
     @media print {
       header, .tab-bar, .no-print { display: none !important; }
       .tab-panel { display: block !important; page-break-inside: avoid; }
@@ -68,6 +74,7 @@
         </h1>
         <p class="text-sm text-slate-500">สุขภาพธุรกิจบริษัทในเครือ PKG <span class="mx-1">•</span> ปี 2562–2569 (8 ปี + เดือน)</p>
         <p class="text-xs text-slate-400 mt-0.5">PRG = GM ÷ S&amp;A <span class="mx-1">•</span> PDG = GM ÷ ค่าใช้จ่ายสมาชิก (เดือนที่ GM จ่ายได้) <span class="mx-1">•</span> ยิ่งสูงยิ่งดี</p>
+        <p class="text-xs text-slate-400 mt-0.5">🟢 = ดี (PRG≥1.8 และ PDG≥1.8) <span class="mx-1">•</span> 🟡 = พอใช้ (1.3–1.8) <span class="mx-1">•</span> 🔴 = ต้องจับตา (&lt;1.3)</p>
       </div>
       <div class="flex flex-wrap gap-2 no-print">
         <button onclick="app.refresh()" class="px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 transition">🔄 รีเฟรช</button>
@@ -200,7 +207,7 @@
       <div class="card rounded-xl p-4 bg-white">
         <h3 class="font-semibold text-slate-800 mb-3">📋 ตารางบริษัท × 8 เดือน (แสดง GM, PRG, PDG)</h3>
         <p class="text-xs text-slate-500 mb-2">🟢 เขียว = ดี (PRG≥1.8, PDG≥1.8) | 🟡 เหลือง = พอใช้ (1.3–1.8) | 🔴 แดง = ต้องจับตา (&lt;1.3) — สัญลักษณ์ 🟢🟡🔴 แสดงกำกับอยู่ในตัวเลขทุกช่อง</p>
-        <div class="scroll-x" id="monthlyMatrix"></div>
+        <div id="monthlyMatrix"></div>
       </div>
     </section>
 
@@ -745,24 +752,24 @@ const app = {
     const compId = document.getElementById('monthlyCompany').value;
     const companies = compId === 'ALL' ? DATA.companies : DATA.companies.filter(c => c.id === compId);
 
-    let html = '<table class="min-w-full text-xs table-pkg"><thead class="bg-slate-100"><tr><th class="px-2 py-2 text-left">บริษัท</th>';
-    MONTHS.forEach(m => { html += `<th class="px-2 py-2 text-center" colspan="3">${m}</th>`; });
-    html += '</tr><tr><th class="px-2 py-1"></th>';
-    MONTHS.forEach(() => { html += '<th class="px-1 py-1 text-center text-slate-500">GM</th><th class="px-1 py-1 text-center text-slate-500">PRG</th><th class="px-1 py-1 text-center text-slate-500">PDG</th>'; });
+    let html = '<table class="min-w-full w-full text-xs table-pkg"><thead class="bg-slate-100"><tr><th class="text-left">บริษัท</th>';
+    MONTHS.forEach(m => { html += `<th class="text-center" colspan="3">${m}</th>`; });
+    html += '</tr><tr><th></th>';
+    MONTHS.forEach(() => { html += '<th class="text-center text-slate-500">GM</th><th class="text-center text-slate-500">PRG</th><th class="text-center text-slate-500">PDG</th>'; });
     html += '</tr></thead><tbody>';
 
     companies.forEach(c => {
-      html += `<tr class="border-t"><td class="px-2 py-2 font-semibold">${c.id}</td>`;
+      html += `<tr class="border-t"><td class="font-semibold">${c.id}</td>`;
       MONTHS.forEach(m => {
         const d = c.monthly[m];
         if (d == null || (d.gm === 0 && d.sa === 0 && d.hre === 0)) {
-          html += '<td colspan="3" class="px-1 py-2 text-center cell-none">-</td>';
+          html += '<td colspan="3" class="text-center cell-none">-</td>';
         } else {
           const cls = pillClass(d.prg, d.pdg);
           const sym = cellSym(cls);
-          html += `<td class="px-1 py-2 text-center ${cls}"><span class="sym">${sym}</span>${d.gm.toFixed(2)}</td>`;
-          html += `<td class="px-1 py-2 text-center ${cls} font-semibold">${d.prg != null ? `<span class="sym">${sym}</span>${d.prg.toFixed(2)}` : '-'}</td>`;
-          html += `<td class="px-1 py-2 text-center ${cls} font-semibold">${d.pdg != null ? `<span class="sym">${sym}</span>${d.pdg.toFixed(2)}` : '-'}</td>`;
+          html += `<td class="text-center ${cls}"><span class="sym">${sym}</span>${d.gm.toFixed(2)}</td>`;
+          html += `<td class="text-center ${cls} font-semibold">${d.prg != null ? `<span class="sym">${sym}</span>${d.prg.toFixed(2)}` : '-'}</td>`;
+          html += `<td class="text-center ${cls} font-semibold">${d.pdg != null ? `<span class="sym">${sym}</span>${d.pdg.toFixed(2)}` : '-'}</td>`;
         }
       });
       html += '</tr>';
