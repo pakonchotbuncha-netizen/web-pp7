@@ -331,76 +331,36 @@
       </div>
     </section>
 
-    <!-- ============ TAB 6: HR Productivity ============ -->
+    <!-- ============ TAB 6: HR Productivity (ปี 2569) ============ -->
     <section id="tab-hr" class="tab-panel space-y-6">
-      <div class="card bg-white rounded-xl p-6">
-        <h3 class="text-lg font-bold text-gray-800 mb-2">👥 HR Productivity</h3>
-        <p class="text-sm text-gray-600">⏳ กำลังปรับปรุงให้ใช้ข้อมูลปี 2569 — ข้อมูลปี 2568 มีข้อผิดพลาด จึงซ่อนส่วน HR Productivity (Y2568) ไว้ชั่วคราว</p>
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="hr69KpiCards"></div>
+
+      <!-- Charts -->
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">📈 GM/คน vs HRE/คน รายเดือน (ม.ค.–ส.ค. 69)</h3>
+        <div class="h-72"><canvas id="hr69PerHeadChart"></canvas></div>
       </div>
-      <div class="card bg-white rounded-xl p-6" style="display:none">
-        <h3 class="text-lg font-bold text-gray-800 mb-4">👥 HR Productivity — ค่าใช้จ่ายต่อคน vs ความสามารถในการสร้างรายได้ต่อคน</h3>
-        
-        <!-- KPI Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 text-white">
-            <p class="text-sm opacity-90">HRE per Employee (Y2568)</p>
-            <p id="kpiHrePerEmp" class="text-2xl font-bold">-</p>
-            <p class="text-xs opacity-75">ค่าใช้จ่ายสมาชิกต่อคน/เดือน</p>
-          </div>
-          <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-4 text-white">
-            <p class="text-sm opacity-90">GM per Employee (Y2568)</p>
-            <p id="kpiGmPerEmp" class="text-2xl font-bold">-</p>
-            <p class="text-xs opacity-75">กำไรขั้นต้นต่อคน/เดือน</p>
-          </div>
-          <div class="bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl p-4 text-white">
-            <p class="text-sm opacity-90">HRE Ratio (Y2568)</p>
-            <p id="kpiHreRatio" class="text-2xl font-bold">-</p>
-            <p class="text-xs opacity-75">% ของ GM ที่ใช้กับค่าใช้จ่ายสมาชิก</p>
-          </div>
-          <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 text-white">
-            <p class="text-sm opacity-90">Productivity Index</p>
-            <p id="kpiProdIndex" class="text-2xl font-bold">-</p>
-            <p class="text-xs opacity-75">GM per Employee ÷ HRE per Employee</p>
-          </div>
-        </div>
 
-        <!-- Charts -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <div class="bg-gray-50 rounded-lg p-4">
-            <h4 class="text-md font-semibold text-gray-700 mb-3">📈 HRE per Employee vs GM per Employee (8 ปี)</h4>
-            <canvas id="hrTrendChart"></canvas>
-          </div>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <h4 class="text-md font-semibold text-gray-700 mb-3">🎯 Productivity Index (8 ปี)</h4>
-            <canvas id="prodIndexChart"></canvas>
-          </div>
-        </div>
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">🎯 Productivity Index (GM ÷ HRE) รายเดือน (ม.ค.–ส.ค. 69)</h3>
+        <div class="h-72"><canvas id="hr69PiChart"></canvas></div>
+      </div>
 
-        <!-- Scatter Plot -->
-        <div class="bg-gray-50 rounded-lg p-4 mb-6">
-          <h4 class="text-md font-semibold text-gray-700 mb-3">📊 HRE per Employee vs GM per Employee (Y2568)</h4>
-          <canvas id="hrScatterChart"></canvas>
-        </div>
+      <!-- Company Table -->
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">🏢 ภาพรวมรายบริษัท (GM/HRE/SA สะสม ม.ค.–ส.ค. 69 ต่อสมาชิก)</h3>
+        <div class="scroll-x" id="hr69CompanyTable"></div>
+      </div>
 
-        <!-- Company Table -->
-        <div class="bg-gray-50 rounded-lg p-4">
-          <h4 class="text-md font-semibold text-gray-700 mb-3">🏢 เปรียบเทียบรายบริษัท (Y2568)</h4>
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <thead class="bg-gray-100">
-                <tr>
-                  <th class="px-3 py-2 text-left">บริษัท</th>
-                  <th class="px-3 py-2 text-center">พนักงาน</th>
-                  <th class="px-3 py-2 text-center">HRE/คน</th>
-                  <th class="px-3 py-2 text-center">GM/คน</th>
-                  <th class="px-3 py-2 text-center">HRE Ratio</th>
-                  <th class="px-3 py-2 text-center">Productivity Index</th>
-                </tr>
-              </thead>
-              <tbody id="hrCompanyTable"></tbody>
-            </table>
-          </div>
-        </div>
+      <!-- Monthly Table -->
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">📅 รายเดือน (ม.ค.–ส.ค. 69 — รวมทุกบริษัท)</h3>
+        <div class="scroll-x" id="hr69MonthlyTable"></div>
+      </div>
+
+      <div class="card bg-slate-50 rounded-xl p-3 text-xs text-slate-500">
+        💡 คำนวณจากข้อมูลปี 2569 (ม.ค.–ส.ค.) สมาชิก 466 คน • สูตร: GM/คน = GM÷สมาชิก, HRE/คน = HRE÷สมาชิก, Productivity Index = GM÷HRE
       </div>
     </section>
 
@@ -1333,137 +1293,149 @@ const app = {
 
   // ===== TAB 6: HR Productivity =====
   renderHR() {
-    // ซ่อน HR Productivity (Y2568) — ข้อมูลปี 2568 มีข้อผิดพลาด แสดงข้อความกำลังปรับปรุง
-    return;
-    // Employee counts (from Google Sheet BCT)
-    const employeeCount = {
-      'PKG': 550, // ภาพรวมจำนวนสมาชิกทั้งหมดของ PKG
-      'PMSG': 58,
-      'PMS': 200,
-      'PMG': 50,
-      'PMGI': 20,
-      'AAMG': 172,
-      'AAM': 150,
-      'RPLC&RAFL': 100,
-      'RAFCO&AICP': 80,
-      'CPDG&LDC': 120,
-      'CPDG': 45,
-      'LDC': 30,
-      'TNRG': 40
+    this.renderHR69();
+  },
+
+  // ===== TAB 6: HR Productivity — เฉพาะข้อมูลปี 2569 (window.PRG69) =====
+  // ภาพรวมสะสม ม.ค.–ส.ค. (เดือนที่ GM > 0 จริง) ÷ สมาชิก 466 คน
+  renderHR69() {
+    const P = this.prg69();
+    const kpiEl = document.getElementById('hr69KpiCards');
+    const EMP = 466;
+    if (!P) {
+      if (kpiEl) kpiEl.innerHTML = '<div class="card rounded-xl p-6 bg-white text-sm text-red-500">ไม่พบ window.PRG69 (prg-pdg-69-data.js) — โหลดข้อมูลปี 2569 ไม่สำเร็จ</div>';
+      return;
     }
+    const withMem = P.companies.filter(c => c.members > 0);
+    const months69 = P.aggregate.monthly.slice(0, 8);
+    const sumM = (arr, f) => arr.reduce((a, m) => a + (m[f] || 0), 0);
+    const totalGM = sumM(months69, 'gm');
+    const totalHRE = sumM(months69, 'hre');
+    const totalSA = sumM(months69, 'sa');
 
-    const year = 'Y2568';
-    const yearIdx = 6; // Y2568
+    // ---- KPI 4 ใบ (สะสม ม.ค.–ส.ค. ÷ 466) ----
+    const kpis = [
+      { label: 'HRE ต่อสมาชิก (สะสม ม.ค.–ส.ค.)', val: '฿' + this.fmtBaht(totalHRE / EMP, 0), sub: 'HRE รวม ฿' + this.fmtBaht(totalHRE, 0) + ' ÷ 466 คน', bg: 'from-blue-500 to-blue-600' },
+      { label: 'GM ต่อสมาชิก (สะสม ม.ค.–ส.ค.)', val: '฿' + this.fmtBaht(totalGM / EMP, 0), sub: 'GM รวม ฿' + this.fmtBaht(totalGM, 0) + ' ÷ 466 คน', bg: 'from-green-500 to-green-600' },
+      { label: 'Productivity Index (GM ÷ HRE)', val: (totalGM / totalHRE).toFixed(2), sub: 'เท่ากับ PDG รวมของปี 69', bg: 'from-purple-500 to-purple-600' },
+      { label: 'HRE Ratio (HRE ÷ GM)', val: ((totalHRE / totalGM) * 100).toFixed(1) + '%', sub: '% ของ GM ที่จ่ายเป็นค่าคน', bg: 'from-amber-500 to-amber-600' },
+    ];
+    kpiEl.innerHTML = kpis.map(k =>
+      `<div class="card rounded-xl p-4 text-white bg-gradient-to-br ${k.bg}">
+        <p class="text-xs opacity-90">${k.label}</p>
+        <p class="text-2xl font-bold mt-1">${k.val}</p>
+        <p class="text-[11px] opacity-75 mt-1">${k.sub}</p>
+      </div>`).join('');
 
-    // Calculate HR metrics
-    const hrData = DATA.companies.map(c => {
-      const d = c.yearsPRG[year];
-      if (!d || !d.gm) return null;
-      const emp = employeeCount[c.id] || 0;
-      if (!emp) return null;
-      const hrePerEmp = d.hre / emp;
-      const gmPerEmp = d.gm / emp;
-      const hreRatio = (d.hre / d.gm) * 100;
-      const prodIndex = gmPerEmp / hrePerEmp;
-      return { id: c.id, name: c.name, emp, hrePerEmp, gmPerEmp, hreRatio, prodIndex }
-    }).filter(Boolean);
-
-    // Render KPI cards (use PKG data)
-    // Note: hre/gm are in millions THB/month. Per-employee = (millions * 1,000,000) / emp = baht
-    const pkg = hrData.find(c => c.id === 'PKG');
-    const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    if (pkg) {
-      setText('kpiHrePerEmp', `฿${Math.round(pkg.hrePerEmp * 1_000_000 / 1000).toLocaleString()}K`);
-      setText('kpiGmPerEmp', `฿${Math.round(pkg.gmPerEmp * 1_000_000 / 1000).toLocaleString()}K`);
-      setText('kpiHreRatio', pkg.hreRatio.toFixed(1) + '%');
-      setText('kpiProdIndex', pkg.prodIndex.toFixed(2));
-    }
-
-    // Render trend chart (8 years) — values in baht per employee per month
-    const years = Object.keys(DATA.companies[0].yearsPRG).slice(0, 7);
-    const hreTrend = years.map(y => {
-      const d = DATA.companies[0].yearsPRG[y];
-      if (!d || !d.gm) return null;
-      const emp = employeeCount['PKG'] || 1;
-      return (d.hre * 1_000_000) / emp;
+    // ---- ตารางรายบริษัท (เฉพาะ members > 0, เรียง GM/คน มาก→น้อย) ----
+    const rows = withMem.map(c => {
+      const gm = sumM(c.monthly.slice(0, 8), 'gm');
+      const hre = sumM(c.monthly.slice(0, 8), 'hre');
+      const sa = sumM(c.monthly.slice(0, 8), 'sa');
+      return {
+        id: c.id, name: c.name, members: c.members, gm, hre, sa,
+        gmPer: gm / c.members, hrePer: hre / c.members, saPer: sa / c.members,
+        pi: hre > 0 ? gm / hre : null, ratio: gm > 0 ? (hre / gm) * 100 : null,
+      };
+    }).sort((a, b) => b.gmPer - a.gmPer);
+    const piCls = (pi) => pi == null ? 'cell-none' : (pi >= 1.8 ? 'cell-good' : pi >= 1.3 ? 'cell-ok' : 'cell-bad');
+    let html = '<table class="min-w-full w-full text-xs table-pkg"><thead class="bg-slate-100"><tr>' +
+      '<th class="text-left px-2 py-2">บริษัท</th>' +
+      '<th class="text-center px-2 py-2">สมาชิก (คน)</th>' +
+      '<th class="text-center px-2 py-2">GM รวม (ลบ.)</th>' +
+      '<th class="text-center px-2 py-2">GM/คน (ลบ.)</th>' +
+      '<th class="text-center px-2 py-2">HRE/คน (ลบ.)</th>' +
+      '<th class="text-center px-2 py-2">SA/คน (ลบ.)</th>' +
+      '<th class="text-center px-2 py-2">Productivity Index (GM/HRE)</th>' +
+      '<th class="text-center px-2 py-2">HRE Ratio (%)</th>' +
+      '</tr></thead><tbody>';
+    rows.forEach(c => {
+      const cls = piCls(c.pi);
+      html += `<tr class="border-t">
+        <td class="px-2 py-1.5 font-semibold whitespace-nowrap">${c.id}</td>
+        <td class="px-2 py-1.5 text-center">${c.members}</td>
+        <td class="px-2 py-1.5 text-center">${this.fmtBaht(c.gm / 1e6, 3)}</td>
+        <td class="px-2 py-1.5 text-center">${this.fmtBaht(c.gmPer / 1e6, 4)}</td>
+        <td class="px-2 py-1.5 text-center">${this.fmtBaht(c.hrePer / 1e6, 4)}</td>
+        <td class="px-2 py-1.5 text-center">${this.fmtBaht(c.saPer / 1e6, 4)}</td>
+        <td class="px-2 py-1.5 text-center ${cls}">${c.pi != null ? '<span class="sym">' + ({ 'cell-good': '🟢', 'cell-ok': '🟡', 'cell-bad': '🔴' })[cls] + '</span>' + c.pi.toFixed(2) : '-'}</td>
+        <td class="px-2 py-1.5 text-center">${c.ratio != null ? c.ratio.toFixed(1) : '-'}</td>
+      </tr>`;
     });
-    const gmTrend = years.map(y => {
-      const d = DATA.companies[0].yearsPRG[y];
-      if (!d || !d.gm) return null;
-      const emp = employeeCount['PKG'] || 1;
-      return (d.gm * 1_000_000) / emp;
-    });
-    const prodIndexTrend = hreTrend.map((hre, i) => {
-      const gm = gmTrend[i];
-      return gm && hre ? gm / hre : null;
-    });
+    html += '<tr class="border-t bg-blue-50 font-semibold"><td class="px-2 py-1.5">รวม (8 บริษัท)</td>' +
+      `<td class="px-2 py-1.5 text-center">${EMP}</td>` +
+      `<td class="px-2 py-1.5 text-center">${this.fmtBaht(totalGM / 1e6, 3)}</td>` +
+      `<td class="px-2 py-1.5 text-center">${this.fmtBaht(totalGM / EMP / 1e6, 4)}</td>` +
+      `<td class="px-2 py-1.5 text-center">${this.fmtBaht(totalHRE / EMP / 1e6, 4)}</td>` +
+      `<td class="px-2 py-1.5 text-center">${this.fmtBaht(totalSA / EMP / 1e6, 4)}</td>` +
+      `<td class="px-2 py-1.5 text-center">${(totalGM / totalHRE).toFixed(2)}</td>` +
+      `<td class="px-2 py-1.5 text-center">${((totalHRE / totalGM) * 100).toFixed(1)}</td></tr>`;
+    html += '</tbody></table>';
+    document.getElementById('hr69CompanyTable').innerHTML = html;
 
-    if (window.hrTrendChart && typeof window.hrTrendChart.destroy === 'function') window.hrTrendChart.destroy();
-    window.hrTrendChart = new Chart(document.getElementById('hrTrendChart'), {
-      type: 'line',
+    // ---- ตารางรายเดือน (ม.ค.–ส.ค. 69) ----
+    let mh = '<table class="min-w-full w-full text-xs table-pkg"><thead class="bg-slate-100"><tr>' +
+      '<th class="text-left px-2 py-2">เดือน</th>' +
+      '<th class="text-center px-2 py-2">GM รวม (ลบ.)</th>' +
+      '<th class="text-center px-2 py-2">GM/คน (ลบ.)</th>' +
+      '<th class="text-center px-2 py-2">HRE รวม (ลบ.)</th>' +
+      '<th class="text-center px-2 py-2">HRE/คน (ลบ.)</th>' +
+      '<th class="text-center px-2 py-2">Productivity Index</th>' +
+      '</tr></thead><tbody>';
+    months69.forEach(m => {
+      const cls = piCls(m.pdg);
+      mh += `<tr class="border-t">
+        <td class="px-2 py-1.5 font-semibold">${m.m}</td>
+        <td class="px-2 py-1.5 text-center">${this.fmtBaht(m.gm / 1e6, 3)}</td>
+        <td class="px-2 py-1.5 text-center">${this.fmtBaht(m.gm / EMP / 1e6, 4)}</td>
+        <td class="px-2 py-1.5 text-center">${this.fmtBaht(m.hre / 1e6, 3)}</td>
+        <td class="px-2 py-1.5 text-center">${this.fmtBaht(m.hre / EMP / 1e6, 4)}</td>
+        <td class="px-2 py-1.5 text-center ${cls}">${m.pdg != null ? '<span class="sym">' + ({ 'cell-good': '🟢', 'cell-ok': '🟡', 'cell-bad': '🔴' })[cls] + '</span>' + m.pdg.toFixed(2) : '-'}</td>
+      </tr>`;
+    });
+    mh += '<tr class="border-t bg-blue-50 font-semibold"><td class="px-2 py-1.5">รวม ม.ค.–ส.ค.</td>' +
+      `<td class="px-2 py-1.5 text-center">${this.fmtBaht(totalGM / 1e6, 3)}</td>` +
+      `<td class="px-2 py-1.5 text-center">${this.fmtBaht(totalGM / EMP / 1e6, 4)}</td>` +
+      `<td class="px-2 py-1.5 text-center">${this.fmtBaht(totalHRE / 1e6, 3)}</td>` +
+      `<td class="px-2 py-1.5 text-center">${this.fmtBaht(totalHRE / EMP / 1e6, 4)}</td>` +
+      `<td class="px-2 py-1.5 text-center">${(totalGM / totalHRE).toFixed(2)}</td></tr>`;
+    mh += '</tbody></table>';
+    document.getElementById('hr69MonthlyTable').innerHTML = mh;
+
+    // ---- กราฟ (a): GM/คน (bar) vs HRE/คน (line) รายเดือน ----
+    makeChart('hr69PerHeadChart', {
       data: {
-        labels: years,
+        labels: months69.map(m => m.m + ' 69'),
         datasets: [
-          { label: 'HRE/คน (฿)', data: hreTrend, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', fill: true },
-          { label: 'GM/คน (฿)', data: gmTrend, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true }
+          { type: 'bar', label: 'GM/คน (ลบ.)', data: months69.map(m => +(m.gm / EMP / 1e6).toFixed(4)), backgroundColor: 'rgba(16,185,129,0.75)', borderRadius: 4, order: 2 },
+          { type: 'line', label: 'HRE/คน (ลบ.)', data: months69.map(m => +(m.hre / EMP / 1e6).toFixed(4)), borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.08)', fill: true, tension: 0.3, pointRadius: 4, borderWidth: 2, order: 1 }
         ]
       },
-      options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, ticks: { callback: (v) => (v/1000).toFixed(0) + 'K' } } } }
-    });
-
-    if (window.prodIndexChart && typeof window.prodIndexChart.destroy === 'function') window.prodIndexChart.destroy();
-    window.prodIndexChart = new Chart(document.getElementById('prodIndexChart'), {
-      type: 'line',
-      data: {
-        labels: years,
-        datasets: [{ label: 'Productivity Index', data: prodIndexTrend, borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.1)', fill: true }]
-      },
-      options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
-    });
-
-    // Render scatter plot (values in baht per employee)
-    if (window.hrScatterChart && typeof window.hrScatterChart.destroy === 'function') window.hrScatterChart.destroy();
-    window.hrScatterChart = new Chart(document.getElementById('hrScatterChart'), {
-      type: 'scatter',
-      data: {
-        datasets: [{
-          label: 'บริษัท',
-          data: hrData.map(c => ({ x: c.hrePerEmp * 1_000_000, y: c.gmPerEmp * 1_000_000, name: c.id, prodIndex: c.prodIndex })),
-          backgroundColor: hrData.map(c => c.prodIndex >= 1.5 ? '#10b981' : c.prodIndex >= 1.0 ? '#f59e0b' : '#ef4444'),
-          pointRadius: 10
-        }]
-      },
       options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => `${ctx.raw.name}: HRE/คน=฿${Math.round(ctx.raw.x/1000).toLocaleString()}K, GM/คน=฿${Math.round(ctx.raw.y/1000).toLocaleString()}K, PI=${ctx.raw.prodIndex.toFixed(2)}`
-            }
-          }
-        },
-        scales: {
-          x: { title: { display: true, text: 'HRE per Employee (฿/เดือน)' } },
-          y: { title: { display: true, text: 'GM per Employee (฿/เดือน)' } }
-        }
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { beginAtZero: true, title: { display: true, text: 'ล้านบาท/คน' } } }
       }
     });
 
-    // Render company table
-    let html = '';
-    hrData.forEach(c => {
-      const cls = c.prodIndex >= 1.5 ? 'text-green-600 font-semibold' : c.prodIndex >= 1.0 ? 'text-amber-600 font-semibold' : 'text-red-600 font-semibold';
-      html += `<tr class="border-t">
-        <td class="px-3 py-2 font-medium">${c.id}</td>
-        <td class="px-3 py-2 text-center">${c.emp}</td>
-        <td class="px-3 py-2 text-center">฿${Math.round(c.hrePerEmp * 1_000_000 / 1000).toLocaleString()}K</td>
-        <td class="px-3 py-2 text-center">฿${Math.round(c.gmPerEmp * 1_000_000 / 1000).toLocaleString()}K</td>
-        <td class="px-3 py-2 text-center">${c.hreRatio.toFixed(1)}%</td>
-        <td class="px-3 py-2 text-center ${cls}">${c.prodIndex.toFixed(2)}</td>
-      </tr>`;
+    // ---- กราฟ (b): Productivity Index รายเดือน (สีตามเกณฑ์) ----
+    makeChart('hr69PiChart', {
+      type: 'bar',
+      data: {
+        labels: months69.map(m => m.m + ' 69'),
+        datasets: [{
+          label: 'Productivity Index (GM ÷ HRE)',
+          data: months69.map(m => m.pdg),
+          backgroundColor: months69.map(m => m.pdg == null ? '#cbd5e1' : m.pdg >= 1.8 ? 'rgba(16,185,129,0.85)' : m.pdg >= 1.3 ? 'rgba(245,158,11,0.85)' : 'rgba(239,68,68,0.85)'),
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, title: { display: true, text: 'Productivity Index (เท่า)' } } }
+      }
     });
-    document.getElementById('hrCompanyTable').innerHTML = html;
   },
 
   // ===== TAB: สมาชิกย้อนหลัง =====
