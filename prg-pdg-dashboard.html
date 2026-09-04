@@ -96,6 +96,7 @@
           <button class="tab-btn" data-tab="fulldata" onclick="app.switchTab('fulldata')">📋 ข้อมูลเต็ม</button>
           <button class="tab-btn" data-tab="prg69compare" onclick="app.switchTab('prg69compare')">🔁 PRG/PDG 69 เทียบเดือน</button>
           <button class="tab-btn" data-tab="members69" onclick="app.switchTab('members69')">👥 สมาชิก/รายได้ 69</button>
+          <button class="tab-btn" data-tab="growth69" onclick="app.switchTab('growth69')">📈 เติบโต vs ม.ค.69</button>
         </nav>
       </div>
     </div>
@@ -492,6 +493,42 @@
       </div>
     </section>
 
+    <!-- ============ TAB ใหม่: เติบโต vs ม.ค. 69 ============ -->
+    <section id="tab-growth69" class="tab-panel space-y-6">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <h2 class="text-lg font-semibold text-slate-900">📈 เติบโต เทียบเดือน ม.ค. 69 (ฐาน ม.ค. 69)</h2>
+      </div>
+
+      <!-- KPI cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="growth69Kpis"></div>
+
+      <!-- ตารางภาพรวมรายเดือน -->
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">📊 ภาพรวมทุกบริษัท เทียบ ม.ค. 69 (เฉพาะเดือนที่ข้อมูลครบทุกบริษัท)</h3>
+        <div class="overflow-x-auto" id="growth69AggTable"></div>
+      </div>
+
+      <!-- ตารางรายบริษัท -->
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">📋 รายบริษัท เทียบ ม.ค. 69 (เดือนล่าสุด)</h3>
+        <div class="overflow-x-auto" id="growth69CmpTable"></div>
+      </div>
+
+      <!-- กราฟ 1: GM %Δ รายเดือน -->
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">📈 GM %Δ รายเดือน เทียบ ม.ค. 69 (รวมทุกบริษัท)</h3>
+        <div class="h-72"><canvas id="prg69GrowthChart"></canvas></div>
+      </div>
+
+      <!-- กราฟ 2: ΔPRG + ΔPDG รายเดือน -->
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">📊 ΔPRG / ΔPDG (จุด) รายเดือน เทียบ ม.ค. 69 (รวมทุกบริษัท)</h3>
+        <div class="h-72"><canvas id="prg69GrowthPrgChart"></canvas></div>
+      </div>
+
+      <p class="text-xs text-slate-500">ℹ️ การเติบโตคำนวณเทียบกับเดือน ม.ค. 69 เป็นฐาน • ตัวเงิน (GM/SA/HRE) ใช้ %Δ • อัตราส่วน PRG/PDG ใช้ Δ จุด • ก.ย. 69 ข้อมูลยังไม่ครบทุกบริษัท (gm=0/ไม่มีข้อมูล) และ ต.ค.–ธ.ค. ยังไม่มีข้อมูล จึงข้ามไม่นำมาแสดง</p>
+    </section>
+
   </main>
 
   <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-xs text-slate-400">
@@ -661,6 +698,8 @@ const app = {
       this.renderPrg69Compare();
     } else if (tab === 'members69') {
       this.renderMembers69();
+    } else if (tab === 'growth69') {
+      this.renderGrowth69();
     }
   },
 
@@ -1656,6 +1695,123 @@ const app = {
     html += `<td class="text-center px-2">${this.fmtBaht(agg.gm / totMem, 0)}</td><td class="text-center px-2">${this.fmtBaht(agg.sa / totMem, 0)}</td><td class="text-center px-2">${this.fmtBaht(agg.hre / totMem, 0)}</td></tr>`;
     html += '</tbody></table>';
     document.getElementById('prg69MemTable').innerHTML = html;
+  },
+
+  // ===== TAB ใหม่: เติบโต vs ม.ค. 69 (GM%Δ + ΔPRG/ΔPDG จุด) =====
+  renderGrowth69() {
+    const P = this.prg69();
+    const kpiEl = document.getElementById('growth69Kpis');
+    if (!P) { if (kpiEl) kpiEl.innerHTML = '<p class="text-sm text-red-500">ไม่พบ window.PRG69 (prg-pdg-69-data.js)</p>'; return; }
+    const comps = P.companies;
+    // เดือนที่ข้อมูลครบทุกบริษัท: hasData=true และ gm≠0 (ตัด ก.ย. ที่หลายบริษัทยังไม่กรอก, ต.ค.–ธ.ค. ที่ยังไม่มีข้อมูล)
+    const isFullMonth = i => comps.every(c => { const md = c.monthly[i]; return md && md.hasData && md.gm != null && md.gm !== 0; });
+    const idxs = P.aggregate.monthly.map((_, i) => i).filter(isFullMonth);
+    const months = idxs.map(i => P.aggregate.monthly[i]);
+    if (!months.length) return;
+    const base = months[0];
+    const last = months[months.length - 1];
+    const pctChg = (b, v) => (b == null || v == null || b === 0) ? null : +(((v - b) / Math.abs(b)) * 100).toFixed(1);
+    const dPt = (b, v) => (b == null || v == null) ? null : +(v - b).toFixed(2);
+    const fmtM = v => v == null || isNaN(v) ? '-' : (v / 1e6).toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtPct = v => v == null ? '-' : (v > 0 ? '+' : '') + v.toFixed(1) + '%';
+    const fmtPt = v => v == null ? '-' : (v > 0 ? '+' : '') + v.toFixed(2);
+    const signCls = v => v == null ? 'text-slate-400' : (v > 0 ? 'text-emerald-600' : v < 0 ? 'text-red-500' : 'text-slate-600');
+
+    // --- KPI 4 ใบ (ภาพรวม รวมทุกบริษัท) ---
+    const gmPct = pctChg(base.gm, last.gm);
+    const prgD = dPt(base.prg, last.prg);
+    const pdgD = dPt(base.pdg, last.pdg);
+    let peak = months[0], peakPct = -Infinity;
+    months.forEach(mt => { const p = pctChg(base.gm, mt.gm); if (p != null && p > peakPct) { peakPct = p; peak = mt; } });
+    const kpis = [
+      ['GM โต ' + base.m + ' → ' + last.m + ' 69', fmtPct(gmPct), gmPct, 'GM ' + fmtM(base.gm) + ' → ' + fmtM(last.gm) + ' ลบ.'],
+      ['ΔPRG ' + base.m + ' → ' + last.m + ' 69', fmtPt(prgD) + ' จุด', prgD, 'PRG ' + (base.prg != null ? base.prg.toFixed(2) : '-') + ' → ' + (last.prg != null ? last.prg.toFixed(2) : '-')],
+      ['ΔPDG ' + base.m + ' → ' + last.m + ' 69', fmtPt(pdgD) + ' จุด', pdgD, 'PDG ' + (base.pdg != null ? base.pdg.toFixed(2) : '-') + ' → ' + (last.pdg != null ? last.pdg.toFixed(2) : '-')],
+      ['เดือน GM พีคสุด (vs ' + base.m + ')', peak.m + ' 69', peakPct, 'GM โต ' + fmtPct(peakPct) + ' เทียบ ' + base.m],
+    ];
+    kpiEl.innerHTML = kpis.map(k =>
+      `<div class="card rounded-xl p-4 bg-white"><div class="text-xs text-slate-500">${k[0]}</div><div class="text-xl font-bold mt-1 ${signCls(k[2])}">${k[1]}</div><div class="text-xs text-slate-400 mt-1">${k[3]}</div></div>`).join('');
+
+    // --- ตาราง 1: ภาพรวมทุกบริษัท รายเดือน (ก.พ.→เดือนล่าสุด) ---
+    const baseRow = 'ฐาน ' + base.m + ' 69: GM ' + fmtM(base.gm) + ' ลบ. • SA ' + fmtM(base.sa) + ' ลบ. • HRE ' + fmtM(base.hre) + ' ลบ. • PRG ' + (base.prg != null ? base.prg.toFixed(2) : '-') + ' • PDG ' + (base.pdg != null ? base.pdg.toFixed(2) : '-');
+    let h = '<p class="text-xs text-slate-500 mb-2">' + baseRow + '</p>' +
+      '<table class="min-w-full w-full text-xs table-pkg"><thead class="bg-slate-100"><tr>' +
+      '<th class="text-left px-2 py-1">เดือน</th><th class="text-center px-2">GM (M)</th><th class="text-center px-2">GM %Δ</th>' +
+      '<th class="text-center px-2">SA %Δ</th><th class="text-center px-2">HRE %Δ</th><th class="text-center px-2">PRG</th>' +
+      '<th class="text-center px-2">ΔPRG จุด</th><th class="text-center px-2">PDG</th><th class="text-center px-2">ΔPDG จุด</th>' +
+      '</tr></thead><tbody>';
+    months.slice(1).forEach(mt => {
+      const gP = pctChg(base.gm, mt.gm), sP = pctChg(base.sa, mt.sa), hP = pctChg(base.hre, mt.hre);
+      const pD = dPt(base.prg, mt.prg), qD = dPt(base.pdg, mt.pdg);
+      h += `<tr class="border-t"><td class="font-semibold px-2 py-1 whitespace-nowrap">${mt.m} 69</td>` +
+        `<td class="text-center px-2">${fmtM(mt.gm)}</td>` +
+        `<td class="text-center px-2 font-semibold ${signCls(gP)}">${fmtPct(gP)}</td>` +
+        `<td class="text-center px-2 ${signCls(sP)}">${fmtPct(sP)}</td>` +
+        `<td class="text-center px-2 ${signCls(hP)}">${fmtPct(hP)}</td>` +
+        `<td class="text-center px-2">${mt.prg != null ? mt.prg.toFixed(2) : '-'}</td>` +
+        `<td class="text-center px-2 font-semibold ${signCls(pD)}">${fmtPt(pD)}</td>` +
+        `<td class="text-center px-2">${mt.pdg != null ? mt.pdg.toFixed(2) : '-'}</td>` +
+        `<td class="text-center px-2 font-semibold ${signCls(qD)}">${fmtPt(qD)}</td></tr>`;
+    });
+    h += '</tbody></table>';
+    document.getElementById('growth69AggTable').innerHTML = h;
+
+    // --- ตาราง 2: รายบริษัท เทียบ ม.ค. 69 (เดือนล่าสุด = เดือนที่ข้อมูลครบทุกบริษัท) ---
+    const iBase = idxs[0], iLast = idxs[idxs.length - 1];
+    const cRows = comps.map(c => {
+      const jan = c.monthly[iBase], cur = c.monthly[iLast];
+      const gP = pctChg(jan ? jan.gm : null, cur ? cur.gm : null);
+      const pD = dPt(jan ? jan.prg : null, cur ? cur.prg : null);
+      const qD = dPt(jan ? jan.pdg : null, cur ? cur.pdg : null);
+      const cls = (pD != null && qD != null) ? (pD > 0 && qD > 0 ? 'cell-good' : (pD < 0 && qD < 0 ? 'cell-bad' : 'cell-ok')) : '';
+      return { id: c.id, jan, cur, gP, pD, qD, cls };
+    }).filter(r => r.jan && r.cur && r.jan.gm !== 0 && r.gP != null)
+      .sort((a, b) => (b.gP || -Infinity) - (a.gP || -Infinity));
+    let h2 = '<p class="text-xs text-slate-500 mb-2">เดือนล่าสุด: ' + last.m + ' 69 (เดือนที่ข้อมูลครบทุกบริษัท) • เรียงตาม GM %Δ มาก → น้อย • ' +
+      '<span class="cell-good px-1 rounded">ΔPRG &gt; 0 และ ΔPDG &gt; 0 = ดีคู่</span> ' +
+      '<span class="cell-bad px-1 rounded">ติดลบทั้งคู่ = ควรติดตาม</span> ' +
+      '<span class="cell-ok px-1 rounded">อื่นๆ = ปานกลาง</span></p>' +
+      '<table class="min-w-full w-full text-xs table-pkg"><thead class="bg-slate-100"><tr>' +
+      '<th class="text-left px-2 py-1">บริษัท</th><th class="text-center px-2">GM ม.ค. (M)</th><th class="text-center px-2">GM ' + last.m + ' (M)</th>' +
+      '<th class="text-center px-2">GM %Δ</th><th class="text-center px-2">ΔPRG จุด</th><th class="text-center px-2">ΔPDG จุด</th>' +
+      '</tr></thead><tbody>';
+    cRows.forEach(r => {
+      h2 += `<tr class="border-t"><td class="font-semibold px-2 py-1 whitespace-nowrap">${r.id}</td>` +
+        `<td class="text-center px-2">${fmtM(r.jan.gm)}</td>` +
+        `<td class="text-center px-2">${fmtM(r.cur.gm)}</td>` +
+        `<td class="text-center px-2 font-semibold ${signCls(r.gP)}">${fmtPct(r.gP)}</td>` +
+        `<td class="text-center px-2 font-semibold ${r.cls}">${fmtPt(r.pD)}</td>` +
+        `<td class="text-center px-2 font-semibold ${r.cls}">${fmtPt(r.qD)}</td></tr>`;
+    });
+    h2 += '</tbody></table>';
+    document.getElementById('growth69CmpTable').innerHTML = h2;
+
+    // --- กราฟ 1: GM %Δ รายเดือน (line, รวมทุกบริษัท) ---
+    makeChart('prg69GrowthChart', {
+      type: 'line',
+      data: {
+        labels: months.map(mt => mt.m + ' 69'),
+        datasets: [{
+          label: 'GM %Δ (เทียบ ' + base.m + ')',
+          data: months.map(mt => pctChg(base.gm, mt.gm)),
+          borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.10)', fill: true, tension: 0.3, pointRadius: 4
+        }]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { title: { display: true, text: '% เทียบ ม.ค. 69' }, ticks: { callback: v => v + '%' } } } }
+    });
+
+    // --- กราฟ 2: ΔPRG + ΔPDG จุด รายเดือน (line 2 datasets, รวมทุกบริษัท) ---
+    makeChart('prg69GrowthPrgChart', {
+      type: 'line',
+      data: {
+        labels: months.map(mt => mt.m + ' 69'),
+        datasets: [
+          { label: 'ΔPRG (จุด)', data: months.map(mt => dPt(base.prg, mt.prg)), borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.10)', fill: true, tension: 0.3, pointRadius: 4 },
+          { label: 'ΔPDG (จุด)', data: months.map(mt => dPt(base.pdg, mt.pdg)), borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.10)', fill: true, tension: 0.3, pointRadius: 4 }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { title: { display: true, text: 'Δ จุด (เทียบ ม.ค. 69)' } } } }
+    });
   },
 
 };
