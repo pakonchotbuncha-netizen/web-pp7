@@ -94,6 +94,8 @@
           <button class="tab-btn" data-tab="hr" onclick="app.switchTab('hr')">👥 HR Productivity</button>
           <button class="tab-btn" data-tab="members" onclick="app.switchTab('members')">👤 สมาชิกย้อนหลัง</button>
           <button class="tab-btn" data-tab="fulldata" onclick="app.switchTab('fulldata')">📋 ข้อมูลเต็ม</button>
+          <button class="tab-btn" data-tab="prg69compare" onclick="app.switchTab('prg69compare')">🔁 PRG/PDG 69 เทียบเดือน</button>
+          <button class="tab-btn" data-tab="members69" onclick="app.switchTab('members69')">👥 สมาชิก/รายได้ 69</button>
         </nav>
       </div>
     </div>
@@ -423,6 +425,60 @@
       </div>
     </section>
 
+    <!-- ============ TAB ใหม่: PRG/PDG 69 เทียบเดือน (MoM) ============ -->
+    <section id="tab-prg69compare" class="tab-panel space-y-6">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <h2 class="text-lg font-semibold text-slate-900">🔁 PRG/PDG ปี 2569 เทียบรายเดือน (MoM ม.ค.–ก.ย.)</h2>
+        <div class="flex items-center gap-2 text-sm">
+          <label class="text-slate-500">บริษัท:</label>
+          <select id="prg69cmpCompany" onchange="app.renderPrg69Compare()" class="px-2 py-1 border border-slate-300 rounded text-sm"></select>
+        </div>
+      </div>
+
+      <!-- KPI cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="prg69CmpKpis"></div>
+
+      <!-- MoM bar chart (ทุกบริษัท) -->
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">📈 %Δ GM/SA/HRE เทียบเดือนก่อน (รวมทุกบริษัท)</h3>
+        <div class="h-72"><canvas id="prg69MomChart"></canvas></div>
+      </div>
+
+      <!-- ตารางเทียบเดือน: เดือนก่อน vs เดือนปัจจุบัน -->
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">📊 ตาราง MoM: เดือนก่อน vs เดือนปัจจุบัน (บาท)</h3>
+        <div class="overflow-x-auto" id="prg69MomTable"></div>
+        <p class="text-xs text-slate-400 mt-2">รวม = ผลรวม ม.ค.–ก.ย. • เฉพาะเดือนที่มีข้อมูล (GM ≠ 0) • 🟢 = ปรับตัวดีขึ้น 🟡 = ปานกลาง 🔴 = ควรติดตาม (เกณฑ์เดียวกับ dashboard เดิม: PRG/PDG ≥ 1.8 ดี, ≥ 1.3 พอใช้)</p>
+      </div>
+    </section>
+
+    <!-- ============ TAB ใหม่: สมาชิก/รายได้ 69 ============ -->
+    <section id="tab-members69" class="tab-panel space-y-6">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <h2 class="text-lg font-semibold text-slate-900">👥 จำนวนสมาชิกและรายได้ต่อสมาชิก ปี 2569</h2>
+        <div class="flex items-center gap-2 text-sm">
+          <label class="text-slate-500">บริษัท:</label>
+          <select id="prg69MemCompany" onchange="app.renderMembers69()" class="px-2 py-1 border border-slate-300 rounded text-sm"></select>
+        </div>
+      </div>
+
+      <!-- สรุป KPI -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="prg69MemKpis"></div>
+
+      <!-- ตารางสมาชิก snapshot -->
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">👥 สมาชิกแยกบริษัท (Employee tab คอลัมน์ K) + รายได้/SA/HRE ต่อสมาชิก (รวม ม.ค.–ก.ย. 69)</h3>
+        <div class="overflow-x-auto" id="prg69MemTable"></div>
+        <p class="text-xs text-slate-400 mt-2">Mapping: RPLCG→RPLC&amp;RAFL • RAFCOG→RAFCO&amp;AICP • PGHG→PMG • 21RTG→TNRG • CPDG→CPDG&amp;LDC (รวม 466 คน) • GM/SA/HRE เฉพาะเดือนที่มีข้อมูลจริง</p>
+      </div>
+
+      <!-- ตารางรายได้รายเดือนต่อสมาชิก (scroll-x) -->
+      <div class="card rounded-xl p-4 bg-white">
+        <h3 class="font-semibold text-slate-800 mb-3">📊 GM ต่อสมาชิก (บาท/คน/เดือน) ปี 2569</h3>
+        <div class="overflow-x-auto" id="prg69PerMemTable"></div>
+      </div>
+    </section>
+
   </main>
 
   <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-xs text-slate-400">
@@ -430,6 +486,8 @@
   </footer>
 
 <script id="PKG_DATA" type="application/json">{"meta":{"title":"PRG/PDG Dashboard — สุขภาพธุรกิจบริษัทในเครือ PKG","formulas":{"PRG":"GM ÷ SA","PDG":"GM ÷ HRE","%PRG":"(PRG_curr - PRG_prev) / PRG_prev × 100","%PDG":"(PDG_curr - PDG_prev) / PDG_prev × 100"},"years":["Y2562","Y2563","Y2564","Y2565","Y2566","Y2567","Y2568","Y2569"],"ytdMonths":["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."],"ytdMonthsFull":8},"companies":[{"id":"PKG","name":"PKG (ภาพรวม)","group":"แม่","members":525,"currency":"THB","years":{"Y2562":{"gm":37.618,"sa":19.3369,"hre":15.5001,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2563":{"gm":32.1976,"sa":18.1296,"hre":14.6557,"pctPRG":null,"pctPDG":null,"taPDG":2.2},"Y2564":{"gm":33.746,"sa":19.8668,"hre":15.719,"pctPRG":null,"pctPDG":null,"taPDG":2.15},"Y2565":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2566":{"gm":31.1715,"sa":24.038,"hre":15.071,"pctPRG":null,"pctPDG":null,"taPDG":2.07},"Y2567":{"gm":25.7414,"sa":22.4561,"hre":14.2502,"pctPRG":null,"pctPDG":null,"taPDG":1.81},"Y2568":{"gm":23.0999,"sa":22.1726,"hre":13.4322,"pctPRG":null,"pctPDG":null,"taPDG":1.72},"Y2569":{"gm":208.0921,"sa":177.2825,"hre":111.9649,"pctPRG":null,"pctPDG":null,"taPDG":null}},"ytd":[{"month":"ม.ค.","gm":21.6829,"hre":13.0981,"sa":20.7499},{"month":"ก.พ.","gm":20.9436,"hre":13.6393,"sa":20.5872},{"month":"มี.ค.","gm":24.0861,"hre":12.5015,"sa":22.6863},{"month":"เม.ย.","gm":22.4752,"hre":13.7182,"sa":20.6922},{"month":"พ.ค.","gm":30.3209,"hre":14.2412,"sa":21.9171},{"month":"มิ.ย.","gm":33.8949,"hre":14.8561,"sa":24.4984},{"month":"ก.ค.","gm":30.0093,"hre":15.1868,"sa":23.423},{"month":"ส.ค.","gm":24.6792,"hre":14.7238,"sa":22.7283},{"month":"ก.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ต.ค.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"พ.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ธ.ค.","gm":0.0,"hre":0.0,"sa":0.0}],"ytd2568":[{"month":"ม.ค.","gm":1.95,"hre":1.2,"sa":1.95},{"month":"ก.พ.","gm":2.1,"hre":1.18,"sa":2},{"month":"มี.ค.","gm":1.92,"hre":1.15,"sa":1.85},{"month":"เม.ย.","gm":2.3,"hre":1.12,"sa":1.92},{"month":"พ.ค.","gm":2.5,"hre":1.1,"sa":2.05},{"month":"มิ.ย.","gm":2.1,"hre":1.08,"sa":1.9},{"month":"ก.ค.","gm":1.85,"hre":1.06,"sa":1.75},{"month":"ส.ค.","gm":1.75,"hre":1.05,"sa":1.7}],"employeesByYear":{"Y2559":527,"Y2560":525,"Y2561":628,"Y2562":570,"Y2563":547,"Y2564":584,"Y2565":559,"Y2566":183,"Y2567":513,"Y2568":532,"Y2569":303}},{"id":"PMSG","name":"PMSG (PMS+PIC+PCC+PMG)","group":"กลุ่ม PMS","members":245,"currency":"THB","years":{"Y2562":{"gm":16.1856,"sa":7.1344,"hre":5.0484,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2563":{"gm":17.9094,"sa":6.8508,"hre":4.9437,"pctPRG":null,"pctPDG":null,"taPDG":3.62},"Y2564":{"gm":18.9908,"sa":7.1865,"hre":5.0629,"pctPRG":null,"pctPDG":null,"taPDG":3.75},"Y2565":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2566":{"gm":20.7938,"sa":12.3514,"hre":7.1617,"pctPRG":null,"pctPDG":null,"taPDG":2.9},"Y2567":{"gm":16.2703,"sa":11.7715,"hre":6.5744,"pctPRG":null,"pctPDG":null,"taPDG":2.47},"Y2568":{"gm":13.2502,"sa":10.4191,"hre":4.5252,"pctPRG":null,"pctPDG":null,"taPDG":2.93},"Y2569":{"gm":119.1325,"sa":95.4921,"hre":55.4011,"pctPRG":null,"pctPDG":null,"taPDG":null}},"ytd":[{"month":"ม.ค.","gm":10.9185,"hre":6.0859,"sa":10.7485},{"month":"ก.พ.","gm":10.508,"hre":6.2326,"sa":10.3782},{"month":"มี.ค.","gm":13.3402,"hre":6.0,"sa":13.1832},{"month":"เม.ย.","gm":12.1023,"hre":6.7318,"sa":10.9318},{"month":"พ.ค.","gm":18.0513,"hre":7.0969,"sa":11.7258},{"month":"มิ.ย.","gm":21.6858,"hre":7.8266,"sa":13.8648},{"month":"ก.ค.","gm":17.7991,"hre":8.2034,"sa":13.1626},{"month":"ส.ค.","gm":14.7274,"hre":7.2239,"sa":11.4973},{"month":"ก.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ต.ค.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"พ.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ธ.ค.","gm":0.0,"hre":0.0,"sa":0.0}],"ytd2568":[{"month":"ม.ค.","gm":0.95,"hre":0.65,"sa":0.95},{"month":"ก.พ.","gm":1.1,"hre":0.64,"sa":1},{"month":"มี.ค.","gm":0.98,"hre":0.63,"sa":0.92},{"month":"เม.ย.","gm":1.2,"hre":0.62,"sa":0.98},{"month":"พ.ค.","gm":1.35,"hre":0.61,"sa":1.05},{"month":"มิ.ย.","gm":1.15,"hre":0.6,"sa":0.95},{"month":"ก.ค.","gm":0.95,"hre":0.59,"sa":0.88},{"month":"ส.ค.","gm":0.9,"hre":0.58,"sa":0.85}],"employeesByYear":{"Y2559":191,"Y2560":193,"Y2561":242,"Y2562":196,"Y2563":180,"Y2564":203,"Y2565":213,"Y2566":166,"Y2567":253,"Y2568":262,"Y2569":58}},{"id":"PMS","name":"PMS","group":"กลุ่ม PMS","members":117,"currency":"THB","years":{"Y2562":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2563":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2564":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2565":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2566":{"gm":18.1473,"sa":10.6541,"hre":5.8929,"pctPRG":null,"pctPDG":null,"taPDG":3.08},"Y2567":{"gm":13.5976,"sa":9.9804,"hre":5.2106,"pctPRG":null,"pctPDG":null,"taPDG":2.61},"Y2568":{"gm":10.6616,"sa":9.1462,"hre":3.5887,"pctPRG":null,"pctPDG":null,"taPDG":2.97},"Y2569":{"gm":100.5801,"sa":81.4495,"hre":44.7458,"pctPRG":null,"pctPDG":null,"taPDG":null}},"ytd":[{"month":"ม.ค.","gm":9.4266,"hre":4.9146,"sa":9.3006},{"month":"ก.พ.","gm":8.403,"hre":4.8817,"sa":8.7681},{"month":"มี.ค.","gm":11.1265,"hre":4.8049,"sa":11.6392},{"month":"เม.ย.","gm":9.639,"hre":5.4114,"sa":9.2788},{"month":"พ.ค.","gm":15.1095,"hre":5.6714,"sa":9.9118},{"month":"มิ.ย.","gm":18.6818,"hre":6.3673,"sa":11.7527},{"month":"ก.ค.","gm":15.113,"hre":6.7753,"sa":11.1089},{"month":"ส.ค.","gm":13.0807,"hre":5.9193,"sa":9.6895},{"month":"ก.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ต.ค.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"พ.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ธ.ค.","gm":0.0,"hre":0.0,"sa":0.0}],"ytd2568":[{"month":"ม.ค.","gm":0.4,"hre":0.25,"sa":0.4},{"month":"ก.พ.","gm":0.46,"hre":0.25,"sa":0.42},{"month":"มี.ค.","gm":0.41,"hre":0.24,"sa":0.38},{"month":"เม.ย.","gm":0.5,"hre":0.24,"sa":0.41},{"month":"พ.ค.","gm":0.56,"hre":0.24,"sa":0.44},{"month":"มิ.ย.","gm":0.48,"hre":0.23,"sa":0.4},{"month":"ก.ค.","gm":0.4,"hre":0.23,"sa":0.37},{"month":"ส.ค.","gm":0.38,"hre":0.22,"sa":0.35}],"employeesByYear":{}},{"id":"PMG","name":"PMG","group":"กลุ่ม PMS","members":78,"currency":"THB","years":{"Y2562":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2563":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2564":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2565":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2566":{"gm":2.4236,"sa":1.5132,"hre":1.1445,"pctPRG":null,"pctPDG":null,"taPDG":2.12},"Y2567":{"gm":2.4325,"sa":1.6295,"hre":1.2632,"pctPRG":null,"pctPDG":null,"taPDG":1.93},"Y2568":{"gm":2.4261,"sa":1.208,"hre":0.9114,"pctPRG":null,"pctPDG":null,"taPDG":2.66},"Y2569":{"gm":16.5088,"sa":12.6517,"hre":9.6328,"pctPRG":null,"pctPDG":null,"taPDG":null}},"ytd":[{"month":"ม.ค.","gm":1.3101,"hre":1.0849,"sa":1.3183},{"month":"ก.พ.","gm":1.9169,"hre":1.2377,"sa":1.4616},{"month":"มี.ค.","gm":2.0175,"hre":1.1,"sa":1.3729},{"month":"เม.ย.","gm":2.2636,"hre":1.2139,"sa":1.506},{"month":"พ.ค.","gm":2.605,"hre":1.2675,"sa":1.61},{"month":"มิ.ย.","gm":2.7036,"hre":1.2913,"sa":1.8901},{"month":"ก.ค.","gm":2.3548,"hre":1.2643,"sa":1.8364},{"month":"ส.ค.","gm":1.3374,"hre":1.1734,"sa":1.6567},{"month":"ก.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ต.ค.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"พ.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ธ.ค.","gm":0.0,"hre":0.0,"sa":0.0}],"ytd2568":[{"month":"ม.ค.","gm":0.25,"hre":0.16,"sa":0.25},{"month":"ก.พ.","gm":0.29,"hre":0.16,"sa":0.26},{"month":"มี.ค.","gm":0.26,"hre":0.16,"sa":0.24},{"month":"เม.ย.","gm":0.32,"hre":0.16,"sa":0.26},{"month":"พ.ค.","gm":0.36,"hre":0.15,"sa":0.28},{"month":"มิ.ย.","gm":0.3,"hre":0.15,"sa":0.25},{"month":"ก.ค.","gm":0.25,"hre":0.15,"sa":0.23},{"month":"ส.ค.","gm":0.24,"hre":0.15,"sa":0.22}],"employeesByYear":{}},{"id":"PMGI","name":"PMGI","group":"กลุ่ม PMS","members":50,"currency":"THB","years":{"Y2562":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2563":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2564":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2565":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2566":{"gm":0.2229,"sa":0.184,"hre":0.1244,"pctPRG":null,"pctPDG":null,"taPDG":1.79},"Y2567":{"gm":0.2402,"sa":0.1616,"hre":0.1006,"pctPRG":null,"pctPDG":null,"taPDG":2.39},"Y2568":{"gm":0.1625,"sa":0.0649,"hre":0.0252,"pctPRG":null,"pctPDG":null,"taPDG":6.45},"Y2569":{"gm":2.0437,"sa":1.3908,"hre":1.0225,"pctPRG":null,"pctPDG":null,"taPDG":null}},"ytd":[{"month":"ม.ค.","gm":0.1818,"hre":0.0865,"sa":0.1297},{"month":"ก.พ.","gm":0.1881,"hre":0.1132,"sa":0.1485},{"month":"มี.ค.","gm":0.1963,"hre":0.0951,"sa":0.1712},{"month":"เม.ย.","gm":0.1998,"hre":0.1066,"sa":0.147},{"month":"พ.ค.","gm":0.3367,"hre":0.158,"sa":0.204},{"month":"มิ.ย.","gm":0.3004,"hre":0.168,"sa":0.2221},{"month":"ก.ค.","gm":0.3314,"hre":0.1639,"sa":0.2174},{"month":"ส.ค.","gm":0.3093,"hre":0.1312,"sa":0.1511},{"month":"ก.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ต.ค.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"พ.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ธ.ค.","gm":0.0,"hre":0.0,"sa":0.0}],"ytd2568":[{"month":"ม.ค.","gm":0.18,"hre":0.11,"sa":0.18},{"month":"ก.พ.","gm":0.21,"hre":0.11,"sa":0.19},{"month":"มี.ค.","gm":0.19,"hre":0.11,"sa":0.17},{"month":"เม.ย.","gm":0.23,"hre":0.11,"sa":0.18},{"month":"พ.ค.","gm":0.26,"hre":0.11,"sa":0.2},{"month":"มิ.ย.","gm":0.22,"hre":0.11,"sa":0.18},{"month":"ก.ค.","gm":0.18,"hre":0.1,"sa":0.16},{"month":"ส.ค.","gm":0.17,"hre":0.1,"sa":0.15}],"employeesByYear":{}},{"id":"AAMG","name":"AAMG (AAM+PMA+EAC+PAMCO)","group":"กลุ่ม AAM","members":156,"currency":"THB","years":{"Y2562":{"gm":21.5648,"sa":9.8488,"hre":8.08,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2563":{"gm":15.6857,"sa":9.3268,"hre":7.8012,"pctPRG":null,"pctPDG":null,"taPDG":2.01},"Y2564":{"gm":11.8318,"sa":9.3972,"hre":7.5225,"pctPRG":null,"pctPDG":null,"taPDG":1.57},"Y2565":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2566":{"gm":8.9901,"sa":10.1876,"hre":6.6442,"pctPRG":null,"pctPDG":null,"taPDG":1.35},"Y2567":{"gm":7.5994,"sa":8.5677,"hre":6.0214,"pctPRG":null,"pctPDG":null,"taPDG":1.26},"Y2568":{"gm":8.4495,"sa":9.8236,"hre":7.3178,"pctPRG":null,"pctPDG":null,"taPDG":1.15},"Y2569":{"gm":72.6769,"sa":65.4054,"hre":43.1224,"pctPRG":null,"pctPDG":null,"taPDG":null}},"ytd":[{"month":"ม.ค.","gm":9.2745,"hre":5.4872,"sa":8.2406},{"month":"ก.พ.","gm":8.5765,"hre":5.6784,"sa":8.2112},{"month":"มี.ค.","gm":8.8925,"hre":4.8124,"sa":7.5491},{"month":"เม.ย.","gm":8.2624,"hre":5.3647,"sa":7.8055},{"month":"พ.ค.","gm":9.4165,"hre":5.5054,"sa":8.2632},{"month":"มิ.ย.","gm":9.6204,"hre":5.4147,"sa":8.465},{"month":"ก.ค.","gm":10.4534,"hre":5.3819,"sa":8.3237},{"month":"ส.ค.","gm":8.1806,"hre":5.4778,"sa":8.547},{"month":"ก.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ต.ค.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"พ.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ธ.ค.","gm":0.0,"hre":0.0,"sa":0.0}],"ytd2568":[{"month":"ม.ค.","gm":1.2,"hre":0.72,"sa":1.1},{"month":"ก.พ.","gm":1.38,"hre":0.71,"sa":1.18},{"month":"มี.ค.","gm":1.22,"hre":0.7,"sa":1.05},{"month":"เม.ย.","gm":1.48,"hre":0.69,"sa":1.12},{"month":"พ.ค.","gm":1.65,"hre":0.68,"sa":1.22},{"month":"มิ.ย.","gm":1.4,"hre":0.67,"sa":1.08},{"month":"ก.ค.","gm":1.15,"hre":0.66,"sa":0.98},{"month":"ส.ค.","gm":1.08,"hre":0.65,"sa":0.95}],"employeesByYear":{"Y2559":204,"Y2560":206,"Y2561":219,"Y2562":178,"Y2563":176,"Y2564":168,"Y2565":139,"Y2566":0,"Y2567":125,"Y2568":127,"Y2569":172}},{"id":"AAM","name":"AAM","group":"กลุ่ม AAM","members":62,"currency":"THB","years":{"Y2562":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2563":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2564":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2565":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2566":{"gm":5.1235,"sa":7.0048,"hre":4.8537,"pctPRG":null,"pctPDG":null,"taPDG":1.06},"Y2567":{"gm":4.0709,"sa":5.8952,"hre":4.3576,"pctPRG":null,"pctPDG":null,"taPDG":0.93},"Y2568":{"gm":4.9412,"sa":6.8945,"hre":5.3833,"pctPRG":null,"pctPDG":null,"taPDG":0.92},"Y2569":{"gm":38.998,"sa":44.3056,"hre":31.1017,"pctPRG":null,"pctPDG":null,"taPDG":null}},"ytd":[{"month":"ม.ค.","gm":5.2986,"hre":3.8721,"sa":5.44},{"month":"ก.พ.","gm":4.6075,"hre":3.9543,"sa":5.5726},{"month":"มี.ค.","gm":4.6339,"hre":3.8425,"sa":5.4827},{"month":"เม.ย.","gm":4.8355,"hre":3.8537,"sa":5.4111},{"month":"พ.ค.","gm":5.257,"hre":3.947,"sa":5.591},{"month":"มิ.ย.","gm":5.0849,"hre":3.875,"sa":5.6231},{"month":"ก.ค.","gm":5.1455,"hre":3.8211,"sa":5.5138},{"month":"ส.ค.","gm":4.1351,"hre":3.9361,"sa":5.6712},{"month":"ก.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ต.ค.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"พ.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ธ.ค.","gm":0.0,"hre":0.0,"sa":0.0}],"ytd2568":[{"month":"ม.ค.","gm":0.48,"hre":0.29,"sa":0.44},{"month":"ก.พ.","gm":0.55,"hre":0.28,"sa":0.47},{"month":"มี.ค.","gm":0.49,"hre":0.28,"sa":0.42},{"month":"เม.ย.","gm":0.59,"hre":0.28,"sa":0.45},{"month":"พ.ค.","gm":0.66,"hre":0.27,"sa":0.49},{"month":"มิ.ย.","gm":0.56,"hre":0.27,"sa":0.43},{"month":"ก.ค.","gm":0.46,"hre":0.26,"sa":0.39},{"month":"ส.ค.","gm":0.43,"hre":0.26,"sa":0.38}],"employeesByYear":{}},{"id":"RPLC&RAFL","name":"RPLC&RAFL","group":"กลุ่ม RPLC","members":28,"currency":"THB","years":{"Y2562":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2563":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2564":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2565":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2566":{"gm":0.9621,"sa":1.0001,"hre":0.6548,"pctPRG":null,"pctPDG":null,"taPDG":1.47},"Y2567":{"gm":1.5658,"sa":1.0392,"hre":0.697,"pctPRG":null,"pctPDG":null,"taPDG":2.25},"Y2568":{"gm":2.6325,"sa":1.6467,"hre":1.087,"pctPRG":null,"pctPDG":null,"taPDG":2.42},"Y2569":{"gm":25.3223,"sa":13.0837,"hre":7.4298,"pctPRG":null,"pctPDG":null,"taPDG":null}},"ytd":[{"month":"ม.ค.","gm":2.7963,"hre":0.9316,"sa":1.6611},{"month":"ก.พ.","gm":2.9054,"hre":1.0533,"sa":1.5494},{"month":"มี.ค.","gm":3.1513,"hre":0.4932,"sa":1.078},{"month":"เม.ย.","gm":2.3952,"hre":0.9365,"sa":1.3958},{"month":"พ.ค.","gm":3.1039,"hre":0.9903,"sa":1.6484},{"month":"มิ.ย.","gm":3.5691,"hre":0.9758,"sa":1.9317},{"month":"ก.ค.","gm":4.2882,"hre":1.0191,"sa":1.8571},{"month":"ส.ค.","gm":3.113,"hre":1.03,"sa":1.9622},{"month":"ก.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ต.ค.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"พ.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ธ.ค.","gm":0.0,"hre":0.0,"sa":0.0}],"ytd2568":[{"month":"ม.ค.","gm":0.38,"hre":0.21,"sa":0.36},{"month":"ก.พ.","gm":0.44,"hre":0.21,"sa":0.38},{"month":"มี.ค.","gm":0.39,"hre":0.2,"sa":0.34},{"month":"เม.ย.","gm":0.47,"hre":0.2,"sa":0.36},{"month":"พ.ค.","gm":0.52,"hre":0.2,"sa":0.4},{"month":"มิ.ย.","gm":0.44,"hre":0.2,"sa":0.35},{"month":"ก.ค.","gm":0.37,"hre":0.2,"sa":0.32},{"month":"ส.ค.","gm":0.34,"hre":0.19,"sa":0.3}],"employeesByYear":{"Y2559":31,"Y2560":31,"Y2561":55,"Y2562":53,"Y2563":53,"Y2564":46,"Y2565":41,"Y2566":0,"Y2567":28,"Y2568":25,"Y2569":0}},{"id":"RAFCO&AICP","name":"RAFCO&AICP","group":"กลุ่ม RPLC","members":29,"currency":"THB","years":{"Y2562":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2563":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2564":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2565":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2566":{"gm":2.9045,"sa":2.1827,"hre":1.1357,"pctPRG":null,"pctPDG":null,"taPDG":2.56},"Y2567":{"gm":1.9627,"sa":1.6333,"hre":0.9668,"pctPRG":null,"pctPDG":null,"taPDG":2.03},"Y2568":{"gm":0.8757,"sa":1.2824,"hre":0.8475,"pctPRG":null,"pctPDG":null,"taPDG":1.03},"Y2569":{"gm":8.3565,"sa":8.0161,"hre":4.5909,"pctPRG":null,"pctPDG":null,"taPDG":null}},"ytd":[{"month":"ม.ค.","gm":1.1796,"hre":0.6835,"sa":1.1395},{"month":"ก.พ.","gm":1.0636,"hre":0.6708,"sa":1.0892},{"month":"มี.ค.","gm":1.1073,"hre":0.4767,"sa":0.9883},{"month":"เม.ย.","gm":1.0318,"hre":0.5745,"sa":0.9986},{"month":"พ.ค.","gm":1.0556,"hre":0.5681,"sa":1.0238},{"month":"มิ.ย.","gm":0.9665,"hre":0.5639,"sa":0.9102},{"month":"ก.ค.","gm":1.0197,"hre":0.5417,"sa":0.9528},{"month":"ส.ค.","gm":0.9325,"hre":0.5116,"sa":0.9136},{"month":"ก.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ต.ค.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"พ.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ธ.ค.","gm":0.0,"hre":0.0,"sa":0.0}],"ytd2568":[{"month":"ม.ค.","gm":0.22,"hre":0.12,"sa":0.2},{"month":"ก.พ.","gm":0.25,"hre":0.12,"sa":0.21},{"month":"มี.ค.","gm":0.22,"hre":0.12,"sa":0.19},{"month":"เม.ย.","gm":0.27,"hre":0.12,"sa":0.2},{"month":"พ.ค.","gm":0.3,"hre":0.11,"sa":0.22},{"month":"มิ.ย.","gm":0.25,"hre":0.11,"sa":0.2},{"month":"ก.ค.","gm":0.21,"hre":0.11,"sa":0.18},{"month":"ส.ค.","gm":0.2,"hre":0.11,"sa":0.17}],"employeesByYear":{"Y2559":0,"Y2560":0,"Y2561":5,"Y2562":29,"Y2563":29,"Y2564":56,"Y2565":56,"Y2566":0,"Y2567":33,"Y2568":24,"Y2569":0}},{"id":"CPDG&LDC","name":"CPDG&LDC (รวม)","group":"กลุ่ม CPDG","members":50,"currency":"THB","years":{"Y2562":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2563":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2564":{"gm":1.4663,"sa":1.309,"hre":1.0645,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2565":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2566":{"gm":0.8921,"sa":1.4136,"hre":1.2102,"pctPRG":null,"pctPDG":null,"taPDG":0.74},"Y2567":{"gm":0.9468,"sa":1.9554,"hre":1.5491,"pctPRG":null,"pctPDG":null,"taPDG":0.61},"Y2568":{"gm":1.0913,"sa":1.5087,"hre":1.2591,"pctPRG":null,"pctPDG":null,"taPDG":0.87},"Y2569":{"gm":12.1456,"sa":14.9377,"hre":12.3495,"pctPRG":null,"pctPDG":null,"taPDG":null}},"ytd":[{"month":"ม.ค.","gm":0.8594,"hre":1.4163,"sa":1.6199},{"month":"ก.พ.","gm":1.6817,"hre":1.5297,"sa":1.7826},{"month":"มี.ค.","gm":1.7577,"hre":1.5388,"sa":1.7534},{"month":"เม.ย.","gm":1.2602,"hre":1.5202,"sa":1.8109},{"month":"พ.ค.","gm":1.7489,"hre":1.5076,"sa":1.7839},{"month":"มิ.ย.","gm":1.434,"hre":1.4995,"sa":1.9569},{"month":"ก.ค.","gm":1.5345,"hre":1.4826,"sa":1.797},{"month":"ส.ค.","gm":1.869,"hre":1.8548,"sa":2.4332},{"month":"ก.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ต.ค.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"พ.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ธ.ค.","gm":0.0,"hre":0.0,"sa":0.0}],"ytd2568":[{"month":"ม.ค.","gm":0.52,"hre":0.28,"sa":0.48},{"month":"ก.พ.","gm":0.6,"hre":0.28,"sa":0.5},{"month":"มี.ค.","gm":0.53,"hre":0.28,"sa":0.45},{"month":"เม.ย.","gm":0.64,"hre":0.27,"sa":0.48},{"month":"พ.ค.","gm":0.71,"hre":0.27,"sa":0.53},{"month":"มิ.ย.","gm":0.6,"hre":0.27,"sa":0.47},{"month":"ก.ค.","gm":0.5,"hre":0.26,"sa":0.42},{"month":"ส.ค.","gm":0.47,"hre":0.26,"sa":0.4}],"employeesByYear":{"Y2559":0,"Y2560":0,"Y2561":0,"Y2562":15,"Y2563":15,"Y2564":0,"Y2565":0,"Y2566":0,"Y2567":51,"Y2568":72,"Y2569":45}},{"id":"CPDG","name":"CPDG (AGS+21CT+CDB)","group":"กลุ่ม CPDG","members":44,"currency":"THB","years":{"Y2562":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2563":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2564":{"gm":1.4663,"sa":1.309,"hre":1.0645,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2565":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2566":{"gm":0.4411,"sa":1.2153,"hre":1.0189,"pctPRG":null,"pctPDG":null,"taPDG":0.43},"Y2567":{"gm":0.4858,"sa":1.7294,"hre":1.3431,"pctPRG":null,"pctPDG":null,"taPDG":0.36},"Y2568":{"gm":0.6779,"sa":1.1588,"hre":0.9096,"pctPRG":null,"pctPDG":null,"taPDG":0.75},"Y2569":{"gm":6.641,"sa":12.018,"hre":9.4866,"pctPRG":null,"pctPDG":null,"taPDG":null}},"ytd":[{"month":"ม.ค.","gm":0.755,"hre":1.1167,"sa":1.3202},{"month":"ก.พ.","gm":0.9308,"hre":1.1454,"sa":1.3977},{"month":"มี.ค.","gm":0.8878,"hre":1.1833,"sa":1.3977},{"month":"เม.ย.","gm":0.5541,"hre":1.1592,"sa":1.4195},{"month":"พ.ค.","gm":1.0431,"hre":1.1479,"sa":1.4202},{"month":"มิ.ย.","gm":0.8827,"hre":1.1368,"sa":1.5897},{"month":"ก.ค.","gm":0.8743,"hre":1.1197,"sa":1.4222},{"month":"ส.ค.","gm":0.7133,"hre":1.4776,"sa":2.0508},{"month":"ก.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ต.ค.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"พ.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ธ.ค.","gm":0.0,"hre":0.0,"sa":0.0}],"ytd2568":[{"month":"ม.ค.","gm":0.31,"hre":0.17,"sa":0.29},{"month":"ก.พ.","gm":0.36,"hre":0.17,"sa":0.3},{"month":"มี.ค.","gm":0.32,"hre":0.17,"sa":0.27},{"month":"เม.ย.","gm":0.38,"hre":0.16,"sa":0.29},{"month":"พ.ค.","gm":0.43,"hre":0.16,"sa":0.32},{"month":"มิ.ย.","gm":0.36,"hre":0.16,"sa":0.28},{"month":"ก.ค.","gm":0.3,"hre":0.16,"sa":0.25},{"month":"ส.ค.","gm":0.28,"hre":0.16,"sa":0.24}],"employeesByYear":{}},{"id":"LDC","name":"LDC","group":"กลุ่ม CPDG","members":6,"currency":"THB","years":{"Y2562":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2563":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2564":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2565":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2566":{"gm":0.451,"sa":0.1983,"hre":0.1914,"pctPRG":null,"pctPDG":null,"taPDG":2.36},"Y2567":{"gm":0.461,"sa":0.226,"hre":0.206,"pctPRG":null,"pctPDG":null,"taPDG":2.24},"Y2568":{"gm":0.4133,"sa":0.35,"hre":0.3495,"pctPRG":null,"pctPDG":null,"taPDG":1.18},"Y2569":{"gm":5.5046,"sa":2.9198,"hre":2.8629,"pctPRG":null,"pctPDG":null,"taPDG":null}},"ytd":[{"month":"ม.ค.","gm":0.1044,"hre":0.2995,"sa":0.2997},{"month":"ก.พ.","gm":0.7509,"hre":0.3843,"sa":0.3848},{"month":"มี.ค.","gm":0.87,"hre":0.3556,"sa":0.3557},{"month":"เม.ย.","gm":0.7062,"hre":0.361,"sa":0.3914},{"month":"พ.ค.","gm":0.7058,"hre":0.3597,"sa":0.3636},{"month":"มิ.ย.","gm":0.5513,"hre":0.3627,"sa":0.3672},{"month":"ก.ค.","gm":0.6603,"hre":0.3629,"sa":0.3748},{"month":"ส.ค.","gm":1.1557,"hre":0.3772,"sa":0.3825},{"month":"ก.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ต.ค.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"พ.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ธ.ค.","gm":0.0,"hre":0.0,"sa":0.0}],"ytd2568":[{"month":"ม.ค.","gm":0.21,"hre":0.11,"sa":0.19},{"month":"ก.พ.","gm":0.24,"hre":0.11,"sa":0.2},{"month":"มี.ค.","gm":0.21,"hre":0.11,"sa":0.18},{"month":"เม.ย.","gm":0.26,"hre":0.11,"sa":0.19},{"month":"พ.ค.","gm":0.28,"hre":0.11,"sa":0.21},{"month":"มิ.ย.","gm":0.24,"hre":0.11,"sa":0.19},{"month":"ก.ค.","gm":0.2,"hre":0.1,"sa":0.17},{"month":"ส.ค.","gm":0.19,"hre":0.1,"sa":0.16}],"employeesByYear":{}},{"id":"TNRG","name":"TNRG","group":"TNRG","members":0,"currency":"THB","years":{"Y2562":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2563":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2564":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2565":{"gm":null,"sa":null,"hre":null,"pctPRG":null,"pctPDG":null,"taPDG":null},"Y2566":{"gm":0.4956,"sa":0.0855,"hre":0.0549,"pctPRG":null,"pctPDG":null,"taPDG":9.04},"Y2567":{"gm":0.9249,"sa":0.1615,"hre":0.1053,"pctPRG":null,"pctPDG":null,"taPDG":8.78},"Y2568":{"gm":0.309,"sa":0.4211,"hre":0.3301,"pctPRG":null,"pctPDG":null,"taPDG":0.94},"Y2569":{"gm":4.1372,"sa":1.4472,"hre":1.0918,"pctPRG":null,"pctPDG":null,"taPDG":null}},"ytd":[{"month":"ม.ค.","gm":0.6305,"hre":0.1087,"sa":0.1409},{"month":"ก.พ.","gm":0.1773,"hre":0.1986,"sa":0.2153},{"month":"มี.ค.","gm":0.0957,"hre":0.1502,"sa":0.2006},{"month":"เม.ย.","gm":0.8503,"hre":0.1015,"sa":0.1439},{"month":"พ.ค.","gm":1.1042,"hre":0.1313,"sa":0.1443},{"month":"มิ.ย.","gm":1.1548,"hre":0.1153,"sa":0.2116},{"month":"ก.ค.","gm":0.2222,"hre":0.1189,"sa":0.1398},{"month":"ส.ค.","gm":-0.0978,"hre":0.1674,"sa":0.2508},{"month":"ก.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ต.ค.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"พ.ย.","gm":0.0,"hre":0.0,"sa":0.0},{"month":"ธ.ค.","gm":0.0,"hre":0.0,"sa":0.0}],"ytd2568":[{"month":"ม.ค.","gm":0.29,"hre":0.18,"sa":0.27},{"month":"ก.พ.","gm":0.33,"hre":0.18,"sa":0.28},{"month":"มี.ค.","gm":0.29,"hre":0.17,"sa":0.25},{"month":"เม.ย.","gm":0.35,"hre":0.17,"sa":0.27},{"month":"พ.ค.","gm":0.39,"hre":0.17,"sa":0.3},{"month":"มิ.ย.","gm":0.33,"hre":0.17,"sa":0.26},{"month":"ก.ค.","gm":0.28,"hre":0.16,"sa":0.23},{"month":"ส.ค.","gm":0.26,"hre":0.16,"sa":0.22}],"employeesByYear":{"Y2559":0,"Y2560":0,"Y2561":1,"Y2562":0,"Y2563":0,"Y2564":0,"Y2565":0,"Y2566":1,"Y2567":0,"Y2568":4,"Y2569":0}}]}</script>
+
+<script src="prg-pdg-69-data.js"></script>
 
 <script>
 /**
@@ -586,6 +644,10 @@ const app = {
       this.renderTable();
     } else if (tab === 'hr') {
       this.renderHR();
+    } else if (tab === 'prg69compare') {
+      this.renderPrg69Compare();
+    } else if (tab === 'members69') {
+      this.renderMembers69();
     }
   },
 
@@ -1400,10 +1462,142 @@ const app = {
       html += '</tbody></table>';
       tbl.innerHTML = html;
     }
-  }
-};
+  },
+  // ===== TAB ใหม่: PRG/PDG 69 เทียบเดือน (MoM) + สมาชิก/รายได้ 69 =====
+  // ข้อมูล: window.PRG69 (prg-pdg-69-data.js) — คำนวณจาก spreadsheet จริง (อ่านอย่างเดียว)
+  prg69() { return window.PRG69 || null; },
 
-// Boot
+  fmtBaht(v, dec) {
+    if (v == null || isNaN(v)) return '-';
+    return Number(v).toLocaleString('th-TH', { minimumFractionDigits: dec || 0, maximumFractionDigits: dec || 0 });
+  },
+
+  momArrow(v) {
+    if (v == null || isNaN(v)) return '-';
+    return (v > 0 ? '▲ +' : v < 0 ? '▼ ' : '▬ ') + Math.abs(v).toFixed(1) + '%';
+  },
+
+  renderPrg69Compare() {
+    const P = this.prg69();
+    if (!P) { document.getElementById('prg69CmpKpis').innerHTML = '<p class="text-sm text-red-500">ไม่พบ window.PRG69 (prg-pdg-69-data.js)</p>'; return; }
+    const months = P.meta.months;
+    const mom = P.aggregate.mom;
+    const sel = document.getElementById('prg69cmpCompany');
+    if (sel && sel.options.length === 0) {
+      sel.innerHTML = '<option value="ALL">รวมทุกบริษัท</option>' + P.companies.map(c => `<option value="${c.id}">${c.id}</option>`).join('');
+    }
+    const compId = sel?.value || 'ALL';
+    const totalM = months.length;
+    // KPI: เดือนล่าสุดที่มีข้อมูลจริง
+    const lastIdx = [...P.aggregate.monthly].reverse().findIndex(a => a.gm > 0);
+    const curIdx = lastIdx >= 0 ? totalM - 1 - lastIdx : null;
+    const last = curIdx != null ? P.aggregate.monthly[curIdx] : null;
+    const momLast = curIdx != null && curIdx >= 1 ? mom[curIdx - 1] : null;
+    const tot = P.aggregate.totals;
+    const kpis = [
+      ['GM รวม ม.ค.–ก.ย.', '฿' + this.fmtBaht(tot.gm, 0), 'ทุกบริษัทตาม sheet (PKG รวมซ้ำกับบริษัทลูก ใช้ดูภาพรวม)'],
+      ['SA รวม ม.ค.–ก.ย.', '฿' + this.fmtBaht(tot.sa, 0), ''],
+      ['HRE รวม ม.ค.–ก.ย.', '฿' + this.fmtBaht(tot.hre, 0), ''],
+      [last ? last.m + ' GM (ล่าสุด)' : 'GM ล่าสุด', last ? '฿' + this.fmtBaht(last.gm, 0) : '-', momLast ? `MoM ${this.momArrow(momLast.gmPct)}` : ''],
+    ];
+    document.getElementById('prg69CmpKpis').innerHTML = kpis.map((k, i) =>
+      `<div class="card rounded-xl p-4 bg-white"><div class="text-xs text-slate-500">${k[0]}</div><div class="text-xl font-bold text-slate-900 mt-1">${k[1]}</div>${k[2] ? `<div class="text-xs mt-1 ${(k[2].includes('+') ? 'text-emerald-600' : k[2].includes('-') ? 'text-red-500' : 'text-slate-400')}">${k[2]}</div>` : ''}</div>`).join('');
+
+    // MoM chart (รวมทุกบริษัท)
+    makeChart('prg69MomChart', {
+      type: 'bar',
+      data: {
+        labels: mom.map(m => m.m),
+        datasets: [
+          { label: '%Δ GM', data: mom.map(m => m.gmPct), backgroundColor: mom.map(m => m.gmPct == null ? '#cbd5e1' : m.gmPct >= 0 ? '#10b981' : '#ef4444') },
+          { label: '%Δ SA', data: mom.map(m => m.saPct), backgroundColor: '#3b82f6' },
+          { label: '%Δ HRE', data: mom.map(m => m.hrePct), backgroundColor: '#f59e0b' },
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { title: { display: true, text: '% เทียบเดือนก่อน' } } } }
+    });
+
+    // ตาราง MoM รายบริษัท
+    let html = '<table class="min-w-full w-full text-xs table-pkg"><thead class="bg-slate-100"><tr><th class="text-left px-1 py-1">บริษัท</th>';
+    months.forEach(m => { html += `<th class="text-center px-1" colspan="3">${m}</th>`; });
+    html += '</tr><tr><th></th>';
+    months.forEach(() => { html += '<th class="text-center text-slate-500 px-1">GM ฿</th><th class="text-center text-slate-500 px-1">PRG</th><th class="text-center text-slate-500 px-1">PDG</th>'; });
+    html += '</tr></thead><tbody>';
+    const rows = compId === 'ALL' ? P.companies : P.companies.filter(c => c.id === compId);
+    rows.forEach(c => {
+      html += `<tr class="border-t"><td class="font-semibold px-1 py-1 whitespace-nowrap">${c.id}</td>`;
+      c.monthly.forEach(md => {
+        if (!md.hasData) {
+          html += '<td colspan="3" class="text-center cell-none">-</td>';
+        } else {
+          const cls = pillClass(md.prg, md.pdg);
+          const sym = cellSym(cls);
+          html += `<td class="text-center px-1 ${cls}"><span class="sym">${sym}</span>${this.fmtBaht(md.gm, 0)}</td>`;
+          html += `<td class="text-center px-1 ${cls} font-semibold">${md.prg != null ? md.prg.toFixed(2) : '-'}</td>`;
+          html += `<td class="text-center px-1 ${cls} font-semibold">${md.pdg != null ? md.pdg.toFixed(2) : '-'}</td>`;
+        }
+      });
+      const t = c.totals;
+      const tcls = pillClass(t.prg, t.pdg);
+      const tsym = cellSym(tcls);
+      html += `<tr class="border-t bg-slate-50"><td class="font-semibold px-1">${c.id} รวม</td>`;
+      html += `<td colspan="${months.length * 3}" class="text-center px-1 text-xs text-slate-600">รวม ม.ค.–ก.ย. (${t.monthsWithGM} เดือน): GM ${this.fmtBaht(t.gm, 0)} • SA ${this.fmtBaht(t.sa, 0)} • HRE ${this.fmtBaht(t.hre, 0)} • PRG ${t.prg != null ? t.prg.toFixed(2) : '-'} • PDG ${t.pdg != null ? t.pdg.toFixed(2) : '-'} ${tsym}${tcls.replace('cell-', '')}</td>`;
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    document.getElementById('prg69MomTable').innerHTML = html;
+  },
+
+  renderMembers69() {
+    const P = this.prg69();
+    if (!P) { document.getElementById('prg69MemKpis').innerHTML = '<p class="text-sm text-red-500">ไม่พบ window.PRG69 (prg-pdg-69-data.js)</p>'; return; }
+    const months = P.meta.months;
+    const sel = document.getElementById('prg69MemCompany');
+    if (sel && sel.options.length === 0) {
+      sel.innerHTML = '<option value="ALL">รวมทุกบริษัท</option>' + P.companies.map(c => `<option value="${c.id}">${c.id}</option>`).join('');
+    }
+    const compId = sel?.value || 'ALL';
+    const emp = P.employees;
+    const withMem = P.companies.filter(c => c.members > 0);
+    const sum = (f) => withMem.reduce((s, c) => s + (c.totals[f] || 0), 0);
+    const totMem = emp.total;
+    const kpis = [
+      ['สมาชิกทั้งหมด (Employee)', totMem.toLocaleString('th-TH') + ' คน', 'จาก 8 บริษัทในคอลัมน์ K'],
+      ['GM รวมเฉพาะบริษัทที่มีสมาชิก', '฿' + this.fmtBaht(sum('gm'), 0), ''],
+      ['GM ต่อสมาชิก (รวม ม.ค.–ก.ย.)', '฿' + this.fmtBaht(sum('gm') / totMem, 0), ''],
+      ['HRE ต่อสมาชิก (รวม ม.ค.–ก.ย.)', '฿' + this.fmtBaht(sum('hre') / totMem, 0), ''],
+    ];
+    document.getElementById('prg69MemKpis').innerHTML = kpis.map(k =>
+      `<div class="card rounded-xl p-4 bg-white"><div class="text-xs text-slate-500">${k[0]}</div><div class="text-xl font-bold text-slate-900 mt-1">${k[1]}</div>${k[2] ? `<div class="text-xs text-slate-400 mt-1">${k[2]}</div>` : ''}</div>`).join('');
+
+    // ตารางสมาชิก + รายได้ต่อสมาชิก
+    const src = compId === 'ALL' ? P.companies : P.companies.filter(c => c.id === compId);
+    const rows = compId === 'ALL' ? [...src].sort((a, b) => b.members - a.members) : src;
+    let html = '<table class="min-w-full w-full text-xs table-pkg"><thead class="bg-slate-100"><tr><th class="text-left px-2 py-1">บริษัท</th><th class="text-center px-2">สมาชิก (คน)</th><th class="text-center px-2">% ของทั้งหมด</th>';
+    months.forEach(m => { html += `<th class="text-center px-2">${m} GM/คน</th>`; });
+    html += '<th class="text-center px-2">รวม GM/คน</th><th class="text-center px-2">รวม SA/คน</th><th class="text-center px-2">รวม HRE/คน</th></tr></thead><tbody>';
+    rows.forEach(c => {
+      const pm = c.perMember;
+      html += `<tr class="border-t"><td class="font-semibold px-2 whitespace-nowrap">${c.id}</td><td class="text-center px-2 font-semibold">${c.members || '-'}</td><td class="text-center px-2">${c.members ? ((c.members / totMem) * 100).toFixed(1) + '%' : '-'}</td>`;
+      c.monthly.forEach(md => {
+        const per = c.members && md.hasData ? md.gm / c.members : null;
+        html += `<td class="text-center px-2">${per != null ? this.fmtBaht(per, 0) : '-'}</td>`;
+      });
+      html += `<td class="text-center px-2 font-semibold">${pm.gm != null ? this.fmtBaht(pm.gm, 0) : '-'}</td>`;
+      html += `<td class="text-center px-2">${pm.sa != null ? this.fmtBaht(pm.sa, 0) : '-'}</td>`;
+      html += `<td class="text-center px-2">${pm.hre != null ? this.fmtBaht(pm.hre, 0) : '-'}</td></tr>`;
+    });
+    // แถวรวม (เฉพาะบริษัทที่มีสมาชิก)
+    html += '<tr class="border-t bg-blue-50 font-semibold"><td class="px-2">รวมบริษัทมีสมาชิก (8 บริษัท)</td><td class="text-center px-2">' + totMem + '</td><td class="text-center px-2">100%</td>';
+    const mSum = months.map((m, i) => withMem.reduce((s, c) => s + (c.monthly[i].hasData ? c.monthly[i].gm : 0), 0));
+    mSum.forEach(g => html += `<td class="text-center px-2">${this.fmtBaht(g / totMem, 0)}</td>`);
+    const agg = withMem.reduce((a, c) => { a.gm += c.totals.gm; a.sa += c.totals.sa; a.hre += c.totals.hre; return a; }, { gm: 0, sa: 0, hre: 0 });
+    html += `<td class="text-center px-2">${this.fmtBaht(agg.gm / totMem, 0)}</td><td class="text-center px-2">${this.fmtBaht(agg.sa / totMem, 0)}</td><td class="text-center px-2">${this.fmtBaht(agg.hre / totMem, 0)}</td></tr>`;
+    html += '</tbody></table>';
+    document.getElementById('prg69MemTable').innerHTML = html;
+  },
+
+};
 document.addEventListener('DOMContentLoaded', () => app.init());
 window.app = app;
 </script>
