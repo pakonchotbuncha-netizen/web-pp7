@@ -126,9 +126,10 @@
                 <option>พนักงานทั่วไป</option>
                 <option>หัวหน้างาน/หัวหน้าทีม</option>
                 <option>ผู้จัดการ</option>
-                <option>ADM (ทีมบริหาร)</option>
-                <option>GAT (ที่ปรึกษา/พี่เลี้ยง)</option>
-                <option>ผู้ช่วย ADM (รุ่นสืบทอด)</option>
+                <option>ADM (ทีมบริหารชุดใหม่)</option>
+                <option>ผู้ช่วย ADM (รุ่นสืบทอดถัดไป)</option>
+                <option>GAT (ทีมเดิม/พี่เลี้ยง — ตรวจสอบกลาง)</option>
+                <option>OAC (กำกับดูแล/ให้คำปรึกษา)</option>
                 <option>อื่น ๆ</option>
               </select>
             </div>
@@ -205,6 +206,13 @@
               </div>
               <input type="text" id="b5_other" placeholder="ถ้าเลือก 'อื่น ๆ' ระบุอุปสรรคเพิ่มเติม…" class="mt-2 hidden" />
             </div>
+
+            <!-- B6 -->
+            <div>
+              <label class="q-label" for="b6_cover_order">B6 ถ้าต้องเริ่ม cover วันนี้ — บทบาทไหนควรเริ่มก่อน/หลัง เพราะอะไร</label>
+              <span class="q-help">เสนอเป็นลำดับ เช่น เริ่มจากบทบาทที่เสี่ยง SPOF/กระทบธุรกิจมากสุดก่อน — อิง master plan "ไม่มีวันส่งมอบ มีแต่ช่วง cover (ปฏิบัติงานร่วมกัน)"</span>
+              <textarea id="b6_cover_order" rows="3" class="mt-1.5" placeholder="เริ่ม cover … ก่อน เพราะ … → … ต่อ → … ค่อยเริ่มทีหลัง เพราะ …"></textarea>
+            </div>
           </div>
         </section>
 
@@ -213,8 +221,8 @@
           <div class="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-violet-50 to-white">
             <span class="sec-chip bg-violet-500">C</span>
             <div>
-              <h2 class="font-bold text-slate-900">สำหรับผู้บริหาร/พี่เลี้ยง (ADM / GAT / หัวหน้าที่ cover)</h2>
-              <p class="text-xs text-slate-500">ผู้ที่มีประสบการณ์ cover งานหรือเป็นพี่เลี้ยง — ถ้าไม่ใช่กลุ่มนี้ ข้ามส่วน C ได้เลย</p>
+              <h2 class="font-bold text-slate-900">การ cover / ส่งต่อ / ความเห็นต่อแผนถ่ายทอด (OAC / GAT ทีมเดิม / ADM ทีมใหม่)</h2>
+              <p class="text-xs text-slate-500">ตอบเฉพาะข้อที่เกี่ยวข้องกับบทบาทเรา — ข้อไหนไม่เกี่ยวกับเรา ข้ามได้เลย</p>
             </div>
           </div>
           <div class="p-5 space-y-6">
@@ -277,6 +285,7 @@
                 <label class="opt-item"><input type="checkbox" value="ปั้นรุ่นถัดไปได้"> ปั้นรุ่นถัดไปได้</label>
                 <label class="opt-item"><input type="checkbox" value="ช่วงไม่มีพี่ 3 เดือนงานยังดี"> ช่วงไม่มีพี่ 3 เดือนงานยังดี</label>
                 <label class="opt-item"><input type="checkbox" value="Veto น้อยลง"> Veto น้อยลง</label>
+                <label class="opt-item"><input type="checkbox" value="ผ่านเงื่อนไขถ่ายทอด 5 ข้อ"> ผ่านเงื่อนไขถ่ายทอด 5 ข้อ (Operation/ลดหนี้/AMS5/รับผิดชอบจริง/Co-ownership)</label>
                 <label class="opt-item"><input type="checkbox" value="อื่น ๆ"> อื่น ๆ</label>
               </div>
               <p class="text-xs text-amber-600 mt-1.5" id="c4_hint" hidden>⚠️ เลือกได้สูงสุด 3 ข้อ</p>
@@ -284,9 +293,9 @@
 
             <!-- C5 -->
             <div>
-              <label class="q-label" for="c5_gat">C5 GAT/พี่เลี้ยง: สิ่งที่ ADM ชุดใหม่ควรเรียนรู้จากเรามากที่สุด</label>
-              <span class="q-help">ความรู้/วิธีคิด/ทักษะที่ต้องส่งต่อให้ทีมบริหารชุดใหม่ก่อนที่เราจะวางมือ</span>
-              <textarea id="c5_gat" rows="3" class="mt-1.5" placeholder="เช่น การอ่านงบ/ความเสี่ยง …, การตัดสินใจภายใต้ …, เครือข่าย/ความสัมพันธ์ …"></textarea>
+              <label class="q-label" for="c5_gat">C5 GAT (ทีมเดิม/พี่เลี้ยง): สิ่งที่ ADM ชุดใหม่ควรเรียนรู้จากเรามากที่สุด</label>
+              <span class="q-help">ตามแผน GAT = ทีมตรวจสอบกลางที่ยังรับผิดชอบงานบทบาทเดิม + เป็นพี่เลี้ยง ADM ชุดใหม่ — ส่งต่อวิธีคิด/การตรวจสอบ (ดำเนินงาน-ความเสี่ยง-Compliance-ผลลัพธ์)/การใช้ Technology-Audit/ประสบการณ์ที่หาคนแทนยาก</span>
+              <textarea id="c5_gat" rows="3" class="mt-1.5" placeholder="เช่น การอ่านงบ/ความเสี่ยงทางการเงิน …, การตรวจสอบ Compliance …, การใช้ Tech/AI ตรวจงาน …, การตัดสินใจภายใต้ความไม่แน่นอน …"></textarea>
             </div>
 
             <!-- C6 -->
@@ -303,6 +312,53 @@
                 <label class="opt-item"><input type="checkbox" value="อื่น ๆ"> อื่น ๆ</label>
               </div>
               <textarea id="c6_detail" rows="3" class="mt-2" placeholder="รายละเอียดข้อเสนอ (ถ้ามี)…"></textarea>
+            </div>
+
+            <!-- C7 -->
+            <div>
+              <span class="q-label">C7 เงื่อนไขถ่ายทอด 5 ข้อ — ข้อไหนที่ยังเป็นช่องว่าง/ต้องเร่งตอนนี้ (เลือกได้หลายข้อ)</span>
+              <span class="q-help">อิง master plan: ต้องผ่านเงื่อนไขก่อนส่งมอบ ไม่ใช่เปลี่ยนบทบาททันที — ประเมินตามที่เห็นจริงจากงาน</span>
+              <div class="opt-grid mt-2" id="c7_opts">
+                <label class="opt-item"><input type="checkbox" value="1. Operation Strategy Execution"> 1) ส่งมอบ Operation Strategy Execution ได้จริง</label>
+                <label class="opt-item"><input type="checkbox" value="2. ลดหนี้ตามเป้าหมาย"> 2) ลดหนี้ได้ตามเป้าหมาย</label>
+                <label class="opt-item"><input type="checkbox" value="3. AMS5/Project เงื่อนไขเสร็จ"> 3) งานสำคัญ/Project เงื่อนไขเสร็จ (เช่น AMS5)</label>
+                <label class="opt-item"><input type="checkbox" value="4. ทีมใหม่รับผิดชอบจริง"> 4) ทีมใหม่รับผิดชอบงานจริง (พิสูจน์ด้วยผลงาน)</label>
+                <label class="opt-item"><input type="checkbox" value="5. Co-ownership ช่วงเปลี่ยนผ่าน"> 5) Co-ownership ทีมเดิม + ทีมใหม่ช่วงเปลี่ยนผ่าน</label>
+                <label class="opt-item"><input type="checkbox" value="อื่น ๆ"> อื่น ๆ</label>
+              </div>
+              <textarea id="c7_detail" rows="2" class="mt-2" placeholder="สถานะปัจจุบัน/สิ่งที่ยังขาดของแต่ละข้อ (เช่น AMS5 เหลือ …, สถานะหนี้อยู่ที่ …, ใครยังไม่พร้อม …)"></textarea>
+            </div>
+
+            <!-- C8 -->
+            <div>
+              <span class="q-label">C8 ทีมใหม่ต้องพัฒนาอะไรเร่งด่วนที่สุด (เลือกได้หลายข้อ)</span>
+              <span class="q-help">อิง master plan ข้อพัฒนาทีมใหม่ 4 ด้าน — ถ้าข้อไหนไม่เกี่ยวกับงานเรา ข้ามได้</span>
+              <div class="opt-grid mt-2" id="c8_opts">
+                <label class="opt-item"><input type="checkbox" value="Operation + อำนาจตัดสินใจ"> รับผิดชอบ Operation + อำนาจตัดสินใจเพิ่มขึ้น</label>
+                <label class="opt-item"><input type="checkbox" value="Tech/Digital/AI/Automation"> Technology / Digital / AI / Automation</label>
+                <label class="opt-item"><input type="checkbox" value="Culture/Value PKG"> รักษา Culture / Value / Working Environment PKG</label>
+                <label class="opt-item"><input type="checkbox" value="สร้างธุรกิจใหม่"> สร้างธุรกิจใหม่ + ความสามารถใหม่</label>
+                <label class="opt-item"><input type="checkbox" value="อื่น ๆ"> อื่น ๆ</label>
+              </div>
+              <input type="text" id="c8_other" placeholder="ถ้าเลือก 'อื่น ๆ' ระบุทักษะที่ต้องพัฒนา…" class="mt-2 hidden" />
+            </div>
+
+            <!-- C9 -->
+            <div>
+              <label class="q-label" for="c9_co">C9 งาน/โครงการใดที่ทีมเดิม + ทีมใหม่ควรทำร่วมกัน (Co-Ownership) ก่อนส่งมอบ</label>
+              <span class="q-help">อิง master plan 7 ข้อทีมเดิม + Co-Ownership — เช่น AMS5, ลดหนี้ตามเป้า, Operation สำคัญ (การเงิน/อนุมัติสินเชื่อ), ปั้นรุ่นถัดไป — ถ่ายทอดประสบการณ์ผ่านงานจริงคู่ขนาน</span>
+              <textarea id="c9_co" rows="3" class="mt-1.5" placeholder="เช่น AMS5 — ให้ทีมใหม่ร่วม drive … โดยทีมเดิม coach … / งาน … ควรทำคู่กัน … เดือนก่อนส่งมอบ"></textarea>
+            </div>
+
+            <!-- C10 -->
+            <div>
+              <span class="q-label">C10 ความเห็นต่อกลไก Veto ของ OAC (ยับยั้งเรื่องสำคัญ สูงสุด 3 ครั้ง เป็น Safety Gate ไม่ใช่ทำงานแทนทีมใหม่ — เข้มสุด 2026–2027 แล้วค่อยลด)</span>
+              <div class="radio-row mt-2">
+                <label class="radio-btn"><input type="radio" name="c10_veto" value="เห็นด้วย"> เห็นด้วย</label>
+                <label class="radio-btn"><input type="radio" name="c10_veto" value="เห็นด้วยแต่ควรปรับ"> เห็นด้วยแต่ควรปรับ</label>
+                <label class="radio-btn"><input type="radio" name="c10_veto" value="ไม่เห็นด้วย/มีข้อกังวล"> ไม่เห็นด้วย / มีข้อกังวล</label>
+              </div>
+              <textarea id="c10_detail" rows="2" class="mt-2" placeholder="ข้อเสนอ/ข้อกังวล เช่น ขอบเขตเรื่องที่ Veto ได้, ใครเป็นคนใช้สิทธิ, เงื่อนไขหลังครบ 3 ครั้ง, ช่วงเวลาที่ควรเข้ม-ผ่อน …"></textarea>
             </div>
           </div>
         </section>
@@ -348,6 +404,13 @@
                 <label class="radio-btn"><input type="radio" name="d3_urgency" value="4"> 4 เร่ง (ภายใน 6 เดือน)</label>
                 <label class="radio-btn"><input type="radio" name="d3_urgency" value="5"> 5 เร่งด่วนมาก</label>
               </div>
+            </div>
+
+            <!-- D4 -->
+            <div>
+              <label class="q-label" for="d4_culture">D4 วัฒนธรรม/คุณค่า PKG ที่ต้องรักษาเมื่อส่งต่อบทบาท (Culture / Value / Working Environment)</label>
+              <span class="q-help">อะไรที่ "ห้ามหาย" จาก PKG เมื่อทีมใหม่รับช่วง — วิธีทำงาน/การดูแลสมาชิก/บรรยากาศ/หลักคิด — ทีมเดิมช่วยรักษา, ทีมใหม่ต้องรับต่อ (master plan ข้อ 3 ทีมใหม่)</span>
+              <textarea id="d4_culture" rows="3" class="mt-1.5" placeholder="เช่น วัฒนธรรม … ที่ต้องรักษาไว้ เพราะ …"></textarea>
             </div>
           </div>
         </section>
@@ -398,7 +461,7 @@
 
     <!-- Footer -->
     <footer class="mt-10 pt-6 border-t border-slate-200 text-center text-xs text-slate-400 space-y-1">
-      <p>Web PP7 • Succession Planning (OAC/ADM/GAT) — ร่างแผน v1: 7 กันยายน 2569 • ระบบทดลองงาน 5 ปี / บทบาท พิสูจน์ด้วยผลงานจริง ไม่ใช่ตำแหน่ง</p>
+      <p>Web PP7 • Succession Planning (OAC/GAT/ADM) — ฟอร์มทบทวนตาม master plan 2026–2030 (Co-Ownership / เงื่อนไขถ่ายทอด 5 ข้อ / Veto-Safety Gate) • 7 กันยายน 2569 • ระบบทดลองงาน 5 ปี / บทบาท พิสูจน์ด้วยผลงานจริง ไม่ใช่ตำแหน่ง</p>
       <p>ดูร่างแผนฉบับเต็ม: <a class="text-indigo-500 hover:underline" href="https://docs.google.com/spreadsheets/d/1MKbtnxe8bYFXhTSDqybQ752mGdIO8UOU-Z41xBjvJSs/edit" target="_blank">Google Sheets — แผนสืบทอดบทบาท (ร่าง)</a></p>
     </footer>
   </main>
@@ -454,6 +517,8 @@
       const c3 = checkedVals('c3_opts');
       const c4 = checkedVals('c4_opts');
       const c6 = checkedVals('c6_opts');
+      const c7 = checkedVals('c7_opts');
+      const c8 = checkedVals('c8_opts');
       const record = {
         id: 'SC' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
         savedAt: new Date().toISOString(),
@@ -470,7 +535,8 @@
         b4_successors: idVal('b4_successors'),
         b5_obstacles: b5,
         b5_other: idVal('b5_other'),
-        // C — ผู้บริหาร/พี่เลี้ยง
+        b6_cover_order: idVal('b6_cover_order'),
+        // C — การ cover / ส่งต่อ / ความเห็นต่อแผน
         c1_text: idVal('c1_text'),
         c1_level: radioVal('c1_level'),
         c2_period: idVal('c2_period'),
@@ -479,10 +545,18 @@
         c5_gat: idVal('c5_gat'),
         c6_systems: c6,
         c6_detail: idVal('c6_detail'),
+        c7_conditions: c7,
+        c7_detail: idVal('c7_detail'),
+        c8_skills: c8,
+        c8_other: idVal('c8_other'),
+        c9_co: idVal('c9_co'),
+        c10_veto: radioVal('c10_veto'),
+        c10_detail: idVal('c10_detail'),
         // D — ปิดท้าย
         d1_suggestions: idVal('d1_suggestions'),
         d2_willing: idVal('d2_willing'),
-        d3_urgency: radioVal('d3_urgency')
+        d3_urgency: radioVal('d3_urgency'),
+        d4_culture: idVal('d4_culture')
       };
       return record;
     }
@@ -512,7 +586,7 @@
 
     async function handleSubmit(e) {
       e.preventDefault();
-      const c4n = document.querySelectorAll('#c4_opts input:checked').length;
+      const c4n = document.querySelectorAll('#c4_opts input:checked:not([value="อื่น ๆ"])').length;
       if (c4n > 3) {
         document.getElementById('c4_hint').hidden = false;
         showToast('⚠️ C4 เลือกได้สูงสุด 3 ข้อ (' + c4n + ' ข้อที่เลือก)');
@@ -567,6 +641,7 @@
       document.getElementById('a3_role').value = meta.a3_role || '';
       document.getElementById('a4_date').value = todayLocal();
       document.getElementById('b5_other').classList.add('hidden');
+      document.getElementById('c8_other').classList.add('hidden');
       document.getElementById('post-submit-panel').classList.add('hidden');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       refreshRadioStyles();
@@ -614,15 +689,21 @@
                 fmtQA('B3 SPOF ที่ต้องถ่ายทอดด่วน', r.b3_spof) +
                 fmtQA('B4 ผู้สืบทอดที่เป็นไปได้/คุณสมบัติ', r.b4_successors) +
                 fmtQA('B5 อุปสรรคการถ่ายทอด', ((r.b5_obstacles || []).join(' • ') + (r.b5_other ? ' — ' + r.b5_other : ''))) +
+                fmtQA('B6 ลำดับ cover ที่ควรเริ่ม', r.b6_cover_order) +
                 fmtQA('C1 ประสบการณ์ cover' + (r.c1_level ? ' (ยาก ' + r.c1_level + '/5)' : ''), r.c1_text) +
                 fmtQA('C2 ช่วงเวลา cover ที่ดีที่สุด', r.c2_period) +
                 fmtQA('C3 รูปแบบ cover ที่ดี', (r.c3_formats || []).join(' • ')) +
                 fmtQA('C4 เกณฑ์พร้อมส่งต่อ', (r.c4_readiness || []).join(' • ')) +
-                fmtQA('C5 สิ่งที่ ADM ชุดใหม่ควรเรียนรู้', r.c5_gat) +
+                fmtQA('C5 สิ่งที่ ADM ชุดใหม่ควรเรียนรู้ (GAT)', r.c5_gat) +
                 fmtQA('C6 ข้อเสนอปรับปรุงระบบ', (r.c6_systems || []).join(' • ') + (r.c6_detail ? ' — ' + r.c6_detail : '')) +
+                fmtQA('C7 เงื่อนไขถ่ายทอดที่ยังเป็นช่องว่าง', (r.c7_conditions || []).join(' • ') + (r.c7_detail ? ' — ' + r.c7_detail : '')) +
+                fmtQA('C8 ทีมใหม่ต้องพัฒนาอะไรเร่งด่วน', (r.c8_skills || []).join(' • ') + (r.c8_other ? ' — ' + r.c8_other : '')) +
+                fmtQA('C9 งานทำร่วมกัน Co-Ownership', r.c9_co) +
+                fmtQA('C10 ความเห็น Veto', (r.c10_veto || '') + (r.c10_detail ? ' — ' + r.c10_detail : '')) +
                 fmtQA('D1 ข้อเสนอแนะอื่น ๆ', r.d1_suggestions) +
                 fmtQA('D2 ความยินดีร่วม cover', r.d2_willing) +
                 fmtQA('D3 ความเร่งด่วน', r.d3_urgency ? r.d3_urgency + '/5' : '') +
+                fmtQA('D4 วัฒนธรรม PKG ที่ต้องรักษา', r.d4_culture) +
               '</div>' +
               '<div class="mt-3 text-right"><button onclick="deleteEntry(\'' + r.id + '\')" class="text-xs text-rose-500 hover:text-rose-700 hover:underline">🗑 ลบชุดนี้</button></div>' +
             '</div>' +
@@ -657,9 +738,12 @@
       const headers = [
         'id', 'savedAt', 'วันที่บันทึก(A4)', 'ชื่อ/รหัส(A1)', 'บริษัท(A2)', 'บทบาท(A3)',
         'B1 บทบาทสำคัญ', 'B2 งานที่สะดุด', 'B2 ระดับผลกระทบ(1-4)', 'B3 SPOF', 'B4 ผู้สืบทอด/คุณสมบัติ',
-        'B5 อุปสรรค', 'B5 อื่น ๆ', 'C1 ประสบการณ์ cover', 'C1 ระดับความยาก(1-5)', 'C2 ช่วงเวลา',
-        'C3 รูปแบบ cover', 'C4 เกณฑ์พร้อมส่งต่อ', 'C5 สิ่งที่ ADM ควรเรียนรู้', 'C6 ข้อเสนอระบบ', 'C6 รายละเอียด',
-        'D1 ข้อเสนอแนะ', 'D2 ความยินดี', 'D3 ความเร่งด่วน(1-5)'
+        'B5 อุปสรรค', 'B5 อื่น ๆ', 'B6 ลำดับ cover ที่ควรเริ่ม',
+        'C1 ประสบการณ์ cover', 'C1 ระดับความยาก(1-5)', 'C2 ช่วงเวลา',
+        'C3 รูปแบบ cover', 'C4 เกณฑ์พร้อมส่งต่อ', 'C5 สิ่งที่ ADM ควรเรียนรู้ (GAT)',
+        'C6 ข้อเสนอระบบ', 'C6 รายละเอียด', 'C7 เงื่อนไขถ่ายทอดที่เป็นช่องว่าง', 'C7 รายละเอียด',
+        'C8 ทักษะทีมใหม่ที่ต้องพัฒนา', 'C8 อื่น ๆ', 'C9 งาน Co-Ownership', 'C10 ความเห็น Veto', 'C10 รายละเอียด',
+        'D1 ข้อเสนอแนะ', 'D2 ความยินดี', 'D3 ความเร่งด่วน(1-5)', 'D4 วัฒนธรรม PKG ที่ต้องรักษา'
       ];
       const csvRow = row => row.map(v => {
         const s = String(v === undefined || v === null ? '' : v).replace(/\r?\n/g, ' ').replace(/"/g, '""');
@@ -669,10 +753,13 @@
         r.id, r.savedAt, r.a4_date, r.a1_name, r.a2_company, r.a3_role,
         r.b1_roles, r.b2_text, r.b2_level, r.b3_spof, r.b4_successors,
         (r.b5_obstacles || []).join(' | '), r.b5_other,
+        r.b6_cover_order,
         r.c1_text, r.c1_level, r.c2_period,
         (r.c3_formats || []).join(' | '), (r.c4_readiness || []).join(' | '), r.c5_gat,
         (r.c6_systems || []).join(' | '), r.c6_detail,
-        r.d1_suggestions, r.d2_willing, r.d3_urgency
+        (r.c7_conditions || []).join(' | '), r.c7_detail,
+        (r.c8_skills || []).join(' | '), r.c8_other, r.c9_co, r.c10_veto, r.c10_detail,
+        r.d1_suggestions, r.d2_willing, r.d3_urgency, r.d4_culture
       ])));
       const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
@@ -715,14 +802,21 @@
           document.getElementById('b5_other').classList.toggle('hidden', !other.checked);
         });
       });
-      // C4 จำกัด 3 ข้อ
+      // C8 "อื่น ๆ" → แสดงช่องระบุ
+      document.querySelectorAll('#c8_opts input').forEach(cb => {
+        cb.addEventListener('change', () => {
+          const other = document.querySelector('#c8_opts input[value="อื่น ๆ"]');
+          document.getElementById('c8_other').classList.toggle('hidden', !other.checked);
+        });
+      });
+      // C4 จำกัด 3 ข้อ (ยกเว้น "อื่น ๆ" — ไม่จำกัด)
       document.querySelectorAll('#c4_opts input').forEach(cb => {
         cb.addEventListener('change', () => {
-          const checked = document.querySelectorAll('#c4_opts input:checked');
+          const checked = document.querySelectorAll('#c4_opts input:checked:not([value="อื่น ๆ"])');
           if (checked.length > 3) {
             cb.checked = false;
             document.getElementById('c4_hint').hidden = false;
-            showToast('⚠️ C4 เลือกได้สูงสุด 3 ข้อ');
+            showToast('⚠️ C4 เลือกเกณฑ์ได้สูงสุด 3 ข้อ');
           } else {
             document.getElementById('c4_hint').hidden = checked.length >= 3 ? false : true;
           }

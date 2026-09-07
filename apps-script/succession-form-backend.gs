@@ -19,6 +19,8 @@ const SPREADSHEET_ID = '1MKbtnxe8bYFXhTSDqybQ752mGdIO8UOU-Z41xBjvJSs';
 const TAB_NAME = 'SP-บันทึกประเด็น';
 
 // ลำดับคอลัมน์ ตรงกับคีย์ที่หน้า dashboard ส่ง (collectForm)
+// หมายเหตุ: append-only — คีย์ใหม่ (2026-09-07 master plan review) ต่อท้ายเสมอ
+// ไม่ reorder เดิม เพื่อให้ข้อมูลแถวเก่าที่เขียนไปแล้วยังอ่านตรงคอลัมน์
 const HEADERS = [
   'timestamp', 'savedAt', 'id',
   'a1_name', 'a2_company', 'a3_role', 'a4_date',
@@ -26,7 +28,14 @@ const HEADERS = [
   'b5_obstacles', 'b5_other',
   'c1_text', 'c1_level', 'c2_period', 'c3_formats', 'c4_readiness', 'c5_gat',
   'c6_systems', 'c6_detail',
-  'd1_suggestions', 'd2_willing', 'd3_urgency'
+  'd1_suggestions', 'd2_willing', 'd3_urgency',
+  // เพิ่มเติม 2026-09-07 (ทบทวนฟอร์มตาม master plan)
+  'b6_cover_order',
+  'c7_conditions', 'c7_detail',
+  'c8_skills', 'c8_other',
+  'c9_co',
+  'c10_veto', 'c10_detail',
+  'd4_culture'
 ];
 
 // ===== SETUP (รันครั้งแรก) =====
