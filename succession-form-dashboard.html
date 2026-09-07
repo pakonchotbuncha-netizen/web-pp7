@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🗂 Succession Planning — ฟอร์มบันทึกประเด็นสำคัญ | Web PP7</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Sarabun', sans-serif; }
+    .glass { background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); }
+    .card { border:1px solid #e5e7eb; transition: transform .15s, box-shadow .15s; }
+    .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+    .sec-chip { display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:10px; font-weight:800; color:#fff; flex:none; }
+    .q-label { display:block; font-size:14px; font-weight:600; color:#334155; }
+    .q-help { display:block; font-size:12px; color:#94a3b8; margin-top:1px; }
+    input[type="text"], input[type="date"], textarea, select {
+      width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:9px 12px; font-size:14px; background:#fff;
+      transition: border .15s, box-shadow .15s;
+    }
+    input:focus, textarea:focus, select:focus { outline:2px solid #6366f1; outline-offset:1px; border-color:#6366f1; }
+    .req { color:#dc2626; }
+    .opt-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:8px; }
+    .opt-item { display:flex; align-items:flex-start; gap:8px; border:1px solid #e2e8f0; border-radius:10px; padding:8px 10px; font-size:13px; background:#fff; cursor:pointer; transition:all .12s; }
+    .opt-item:hover { border-color:#a5b4fc; background:#f5f6ff; }
+    .opt-item input { width:auto; margin-top:2px; accent-color:#6366f1; }
+    .radio-row { display:flex; flex-wrap:wrap; gap:6px; }
+    .radio-btn { display:inline-flex; align-items:center; gap:6px; border:1px solid #e2e8f0; border-radius:9999px; padding:6px 12px; font-size:13px; background:#fff; cursor:pointer; transition:all .12s; }
+    .radio-btn:hover { border-color:#a5b4fc; background:#f5f6ff; }
+    .radio-btn input { width:auto; accent-color:#6366f1; }
+    .radio-btn.checked { border-color:#6366f1; background:#eef2ff; font-weight:600; color:#4338ca; }
+    .btn-primary { background:linear-gradient(135deg,#4f46e5,#7c3aed); color:#fff; padding:11px 22px; border-radius:12px; font-weight:700; transition:all .15s; box-shadow:0 4px 14px rgba(79,70,229,.25); }
+    .btn-primary:hover { filter:brightness(1.07); transform:translateY(-1px); }
+    .btn-outline { border:1px solid #cbd5e1; background:#fff; color:#475569; padding:8px 14px; border-radius:10px; font-weight:600; font-size:13px; transition:all .15s; }
+    .btn-outline:hover { background:#f1f5f9; border-color:#94a3b8; }
+    .toast { position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(80px); background:#1e293b; color:#fff; padding:11px 22px; border-radius:12px; font-size:14px; opacity:0; transition:all .3s; pointer-events:none; z-index:90; max-width:92vw; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,.25); }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    details.rec-card summary::-webkit-details-marker { display:none; }
+    .rec-badge { display:inline-flex; align-items:center; padding:2px 9px; border-radius:9999px; font-size:11px; font-weight:600; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- ======= Header ======= -->
+  <header class="glass border-b border-slate-200 shadow-sm sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 flex items-center gap-2">
+            <span>🗂</span> Succession Planning <span class="text-indigo-600">— ฟอร์มบันทึกประเด็นสำคัญ</span>
+          </h1>
+          <p class="text-sm text-slate-500 mt-1">บันทึกประเด็นสำคัญในการวางแผนสืบทอดตำแหน่ง (OAC/ADM/GAT) — บทบาทสำคัญ ผู้สืบทอด อุปสรรคการถ่ายทอด เพื่อป้องกัน Single Point of Failure</p>
+        </div>
+        <div class="flex flex-wrap gap-2 no-print">
+          <button onclick="exportCSV()" class="btn-outline">⬇️ Export CSV</button>
+          <a href="index.html" class="btn-outline inline-flex items-center">🏠 กลับหน้าแรก</a>
+        </div>
+      </div>
+
+      <!-- โครงสร้าง badge -->
+      <div class="flex flex-wrap gap-2 mt-3">
+        <span class="rec-badge bg-rose-100 text-rose-800 border border-rose-200">🏛 OAC = สูงสุด (กำกับ + ให้คำปรึกษา)</span>
+        <span class="rec-badge bg-amber-100 text-amber-800 border border-amber-200">🛡 GAT = กลาง (ฝ่ายบริหารเก่า / พี่เลี้ยง ADM)</span>
+        <span class="rec-badge bg-sky-100 text-sky-800 border border-sky-200">🚀 ADM = เบื้องต้น (ฝ่ายบริหารใหม่)</span>
+        <span class="rec-badge bg-slate-100 text-slate-600 border border-slate-300">🎯 เป้า: No Single Point of Failure</span>
+      </div>
+
+      <!-- สถิติย่อ -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
+        <div class="bg-white/80 border border-slate-200 rounded-xl px-4 py-2.5">
+          <div class="text-xl font-extrabold text-indigo-700" id="stat-count">0</div>
+          <div class="text-[11px] text-slate-500 font-medium">ชุดที่บันทึกแล้ว (เครื่องนี้)</div>
+        </div>
+        <div class="bg-white/80 border border-slate-200 rounded-xl px-4 py-2.5">
+          <div class="text-xl font-extrabold text-rose-700" id="stat-spof">0</div>
+          <div class="text-[11px] text-slate-500 font-medium">ชุดที่พบ SPOF (งานรู้คนเดียว)</div>
+        </div>
+        <div class="bg-white/80 border border-slate-200 rounded-xl px-4 py-2.5">
+          <div class="text-xl font-extrabold text-emerald-700" id="stat-co">0</div>
+          <div class="text-[11px] text-slate-500 font-medium">บริษัท/หน่วยงานที่ตอบ</div>
+        </div>
+        <div class="bg-white/80 border border-slate-200 rounded-xl px-4 py-2.5">
+          <div class="text-sm font-extrabold text-slate-700" id="stat-cloud" style="line-height:1.3">☁️ ยังไม่เชื่อมต่อ</div>
+          <div class="text-[11px] text-slate-500 font-medium">สถานะ Google Sheets</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 pb-24">
+
+    <!-- ======= ฟอร์ม ======= -->
+    <form id="sf-form" autocomplete="off" novalidate>
+      <div class="space-y-6">
+
+        <!-- ===== ส่วน A ===== -->
+        <section class="card bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div class="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-sky-50 to-white">
+            <span class="sec-chip bg-sky-500">A</span>
+            <div>
+              <h2 class="font-bold text-slate-900">ข้อมูลผู้บันทึก</h2>
+              <p class="text-xs text-slate-500">ทุกคนกรอก — ใช้ระบุที่มาของข้อมูล</p>
+            </div>
+          </div>
+          <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label class="q-label" for="a1_name">A1 ชื่อ-นามสกุล หรือรหัสสมาชิก <span class="text-xs font-normal text-slate-400">(optional)</span></label>
+              <span class="q-help">เว้นว่างได้ — ถ้าอยากให้ผู้บริหารรู้ว่าประเด็นนี้มาจากใคร</span>
+              <input type="text" id="a1_name" placeholder="เว้นว่างได้" class="mt-1.5" />
+            </div>
+            <div>
+              <label class="q-label" for="a2_company">A2 บริษัท/หน่วยงาน <span class="req">*</span></label>
+              <select id="a2_company" required class="mt-1.5">
+                <option value="">— เลือกบริษัท/หน่วยงาน —</option>
+                <option>PMS</option><option>PMG</option><option>PMGI</option><option>AAM</option>
+                <option>21RT</option><option>TNR</option><option>CPDG</option><option>LDC</option><option>PKG</option>
+              </select>
+            </div>
+            <div>
+              <label class="q-label" for="a3_role">A3 บทบาทปัจจุบัน <span class="req">*</span></label>
+              <select id="a3_role" required class="mt-1.5">
+                <option value="">— เลือกบทบาทปัจจุบัน —</option>
+                <option>พนักงานทั่วไป</option>
+                <option>หัวหน้างาน/หัวหน้าทีม</option>
+                <option>ผู้จัดการ</option>
+                <option>ADM (ทีมบริหาร)</option>
+                <option>GAT (ที่ปรึกษา/พี่เลี้ยง)</option>
+                <option>ผู้ช่วย ADM (รุ่นสืบทอด)</option>
+                <option>อื่น ๆ</option>
+              </select>
+            </div>
+            <div>
+              <label class="q-label" for="a4_date">A4 วันที่บันทึก <span class="req">*</span></label>
+              <input type="date" id="a4_date" required class="mt-1.5" />
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== ส่วน B ===== -->
+        <section class="card bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div class="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-amber-50 to-white">
+            <span class="sec-chip bg-amber-500">B</span>
+            <div>
+              <h2 class="font-bold text-slate-900">ประเด็นเชิงกลยุทธ์</h2>
+              <p class="text-xs text-slate-500">ทุกคนตอบ — มองรอบตัวแล้วแชร์ประเด็นจริงที่เห็น</p>
+            </div>
+          </div>
+          <div class="p-5 space-y-6">
+
+            <!-- B1 -->
+            <div>
+              <label class="q-label" for="b1_roles">B1 บทบาท/ตำแหน่งสำคัญ 3 อันดับที่ควรมีผู้สืบทอด</label>
+              <span class="q-help">เรียงตามความสำคัญ — ระบุ "เพราะอะไร" ด้วย (คนนี้มีจุดที่หาคนแทนยาก/กระทบธุรกิจถ้าขาด)</span>
+              <textarea id="b1_roles" rows="3" class="mt-1.5" placeholder="อันดับ 1: … เพราะ …&#10;อันดับ 2: … เพราะ …&#10;อันดับ 3: … เพราะ …"></textarea>
+            </div>
+
+            <!-- B2 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <div class="lg:col-span-2">
+                <label class="q-label" for="b2_text">B2 ถ้าคนสำคัญไม่อยู่ (1 วัน / 1 สัปดาห์ / 1 เดือน) งานส่วนไหนสะดุด</label>
+                <span class="q-help">ยกตัวอย่างเหตุการณ์จริงหรือสถานการณ์จำลองที่เคยเกิดขึ้น/อาจเกิดขึ้น</span>
+                <textarea id="b2_text" rows="3" class="mt-1.5" placeholder="เช่น ถ้า … ลาป่วย 1 สัปดาห์ การอนุมัติ … จะสะดุด เพราะ …"></textarea>
+              </div>
+              <div>
+                <span class="q-label">ระดับผลกระทบ</span>
+                <span class="q-help">ประเมินความรุนแรงถ้าเกิดขึ้นจริง</span>
+                <div class="radio-row mt-2" id="b2_level_wrap">
+                  <label class="radio-btn"><input type="radio" name="b2_level" value="1"> 1 น้อย</label>
+                  <label class="radio-btn"><input type="radio" name="b2_level" value="2"> 2 ปานกลาง</label>
+                  <label class="radio-btn"><input type="radio" name="b2_level" value="3"> 3 มาก</label>
+                  <label class="radio-btn"><input type="radio" name="b2_level" value="4"> 4 วิกฤต</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- B3 -->
+            <div>
+              <label class="q-label" for="b3_spof">B3 งานที่ "รู้เฉพาะคนเดียว" (Single Point of Failure) ที่ต้องถ่ายทอดด่วน</label>
+              <span class="q-help">งาน/ความรู้/รายชื่อลูกค้า/รหัส/ขั้นตอน ที่ถ้าคน ๆ นั้นไม่อยู่ จะไม่มีใครทำต่อได้</span>
+              <textarea id="b3_spof" rows="3" class="mt-1.5" placeholder="เช่น งาน … มีเพียง … คนเดียวที่รู้ขั้นตอน … ต้องถ่ายทอดภายใน …"></textarea>
+            </div>
+
+            <!-- B4 -->
+            <div>
+              <label class="q-label" for="b4_successors">B4 ผู้สืบทอดที่เป็นไปได้ / คุณสมบัติที่ควรมี</label>
+              <span class="q-help">ชื่อจริง หรือคุณสมบัติตาม CC1-6 ก็ได้ เช่น CC1 นำผู้รับใช้, CC2 ปรับตัว+นวัตกรรม, CC3 สร้างคุณค่าบนความไว้วางใจ, CC4 ทำงานทีมฉันทมติ, CC5 วินัยวิชาชีพ, CC6 เทคโนโลยี</span>
+              <textarea id="b4_successors" rows="3" class="mt-1.5" placeholder="ชื่อ หรือคุณสมบัติ CC1-6 เช่น CC1 นำผู้รับใช้, CC3 สร้างคุณค่าบนความไว้วางใจ …"></textarea>
+            </div>
+
+            <!-- B5 -->
+            <div>
+              <span class="q-label">B5 อุปสรรคการถ่ายทอดงาน (เลือกได้หลายข้อ)</span>
+              <span class="q-help">อะไรคือสิ่งที่ทำให้งาน/ความรู้ยังถ่ายทอดไม่ได้สักที</span>
+              <div class="opt-grid mt-2" id="b5_opts">
+                <label class="opt-item"><input type="checkbox" value="ไม่มีเวลาสอน"> ไม่มีเวลาสอน</label>
+                <label class="opt-item"><input type="checkbox" value="ไม่รู้จะเริ่มตรงไหน"> ไม่รู้จะเริ่มตรงไหน</label>
+                <label class="opt-item"><input type="checkbox" value="ไม่มีคู่มือ"> ไม่มีคู่มือ</label>
+                <label class="opt-item"><input type="checkbox" value="คนรับยังไม่พร้อม"> คนรับยังไม่พร้อม</label>
+                <label class="opt-item"><input type="checkbox" value="กลัวเสียบทบาท"> กลัวเสียบทบาท</label>
+                <label class="opt-item"><input type="checkbox" value="ไม่มีใครอยากเรียน"> ไม่มีใครอยากเรียน</label>
+                <label class="opt-item"><input type="checkbox" value="อื่น ๆ"> อื่น ๆ</label>
+              </div>
+              <input type="text" id="b5_other" placeholder="ถ้าเลือก 'อื่น ๆ' ระบุอุปสรรคเพิ่มเติม…" class="mt-2 hidden" />
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== ส่วน C ===== -->
+        <section class="card bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div class="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-violet-50 to-white">
+            <span class="sec-chip bg-violet-500">C</span>
+            <div>
+              <h2 class="font-bold text-slate-900">สำหรับผู้บริหาร/พี่เลี้ยง (ADM / GAT / หัวหน้าที่ cover)</h2>
+              <p class="text-xs text-slate-500">ผู้ที่มีประสบการณ์ cover งานหรือเป็นพี่เลี้ยง — ถ้าไม่ใช่กลุ่มนี้ ข้ามส่วน C ได้เลย</p>
+            </div>
+          </div>
+          <div class="p-5 space-y-6">
+
+            <!-- C1 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <div class="lg:col-span-2">
+                <label class="q-label" for="c1_text">C1 ประสบการณ์ cover งาน: อะไร cover ได้ดี / cover ยาก เพราะอะไร</label>
+                <span class="q-help">แชร์บทเรียนจริงจากช่วงที่ต้องรับช่วงงานของคนอื่น</span>
+                <textarea id="c1_text" rows="3" class="mt-1.5" placeholder="Cover … ได้ดีเพราะ … / Cover … ยากเพราะ …"></textarea>
+              </div>
+              <div>
+                <span class="q-label">ระดับความยาก</span>
+                <span class="q-help">1 = ง่ายมาก … 5 = ยากมาก</span>
+                <div class="radio-row mt-2" id="c1_level_wrap">
+                  <label class="radio-btn"><input type="radio" name="c1_level" value="1"> 1</label>
+                  <label class="radio-btn"><input type="radio" name="c1_level" value="2"> 2</label>
+                  <label class="radio-btn"><input type="radio" name="c1_level" value="3"> 3</label>
+                  <label class="radio-btn"><input type="radio" name="c1_level" value="4"> 4</label>
+                  <label class="radio-btn"><input type="radio" name="c1_level" value="5"> 5</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- C2 -->
+            <div>
+              <label class="q-label" for="c2_period">C2 ช่วงเวลา cover ที่ดีที่สุด (สำหรับช่วงทดลอง/ส่งต่อ)</label>
+              <select id="c2_period" class="mt-1.5">
+                <option value="">— เลือกช่วงเวลา —</option>
+                <option>1-3 เดือน</option>
+                <option>3-6 เดือน</option>
+                <option>6-12 เดือน</option>
+                <option>1-2 ปี</option>
+                <option>ค่อย ๆ เพิ่ม 30→50→70→100%</option>
+                <option>อื่น ๆ</option>
+              </select>
+            </div>
+
+            <!-- C3 -->
+            <div>
+              <span class="q-label">C3 รูปแบบ cover ที่ดี (เลือกได้หลายข้อ)</span>
+              <div class="opt-grid mt-2" id="c3_opts">
+                <label class="opt-item"><input type="checkbox" name="c3" value="Shadow"> Shadow (นั่งดู/ตามติด)</label>
+                <label class="opt-item"><input type="checkbox" name="c3" value="Dual-hatting"> Dual-hatting (ถือ 2 บทบาท)</label>
+                <label class="opt-item"><input type="checkbox" name="c3" value="Stretch Assignment"> Stretch Assignment (มอบงานใหญ่จริง)</label>
+                <label class="opt-item"><input type="checkbox" name="c3" value="คู่มือ+ระบบ"> คู่มือ + ระบบ</label>
+                <label class="opt-item"><input type="checkbox" name="c3" value="ประชุมร่วมตัดสินใจ"> ประชุมร่วมตัดสินใจ</label>
+              </div>
+            </div>
+
+            <!-- C4 -->
+            <div>
+              <span class="q-label">C4 เกณฑ์ "พร้อมส่งต่อ" — เลือก 3 ข้อที่สำคัญที่สุด</span>
+              <span class="q-help">เกณฑ์ตัดสินว่าคน ๆ นั้นพร้อมรับบทบาทจริง (เลือกได้ 3 ข้อ)</span>
+              <div class="opt-grid mt-2" id="c4_opts">
+                <label class="opt-item"><input type="checkbox" value="ผลงานมีหลักฐานจริง"> ผลงานมีหลักฐานจริง</label>
+                <label class="opt-item"><input type="checkbox" value="360° ผ่าน"> 360° ผ่าน</label>
+                <label class="opt-item"><input type="checkbox" value="CC ครบ"> CC ครบ</label>
+                <label class="opt-item"><input type="checkbox" value="ไม่มี Audit red flag"> ไม่มี Audit red flag</label>
+                <label class="opt-item"><input type="checkbox" value="ปั้นรุ่นถัดไปได้"> ปั้นรุ่นถัดไปได้</label>
+                <label class="opt-item"><input type="checkbox" value="ช่วงไม่มีพี่ 3 เดือนงานยังดี"> ช่วงไม่มีพี่ 3 เดือนงานยังดี</label>
+                <label class="opt-item"><input type="checkbox" value="Veto น้อยลง"> Veto น้อยลง</label>
+                <label class="opt-item"><input type="checkbox" value="อื่น ๆ"> อื่น ๆ</label>
+              </div>
+              <p class="text-xs text-amber-600 mt-1.5" id="c4_hint" hidden>⚠️ เลือกได้สูงสุด 3 ข้อ</p>
+            </div>
+
+            <!-- C5 -->
+            <div>
+              <label class="q-label" for="c5_gat">C5 GAT/พี่เลี้ยง: สิ่งที่ ADM ชุดใหม่ควรเรียนรู้จากเรามากที่สุด</label>
+              <span class="q-help">ความรู้/วิธีคิด/ทักษะที่ต้องส่งต่อให้ทีมบริหารชุดใหม่ก่อนที่เราจะวางมือ</span>
+              <textarea id="c5_gat" rows="3" class="mt-1.5" placeholder="เช่น การอ่านงบ/ความเสี่ยง …, การตัดสินใจภายใต้ …, เครือข่าย/ความสัมพันธ์ …"></textarea>
+            </div>
+
+            <!-- C6 -->
+            <div>
+              <span class="q-label">C6 ข้อเสนอปรับปรุงระบบ (เลือกได้หลายข้อ)</span>
+              <div class="opt-grid mt-2" id="c6_opts">
+                <label class="opt-item"><input type="checkbox" value="โครงสร้าง OAC/ADM/GAT"> โครงสร้าง OAC/ADM/GAT</label>
+                <label class="opt-item"><input type="checkbox" value="ช่วงเวลา 5 ปี"> ช่วงเวลา 5 ปี</label>
+                <label class="opt-item"><input type="checkbox" value="เกณฑ์ P2/P4"> เกณฑ์ P2/P4</label>
+                <label class="opt-item"><input type="checkbox" value="KPI P6"> KPI P6</label>
+                <label class="opt-item"><input type="checkbox" value="คุณภาพชีวิต P7"> คุณภาพชีวิต P7</label>
+                <label class="opt-item"><input type="checkbox" value="ระบบ Audit"> ระบบ Audit</label>
+                <label class="opt-item"><input type="checkbox" value="กระจายอำนาจ"> กระจายอำนาจ</label>
+                <label class="opt-item"><input type="checkbox" value="อื่น ๆ"> อื่น ๆ</label>
+              </div>
+              <textarea id="c6_detail" rows="3" class="mt-2" placeholder="รายละเอียดข้อเสนอ (ถ้ามี)…"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== ส่วน D ===== -->
+        <section class="card bg-white rounded-2xl overflow-hidden shadow-sm">
+          <div class="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-emerald-50 to-white">
+            <span class="sec-chip bg-emerald-500">D</span>
+            <div>
+              <h2 class="font-bold text-slate-900">ปิดท้าย</h2>
+              <p class="text-xs text-slate-500">ทุกคนตอบ — ปิดด้วยความเห็นและความพร้อมของเรา</p>
+            </div>
+          </div>
+          <div class="p-5 space-y-6">
+
+            <!-- D1 -->
+            <div>
+              <label class="q-label" for="d1_suggestions">D1 ข้อเสนอแนะอื่น ๆ</label>
+              <textarea id="d1_suggestions" rows="3" class="mt-1.5" placeholder="ความเห็น/ข้อเสนอเพิ่มเติมที่อยากให้ทีมงาน Succession นำไปพิจารณา…"></textarea>
+            </div>
+
+            <!-- D2 -->
+            <div>
+              <label class="q-label" for="d2_willing">D2 ความยินดีร่วม cover / เป็นพี่เลี้ยง</label>
+              <select id="d2_willing" class="mt-1.5">
+                <option value="">— เลือกความพร้อมของเรา —</option>
+                <option>ยินดีเป็นพี่เลี้ยง</option>
+                <option>ยินดีให้คนมา cover</option>
+                <option>ยินดีทั้งสอง</option>
+                <option>ขอดูรายละเอียดก่อน</option>
+                <option>ไม่สะดวก</option>
+              </select>
+            </div>
+
+            <!-- D3 -->
+            <div>
+              <span class="q-label">D3 ความเร่งด่วนเริ่มทำ Succession อย่างเป็นระบบ</span>
+              <span class="q-help">ความคิดเห็นส่วนตัว — ยิ่งเร่งด่วนยิ่งควรจัดลำดับก่อน</span>
+              <div class="radio-row mt-2">
+                <label class="radio-btn"><input type="radio" name="d3_urgency" value="1"> 1 ไม่เร่ง</label>
+                <label class="radio-btn"><input type="radio" name="d3_urgency" value="2"> 2 ค่อย ๆ เริ่มได้</label>
+                <label class="radio-btn"><input type="radio" name="d3_urgency" value="3"> 3 ควรเริ่มปีนี้</label>
+                <label class="radio-btn"><input type="radio" name="d3_urgency" value="4"> 4 เร่ง (ภายใน 6 เดือน)</label>
+                <label class="radio-btn"><input type="radio" name="d3_urgency" value="5"> 5 เร่งด่วนมาก</label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Submit -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl px-6 py-5 shadow-lg">
+          <div class="flex-1 text-white">
+            <div class="font-bold text-lg">💾 บันทึกประเด็นนี้</div>
+            <div class="text-xs text-indigo-100">ข้อมูลจะเก็บในเครื่องนี้ (localStorage) ก่อน — และพยายามส่ง Google Sheets อัตโนมัติถ้าตั้งค่า URL แล้ว</div>
+          </div>
+          <button type="submit" class="bg-white text-indigo-700 font-extrabold px-8 py-3.5 rounded-xl shadow hover:bg-indigo-50 transition text-base">บันทึกชุดนี้</button>
+        </div>
+      </div>
+    </form>
+
+    <!-- ======= ผลลัพธ์หลังบันทึก (ซ่อนเริ่มแรก) ======= -->
+    <div id="post-submit-panel" class="hidden mt-6">
+      <div class="bg-emerald-50 border border-emerald-300 rounded-2xl p-6">
+        <div class="flex items-center gap-3">
+          <span class="text-3xl">✅</span>
+          <div class="flex-1">
+            <h3 class="font-extrabold text-emerald-800 text-lg">บันทึกสำเร็จ!</h3>
+            <p class="text-sm text-emerald-700" id="post-submit-msg"></p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-2 mt-4">
+          <button onclick="resetForNext()" class="btn-primary">➕ บันทึกเพิ่ม (ชุดถัดไป)</button>
+          <button onclick="document.getElementById('saved-section').scrollIntoView({behavior:'smooth'})" class="btn-outline">📋 ดูรายการที่บันทึก</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= รายการที่บันทึก ======= -->
+    <section id="saved-section" class="mt-8">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <h2 class="text-xl font-extrabold text-slate-900 flex items-center gap-2">📋 รายการที่บันทึกไว้ <span class="rec-badge bg-indigo-100 text-indigo-800 border border-indigo-200" id="rec-count">0 ชุด</span></h2>
+        <div class="flex gap-2">
+          <button onclick="exportCSV()" class="btn-outline text-xs">⬇️ Export CSV</button>
+          <button onclick="clearAll()" class="btn-outline text-xs text-rose-600 border-rose-200 hover:bg-rose-50">🗑 ลบทั้งหมด (เครื่องนี้)</button>
+        </div>
+      </div>
+      <div id="saved-list" class="space-y-3"></div>
+      <p id="empty-state" class="text-center text-slate-400 text-sm bg-white border border-dashed border-slate-300 rounded-2xl py-10">
+        ยังไม่มีบันทึก — กรอกฟอร์มด้านบนแล้วกด "บันทึกชุดนี้"<br />
+        <span class="text-xs">ข้อมูลถูกเก็บในเบราว์เซอร์นี้เท่านั้น (localStorage)</span>
+      </p>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-10 pt-6 border-t border-slate-200 text-center text-xs text-slate-400 space-y-1">
+      <p>Web PP7 • Succession Planning (OAC/ADM/GAT) — ร่างแผน v1: 7 กันยายน 2569 • ระบบทดลองงาน 5 ปี / บทบาท พิสูจน์ด้วยผลงานจริง ไม่ใช่ตำแหน่ง</p>
+      <p>ดูร่างแผนฉบับเต็ม: <a class="text-indigo-500 hover:underline" href="https://docs.google.com/spreadsheets/d/1MKbtnxe8bYFXhTSDqybQ752mGdIO8UOU-Z41xBjvJSs/edit" target="_blank">Google Sheets — แผนสืบทอดตำแหน่ง (ร่าง)</a></p>
+    </footer>
+  </main>
+
+  <script>
+    // ================= CONFIG =================
+    const LS_KEY = 'pkg_succession_entries';
+    const LS_META_KEY = 'pkg_succession_last_meta';
+    const SPREADSHEET_ID = '1MKbtnxe8bYFXhTSDqybQ752mGdIO8UOU-Z41xBjvJSs';
+    // ยังไม่มี Web App (GAS) ที่ deploy สำหรับชีต Succession → ปล่อยว่างไว้ก่อน
+    // เมื่อ deploy เสร็จ เอา URL มาวางตรงนี้ ระบบจะ POST ให้อัตโนมัติ
+    const GAS_URL = '';
+
+    // ================= Utils =================
+    function esc(s) {
+      return String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, c => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+      ));
+    }
+    function todayLocal() {
+      const d = new Date();
+      return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    }
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => t.classList.remove('show'), 2600);
+    }
+    function checkedVals(rootId) {
+      const vals = [];
+      document.querySelectorAll('#' + rootId + ' input[type=checkbox]:checked').forEach(cb => vals.push(cb.value));
+      return vals;
+    }
+    function radioVal(name) {
+      const el = document.querySelector('input[name="' + name + '"]:checked');
+      return el ? el.value : '';
+    }
+    function idVal(id) { return document.getElementById(id).value.trim(); }
+
+    // ================= localStorage =================
+    function loadEntries() {
+      try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); } catch (e) { return []; }
+    }
+    function saveEntries(entries) {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(entries)); } catch (e) { showToast('⚠️ บันทึกลงเครื่องไม่สำเร็จ (พื้นที่เต็ม?)'); }
+    }
+
+    // ================= collect + submit =================
+    function collectForm() {
+      const b5 = checkedVals('b5_opts');
+      const c3 = checkedVals('c3_opts');
+      const c4 = checkedVals('c4_opts');
+      const c6 = checkedVals('c6_opts');
+      const record = {
+        id: 'SC' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        savedAt: new Date().toISOString(),
+        // A — ข้อมูลผู้บันทึก
+        a1_name: idVal('a1_name'),
+        a2_company: idVal('a2_company'),
+        a3_role: idVal('a3_role'),
+        a4_date: idVal('a4_date'),
+        // B — ประเด็นเชิงกลยุทธ์
+        b1_roles: idVal('b1_roles'),
+        b2_text: idVal('b2_text'),
+        b2_level: radioVal('b2_level'),
+        b3_spof: idVal('b3_spof'),
+        b4_successors: idVal('b4_successors'),
+        b5_obstacles: b5,
+        b5_other: idVal('b5_other'),
+        // C — ผู้บริหาร/พี่เลี้ยง
+        c1_text: idVal('c1_text'),
+        c1_level: radioVal('c1_level'),
+        c2_period: idVal('c2_period'),
+        c3_formats: c3,
+        c4_readiness: c4,
+        c5_gat: idVal('c5_gat'),
+        c6_systems: c6,
+        c6_detail: idVal('c6_detail'),
+        // D — ปิดท้าย
+        d1_suggestions: idVal('d1_suggestions'),
+        d2_willing: idVal('d2_willing'),
+        d3_urgency: radioVal('d3_urgency')
+      };
+      return record;
+    }
+
+    async function pushToSheets(record) {
+      // ถ้ายังไม่ตั้ง GAS_URL → ข้าม (ไม่ error รบกวนผู้ใช้)
+      if (!GAS_URL) return { status: 'skip' };
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 12000);
+        const res = await fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'submitSuccessionEntry',
+            spreadsheetId: SPREADSHEET_ID,
+            data: record
+          }),
+          signal: ctrl.signal
+        });
+        clearTimeout(timer);
+        return await res.json();
+      } catch (e) {
+        return { status: 'error', error: String(e) };
+      }
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      const c4n = document.querySelectorAll('#c4_opts input:checked').length;
+      if (c4n > 3) {
+        document.getElementById('c4_hint').hidden = false;
+        showToast('⚠️ C4 เลือกได้สูงสุด 3 ข้อ (' + c4n + ' ข้อที่เลือก)');
+        document.getElementById('c4_opts').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      document.getElementById('c4_hint').hidden = true;
+
+      // เก็บ metadata ส่วน A เพื่อ prefill ชุดถัดไป
+      try {
+        localStorage.setItem(LS_META_KEY, JSON.stringify({
+          a1_name: idVal('a1_name'), a2_company: idVal('a2_company'), a3_role: idVal('a3_role')
+        }));
+      } catch (err) { /* ignore */ }
+
+      const record = collectForm();
+      const entries = loadEntries();
+      entries.push(record);
+      saveEntries(entries);
+
+      // อัปเดต UI
+      document.getElementById('post-submit-panel').classList.remove('hidden');
+      document.getElementById('post-submit-msg').textContent =
+        'ชุดที่ ' + entries.length + ' — ' + (record.a2_company || '-') + ' • ' + (record.a3_role || '-') + ' • วันที่ ' + record.a4_date;
+      renderAll();
+      window.scrollTo({ top: document.getElementById('post-submit-panel').offsetTop - 90, behavior: 'smooth' });
+      showToast('✅ บันทึกชุดที่ ' + entries.length + ' ลงเครื่องแล้ว');
+
+      // พยายามส่ง Google Sheets (ถ้าตั้งค่า GAS_URL)
+      if (GAS_URL) {
+        const r = await pushToSheets(record);
+        if (r.status === 'error') {
+          showToast('☁️ ส่ง Google Sheets ไม่ได้ (บันทึกในเครื่องแล้ว): ' + r.error.slice(0, 60));
+          setCloudStatus('error');
+        } else if (r.success) {
+          setCloudStatus('ok');
+        } else {
+          setCloudStatus('warn');
+        }
+      } else {
+        setCloudStatus('skip');
+      }
+    }
+
+    // ================= reset for next entry =================
+    function resetForNext() {
+      const meta = JSON.parse(localStorage.getItem(LS_META_KEY) || '{}');
+      document.getElementById('sf-form').reset();
+      // prefill ส่วน A จากชุดก่อน (สะดวกกรอกหลายชุด)
+      document.getElementById('a1_name').value = meta.a1_name || '';
+      document.getElementById('a2_company').value = meta.a2_company || '';
+      document.getElementById('a3_role').value = meta.a3_role || '';
+      document.getElementById('a4_date').value = todayLocal();
+      document.getElementById('b5_other').classList.add('hidden');
+      document.getElementById('post-submit-panel').classList.add('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      refreshRadioStyles();
+    }
+
+    // ================= render saved list =================
+    function renderAll() {
+      const entries = loadEntries();
+      const listEl = document.getElementById('saved-list');
+      document.getElementById('rec-count').textContent = entries.length + ' ชุด';
+      document.getElementById('stat-count').textContent = entries.length;
+      document.getElementById('stat-spof').textContent = entries.filter(r => r.b3_spof).length;
+      const cos = new Set(entries.map(r => r.a2_company).filter(Boolean));
+      document.getElementById('stat-co').textContent = cos.size;
+
+      document.getElementById('empty-state').style.display = entries.length ? 'none' : 'block';
+
+      listEl.innerHTML = entries.slice().reverse().map(r => {
+        const d = new Date(r.savedAt);
+        const savedLocal = d.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' });
+        const chips = [];
+        if (r.b2_level) chips.push('<span class="rec-badge bg-rose-100 text-rose-700 border border-rose-200">ผลกระทบ B2: ' + esc(r.b2_level) + '/4</span>');
+        if (r.b3_spof) chips.push('<span class="rec-badge bg-red-100 text-red-800 border border-red-200">⚠ SPOF</span>');
+        if (r.c1_level) chips.push('<span class="rec-badge bg-violet-100 text-violet-700 border border-violet-200">cover ยาก ' + esc(r.c1_level) + '/5</span>');
+        if (r.d3_urgency) chips.push('<span class="rec-badge bg-amber-100 text-amber-800 border border-amber-200">เร่งด่วน ' + esc(r.d3_urgency) + '/5</span>');
+        if (r.d2_willing) chips.push('<span class="rec-badge bg-emerald-100 text-emerald-700 border border-emerald-200">' + esc(r.d2_willing) + '</span>');
+        const companyColor = { PMS: 'bg-blue-100 text-blue-800', PMG: 'bg-cyan-100 text-cyan-800', PMGI: 'bg-teal-100 text-teal-800', AAM: 'bg-green-100 text-green-800', '21RT': 'bg-orange-100 text-orange-800', TNR: 'bg-red-100 text-red-800', CPDG: 'bg-fuchsia-100 text-fuchsia-800', LDC: 'bg-yellow-100 text-yellow-800', PKG: 'bg-slate-200 text-slate-800' }[r.a2_company] || 'bg-slate-100 text-slate-600';
+        const excerpt = (r.b1_roles || r.b2_text || r.b3_spof || '').slice(0, 110);
+        return (
+          '<details class="rec-card bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">' +
+            '<summary class="flex flex-col sm:flex-row sm:items-center gap-2 px-4 py-3 cursor-pointer hover:bg-slate-50 list-none">' +
+              '<span class="text-xs font-mono text-slate-400 flex-none">#' + esc(r.id.slice(-6)) + '</span>' +
+              '<span class="rec-badge ' + companyColor + ' flex-none">' + esc(r.a2_company || '-') + '</span>' +
+              '<span class="text-sm font-semibold text-slate-800 flex-none">' + esc(r.a3_role || '-') + '</span>' +
+              '<span class="text-xs text-slate-400 flex-none">' + esc(r.a4_date) + '</span>' +
+              '<span class="hidden sm:block flex-1 text-xs text-slate-500 truncate">' + esc(excerpt) + '</span>' +
+              '<span class="text-[11px] text-slate-400 flex-none">' + esc(savedLocal) + '</span>' +
+            '</summary>' +
+            '<div class="border-t border-slate-100 px-4 py-3 bg-slate-50/60">' +
+              '<div class="flex flex-wrap gap-1.5 mb-3">' + chips.join('') + '</div>' +
+              '<div class="space-y-2 text-[13px] leading-relaxed">' +
+                fmtQA('A1 ชื่อ/รหัส', r.a1_name) +
+                fmtQA('B1 บทบาทสำคัญที่ควรมีผู้สืบทอด', r.b1_roles) +
+                fmtQA('B2 งานที่สะดุดเมื่อคนสำคัญไม่อยู่' + (r.b2_level ? ' (ผลกระทบ ' + r.b2_level + '/4)' : ''), r.b2_text) +
+                fmtQA('B3 SPOF ที่ต้องถ่ายทอดด่วน', r.b3_spof) +
+                fmtQA('B4 ผู้สืบทอดที่เป็นไปได้/คุณสมบัติ', r.b4_successors) +
+                fmtQA('B5 อุปสรรคการถ่ายทอด', ((r.b5_obstacles || []).join(' • ') + (r.b5_other ? ' — ' + r.b5_other : ''))) +
+                fmtQA('C1 ประสบการณ์ cover' + (r.c1_level ? ' (ยาก ' + r.c1_level + '/5)' : ''), r.c1_text) +
+                fmtQA('C2 ช่วงเวลา cover ที่ดีที่สุด', r.c2_period) +
+                fmtQA('C3 รูปแบบ cover ที่ดี', (r.c3_formats || []).join(' • ')) +
+                fmtQA('C4 เกณฑ์พร้อมส่งต่อ', (r.c4_readiness || []).join(' • ')) +
+                fmtQA('C5 สิ่งที่ ADM ชุดใหม่ควรเรียนรู้', r.c5_gat) +
+                fmtQA('C6 ข้อเสนอปรับปรุงระบบ', (r.c6_systems || []).join(' • ') + (r.c6_detail ? ' — ' + r.c6_detail : '')) +
+                fmtQA('D1 ข้อเสนอแนะอื่น ๆ', r.d1_suggestions) +
+                fmtQA('D2 ความยินดีร่วม cover', r.d2_willing) +
+                fmtQA('D3 ความเร่งด่วน', r.d3_urgency ? r.d3_urgency + '/5' : '') +
+              '</div>' +
+              '<div class="mt-3 text-right"><button onclick="deleteEntry(\'' + r.id + '\')" class="text-xs text-rose-500 hover:text-rose-700 hover:underline">🗑 ลบชุดนี้</button></div>' +
+            '</div>' +
+          '</details>'
+        );
+      }).join('');
+    }
+
+    function fmtQA(label, val) {
+      if (!val) return '';
+      return '<div class="flex gap-2"><span class="font-semibold text-slate-500 flex-none w-52 max-w-[45%]">' + esc(label) + ':</span><span class="text-slate-700 whitespace-pre-wrap">' + esc(val) + '</span></div>';
+    }
+
+    function deleteEntry(id) {
+      const entries = loadEntries().filter(r => r.id !== id);
+      saveEntries(entries);
+      renderAll();
+      showToast('🗑 ลบรายการแล้ว (เหลือ ' + entries.length + ' ชุด)');
+    }
+
+    function clearAll() {
+      if (!confirm('ลบข้อมูลที่บันทึกทั้งหมดในเครื่องนี้ (' + loadEntries().length + ' ชุด)?\nการลบไม่สามารถกู้คืนได้')) return;
+      saveEntries([]);
+      renderAll();
+      showToast('🗑 ลบข้อมูลทั้งหมดแล้ว');
+    }
+
+    // ================= CSV export =================
+    function exportCSV() {
+      const entries = loadEntries();
+      if (!entries.length) { showToast('⚠️ ยังไม่มีข้อมูลให้ export'); return; }
+      const headers = [
+        'id', 'savedAt', 'วันที่บันทึก(A4)', 'ชื่อ/รหัส(A1)', 'บริษัท(A2)', 'บทบาท(A3)',
+        'B1 บทบาทสำคัญ', 'B2 งานที่สะดุด', 'B2 ระดับผลกระทบ(1-4)', 'B3 SPOF', 'B4 ผู้สืบทอด/คุณสมบัติ',
+        'B5 อุปสรรค', 'B5 อื่น ๆ', 'C1 ประสบการณ์ cover', 'C1 ระดับความยาก(1-5)', 'C2 ช่วงเวลา',
+        'C3 รูปแบบ cover', 'C4 เกณฑ์พร้อมส่งต่อ', 'C5 สิ่งที่ ADM ควรเรียนรู้', 'C6 ข้อเสนอระบบ', 'C6 รายละเอียด',
+        'D1 ข้อเสนอแนะ', 'D2 ความยินดี', 'D3 ความเร่งด่วน(1-5)'
+      ];
+      const csvRow = row => row.map(v => {
+        const s = String(v === undefined || v === null ? '' : v).replace(/\r?\n/g, ' ').replace(/"/g, '""');
+        return '"' + s + '"';
+      }).join(',');
+      const lines = [csvRow(headers)].concat(entries.map(r => csvRow([
+        r.id, r.savedAt, r.a4_date, r.a1_name, r.a2_company, r.a3_role,
+        r.b1_roles, r.b2_text, r.b2_level, r.b3_spof, r.b4_successors,
+        (r.b5_obstacles || []).join(' | '), r.b5_other,
+        r.c1_text, r.c1_level, r.c2_period,
+        (r.c3_formats || []).join(' | '), (r.c4_readiness || []).join(' | '), r.c5_gat,
+        (r.c6_systems || []).join(' | '), r.c6_detail,
+        r.d1_suggestions, r.d2_willing, r.d3_urgency
+      ])));
+      const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'succession-entries-' + todayLocal() + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 300);
+      showToast('⬇️ Export CSV แล้ว (' + entries.length + ' แถว)');
+    }
+
+    // ================= cloud status UI =================
+    function setCloudStatus(state) {
+      const el = document.getElementById('stat-cloud');
+      const map = {
+        ok:    ['☁️ ซิงก์ Google Sheets แล้ว', 'text-emerald-700'],
+        skip:  ['☁️ ยังไม่เชื่อมต่อชีต', 'text-slate-600'],
+        warn:  ['☁️ ส่งแล้วแต่ผลไม่ชัดเจน', 'text-amber-700'],
+        error: ['☁️ ส่งชีตไม่สำเร็จ', 'text-rose-700']
+      };
+      const m = map[state] || map.skip;
+      el.textContent = m[0];
+      el.className = 'text-sm font-extrabold ' + m[1];
+      el.style.lineHeight = '1.3';
+    }
+
+    // ================= misc UI =================
+    function refreshRadioStyles() {
+      document.querySelectorAll('.radio-btn').forEach(lbl => {
+        const input = lbl.querySelector('input');
+        const on = input && input.checked;
+        lbl.classList.toggle('checked', !!on);
+      });
+    }
+    function bindShowOther() {
+      // B5 "อื่น ๆ" → แสดงช่องระบุ
+      document.querySelectorAll('#b5_opts input').forEach(cb => {
+        cb.addEventListener('change', () => {
+          const other = document.querySelector('#b5_opts input[value="อื่น ๆ"]');
+          document.getElementById('b5_other').classList.toggle('hidden', !other.checked);
+        });
+      });
+      // C4 จำกัด 3 ข้อ
+      document.querySelectorAll('#c4_opts input').forEach(cb => {
+        cb.addEventListener('change', () => {
+          const checked = document.querySelectorAll('#c4_opts input:checked');
+          if (checked.length > 3) {
+            cb.checked = false;
+            document.getElementById('c4_hint').hidden = false;
+            showToast('⚠️ C4 เลือกได้สูงสุด 3 ข้อ');
+          } else {
+            document.getElementById('c4_hint').hidden = checked.length >= 3 ? false : true;
+          }
+        });
+      });
+      // radio button style
+      document.querySelectorAll('input[type=radio]').forEach(r => {
+        r.addEventListener('change', refreshRadioStyles);
+      });
+    }
+
+    // ================= init =================
+    document.getElementById('sf-form').addEventListener('submit', handleSubmit);
+    document.getElementById('a4_date').value = todayLocal();
+    // prefill ส่วน A จากชุดก่อน
+    try {
+      const meta = JSON.parse(localStorage.getItem(LS_META_KEY) || '{}');
+      if (meta.a1_name) document.getElementById('a1_name').value = meta.a1_name;
+      if (meta.a2_company) document.getElementById('a2_company').value = meta.a2_company;
+      if (meta.a3_role) document.getElementById('a3_role').value = meta.a3_role;
+    } catch (err) { /* ignore */ }
+    bindShowOther();
+    renderAll();
+    setCloudStatus(GAS_URL ? 'warn' : 'skip');
+  </script>
+</body>
+</html>
