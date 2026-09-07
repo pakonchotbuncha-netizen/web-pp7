@@ -52,7 +52,7 @@
           <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 flex items-center gap-2">
             <span>🗂</span> Succession Planning <span class="text-indigo-600">— ฟอร์มบันทึกประเด็นสำคัญ</span>
           </h1>
-          <p class="text-sm text-slate-500 mt-1">บันทึกประเด็นสำคัญในการวางแผนสืบทอดบทบาท (OAC/ADM/GAT) — บทบาทสำคัญ ผู้สืบทอด อุปสรรคการถ่ายทอด เพื่อป้องกัน Single Point of Failure</p>
+          <p class="text-sm text-slate-500 mt-1">บันทึกประเด็นสำคัญในการวางแผนสืบทอดบทบาท (OAC 3 / GAT 15 / ADM ใหม่ 4 — ทีมฝ่ายบริหารตาม BSC) — บทบาทสำคัญ ผู้สืบทอด อุปสรรคการถ่ายทอด เพื่อป้องกัน Single Point of Failure</p>
         </div>
         <div class="flex flex-wrap gap-2 no-print">
           <button onclick="exportCSV()" class="btn-outline">⬇️ Export CSV</button>
@@ -62,9 +62,10 @@
 
       <!-- โครงสร้าง badge -->
       <div class="flex flex-wrap gap-2 mt-3">
-        <span class="rec-badge bg-rose-100 text-rose-800 border border-rose-200">🏛 OAC = สูงสุด (กำกับ + ให้คำปรึกษา)</span>
-        <span class="rec-badge bg-amber-100 text-amber-800 border border-amber-200">🛡 GAT = กลาง (ฝ่ายบริหารเก่า / พี่เลี้ยง ADM)</span>
-        <span class="rec-badge bg-sky-100 text-sky-800 border border-sky-200">🚀 ADM = เบื้องต้น (ฝ่ายบริหารใหม่)</span>
+        <span class="rec-badge bg-rose-100 text-rose-800 border border-rose-200">🏛 OAC = สูงสุด 3 คน (คุณประวิทย์ • พี่ต๋อง • พี่ก้อย)</span>
+        <span class="rec-badge bg-amber-100 text-amber-800 border border-amber-200">🛡 GAT = ADM เก่าเปลี่ยนชื่อ 15 คน (พี่เลี้ยง ADM ชุดใหม่)</span>
+        <span class="rec-badge bg-sky-100 text-sky-800 border border-sky-200">🚀 ADM = ฝ่ายบริหารชุดใหม่ 4 คน (แซน • โอม • จ้อน • แนน)</span>
+        <span class="rec-badge bg-violet-100 text-violet-800 border border-violet-200">🧭 ทีมฝ่ายบริหารแบ่งตาม BSC 4 ด้าน (ไม่ใช่งาน operation)</span>
         <span class="rec-badge bg-slate-100 text-slate-600 border border-slate-300">🎯 เป้า: No Single Point of Failure</span>
       </div>
 
@@ -117,6 +118,7 @@
                 <option value="">— เลือกบริษัท/หน่วยงาน —</option>
                 <option>PMS</option><option>PMG</option><option>PMGI</option><option>AAM</option>
                 <option>21RT</option><option>TNR</option><option>CPDG</option><option>LDC</option><option>PKG</option>
+                <option>สำนักงานใหญ่/ฝ่ายบริหารกลาง</option>
               </select>
             </div>
             <div>
@@ -125,17 +127,26 @@
                 <option value="">— เลือกบทบาทปัจจุบัน —</option>
                 <option>พนักงานทั่วไป</option>
                 <option>หัวหน้างาน/หัวหน้าทีม</option>
-                <option>ผู้จัดการ</option>
-                <option>ADM (ทีมบริหารชุดใหม่)</option>
-                <option>ผู้ช่วย ADM (รุ่นสืบทอดถัดไป)</option>
-                <option>GAT (ทีมเดิม/พี่เลี้ยง — ตรวจสอบกลาง)</option>
-                <option>OAC (กำกับดูแล/ให้คำปรึกษา)</option>
+                <option>ADM — ฝ่ายบริหารชุดใหม่ (น้องแซน/โอม/จ้อน/แนน)</option>
+                <option>GAT — ADM เก่าเปลี่ยนชื่อ (ทีมเดิม 15 คน/พี่เลี้ยง)</option>
+                <option>OAC — ทีมสูงสุด (คุณประวิทย์/พี่ต๋อง/พี่ก้อย)</option>
                 <option>อื่น ๆ</option>
               </select>
             </div>
             <div>
               <label class="q-label" for="a4_date">A4 วันที่บันทึก <span class="req">*</span></label>
               <input type="date" id="a4_date" required class="mt-1.5" />
+            </div>
+            <div class="md:col-span-2">
+              <span class="q-label">A5 คุณเป็นสมาชิกทีมฝ่ายบริหารด้านใด (BSC)</span>
+              <span class="q-help">ทีมฝ่ายบริหาร OAC/GAT/ADM ถูกเลือกตาม Balanced Scorecard 4 ด้าน — เป็นทีมฝ่ายบริหาร ไม่ใช่งาน operation (ถ้าไม่ได้อยู่ในทีมบริหาร เลือกข้อสุดท้าย)</span>
+              <div class="radio-row mt-2" id="a5_bsc_wrap">
+                <label class="radio-btn"><input type="radio" name="a5_bsc" value="ด้านการเงิน (Financial)"> 💰 ด้านการเงิน</label>
+                <label class="radio-btn"><input type="radio" name="a5_bsc" value="ด้านลูกค้า (Customer)"> 🤝 ด้านลูกค้า</label>
+                <label class="radio-btn"><input type="radio" name="a5_bsc" value="ด้านกระบวนการภายใน (Internal Process)"> ⚙️ ด้านกระบวนการภายใน</label>
+                <label class="radio-btn"><input type="radio" name="a5_bsc" value="ด้านการเรียนรู้และเติบโต (Learning &amp; Growth)"> 🌱 ด้านการเรียนรู้และเติบโต</label>
+                <label class="radio-btn"><input type="radio" name="a5_bsc" value="ไม่ได้อยู่ทีมบริหาร"> — ไม่ได้อยู่ทีมบริหาร</label>
+              </div>
             </div>
           </div>
         </section>
@@ -148,6 +159,9 @@
               <h2 class="font-bold text-slate-900">ประเด็นเชิงกลยุทธ์</h2>
               <p class="text-xs text-slate-500">ทุกคนตอบ — มองรอบตัวแล้วแชร์ประเด็นจริงที่เห็น</p>
             </div>
+            <p class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5 flex-none max-w-[260px]">
+              🧭 ทีมฝ่ายบริหาร 3 กลุ่ม: OAC 3 คน • GAT (ADM เก่าเปลี่ยนชื่อ) 15 คน • ADM ชุดใหม่ 4 คน — ถูกเลือกจากทีมฝ่ายบริหารตาม <b>BSC 4 ด้าน</b> (การเงิน/ลูกค้า/กระบวนการภายใน/การเรียนรู้และเติบโต) ไม่ใช่งาน operation
+            </p>
           </div>
           <div class="p-5 space-y-6">
 
@@ -155,7 +169,7 @@
             <div>
               <label class="q-label" for="b1_roles">B1 บทบาทที่สำคัญที่สุด 3 อันดับที่ควรมีผู้สืบทอด</label>
               <span class="q-help">เรียงตามความสำคัญ — ระบุ "เพราะอะไร" ด้วย (คนนี้มีจุดที่หาคนแทนยาก/กระทบธุรกิจถ้าขาด)</span>
-              <textarea id="b1_roles" rows="3" class="mt-1.5" placeholder="อันดับ 1: … เพราะ …&#10;อันดับ 2: … เพราะ …&#10;อันดับ 3: … เพราะ …"></textarea>
+              <textarea id="b1_roles" rows="3" class="mt-1.5" placeholder="อันดับ 1: บทบาท GAT (ADM เก่าเปลี่ยนชื่อ/พี่เลี้ยง) — … เพราะ …&#10;อันดับ 2: บทบาท ADM (ฝ่ายบริหารชุดใหม่/รับช่วงงาน) — … เพราะ …&#10;อันดับ 3: บทบาท OAC (กำกับ/ให้คำปรึกษา) — … เพราะ …"></textarea>
             </div>
 
             <!-- B2 -->
@@ -186,9 +200,48 @@
 
             <!-- B4 -->
             <div>
-              <label class="q-label" for="b4_successors">B4 ผู้สืบทอดที่เป็นไปได้ / คุณสมบัติที่ควรมี</label>
-              <span class="q-help">ชื่อจริง หรือคุณสมบัติตาม CC1-6 ก็ได้ เช่น CC1 นำผู้รับใช้, CC2 ปรับตัว+นวัตกรรม, CC3 สร้างคุณค่าบนความไว้วางใจ, CC4 ทำงานทีมฉันทมติ, CC5 วินัยวิชาชีพ, CC6 เทคโนโลยี</span>
-              <textarea id="b4_successors" rows="3" class="mt-1.5" placeholder="ชื่อ หรือคุณสมบัติ CC1-6 เช่น CC1 นำผู้รับใช้, CC3 สร้างคุณค่าบนความไว้วางใจ …"></textarea>
+              <span class="q-label">B4 ใครควรเป็นผู้สืบทอด (เลือกจากรายชื่อทีมบริหารจริง — ได้หลายคน)</span>
+              <span class="q-help">ผู้ถูกเลือกเป็นผู้สืบทอดต้องมาจากทีมฝ่ายบริหาร (OAC/GAT/ADM ใหม่) เท่านั้น — ถ้าอยากระบุเป็นคุณสมบัติ (CC1-6 เช่น CC1 นำผู้รับใช้, CC3 สร้างคุณค่าบนความไว้วางใจ) ใส่ช่อง "อื่น ๆ/รายละเอียด" ด้านล่าง</span>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                <div class="bg-rose-50/70 border border-rose-200 rounded-xl p-3">
+                  <div class="text-xs font-extrabold text-rose-800 mb-1.5">🏛 OAC — ทีมสูงสุด (3)</div>
+                  <div class="opt-grid" id="b4_oac">
+                    <label class="opt-item"><input type="checkbox" value="คุณประวิทย์"> คุณประวิทย์</label>
+                    <label class="opt-item"><input type="checkbox" value="พี่ต๋อง"> พี่ต๋อง</label>
+                    <label class="opt-item"><input type="checkbox" value="พี่ก้อย"> พี่ก้อย</label>
+                  </div>
+                </div>
+                <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-3">
+                  <div class="text-xs font-extrabold text-amber-800 mb-1.5">🛡 GAT — ADM เก่าเปลี่ยนชื่อ (15)</div>
+                  <div class="opt-grid" id="b4_gat">
+                    <label class="opt-item"><input type="checkbox" value="คุณประวิทย์"> คุณประวิทย์</label>
+                    <label class="opt-item"><input type="checkbox" value="พี่ต๋อง"> พี่ต๋อง</label>
+                    <label class="opt-item"><input type="checkbox" value="พี่ก้อย"> พี่ก้อย</label>
+                    <label class="opt-item"><input type="checkbox" value="พี่กอล์ฟ"> พี่กอล์ฟ</label>
+                    <label class="opt-item"><input type="checkbox" value="พี่อี๊ด"> พี่อี๊ด</label>
+                    <label class="opt-item"><input type="checkbox" value="พี่เก๋"> พี่เก๋</label>
+                    <label class="opt-item"><input type="checkbox" value="พี่อ้วน"> พี่อ้วน</label>
+                    <label class="opt-item"><input type="checkbox" value="พี่อ๊อด"> พี่อ๊อด</label>
+                    <label class="opt-item"><input type="checkbox" value="พี่หวาน"> พี่หวาน</label>
+                    <label class="opt-item"><input type="checkbox" value="พี่ญา"> พี่ญา</label>
+                    <label class="opt-item"><input type="checkbox" value="พี่ติ๋ม"> พี่ติ๋ม</label>
+                    <label class="opt-item"><input type="checkbox" value="พี่หนึ่ง"> พี่หนึ่ง</label>
+                    <label class="opt-item"><input type="checkbox" value="พี่สิงห์"> พี่สิงห์</label>
+                    <label class="opt-item"><input type="checkbox" value="พี่ปุ๊"> พี่ปุ๊</label>
+                    <label class="opt-item"><input type="checkbox" value="คุณบอล"> คุณบอล</label>
+                  </div>
+                </div>
+                <div class="bg-sky-50/70 border border-sky-200 rounded-xl p-3">
+                  <div class="text-xs font-extrabold text-sky-800 mb-1.5">🚀 ADM — ฝ่ายบริหารชุดใหม่ (4)</div>
+                  <div class="opt-grid" id="b4_adm">
+                    <label class="opt-item"><input type="checkbox" value="น้องแซน"> น้องแซน</label>
+                    <label class="opt-item"><input type="checkbox" value="โอม"> โอม</label>
+                    <label class="opt-item"><input type="checkbox" value="จ้อน"> จ้อน</label>
+                    <label class="opt-item"><input type="checkbox" value="แนน"> แนน</label>
+                  </div>
+                </div>
+              </div>
+              <input type="text" id="b4_other" placeholder="อื่น ๆ / ไม่ระบุชื่อ / ระบุคุณสมบัติที่ควรมี (เช่น CC1 นำผู้รับใช้, CC3 สร้างคุณค่าบนความไว้วางใจ, CC6 เทคโนโลยี)…" class="mt-2" />
             </div>
 
             <!-- B5 -->
@@ -205,6 +258,10 @@
                 <label class="opt-item"><input type="checkbox" value="อื่น ๆ"> อื่น ๆ</label>
               </div>
               <input type="text" id="b5_other" placeholder="ถ้าเลือก 'อื่น ๆ' ระบุอุปสรรคเพิ่มเติม…" class="mt-2 hidden" />
+              <div>
+                <label class="q-label" for="b5_names">B5.1 ผู้สืบทอดรายใดที่ยังรับช่วงไม่ได้/มีจุดที่ต้องพัฒนา (ระบุชื่อจาก 3 กลุ่ม หรือเว้นว่าง)</label>
+                <input type="text" id="b5_names" placeholder="เช่น พี่กอล์ฟ (GAT) ยัง … / น้องแซน (ADM) ต้องพัฒนา … / เว้นว่างได้" class="mt-1.5" />
+              </div>
             </div>
 
             <!-- B6 -->
@@ -224,6 +281,9 @@
               <h2 class="font-bold text-slate-900">การ cover / ส่งต่อ / ความเห็นต่อแผนถ่ายทอด (OAC / GAT ทีมเดิม / ADM ทีมใหม่)</h2>
               <p class="text-xs text-slate-500">ตอบเฉพาะข้อที่เกี่ยวข้องกับบทบาทเรา — ข้อไหนไม่เกี่ยวกับเรา ข้ามได้เลย</p>
             </div>
+            <p class="text-[11px] text-violet-800 bg-violet-50 border border-violet-200 rounded-lg px-3 py-1.5 flex-none max-w-[260px]">
+              🛡 GAT = <b>ADM เก่าเปลี่ยนชื่อ</b> (ทีมเดิม 15 คน: คุณประวิทย์/พี่ต๋อง/พี่ก้อย + 12 ท่าน) — ทำหน้าที่พี่เลี้ยง ADM ชุดใหม่ &nbsp;•&nbsp; 🏛 OAC = ทีมสูงสุด 3 คน (คุณประวิทย์/พี่ต๋อง/พี่ก้อย) กำกับ + ให้คำปรึกษา
+            </p>
           </div>
           <div class="p-5 space-y-6">
 
@@ -293,8 +353,8 @@
 
             <!-- C5 -->
             <div>
-              <label class="q-label" for="c5_gat">C5 GAT (ทีมเดิม/พี่เลี้ยง): สิ่งที่ ADM ชุดใหม่ควรเรียนรู้จากเรามากที่สุด</label>
-              <span class="q-help">ตามแผน GAT = ทีมตรวจสอบกลางที่ยังรับผิดชอบงานบทบาทเดิม + เป็นพี่เลี้ยง ADM ชุดใหม่ — ส่งต่อวิธีคิด/การตรวจสอบ (ดำเนินงาน-ความเสี่ยง-Compliance-ผลลัพธ์)/การใช้ Technology-Audit/ประสบการณ์ที่หาคนแทนยาก</span>
+              <label class="q-label" for="c5_gat">C5 GAT (ADM เก่าเปลี่ยนชื่อ — ทีมเดิม 15 คน/พี่เลี้ยง): สิ่งที่ ADM ชุดใหม่ (แซน/โอม/จ้อน/แนน) ควรเรียนรู้จากเรามากที่สุด</label>
+              <span class="q-help">GAT = ADM เก่าเปลี่ยนชื่อ (ทีมเดิม 15 คน) ยังรับผิดชอบงานบทบาทเดิม + เป็นพี่เลี้ยง ADM ชุดใหม่ — ส่งต่อวิธีคิด/การตรวจสอบ (ดำเนินงาน-ความเสี่ยง-Compliance-ผลลัพธ์)/การใช้ Technology-Audit/ประสบการณ์ที่หาคนแทนยาก — OAC (3 คนสูงสุด) กำกับ + ให้คำปรึกษาอีกชั้น</span>
               <textarea id="c5_gat" rows="3" class="mt-1.5" placeholder="เช่น การอ่านงบ/ความเสี่ยงทางการเงิน …, การตรวจสอบ Compliance …, การใช้ Tech/AI ตรวจงาน …, การตัดสินใจภายใต้ความไม่แน่นอน …"></textarea>
             </div>
 
@@ -461,7 +521,7 @@
 
     <!-- Footer -->
     <footer class="mt-10 pt-6 border-t border-slate-200 text-center text-xs text-slate-400 space-y-1">
-      <p>Web PP7 • Succession Planning (OAC/GAT/ADM) — ฟอร์มทบทวนตาม master plan 2026–2030 (Co-Ownership / เงื่อนไขถ่ายทอด 5 ข้อ / Veto-Safety Gate) • 7 กันยายน 2569 • ระบบทดลองงาน 5 ปี / บทบาท พิสูจน์ด้วยผลงานจริง ไม่ใช่ตำแหน่ง</p>
+      <p>Web PP7 • Succession Planning (OAC 3 / GAT 15 / ADM ใหม่ 4 — ทีมฝ่ายบริหารตาม BSC) — ฟอร์มทบทวนตาม master plan 2026–2030 (Co-Ownership / เงื่อนไขถ่ายทอด 5 ข้อ / Veto-Safety Gate) • 7 กันยายน 2569 • ระบบทดลองงาน 5 ปี / บทบาท พิสูจน์ด้วยผลงานจริง ไม่ใช่ตำแหน่ง</p>
       <p>ดูร่างแผนฉบับเต็ม: <a class="text-indigo-500 hover:underline" href="https://docs.google.com/spreadsheets/d/1MKbtnxe8bYFXhTSDqybQ752mGdIO8UOU-Z41xBjvJSs/edit" target="_blank">Google Sheets — แผนสืบทอดบทบาท (ร่าง)</a></p>
     </footer>
   </main>
@@ -527,14 +587,19 @@
         a2_company: idVal('a2_company'),
         a3_role: idVal('a3_role'),
         a4_date: idVal('a4_date'),
+        a5_bsc: radioVal('a5_bsc'),
         // B — ประเด็นเชิงกลยุทธ์
         b1_roles: idVal('b1_roles'),
         b2_text: idVal('b2_text'),
         b2_level: radioVal('b2_level'),
         b3_spof: idVal('b3_spof'),
-        b4_successors: idVal('b4_successors'),
+        b4_oac: checkedVals('b4_oac'),
+        b4_gat: checkedVals('b4_gat'),
+        b4_adm: checkedVals('b4_adm'),
+        b4_other: idVal('b4_other'),
         b5_obstacles: b5,
         b5_other: idVal('b5_other'),
+        b5_names: idVal('b5_names'),
         b6_cover_order: idVal('b6_cover_order'),
         // C — การ cover / ส่งต่อ / ความเห็นต่อแผน
         c1_text: idVal('c1_text'),
@@ -598,7 +663,8 @@
       // เก็บ metadata ส่วน A เพื่อ prefill ชุดถัดไป
       try {
         localStorage.setItem(LS_META_KEY, JSON.stringify({
-          a1_name: idVal('a1_name'), a2_company: idVal('a2_company'), a3_role: idVal('a3_role')
+          a1_name: idVal('a1_name'), a2_company: idVal('a2_company'), a3_role: idVal('a3_role'),
+          a5_bsc: radioVal('a5_bsc')
         }));
       } catch (err) { /* ignore */ }
 
@@ -610,7 +676,7 @@
       // อัปเดต UI
       document.getElementById('post-submit-panel').classList.remove('hidden');
       document.getElementById('post-submit-msg').textContent =
-        'ชุดที่ ' + entries.length + ' — ' + (record.a2_company || '-') + ' • ' + (record.a3_role || '-') + ' • วันที่ ' + record.a4_date;
+        'ชุดที่ ' + entries.length + ' — ' + (record.a2_company || '-') + ' • ' + (record.a3_role || '-') + (record.a5_bsc ? ' • ' + record.a5_bsc : '') + ' • วันที่ ' + record.a4_date;
       renderAll();
       window.scrollTo({ top: document.getElementById('post-submit-panel').offsetTop - 90, behavior: 'smooth' });
       showToast('✅ บันทึกชุดที่ ' + entries.length + ' ลงเครื่องแล้ว');
@@ -640,6 +706,10 @@
       document.getElementById('a2_company').value = meta.a2_company || '';
       document.getElementById('a3_role').value = meta.a3_role || '';
       document.getElementById('a4_date').value = todayLocal();
+      if (meta.a5_bsc) {
+        const el = document.querySelector('input[name="a5_bsc"][value="' + meta.a5_bsc.replace(/"/g, '\\"') + '"]');
+        if (el) el.checked = true;
+      }
       document.getElementById('b5_other').classList.add('hidden');
       document.getElementById('c8_other').classList.add('hidden');
       document.getElementById('post-submit-panel').classList.add('hidden');
@@ -662,6 +732,9 @@
       listEl.innerHTML = entries.slice().reverse().map(r => {
         const d = new Date(r.savedAt);
         const savedLocal = d.toLocaleString('th-TH', { dateStyle: 'short', timeStyle: 'short' });
+        const succNames = []
+          .concat(r.b4_oac || [], r.b4_gat || [], r.b4_adm || [])
+          .filter(Boolean);
         const chips = [];
         if (r.b2_level) chips.push('<span class="rec-badge bg-rose-100 text-rose-700 border border-rose-200">ผลกระทบ B2: ' + esc(r.b2_level) + '/4</span>');
         if (r.b3_spof) chips.push('<span class="rec-badge bg-red-100 text-red-800 border border-red-200">⚠ SPOF</span>');
@@ -669,13 +742,14 @@
         if (r.d3_urgency) chips.push('<span class="rec-badge bg-amber-100 text-amber-800 border border-amber-200">เร่งด่วน ' + esc(r.d3_urgency) + '/5</span>');
         if (r.d2_willing) chips.push('<span class="rec-badge bg-emerald-100 text-emerald-700 border border-emerald-200">' + esc(r.d2_willing) + '</span>');
         const companyColor = { PMS: 'bg-blue-100 text-blue-800', PMG: 'bg-cyan-100 text-cyan-800', PMGI: 'bg-teal-100 text-teal-800', AAM: 'bg-green-100 text-green-800', '21RT': 'bg-orange-100 text-orange-800', TNR: 'bg-red-100 text-red-800', CPDG: 'bg-fuchsia-100 text-fuchsia-800', LDC: 'bg-yellow-100 text-yellow-800', PKG: 'bg-slate-200 text-slate-800' }[r.a2_company] || 'bg-slate-100 text-slate-600';
-        const excerpt = (r.b1_roles || r.b2_text || r.b3_spof || '').slice(0, 110);
+        const excerpt = ((succNames.length ? 'ผู้สืบทอด: ' + succNames.join(', ') + ' — ' : '') + (r.b1_roles || r.b2_text || r.b3_spof || '')).slice(0, 110);
         return (
           '<details class="rec-card bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">' +
             '<summary class="flex flex-col sm:flex-row sm:items-center gap-2 px-4 py-3 cursor-pointer hover:bg-slate-50 list-none">' +
               '<span class="text-xs font-mono text-slate-400 flex-none">#' + esc(r.id.slice(-6)) + '</span>' +
               '<span class="rec-badge ' + companyColor + ' flex-none">' + esc(r.a2_company || '-') + '</span>' +
               '<span class="text-sm font-semibold text-slate-800 flex-none">' + esc(r.a3_role || '-') + '</span>' +
+              (r.a5_bsc ? '<span class="rec-badge bg-violet-100 text-violet-800 border border-violet-200 flex-none">' + esc(r.a5_bsc) + '</span>' : '') +
               '<span class="text-xs text-slate-400 flex-none">' + esc(r.a4_date) + '</span>' +
               '<span class="hidden sm:block flex-1 text-xs text-slate-500 truncate">' + esc(excerpt) + '</span>' +
               '<span class="text-[11px] text-slate-400 flex-none">' + esc(savedLocal) + '</span>' +
@@ -684,11 +758,16 @@
               '<div class="flex flex-wrap gap-1.5 mb-3">' + chips.join('') + '</div>' +
               '<div class="space-y-2 text-[13px] leading-relaxed">' +
                 fmtQA('A1 ชื่อ/รหัส', r.a1_name) +
+                fmtQA('A5 ทีมบริหารด้าน (BSC)', r.a5_bsc) +
                 fmtQA('B1 บทบาทสำคัญที่ควรมีผู้สืบทอด', r.b1_roles) +
                 fmtQA('B2 งานที่สะดุดเมื่อคนสำคัญไม่อยู่' + (r.b2_level ? ' (ผลกระทบ ' + r.b2_level + '/4)' : ''), r.b2_text) +
                 fmtQA('B3 SPOF ที่ต้องถ่ายทอดด่วน', r.b3_spof) +
-                fmtQA('B4 ผู้สืบทอดที่เป็นไปได้/คุณสมบัติ', r.b4_successors) +
+                fmtQA('B4 ผู้สืบทอด — OAC', (r.b4_oac || []).join(' • ')) +
+                fmtQA('B4 ผู้สืบทอด — GAT', (r.b4_gat || []).join(' • ')) +
+                fmtQA('B4 ผู้สืบทอด — ADM ใหม่', (r.b4_adm || []).join(' • ')) +
+                fmtQA('B4 อื่น ๆ/รายละเอียด', (r.b4_other || r.b4_successors || '')) +
                 fmtQA('B5 อุปสรรคการถ่ายทอด', ((r.b5_obstacles || []).join(' • ') + (r.b5_other ? ' — ' + r.b5_other : ''))) +
+                fmtQA('B5.1 ผู้สืบทอดที่ยังรับช่วงไม่ได้', r.b5_names) +
                 fmtQA('B6 ลำดับ cover ที่ควรเริ่ม', r.b6_cover_order) +
                 fmtQA('C1 ประสบการณ์ cover' + (r.c1_level ? ' (ยาก ' + r.c1_level + '/5)' : ''), r.c1_text) +
                 fmtQA('C2 ช่วงเวลา cover ที่ดีที่สุด', r.c2_period) +
@@ -736,11 +815,12 @@
       const entries = loadEntries();
       if (!entries.length) { showToast('⚠️ ยังไม่มีข้อมูลให้ export'); return; }
       const headers = [
-        'id', 'savedAt', 'วันที่บันทึก(A4)', 'ชื่อ/รหัส(A1)', 'บริษัท(A2)', 'บทบาท(A3)',
-        'B1 บทบาทสำคัญ', 'B2 งานที่สะดุด', 'B2 ระดับผลกระทบ(1-4)', 'B3 SPOF', 'B4 ผู้สืบทอด/คุณสมบัติ',
-        'B5 อุปสรรค', 'B5 อื่น ๆ', 'B6 ลำดับ cover ที่ควรเริ่ม',
+        'id', 'savedAt', 'วันที่บันทึก(A4)', 'ชื่อ/รหัส(A1)', 'บริษัท(A2)', 'บทบาท(A3)', 'ทีมบริหารด้าน BSC(A5)',
+        'B1 บทบาทสำคัญ', 'B2 งานที่สะดุด', 'B2 ระดับผลกระทบ(1-4)', 'B3 SPOF',
+        'B4 ผู้สืบทอด-OAC', 'B4 ผู้สืบทอด-GAT', 'B4 ผู้สืบทอด-ADMใหม่', 'B4 อื่น ๆ/คุณสมบัติ',
+        'B5 อุปสรรค', 'B5 อื่น ๆ', 'B5.1 ผู้สืบทอดที่ยังรับช่วงไม่ได้', 'B6 ลำดับ cover ที่ควรเริ่ม',
         'C1 ประสบการณ์ cover', 'C1 ระดับความยาก(1-5)', 'C2 ช่วงเวลา',
-        'C3 รูปแบบ cover', 'C4 เกณฑ์พร้อมส่งต่อ', 'C5 สิ่งที่ ADM ควรเรียนรู้ (GAT)',
+        'C3 รูปแบบ cover', 'C4 เกณฑ์พร้อมส่งต่อ', 'C5 สิ่งที่ ADM ชุดใหม่ควรเรียนรู้ (GAT)',
         'C6 ข้อเสนอระบบ', 'C6 รายละเอียด', 'C7 เงื่อนไขถ่ายทอดที่เป็นช่องว่าง', 'C7 รายละเอียด',
         'C8 ทักษะทีมใหม่ที่ต้องพัฒนา', 'C8 อื่น ๆ', 'C9 งาน Co-Ownership', 'C10 ความเห็น Veto', 'C10 รายละเอียด',
         'D1 ข้อเสนอแนะ', 'D2 ความยินดี', 'D3 ความเร่งด่วน(1-5)', 'D4 วัฒนธรรม PKG ที่ต้องรักษา'
@@ -750,9 +830,10 @@
         return '"' + s + '"';
       }).join(',');
       const lines = [csvRow(headers)].concat(entries.map(r => csvRow([
-        r.id, r.savedAt, r.a4_date, r.a1_name, r.a2_company, r.a3_role,
-        r.b1_roles, r.b2_text, r.b2_level, r.b3_spof, r.b4_successors,
-        (r.b5_obstacles || []).join(' | '), r.b5_other,
+        r.id, r.savedAt, r.a4_date, r.a1_name, r.a2_company, r.a3_role, r.a5_bsc || '',
+        r.b1_roles, r.b2_text, r.b2_level, r.b3_spof,
+        (r.b4_oac || []).join(' | '), (r.b4_gat || []).join(' | '), (r.b4_adm || []).join(' | '), (r.b4_other || r.b4_successors || ''),
+        (r.b5_obstacles || []).join(' | '), r.b5_other, r.b5_names || '',
         r.b6_cover_order,
         r.c1_text, r.c1_level, r.c2_period,
         (r.c3_formats || []).join(' | '), (r.c4_readiness || []).join(' | '), r.c5_gat,
@@ -837,6 +918,10 @@
       if (meta.a1_name) document.getElementById('a1_name').value = meta.a1_name;
       if (meta.a2_company) document.getElementById('a2_company').value = meta.a2_company;
       if (meta.a3_role) document.getElementById('a3_role').value = meta.a3_role;
+      if (meta.a5_bsc) {
+        const el = document.querySelector('input[name="a5_bsc"][value="' + meta.a5_bsc.replace(/"/g, '\\"') + '"]');
+        if (el) el.checked = true;
+      }
     } catch (err) { /* ignore */ }
     bindShowOther();
     renderAll();

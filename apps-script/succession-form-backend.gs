@@ -35,7 +35,11 @@ const HEADERS = [
   'c8_skills', 'c8_other',
   'c9_co',
   'c10_veto', 'c10_detail',
-  'd4_culture'
+  'd4_culture',
+  // เพิ่มเติม 2026-09-07 (ทีมบริหารจริง): OAC 3 / GAT 15 (ADM เก่าเปลี่ยนชื่อ) / ADM ใหม่ 4 — คัดตาม BSC
+  'a5_bsc',
+  'b4_oac', 'b4_gat', 'b4_adm', 'b4_other',
+  'b5_names'
 ];
 
 // ===== SETUP (รันครั้งแรก) =====
