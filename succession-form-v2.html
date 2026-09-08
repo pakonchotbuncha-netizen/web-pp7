@@ -218,17 +218,21 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 <input type="text" id="q11_other" placeholder="อื่น ๆ / คุณสมบัติที่ควรมี (เช่น CC1 นำผู้รับใช้, CC3 สร้างคุณค่าบนความไว้วางใจ) …" class="mt-2" />
 </div>
 <div>
-<label class="q-label">12. อุปสรรคการถ่ายทอดงานตอนนี้</label>
+<label class="q-label">12. ช่องทางการถ่ายทอดงานที่จะใช้ (เลือกได้หลายข้อ)</label>
+<span class="q-help">เลือกช่องทางที่จะใช้ถ่ายทอดงาน/ความรู้ของบทบาทนี้</span>
 <div class="opt-grid mt-1.5" id="q12_group">
-<label class="opt-item"><input type="checkbox" value="ไม่มีเวลาสอน"> ไม่มีเวลาสอน</label>
-<label class="opt-item"><input type="checkbox" value="ไม่รู้จะเริ่มตรงไหน"> ไม่รู้จะเริ่มตรงไหน</label>
-<label class="opt-item"><input type="checkbox" value="ไม่มีคู่มือ"> ไม่มีคู่มือ</label>
-<label class="opt-item"><input type="checkbox" value="คนรับยังไม่พร้อม"> คนรับยังไม่พร้อม</label>
-<label class="opt-item"><input type="checkbox" value="กลัวเสียบทบาท"> กลัวเสียบทบาท</label>
-<label class="opt-item"><input type="checkbox" value="ไม่มีใครอยากเรียน"> ไม่มีใครอยากเรียน</label>
+<label class="opt-item"><input type="checkbox" value="Shadow — นั่งดู/ตามติดงานจริง"> Shadow — นั่งดู/ตามติดงานจริง</label>
+<label class="opt-item"><input type="checkbox" value="Dual-hatting — ถือบทบาทคู่ช่วงเปลี่ยนผ่าน"> Dual-hatting — ถือบทบาทคู่ช่วงเปลี่ยนผ่าน</label>
+<label class="opt-item"><input type="checkbox" value="Stretch Assignment — มอบงานใหญ่จริงให้ฝึก"> Stretch Assignment — มอบงานใหญ่จริงให้ฝึก</label>
+<label class="opt-item"><input type="checkbox" value="คู่มือ/มาตรฐานงาน (SOP)"> คู่มือ/มาตรฐานงาน (SOP)</label>
+<label class="opt-item"><input type="checkbox" value="ประชุมร่วมตัดสินใจ"> ประชุมร่วมตัดสินใจ</label>
+<label class="opt-item"><input type="checkbox" value="บันทึกความรู้เข้าระบบกลาง (Knowledge Base)"> บันทึกความรู้เข้าระบบกลาง (Knowledge Base)</label>
+<label class="opt-item"><input type="checkbox" value="พี่เลี้ยงคู่งาน (Mentor/Coach)"> พี่เลี้ยงคู่งาน (Mentor/Coach)</label>
+<label class="opt-item"><input type="checkbox" value="อบรม/เวิร์กช็อปภายใน"> อบรม/เวิร์กช็อปภายใน</label>
+<label class="opt-item"><input type="checkbox" value="วิดีโอสาธิต/บันทึกขั้นตอน"> วิดีโอสาธิต/บันทึกขั้นตอน</label>
 <label class="opt-item"><input type="checkbox" value="อื่น ๆ"> อื่น ๆ</label>
 </div>
-<input type="text" id="q12_other" placeholder="อื่น ๆ ระบุ …" class="mt-2" />
+<input type="text" id="q12_other" placeholder="อื่น ๆ ระบุช่องทาง …" class="mt-2" />
 </div>
 </div>
 </section>
@@ -461,7 +465,7 @@ function collect(){
   q11_gat: cbVals('q11_gat'),
   q11_adm: cbVals('q11_adm'),
   q11_other:document.getElementById('q11_other').value.trim(),
-  q12: cbVals('q12_group'),
+  q12_channels: cbVals('q12_group'),
   q12_other:document.getElementById('q12_other').value.trim(),
   q13_cover_exp:document.getElementById('q13_cover_exp').value.trim(),
   q13_diff:valRadio('q13_diff'),
@@ -515,7 +519,7 @@ function clearStorage(){if(!confirm('ลบทั้งหมด?'))return;local
 function clearAll(){document.getElementById('sf-form').reset();document.getElementById('q6_date').valueAsDate=new Date();populateNames();toast('ล้างฟอร์มแล้ว')}
 function exportCSV(){
  const all=getAll();if(!all.length){toast('ไม่มีข้อมูล');return}
- const headers=['q1_name','q2_group','q3_nameingroup','q4_company','q5_bsc','q6_date','q7_roles','q8_order','q9_impact_text','q9_level','q10_spof','q11_oac','q11_gat','q11_adm','q11_other','q12','q12_other','q13_cover_exp','q13_diff','q14','q14_other','q15_duration','q16_coown','q17','q17_other','q18','q18_detail','q19','q19_other','q20_gat','q21_veto','q21_detail','q22','q22_detail','q23_culture','q24_willing','q25_urgency','q26_other','_ts'];
+ const headers=['q1_name','q2_group','q3_nameingroup','q4_company','q5_bsc','q6_date','q7_roles','q8_order','q9_impact_text','q9_level','q10_spof','q11_oac','q11_gat','q11_adm','q11_other','q12_channels','q12_other','q13_cover_exp','q13_diff','q14','q14_other','q15_duration','q16_coown','q17','q17_other','q18','q18_detail','q19','q19_other','q20_gat','q21_veto','q21_detail','q22','q22_detail','q23_culture','q24_willing','q25_urgency','q26_other','_ts'];
  const esc=v=>`"${String(v??'').replace(/"/g,'""')}"`;
  let csv='\uFEFF'+headers.join(',')+'\n'+all.map(r=>headers.map(h=>esc(r[h])).join(',')).join('\n');
  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pkg_succession_v2.csv';a.click();toast('Export แล้ว (UTF-8 BOM — ไทยไม่เพี้ยน)')
