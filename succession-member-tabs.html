@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>👤 สมาชิกรายคน — บทบาท กลยุทธ์ OKR/KPI | PKG Succession 2026–2030</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap');
+body{font-family:'Sarabun',sans-serif}
+.glass{background:rgba(255,255,255,.95);backdrop-filter:blur(8px)}
+.card{border:1px solid #e5e7eb;transition:box-shadow .15s}
+.card:hover{box-shadow:0 8px 24px rgba(0,0,0,.06)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:700;border:1px solid}
+.mchip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid #e2e8f0;border-radius:9999px;padding:6px 14px;font-size:13px;font-weight:600;background:#fff;cursor:pointer;transition:all .12s}
+.mchip:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.mchip.active{border-width:2px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mchip .dot{width:8px;height:8px;border-radius:99px;display:inline-block}
+.ftab{display:inline-flex;align-items:center;gap:6px;border:1px solid #e2e8f0;border-bottom:none;border-radius:10px 10px 0 0;padding:8px 16px;font-size:13px;font-weight:700;background:#f8fafc;color:#64748b;cursor:pointer;transition:all .12s}
+.ftab.active{background:#fff;color:#1e293b;border-color:#cbd5e1;position:relative;top:1px}
+input[type="text"],input[type="number"],input[type="date"],textarea,select{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:8px 11px;font-size:13px;background:#fff;transition:border .15s,box-shadow .15s}
+input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset:1px;border-color:#6366f1}
+.lbl{display:block;font-size:12px;font-weight:700;color:#475569;margin-bottom:3px}
+.btn-p{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:9px 18px;border-radius:11px;font-weight:700;font-size:13px;transition:all .15s;box-shadow:0 4px 14px rgba(79,70,229,.25)}
+.btn-p:hover{filter:brightness(1.07)}
+.btn-o{border:1px solid #cbd5e1;background:#fff;color:#475569;padding:7px 13px;border-radius:10px;font-weight:600;font-size:12px;transition:all .15s;cursor:pointer}
+.btn-o:hover{background:#f1f5f9;border-color:#94a3b8}
+.btn-add{border:1.5px dashed #a5b4fc;background:#f5f6ff;color:#4f46e5;padding:7px 13px;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;transition:all .15s}
+.btn-add:hover{background:#eef2ff}
+.btn-del{color:#dc2626;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:3px 9px;font-size:11px;font-weight:700;cursor:pointer}
+.btn-del:hover{background:#fee2e2}
+.item-box{border:1px solid #e2e8f0;border-radius:14px;background:#fff}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:#1e293b;color:#fff;padding:11px 22px;border-radius:12px;font-size:14px;opacity:0;transition:all .3s;pointer-events:none;z-index:90;max-width:92vw;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.align-tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:9999px;font-size:10.5px;font-weight:700;margin:1.5px;cursor:pointer;border:1px solid}
+.align-tag.on{background:#dcfce7;color:#15803d;border-color:#86efac}
+.align-tag.off{background:#f1f5f9;color:#94a3b8;border-color:#e2e8f0}
+.okr-ref{font-size:11px;line-height:1.5}
+.prog{height:8px;border-radius:99px;background:#e2e8f0;overflow:hidden}
+.prog>div{height:100%;border-radius:99px;transition:width .3s}
+@media print{.no-print{display:none!important}}
+</style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+<div id="toast" class="toast"></div>
+
+<header class="glass border-b border-slate-200 shadow-sm sticky top-0 z-40 no-print">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+<div>
+<h1 class="text-xl sm:text-2xl font-extrabold text-slate-900">👤 สมาชิกรายคน <span class="text-indigo-600">— บทบาท · กลยุทธ์ · ความเชื่อมโยง · OKR/KPI</span></h1>
+<p class="text-xs text-slate-500 mt-1">แต่ละคนกรอก/แก้ไขข้อมูลของตนเอง — งานที่รับผิดชอบ · กลยุทธ์ (BSC) · บทบาทเชื่อมโยงข้ามระดับ · OKR/KPI เทียบเป้าหมายองค์กร • PKG Succession Plan 2026–2030</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<button onclick="exportCSV()" class="btn-o">⬇️ CSV</button>
+<button onclick="exportJSON()" class="btn-o">⬇️ JSON</button>
+<button onclick="document.getElementById('importFile').click()" class="btn-o">⬆️ Import</button>
+<input type="file" id="importFile" accept=".json" class="hidden" onchange="importJSON(event)">
+<a href="succession-roles-map.html" class="btn-o inline-flex items-center">🔗 แผนผัง 3 บทบาท</a>
+<a href="index.html" class="btn-o inline-flex items-center">🏠 หน้าแรก</a>
+</div>
+</div>
+<div class="flex flex-wrap gap-1.5 mt-3" id="groupFilter"></div>
+<div class="flex flex-wrap gap-1.5 mt-2" id="memberChips"></div>
+</div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-5 pb-24" id="main"></main>
+
+<script>
+/* ================= โครงสร้างองค์กร ================= */
+const ORG = {
+  OAC:{icon:'🏛',label:'OAC',level:1,levelTxt:'ลำดับชั้น 1 (สูงสุด)',color:'rose',hex:'#e11d48',
+    scope:'ดูทุกกลยุทธ์ (ทุกด้าน BSC)',role:'กำกับดูแล (Oversight) · ให้คำปรึกษา (Advise) · ทบทวนผล (Review) · ยับยั้ง (Veto — Safety Gate 3 ครั้ง)',
+    members:['คุณประวิทย์','พี่ต๋อง','พี่ก้อย']},
+  GAT:{icon:'🛡',label:'GAT',level:2,levelTxt:'ลำดับชั้น 2 (กลาง)',color:'amber',hex:'#f59e0b',
+    scope:'เฉพาะด้าน BSC ที่รับผิดชอบ',role:'พี่เลี้ยง ADM · ตรวจสอบการดำเนินงาน/ความเสี่ยง/Compliance · Tech Audit · Monthly Audit/Oversight Report ส่ง OAC',
+    members:['พี่กอล์ฟ','พี่อี๊ด','พี่เก๋','พี่อ้วน','พี่อ๊อด','พี่หวาน','พี่ญา','พี่ติ๋ม','พี่หนึ่ง','พี่สิงห์','พี่ปุ๊','คุณบอล']},
+  ADM:{icon:'🚀',label:'ADM',level:3,levelTxt:'ลำดับชั้น 3 (เบื้องต้น)',color:'sky',hex:'#0284c7',
+    scope:'เฉพาะด้าน BSC ที่รับผิดชอบ',role:'ทีมบริหารชุดใหม่ · รับพี่เลี้ยงจาก GAT · รับการกำกับจาก OAC · ฝึกบริหารแนวทางกลยุทธ์ (ไม่ใช่ operation)',
+    members:['น้องแซน','โอม','จ้อน','แนน']}
+};
+const GROUP_OF={}; Object.entries(ORG).forEach(([g,c])=>c.members.forEach(m=>GROUP_OF[m]=g));
+const ALL_MEMBERS=[...ORG.OAC.members,...ORG.GAT.members,...ORG.ADM.members];
+const BSC=[['Financial','💰 การเงิน'],['Customer','🤝 ลูกค้า'],['Internal','⚙️ กระบวนการภายใน'],['Learning','🌱 การเรียนรู้และเติบโต']];
+
+/* เป้าหมายองค์กร — OKR หลัก (ใช้เทียบความสอดคล้อง) */
+const ORG_OKR=[
+ {id:'O1',obj:'สร้างระบบและวัฒนธรรมองค์กรที่ทำให้สมาชิกเติบโต มั่นคง และผูกพันระยะยาว',krs:[
+  {id:'O1-KR1',t:'ทุกบทบาทสำคัญมี "ผู้สืบทอดพร้อมปฏิบัติ" ≥1 คน (6 เดือน ≥50% critical roles)'},
+  {id:'O1-KR2',t:'สมาชิก ≥85% มี CC Profile ครบ 5 ประการ ระดับ ≥3.5'},
+  {id:'O1-KR3',t:'Culture Index ≥4.0 จาก 5.0 ภายใน 1 ปี'}]},
+ {id:'O2',obj:'พัฒนาศักยภาพสมาชิกให้พร้อมต่อการทำงานยุค AI และ Digital Workforce',krs:[
+  {id:'O2-KR1',t:'สมาชิก ≥85% ผ่านหลักสูตร AI/3A และนำไปใช้ในงานจริง'},
+  {id:'O2-KR2',t:'ลด Manhour งานซ้ำซ้อน ≥20% โดยใช้ AI/3A'},
+  {id:'O2-KR3',t:'สมาชิกใหม่ทุกบทบาทผ่านระบบ Audition + P2 ภายใน 90 วัน'}]},
+ {id:'O3',obj:'สร้างระบบการเรียนรู้และข้อมูลอัจฉริยะ เพื่อพัฒนาสมาชิกและองค์กรอย่างต่อเนื่อง',krs:[
+  {id:'O3-KR1',t:'CC Profile สมาชิกครบ 100% อัปเดตอัตโนมัติหลัง P4 ทุกครั้งภายใน 7 วัน'},
+  {id:'O3-KR2',t:'P1→P7 ไหลข้อมูลอัตโนมัติ ไม่ต้องกรอกซ้ำ ≥80%'},
+  {id:'O3-KR3',t:'100% การตัดสินใจโยกย้าย/เลื่อน/พัฒนา ใช้ข้อมูลจาก PP7 เป็นฐาน'}]}
+];
+const ALL_ORG_KRS=ORG_OKR.flatMap(o=>o.krs.map(k=>({...k,obj:o.obj,oid:o.id})));
+const OTHER_ALIGN=['เงื่อนไขถ่ายทอด: Operation Strategy Execution','เงื่อนไขถ่ายทอด: ลดหนี้ตามเป้าหมาย','เงื่อนไขถ่ายทอด: งานเงื่อนไข (เช่น AMS5)','เงื่อนไขถ่ายทอด: รับผิดชอบจริง','เงื่อนไขถ่ายทอด: Co-Ownership','พัฒนาทีมใหม่: Operation + อำนาจตัดสินใจ','พัฒนาทีมใหม่: Tech/Digital/AI/Automation','พัฒนาทีมใหม่: รักษา Culture/Value PKG','พัฒนาทีมใหม่: สร้างธุรกิจใหม่'];
+
+const LS='pkg_succession_members_v1';
+let DB={}; try{DB=JSON.parse(localStorage.getItem(LS)||'{}')}catch{DB={}}
+let curMember=null, curTab='resp', curGroup='ALL';
+
+function blank(){return {meta:{company:'',note:''},resp:[],strat:[],links:[],okrs:[],alignNote:''}}
+function rec(m){if(!DB[m])DB[m]=blank();return DB[m]}
+function save(){localStorage.setItem(LS,JSON.stringify(DB))}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+function saveDeb(){clearTimeout(window._sv);window._sv=setTimeout(()=>{save();toast('💾 บันทึกอัตโนมัติแล้ว')},700)}
+
+/* ================= Header: filter + chips ================= */
+function renderHead(){
+ const gf=document.getElementById('groupFilter');
+ gf.innerHTML=`<button class="mchip ${curGroup==='ALL'?'active':''}" style="${curGroup==='ALL'?'border-color:#6366f1;color:#4f46e5':''}" onclick="setGroup('ALL')">ทั้งหมด (${ALL_MEMBERS.length})</button>`
+  +Object.entries(ORG).map(([g,c])=>`<button class="mchip ${curGroup===g?'active':''}" style="${curGroup===g?`border-color:${c.hex};color:${c.hex}`:''}" onclick="setGroup('${g}')">${c.icon} ${g} — ${c.levelTxt} (${c.members.length})</button>`).join('');
+ const mc=document.getElementById('memberChips');
+ const list=curGroup==='ALL'?ALL_MEMBERS:ORG[curGroup].members;
+ mc.innerHTML=list.map(m=>{const g=GROUP_OF[m],c=ORG[g];const r=rec(m);const filled=r.resp.length+r.strat.length+r.links.length+r.okrs.length;
+  return `<button class="mchip ${curMember===m?'active':''}" style="${curMember===m?`border-color:${c.hex}`:''}" onclick="setMember('${m}')"><span class="dot" style="background:${c.hex}"></span>${m}${filled?` <span style="font-size:10px;color:#16a34a">●</span>`:''}</button>`}).join('');
+}
+function setGroup(g){curGroup=g;renderHead()}
+function setMember(m){curMember=m;curTab='resp';renderHead();renderMain();window.scrollTo({top:0,behavior:'smooth'})}
+
+/* ================= Main ================= */
+function renderMain(){
+ const el=document.getElementById('main');
+ if(!curMember){el.innerHTML=`<div class="card bg-white rounded-2xl p-10 text-center text-slate-400">
+   <div class="text-4xl mb-3">👆</div><div class="font-bold text-slate-600">เลือกสมาชิกจากด้านบน</div>
+   <div class="text-xs mt-2">แต่ละคนมี tab ของตนเอง — กรอก/แก้ไข: งานรับผิดชอบ · กลยุทธ์ (BSC) · ความเชื่อมโยงข้ามระดับ · OKR/KPI เทียบเป้าหมาย</div>
+   <div class="text-xs mt-3 text-slate-400">💾 บันทึกอัตโนมัติลงเครื่อง (localStorage) · ⬇️ Export CSV/JSON ได้ทุกเมื่อ</div></div>`;return}
+ const g=GROUP_OF[curMember],c=ORG[g],r=rec(curMember);
+ const tabs=[['resp','📋 งานที่รับผิดชอบ'],['strat','🎯 กลยุทธ์ (BSC)'],['links','🔗 บทบาทเชื่อมโยง'],['okr','📏 OKR / KPI'],['align','✅ สอดคล้องเป้าหมาย']];
+ el.innerHTML=`
+ <div class="card bg-white rounded-2xl p-5 border-t-4 mb-4" style="border-top-color:${c.hex}">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+   <div class="flex items-center gap-3">
+    <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl font-extrabold text-white" style="background:${c.hex}">${curMember.charAt(0)}</div>
+    <div>
+     <div class="text-lg font-extrabold text-slate-900">${curMember} <span class="badge ml-1" style="background:${c.hex}1a;color:${c.hex};border-color:${c.hex}55">${c.icon} ${g} — ${c.levelTxt}</span></div>
+     <div class="text-xs text-slate-500 mt-0.5"><b>บทบาทกลุ่ม:</b> ${c.role}</div>
+     <div class="text-xs text-slate-400"><b>ขอบเขตกลยุทธ์:</b> ${c.scope} · ทีมฝ่ายบริหาร — บริหารแนวทางการทำงานของกลยุทธ์ ไม่ใช่ operation</div>
+    </div>
+   </div>
+   <div class="flex gap-4 text-center">
+    ${[['📋',r.resp.length,'งาน'],['🎯',r.strat.length,'กลยุทธ์'],['🔗',r.links.length,'เชื่อมโยง'],['📏',r.okrs.reduce((a,o)=>a+(o.krs?.length||0),0),'KR']].map(x=>`<div><div class="text-lg font-extrabold" style="color:${c.hex}">${x[1]}</div><div class="text-[10px] text-slate-500">${x[0]} ${x[2]}</div></div>`).join('')}
+   </div>
+  </div>
+ </div>
+ <div class="flex flex-wrap gap-0 border-b border-slate-300 no-print">${tabs.map(([id,t])=>`<button class="ftab ${curTab===id?'active':''}" onclick="setTab('${id}')">${t}</button>`).join('')}</div>
+ <div class="card bg-white rounded-b-2xl rounded-tr-2xl p-5" id="tabBody"></div>`;
+ renderTab();
+}
+function setTab(t){curTab=t;renderMain()}
+function renderTab(){
+ const b=document.getElementById('tabBody');
+ if(curTab==='resp')b.innerHTML=tabResp();
+ else if(curTab==='strat')b.innerHTML=tabStrat();
+ else if(curTab==='links')b.innerHTML=tabLinks();
+ else if(curTab==='okr')b.innerHTML=tabOKR();
+ else b.innerHTML=tabAlign();
+}
+
+/* ========== TAB 1: งานที่รับผิดชอบ ========== */
+const RESP_TYPES=[['core','🎯 งานหลักของบทบาท'],['mentor','🤝 พี่เลี้ยง/ถ่ายทอด'],['coown','👥 Co-Ownership ร่วมกัน'],['advise','💬 ให้คำปรึกษา/กำกับ'],['develop','📚 เรียนรู้/เตรียมรับ']];
+function tabResp(){
+ const r=rec(curMember);
+ return `
+ <div class="mb-4">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+   <div><span class="lbl">หน่วยงาน/บริษัท</span>
+    <select onchange="updMeta('company',this.value)">
+     <option value="">— เลือก —</option>
+     ${['PMS','PMG','PMGI','AAM','21RT','TNR','CPDG','LDC','PKG','ทุกหน่วยงาน'].map(x=>`<option ${r.meta.company===x?'selected':''}>${x}</option>`).join('')}
+    </select></div>
+   <div class="md:col-span-2"><span class="lbl">หมายเหตุ/บริบทเพิ่มเติมของตนเอง</span>
+    <input type="text" value="${esc(r.meta.note)}" placeholder="เช่น รับช่วง cover จาก…, กำลังเตรียม…" onchange="updMeta('note',this.value)"></div>
+  </div>
+ </div>
+ <div class="flex items-center justify-between mb-3">
+  <div><div class="font-extrabold text-slate-800">📋 งานที่ตนเองรับผิดชอบ (${r.resp.length})</div>
+  <div class="text-xs text-slate-500">ตนเองจะรับผิดชอบงานอะไรบ้าง — ระบุประเภท รายละเอียด และช่วงเวลา</div></div>
+  <button class="btn-add" onclick="addResp()">＋ เพิ่มงาน</button>
+ </div>
+ <div class="space-y-3">${r.resp.map((x,i)=>respBox(x,i)).join('')||'<div class="text-center text-slate-400 text-sm py-6">ยังไม่มี — กด "＋ เพิ่มงาน"</div>'}</div>`;
+}
+function respBox(x,i){
+ return `<div class="item-box p-4">
+ <div class="flex justify-between items-start gap-2 mb-3">
+  <span class="badge bg-slate-100 text-slate-600 border-slate-300">งานที่ ${i+1}</span>
+  <button class="btn-del" onclick="delItem('resp',${i})">ลบ</button>
+ </div>
+ <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+  <div><span class="lbl">ชื่องาน/ความรับผิดชอบ <span class="text-rose-600">*</span></span>
+   <input type="text" value="${esc(x.title)}" placeholder="เช่น กำกับกลยุทธ์ด้านการเงิน / พี่เลี้ยง ADM ด้านลูกค้า" onchange="updItem('resp',${i},'title',this.value)"></div>
+  <div><span class="lbl">ประเภท</span>
+   <select onchange="updItem('resp',${i},'type',this.value)">
+    ${RESP_TYPES.map(([v,t])=>`<option value="${v}" ${x.type===v?'selected':''}>${t}</option>`).join('')}
+   </select></div>
+  <div class="md:col-span-2"><span class="lbl">รายละเอียด / ขอบเขต</span>
+   <textarea rows="2" placeholder="อธิบายขอบเขต สิ่งที่ต้องส่งมอบ เกณฑ์สำเร็จ…" onchange="updItem('resp',${i},'detail',this.value)">${esc(x.detail)}</textarea></div>
+  <div><span class="lbl">ช่วงเวลา</span>
+   <select onchange="updItem('resp',${i},'period',this.value)">
+    ${['','2026 (ปีแรก)','2026–2027 (เข้มข้น)','2028–2029 (ถ่ายทอด)','2030 (ส่งมอบเต็มรูปแบบ)','ต่อเนื่อง'].map(v=>`<option value="${v}" ${x.period===v?'selected':''}>${v||'— เลือก —'}</option>`).join('')}
+   </select></div>
+  <div><span class="lbl">สถานะ</span>
+   <select onchange="updItem('resp',${i},'status',this.value)">
+    ${['','ยังไม่เริ่ม','กำลังทำ/กำลัง cover','ทำได้แล้วบางส่วน','ทำได้เต็มที่','ส่งต่อแล้ว'].map(v=>`<option value="${v}" ${x.status===v?'selected':''}>${v||'— เลือก —'}</option>`).join('')}
+   </select></div>
+ </div></div>`;
+}
+function addResp(){rec(curMember).resp.push({title:'',type:'core',detail:'',period:'',status:''});save();renderTab()}
+
+/* ========== TAB 2: กลยุทธ์ (BSC) ========== */
+function tabStrat(){
+ const r=rec(curMember);
+ return `
+ <div class="flex items-center justify-between mb-3">
+  <div><div class="font-extrabold text-slate-800">🎯 กลยุทธ์ที่ตนเองรับผิดชอบ (${r.strat.length})</div>
+  <div class="text-xs text-slate-500">${GROUP_OF[curMember]==='OAC'?'OAC ดู<b>ทุกกลยุทธ์</b> — ระบุกลยุทธ์ที่ตนเองถนัด/เน้นกำกับ':'ระบุกลยุทธ์ตามด้าน BSC ที่ตนเองบริหารแนวทาง (ไม่ใช่ operation)'}</div></div>
+  <button class="btn-add" onclick="addStrat()">＋ เพิ่มกลยุทธ์</button>
+ </div>
+ <div class="space-y-3">${r.strat.map((x,i)=>stratBox(x,i)).join('')||'<div class="text-center text-slate-400 text-sm py-6">ยังไม่มี — กด "＋ เพิ่มกลยุทธ์"</div>'}</div>`;
+}
+function stratBox(x,i){
+ return `<div class="item-box p-4">
+ <div class="flex justify-between items-start gap-2 mb-3">
+  <span class="badge bg-slate-100 text-slate-600 border-slate-300">กลยุทธ์ที่ ${i+1}</span>
+  <button class="btn-del" onclick="delItem('strat',${i})">ลบ</button>
+ </div>
+ <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+  <div><span class="lbl">ด้าน BSC <span class="text-rose-600">*</span></span>
+   <select onchange="updItem('strat',${i},'bsc',this.value)">
+    <option value="">— เลือกด้าน BSC —</option>
+    ${BSC.map(([v,t])=>`<option value="${v}" ${x.bsc===v?'selected':''}>${t}</option>`).join('')}
+   </select></div>
+  <div><span class="lbl">ชื่อกลยุทธ์ <span class="text-rose-600">*</span></span>
+   <input type="text" value="${esc(x.name)}" placeholder="เช่น ลดหนี้ตามเป้าหมาย / AMS5 / สร้างธุรกิจใหม่" onchange="updItem('strat',${i},'name',this.value)"></div>
+  <div class="md:col-span-2"><span class="lbl">แนวทางการบริหารที่ตนรับผิดชอบ (ทำอะไรเพื่อกลยุทธ์นี้)</span>
+   <textarea rows="2" placeholder="เช่น ทบทวนผลรายเดือน, ให้คำปรึกษาทีมปฏิบัติ, กำกับตัวชี้วัด…" onchange="updItem('strat',${i},'how',this.value)">${esc(x.how)}</textarea></div>
+  <div><span class="lbl">เป้าหมาย/ตัวชี้วัดของกลยุทธ์นี้</span>
+   <input type="text" value="${esc(x.goal)}" placeholder="เช่น ลดหนี้ X% ภายใน 2027" onchange="updItem('strat',${i},'goal',this.value)"></div>
+  <div><span class="lbl">ระดับการมีส่วนร่วม</span>
+   <select onchange="updItem('strat',${i},'involve',this.value)">
+    ${['','เจ้าของแนวทาง (Owner)','ร่วมบริหาร (Co-Owner)','กำกับ/ทบทวน (Oversight)','ให้คำปรึกษา (Advisor)','เรียนรู้เตรียมรับ'].map(v=>`<option value="${v}" ${x.involve===v?'selected':''}>${v||'— เลือก —'}</option>`).join('')}
+   </select></div>
+ </div></div>`;
+}
+function addStrat(){rec(curMember).strat.push({bsc:'',name:'',how:'',goal:'',involve:''});save();renderTab()}
+
+/* ========== TAB 3: บทบาทเชื่อมโยง ========== */
+const MECHS=[['advise','💬 ให้คำปรึกษา (Advise)'],['oversight','👁 กำกับดูแล (Oversight)'],['review','🔍 ทบทวนผล (Review)'],['veto','🛑 Veto (Safety Gate)'],['mentor','🤝 พี่เลี้ยง (Mentor)'],['report','📄 รายงานผล (Report/Audit)'],['cover','🔄 Cover งานร่วมกัน'],['coown','👥 Co-Ownership']];
+function tabLinks(){
+ const r=rec(curMember);const g=GROUP_OF[curMember];
+ const dirHelp={OAC:'OAC เชื่อมลงไป: ให้คำปรึกษา/ทบทวน/Veto ต่อ GAT และ ADM',
+  GAT:'GAT เชื่อมขึ้น: รายงาน Audit ต่อ OAC · เชื่อมลง: พี่เลี้ยง ADM · เชื่อมข้าง: Cover/Co-Ownership กับ GAT ด้วยกัน',
+  ADM:'ADM เชื่อมขึ้น: รับพี่เลี้ยงจาก GAT · รับการกำกับจาก OAC · เชื่อมข้าง: ช่วยกันในทีม ADM'}[g];
+ return `
+ <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 mb-4 text-xs text-indigo-800">💡 <b>แนวทางของ ${g}:</b> ${dirHelp}</div>
+ <div class="flex items-center justify-between mb-3">
+  <div><div class="font-extrabold text-slate-800">🔗 บทบาทที่สำคัญเชื่อมโยงไปยังระดับต่าง ๆ (${r.links.length})</div>
+  <div class="text-xs text-slate-500">ระบุว่าตนเองเชื่อมกับใคร/กลุ่มไหน ด้วยกลไกอะไร (เลือกกลไกได้หลายข้อ)</div></div>
+  <button class="btn-add" onclick="addLink()">＋ เพิ่มความเชื่อมโยง</button>
+ </div>
+ <div class="space-y-3">${r.links.map((x,i)=>linkBox(x,i,g)).join('')||'<div class="text-center text-slate-400 text-sm py-6">ยังไม่มี — กด "＋ เพิ่มความเชื่อมโยง"</div>'}</div>`;
+}
+function linkBox(x,i,g){
+ const dirs=[['up','⬆️ ขึ้นไปชั้นบน'],['down','⬇️ ลงไปชั้นล่าง'],['peer','↔️ ระดับเดียวกัน']];
+ const targetGroups=g==='OAC'?['GAT','ADM']:g==='GAT'?['OAC','GAT','ADM']:['GAT','ADM'];
+ const namePool=x.toGroup?ORG[x.toGroup].members:[];
+ return `<div class="item-box p-4">
+ <div class="flex justify-between items-start gap-2 mb-3">
+  <span class="badge bg-slate-100 text-slate-600 border-slate-300">เชื่อมโยงที่ ${i+1}</span>
+  <button class="btn-del" onclick="delItem('links',${i})">ลบ</button>
+ </div>
+ <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+  <div><span class="lbl">ทิศทาง</span>
+   <select onchange="updItem('links',${i},'dir',this.value)">
+    <option value="">— เลือก —</option>
+    ${dirs.map(([v,t])=>`<option value="${v}" ${x.dir===v?'selected':''}>${t}</option>`).join('')}
+   </select></div>
+  <div><span class="lbl">เชื่อมกับกลุ่ม</span>
+   <select onchange="updLinkGroup(${i},this.value)">
+    <option value="">— เลือกกลุ่ม —</option>
+    ${targetGroups.map(v=>`<option value="${v}" ${x.toGroup===v?'selected':''}>${ORG[v].icon} ${v} — ${ORG[v].levelTxt}</option>`).join('')}
+   </select></div>
+  <div><span class="lbl">เชื่อมกับใคร (ไม่บังคับ)</span>
+   <select onchange="updItem('links',${i},'toName',this.value)">
+    <option value="">— ทั้งกลุ่ม/ยังไม่ระบุ —</option>
+    ${namePool.map(n=>`<option ${x.toName===n?'selected':''}>${n}</option>`).join('')}
+   </select></div>
+  <div class="md:col-span-3"><span class="lbl">กลไกที่ใช้เชื่อมโยง (เลือกได้หลายข้อ)</span>
+   <div class="flex flex-wrap gap-1.5 mt-1">
+    ${MECHS.map(([v,t])=>{const on=(x.mechs||[]).includes(v);return `<button type="button" class="align-tag ${on?'on':'off'}" onclick="toggleMech(${i},'${v}')">${t}</button>`}).join('')}
+   </div></div>
+  <div class="md:col-span-3"><span class="lbl">รายละเอียด / เรื่องที่เชื่อมโยงกัน</span>
+   <textarea rows="2" placeholder="เช่น รายงานผล Audit รายเดือนเรื่อง…, พี่เลี้ยงเรื่อง…, ขอคำปรึกษาเรื่อง…" onchange="updItem('links',${i},'detail',this.value)">${esc(x.detail)}</textarea></div>
+ </div></div>`;
+}
+function addLink(){rec(curMember).links.push({dir:'',toGroup:'',toName:'',mechs:[],detail:''});save();renderTab()}
+function updLinkGroup(i,v){rec(curMember).links[i].toGroup=v;rec(curMember).links[i].toName='';save();renderTab()}
+function toggleMech(i,v){const x=rec(curMember).links[i];x.mechs=x.mechs||[];const k=x.mechs.indexOf(v);k>=0?x.mechs.splice(k,1):x.mechs.push(v);save();renderTab()}
+
+/* ========== TAB 4: OKR / KPI ========== */
+function tabOKR(){
+ const r=rec(curMember);
+ return `
+ <div class="flex items-center justify-between mb-3">
+  <div><div class="font-extrabold text-slate-800">📏 OKR / KPI ของ ${curMember} (${r.okrs.length} Objective)</div>
+  <div class="text-xs text-slate-500">Objective → Key Result → KPI (ตัววัด + เป้าหมาย + ผลจริง) • <b>OKR = move the business forward / KPI = keep the business running</b></div></div>
+  <button class="btn-add" onclick="addObj()">＋ เพิ่ม Objective</button>
+ </div>
+ <div class="space-y-4">${r.okrs.map((o,oi)=>objBox(o,oi)).join('')||'<div class="text-center text-slate-400 text-sm py-6">ยังไม่มี — กด "＋ เพิ่ม Objective"</div>'}</div>`;
+}
+function objBox(o,oi){
+ return `<div class="item-box p-4 border-l-4 border-l-indigo-400">
+ <div class="flex justify-between items-start gap-2 mb-2">
+  <span class="badge bg-indigo-50 text-indigo-700 border-indigo-200">Objective ${oi+1}</span>
+  <button class="btn-del" onclick="delItem('okrs',${oi})">ลบ Objective</button>
+ </div>
+ <input type="text" class="font-semibold" value="${esc(o.objective)}" placeholder="O — เป้าหมายเชิงกลยุทธ์ของตนเอง เช่น ถ่ายทอดการกำกับด้านการเงินให้ทีมใหม่ได้ภายใน 2027" onchange="updOKR(${oi},'objective',this.value)">
+ <div class="mt-3 space-y-3">
+  ${(o.krs||[]).map((k,ki)=>krBox(o,oi,k,ki)).join('')}
+  <button class="btn-add" onclick="addKR(${oi})">＋ เพิ่ม Key Result</button>
+ </div></div>`;
+}
+function krBox(o,oi,k,ki){
+ const kpis=k.kpis||[];
+ return `<div class="border border-slate-200 rounded-xl p-3 bg-slate-50/60">
+ <div class="flex justify-between items-start gap-2 mb-2">
+  <span class="badge bg-white text-slate-600 border-slate-300">KR${oi+1}.${ki+1}</span>
+  <button class="btn-del" onclick="delKR(${oi},${ki})">ลบ KR</button>
+ </div>
+ <input type="text" value="${esc(k.kr)}" placeholder="KR — ผลลัพธ์ที่วัดได้ เช่น พี่เลี้ยง ADM ผ่านเกณฑ์พร้อมส่งต่อ 3 ใน 5 ข้อ" onchange="updKR(${oi},${ki},'kr',this.value)">
+ <div class="mt-2 mb-2"><span class="lbl">🔗 สอดคล้องกับเป้าหมายองค์กร (คลิกเลือก — ใช้เช็คใน tab "สอดคล้องเป้าหมาย")</span>
+  <div class="flex flex-wrap">${ALL_ORG_KRS.map(ok=>{const on=(k.align||[]).includes(ok.id);return `<button type="button" class="align-tag ${on?'on':'off'}" title="${esc(ok.obj)}" onclick="toggleAlign(${oi},${ki},'${ok.id}')">${ok.id}</button>`}).join('')}
+  ${OTHER_ALIGN.map((t,ti)=>{const key='X'+ti;const on=(k.align||[]).includes(key);return `<button type="button" class="align-tag ${on?'on':'off'}" title="${esc(t)}" onclick="toggleAlign(${oi},${ki},'${key}')">${t.split(':')[0]==='เงื่อนไขถ่ายทอด'?'📤 '+t.split(': ')[1]:'🌱 '+t.split(': ')[1]}</button>`}).join('')}
+  </div></div>
+ <div class="space-y-2">
+  ${kpis.map((p,pi)=>kpiRow(oi,ki,p,pi)).join('')}
+  <button class="btn-add" onclick="addKPI(${oi},${ki})">＋ เพิ่ม KPI</button>
+ </div></div>`;
+}
+function kpiRow(oi,ki,p,pi){
+ const tgt=parseFloat(p.target),act=parseFloat(p.actual);
+ let pct=null; if(!isNaN(tgt)&&!isNaN(act)&&tgt!==0)pct=Math.round(act/tgt*100);
+ const col=pct==null?'#94a3b8':pct>=100?'#16a34a':pct>=70?'#f59e0b':'#ef4444';
+ return `<div class="grid grid-cols-12 gap-2 items-end bg-white border border-slate-200 rounded-lg p-2">
+  <div class="col-span-12 md:col-span-5"><span class="lbl">KPI ตัววัด ${pi+1}</span>
+   <input type="text" value="${esc(p.name)}" placeholder="เช่น จำนวนรอบ Monthly Audit Report ที่ส่งตรงเวลา" onchange="updKPI(${oi},${ki},${pi},'name',this.value)"></div>
+  <div class="col-span-3 md:col-span-2"><span class="lbl">เป้าหมาย</span>
+   <input type="text" value="${esc(p.target)}" placeholder="12" onchange="updKPI(${oi},${ki},${pi},'target',this.value)"></div>
+  <div class="col-span-3 md:col-span-2"><span class="lbl">ผลจริง</span>
+   <input type="text" value="${esc(p.actual)}" placeholder="0" onchange="updKPI(${oi},${ki},${pi},'actual',this.value)"></div>
+  <div class="col-span-4 md:col-span-2">
+   ${pct!=null?`<div class="text-[10px] font-bold mb-1" style="color:${col}">${pct}%</div><div class="prog"><div style="width:${Math.min(pct,100)}%;background:${col}"></div></div>`:'<div class="text-[10px] text-slate-400">ใส่ตัวเลขเป้า/ผล</div>'}
+  </div>
+  <div class="col-span-2 md:col-span-1 text-right"><button class="btn-del" onclick="delKPI(${oi},${ki},${pi})">ลบ</button></div>
+ </div>`;
+}
+function addObj(){rec(curMember).okrs.push({objective:'',krs:[]});save();renderTab()}
+function addKR(oi){rec(curMember).okrs[oi].krs.push({kr:'',align:[],kpis:[]});save();renderTab()}
+function addKPI(oi,ki){rec(curMember).okrs[oi].krs[ki].kpis=rec(curMember).okrs[oi].krs[ki].kpis||[];rec(curMember).okrs[oi].krs[ki].kpis.push({name:'',target:'',actual:''});save();renderTab()}
+function delKR(oi,ki){rec(curMember).okrs[oi].krs.splice(ki,1);save();renderTab()}
+function delKPI(oi,ki,pi){rec(curMember).okrs[oi].krs[ki].kpis.splice(pi,1);save();renderTab()}
+function updOKR(oi,f,v){rec(curMember).okrs[oi][f]=v;saveDeb()}
+function updKR(oi,ki,f,v){rec(curMember).okrs[oi].krs[ki][f]=v;saveDeb()}
+function updKPI(oi,ki,pi,f,v){rec(curMember).okrs[oi].krs[ki].kpis[pi][f]=v;save();renderTab()}
+function toggleAlign(oi,ki,id){const k=rec(curMember).okrs[oi].krs[ki];k.align=k.align||[];const x=k.align.indexOf(id);x>=0?k.align.splice(x,1):k.align.push(id);save();renderTab()}
+
+/* ========== TAB 5: สอดคล้องเป้าหมาย ========== */
+function tabAlign(){
+ const r=rec(curMember);const g=GROUP_OF[curMember];const c=ORG[g];
+ // รวม alignment จากทุก KR
+ const used=new Set();let totalKR=0,alignedKR=0;
+ r.okrs.forEach(o=>(o.krs||[]).forEach(k=>{totalKR++;if((k.align||[]).length){alignedKR++;k.align.forEach(a=>used.add(a))}}));
+ const orgCovered=ALL_ORG_KRS.filter(k=>used.has(k.id)).length;
+ const otherCovered=OTHER_ALIGN.filter((_,i)=>used.has('X'+i)).length;
+ const pctKR=totalKR?Math.round(alignedKR/totalKR*100):0;
+ const pctOrg=Math.round(orgCovered/ALL_ORG_KRS.length*100);
+ return `
+ <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+  <div class="item-box p-4 text-center"><div class="text-2xl font-extrabold" style="color:${pctKR>=70?'#16a34a':pctKR>=40?'#f59e0b':'#ef4444'}">${pctKR}%</div>
+   <div class="text-xs text-slate-500">KR ของตนเองที่ผูกกับเป้าหมายองค์กร (${alignedKR}/${totalKR})</div>
+   <div class="prog mt-2"><div style="width:${pctKR}%;background:${pctKR>=70?'#16a34a':pctKR>=40?'#f59e0b':'#ef4444'}"></div></div></div>
+  <div class="item-box p-4 text-center"><div class="text-2xl font-extrabold text-indigo-600">${orgCovered}/${ALL_ORG_KRS.length}</div>
+   <div class="text-xs text-slate-500">OKR องค์กร (9 KR) ที่งานของตนเองไปหนุน (${pctOrg}%)</div>
+   <div class="prog mt-2"><div style="width:${pctOrg}%;background:#4f46e5"></div></div></div>
+  <div class="item-box p-4 text-center"><div class="text-2xl font-extrabold text-amber-600">${otherCovered}/${OTHER_ALIGN.length}</div>
+   <div class="text-xs text-slate-500">เงื่อนไขถ่ายทอด/พัฒนาทีมใหม่ ที่งานตนเองเกี่ยวข้อง</div>
+   <div class="prog mt-2"><div style="width:${Math.round(otherCovered/OTHER_ALIGN.length*100)}%;background:#f59e0b"></div></div></div>
+ </div>
+
+ <div class="font-extrabold text-slate-800 mb-2">🎯 เป้าหมายองค์กร (OKR หลัก) — สถานะการสอดคล้องของ ${curMember}</div>
+ <div class="space-y-3 mb-5">
+ ${ORG_OKR.map(o=>`<div class="item-box p-4">
+   <div class="font-bold text-sm text-slate-800 mb-2">${o.id}: ${esc(o.obj)}</div>
+   ${o.krs.map(k=>{const on=used.has(k.id);const linkedBy=[];r.okrs.forEach((oo,oi)=>(oo.krs||[]).forEach((kk,ki)=>{if((kk.align||[]).includes(k.id))linkedBy.push(`O${oi+1}-KR${oi+1}.${ki+1}${kk.kr?': '+kk.kr.slice(0,60):''}`)}));
+    return `<div class="okr-ref flex items-start gap-2 py-1.5 border-t border-slate-100">
+     <span class="align-tag ${on?'on':'off'}" style="cursor:default">${on?'✅':'⬜'} ${k.id}</span>
+     <div class="flex-1"><span class="${on?'text-slate-700':'text-slate-400'}">${esc(k.t)}</span>
+     ${linkedBy.length?`<div class="text-[10px] text-emerald-700 mt-0.5">← หนุนโดย: ${linkedBy.map(esc).join(' · ')}</div>`:'<div class="text-[10px] text-slate-300 mt-0.5">— ยังไม่มี KR ของตนเองที่ผูก —</div>'}</div></div>`}).join('')}
+  </div>`).join('')}
+ </div>
+
+ <div class="font-extrabold text-slate-800 mb-2">📤 เงื่อนไขถ่ายทอด 5 ข้อ & 🌱 ทีมใหม่ต้องพัฒนา 4 ด้าน</div>
+ <div class="item-box p-4 mb-5">
+  <div class="flex flex-wrap">${OTHER_ALIGN.map((t,i)=>{const on=used.has('X'+i);return `<span class="align-tag ${on?'on':'off'}" style="cursor:default">${on?'✅':'⬜'} ${esc(t)}</span>`}).join('')}</div>
+ </div>
+
+ <div class="font-extrabold text-slate-800 mb-2">📝 สรุปของตนเอง: งาน/OKR ของฉันสอดคล้องกับเป้าหมายองค์กรอย่างไร</div>
+ <textarea rows="4" placeholder="เขียนสรุปด้วยตนเอง เช่น งานกำกับกลยุทธ์การเงินของฉันหนุน O1-KR1 และเงื่อนไขลดหนี้… สิ่งที่ยังขาดคือ…" onchange="updAlignNote(this.value)">${esc(r.alignNote)}</textarea>
+ <div class="text-[11px] text-slate-400 mt-2">วิธีใช้: ไปที่ tab "📏 OKR / KPI" → ในแต่ละ KR คลิกเลือกว่าสอดคล้องกับเป้าหมายองค์กรข้อไหน → กลับมา tab นี้เพื่อดูภาพรวมความสอดคล้อง</div>`;
+}
+function updAlignNote(v){rec(curMember).alignNote=v;saveDeb()}
+
+/* ========== generic updaters ========== */
+function updMeta(f,v){rec(curMember).meta[f]=v;saveDeb()}
+function updItem(sec,i,f,v){rec(curMember)[sec][i][f]=v;saveDeb()}
+function delItem(sec,i){if(!confirm('ลบรายการนี้?'))return;rec(curMember)[sec].splice(i,1);save();renderTab();renderHead()}
+
+/* ========== Export / Import ========== */
+function exportJSON(){
+ const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),members:DB},null,2)],{type:'application/json'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pkg_succession_members.json';a.click();toast('Export JSON แล้ว')}
+function importJSON(ev){
+ const f=ev.target.files[0];if(!f)return;const rd=new FileReader();
+ rd.onload=()=>{try{const d=JSON.parse(rd.result);const m=d.members||d;
+  Object.entries(m).forEach(([k,v])=>{if(ALL_MEMBERS.includes(k))DB[k]={...blank(),...v}});
+  save();renderHead();renderMain();toast('Import สำเร็จ')}catch(e){toast('ไฟล์ไม่ถูกต้อง')}};
+ rd.readAsText(f);ev.target.value=''}
+function exportCSV(){
+ const rows=[];const head=['member','group','level','section','item_no','field1','field2','field3','field4','field5','field6','field7'];
+ ALL_MEMBERS.forEach(m=>{const r=DB[m];if(!r)return;const g=GROUP_OF[m],c=ORG[g];
+  (r.resp||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'งานรับผิดชอบ',i+1,x.title,RESP_TYPES.find(t=>t[0]===x.type)?.[1]||x.type,x.detail,x.period,x.status,'','']));
+  (r.strat||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'กลยุทธ์',i+1,x.bsc,x.name,x.how,x.goal,x.involve,'','']));
+  (r.links||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'เชื่อมโยง',i+1,x.dir,x.toGroup,x.toName,(x.mechs||[]).map(v=>MECHS.find(t=>t[0]===v)?.[1]||v).join('; '),x.detail,'','']));
+  (r.okrs||[]).forEach((o,oi)=>(o.krs||[]).forEach((k,ki)=>{
+   if(!(k.kpis||[]).length)rows.push([m,g,c.levelTxt,'OKR',`${oi+1}.${ki+1}`,o.objective,k.kr,(k.align||[]).join('; '),'','','','']);
+   (k.kpis||[]).forEach((p,pi)=>rows.push([m,g,c.levelTxt,'OKR-KPI',`${oi+1}.${ki+1}.${pi+1}`,o.objective,k.kr,(k.align||[]).join('; '),p.name,p.target,p.actual,'']));
+  }));
+ });
+ const esc2=v=>`"${String(v??'').replace(/"/g,'""')}"`;
+ let csv='\uFEFF'+head.join(',')+'\n'+rows.map(r=>r.map(esc2).join(',')).join('\n');
+ const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pkg_succession_members.csv';a.click();toast('Export CSV แล้ว')}
+
+document.addEventListener('DOMContentLoaded',()=>{renderHead();renderMain()});
+</script>
+</body>
+</html>
