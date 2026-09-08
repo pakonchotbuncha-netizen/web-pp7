@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🔗 ความเชื่อมโยงและกระบวนการทำงานของ 3 บทบาท (OAC/GAT/ADM) | Web PP7</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Sarabun', sans-serif; }
+    .glass { background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); }
+    .card { border:1px solid #e5e7eb; transition: transform .15s, box-shadow .15s; }
+    .card:hover { box-shadow: 0 10px 28px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .sec-chip { display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:10px; font-weight:800; color:#fff; flex:none; }
+    .rec-badge { display:inline-flex; align-items:center; padding:3px 10px; border-radius:9999px; font-size:12px; font-weight:700; }
+    .num-circle { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:9999px; font-weight:800; font-size:14px; flex:none; }
+    .flow-arrow { display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:900; flex:none; }
+    .list-dot li { position:relative; padding-left:1.5rem; }
+    .list-dot li::before { content:""; position:absolute; left:0; top:0.55rem; width:8px; height:8px; border-radius:9999px; }
+    .dot-rose li::before { background:#fb7185; }
+    .dot-sky li::before { background:#38bdf8; }
+    .dot-amber li::before { background:#fbbf24; }
+    .dot-emerald li::before { background:#34d399; }
+    .dot-indigo li::before { background:#818cf8; }
+    .name-chip { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:9999px; font-size:12px; font-weight:600; border:1px solid; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+  <!-- ======= Header ======= -->
+  <header class="glass border-b border-slate-200 shadow-sm sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-5">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 flex items-center gap-2">
+              <span>🔗</span> ความเชื่อมโยงและกระบวนการทำงานของ <span class="text-rose-600">3 บทบาท</span> (OAC / GAT / ADM)
+            </h1>
+          </div>
+          <p class="text-sm text-slate-500 mt-1.5">
+            ทีมฝ่ายบริหาร — <b class="text-slate-700">ไม่ทำงาน operation</b> แต่<b class="text-slate-700">บริหารแนวทางการทำงานของกลยุทธ์</b>ที่รับผิดชอบ
+            (OAC ดูทุกกลยุทธ์ · GAT/ADM เฉพาะด้าน BSC)
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-2 no-print">
+          <span class="rec-badge bg-rose-600 text-white">🏛 OAC 3 คน</span>
+          <span class="rec-badge bg-amber-500 text-white">🛡 GAT 12 คน</span>
+          <span class="rec-badge bg-sky-600 text-white">🚀 ADM 4 คน</span>
+          <a href="succession-plan-dashboard.html" class="inline-flex items-center gap-1 border border-slate-300 bg-white text-slate-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-slate-50 transition">🔴 แผน Succession 2026–2030</a>
+          <a href="index.html" class="inline-flex items-center gap-1 border border-slate-300 bg-white text-slate-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-slate-50 transition">🏠 กลับหน้าแรก</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-10">
+
+    <!-- ======= 1. Diagram 3 ชั้น ======= -->
+    <section>
+      <div class="flex items-center gap-3 mb-2">
+        <span class="sec-chip bg-rose-600">1</span>
+        <div>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">แผนผังความเชื่อมโยง 3 ชั้น</h2>
+          <p class="text-sm text-slate-500">OAC สูงสุด → GAT กลาง → ADM เบื้องต้น — ลูกศรสองทาง (⇄) = ทำงานคู่กันทั้งสองทิศทาง</p>
+        </div>
+      </div>
+
+      <div class="flex flex-col items-center gap-2 mt-6">
+        <!-- OAC -->
+        <div class="w-full max-w-3xl card bg-white rounded-2xl p-4 sm:p-5 border-2 border-rose-300 shadow-sm">
+          <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-center">
+            <span class="rec-badge bg-rose-600 text-white text-sm px-4 py-1.5">🏛 OAC — สูงสุด (3 คน)</span>
+            <span class="text-xs text-slate-500">กำกับ + ให้คำปรึกษา · ดูทุกกลยุทธ์</span>
+          </div>
+          <div class="flex flex-wrap justify-center gap-2 mt-3">
+            <span class="name-chip bg-rose-50 text-rose-700 border-rose-200">คุณประวิทย์</span>
+            <span class="name-chip bg-rose-50 text-rose-700 border-rose-200">พี่ต๋อง</span>
+            <span class="name-chip bg-rose-50 text-rose-700 border-rose-200">พี่ก้อย</span>
+          </div>
+        </div>
+
+        <!-- OAC ⇄ GAT -->
+        <div class="w-full max-w-3xl flex flex-col items-center py-1">
+          <div class="flow-arrow text-rose-500">⇄</div>
+          <div class="flex flex-wrap justify-center gap-2 text-center">
+            <span class="rec-badge bg-rose-100 text-rose-800 border border-rose-300">ให้คำปรึกษา (OAC → GAT)</span>
+            <span class="rec-badge bg-amber-100 text-amber-800 border border-amber-300">รายงาน Audit (GAT → OAC)</span>
+          </div>
+        </div>
+
+        <!-- GAT -->
+        <div class="w-full max-w-3xl card bg-white rounded-2xl p-4 sm:p-5 border-2 border-amber-300 shadow-sm">
+          <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-center">
+            <span class="rec-badge bg-amber-500 text-white text-sm px-4 py-1.5">🛡 GAT — กลาง (12 คน)</span>
+            <span class="text-xs text-slate-500">พี่เลี้ยง ADM + ตรวจสอบ (Tech Audit + Monthly Report)</span>
+          </div>
+          <div class="flex flex-wrap justify-center gap-2 mt-3">
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่กอล์ฟ</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่อี๊ด</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่เก๋</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่อ้วน</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่อ๊อด</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่หวาน</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่ญา</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่ติ๋ม</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่หนึ่ง</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่สิงห์</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่ปุ๊</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">คุณบอล</span>
+          </div>
+        </div>
+
+        <!-- GAT ⇄ ADM -->
+        <div class="w-full max-w-3xl flex flex-col items-center py-1">
+          <div class="flow-arrow text-amber-500">⇄</div>
+          <div class="flex flex-wrap justify-center gap-2 text-center">
+            <span class="rec-badge bg-amber-100 text-amber-800 border border-amber-300">พี่เลี้ยง (GAT → ADM)</span>
+            <span class="rec-badge bg-sky-100 text-sky-800 border border-sky-300">Cover (ช่วยเหลือกันทั้ง 2 ทาง)</span>
+            <span class="rec-badge bg-indigo-100 text-indigo-800 border border-indigo-300">Co-Ownership (ร่วมเป็นเจ้าของงาน)</span>
+            <span class="rec-badge bg-emerald-100 text-emerald-800 border border-emerald-300">รับการพี่เลี้ยง (ADM → GAT)</span>
+          </div>
+        </div>
+
+        <!-- ADM -->
+        <div class="w-full max-w-3xl card bg-white rounded-2xl p-4 sm:p-5 border-2 border-sky-300 shadow-sm">
+          <div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-center">
+            <span class="rec-badge bg-sky-600 text-white text-sm px-4 py-1.5">🚀 ADM — เบื้องต้น (4 คน)</span>
+            <span class="text-xs text-slate-500">ทีมบริหารใหม่ · รับการพี่เลี้ยงจาก GAT</span>
+          </div>
+          <div class="flex flex-wrap justify-center gap-2 mt-3">
+            <span class="name-chip bg-sky-50 text-sky-800 border-sky-200">น้องแซน</span>
+            <span class="name-chip bg-sky-50 text-sky-800 border-sky-200">โอม</span>
+            <span class="name-chip bg-sky-50 text-sky-800 border-sky-200">จ้อน</span>
+            <span class="name-chip bg-sky-50 text-sky-800 border-sky-200">แนน</span>
+          </div>
+        </div>
+
+        <!-- OAC ⇄ ADM (ข้ามชั้น) -->
+        <div class="w-full max-w-3xl flex flex-col items-center py-1">
+          <div class="flow-arrow text-indigo-500">⇄</div>
+          <div class="flex flex-wrap justify-center gap-2 text-center">
+            <span class="rec-badge bg-indigo-100 text-indigo-800 border border-indigo-300">กำกับ (OAC → ADM)</span>
+            <span class="rec-badge bg-violet-100 text-violet-800 border border-violet-300">Veto — Safety Gate 3 ครั้ง (OAC → ADM)</span>
+            <span class="rec-badge bg-rose-100 text-rose-800 border border-rose-300">Advise (OAC → ADM)</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1.5">OAC เชื่อมกับทุกชั้น — ดูทุกกลยุทธ์, GAT/ADM เฉพาะด้าน BSC</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= 2. การ์ดแต่ละบทบาท ======= -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="sec-chip bg-sky-600">2</span>
+        <div>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">บทบาทของแต่ละกลุ่ม</h2>
+          <p class="text-sm text-slate-500">3 บทบาท = ทีมฝ่ายบริหาร — ไม่ทำงาน operation แต่บริหารแนวทางการทำงานของกลยุทธ์ที่รับผิดชอบ</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+        <!-- OAC card -->
+        <div class="card bg-white rounded-2xl p-5 border-t-4 border-rose-500 shadow-sm">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="num-circle bg-rose-600">🏛</span>
+            <div>
+              <h3 class="font-extrabold text-lg text-rose-700">OAC — สูงสุด</h3>
+              <p class="text-xs text-slate-500">3 คน · ดูทุกกลยุทธ์</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1.5 mb-4">
+            <span class="name-chip bg-rose-50 text-rose-700 border-rose-200">คุณประวิทย์</span>
+            <span class="name-chip bg-rose-50 text-rose-700 border-rose-200">พี่ต๋อง</span>
+            <span class="name-chip bg-rose-50 text-rose-700 border-rose-200">พี่ก้อย</span>
+          </div>
+          <ul class="list-dot dot-rose space-y-1.5 text-sm">
+            <li><b>Oversight</b> — กำกับดูแลแนวทางกลยุทธ์ทุกด้าน (ทุกกลยุทธ์)</li>
+            <li><b>Advise</b> — ให้คำปรึกษาแก่ GAT และ ADM</li>
+            <li><b>Review</b> — ทบทวนผลงาน รายงาน และทิศทาง</li>
+            <li><b>Veto</b> — ยับยั้งเมื่อความเสี่ยงรุนแรง</li>
+          </ul>
+          <div class="mt-4 bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs text-rose-800">
+            <b>⚖️ หลัก Veto:</b> ใช้ได้ <b>3 ครั้ง = Safety Gate</b> — เข้มสุดช่วง 2026–2027 เพื่อประคองทีมบริหารใหม่ให้ปลอดภัย
+          </div>
+        </div>
+
+        <!-- GAT card -->
+        <div class="card bg-white rounded-2xl p-5 border-t-4 border-amber-400 shadow-sm">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="num-circle bg-amber-500">🛡</span>
+            <div>
+              <h3 class="font-extrabold text-lg text-amber-700">GAT — กลาง</h3>
+              <p class="text-xs text-slate-500">12 คน · พี่เลี้ยง ADM + ตรวจสอบ</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1.5 mb-4">
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่กอล์ฟ</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่อี๊ด</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่เก๋</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่อ้วน</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่อ๊อด</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่หวาน</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่ญา</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่ติ๋ม</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่หนึ่ง</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่สิงห์</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">พี่ปุ๊</span>
+            <span class="name-chip bg-amber-50 text-amber-800 border-amber-200">คุณบอล</span>
+          </div>
+          <ul class="list-dot dot-amber space-y-1.5 text-sm">
+            <li><b>พี่เลี้ยง ADM</b> — สอนงาน ถ่ายทอดประสบการณ์ ดูแลการเติบโต</li>
+            <li><b>ตรวจสอบการดำเนินงาน / ความเสี่ยง / Compliance / ผลลัพธ์</b> ของกลยุทธ์ด้าน BSC</li>
+            <li><b>Tech Audit</b> — ตรวจสอบเชิงเทคนิคตามรอบ</li>
+            <li><b>Monthly Audit / Oversight Report</b> — รายงานผลประจำเดือนส่ง OAC</li>
+          </ul>
+        </div>
+
+        <!-- ADM card -->
+        <div class="card bg-white rounded-2xl p-5 border-t-4 border-sky-500 shadow-sm">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="num-circle bg-sky-600">🚀</span>
+            <div>
+              <h3 class="font-extrabold text-lg text-sky-700">ADM — เบื้องต้น</h3>
+              <p class="text-xs text-slate-500">4 คน · ทีมบริหารใหม่</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1.5 mb-4">
+            <span class="name-chip bg-sky-50 text-sky-800 border-sky-200">น้องแซน</span>
+            <span class="name-chip bg-sky-50 text-sky-800 border-sky-200">โอม</span>
+            <span class="name-chip bg-sky-50 text-sky-800 border-sky-200">จ้อน</span>
+            <span class="name-chip bg-sky-50 text-sky-800 border-sky-200">แนน</span>
+          </div>
+          <ul class="list-dot dot-sky space-y-1.5 text-sm">
+            <li><b>บริหารกลยุทธ์ด้าน BSC ของตน</b> — รับผิดชอบแนวทาง (ไม่ทำงาน operation)</li>
+            <li><b>พัฒนา 4 ด้าน:</b> Operation · Tech-AI · Culture · ธุรกิจใหม่</li>
+            <li><b>ปั้นรุ่นถัดไป</b> — ฝึกฝนทีมต่อเนื่อง (succession ไม่สิ้นสุดที่ตนเอง)</li>
+          </ul>
+          <div class="mt-4 bg-sky-50 border border-sky-200 rounded-xl p-3 text-xs text-sky-800">
+            <b>🧭 ลำดับพัฒนา:</b> เริ่มที่ GAT (เรียนรู้ระบบ/audit ทั้งองค์กร) → เป็น ADM (บริหารจริง) → เติบโตสู่ OAC (กำกับ + ให้คำปรึกษา)
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======= 3. ขั้นตอนการพัฒนา + เกณฑ์วัดผล ======= -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="sec-chip bg-emerald-600">3</span>
+        <div>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">ขั้นตอนการพัฒนา + เกณฑ์วัดผล</h2>
+          <p class="text-sm text-slate-500">เส้นทางการเติบโต: GAT → ADM → OAC — พิสูจน์ผลงานจริงก่อนขึ้นบทบาทถัดไป</p>
+        </div>
+      </div>
+
+      <!-- เส้นทางพัฒนา -->
+      <div class="card bg-white rounded-2xl p-5 mb-5 shadow-sm">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+          <div class="flex items-center gap-2">
+            <span class="num-circle bg-amber-500">1</span>
+            <div>
+              <div class="font-extrabold text-amber-700">เริ่มที่ GAT</div>
+              <p class="text-xs text-slate-500">เรียนรู้ระบบ + Audit ทั้งองค์กร</p>
+            </div>
+          </div>
+          <div class="flow-arrow text-slate-400 text-xl">→</div>
+          <div class="flex items-center gap-2">
+            <span class="num-circle bg-sky-600">2</span>
+            <div>
+              <div class="font-extrabold text-sky-700">เป็น ADM</div>
+              <p class="text-xs text-slate-500">บริหารกลยุทธ์จริง (ด้าน BSC)</p>
+            </div>
+          </div>
+          <div class="flow-arrow text-slate-400 text-xl">→</div>
+          <div class="flex items-center gap-2">
+            <span class="num-circle bg-rose-600">3</span>
+            <div>
+              <div class="font-extrabold text-rose-700">เติบโตเป็น OAC</div>
+              <p class="text-xs text-slate-500">กำกับ + ให้คำปรึกษาทุกกลยุทธ์</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ตาราง 3 คอลัมน์ -->
+      <div class="card bg-white rounded-2xl overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-slate-800 text-white">
+                <th class="px-4 py-3 text-left font-bold">บทบาท</th>
+                <th class="px-4 py-3 text-left font-bold">ขั้นตอนการพัฒนา</th>
+                <th class="px-4 py-3 text-left font-bold">เกณฑ์วัดผล</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              <tr>
+                <td class="px-4 py-3 align-top">
+                  <span class="rec-badge bg-amber-500 text-white">🛡 GAT</span>
+                </td>
+                <td class="px-4 py-3 align-top text-slate-600">
+                  <ul class="list-dot dot-amber space-y-1">
+                    <li>เรียนรู้ระบบ + ฝึก Audit ทั้งองค์กร (Tech Audit / Monthly Report)</li>
+                    <li>ทำ Co-Ownership กับ OAC — OAC กำกับดูแล GAT</li>
+                    <li>พิสูจน์ผลงานจริง → ผ่านเงื่อนไขถ่ายทอด 5 ข้อ → ขึ้น ADM</li>
+                  </ul>
+                </td>
+                <td class="px-4 py-3 align-top text-slate-600">7 ข้อ (ด้านล่าง) — ตรวจทุกบทบาท</td>
+              </tr>
+              <tr class="bg-slate-50">
+                <td class="px-4 py-3 align-top">
+                  <span class="rec-badge bg-sky-600 text-white">🚀 ADM</span>
+                </td>
+                <td class="px-4 py-3 align-top text-slate-600">
+                  <ul class="list-dot dot-sky space-y-1">
+                    <li>บริหารกลยุทธ์ด้าน BSC ของตนจริง (มี GAT เป็นพี่เลี้ยง + OAC กำกับ)</li>
+                    <li>ทำ Co-Ownership กับ GAT — พี่เลี้ยง / Cover / ร่วมรับผิดชอบ</li>
+                    <li>พิสูจน์ผลงานจริง → ผ่านเงื่อนไขถ่ายทอด 5 ข้อ → ขึ้น GAT (เต็มตัว)</li>
+                  </ul>
+                </td>
+                <td class="px-4 py-3 align-top text-slate-600">7 ข้อ (ด้านล่าง) — ตรวจทุกบทบาท</td>
+              </tr>
+              <tr>
+                <td class="px-4 py-3 align-top">
+                  <span class="rec-badge bg-rose-600 text-white">🏛 OAC</span>
+                </td>
+                <td class="px-4 py-3 align-top text-slate-600">
+                  <ul class="list-dot dot-rose space-y-1">
+                    <li>กำกับ + ให้คำปรึกษาทุกกลยุทธ์ (Oversight/Advise/Review/Veto)</li>
+                    <li>ทำ Co-Ownership กับ GAT — ดูแลการตรวจสอบให้เข้มข้น</li>
+                    <li>คงคุณภาพการกำกับ ผ่านการวัดผลต่อเนื่อง</li>
+                  </ul>
+                </td>
+                <td class="px-4 py-3 align-top text-slate-600">7 ข้อ (ด้านล่าง) — ตรวจทุกบทบาท</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- เกณฑ์วัดผล 7 ข้อ -->
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="card bg-white rounded-xl p-3 text-sm shadow-sm">
+          <div class="font-extrabold text-emerald-700">1. ผลงานมีหลักฐานจริง</div>
+          <p class="text-xs text-slate-500 mt-1">ทุกผลงานอ้างอิงหลักฐานได้ ไม่ใช่คำบอกเล่า</p>
+        </div>
+        <div class="card bg-white rounded-xl p-3 text-sm shadow-sm">
+          <div class="font-extrabold text-emerald-700">2. 360° ผ่าน</div>
+          <p class="text-xs text-slate-500 mt-1">ฟีดแบ็กครบทุกทิศ (บน/ล่าง/ข้าง/ลูกค้า)</p>
+        </div>
+        <div class="card bg-white rounded-xl p-3 text-sm shadow-sm">
+          <div class="font-extrabold text-emerald-700">3. CC ครบตามโปรไฟล์</div>
+          <p class="text-xs text-slate-500 mt-1">สมรรถนะหลักครบตามที่กำหนดของแต่ละบทบาท</p>
+        </div>
+        <div class="card bg-white rounded-xl p-3 text-sm shadow-sm">
+          <div class="font-extrabold text-emerald-700">4. ไม่มี Audit red flag</div>
+          <p class="text-xs text-slate-500 mt-1">ผลตรวจสอบไม่มีประเด็นเสี่ยงระดับรุนแรง</p>
+        </div>
+        <div class="card bg-white rounded-xl p-3 text-sm shadow-sm">
+          <div class="font-extrabold text-emerald-700">5. ปั้นรุ่นถัดไปสำเร็จ</div>
+          <p class="text-xs text-slate-500 mt-1">มีคนรองรับบทบาทตนเองพร้อมขึ้นมาแทน</p>
+        </div>
+        <div class="card bg-white rounded-xl p-3 text-sm shadow-sm">
+          <div class="font-extrabold text-emerald-700">6. ช่วงไม่มีพี่ 3 เดือน งานยังดี</div>
+          <p class="text-xs text-slate-500 mt-1">ทดสอบด้วยการปล่อยให้ทำงานเดี่ยว 3 เดือน</p>
+        </div>
+        <div class="card bg-white rounded-xl p-3 text-sm shadow-sm sm:col-span-2 lg:col-span-2">
+          <div class="font-extrabold text-emerald-700">7. Veto น้อยลงเรื่อย ๆ</div>
+          <p class="text-xs text-slate-500 mt-1">เมื่อทีมแข็งแรงขึ้น OAC ใช้ Veto ลดลงตามลำดับ (เข้มสุดช่วง 2026–2027)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= 4. Co-Ownership + เงื่อนไขถ่ายทอด 5 ข้อ ======= -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="sec-chip bg-indigo-600">4</span>
+        <div>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">Co-Ownership + เงื่อนไขถ่ายทอด 5 ข้อ</h2>
+          <p class="text-sm text-slate-500">ทีมเดิม (GAT) ทำงานคู่ทีมใหม่ (ADM) — ลดความเสี่ยงเปลี่ยนมือ และสร้างเจ้าของงานร่วมกัน</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card bg-white rounded-2xl p-5 shadow-sm border-t-4 border-indigo-500">
+          <h3 class="font-extrabold text-lg text-indigo-700 mb-3">🤝 Co-Ownership คืออะไร</h3>
+          <ul class="list-dot dot-indigo space-y-2 text-sm">
+            <li><b>Alignment</b> — ทีมเดิมและทีมใหม่ตั้งเป้า/แนวทางเดียวกัน</li>
+            <li><b>ตัดสินใจสอดคล้อง</b> — การตัดสินใจต้องตรงกัน ไม่ขัดแย้งกัน</li>
+            <li><b>ถ่ายทอดจากงานจริง</b> — เรียนรู้ผ่านการลงมือทำด้วยกัน ไม่ใช่เอกสารอย่างเดียว</li>
+            <li><b>ลดความเสี่ยงเปลี่ยนมือ</b> — ไม่มี Single Point of Failure เมื่อคนใดคนหนึ่งไม่อยู่</li>
+          </ul>
+          <div class="mt-4 bg-indigo-50 border border-indigo-200 rounded-xl p-3 text-xs text-indigo-800">
+            <b>หลักการ:</b> Co-Ownership (GAT พี่เลี้ยง ADM · OAC กำกับ GAT) → พิสูจน์ผลงานจริง → ผ่านเงื่อนไขถ่ายทอด 5 ข้อ → ขึ้นบทบาทถัดไป
+          </div>
+        </div>
+        <div class="card bg-white rounded-2xl p-5 shadow-sm border-t-4 border-emerald-500">
+          <h3 class="font-extrabold text-lg text-emerald-700 mb-3">✅ เงื่อนไขถ่ายทอด 5 ข้อ (ผ่านครบจึงขึ้นบทบาทถัดไป)</h3>
+          <ol class="space-y-2 text-sm">
+            <li class="flex gap-2"><span class="num-circle bg-emerald-600 text-xs">1</span><span><b>Operation Strategy Execution</b> — รันกลยุทธ์สู่การปฏิบัติจริงได้ตามแนวทาง</span></li>
+            <li class="flex gap-2"><span class="num-circle bg-emerald-600 text-xs">2</span><span><b>ลดหนี้ตามเป้า</b> — บรรลุเป้าหมายการลดหนี้ที่กำหนด</span></li>
+            <li class="flex gap-2"><span class="num-circle bg-emerald-600 text-xs">3</span><span><b>งานเงื่อนไขเช่น AMS5</b> — งานพิเศษ/เงื่อนไขเฉพาะผ่านตามเกณฑ์</span></li>
+            <li class="flex gap-2"><span class="num-circle bg-emerald-600 text-xs">4</span><span><b>รับผิดชอบจริง</b> — เป็นเจ้าของผลลัพธ์ ไม่ใช่แค่ทำตามคำสั่ง</span></li>
+            <li class="flex gap-2"><span class="num-circle bg-emerald-600 text-xs">5</span><span><b>Co-Ownership</b> — ทำงานคู่ทีมเดิมและส่งต่อความรู้ต่อเนื่อง</span></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= 5. BSC 4 ด้าน ======= -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="sec-chip bg-teal-600">5</span>
+        <div>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">BSC 4 ด้าน (Balanced Scorecard)</h2>
+          <p class="text-sm text-slate-500">GAT/ADM บริหารเฉพาะด้านที่รับผิดชอบ · OAC ดูทุกด้าน</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="card bg-white rounded-2xl p-5 shadow-sm border-t-4 border-emerald-500">
+          <div class="text-3xl mb-2">💰</div>
+          <h3 class="font-extrabold text-emerald-700">การเงิน</h3>
+          <p class="text-xs text-slate-500 mt-2">รายได้ กำไร ต้นทุน สภาพคล่อง และการลดหนี้ตามเป้า</p>
+          <div class="mt-3 text-xs"><span class="rec-badge bg-rose-100 text-rose-800 border border-rose-300">OAC ดู</span> <span class="rec-badge bg-amber-100 text-amber-800 border border-amber-300">GAT ตรวจ</span> <span class="rec-badge bg-sky-100 text-sky-800 border border-sky-300">ADM บริหาร</span></div>
+        </div>
+        <div class="card bg-white rounded-2xl p-5 shadow-sm border-t-4 border-sky-500">
+          <div class="text-3xl mb-2">🤝</div>
+          <h3 class="font-extrabold text-sky-700">ลูกค้า</h3>
+          <p class="text-xs text-slate-500 mt-2">ความพึงพอใจ การรักษาลูกค้า และคุณภาพการบริการ</p>
+          <div class="mt-3 text-xs"><span class="rec-badge bg-rose-100 text-rose-800 border border-rose-300">OAC ดู</span> <span class="rec-badge bg-amber-100 text-amber-800 border border-amber-300">GAT ตรวจ</span> <span class="rec-badge bg-sky-100 text-sky-800 border border-sky-300">ADM บริหาร</span></div>
+        </div>
+        <div class="card bg-white rounded-2xl p-5 shadow-sm border-t-4 border-amber-500">
+          <div class="text-3xl mb-2">⚙️</div>
+          <h3 class="font-extrabold text-amber-700">กระบวนการภายใน</h3>
+          <p class="text-xs text-slate-500 mt-2">ประสิทธิภาพกระบวนการ มาตรฐานงาน และ Compliance</p>
+          <div class="mt-3 text-xs"><span class="rec-badge bg-rose-100 text-rose-800 border border-rose-300">OAC ดู</span> <span class="rec-badge bg-amber-100 text-amber-800 border border-amber-300">GAT ตรวจ</span> <span class="rec-badge bg-sky-100 text-sky-800 border border-sky-300">ADM บริหาร</span></div>
+        </div>
+        <div class="card bg-white rounded-2xl p-5 shadow-sm border-t-4 border-violet-500">
+          <div class="text-3xl mb-2">📚</div>
+          <h3 class="font-extrabold text-violet-700">การเรียนรู้และเติบโต</h3>
+          <p class="text-xs text-slate-500 mt-2">พัฒนาคน เทคโนโลยี (Tech-AI) และวัฒนธรรมองค์กร</p>
+          <div class="mt-3 text-xs"><span class="rec-badge bg-rose-100 text-rose-800 border border-rose-300">OAC ดู</span> <span class="rec-badge bg-amber-100 text-amber-800 border border-amber-300">GAT ตรวจ</span> <span class="rec-badge bg-sky-100 text-sky-800 border border-sky-300">ADM บริหาร</span></div>
+        </div>
+      </div>
+      <div class="mt-4 card bg-white rounded-xl p-4 text-sm shadow-sm flex flex-wrap items-center gap-x-6 gap-y-2">
+        <span class="font-extrabold text-slate-700">🎯 สรุปขอบเขต:</span>
+        <span class="rec-badge bg-rose-600 text-white">🏛 OAC = ดูทุกกลยุทธ์ (ทุกด้าน BSC)</span>
+        <span class="rec-badge bg-amber-500 text-white">🛡 GAT = เฉพาะด้าน BSC ที่รับผิดชอบ (พี่เลี้ยง + ตรวจสอบ)</span>
+        <span class="rec-badge bg-sky-600 text-white">🚀 ADM = เฉพาะด้าน BSC ของตน (บริหารกลยุทธ์)</span>
+      </div>
+    </section>
+
+    <!-- ======= 6. สรุปภาพรวม ======= -->
+    <section>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="sec-chip bg-slate-700">6</span>
+        <div>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">สรุปภาพรวม</h2>
+          <p class="text-sm text-slate-500">ทุกบทบาทเป็นทีมฝ่ายบริหาร — ใช้คำว่า "บทบาท" ไม่ใช่ "ตำแหน่ง"</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="card bg-white rounded-xl p-4 text-sm shadow-sm">
+          <div class="font-extrabold text-slate-900">🏛 OAC 3 คน</div>
+          <p class="text-xs text-slate-500 mt-1">สูงสุด · ดูทุกกลยุทธ์ · Oversight/Advise/Review/Veto (3 ครั้ง = Safety Gate)</p>
+        </div>
+        <div class="card bg-white rounded-xl p-4 text-sm shadow-sm">
+          <div class="font-extrabold text-slate-900">🛡 GAT 12 คน</div>
+          <p class="text-xs text-slate-500 mt-1">กลาง · พี่เลี้ยง ADM + ตรวจสอบ (Tech Audit + Monthly Report) · ADM เก่าเปลี่ยนชื่อ</p>
+        </div>
+        <div class="card bg-white rounded-xl p-4 text-sm shadow-sm">
+          <div class="font-extrabold text-slate-900">🚀 ADM 4 คน</div>
+          <p class="text-xs text-slate-500 mt-1">เบื้องต้น · ทีมบริหารใหม่ · บริหารกลยุทธ์ BSC + ปั้นรุ่นถัดไป</p>
+        </div>
+        <div class="card bg-white rounded-xl p-4 text-sm shadow-sm">
+          <div class="font-extrabold text-slate-900">🎯 เป้าหมายร่วม</div>
+          <p class="text-xs text-slate-500 mt-1">Co-Ownership → พิสูจน์ผลงานจริง → ผ่านเงื่อนไข 5 ข้อ → ขึ้นบทบาทถัดไป · No Single Point of Failure</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-slate-400 pt-6 border-t border-slate-200">
+      🔗 ความเชื่อมโยงและกระบวนการทำงานของ 3 บทบาท (OAC/GAT/ADM) · Web PP7 · อัปเดต 2026-09-08
+    </footer>
+  </main>
+
+</body>
+</html>
