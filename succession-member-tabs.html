@@ -52,6 +52,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 <p class="text-xs text-slate-500 mt-1">แต่ละคนกรอก/แก้ไขข้อมูลของตนเอง — งานที่รับผิดชอบ · กลยุทธ์ (BSC) · บทบาทเชื่อมโยงข้ามระดับ · OKR/KPI เทียบเป้าหมายองค์กร • PKG Succession Plan 2026–2030</p>
 </div>
 <div class="flex flex-wrap gap-2">
+<button onclick="pushAll()" class="btn-o">☁️ Push ทั้งทีมเข้าชีตกลาง</button>
+<button onclick="pullCloud()" class="btn-o">⬇️ โหลดจากชีตกลาง</button>
 <button onclick="exportCSV()" class="btn-o">⬇️ CSV</button>
 <button onclick="exportJSON()" class="btn-o">⬇️ JSON</button>
 <button onclick="document.getElementById('importFile').click()" class="btn-o">⬆️ Import</button>
@@ -61,7 +63,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 </div>
 </div>
 <div class="flex flex-wrap gap-1.5 mt-3" id="groupFilter"></div>
-<div class="flex flex-wrap gap-1.5 mt-2" id="memberChips"></div>
+<div class="flex flex-wrap gap-1.5 mt-2 items-center" id="memberChips"></div>
+<div class="text-[11px] mt-2" id="cloudBadge" style="color:#0284c7">☁️ ชีตกลาง: SP-สมาชิกรายคน</div>
 </div>
 </header>
 
@@ -103,15 +106,61 @@ const ALL_ORG_KRS=ORG_OKR.flatMap(o=>o.krs.map(k=>({...k,obj:o.obj,oid:o.id})));
 const OTHER_ALIGN=['เงื่อนไขถ่ายทอด: Operation Strategy Execution','เงื่อนไขถ่ายทอด: ลดหนี้ตามเป้าหมาย','เงื่อนไขถ่ายทอด: งานเงื่อนไข (เช่น AMS5)','เงื่อนไขถ่ายทอด: รับผิดชอบจริง','เงื่อนไขถ่ายทอด: Co-Ownership','พัฒนาทีมใหม่: Operation + อำนาจตัดสินใจ','พัฒนาทีมใหม่: Tech/Digital/AI/Automation','พัฒนาทีมใหม่: รักษา Culture/Value PKG','พัฒนาทีมใหม่: สร้างธุรกิจใหม่'];
 
 const LS='pkg_succession_members_v1';
+/* ☁️ เชื่อมชีตกลาง — Google Sheet "แผนสืบทอดบทบาท PKG" tab "SP-สมาชิกรายคน" */
+const GAS_URL='https://script.google.com/macros/s/AKfycbwGWjI5cZkt80HOC6JNrn9RtjwrDRuPa4DDjapM8-LosR4o00310pwcIoS_j8bKP1OW/exec';
 let DB={}; try{DB=JSON.parse(localStorage.getItem(LS)||'{}')}catch{DB={}}
 let curMember=null, curTab='resp', curGroup='ALL';
+let cloudOk=null; // null=ยังไม่รู้, true/false
 
-function blank(){return {meta:{company:'',note:''},resp:[],strat:[],links:[],okrs:[],alignNote:''}}
+function isEmptyRec(r){return !r.resp.length&&!r.strat.length&&!r.links.length&&!r.okrs.length&&!r.meta.company&&!r.meta.note&&!r.alignNote}
+async function pushMember(m){
+ if(!GAS_URL)return;
+ const r=rec(m);
+ try{
+  const res=await fetch(GAS_URL+'?action=saveMember',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({member:m,group:GROUP_OF[m],level:ORG[GROUP_OF[m]].levelTxt,data:r})});
+  cloudOk=res.ok||res.type==='opaque';
+ }catch(e){cloudOk=false}
+ updateCloudBadge();
+}
+async function pushAll(){
+ const list=ALL_MEMBERS.filter(m=>DB[m]&&!isEmptyRec(DB[m]));
+ if(!list.length){toast('ยังไม่มีข้อมูลให้ push');return}
+ toast('⏳ กำลัง push '+list.length+' คน…');
+ for(const m of list){await pushMember(m)}
+ toast('☁️ push '+list.length+' คนเข้าชีตกลางแล้ว');
+}
+async function pullCloud(){
+ if(!GAS_URL){toast('ยังไม่ได้ตั้ง GAS_URL');return}
+ toast('⏳ กำลังโหลดจากชีตกลาง…');
+ try{
+  const res=await fetch(GAS_URL+'?action=listMembers');
+  const j=await res.json();
+  cloudOk=!!j.success;
+  let n=0;
+  (j.members||[]).forEach(cm=>{
+   if(!ALL_MEMBERS.includes(cm.member))return;
+   const local=DB[cm.member];
+   // cloud ชนะเมื่อ local ว่าง/ไม่มี (ไม่ทับงานที่คนนั้นกำลังกรอกบนเครื่องตัวเอง)
+   if(!local||isEmptyRec(local)){DB[cm.member]={...blank(),...(cm.data||{})};n++}
+  });
+  save();renderHead();renderMain();
+  toast('☁️ โหลดจากชีตกลางแล้ว ('+(j.count||0)+' ชุดในชีต · ใส่เครื่องนี้ '+n+' คน)');
+ }catch(e){cloudOk=false;toast('โหลดไม่สำเร็จ: '+e.message)}
+ updateCloudBadge();
+}
+function updateCloudBadge(){
+ const el=document.getElementById('cloudBadge');
+ if(!el)return;
+ el.textContent=cloudOk===true?'☁️ เชื่อมชีตกลางแล้ว':cloudOk===false?'⚠️ ชีตกลางเชื่อมต่อไม่ได้':'☁️ ชีตกลาง: SP-สมาชิกรายคน';
+ el.style.color=cloudOk===false?'#dc2626':'#0284c7';
+}
+function saveDeb(){clearTimeout(window._sv);window._sv=setTimeout(()=>{save();toast('💾 บันทึกอัตโนมัติแล้ว');if(curMember)pushMember(curMember)},1200)}
 function rec(m){if(!DB[m])DB[m]=blank();return DB[m]}
 function save(){localStorage.setItem(LS,JSON.stringify(DB))}
+function blank(){return {meta:{company:'',note:''},resp:[],strat:[],links:[],okrs:[],alignNote:''}}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
-function saveDeb(){clearTimeout(window._sv);window._sv=setTimeout(()=>{save();toast('💾 บันทึกอัตโนมัติแล้ว')},700)}
+function saveDebOld_removed(){}
 
 /* ================= Header: filter + chips ================= */
 function renderHead(){
@@ -448,7 +497,7 @@ function exportCSV(){
  let csv='\uFEFF'+head.join(',')+'\n'+rows.map(r=>r.map(esc2).join(',')).join('\n');
  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pkg_succession_members.csv';a.click();toast('Export CSV แล้ว')}
 
-document.addEventListener('DOMContentLoaded',()=>{renderHead();renderMain()});
+document.addEventListener('DOMContentLoaded',()=>{renderHead();renderMain();updateCloudBadge();pullCloud()});
 </script>
 </body>
 </html>
