@@ -270,7 +270,6 @@ function renderMain(){
    </div>
    ${c.vetoNote?`<div class="mt-2 bg-white border rounded-xl p-3 text-[11.5px] text-slate-700 leading-relaxed" style="border-color:${c.hex}55">${c.vetoNote}</div>`:''}
   </details>
-  ${liaCard(curMember)}
  </div>
  <div class="flex flex-wrap gap-0 border-b border-slate-300 no-print">${tabs.map(([id,t])=>`<button class="ftab ${curTab===id?'active':''}" onclick="setTab('${id}')">${t}</button>`).join('')}</div>
  <div class="card bg-white rounded-b-2xl rounded-tr-2xl p-5" id="tabBody"></div>`;
@@ -293,6 +292,7 @@ function tabResp(){
  const c=ORG[GROUP_OF[curMember]];
  const cov=coverage(curMember);
  return `
+ ${liaCard(curMember)}
  ${coverageBanner(cov,c)}
  <div class="bg-gradient-to-r from-slate-50 to-white border border-slate-200 rounded-xl p-4 mb-4">
   <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
