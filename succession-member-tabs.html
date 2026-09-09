@@ -75,12 +75,31 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 const ORG = {
   OAC:{icon:'🏛',label:'OAC',level:1,levelTxt:'ลำดับชั้น 1 (สูงสุด)',color:'rose',hex:'#e11d48',
     scope:'ดูทุกกลยุทธ์ (ทุกด้าน BSC)',role:'กำกับดูแล (Oversight) · ให้คำปรึกษา (Advise) · ทบทวนผล (Review) · ยับยั้ง (Veto — Safety Gate 3 ครั้ง)',
+    duties:[['👁 Oversight','กำกับดูแลแนวทางการทำงานของกลยุทธ์ทุกด้าน — ไม่ทำงาน operation แต่ดูว่ากลยุทธ์เดินถูกทาง'],
+      ['💬 Advise','ให้คำปรึกษาแก่ GAT และ ADM — ถอดประสบการณ์บริหารส่งต่อทีมใหม่'],
+      ['🔍 Review','ทบทวนผลงาน รายงาน และทิศทาง — ตรวจ Monthly Audit/Oversight Report จาก GAT'],
+      ['🛑 Veto','ยับยั้งเรื่องสำคัญที่มีความเสี่ยงรุนแรง — Safety Gate สูงสุด 3 ครั้ง (เข้มสุด 2026–2027 แล้วลดลงเรื่อย ๆ)'],
+      ['🤝 Co-Ownership กับ GAT','ดูแลให้การตรวจสอบเข้มข้น — ร่วมเป็นเจ้าของการกำกับช่วงเปลี่ยนผ่าน'],
+      ['🔗 ความเชื่อมโยง','เชื่อมกับทุกชั้น: ให้คำปรึกษา/ทบทวน/Veto ต่อ GAT และ ADM · รับรายงาน Audit รายเดือนจาก GAT']],
+    vetoNote:'⚖️ หลัก Veto (Safety Gate): ใช้ได้สูงสุด 3 ครั้ง — เข้มข้นสุดช่วง 2026–2027 แล้วลดลงเรื่อย ๆ · ครบ 3 ครั้งแล้วทีมใหม่ทำงานเหมาะสม = ทีมใหม่พร้อม · Veto = ป้องกันความเสียหายช่วงเปลี่ยนผ่าน ไม่ใช่ทำงานแทนทีมใหม่',
     members:['คุณประวิทย์','พี่ต๋อง','พี่ก้อย']},
   GAT:{icon:'🛡',label:'GAT',level:2,levelTxt:'ลำดับชั้น 2 (กลาง)',color:'amber',hex:'#f59e0b',
     scope:'เฉพาะด้าน BSC ที่รับผิดชอบ',role:'พี่เลี้ยง ADM · ตรวจสอบการดำเนินงาน/ความเสี่ยง/Compliance · Tech Audit · Monthly Audit/Oversight Report ส่ง OAC',
+    duties:[['🤝 พี่เลี้ยง ADM','สอนงาน ถ่ายทอดประสบการณ์ ดูแลการเติบโตของทีมบริหารใหม่'],
+      ['🔍 ตรวจสอบ','การดำเนินงาน / ความเสี่ยง / Compliance / ผลลัพธ์ ของกลยุทธ์ด้าน BSC ที่รับผิดชอบ'],
+      ['💻 Tech Audit','ตรวจสอบเชิงเทคโนโลยีตามรอบ'],
+      ['📄 Monthly Report','รายงาน Audit/Oversight ประจำเดือนส่ง OAC'],
+      ['🧭 ที่มา','GAT = ADM เก่าเปลี่ยนบทบาทมาเป็น "พี่เลี้ยง" — ยังรับผิดชอบงานบทบาทเดิม + เพิ่มบทบาทที่ปรึกษาให้ ADM ใหม่'],
+      ['🔗 ความเชื่อมโยง','รายงาน Audit/Oversight ขึ้น OAC · พี่เลี้ยง/Cover/Co-Ownership ลง ADM']],
     members:['พี่กอล์ฟ','พี่อี๊ด','พี่เก๋','พี่อ้วน','พี่อ๊อด','พี่หวาน','พี่ญา','พี่ติ๋ม','พี่หนึ่ง','พี่สิงห์','พี่ปุ๊','คุณบอล']},
   ADM:{icon:'🚀',label:'ADM',level:3,levelTxt:'ลำดับชั้น 3 (เบื้องต้น)',color:'sky',hex:'#0284c7',
     scope:'เฉพาะด้าน BSC ที่รับผิดชอบ',role:'ทีมบริหารชุดใหม่ · รับพี่เลี้ยงจาก GAT · รับการกำกับจาก OAC · ฝึกบริหารแนวทางกลยุทธ์ (ไม่ใช่ operation)',
+    duties:[['🎯 บริหารกลยุทธ์','บริหารแนวทางการทำงานของกลยุทธ์ด้าน BSC ที่รับผิดชอบ (ไม่ทำงาน operation)'],
+      ['🌱 พัฒนา 4 ด้าน','Operation+อำนาจตัดสินใจ · Tech/Digital/AI/Automation · รักษา Culture/Value PKG · สร้างธุรกิจใหม่'],
+      ['🤝 รับการพี่เลี้ยง','เรียนรู้จาก GAT (Cover/Co-Ownership) และรับการกำกับจาก OAC'],
+      ['👥 ปั้นรุ่นถัดไป','ฝึกฝนทีมต่อเนื่อง — succession ไม่สิ้นสุดที่ตนเอง'],
+      ['📤 เงื่อนไขถ่ายทอด','ต้องผ่านก่อน 5 ข้อ: Operation Strategy Execution · ลดหนี้ตามเป้า · งานเงื่อนไข (AMS5) · รับผิดชอบจริง · Co-Ownership'],
+      ['🔗 ความเชื่อมโยง','รับพี่เลี้ยงจาก GAT · รับการกำกับ/Advise/Veto จาก OAC · ช่วยกันเองในทีม ADM']],
     members:['น้องแซน','โอม','จ้อน','แนน']}
 };
 const GROUP_OF={}; Object.entries(ORG).forEach(([g,c])=>c.members.forEach(m=>GROUP_OF[m]=g));
@@ -199,6 +218,15 @@ function renderMain(){
     ${[['📋',r.resp.length,'งาน'],['🎯',r.strat.length,'กลยุทธ์'],['🔗',r.links.length,'เชื่อมโยง'],['📏',r.okrs.reduce((a,o)=>a+(o.krs?.length||0),0),'KR']].map(x=>`<div><div class="text-lg font-extrabold" style="color:${c.hex}">${x[1]}</div><div class="text-[10px] text-slate-500">${x[0]} ${x[2]}</div></div>`).join('')}
    </div>
   </div>
+  <details class="mt-3 rounded-xl border p-3" style="border-color:${c.hex}44;background:${c.hex}0a" ${g==='OAC'?'open':''}>
+   <summary class="cursor-pointer text-sm font-extrabold" style="color:${c.hex}">📌 บทบาทหน้าที่ของ ${g} — คลิกเพื่อดู/ย่อ${g==='OAC'?' (รวมหลัก Veto 3 ครั้ง)':''}</summary>
+   <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3">
+    ${(c.duties||[]).map(d=>`<div class="bg-white rounded-lg border p-3" style="border-color:${c.hex}33">
+      <div class="text-xs font-extrabold" style="color:${c.hex}">${d[0]}</div>
+      <div class="text-[11.5px] text-slate-600 mt-1 leading-relaxed">${d[1]}</div></div>`).join('')}
+   </div>
+   ${c.vetoNote?`<div class="mt-2 bg-white border rounded-xl p-3 text-[11.5px] text-slate-700 leading-relaxed" style="border-color:${c.hex}55">${c.vetoNote}</div>`:''}
+  </details>
  </div>
  <div class="flex flex-wrap gap-0 border-b border-slate-300 no-print">${tabs.map(([id,t])=>`<button class="ftab ${curTab===id?'active':''}" onclick="setTab('${id}')">${t}</button>`).join('')}</div>
  <div class="card bg-white rounded-b-2xl rounded-tr-2xl p-5" id="tabBody"></div>`;
