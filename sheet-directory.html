@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>📖 สารบัญชีต — การทำงานของแต่ละชีต | PKG Succession + Web PP7</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap');
+body{font-family:'Sarabun',sans-serif}
+.glass{background:rgba(255,255,255,.95);backdrop-filter:blur(8px)}
+.card{border:1px solid #e5e7eb;transition:box-shadow .15s,transform .15s}
+.card:hover{box-shadow:0 8px 24px rgba(0,0,0,.07);transform:translateY(-2px)}
+.tab-row{border:1px solid #e2e8f0;border-radius:14px;background:#fff;overflow:hidden;transition:all .15s}
+.tab-row:hover{box-shadow:0 4px 16px rgba(0,0,0,.07);border-color:#a5b4fc}
+.chip{display:inline-flex;align-items:center;padding:2px 9px;border-radius:9999px;font-size:10.5px;font-weight:700;border:1px solid;white-space:nowrap}
+.chip-fill{background:#dcfce7;color:#15803d;border-color:#86efac}
+.chip-ref{background:#e0e7ff;color:#4338ca;border-color:#a5b4fc}
+.chip-auto{background:#fef3c7;color:#b45309;border-color:#fcd34d}
+.btn-o{border:1px solid #cbd5e1;background:#fff;color:#475569;padding:7px 13px;border-radius:10px;font-weight:600;font-size:12px;transition:all .15s}
+.btn-o:hover{background:#f1f5f9;border-color:#94a3b8}
+</style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+<header class="glass border-b border-slate-200 shadow-sm sticky top-0 z-40">
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+<div>
+<h1 class="text-xl sm:text-2xl font-extrabold text-slate-900">📖 สารบัญชีต — การทำงานของแต่ละชีต</h1>
+<p class="text-xs text-slate-500 mt-1">ชีตไหนเก็บอะไร · ใครกรอก · ข้อมูลเข้าอย่างไร — PKG Succession Plan 2026–2030 + Web PP7</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<a href="succession-member-tabs.html" class="btn-o">👤 กรอกข้อมูลรายคน</a>
+<a href="succession-form-v2.html" class="btn-o">🗂 ฟอร์มบันทึกประเด็น</a>
+<a href="index.html" class="btn-o">🏠 หน้าแรก</a>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mt-3 text-[11px]">
+<span class="chip chip-fill">✍️ กรอกข้อมูล</span>
+<span class="chip chip-auto">🤖 อัตโนมัติจากระบบ</span>
+<span class="chip chip-ref">📚 อ้างอิง (อ่านอย่างเดียว)</span>
+</div>
+</div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-8">
+
+<!-- ============ ชีต 1: Succession ============ -->
+<section>
+<div class="flex items-center gap-3 mb-3">
+<span class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center text-xl">🔴</span>
+<div>
+<h2 class="text-lg font-extrabold text-slate-900">ชีต "แผนสืบทอดบทบาท PKG — Succession Plan"</h2>
+<p class="text-xs text-slate-500">PKG Succession Plan 2026–2030 — OAC / GAT / ADM · <a class="text-indigo-600 hover:underline font-bold" target="_blank" href="https://docs.google.com/spreadsheets/d/1MKbtnxe8bYFXhTSDqybQ752mGdIO8UOU-Z41xBjvJSs/edit">เปิดชีต →</a></p>
+</div>
+</div>
+<div class="space-y-2" id="ss1"></div>
+</section>
+
+<!-- ============ ชีต 2: โครงสร้าง ระบบ PP7 ============ -->
+<section>
+<div class="flex items-center gap-3 mb-3">
+<span class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl">📊</span>
+<div>
+<h2 class="text-lg font-extrabold text-slate-900">ชีต "โครงสร้าง ระบบ PP7" (ชีตหลัก Web PP7)</h2>
+<p class="text-xs text-slate-500">สรุปกระบวนการ P1–P7 + กฎหมาย + ระเบียบ + Task + รายงาน · <a class="text-indigo-600 hover:underline font-bold" target="_blank" href="https://docs.google.com/spreadsheets/d/1yP_l-WmsnlkMDCkZB7ulhe6oS_AAex8iE3LYdPdg-uc/edit">เปิดชีต →</a></p>
+</div>
+</div>
+<div class="space-y-2" id="ss2"></div>
+</section>
+
+<!-- ============ เว็บที่เขียนลงชีต ============ -->
+<section>
+<div class="flex items-center gap-3 mb-3">
+<span class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xl">🌐</span>
+<div>
+<h2 class="text-lg font-extrabold text-slate-900">หน้าเว็บที่กรอกลงชีตกลาง</h2>
+<p class="text-xs text-slate-500">กรอกผ่านเว็บ → บันทึกอัตโนมัติเข้า Google Sheets (ไม่ต้องเปิดชีตแก้เอง)</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="webs"></div>
+</section>
+
+<div class="text-xs text-slate-400 text-center pt-2 pb-6">อัปเดต 9 ก.ย. 2569 · KiloClaw (PM + Developer) · Web PP7</div>
+</main>
+
+<script>
+const SS1='https://docs.google.com/spreadsheets/d/1MKbtnxe8bYFXhTSDqybQ752mGdIO8UOU-Z41xBjvJSs/edit#gid=';
+const SS2='https://docs.google.com/spreadsheets/d/1yP_l-WmsnlkMDCkZB7ulhe6oS_AAex8iE3LYdPdg-uc/edit#gid=';
+const T=(gid,ss)=>`<a target="_blank" href="${ss+gid}" class="chip" style="background:#f1f5f9;color:#475569;border-color:#cbd5e1;cursor:pointer">เปิด tab →</a>`;
+
+// ชีต Succession — [tab, ชนิด, ใครใช้, ทำอะไร, ข้อมูลเข้าอย่างไร, gid]
+const S1=[
+ ['SP-สมาชิกรายคน','auto','ทีมบริหารทุกคน (OAC 3 / GAT 12 / ADM 5) — แต่ละคนกรอกของตนเอง','ข้อมูลรายคน: งานรับผิดชอบ (ผูกบทบาทหลักบังคับ) · กลยุทธ์ BSC · บทบาทเชื่อมโยง · OKR/KPI · พี่เลี้ยง-น้องเลี้ยง 3 แนว (แนวดิ่ง/แนวราบ/ข้ามสายงาน) · ความสอดคล้องเป้าหมายองค์กร','กรอกผ่านหน้าเว็บ "สมาชิกรายคน" → บันทึกอัตโนมัติ 1 แถว/คน (แก้ซ้ำทับแถวเดิม)','1645280230'],
+ ['SP-บันทึกประเด็น','auto','สมาชิกทุกคน (ทีมบริหาร + ทั่วไป)','ฟอร์มบันทึกประเด็นการสืบทอด 26 ข้อ: บทบาทที่ควรมีผู้สืบทอด · SPOF · ผู้สืบทอด · ช่องทางถ่ายทอด · เงื่อนไขถ่ายทอด · Veto','กรอกผ่านฟอร์ม v2 → append ทีละแถว','1463595275'],
+ ['01-หลักการ-ปรัชญา','ref','ทุกคน (อ้างอิง)','หลักการ/ปรัชญาการสืบทอด PKG: สืบทอดความสามารถไม่ใช่ตำแหน่ง · ไม่มีวันส่งมอบมีแต่ช่วง cover · คนก่อนโครงสร้าง · no single point of failure','จัดทำโดย KiloClaw จาก master plan','1984005705'],
+ ['02-เรียนแบบ-6-บริษัท','ref','ทุกคน (อ้างอิง)','บทเรียน 6 บริษัทที่ทำ succession สำเร็จ — "เรียนแบบ" ไม่ใช่ "เลียนแบบ"','จัดทำโดย KiloClaw จากงานวิจัย/กรณีศึกษา','903985483'],
+ ['03-บทบาท-3','ref','ทุกคน (อ้างอิง)','นิยาม 3 บทบาท OAC/GAT/ADM: คือใคร · หน้าที่หลัก · CC หลัก · ระยะทดลอง','ตามคำยืนยันของพี่ปกรณ์ (7–9 ก.ย. 69)','396351884'],
+ ['04-ลำดับ-การหมุนเวียน','ref','ทุกคน (อ้างอิง)','ลำดับ/หลักการหมุนเวียนบทบาท · เส้นทางพัฒนา GAT → ADM → OAC','จัดทำโดย KiloClaw','109669925'],
+ ['05-วงจร-5-ปี-รายบทบาท','ref','ทุกคน (อ้างอิง)','วงจร 5 ปี (2026–2030) แยกบทบาท: แต่ละปีทำอะไร เข้มข้น→ส่งมอบ','จัดทำโดย KiloClaw ตาม master plan','1316938258'],
+ ['06-บทบาท-ใน-PP7','ref','ทุกคน (อ้างอิง)','ความเชื่อมโยงแผนสืบทอดกับระบบ PP7 (P1–P7)','จัดทำโดย KiloClaw (อัปเดต 7 ก.ย. 69)','277146217'],
+ ['07-Decision-Rights','ref','ทุกคน (อ้างอิง)','สิทธิ์การตัดสินใจตามช่วงเวลา: ปี 1-2 → ปี 3-4 → ปี 5','จัดทำโดย KiloClaw','1677356180'],
+ ['08-KPI-วัดผล-แผน','ref','ทุกคน + ทีมบริหารใช้ตรวจ','ตัวชี้วัดความสำเร็จของแผนสืบทอด: ตัวชี้วัด | หน่วย | เป้าหมาย | วิธีวัด','จัดทำโดย KiloClaw','1982382472'],
+ ['09-แผน-ฉุกเฉิน','ref','ทุกคน (อ้างอิง)','แผนฉุกเฉินถ้าบทบาทสำคัญว่างกะทันหัน: ผู้รักษาการ · กรอบเวลา · ต้องแจ้งใคร','จัดทำโดย KiloClaw','734359375'],
+ ['สารบัญ','ref','ทุกคน','สารบัญการทำงานของแต่ละ tab ในชีตนี้ (ฉบับตารางในชีต)','จัดทำโดย KiloClaw (9 ก.ย. 69)','2052681845'],
+];
+
+// ชีต PP7 — [tab, ชนิด, ใครใช้, ทำอะไร, ข้อมูลเข้าอย่างไร, gid]
+const S2=[
+ ['Tab-01-สรุปผู้บริหาร','ref','ผู้บริหาร','Dashboard สรุปภาพรวมระบบ PP7','KiloClaw สรุปจากกระบวนการแต่ละ P','1713121130'],
+ ['Tab-02-แสวงหา','fill','HR / ทีมสรรหา','P1 แสวงหา — กระบวนการเดิม → AI ช่วย → กระบวนการใหม่ → ลดความซ้ำซ้อน → task','KiloClaw สรุปจาก PM WI + เอกสารกระบวนการ','1183655031'],
+ ['Tab-03-หยั่งประเมิน','fill','HR','P2 หยั่งประเมิน (ประเมินก่อนรบ)','同上','1418899294'],
+ ['Tab-04-จับคู่คนกับงาน','fill','HR','P3 จับคู่คนกับงาน (ประเมินก่อนทำงาน)','同上','1727819585'],
+ ['Tab-05-ประเมินผล','fill','HR / ผู้บริหาร','P4 ประเมินผล (ประเมินหลังรบ) + ประเมินเครดิต 360°','同上','2004058549'],
+ ['Tab-06-พัฒนา','fill','HR','P5 พัฒนาตาม CC','同上','1336903307'],
+ ['Tab-07-ค่าตอบแทน','fill','HR / การเงิน','P6 ค่าตอบแทนและแรงจูงใจ','同上','1408686093'],
+ ['Tab-08-คุณภาพชีวิต','fill','HR','P7 คุณภาพชีวิต 5 องค์ประกอบ (สุขภาพ/มั่งคั่ง/บรรยากาศ/เวลา/อารมณ์ขัน)','同上','2016158863'],
+ ['Tab-09-กฎหมายแรงงาน','ref','HR / กฎหมาย','กฎหมายแรงงานที่เกี่ยวข้อง','同上','102003070'],
+ ['Tab-10-ระเบียบ PKG','ref','ทุกคน','ระเบียบองค์กร PKG','同上','176371947'],
+ ['Tab-11-Import-Export','ref','ทีมพัฒนา','แนวทางการนำเข้า/ส่งออกข้อมูลของระบบ','KiloClaw ออกแบบ','1651344469'],
+ ['Tab-12-System-Map','ref','ทีมพัฒนา / ผู้บริหาร','แผนผังความเชื่อมโยงของระบบทั้งหมด','KiloClaw ออกแบบ','310878624'],
+ ['task','fill','ทีมพัฒนา / PM','Task หลังลดความซ้ำซ้อนของแต่ละกระบวนการ + แนวทางออกแบบ Web PP7','KiloClaw สกัดจากเอกสารกระบวนการ','278424065'],
+ ['รวมรายละเอียด task','fill','ทีมพัฒนา / PM','รายละเอียด task ทั้งหมด (452 แถว) แยกหมวดกระบวนการ','KiloClaw รวบรวม','1384687238'],
+ ['ความแตกต่า OKR KPI','ref','ทุกคน','นิยามถาวร: KPI = keep the business running · OKR = move the business forward','พี่ปกรณ์นิยาม','2122163178'],
+ ['3E3P_Results','auto','HR / ผู้บริหาร','ผลประเมิน 3E3P รายคน (คะแนน direct/indirect/toe)','ระบบประเมิน 3E3P บันทึกอัตโนมัติ','1364751730'],
+ ['บันทึกประเด็นสำคัญ','ref','PM / ทุกคน','Milestone สำคัญของโครงการ Web PP7','KiloClaw บันทึก','359949507'],
+ ['ส่งรายงานประจำวัน','auto','PM','รายงานประจำวัน Web PP7 (08:30 ICT → กลุ่ม PADClaw)','KiloClaw ส่งอัตโนมัติทุกวัน','310806541'],
+ ['ศูนย์อ้างอิงงาน Web PP7','ref','PM / ทุกคน','ศูนย์รวมลิงก์/เอกสารอ้างอิงงาน Web PP7 ทั้งหมด','KiloClaw รวบรวม','850714303'],
+];
+
+const KIND={fill:['chip-fill','✍️ กรอกข้อมูล'],auto:['chip-auto','🤖 อัตโนมัติ'],ref:['chip-ref','📚 อ้างอิง']};
+function row(t,ss){
+ return `<div class="tab-row p-3.5">
+  <div class="flex flex-wrap items-center gap-2 mb-1.5">
+   <span class="font-extrabold text-sm text-slate-800">📑 ${t[0]}</span>
+   <span class="chip ${KIND[t[1]][0]}">${KIND[t[1]][1]}</span>
+   ${T(t[5], ss)}
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs">
+   <div><span class="font-bold text-slate-500">👥 ใครใช้:</span> <span class="text-slate-700">${t[2]}</span></div>
+   <div class="md:col-span-2"><span class="font-bold text-slate-500">🎯 มีไว้ทำอะไร:</span> <span class="text-slate-700">${t[3]}</span></div>
+   <div class="md:col-span-3"><span class="font-bold text-slate-500">🔄 ข้อมูลเข้าอย่างไร:</span> <span class="text-slate-600">${t[4]}</span></div>
+  </div>
+ </div>`;
+}
+document.getElementById('ss1').innerHTML=S1.map(t=>row(t,SS1)).join('');
+document.getElementById('ss2').innerHTML=S2.map(t=>row(t,SS2)).join('');
+
+const WEBS=[
+ ['👤 สมาชิกรายคน (Succession)','succession-member-tabs.html','ทีมบริหาร 20 คนกรอกข้อมูลของตนเอง → ลง tab "SP-สมาชิกรายคน" อัตโนมัติ'],
+ ['🗂 ฟอร์มบันทึกประเด็น v2','succession-form-v2.html','สมาชิกทุกคนตอบ 26 ข้อ → ลง tab "SP-บันทึกประเด็น" อัตโนมัติ'],
+ ['🔗 แผนผัง 3 บทบาท','succession-roles-map.html','ดูความเชื่อมโยง OAC/GAT/ADM (อ่านอย่างเดียว)'],
+ ['🔴 Succession Plan Dashboard','succession-plan-dashboard.html','แผนแม่บท 2026–2030 (อ่านอย่างเดียว)'],
+ ['📈 PRG/PDG Dashboard','prg-pdg-dashboard.html','ตัวเลข GM/SA/HRE รายบริษัทปี 69 (อ่านจากชีต PL)'],
+ ['🏠 Web PP7 (หน้าแรก)','index.html','ระบบ PP7 ทั้งหมด P1–P7'],
+];
+document.getElementById('webs').innerHTML=WEBS.map(w=>`<a href="${w[1]}" class="card bg-white rounded-2xl p-4 block">
+ <div class="font-extrabold text-sm text-slate-800">${w[0]}</div>
+ <div class="text-xs text-slate-500 mt-1">${w[2]}</div></a>`).join('');
+</script>
+</body>
+</html>
