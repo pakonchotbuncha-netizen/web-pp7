@@ -51,6 +51,11 @@ body{font-family:'Sarabun',sans-serif}
 
 <script src="succession-lia-data.js"></script>
 <script>
+/* ลิงก์เรียวทาม — ชีต CEO ตัวจริง (เปิดแล้วเห็นข้อมูลปัจจุบัน) */
+const REALTIME_BASE='https://docs.google.com/spreadsheets/d/1KxsjFHwaETqLny5QfJaY5X1uFUmdJycDbdLNYu0Lhdw/edit#gid=';
+const REALTIME_GID={
+ 'คุณประวิทย์':'995204097','พี่ต๋อง':'312908717','พี่ก้อย':'1064312456','พี่กอล์ฟ':'1722992104','พี่อี๊ด':'2050051785','พี่เก๋':'1054585747','พี่อ้วน':'1671128849','พี่อ๊อด':'1192418838','พี่หวาน':'484863963','พี่ญา':'697422182','พี่ติ๋ม':'1258165885','พี่หนึ่ง':'105755056','พี่สิงห์':'1996100044','พี่ปุ๊':'1996275829','คุณบอล':'562434652','น้องแซน':'1785183877','โอม':'1438194092','จ้อน':'1960799922','แนน':'1686264807','คุณปอม':'2062895538'
+};
 /* [ชื่อเล่น, ชื่อจริง, กลุ่ม, BU] */
 const META={
  'คุณประวิทย์':['คุณประวิทย์','ประวิทย์ ผ่องโสภา','OAC','PKG'],
@@ -105,7 +110,8 @@ function renderDetail(){
      <div class="text-xs text-slate-500 mt-0.5"><span class="badge" style="background:${c.hex}1a;color:${c.hex};border-color:${c.hex}55">${c.label}</span> · BU เดิม: ${meta[3]}</div>
     </div>
    </div>
-   <div class="text-[11px] text-slate-400">ข้อมูลต้นฉบับ: tab "${esc(srcTab)}" · ${rows.length} บรรทัด</div>
+   <a href="${REALTIME_BASE+(REALTIME_GID[cur]||'')}" target="_blank" class="text-[11px] font-bold text-indigo-600 hover:underline border border-indigo-200 bg-indigo-50 px-2 py-0.5 rounded-full whitespace-nowrap">เปิดชีตเรียวทาม →</a>
+   <span class="text-[11px] text-slate-400">tab "${esc(srcTab)}" · ${rows.length} บรรทัด</span>
   </div>
  </div>
  <div class="p-4">`;

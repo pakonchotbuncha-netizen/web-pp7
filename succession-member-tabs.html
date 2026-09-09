@@ -109,7 +109,8 @@ const BSC=[['Financial','💰 การเงิน'],['Customer','🤝 ลู�
 
 /* ================= ข้อมูลบทบาทเดิม LIA/CEO 2026 (ตั้งต้นเขียนบทบาทใหม่) ================= */
 /* [ชื่อเล่น, ชื่อจริง, กลุ่ม, BU, tab LIA, gid, บทบาทเดิม, จุดมุ่งหมาย, หน้าที่รับผิดชอบหลักเดิม] */
-const LIA_SRC='https://docs.google.com/spreadsheets/d/1JSCq_Vf-SgAX1dcjNziel4s6pdGBw42pigARa_p767k/edit#gid=';
+const REALTIME_BASE='https://docs.google.com/spreadsheets/d/1KxsjFHwaETqLny5QfJaY5X1uFUmdJycDbdLNYu0Lhdw/edit#gid=';
+const REALTIME_GID={'คุณประวิทย์':'995204097','พี่ต๋อง':'312908717','พี่ก้อย':'1064312456','พี่กอล์ฟ':'1722992104','พี่อี๊ด':'2050051785','พี่เก๋':'1054585747','พี่อ้วน':'1671128849','พี่อ๊อด':'1192418838','พี่หวาน':'484863963','พี่ญา':'697422182','พี่ติ๋ม':'1258165885','พี่หนึ่ง':'105755056','พี่สิงห์':'1996100044','พี่ปุ๊':'1996275829','คุณบอล':'562434652','น้องแซน':'1785183877','โอม':'1438194092','จ้อน':'1960799922','แนน':'1686264807','คุณปอม':'2062895538'};
 const LIA_ORIG=[
 ['คุณประวิทย์','ประวิทย์ ผ่องโสภา','OAC','PKG','CEO PVP 2026','995204097','ทีมรับใช้ PKG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','กำหนดทิศทางองค์กรร่วมทีม AWG/BMC · สร้าง Integrity หนึ่งเดียว · รับใช้ผู้มีส่วนได้ส่วนเสีย 5 ฝ่าย · แทรกแซงเมื่อส่งมอบผลลัพธ์ล้มเหลว · รับรู้/รับผิดชอบความหมกมุ่นของสมาชิก · นำบุคคล 5 ฝ่ายสู่ศตวรรษ 21 ด้วยเทคโนโลยี · ใช้เครื่องมือ 7F อัตโนมัติ OGC2.0 · พี่เลี้ยงสร้างความสัมพันธ์รับใช้ลูกค้า'],
 ['พี่ต๋อง','รนกร ณัทศศิร์','OAC','AAMG','CEO_รนกร 2026','312908717','ทีมรับใช้ PKG-AAMG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','AAMG-Change Strategy Ownership · เติบโตสินเชื่อคุณภาพหนี้ 98% + สภาพคล่อง · เพิ่มหลักประกัน Reserve Assets (Gold & Bitcoin) 50% ใน 3-5 ปี · ZLLP · Money-as-Code · R&D ลูกค้า/ผลิตภัณฑ์ · PP7 Upskill & Reskill ทั้งองค์กร · WaC 1.0 + SafeClaw · CBNP สูงสุด'],
@@ -157,7 +158,7 @@ function liaCard(m){
  return `<div class="card bg-white rounded-xl border p-3.5 mt-3" style="border-color:#c7d2fe;background:linear-gradient(135deg,#eef2ff,#fff)">
   <div class="flex items-center justify-between gap-2 mb-2">
    <div class="text-xs font-extrabold text-indigo-700">📖 บทบาทเดิมของคุณ (LIA/CEO 2026) — ใช้เป็นข้อมูลตั้งต้นทวนสอบตอนเขียนบทบาทใหม่</div>
-   ${fw?'':`<a href="${LIA_SRC+gid}" target="_blank" style="flex:none;font-size:10.5px;font-weight:700;background:#4f46e5;color:#fff;padding:4px 9px;border-radius:8px">เปิด LIA เดิม →</a>`}
+   <a href="${REALTIME_BASE+(REALTIME_GID[m]||gid)}" target="_blank" style="flex:none;font-size:10.5px;font-weight:700;background:#4f46e5;color:#fff;padding:4px 9px;border-radius:8px;white-space:nowrap">เปิดชีตเรียวทาม →</a>
   </div>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11.5px]">
    <div><div class="font-bold text-slate-500">👤 ${esc(full)}</div><div class="text-slate-600 mt-0.5">${esc(role)}</div></div>
