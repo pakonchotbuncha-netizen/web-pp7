@@ -137,13 +137,22 @@ function liaCard(m){
  const r=LIA_BY_NICK[m]; if(!r) return '';
  const[nick,full,g,bu,tab,gid,role,purp,acc]=r;
  const fw=(window.LIA_FULL&&LIA_FULL[m])?LIA_FULL[m]:null;
+ const fwRows = fw ? fw.rows : [];
+ const preview = fwRows.slice(0,5);
+ const rest = fwRows.slice(5);
+ const uid = 'lia-'+m.replace(/\s/g,'');
+ const rowHtml = rows=>rows.map(row=>`<tr class="border-b border-slate-100 last:border-0">${row.map(c=>`<td class="px-2 py-1 align-top text-slate-600" style="min-width:110px">${esc(c)}</td>`).join('')}</tr>`).join('');
  const rowsHtml = fw ? `<div class="mt-2 border-t border-slate-200 pt-2">
-  <div class="text-[10px] font-bold text-indigo-500 mb-1">📄 ข้อมูลต้นฉบับเต็ม (จาก tab ${esc(fw.tab||tab)})</div>
-  <div class="overflow-x-auto max-h-[420px] overflow-y-auto rounded-lg border border-slate-200">
-   <table class="w-full text-[11px] border-collapse">
-    ${fw.rows.map(row=>`<tr class="border-b border-slate-100 last:border-0">${row.map(c=>`<td class="px-2 py-1 align-top text-slate-600" style="min-width:110px">${esc(c)}</td>`).join('')}</tr>`).join('')}
-   </table>
+  <div class="text-[10px] font-bold text-indigo-500 mb-1">📄 ข้อมูลต้นฉบับเต็ม (จาก tab ${esc(fw.tab||tab)}) — 5 บรรทัดแรก กดปุ่มเพื่อดูทั้งหมด</div>
+  <div class="overflow-x-auto rounded-lg border border-slate-200">
+   <table class="w-full text-[11px] border-collapse">${rowHtml(preview)}</table>
   </div>
+  ${rest.length?`<div class="mt-1.5">
+   <button type="button" class="btn-add" style="font-size:11px;padding:5px 11px" onclick="document.getElementById('${uid}').classList.toggle('hidden');this.textContent=this.textContent.includes('ดูเต็ม')?'▲ ซ่อน':'▼ ดูเต็ม ('+${rest.length}+' แถว)'">▼ ดูเต็ม (${rest.length} แถว)</button>
+   <div id="${uid}" class="hidden mt-1.5 overflow-x-auto max-h-[420px] overflow-y-auto rounded-lg border border-slate-200">
+    <table class="w-full text-[11px] border-collapse">${rowHtml(rest)}</table>
+   </div>
+  </div>`:''}
  </div>` : '';
  return `<div class="card bg-white rounded-xl border p-3.5 mt-3" style="border-color:#c7d2fe;background:linear-gradient(135deg,#eef2ff,#fff)">
   <div class="flex items-center justify-between gap-2 mb-2">
