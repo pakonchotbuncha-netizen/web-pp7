@@ -10,9 +10,11 @@
 body{font-family:'Sarabun',sans-serif}
 .glass{background:rgba(255,255,255,.95);backdrop-filter:blur(8px)}
 .card{border:1px solid #e5e7eb;transition:box-shadow .15s,transform .15s}
-.card:hover{box-shadow:0 8px 24px rgba(0,0,0,.07);transform:translateY(-2px)}
 .badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:9999px;font-size:10.5px;font-weight:700;border:1px solid;white-space:nowrap}
-.chip{display:inline-flex;align-items:center;padding:2px 9px;border-radius:9999px;font-size:10.5px;font-weight:700;border:1px solid;white-space:nowrap}
+.person-tab{display:inline-flex;align-items:center;gap:5px;border:1.5px solid #e2e8f0;background:#fff;color:#475569;border-radius:9999px;padding:6px 13px;font-size:12px;font-weight:700;cursor:pointer;transition:all .12s;white-space:nowrap}
+.person-tab:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.08)}
+.person-tab.active{border-width:2px;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.dot{width:8px;height:8px;border-radius:99px;display:inline-block}
 </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
@@ -22,7 +24,7 @@ body{font-family:'Sarabun',sans-serif}
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
 <div>
 <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900">📖 ข้อมูลบทบาทเดิม — LIA / CEO 2026</h1>
-<p class="text-xs text-slate-500 mt-1">ใช้ทวนสอบประกอบการเขียนบทบาทใหม่ 3 บทบาท (OAC / GAT / ADM) · แผนสืบทอดบทบาท PKG 2026–2030</p>
+<p class="text-xs text-slate-500 mt-1">ข้อมูลเต็มของแต่ละคน (นำเข้าจากชีต LIA/CEO เดิมแล้ว) — ใช้ทวนสอบประกอบการเขียนบทบาทใหม่ 3 บทบาท · PKG Succession 2026–2030</p>
 </div>
 <div class="flex flex-wrap gap-2">
 <a href="succession-member-tabs.html" class="btn-o">👤 กรอกข้อมูลรายคน</a>
@@ -30,87 +32,97 @@ body{font-family:'Sarabun',sans-serif}
 <a href="index.html" class="btn-o">🏠 หน้าแรก</a>
 </div>
 </div>
-<div class="flex flex-wrap gap-2 mt-3 text-[11px]">
-<span class="chip" style="background:#ffe4e6;color:#be123c;border-color:#fda4af">🏛 OAC (3)</span>
-<span class="chip" style="background:#fef3c7;color:#b45309;border-color:#fcd34d">🛡 GAT (12)</span>
-<span class="chip" style="background:#e0f2fe;color:#0369a1;border-color:#7dd3fc">🚀 ADM (5)</span>
-<span class="chip" style="background:#f1f5f9;color:#475569;border-color:#cbd5e1">📚 LIA รวมทีม</span>
-<span class="text-slate-400 text-[11px]">กดปุ่ม "เปิด LIA →" เพื่อดู tab ต้นฉบับเต็ม</span>
-</div>
 </div>
 </header>
 
-<main class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+<main class="max-w-7xl mx-auto px-4 sm:px-6 py-5">
 
-<!-- ตัวกรอง -->
-<div class="flex flex-wrap gap-2 mb-5" id="filters"></div>
+<!-- ตัวกรองกลุ่ม -->
+<div class="flex flex-wrap items-center gap-2 mb-3" id="groupFilter"></div>
 
-<div id="grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+<!-- Tab รายคน -->
+<div class="flex flex-wrap gap-1.5 mb-4" id="personTabs"></div>
 
-<div class="text-xs text-slate-400 text-center pt-6 pb-4">อัปเดต 9 ก.ย. 2569 · KiloClaw (PM + Developer) · ข้อมูลต้นฉบับ: ชีต LIA/CEO บทบาทเดิม</div>
+<!-- เนื้อหาคนที่เลือก -->
+<div id="detail" class="card bg-white rounded-2xl overflow-hidden shadow-sm"></div>
+
+<div class="text-xs text-slate-400 text-center pt-5 pb-4">อัปเดต 9 ก.ย. 2569 · KiloClaw (PM + Developer) · ข้อมูลนำเข้าจากชีต LIA/CEO บทบาทเดิม (ไม่ต้องเปิดชีต)</div>
 </main>
 
+<script src="succession-lia-data.js"></script>
 <script>
-/* ================= ข้อมูล (จาก tab LIA-บทบาทเดิม-2026 ในชีต Succession) ================= */
-/* [ชื่อเล่น, ชื่อจริง, กลุ่ม, BU, tab LIA, gid, บทบาทเดิม, จุดมุ่งหมาย, หน้าที่รับผิดชอบหลักเดิม] */
-const DATA=[
-['คุณประวิทย์','ประวิทย์ ผ่องโสภา','OAC','PKG','CEO PVP 2026','704572354','ทีมรับใช้ PKG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','กำหนดทิศทางองค์กรร่วมทีม AWG/BMC · สร้าง Integrity หนึ่งเดียว · รับใช้ผู้มีส่วนได้ส่วนเสีย 5 ฝ่าย · แทรกแซงเมื่อส่งมอบผลลัพธ์ล้มเหลว · รับรู้/รับผิดชอบความหมกมุ่นของสมาชิก · นำบุคคล 5 ฝ่ายสู่ศตวรรษ 21 ด้วยเทคโนโลยี · ใช้เครื่องมือ 7F อัตโนมัติ OGC2.0 · พี่เลี้ยงสร้างความสัมพันธ์รับใช้ลูกค้า'],
-['พี่ต๋อง','รนกร ณัทศศิร์','OAC','AAMG','CEO_รนกร 2026','422246101','ทีมรับใช้ PKG-AAMG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','AAMG-Change Strategy Ownership · เติบโตสินเชื่อคุณภาพหนี้ 98% + สภาพคล่อง · เพิ่มหลักประกัน Reserve Assets (Gold & Bitcoin) 50% ใน 3-5 ปี · ZLLP · Money-as-Code · R&D ลูกค้า/ผลิตภัณฑ์ · PP7 Upskill & Reskill ทั้งองค์กร · WaC 1.0 + SafeClaw · CBNP สูงสุด'],
-['พี่ก้อย','กาญจนา ขุนจิตต์','OAC','PMSG','CEO_ ก้อย 2026','1290377356','ทีมรับใช้ PKG-PMSG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','พี่เลี้ยงทีม PMSgr ให้ผลงานสำเร็จตามกลยุทธ์ 5 ด้าน · พี่เลี้ยงทีมความสำเร็จตรีเพชรฯ กำกับการสื่อสาร · พี่เลี้ยงทีมผู้รับใช้ทีมขายและผู้ใช้รถยนต์ · พี่เลี้ยงทีมทบทวนค่าตอบแทน PMSgr'],
-['พี่กอล์ฟ','วรพินิจ ศิริโชติ','GAT','TNR (ไทยพนา)','CEO_ กอล์ฟ 2026','1028073222','ทีมรับใช้ PKG-TNR (LIA 2.0 CEO)','พัฒนาสวนเกษตรให้เป็นระบบธุรกิจรายได้สูง ยั่งยืน ใช้ทรัพยากรอย่างมีประสิทธิภาพ','กำหนดกลยุทธ์ธุรกิจสวน (พืชผลไม้+ป่า 5 ชั้น) · กำกับผลประกอบการ Revenue/Cost/Margin · พัฒนาระบบข้อมูลและ KPI Dashboard · บริหารและพัฒนาศักยภาพทีม · สร้างโมเดลแปลงต้นแบบ (Model Plot) · พี่เลี้ยงทีมให้ OKR/KPI สำเร็จ'],
-['พี่อี๊ด','พัชนี สุขสำราญ','GAT','PKG','CEO_พัชนี 2026','1198250789','ทีมรับใช้ PKG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','บริหารสภาพคล่อง วงเงินพร้อมใช้ตลอดเวลา ลดต้นทุน OD · พี่เลี้ยงการเงิน PKG สู่งานอัตโนมัติประจำวัน · 7F ระบบงาน PF · บริหาร CU ให้มีกำไร · สนับสนุนการเงิน รับใช้สมาชิก/ผู้ถือหุ้น/กรรมการ · ทีมเปิดบริษัทต่างประเทศ'],
-['พี่เก๋','ขวัญฤทัย ใจหาญ','GAT','PKG','CEO_Kwunruthai 2026','557394344','ทีม AWG-PIT (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','กำหนดทิศทางองค์กรร่วมทีม AWG/BMC · สร้าง Integrity หนึ่งเดียว · บริหารกลยุทธ์/เป้าหมาย/แผนงาน · Execution งานปฏิรูป AX-PKG · บริหารระบบวัดผลใช้ได้จริงทุกธุรกิจ · กำกับกลยุทธ์ PIT และ DIN · ใช้เครื่องมือ 7F อัตโนมัติ OGC2.0'],
-['พี่อ้วน','โกวิทย์ สีเผือก','GAT','PKG','CEO_Kowit 2026','696469814','ทีม CPDG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','CPDG target · PKG crypto asset · กำหนดทิศทางองค์กรตามกลยุทธ์ประจำปี'],
-['พี่อ๊อด','อรุณี เลิศวศะ','GAT','PKG','CEO_อรุณี 2026','694237630','ทีมรับใช้ PKG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','รับใช้ทีมบัญชี ทำบัญชีมาตรฐานสากลทุกประเทศ · ให้ข้อมูลการเงิน/ผลประกอบการสนับสนุนฝ่ายบริหาร · รับใช้ทีมการเงินให้สอดรับกลมกลืน · บริหารภาษีประหยัด คุ้มค่า ถูกต้องตามสิทธิ · พัฒนาทักษะบัญชียุค Hitech-Hitouch'],
-['พี่หวาน','รัตนา สมภักดี','GAT','AAMG','CEO_รัตนา 2026','1609559824','ทีมรับใช้ PKG-AAMG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','สนับสนุน Operation AAM/RPLC/RAFCO Asset Growth · ฟื้นฟูสาขา Asset ต่ำ 9 ลบ. 15 สาขา · CostDown AX AAMG · บริหารสภาพคล่อง AAM/RAFCO ไม่มีภาระหนี้เพิ่ม · กำกับค่าตอบแทน/INC AAMG'],
-['พี่ญา','สุกัญญา แซ่เลียง','GAT','AAMG','CEO_พี่ญา2026','1792134062','ทีมรับใช้ PKG-AAMG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','เติบโตสินเชื่อ สปป.ลาว ให้เต็มศักยภาพ คุณภาพหนี้มาตรฐาน 98% · เปิดสาขา Size 3s/Agent Service 4 สาขาใน 2026, 7-10 สาขาใน 2027 · สนับสนุนสินเชื่อผลิตภัณฑ์ใหม่ AAMG · สร้างรายได้เพิ่ม NB · HP รถใหม่/EV/มือสอง สปป.ลาว · Market Place · ปฏิรูปเพิ่มผลิตภาพสมาชิก AX FX'],
-['พี่ติ๋ม','อารีย์ เขาจารีย์','GAT','PKG','CEO_Aree 2026','2059508611','ทีม PAC (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','นโยบาย AWG-PAC (Play Potential Performance P2) · กำกับ Operations PP7 (ค่าตอบแทน+HWWTF+กฎหมายแรงงาน) · กำกับเวที L&G · บริหารครูฝึก/หลักสูตรทุนองค์กร · งบกองทุนสมาชิก · สหกรณ์เครดิตยูเนี่ยนประชากิจ'],
-['พี่หนึ่ง','ปกรณ์ โชติบัญชา','GAT','PKG','CEO_Pakon 2026','1717171826','ทีมรับใช้ PKG-PAC (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','รับผิดชอบนโยบาย AWG-PAC · กำกับ Operations P1-4 (แสวงหา/หยั่งประเมิน/จับคู่/ประเมินผล) · กำกับเวที L&G · สร้าง Web PP7 · Execution งานปฏิรูป AX-PAC'],
-['พี่สิงห์','สมศักดิ์ ธัมมะปาละ','GAT','PMSG','CEO_ สิงห์ 2026','520806483','ทีมรับใช้ PKG-PMSG (LIA 2.0 CEO)','ทุ่มเทรับใช้ผู้ใช้รถยนต์อย่างใกล้ชิดให้ประสบความสำเร็จ','พี่เลี้ยงทีมศูนย์ซ่อมตัวถังและสี · พี่เลี้ยงทีม PMGI · สนับสนุนธุรกิจหลังการขายให้ได้ตามเป้า · ร่วมขับเคลื่อนเชื่อมโยงระบบ ลดงานซ้ำซ้อน · ร่วมแสวงหาโอกาสใหม่เพิ่มรายได้จากเครือข่ายลูกค้า'],
-['พี่ปุ๊','ชุติมา สิทธิบุศย์','GAT','PMSG','CEO_ ปุ๊ 2026','1672641507','ทีมรับใช้ PKG-PMSG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','พี่เลี้ยงทีมความสำเร็จลูกค้า สร้างการรับใช้ตามความต้องการอย่างเป็นระบบ (OGC 98% PIC CRM) · พี่เลี้ยงทีม CIX ชี้แจงจุดมุ่งหมาย/รับผิดชอบต่อผล · ปรับกลยุทธ์รับใช้ลูกค้าตามสถานการณ์ · ผลักดันทุกหน่วยงานรับใช้ลูกค้า realtime'],
-['คุณบอล','ศุภสิทธิ์ ผ่องโสภา','GAT','CPDG','CEO คุณบอล 2026','1198433028','ทีมรับใช้ PKG-CPDG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','กำหนดทิศทางองค์กรร่วมทีม AWG-DIN · พัฒนาระบบ Smart Farm & IoT Real-time · สร้าง/ปรับแต่ง AI Agent วิเคราะห์ข้อมูล · แผนรองรับฉุกเฉินด้านพลังงานไม่กระทบเซิร์ฟเวอร์หลัก · นำบุคคล 5 ฝ่ายสู่ศตวรรษ 21 ด้วยเทคโนโลยี · ยกระดับ AI องค์กร'],
-['น้องแซน','ณัฐภัทร ขุนจิตต์','ADM','PMSG','CEO_ แซน 2026','435918742','ทีมรับใช้ PKG-PMS (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','สร้างผลกำไร CBNP รวม PMSG 39 ลบ. และ PMS 29 ลบ. · ผู้นำยอดขายรถยนต์ 1,080 คัน รักษา CSI/SSI Top 5 ของโซน · ขับเคลื่อนระบบนิเวศ NAVway PKG และการตลาดดิจิทัลเต็มรูปแบบ'],
-['โอม','ปุญญพัฒน์ สนั่นพานิชกุล','ADM','CPDG','CEO_Poonyapat 2026','780939816','ทีมรับใช้ PKG-CPDG (LIA 2.0 CEO)','สร้างธุรกิจใหม่ สร้างรายได้ใหม่ PKG Creating Future Businesses','กำกับความปลอดภัยเทคโนโลยี · วิจัยเทคโนโลยีรับใช้ลูกค้า FX หน้าร้านดิจิทัล / RX Startup · ตรวจสอบความปลอดภัยสม่ำเสมอ · กำกับระบบซัพพอร์ตเทคโนโลยี'],
-['จ้อน','ไชยา เงื้อมผา','ADM','CPDG','CEO_Chaiya 2026','1637733643','ทีม AGS (LIA 2.0 CEO)','สร้างธุรกิจใหม่ สร้างรายได้ใหม่ PKG Creating Future Businesses','กำกับพัฒนาซอฟต์แวร์ตามมาตรฐาน ISO · กำกับความปลอดภัยเทคโนโลยี PKG · Execution Workflow as Code · วิจัยเทคโนโลยีใหม่เพิ่มผลผลิต AX · กำกับโรงเรียนเทคโนโลยี PKG'],
-['แนน','รัฐพร คะชาแก้ว','ADM','PKG','CEO_Rattaporn 2026','2103111129','ทีม PAC (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','บริหารกลยุทธ์ P5 (Personnel development) · Co-ownership โรงเรียนฝึก AI · Execution งานปฏิรูป FX-PAC · งาน PP7 ด้าน Health · Operations PP5 · Product Management (HR MS24 / Likepoint 2.0)'],
-['คุณปอม','ปวีร์ ผ่องโสภา','ADM','PKG','CEO_Pavee','188895603','ทีม PM PKG / Money Buddy (LIA 2.0 CEO)','ปรับปรุง ownership','สร้างธุรกิจใหม่ลาว/กัมพูชา VASP · ฟื้นฟูกิจการ Rafco-Online Gold · ปรับโครงสร้าง/Coach PM · Audit KPI/CEO · Accounting/SGM PM/WI'],
-];
-const SRC='https://docs.google.com/spreadsheets/d/1MKbtnxe8bYFXhTSDqybQ752mGdIO8UOU-Z41xBjvJSs/edit#gid=';
-const GRP={OAC:{hex:'#e11d48',bg:'#ffe4e6',label:'🏛 OAC'},GAT:{hex:'#b45309',bg:'#fef3c7',label:'🛡 GAT'},ADM:{hex:'#0369a1',bg:'#e0f2fe',label:'🚀 ADM'}};
-let cur='ALL';
+/* [ชื่อเล่น, ชื่อจริง, กลุ่ม, BU] */
+const META={
+ 'คุณประวิทย์':['คุณประวิทย์','ประวิทย์ ผ่องโสภา','OAC','PKG'],
+ 'พี่ต๋อง':['พี่ต๋อง','รนกร ณัทศศิร์','OAC','AAMG'],
+ 'พี่ก้อย':['พี่ก้อย','กาญจนา ขุนจิตต์','OAC','PMSG'],
+ 'พี่กอล์ฟ':['พี่กอล์ฟ','วรพินิจ ศิริโชติ','GAT','TNR (ไทยพนา)'],
+ 'พี่อี๊ด':['พี่อี๊ด','พัชนี สุขสำราญ','GAT','PKG'],
+ 'พี่เก๋':['พี่เก๋','ขวัญฤทัย ใจหาญ','GAT','PKG'],
+ 'พี่อ้วน':['พี่อ้วน','โกวิทย์ สีเผือก','GAT','PKG'],
+ 'พี่อ๊อด':['พี่อ๊อด','อรุณี เลิศวศะ','GAT','PKG'],
+ 'พี่หวาน':['พี่หวาน','รัตนา สมภักดี','GAT','AAMG'],
+ 'พี่ญา':['พี่ญา','สุกัญญา แซ่เลียง','GAT','AAMG'],
+ 'พี่ติ๋ม':['พี่ติ๋ม','อารีย์ เขาจารีย์','GAT','PKG'],
+ 'พี่หนึ่ง':['พี่หนึ่ง','ปกรณ์ โชติบัญชา','GAT','PKG'],
+ 'พี่สิงห์':['พี่สิงห์','สมศักดิ์ ธัมมะปาละ','GAT','PMSG'],
+ 'พี่ปุ๊':['พี่ปุ๊','ชุติมา สิทธิบุศย์','GAT','PMSG'],
+ 'คุณบอล':['คุณบอล','ศุภสิทธิ์ ผ่องโสภา','GAT','CPDG'],
+ 'น้องแซน':['น้องแซน','ณัฐภัทร ขุนจิตต์','ADM','PMSG'],
+ 'โอม':['โอม','ปุญญพัฒน์ สนั่นพานิชกุล','ADM','CPDG'],
+ 'จ้อน':['จ้อน','ไชยา เงื้อมผา','ADM','CPDG'],
+ 'แนน':['แนน','รัฐพร คะชาแก้ว','ADM','PKG'],
+ 'คุณปอม':['คุณปอม','ปวีร์ ผ่องโสภา','ADM','PKG'],
+};
+const GRP={OAC:{hex:'#e11d48',label:'🏛 OAC'},GAT:{hex:'#b45309',label:'🛡 GAT'},ADM:{hex:'#0369a1',label:'🚀 ADM'}};
+const NICK_ORDER=['คุณประวิทย์','พี่ต๋อง','พี่ก้อย','พี่กอล์ฟ','พี่อี๊ด','พี่เก๋','พี่อ้วน','พี่อ๊อด','พี่หวาน','พี่ญา','พี่ติ๋ม','พี่หนึ่ง','พี่สิงห์','พี่ปุ๊','คุณบอล','น้องแซน','โอม','จ้อน','แนน','คุณปอม'];
+let cur='พี่ต๋อง';
+
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-function renderFilters(){
- document.getElementById('filters').innerHTML=
- `<button class="mchip ${cur==='ALL'?'active':''}" onclick="setF('ALL')" style="border:1px solid ${cur==='ALL'?'#6366f1':'#cbd5e1'};color:${cur==='ALL'?'#4f46e5':'#475569'};background:${cur==='ALL'?'#eef2ff':'#fff'}">ทั้งหมด (20)</button>`
- +Object.entries(GRP).map(([g,c])=>`<button class="mchip ${cur===g?'active':''}" onclick="setF('${g}')" style="border:1px solid ${cur===g?c.hex:'#cbd5e1'};color:${cur===g?c.hex:'#475569'};background:${cur===g?c.bg:'#fff'}">${c.label} (${DATA.filter(d=>d[2]===g).length})</button>`).join('');
+function setPerson(n){cur=n;renderTabs();renderDetail();window.scrollTo({top:document.getElementById('personTabs').offsetTop-130,behavior:'smooth'})}
+
+function renderTabs(){
+ const el=document.getElementById('personTabs');
+ el.innerHTML=NICK_ORDER.map(n=>{
+  const meta=META[n], c=GRP[meta[2]];
+  return `<button class="person-tab ${cur===n?'active':''}" style="${cur===n?`border-color:${c.hex}`:''}" onclick="setPerson('${n}')">
+   <span class="dot" style="background:${c.hex}"></span>CEO_${n}</button>`;
+ }).join('');
 }
-function setF(g){cur=g;renderFilters();renderGrid()}
-function card(d){
- const[nick,full,g,bu,tab,gid,role,purp,acc]=d;const c=GRP[g];
- return `<div class="card bg-white rounded-2xl overflow-hidden border-t-4" style="border-top-color:${c.hex}">
-  <div class="px-4 py-3 flex items-center justify-between gap-2" style="background:${c.bg}">
-   <div class="flex items-center gap-2.5">
-    <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white font-extrabold" style="background:${c.hex}">${nick.charAt(0)}</div>
+function renderDetail(){
+ const el=document.getElementById('detail');
+ const meta=META[cur], c=GRP[meta[2]];
+ const data=(window.LIA_FULL&&LIA_FULL[cur])?LIA_FULL[cur]:null;
+ const rows=(data&&data.rows)||[];
+ const srcTab=(data&&data.tab)||'';
+ let html=`
+ <div class="px-5 py-4 border-b" style="background:${c.hex}0d;border-color:${c.hex}33">
+  <div class="flex flex-wrap items-center justify-between gap-2">
+   <div class="flex items-center gap-3">
+    <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl font-extrabold text-white" style="background:${c.hex}">${meta[0].charAt(0)}</div>
     <div>
-     <div class="font-extrabold text-sm text-slate-900 leading-tight">${esc(nick)} <span class="text-slate-400 font-normal text-xs">(${esc(full)})</span></div>
-     <div class="text-[10.5px] text-slate-500"><span class="badge" style="background:${c.bg};color:${c.hex};border-color:${c.hex}55">${c.label}</span> · ${esc(bu)}</div>
+     <div class="text-lg font-extrabold text-slate-900">${meta[0]} <span class="text-slate-400 font-normal text-sm">(${meta[1]})</span></div>
+     <div class="text-xs text-slate-500 mt-0.5"><span class="badge" style="background:${c.hex}1a;color:${c.hex};border-color:${c.hex}55">${c.label}</span> · BU เดิม: ${meta[3]}</div>
     </div>
    </div>
-   <a href="${SRC+gid}" target="_blank" class="btn-o" style="flex:none;background:${c.hex};color:#fff;border-color:${c.hex};font-size:11px;padding:6px 10px;border-radius:10px;font-weight:700">เปิด LIA →</a>
+   <div class="text-[11px] text-slate-400">ข้อมูลต้นฉบับ: tab "${esc(srcTab)}" · ${rows.length} บรรทัด</div>
   </div>
-  <div class="p-4 space-y-2.5 text-[12px]">
-   <div><div class="font-bold text-slate-500 text-[10.5px]">📜 บทบาทเดิม (LIA)</div><div class="text-slate-700">${esc(role)}</div></div>
-   <div><div class="font-bold text-slate-500 text-[10.5px]">🎯 จุดมุ่งหมาย</div><div class="text-slate-700 leading-relaxed">${esc(purp)}</div></div>
-   <div><div class="font-bold text-slate-500 text-[10.5px]">📋 หน้าที่ความรับผิดชอบหลักเดิม (ย่อ)</div><div class="text-slate-600 leading-relaxed">${esc(acc)}</div></div>
-   <div class="text-[10px] text-slate-400">tab ต้นฉบับ: <b>${esc(tab)}</b></div>
-  </div>
- </div>`;
+ </div>
+ <div class="p-4">`;
+ if(!rows.length){
+  html+=`<div class="text-center text-slate-400 py-8">ยังไม่มีข้อมูลบทบาทเดิมของ ${meta[0]}</div>`;
+ }else{
+  html+=`<div class="overflow-x-auto"><table class="w-full text-[12px] border-collapse">
+   <tbody>${rows.map(row=>{
+    const cells=(row||[]).filter(c=>c!==undefined&&c!==null&&String(c).trim()!=='');
+    if(!cells.length) return '';
+    return `<tr class="border-b border-slate-100 align-top"><td class="py-1.5 pr-2 text-slate-500 font-bold whitespace-nowrap" style="min-width:140px;max-width:220px">${esc(cells[0])}</td><td class="py-1.5 text-slate-700">${cells.slice(1).map(c=>esc(c)).join('<span class="text-slate-300 px-1">|</span>')}</td></tr>`;
+   }).join('')}</tbody></table></div>`;
+ }
+ html+=`</div>`;
+ el.innerHTML=html;
 }
-function renderGrid(){
- const list=cur==='ALL'?DATA:DATA.filter(d=>d[2]===cur);
- document.getElementById('grid').innerHTML=list.map(card).join('');
-}
-renderFilters();renderGrid();
+renderTabs();renderDetail();
 </script>
 </body>
 </html>
