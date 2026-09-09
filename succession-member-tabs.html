@@ -246,7 +246,18 @@ function renderTab(){
 const RESP_TYPES=[['core','🎯 งานหลักของบทบาท'],['mentor','🤝 พี่เลี้ยง/ถ่ายทอด'],['coown','👥 Co-Ownership ร่วมกัน'],['advise','💬 ให้คำปรึกษา/กำกับ'],['develop','📚 เรียนรู้/เตรียมรับ']];
 function tabResp(){
  const r=rec(curMember);
+ const c=ORG[GROUP_OF[curMember]];
  return `
+ <div class="bg-gradient-to-r from-slate-50 to-white border border-slate-200 rounded-xl p-4 mb-4">
+  <div class="text-sm font-extrabold mb-1" style="color:${c.hex}">🎯 บทบาทหลักของ ${GROUP_OF[curMember]} — ใช้เป็นแนวทางกรอกรายละเอียดงานที่ตนเองรับผิดชอบ</div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+   ${(c.duties||[]).map((d,di)=>`<div class="bg-white border rounded-lg p-2.5 flex items-start justify-between gap-2" style="border-color:${c.hex}33">
+     <div><div class="text-xs font-extrabold" style="color:${c.hex}">${d[0]}</div>
+     <div class="text-[11px] text-slate-500 leading-relaxed mt-0.5">${d[1]}</div></div>
+     <button class="btn-add" style="flex:none;padding:4px 9px;font-size:11px" onclick="addRespFromRole(${di})" title="เพิ่มเป็นงานที่รับผิดชอบ อ้างอิงบทบาทหลักนี้">＋ ใช้</button></div>`).join('')}
+  </div>
+  <div class="text-[11px] text-slate-400 mt-2">กด "＋ ใช้" เพื่อเพิ่มงานใหม่ที่ผูกกับบทบาทหลักนั้น แล้วใส่รายละเอียดงานของตนเองต่อได้เลย</div>
+ </div>
  <div class="mb-4">
   <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
    <div><span class="lbl">หน่วยงาน/บริษัท</span>
@@ -278,6 +289,11 @@ function respBox(x,i){
    <select onchange="updItem('resp',${i},'type',this.value)">
     ${RESP_TYPES.map(([v,t])=>`<option value="${v}" ${x.type===v?'selected':''}>${t}</option>`).join('')}
    </select></div>
+  <div class="md:col-span-2"><span class="lbl">อ้างอิงบทบาทหลักของ ${ORG[GROUP_OF[curMember]].label}</span>
+   <select onchange="updItem('resp',${i},'mainRole',this.value)">
+    <option value="">— ไม่ระบุ —</option>
+    ${(ORG[GROUP_OF[curMember]].duties||[]).map(d=>`<option value="${esc(d[0])}" ${x.mainRole===d[0]?'selected':''}>${esc(d[0])}</option>`).join('')}
+   </select></div>
   <div class="md:col-span-2"><span class="lbl">รายละเอียด / ขอบเขต</span>
    <textarea rows="2" placeholder="อธิบายขอบเขต สิ่งที่ต้องส่งมอบ เกณฑ์สำเร็จ…" onchange="updItem('resp',${i},'detail',this.value)">${esc(x.detail)}</textarea></div>
   <div><span class="lbl">ช่วงเวลา</span>
@@ -290,7 +306,8 @@ function respBox(x,i){
    </select></div>
  </div></div>`;
 }
-function addResp(){rec(curMember).resp.push({title:'',type:'core',detail:'',period:'',status:''});save();renderTab()}
+function addResp(){rec(curMember).resp.push({title:'',type:'core',detail:'',period:'',status:'',mainRole:''});save();renderTab()}
+function addRespFromRole(di){const g=GROUP_OF[curMember];const d=ORG[g].duties[di];const nm=d[0].replace(/^[^\s]+\s/,'');rec(curMember).resp.push({title:nm,type:'core',detail:'',period:'',status:'',mainRole:d[0]});save();renderTab();toast('เพิ่มงานจากบทบาทหลัก "'+nm+'" แล้ว — ใส่รายละเอียดต่อได้เลย')}
 
 /* ========== TAB 2: กลยุทธ์ (BSC) ========== */
 function tabStrat(){
@@ -513,7 +530,7 @@ function importJSON(ev){
 function exportCSV(){
  const rows=[];const head=['member','group','level','section','item_no','field1','field2','field3','field4','field5','field6','field7'];
  ALL_MEMBERS.forEach(m=>{const r=DB[m];if(!r)return;const g=GROUP_OF[m],c=ORG[g];
-  (r.resp||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'งานรับผิดชอบ',i+1,x.title,RESP_TYPES.find(t=>t[0]===x.type)?.[1]||x.type,x.detail,x.period,x.status,'','']));
+  (r.resp||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'งานรับผิดชอบ',i+1,x.title,RESP_TYPES.find(t=>t[0]===x.type)?.[1]||x.type,x.mainRole||'',x.detail,x.period,x.status,'']));
   (r.strat||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'กลยุทธ์',i+1,x.bsc,x.name,x.how,x.goal,x.involve,'','']));
   (r.links||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'เชื่อมโยง',i+1,x.dir,x.toGroup,x.toName,(x.mechs||[]).map(v=>MECHS.find(t=>t[0]===v)?.[1]||v).join('; '),x.detail,'','']));
   (r.okrs||[]).forEach((o,oi)=>(o.krs||[]).forEach((k,ki)=>{
