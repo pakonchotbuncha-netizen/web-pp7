@@ -189,7 +189,8 @@ function renderHead(){
  const mc=document.getElementById('memberChips');
  const list=curGroup==='ALL'?ALL_MEMBERS:ORG[curGroup].members;
  mc.innerHTML=list.map(m=>{const g=GROUP_OF[m],c=ORG[g];const r=rec(m);const filled=r.resp.length+r.strat.length+r.links.length+r.okrs.length;
-  return `<button class="mchip ${curMember===m?'active':''}" style="${curMember===m?`border-color:${c.hex}`:''}" onclick="setMember('${m}')"><span class="dot" style="background:${c.hex}"></span>${m}${filled?` <span style="font-size:10px;color:#16a34a">●</span>`:''}</button>`}).join('');
+  const cov=coverage(m);const covOk=!cov.missing.length&&!cov.unlinked.length&&filled>0;
+  return `<button class="mchip ${curMember===m?'active':''}" style="${curMember===m?`border-color:${c.hex}`:''}" onclick="setMember('${m}')"><span class="dot" style="background:${c.hex}"></span>${m} ${filled?`<span style="font-size:10px;color:${covOk?'#16a34a':'#dc2626'}" title="บทบาทหลัก ${cov.covered}/${cov.total}">${covOk?'✅':'🚨'}</span>`:''}</button>`}).join('');
 }
 function setGroup(g){curGroup=g;renderHead()}
 function setMember(m){curMember=m;curTab='resp';renderHead();renderMain();window.scrollTo({top:0,behavior:'smooth'})}
@@ -209,7 +210,7 @@ function renderMain(){
    <div class="flex items-center gap-3">
     <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl font-extrabold text-white" style="background:${c.hex}">${curMember.charAt(0)}</div>
     <div>
-     <div class="text-lg font-extrabold text-slate-900">${curMember} <span class="badge ml-1" style="background:${c.hex}1a;color:${c.hex};border-color:${c.hex}55">${c.icon} ${g} — ${c.levelTxt}</span></div>
+     <div class="text-lg font-extrabold text-slate-900">${curMember} <span class="badge ml-1" style="background:${c.hex}1a;color:${c.hex};border-color:${c.hex}55">${c.icon} ${g} — ${c.levelTxt}</span> <span class="ml-1">${coverageChip(curMember)}</span></div>
      <div class="text-xs text-slate-500 mt-0.5"><b>บทบาทกลุ่ม:</b> ${c.role}</div>
      <div class="text-xs text-slate-400"><b>ขอบเขตกลยุทธ์:</b> ${c.scope} · ทีมฝ่ายบริหาร — บริหารแนวทางการทำงานของกลยุทธ์ ไม่ใช่ operation</div>
     </div>
@@ -247,16 +248,21 @@ const RESP_TYPES=[['core','🎯 งานหลักของบทบาท'],
 function tabResp(){
  const r=rec(curMember);
  const c=ORG[GROUP_OF[curMember]];
+ const cov=coverage(curMember);
  return `
+ ${coverageBanner(cov,c)}
  <div class="bg-gradient-to-r from-slate-50 to-white border border-slate-200 rounded-xl p-4 mb-4">
-  <div class="text-sm font-extrabold mb-1" style="color:${c.hex}">🎯 บทบาทหลักของ ${GROUP_OF[curMember]} — ใช้เป็นแนวทางกรอกรายละเอียดงานที่ตนเองรับผิดชอบ</div>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-   ${(c.duties||[]).map((d,di)=>`<div class="bg-white border rounded-lg p-2.5 flex items-start justify-between gap-2" style="border-color:${c.hex}33">
-     <div><div class="text-xs font-extrabold" style="color:${c.hex}">${d[0]}</div>
-     <div class="text-[11px] text-slate-500 leading-relaxed mt-0.5">${d[1]}</div></div>
-     <button class="btn-add" style="flex:none;padding:4px 9px;font-size:11px" onclick="addRespFromRole(${di})" title="เพิ่มเป็นงานที่รับผิดชอบ อ้างอิงบทบาทหลักนี้">＋ ใช้</button></div>`).join('')}
+  <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+   <div class="text-sm font-extrabold" style="color:${c.hex}">🎯 บทบาทหลักของ ${GROUP_OF[curMember]} — <span style="color:#dc2626">บังคับทุกข้อ</span> ต้องเขียนงานที่ตนรับผิดชอบครบทุกบทบาทหลัก</div>
+   <button class="btn-add" onclick="seedFromRoles()">⚡ สร้างครบทุกบทบาทหลัก</button>
   </div>
-  <div class="text-[11px] text-slate-400 mt-2">กด "＋ ใช้" เพื่อเพิ่มงานใหม่ที่ผูกกับบทบาทหลักนั้น แล้วใส่รายละเอียดงานของตนเองต่อได้เลย</div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+   ${(c.duties||[]).map((d,di)=>{const covered=r.resp.some(x=>x.mainRole===d[0]);return `<div class="bg-white border rounded-lg p-2.5 flex items-start justify-between gap-2" style="border-color:${covered?'#86efac':c.hex+'33'};${covered?'background:#f0fdf4':''}">
+     <div><div class="text-xs font-extrabold" style="color:${covered?'#15803d':c.hex}">${covered?'✅':'⬜'} ${d[0]}</div>
+     <div class="text-[11px] text-slate-500 leading-relaxed mt-0.5">${d[1]}</div></div>
+     <button class="btn-add" style="flex:none;padding:4px 9px;font-size:11px" onclick="addRespFromRole(${di})" title="เพิ่มงานรับผิดชอบในบทบาทหลักนี้">＋ เขียนงาน</button></div>`}).join('')}
+  </div>
+  <div class="text-[11px] text-slate-400 mt-2">✅ เขียว = เขียนครบแล้ว · ⬜ ขาว = ยังขาด · ทุกข้อเป็นบทบาทหลักที่<b>บังคับ</b> — กด "＋ เขียนงาน" ในบทบาทหลักนั้น แล้วใส่รายละเอียดงานของตนเอง</div>
  </div>
  <div class="mb-4">
   <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
@@ -271,13 +277,14 @@ function tabResp(){
  </div>
  <div class="flex items-center justify-between mb-3">
   <div><div class="font-extrabold text-slate-800">📋 งานที่ตนเองรับผิดชอบ (${r.resp.length})</div>
-  <div class="text-xs text-slate-500">ตนเองจะรับผิดชอบงานอะไรบ้าง — ระบุประเภท รายละเอียด และช่วงเวลา</div></div>
-  <button class="btn-add" onclick="addResp()">＋ เพิ่มงาน</button>
+  <div class="text-xs text-slate-500">บทบาทหลักเป็นของบังคับ — เขียนสิ่งที่ตนรับผิดชอบให้ครบทุกบทบาทหลัก · ระบบจะช่วยตรวจสอบและแจ้งเตือนสิ่งที่ยังขาดให้</div></div>
+  <button class="btn-add" onclick="addResp()">＋ เพิ่มงานอื่น (นอกบทบาทหลัก)</button>
  </div>
- <div class="space-y-3">${r.resp.map((x,i)=>respBox(x,i)).join('')||'<div class="text-center text-slate-400 text-sm py-6">ยังไม่มี — กด "＋ เพิ่มงาน"</div>'}</div>`;
+ <div class="space-y-3">${r.resp.map((x,i)=>respBox(x,i)).join('')||'<div class="text-center text-slate-400 text-sm py-6">ยังไม่มี — กด "＋ เขียนงาน" ในกล่องบทบาทหลักด้านบน (หรือ "⚡ สร้างครบทุกบทบาทหลัก")</div>'}</div>`;
 }
 function respBox(x,i){
- return `<div class="item-box p-4">
+ const mrOk=x.mainRole&&x.mainRole!=='— ไม่ระบุ —';
+ return `<div class="item-box p-4" ${!mrOk?'style="border-color:#fca5a5"':''}>
  <div class="flex justify-between items-start gap-2 mb-3">
   <span class="badge bg-slate-100 text-slate-600 border-slate-300">งานที่ ${i+1}</span>
   <button class="btn-del" onclick="delItem('resp',${i})">ลบ</button>
@@ -289,9 +296,9 @@ function respBox(x,i){
    <select onchange="updItem('resp',${i},'type',this.value)">
     ${RESP_TYPES.map(([v,t])=>`<option value="${v}" ${x.type===v?'selected':''}>${t}</option>`).join('')}
    </select></div>
-  <div class="md:col-span-2"><span class="lbl">อ้างอิงบทบาทหลักของ ${ORG[GROUP_OF[curMember]].label}</span>
-   <select onchange="updItem('resp',${i},'mainRole',this.value)">
-    <option value="">— ไม่ระบุ —</option>
+  <div class="md:col-span-2"><span class="lbl">อ้างอิงบทบาทหลักของ ${ORG[GROUP_OF[curMember]].label} <span class="text-rose-600" title="บังคับ">*</span></span>
+   <select onchange="updItem('resp',${i},'mainRole',this.value)" ${!mrOk?'style="border-color:#ef4444;background:#fef2f2"':''}>
+    <option value="">— บังคับเลือกบทบาทหลัก —</option>
     ${(ORG[GROUP_OF[curMember]].duties||[]).map(d=>`<option value="${esc(d[0])}" ${x.mainRole===d[0]?'selected':''}>${esc(d[0])}</option>`).join('')}
    </select></div>
   <div class="md:col-span-2"><span class="lbl">รายละเอียด / ขอบเขต</span>
@@ -306,8 +313,36 @@ function respBox(x,i){
    </select></div>
  </div></div>`;
 }
-function addResp(){rec(curMember).resp.push({title:'',type:'core',detail:'',period:'',status:'',mainRole:''});save();renderTab()}
-function addRespFromRole(di){const g=GROUP_OF[curMember];const d=ORG[g].duties[di];const nm=d[0].replace(/^[^\s]+\s/,'');rec(curMember).resp.push({title:nm,type:'core',detail:'',period:'',status:'',mainRole:d[0]});save();renderTab();toast('เพิ่มงานจากบทบาทหลัก "'+nm+'" แล้ว — ใส่รายละเอียดต่อได้เลย')}
+function addResp(){rec(curMember).resp.push({title:'',type:'core',detail:'',period:'',status:'',mainRole:''});save();renderTab();toast('เพิ่มงานแล้ว — อย่าลืมเลือก "อ้างอิงบทบาทหลัก" (บังคับ) เพื่อให้ระบบตรวจความครบถ้วน')}
+function addRespFromRole(di){const g=GROUP_OF[curMember];const d=ORG[g].duties[di];const nm=d[0].replace(/^[^\s]+\s/,'');rec(curMember).resp.push({title:nm,type:'core',detail:'',period:'',status:'',mainRole:d[0]});save();renderTab();toast('เพิ่มงานในบทบาทหลัก "'+nm+'" แล้ว — ใส่รายละเอียดต่อได้เลย')}
+function seedFromRoles(){
+ const g=GROUP_OF[curMember];const r=rec(curMember);const c=ORG[g];let n=0;
+ (c.duties||[]).forEach(d=>{if(!r.resp.some(x=>x.mainRole===d[0])){r.resp.push({title:d[0].replace(/^[^\s]+\s/,''),type:'core',detail:'',period:'',status:'',mainRole:d[0]});n++}});
+ if(!n){toast('ครบทุกบทบาทหลักแล้ว ✅');return}
+ save();renderTab();toast('สร้างงานรับผิดชอบจากบทบาทหลักครบ '+n+' ข้อ — เหลือแค่ใส่รายละเอียดของตนเอง')
+}
+
+/* ===== ตรวจความครบถ้วนของบทบาทหลัก (บังคับ) ===== */
+function coverage(m){
+ const g=GROUP_OF[m];const c=ORG[g];const r=rec(m);
+ const missing=(c.duties||[]).filter(d=>!r.resp.some(x=>x.mainRole===d[0]));
+ const covered=(c.duties||[]).length-missing.length;
+ return {g,c,covered,total:(c.duties||[]).length,missing,unlinked:r.resp.filter(x=>!x.mainRole)}
+}
+function coverageBanner(cov,c){
+ const unlinkedWarn=cov.unlinked.length?`<div class="text-[11px] mt-2 text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">⚠️ มีงาน ${cov.unlinked.length} ชิ้นที่ยังไม่เลือก "อ้างอิงบทบาทหลัก" — กรุณาเลือกให้ครบ เพื่อให้ระบบตรวจความครบถ้วนได้ (งาน: ${cov.unlinked.map(x=>esc(x.title)||'(ยังไม่ตั้งชื่อ)').join(', ')})</div>`:'';
+ if(!cov.missing.length&&!cov.unlinked.length)return `<div class="rounded-xl border border-emerald-300 bg-emerald-50 p-4 mb-4 text-sm font-extrabold text-emerald-800">✅ ครบถ้วน! บทบาทหลักของ ${cov.g} ทั้ง ${cov.total} ข้อ มีงานรับผิดชอบครบแล้ว</div>`+unlinkedWarn;
+ return `<div class="rounded-xl border border-rose-300 bg-rose-50 p-4 mb-4">
+  <div class="text-sm font-extrabold text-rose-800">🚨 ${curMember} ยังขาดงานรับผิดชอบในบทบาทหลัก ${cov.missing.length}/${cov.total} ข้อ:</div>
+  <ul class="mt-2 space-y-1 text-xs text-rose-700">${cov.missing.map(d=>`<li class="flex items-start gap-1.5"><span>⬜</span><span><b>${d[0]}</b> — ${d[1]}</span></li>`).join('')}</ul>
+  <div class="text-[11px] text-rose-600 mt-2">บทบาทหลักเป็นของบังคับทุกข้อ — กรุณาเพิ่มงานรับผิดชอบ (กด "＋ เขียนงาน" ในกล่องบทบาทหลักด้านล่าง หรือ "⚡ สร้างครบทุกบทบาทหลัก")</div>
+ </div>`+unlinkedWarn;
+}
+function coverageChip(m){
+ const cov=coverage(m);
+ const ok=!cov.missing.length&&!cov.unlinked.length;
+ return `<span class="align-tag ${ok?'on':'off'}" style="cursor:default;font-size:10px">${ok?'✅':'🚨'} บทบาทหลัก ${cov.covered}/${cov.total}</span>`;
+}
 
 /* ========== TAB 2: กลยุทธ์ (BSC) ========== */
 function tabStrat(){
