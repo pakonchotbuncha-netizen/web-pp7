@@ -70,6 +70,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 
 <main class="max-w-7xl mx-auto px-4 sm:px-6 py-5 pb-24" id="main"></main>
 
+<script src="succession-lia-data.js"></script>
 <script>
 /* ================= โครงสร้างองค์กร ================= */
 const ORG = {
@@ -100,7 +101,7 @@ const ORG = {
       ['👥 ปั้นรุ่นถัดไป','ฝึกฝนทีมต่อเนื่อง — succession ไม่สิ้นสุดที่ตนเอง'],
       ['📤 เงื่อนไขถ่ายทอด','ต้องผ่านก่อน 5 ข้อ: Operation Strategy Execution · ลดหนี้ตามเป้า · งานเงื่อนไข (AMS5) · รับผิดชอบจริง · Co-Ownership'],
       ['🔗 ความเชื่อมโยง','รับพี่เลี้ยงจาก GAT · รับการกำกับ/Advise/Veto จาก OAC · ช่วยกันเองในทีม ADM']],
-    members:['น้องแซน','โอม','จ้อน','แนน','คุณปอม']}
+    members:['น้องแซน','โอม','จ้อน','แนน','คุณปอม','วนิดา']}
 };
 const GROUP_OF={}; Object.entries(ORG).forEach(([g,c])=>c.members.forEach(m=>GROUP_OF[m]=g));
 const ALL_MEMBERS=[...ORG.OAC.members,...ORG.GAT.members,...ORG.ADM.members];
@@ -135,16 +136,26 @@ const LIA_BY_NICK={}; LIA_ORIG.forEach(r=>LIA_BY_NICK[r[0]]=r);
 function liaCard(m){
  const r=LIA_BY_NICK[m]; if(!r) return '';
  const[nick,full,g,bu,tab,gid,role,purp,acc]=r;
+ const fw=(window.LIA_FULL&&LIA_FULL[m])?LIA_FULL[m]:null;
+ const rowsHtml = fw ? `<div class="mt-2 border-t border-slate-200 pt-2">
+  <div class="text-[10px] font-bold text-indigo-500 mb-1">📄 ข้อมูลต้นฉบับเต็ม (จาก tab ${esc(fw.tab||tab)})</div>
+  <div class="overflow-x-auto max-h-[420px] overflow-y-auto rounded-lg border border-slate-200">
+   <table class="w-full text-[11px] border-collapse">
+    ${fw.rows.map(row=>`<tr class="border-b border-slate-100 last:border-0">${row.map(c=>`<td class="px-2 py-1 align-top text-slate-600" style="min-width:110px">${esc(c)}</td>`).join('')}</tr>`).join('')}
+   </table>
+  </div>
+ </div>` : '';
  return `<div class="card bg-white rounded-xl border p-3.5 mt-3" style="border-color:#c7d2fe;background:linear-gradient(135deg,#eef2ff,#fff)">
   <div class="flex items-center justify-between gap-2 mb-2">
    <div class="text-xs font-extrabold text-indigo-700">📖 บทบาทเดิมของคุณ (LIA/CEO 2026) — ใช้เป็นข้อมูลตั้งต้นทวนสอบตอนเขียนบทบาทใหม่</div>
-   <a href="${LIA_SRC+gid}" target="_blank" style="flex:none;font-size:10.5px;font-weight:700;background:#4f46e5;color:#fff;padding:4px 9px;border-radius:8px">เปิด LIA เดิม →</a>
+   ${fw?'':`<a href="${LIA_SRC+gid}" target="_blank" style="flex:none;font-size:10.5px;font-weight:700;background:#4f46e5;color:#fff;padding:4px 9px;border-radius:8px">เปิด LIA เดิม →</a>`}
   </div>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11.5px]">
    <div><div class="font-bold text-slate-500">👤 ${esc(full)}</div><div class="text-slate-600 mt-0.5">${esc(role)}</div></div>
    <div class="md:col-span-2"><div class="font-bold text-slate-500">🎯 จุดมุ่งหมาย</div><div class="text-slate-700 mt-0.5 leading-relaxed">${esc(purp)}</div></div>
    <div class="md:col-span-3"><div class="font-bold text-slate-500">📋 หน้าที่ความรับผิดชอบหลักเดิม</div><div class="text-slate-600 mt-0.5 leading-relaxed">${esc(acc)}</div></div>
   </div>
+  ${rowsHtml}
  </div>`;
 }
 
