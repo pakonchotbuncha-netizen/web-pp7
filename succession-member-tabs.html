@@ -347,7 +347,7 @@ function coverageChip(m){
 
 /* ===== พี่เลี้ยง/น้องเลี้ยง — กฎตามชั้น (เลือกน้องเลี้ยงได้มากกว่า 1 คน) ===== */
 function menteeRules(g){
- // 2 แนว: vertical = แนวดิ่ง (ชั้นต่ำกว่า/พี่เลี้ยงที่เลือก), peer = ระดับเดียวกัน (ร่วมเลี้ยงกัน)
+ // 3 แนว: vertical = แนวดิ่ง (ชั้นต่ำกว่า/สูงกว่า), peer = แนวราบ (ระดับเดียวกัน/ร่วมเลี้ยง/เสริมกันเองในทีม), cross = ข้ามสายงาน
  if(g==='OAC')return {kind:'mentee',vertical:['GAT','ADM'],peer:['OAC'],desc:'OAC เลือกน้องเลี้ยงแนวดิ่ง (GAT/ADM) และร่วมเลี้ยงกันเองใน OAC'};
  if(g==='GAT')return {kind:'mentee',vertical:['ADM'],peer:['GAT'],desc:'GAT เลือกน้องเลี้ยงแนวดิ่ง (ADM) และร่วมเลี้ยงกันเองใน GAT'};
  return {kind:'mentor',vertical:['GAT','OAC'],peer:['ADM'],desc:'ADM เลือกพี่เลี้ยงแนวดิ่ง (GAT/OAC) และร่วมเลี้ยงกันเองใน ADM'};
@@ -366,7 +366,7 @@ function menteeBlock(m){
    ${rules.vertical.map(gr=>box(gr,r.mentees,isMentorSel?'พี่เลี้ยงจาก':'เลี้ยงสมาชิก')).join('')}
   </div>
   <div class="mt-3 pt-3 border-t border-indigo-200">
-   <div class="text-xs font-extrabold text-violet-700">↔️ แนวราบ — ร่วมเลี้ยง/เสริมกันเอง (ระดับเดียวกัน)</div>
+   <div class="text-xs font-extrabold text-violet-700">↔️ แนวราบ (ระดับเดียวกัน/ร่วมเลี้ยง/เสริมกันเองในทีม)</div>
    ${rules.peer.map(gr=>`<div class="mt-2.5">
     <div class="text-xs font-bold text-slate-600 mb-1">${ORG[gr].icon} ร่วมเลี้ยงกันใน ${gr} (ยกเว้นตนเอง):</div>
     <div class="flex flex-wrap gap-1.5">${ORG[gr].members.map(n=>{if(n===m)return '';const on=r.peers.includes(n);return `<button type="button" class="align-tag ${on?'on':'off'}" style="font-size:12px;padding:5px 12px" onclick="togglePeer('${n}')">${on?'✅ ':''}${n}</button>`}).join('')}</div>
@@ -441,7 +441,7 @@ function tabLinks(){
  <div class="space-y-3">${r.links.map((x,i)=>linkBox(x,i,g)).join('')||'<div class="text-center text-slate-400 text-sm py-6">ยังไม่มี — กด "＋ เพิ่มความเชื่อมโยง"</div>'}</div>`;
 }
 function linkBox(x,i,g){
- const dirs=[['up','⬆️ ขึ้นไปชั้นบน'],['down','⬇️ ลงไปชั้นล่าง'],['peer','↔️ ระดับเดียวกัน']];
+ const dirs=[['up','⬆️ ขึ้นไปชั้นบน'],['down','⬇️ ลงไปชั้นล่าง'],['peer','↔️ แนวราบ (ระดับเดียวกัน)']];
  const targetGroups=g==='OAC'?['GAT','ADM']:g==='GAT'?['OAC','GAT','ADM']:['GAT','ADM'];
  const namePool=x.toGroup?ORG[x.toGroup].members:[];
  return `<div class="item-box p-4">
@@ -612,7 +612,7 @@ function exportCSV(){
   (r.strat||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'กลยุทธ์',i+1,x.bsc,x.name,x.how,x.goal,x.involve,'','']));
   (r.links||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'เชื่อมโยง',i+1,x.dir,x.toGroup,x.toName,(x.mechs||[]).map(v=>MECHS.find(t=>t[0]===v)?.[1]||v).join('; '),x.detail,'','']));
   (r.mentees||[]).forEach((n,i)=>rows.push([m,g,c.levelTxt,menteeRules(g).kind==='mentor'?'เลือกพี่เลี้ยง (แนวดิ่ง)':'พี่เลี้ยงน้อง (แนวดิ่ง)',i+1,(menteeRules(g).kind==='mentor'?'ขอพี่เลี้ยง: ':'เลี้ยง: ')+n,GROUP_OF[n]||'','','','','','']));
-  (r.peers||[]).forEach((n,i)=>rows.push([m,g,c.levelTxt,'ร่วมเลี้ยง (แนวราบ)',i+1,'ร่วมเลี้ยง: '+n,GROUP_OF[n]||'','','','','','']));
+  (r.peers||[]).forEach((n,i)=>rows.push([m,g,c.levelTxt,'แนวราบ (ระดับเดียวกัน/ร่วมเลี้ยง)',i+1,'ร่วมเลี้ยง: '+n,GROUP_OF[n]||'','','','','','']));
   (r.cross||[]).forEach((n,i)=>rows.push([m,g,c.levelTxt,'สืบทอดข้ามสายงาน',i+1,'ข้ามสายงาน: '+n,GROUP_OF[n]||'','','','','','']));
   (r.okrs||[]).forEach((o,oi)=>(o.krs||[]).forEach((k,ki)=>{
    if(!(k.kpis||[]).length)rows.push([m,g,c.levelTxt,'OKR',`${oi+1}.${ki+1}`,o.objective,k.kr,(k.align||[]).join('; '),'','','','']);
