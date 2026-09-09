@@ -131,7 +131,7 @@ let DB={}; try{DB=JSON.parse(localStorage.getItem(LS)||'{}')}catch{DB={}}
 let curMember=null, curTab='resp', curGroup='ALL';
 let cloudOk=null; // null=ยังไม่รู้, true/false
 
-function isEmptyRec(r){return !r.resp.length&&!r.strat.length&&!r.links.length&&!r.okrs.length&&!(r.mentees||[]).length&&!r.meta.company&&!r.meta.note&&!r.alignNote}
+function isEmptyRec(r){return !r.resp.length&&!r.strat.length&&!r.links.length&&!r.okrs.length&&!(r.mentees||[]).length&&!(r.peers||[]).length&&!r.meta.company&&!r.meta.note&&!r.alignNote}
 async function pushMember(m){
  if(!GAS_URL)return;
  const r=rec(m);
@@ -176,7 +176,7 @@ function updateCloudBadge(){
 function saveDeb(){clearTimeout(window._sv);window._sv=setTimeout(()=>{save();toast('💾 บันทึกอัตโนมัติแล้ว');if(curMember)pushMember(curMember)},1200)}
 function rec(m){if(!DB[m])DB[m]=blank();return DB[m]}
 function save(){localStorage.setItem(LS,JSON.stringify(DB))}
-function blank(){return {meta:{company:'',note:''},resp:[],strat:[],links:[],okrs:[],alignNote:'',mentees:[]}}
+function blank(){return {meta:{company:'',note:''},resp:[],strat:[],links:[],okrs:[],alignNote:'',mentees:[],peers:[]}}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
 function saveDebOld_removed(){}
@@ -216,7 +216,7 @@ function renderMain(){
     </div>
    </div>
    <div class="flex gap-4 text-center">
-    ${[['📋',r.resp.length,'งาน'],['🎯',r.strat.length,'กลยุทธ์'],['🔗',r.links.length,'เชื่อมโยง'],['📏',r.okrs.reduce((a,o)=>a+(o.krs?.length||0),0),'KR'],['🤝',(r.mentees||[]).length,menteeRules(g).kind==='mentor'?'พี่เลี้ยง':'น้องเลี้ยง']].map(x=>`<div><div class="text-lg font-extrabold" style="color:${c.hex}">${x[1]}</div><div class="text-[10px] text-slate-500">${x[0]} ${x[2]}</div></div>`).join('')}
+    ${[['📋',r.resp.length,'งาน'],['🎯',r.strat.length,'กลยุทธ์'],['🔗',r.links.length,'เชื่อมโยง'],['📏',r.okrs.reduce((a,o)=>a+(o.krs?.length||0),0),'KR'],['🤝',(r.mentees||[]).length,menteeRules(g).kind==='mentor'?'พี่เลี้ยง':'น้องเลี้ยง'],['↔️',(r.peers||[]).length,'ร่วมเลี้ยง']].map(x=>`<div><div class="text-lg font-extrabold" style="color:${c.hex}">${x[1]}</div><div class="text-[10px] text-slate-500">${x[0]} ${x[2]}</div></div>`).join('')}
    </div>
   </div>
   <details class="mt-3 rounded-xl border p-3" style="border-color:${c.hex}44;background:${c.hex}0a" ${g==='OAC'?'open':''}>
@@ -347,23 +347,36 @@ function coverageChip(m){
 
 /* ===== พี่เลี้ยง/น้องเลี้ยง — กฎตามชั้น (เลือกน้องเลี้ยงได้มากกว่า 1 คน) ===== */
 function menteeRules(g){
- if(g==='OAC')return {kind:'mentee',groups:['GAT','ADM'],desc:'OAC เป็นพี่เลี้ยงของทั้ง GAT และ ADM'};
- if(g==='GAT')return {kind:'mentee',groups:['ADM'],desc:'GAT เป็นพี่เลี้ยงของ ADM'};
- return {kind:'mentor',groups:['GAT','OAC'],desc:'ADM เลือกพี่เลี้ยงของตนเองได้จาก GAT และ OAC'};
+ // 2 แนว: vertical = แนวดิ่ง (ชั้นต่ำกว่า/พี่เลี้ยงที่เลือก), peer = ระดับเดียวกัน (ร่วมเลี้ยงกัน)
+ if(g==='OAC')return {kind:'mentee',vertical:['GAT','ADM'],peer:['OAC'],desc:'OAC เลือกน้องเลี้ยงแนวดิ่ง (GAT/ADM) และร่วมเลี้ยงกันเองใน OAC'};
+ if(g==='GAT')return {kind:'mentee',vertical:['ADM'],peer:['GAT'],desc:'GAT เลือกน้องเลี้ยงแนวดิ่ง (ADM) และร่วมเลี้ยงกันเองใน GAT'};
+ return {kind:'mentor',vertical:['GAT','OAC'],peer:['ADM'],desc:'ADM เลือกพี่เลี้ยงแนวดิ่ง (GAT/OAC) และร่วมเลี้ยงกันเองใน ADM'};
 }
 function menteeBlock(m){
- const g=GROUP_OF[m];const rules=menteeRules(g);const r=rec(m);r.mentees=r.mentees||[];
+ const g=GROUP_OF[m];const rules=menteeRules(g);const r=rec(m);r.mentees=r.mentees||[];r.peers=r.peers||[];
  const isMentorSel=rules.kind==='mentor';
+ const box=(gr,pool,title)=>`<div class="mt-2.5">
+    <div class="text-xs font-bold text-slate-600 mb-1">${ORG[gr].icon} ${title} ${gr} — ${ORG[gr].levelTxt}:</div>
+    <div class="flex flex-wrap gap-1.5">${ORG[gr].members.map(n=>{if(n===m)return '';const on=pool.includes(n);return `<button type="button" class="align-tag ${on?'on':'off'}" style="font-size:12px;padding:5px 12px" onclick="toggleMentee('${n}')">${on?'✅ ':''}${n}</button>`}).join('')}</div>
+   </div>`;
  return `<div class="rounded-xl border border-indigo-200 bg-indigo-50/60 p-4 mb-4">
-  <div class="text-sm font-extrabold text-indigo-800">🤝 ${isMentorSel?'ฉันเลือกพี่เลี้ยงไว้ให้ตนเอง':'ฉันเป็นพี่เลี้ยงให้ใครบ้าง'} <span class="font-normal text-xs text-indigo-600">(${rules.desc} · เลือกได้มากกว่า 1 คน)</span></div>
-  ${rules.groups.map(gr=>`<div class="mt-2.5">
-    <div class="text-xs font-bold text-slate-600 mb-1">${ORG[gr].icon} ${isMentorSel?'พี่เลี้ยงจาก':'เลี้ยงสมาชิก'} ${gr} — ${ORG[gr].levelTxt}:</div>
-    <div class="flex flex-wrap gap-1.5">${ORG[gr].members.map(n=>{const on=r.mentees.includes(n);return `<button type="button" class="align-tag ${on?'on':'off'}" style="font-size:12px;padding:5px 12px" onclick="toggleMentee('${n}')">${on?'✅ ':''}${n}</button>`}).join('')}</div>
+  <div class="text-sm font-extrabold text-indigo-800">🤝 การเลือกพี่เลี้ยง–น้องเลี้ยง <span class="font-normal text-xs text-indigo-600">(${rules.desc} · เลือกได้มากกว่า 1 คน)</span></div>
+  <div class="mt-2">
+   <div class="text-xs font-extrabold text-indigo-700">⬇️ แนวดิ่ง — ${isMentorSel?'เลือกพี่เลี้ยง (ชั้นสูงกว่า)':'เลือกน้องเลี้ยง (ชั้นต่ำกว่า)'}</div>
+   ${rules.vertical.map(gr=>box(gr,r.mentees,isMentorSel?'พี่เลี้ยงจาก':'เลี้ยงสมาชิก')).join('')}
+  </div>
+  <div class="mt-3 pt-3 border-t border-indigo-200">
+   <div class="text-xs font-extrabold text-violet-700">↔️ ระดับเดียวกัน — ร่วมเลี้ยง/เสริมกันเอง</div>
+   ${rules.peer.map(gr=>`<div class="mt-2.5">
+    <div class="text-xs font-bold text-slate-600 mb-1">${ORG[gr].icon} ร่วมเลี้ยงกันใน ${gr} (ยกเว้นตนเอง):</div>
+    <div class="flex flex-wrap gap-1.5">${ORG[gr].members.map(n=>{if(n===m)return '';const on=r.peers.includes(n);return `<button type="button" class="align-tag ${on?'on':'off'}" style="font-size:12px;padding:5px 12px" onclick="togglePeer('${n}')">${on?'✅ ':''}${n}</button>`}).join('')}</div>
    </div>`).join('')}
-  <div class="text-[11px] text-slate-500 mt-2">เลือกแล้ว: <b>${r.mentees.length}</b> คน${r.mentees.length?' — '+r.mentees.join(', '):' (ยังไม่ได้เลือก)'} · บันทึกอัตโนมัติเข้าชีตกลางทันที</div>
+  </div>
+  <div class="text-[11px] text-slate-500 mt-2">แนวดิ่ง: <b>${r.mentees.length}</b> คน · ระดับเดียวกัน: <b>${r.peers.length}</b> คน · บันทึกอัตโนมัติเข้าชีตกลางทันที</div>
  </div>`;
 }
 function toggleMentee(n){const r=rec(curMember);r.mentees=r.mentees||[];const i=r.mentees.indexOf(n);const kind=menteeRules(GROUP_OF[curMember]).kind;i>=0?r.mentees.splice(i,1):r.mentees.push(n);save();renderTab();pushMember(curMember);toast(i>=0?`เอา "${n}" ออกจาก${kind==='mentor'?'พี่เลี้ยง':'น้องเลี้ยง'}แล้ว`:`เลือก "${n}" เป็น${kind==='mentor'?'พี่เลี้ยง':'น้องเลี้ยง'}แล้ว ✅`)}
+function togglePeer(n){const r=rec(curMember);r.peers=r.peers||[];const i=r.peers.indexOf(n);i>=0?r.peers.splice(i,1):r.peers.push(n);save();renderTab();pushMember(curMember);toast(i>=0?`เอา "${n}" ออกจากร่วมเลี้ยงแล้ว`:`เลือก "${n}" ร่วมเลี้ยงแล้ว ✅`)}
 
 /* ========== TAB 2: กลยุทธ์ (BSC) ========== */
 function tabStrat(){
@@ -589,7 +602,8 @@ function exportCSV(){
   (r.resp||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'งานรับผิดชอบ',i+1,x.title,RESP_TYPES.find(t=>t[0]===x.type)?.[1]||x.type,x.mainRole||'',x.detail,x.period,x.status,'']));
   (r.strat||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'กลยุทธ์',i+1,x.bsc,x.name,x.how,x.goal,x.involve,'','']));
   (r.links||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'เชื่อมโยง',i+1,x.dir,x.toGroup,x.toName,(x.mechs||[]).map(v=>MECHS.find(t=>t[0]===v)?.[1]||v).join('; '),x.detail,'','']));
-  (r.mentees||[]).forEach((n,i)=>rows.push([m,g,c.levelTxt,menteeRules(g).kind==='mentor'?'เลือกพี่เลี้ยง':'พี่เลี้ยง',i+1,(menteeRules(g).kind==='mentor'?'ขอพี่เลี้ยง: ':'เลี้ยง: ')+n,GROUP_OF[n]||'','','','','','']));
+  (r.mentees||[]).forEach((n,i)=>rows.push([m,g,c.levelTxt,menteeRules(g).kind==='mentor'?'เลือกพี่เลี้ยง (แนวดิ่ง)':'พี่เลี้ยงน้อง (แนวดิ่ง)',i+1,(menteeRules(g).kind==='mentor'?'ขอพี่เลี้ยง: ':'เลี้ยง: ')+n,GROUP_OF[n]||'','','','','','']));
+  (r.peers||[]).forEach((n,i)=>rows.push([m,g,c.levelTxt,'ร่วมเลี้ยง (ระดับเดียวกัน)',i+1,'ร่วมเลี้ยง: '+n,GROUP_OF[n]||'','','','','','']));
   (r.okrs||[]).forEach((o,oi)=>(o.krs||[]).forEach((k,ki)=>{
    if(!(k.kpis||[]).length)rows.push([m,g,c.levelTxt,'OKR',`${oi+1}.${ki+1}`,o.objective,k.kr,(k.align||[]).join('; '),'','','','']);
    (k.kpis||[]).forEach((p,pi)=>rows.push([m,g,c.levelTxt,'OKR-KPI',`${oi+1}.${ki+1}.${pi+1}`,o.objective,k.kr,(k.align||[]).join('; '),p.name,p.target,p.actual,'']));
