@@ -424,7 +424,7 @@ const ADM = ["พี่กอล์ฟ","พี่อี๊ด","พี่เก
 
 /* -------- Step 0: กดชื่อตัวเอง (เพิ่ม 11 ก.ย. 69) -------- */
 const ALL_ME = [...OAC.map(n=>({n,g:'OAC'})),...GAT.map(n=>({n,g:'GAT'})),...ADM.map(n=>({n,g:'ADM'}))];
-function companyOf(n){const e=(window.LIA_FULL&&LIA_FULL[n])||{};const rows=(e.rows||[]).flat(1).map(x=>String(x));const i=rows.indexOf('BU');return i>=0&&rows[i+1]?rows[i+1]:''}
+function companyOf(n){const e=(window.LIA_FULL&&LIA_FULL[n])||{};const rows=(e.rows||[]).flat(1).map(x=>String(x));const i=rows.indexOf('BU');const raw=i>=0&&rows[i+1]?rows[i+1]:'';return String(raw).split(' ')[0]}
 function renderPickChips(q){
  const el=document.getElementById('me_chips');
  const qq=(q||'').trim();
