@@ -32,7 +32,6 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 .role-badge.active{outline:3px solid #6366f1;outline-offset:1px}
 .opt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}
 .opt-item{display:flex;align-items:flex-start;gap:8px;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;font-size:13px;background:#fff;cursor:pointer}
-/* ตารางเปรียบเทียบ เดิม | ใหม่ */
 .cmp{border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;background:#fff}
 .cmp-head{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#e2e8f0}
 .cmp-head>div{padding:10px 14px;font-size:12px;font-weight:800}
@@ -45,6 +44,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 .c-old .txt{font-size:13px;color:#7f1d1d;line-height:1.7;white-space:pre-wrap;word-break:break-word}
 .c-new .txt{font-size:13px;color:#064e3b;line-height:1.7;white-space:pre-wrap;word-break:break-word}
 .old-empty{color:#e2c5c5;font-style:italic}
+.old-block{border:1px solid #fecaca;background:#fff;border-radius:10px;padding:8px 10px;font-size:12px;color:#7f1d1d;line-height:1.65;white-space:pre-wrap;word-break:break-word;margin-top:4px}
 @media (max-width:768px){.cmp-head,.cmp-row{grid-template-columns:1fr}.cmp-head .h-new{border-top:2px solid #059669}}
 </style>
 </head>
@@ -56,7 +56,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
 <div>
 <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">✍️ ฟอร์ม CEO รายคน <span class="text-indigo-600">— เดิมคู่ใหม่ ทีละคอลัมน์</span></h1>
-<p class="text-sm text-slate-500 mt-1">นำ<b>บทบาทเดิม CEO (LIA 2026)</b> ขึ้นคอลัมน์ซ้ายเทียบ <b>บทบาทใหม่</b> (ช่องกรอกขวา) — ทีละหัวข้อ เหมือนชีตต้นฉบับ</p>
+<p class="text-sm text-slate-500 mt-1">นำ<b>บทบาทเดิม CEO (LIA 2026)</b> ขึ้นคอลัมน์ซ้ายเทียบ <b>บทบาทใหม่</b> (ช่องกรอกขวา) — ทีละหัวข้อ</p>
 </div>
 <div class="flex flex-wrap gap-2">
 <a href="succession-form-v2.html" class="btn-outline inline-flex items-center">🗂 ฟอร์มบันทึกประเด็น</a>
@@ -74,7 +74,6 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 
 <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-24">
 
-<!-- เลือกคน -->
 <div class="card bg-white rounded-2xl p-5 mb-6 border-t-4 border-t-indigo-500">
 <div class="flex items-center gap-3 mb-3">
 <span class="sec-chip bg-indigo-500">0</span>
@@ -82,12 +81,12 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 </div>
 <input type="text" id="me_search" placeholder="🔍 พิมพ์ค้นหาชื่อ… (เช่น พี่กอล์ฟ / น้องแซน)" oninput="renderChips(this.value)" class="mb-3" />
 <div id="me_chips" class="flex flex-wrap gap-2"></div>
+<div id="data_note" class="mt-3"></div>
 </div>
 
 <div id="work_area" class="hidden-sec">
 <div id="me_banner" class="mb-5"></div>
 
-<!-- ตารางเปรียบเทียบ: เดิม | ใหม่ -->
 <div class="cmp">
 <div class="cmp-head">
 <div class="h-old">📖 บทบาทเดิม — CEO 2026 (จากชีต LIA)</div>
@@ -96,18 +95,16 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 <div id="cmp_body"></div>
 </div>
 
-<!-- ระบบพี่เลี้ยง แนวดิ่ง + แนวราบ -->
 <div class="card bg-white rounded-2xl overflow-hidden shadow-sm mt-6">
 <div class="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-violet-50 to-white">
 <span class="sec-chip bg-violet-500">🤝</span>
-<div><h2 class="font-bold text-slate-900">ระบบพี่เลี้ยง — แนวดิ่ง + แนวราบ</h2><p class="text-xs text-slate-500">ใครเป็นพี่เลี้ยงของคุณ / คุณเป็นพี่เลี้ยงใคร — บอกด้านที่ดูแลด้วย (จากข้อมูลเดิม + กรอกใหม่ได้)</p></div>
+<div><h2 class="font-bold text-slate-900">ระบบพี่เลี้ยง — แนวดิ่ง + แนวราบ</h2><p class="text-xs text-slate-500">ใครเป็นพี่เลี้ยงคุณ / คุณเป็นพี่เลี้ยงใคร — บอกด้านที่ดูแล (จากข้อมูลเดิม + กรอกใหม่ได้)</p></div>
 </div>
 <div class="p-5" id="mentor_box"></div>
 </div>
 
-<!-- บันทึก -->
 <div class="flex flex-wrap items-center gap-3 mt-6 bg-white border border-slate-200 rounded-2xl px-5 py-4">
-<div class="text-sm text-slate-500 flex-1">บันทึกเฉพาะคนนี้ลงเครื่อง (localStorage) — พร้อมส่ง GAS/Export CSV</div>
+<div class="text-sm text-slate-500 flex-1">บันทึกเฉพาะคนนี้ลงเครื่อง (localStorage)</div>
 <button type="button" onclick="saveOne()" class="btn-primary">💾 บันทึกข้อมูลคนนี้</button>
 <button type="button" onclick="exportOneCSV()" class="btn-outline">⬇️ CSV</button>
 <button type="button" onclick="clearOne()" class="btn-outline">🗑 ล้างข้อมูลคนนี้</button>
@@ -118,292 +115,276 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 
 <script src="succession-lia-data.js"></script>
 <script>
-/* ================= ข้อมูลบทบาทเดิม (LIA_ORIG) + กลุ่ม ================= */
-const LIA_ORIG=[
-['คุณประวิทย์','ประวิทย์ ผ่องโสภา','OAC','PKG','CEO PVP 2026','995204097','ทีมรับใช้ PKG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','กำหนดทิศทางองค์กรร่วมทีม AWG/BMC · สร้าง Integrity หนึ่งเดียว · รับใช้ผู้มีส่วนได้ส่วนเสีย 5 ฝ่าย · แทรกแซงเมื่อส่งมอบผลลัพธ์ล้มเหลว · รับรู้/รับผิดชอบความหมกมุ่นของสมาชิก · นำบุคคล 5 ฝ่ายสู่ศตวรรษ 21 ด้วยเทคโนโลยี · ใช้เครื่องมือ 7F อัตโนมัติ OGC2.0 · พี่เลี้ยงสร้างความสัมพันธ์รับใช้ลูกค้า'],
-['พี่ต๋อง','รนกร ณัทศศิร์','OAC','AAMG','CEO_รนกร 2026','312908717','ทีมรับใช้ PKG-AAMG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','AAMG-Change Strategy Ownership · เติบโตสินเชื่อคุณภาพหนี้ 98% + สภาพคล่อง · เพิ่มหลักประกัน Reserve Assets (Gold & Bitcoin) 50% ใน 3-5 ปี · ZLLP · Money-as-Code · R&D ลูกค้า/ผลิตภัณฑ์ · PP7 Upskill & Reskill ทั้งองค์กร · WaC 1.0 + SafeClaw · CBNP สูงสุด'],
-['พี่ก้อย','กาญจนา ขุนจิตต์','OAC','PMSG','CEO_ ก้อย 2026','1064312456','ทีมรับใช้ PKG-PMSG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','พี่เลี้ยงทีม PMSgr ให้ผลงานสำเร็จตามกลยุทธ์ 5 ด้าน · พี่เลี้ยงทีมความสำเร็จตรีเพชรฯ กำกับการสื่อสาร · พี่เลี้ยงทีมผู้รับใช้ทีมขายและผู้ใช้รถยนต์ · พี่เลี้ยงทีมทบทวนค่าตอบแทน PMSgr'],
-['พี่กอล์ฟ','วรพินิจ ศิริโชติ','ADM','TNR (ไทยพนา)','CEO_ กอล์ฟ 2026','1722992104','ทีมรับใช้ PKG-TNR (LIA 2.0 CEO)','พัฒนาสวนเกษตรให้เป็นระบบธุรกิจรายได้สูง ยั่งยืน ใช้ทรัพยากรอย่างมีประสิทธิภาพ','กำหนดกลยุทธ์ธุรกิจสวน (พืชผลไม้+ป่า 5 ชั้น) · กำกับผลประกอบการ Revenue/Cost/Margin · พัฒนาระบบข้อมูลและ KPI Dashboard · บริหารและพัฒนาศักยภาพทีม · สร้างโมเดลแปลงต้นแบบ (Model Plot) · พี่เลี้ยงทีมให้ OKR/KPI สำเร็จ'],
-['พี่อี๊ด','พัชนี สุขสำราญ','ADM','PKG','CEO_พัชนี 2026','2050051785','ทีมรับใช้ PKG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','บริหารสภาพคล่อง วงเงินพร้อมใช้ตลอดเวลา ลดต้นทุน OD · พี่เลี้ยงการเงิน PKG สู่งานอัตโนมัติประจำวัน · 7F ระบบงาน PF · บริหาร CU ให้มีกำไร · สนับสนุนการเงิน รับใช้สมาชิก/ผู้ถือหุ้น/กรรมการ · ทีมเปิดบริษัทต่างประเทศ'],
-['พี่เก๋','ขวัญฤทัย ใจหาญ','ADM','PKG','CEO_Kwunruthai 2026','1054585747','ทีม AWG-PIT (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','กำหนดทิศทางองค์กรร่วมทีม AWG/BMC · สร้าง Integrity หนึ่งเดียว · บริหารกลยุทธ์/เป้าหมาย/แผนงาน · Execution งานปฏิรูป AX-PKG · บริหารระบบวัดผลใช้ได้จริงทุกธุรกิจ · กำกับกลยุทธ์ PIT และ DIN · ใช้เครื่องมือ 7F อัตโนมัติ OGC2.0'],
-['พี่อ้วน','โกวิทย์ สีเผือก','ADM','PKG','CEO_Kowit 2026','1671128849','ทีม CPDG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','CPDG target · PKG crypto asset · กำหนดทิศทางองค์กรตามกลยุทธ์ประจำปี'],
-['พี่อ๊อด','อรุณี เลิศวศะ','GAT','PKG','CEO_อรุณี 2026','1192418838','ทีมรับใช้ PKG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','รับใช้ทีมบัญชี ทำบัญชีมาตรฐานสากลทุกประเทศ · ให้ข้อมูลการเงิน/ผลประกอบการสนับสนุนฝ่ายบริหาร · รับใช้ทีมการเงินให้สอดรับกลมกลืน · บริหารภาษีประหยัด คุ้มค่า ถูกต้องตามสิทธิ · พัฒนาทักษะบัญชียุค Hitech-Hitouch'],
-['พี่หวาน','รัตนา สมภักดี','ADM','AAMG','CEO_รัตนา 2026','484863963','ทีมรับใช้ PKG-AAMG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','สนับสนุน Operation AAM/RPLC/RAFCO Asset Growth · ฟื้นฟูสาขา Asset ต่ำ 9 ลบ. 15 สาขา · CostDown AX AAMG · บริหารสภาพคล่อง AAM/RAFCO ไม่มีภาระหนี้เพิ่ม · กำกับค่าตอบแทน/INC AAMG'],
-['พี่ญา','สุกัญญา แซ่เลียง','ADM','AAMG','CEO_พี่ญา2026','697422182','ทีมรับใช้ PKG-AAMG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','เติบโตสินเชื่อ สปป.ลาว ให้เต็มศักยภาพ คุณภาพหนี้มาตรฐาน 98% · เปิดสาขา Size 3s/Agent Service 4 สาขาใน 2026, 7-10 สาขาใน 2027 · สนับสนุนสินเชื่อผลิตภัณฑ์ใหม่ AAMG · สร้างรายได้เพิ่ม NB · HP รถใหม่/EV/มือสอง สปป.ลาว · Market Place · ปฏิรูปเพิ่มผลิตภาพสมาชิก AX FX'],
-['พี่ติ๋ม','อารีย์ เขาจารีย์','ADM','PKG','CEO_Aree 2026','1258165885','ทีม PAC (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','นโยบาย AWG-PAC (Play Potential Performance P2) · กำกับ Operations PP7 (ค่าตอบแทน+HWWTF+กฎหมายแรงงาน) · กำกับเวที L&G · บริหารครูฝึก/หลักสูตรทุนองค์กร · งบกองทุนสมาชิก · สหกรณ์เครดิตยูเนี่ยนประชากิจ'],
-['พี่หนึ่ง','ปกรณ์ โชติบัญชา','ADM','PKG','CEO_Pakon 2026','105755056','ทีมรับใช้ PKG-PAC (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','รับผิดชอบนโยบาย AWG-PAC · กำกับ Operations P1-4 (แสวงหา/หยั่งประเมิน/จับคู่/ประเมินผล) · กำกับเวที L&G · สร้าง Web PP7 · Execution งานปฏิรูป AX-PAC'],
-['พี่สิงห์','สมศักดิ์ ธัมมะปาละ','ADM','PMSG','CEO_ สิงห์ 2026','1996100044','ทีมรับใช้ PKG-PMSG (LIA 2.0 CEO)','ทุ่มเทรับใช้ผู้ใช้รถยนต์อย่างใกล้ชิดให้ประสบความสำเร็จ','พี่เลี้ยงทีมศูนย์ซ่อมตัวถังและสี · พี่เลี้ยงทีม PMGI · สนับสนุนธุรกิจหลังการขายให้ได้ตามเป้า · ร่วมขับเคลื่อนเชื่อมโยงระบบ ลดงานซ้ำซ้อน · ร่วมแสวงหาโอกาสใหม่เพิ่มรายได้จากเครือข่ายลูกค้า'],
-['พี่ปุ๊','ชุติมา สิทธิบุศย์','ADM','PMSG','CEO_ ปุ๊ 2026','1996275829','ทีมรับใช้ PKG-PMSG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','พี่เลี้ยงทีมความสำเร็จลูกค้า สร้างการรับใช้ตามความต้องการอย่างเป็นระบบ (OGC 98% PIC CRM) · พี่เลี้ยงทีม CIX ชี้แจงจุดมุ่งหมาย/รับผิดชอบต่อผล · ปรับกลยุทธ์รับใช้ลูกค้าตามสถานการณ์ · ผลักดันทุกหน่วยงานรับใช้ลูกค้า realtime'],
-['คุณบอล','ศุภสิทธิ์ ผ่องโสภา','ADM','CPDG','CEO คุณบอล 2026','562434652','ทีมรับใช้ PKG-CPDG (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','กำหนดทิศทางองค์กรร่วมทีม AWG-DIN · พัฒนาระบบ Smart Farm & IoT Real-time · สร้าง/ปรับแต่ง AI Agent วิเคราะห์ข้อมูล · แผนรองรับฉุกเฉินด้านพลังงานไม่กระทบเซิร์ฟเวอร์หลัก · นำบุคคล 5 ฝ่ายสู่ศตวรรษ 21 ด้วยเทคโนโลยี · ยกระดับ AI องค์กร'],
-['น้องแซน','ณัฐภัทร ขุนจิตต์','ADM','PMSG','CEO_ แซน 2026','1785183877','ทีมรับใช้ PKG-PMS (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','สร้างผลกำไร CBNP รวม PMSG 39 ลบ. และ PMS 29 ลบ. · ผู้นำยอดขายรถยนต์ 1,080 คัน รักษา CSI/SSI Top 5 ของโซน · ขับเคลื่อนระบบนิเวศ NAVway PKG และการตลาดดิจิทัลเต็มรูปแบบ'],
-['โอม','ปุญญพัฒน์ สนั่นพานิชกุล','ADM','CPDG','CEO_Poonyapat 2026','1438194092','ทีมรับใช้ PKG-CPDG (LIA 2.0 CEO)','สร้างธุรกิจใหม่ สร้างรายได้ใหม่ PKG Creating Future Businesses','กำกับความปลอดภัยเทคโนโลยี · วิจัยเทคโนโลยีรับใช้ลูกค้า FX หน้าร้านดิจิทัล / RX Startup · ตรวจสอบความปลอดภัยสม่ำเสมอ · กำกับระบบซัพพอร์ตเทคโนโลยี'],
-['จ้อน','ไชยา เงื้อมผา','ADM','CPDG','CEO_Chaiya 2026','1960799922','ทีม AGS (LIA 2.0 CEO)','สร้างธุรกิจใหม่ สร้างรายได้ใหม่ PKG Creating Future Businesses','กำกับพัฒนาซอฟต์แวร์ตามมาตรฐาน ISO · กำกับความปลอดภัยเทคโนโลยี PKG · Execution Workflow as Code · วิจัยเทคโนโลยีใหม่เพิ่มผลผลิต AX · กำกับโรงเรียนเทคโนโลยี PKG'],
-['แนน','รัฐพร คะชาแก้ว','ADM','PKG','CEO_Rattaporn 2026','1686264807','ทีม PAC (LIA 2.0 CEO)','รับใช้บุคคล 5 ฝ่าย ให้บรรลุจุดมุ่งหมายของตนเอง','บริหารกลยุทธ์ P5 (Personnel development) · Co-ownership โรงเรียนฝึก AI · Execution งานปฏิรูป FX-PAC · งาน PP7 ด้าน Health · Operations PP5 · Product Management (HR MS24 / Likepoint 2.0)'],
-['คุณปอม','ปวีร์ ผ่องโสภา','ADM','PKG','CEO_Pavee','2062895538','ทีม PM PKG / Money Buddy (LIA 2.0 CEO)','ปรับปรุง ownership','สร้างธุรกิจใหม่ลาว/กัมพูชา VASP · ฟื้นฟูกิจการ Rafco-Online Gold · ปรับโครงสร้าง/Coach PM · Audit KPI/CEO · Accounting/SGM PM/WI'],
-['วนิดา','วนิดา (ยุ้ย)','ADM','','','','','',''],
-];
-const LIA_BY_NICK={}; LIA_ORIG.forEach(r=>LIA_BY_NICK[r[0]]=r);
-
-const ADM_MENTORS=['พี่กอล์ฟ','พี่อี๊ด','พี่เก๋','พี่อ้วน','พี่หวาน','พี่ญา','พี่ติ๋ม','พี่หนึ่ง','พี่สิงห์','พี่ปุ๊','คุณบอล'];
-const ADM_JUNIORS=['น้องแซน','โอม','จ้อน','แนน','คุณปอม','วนิดา'];
+/* ===== ทะเบียนรายชื่อ + กลุ่ม ===== */
 const OAC_M=['คุณประวิทย์','พี่ต๋อง','พี่ก้อย'];
 const GAT_M=['พี่อ๊อด'];
+const ADM_MENTORS=['พี่กอล์ฟ','พี่อี๊ด','พี่เก๋','พี่อ้วน','พี่หวาน','พี่ญา','พี่ติ๋ม','พี่หนึ่ง','พี่สิงห์','พี่ปุ๊','คุณบอล'];
+const ADM_JUNIORS=['น้องแซน','โอม','จ้อน','แนน','คุณปอม','วนิดา'];
 const ALL_MEMBERS=[...OAC_M,...GAT_M,...ADM_MENTORS,...ADM_JUNIORS];
-const GROUP_OF={}; ALL_MEMBERS.forEach(n=>{GROUP_OF[n]= OAC_M.includes(n)?'OAC':GAT_M.includes(n)?'GAT':'ADM'});
-const SUB_OF={}; ALL_MEMBERS.forEach(n=>{SUB_OF[n]= ADM_MENTORS.includes(n)?'พี่เลี้ยง (อดีต GAT)':ADM_JUNIORS.includes(n)?'ADM ใหม่':'—'});
+const GROUP_OF={}; ALL_MEMBERS.forEach(n=>{GROUP_OF[n]=OAC_M.includes(n)?'OAC':GAT_M.includes(n)?'GAT':'ADM'});
+const SUB_OF={}; ALL_MEMBERS.forEach(n=>{SUB_OF[n]=ADM_MENTORS.includes(n)?'พี่เลี้ยง (อดีต GAT)':ADM_JUNIORS.includes(n)?'ADM ใหม่':'—'});
+const FULLNAME={"คุณประวิทย์":"ประวิทย์ ผ่องโสภา","พี่ต๋อง":"รนกร ณัทศศิร์","พี่ก้อย":"กาญจนา ขุนจิตต์","พี่กอล์ฟ":"วรพินิจ ศิริโชติ","พี่อี๊ด":"พัชนี สุขสำราญ","พี่เก๋":"ขวัญฤทัย ใจหาญ","พี่อ้วน":"โกวิทย์ สีเผือก","พี่อ๊อด":"อรุณี เลิศวศะ","พี่หวาน":"รัตนา สมภักดี","พี่ญา":"สุกัญญา แซ่เลียง","พี่ติ๋ม":"อารีย์ เขาจารีย์","พี่หนึ่ง":"ปกรณ์ โชติบัญชา","พี่สิงห์":"สมศักดิ์ ธัมมะปาละ","พี่ปุ๊":"ชุติมา สิทธิบุศย์","คุณบอล":"ศุภสิทธิ์ ผ่องโสภา","น้องแซน":"ณัฐภัทร ขุนจิตต์","โอม":"ปุญญพัฒน์ สนั่นพานิชกุล","จ้อน":"ไชยา เงื้อมผา","แนน":"รัฐพร คะชาแก้ว","คุณปอม":"ปวีร์ ผ่องโสภา","วนิดา":"วนิดา (ยุ้ย)"};
 
-/* ================= บทบาทใหม่ 3 บทบาท ตามกลุ่ม ================= */
-const ROLES = {
+const ROLES={
  OAC:[
-  {t:'OAC — กำกับดูแล (Oversight)',d:'กำกับดูแลบรรษัทภิบาล ครอบคลุมทุกประเทศ รับรายงานตลอดเวลา ใช้เทคโนโลยี Audit 100% — มีคนทำงานแทนได้ทุกด้าน',opts:['กำกับทิศทาง/ผลลัพธ์ทุกกลยุทธ์','รับรายงาน GAT/ADM สม่ำเสมอ','ใช้ Tech Audit 100%','ทวนสอบความเสี่ยง/Compliance','บริหารความต่อเนื่องทุกประเทศ','อื่น ๆ']},
-  {t:'OAC — ให้คำปรึกษา (Advisory)',d:'ให้คำปรึกษาด้วยประสบการณ์ที่มีหลักฐาน — ริเริ่มให้คำปรึกษาได้โดยไม่ต้องรอถาม + สิทธิ Veto 3 ครั้ง (Safety Gate)',opts:['ให้คำปรึกษาเชิงกลยุทธ์','Coaching/Mentor ทีมบริหาร','Veto เรื่องสำคัญ (สูงสุด 3 ครั้ง)','ถ่ายทอดประสบการณ์/วัฒนธรรม','อื่น ๆ']},
-  {t:'OAC — ทบทวนผล (Review)',d:'ทบทวนผลการดำเนินงาน/ผลลัพธ์กลยุทธ์ของ GAT/ADM ตาม BSC — ให้ feedback สร้างการเติบโต',opts:['Review ผล BSC รายกลุ่ม','Feedback เชิงสร้างสรรค์','ติดตามแผนถ่ายทอด 2026–2030','อื่น ๆ']},
+  {t:'OAC — กำกับดูแล (Oversight)',d:'กำกับดูแลบรรษัทภิบาล ครอบคลุมทุกประเทศ รับรายงานตลอดเวลา ใช้เทคโนโลยี Audit 100%',opts:['กำกับทิศทาง/ผลลัพธ์ทุกกลยุทธ์','รับรายงาน GAT/ADM สม่ำเสมอ','ใช้ Tech Audit 100%','ทวนสอบความเสี่ยง/Compliance','บริหารความต่อเนื่องทุกประเทศ','อื่น ๆ']},
+  {t:'OAC — ให้คำปรึกษา (Advisory)',d:'ให้คำปรึกษาด้วยประสบการณ์ที่มีหลักฐาน ริเริ่มได้เอง + Veto 3 ครั้ง (Safety Gate)',opts:['ให้คำปรึกษาเชิงกลยุทธ์','Coaching/Mentor ทีมบริหาร','Veto เรื่องสำคัญ (สูงสุด 3 ครั้ง)','ถ่ายทอดประสบการณ์/วัฒนธรรม','อื่น ๆ']},
+  {t:'OAC — ทบทวนผล (Review)',d:'ทบทวนผลการดำเนินงาน/ผลลัพธ์กลยุทธ์ของ GAT/ADM ตาม BSC',opts:['Review ผล BSC รายกลุ่ม','Feedback เชิงสร้างสรรค์','ติดตามแผนถ่ายทอด 2026–2030','อื่น ๆ']},
  ],
  GAT:[
-  {t:'GAT — ตรวจสอบการดำเนินงาน/ความเสี่ยง/Compliance/ผลลัพธ์',d:'ตรวจสอบกลางทั้งองค์กร — รายงานผลต่อ OAC (Monthly Audit/Oversight Report)',opts:['ตรวจสอบการดำเนินงาน','ตรวจสอบความเสี่ยง','ตรวจสอบ Compliance','ตรวจสอบผลลัพธ์ตาม BSC','Tech Audit','Monthly Audit Report → OAC','รายงานตัวเลข BSC กลุ่ม ADM ต่อ OAC','อื่น ๆ']},
+  {t:'GAT — ตรวจสอบการดำเนินงาน/ความเสี่ยง/Compliance/ผลลัพธ์',d:'ตรวจสอบกลางทั้งองค์กร — รายงานผลต่อ OAC',opts:['ตรวจสอบการดำเนินงาน','ตรวจสอบความเสี่ยง','ตรวจสอบ Compliance','ตรวจสอบผลลัพธ์ตาม BSC','Tech Audit','Monthly Audit Report → OAC','รายงานตัวเลข BSC กลุ่ม ADM ต่อ OAC','อื่น ๆ']},
  ],
  ADM:[
-  {t:'ADM — บริหารกลยุทธ์ (ทีมเดิม/พี่เลี้ยง)',d:'ถ่ายทอดความรู้/เป็น Mentor-Coach ให้ ADM ใหม่ + ยังรับผิดชอบงานบทบาทเดิมช่วงเปลี่ยนผ่าน (ค่อย ๆ ลดลง)',opts:['Mentor/Coach ADM ใหม่','ถ่ายทอดความรู้/ประสบการณ์','รักษามาตรฐาน/วัฒนธรรม','กำกับดูแลการทำงานร่วม','ทำ Operation สำคัญช่วงแรก (การเงิน/สินเชื่อ)','อื่น ๆ']},
-  {t:'ADM — บริหารกลยุทธ์ (ทีมใหม่)',d:'รับ Operation + อำนาจตัดสินใจเพิ่มขึ้นตามเงื่อนไข — พัฒนา Tech/Digital/AI/Automation รักษา Culture/Value และสร้างธุรกิจใหม่',opts:['รับ Operation + ตัดสินใจเพิ่มขึ้น','พัฒนา Tech/Digital/AI/Automation','รักษา Culture/Value PKG','สร้างธุรกิจใหม่/ความสามารถใหม่','เรียนรู้จากพี่เลี้ยง (Co-Ownership)','อื่น ๆ']},
+  {t:'ADM — บริหารกลยุทธ์ (ทีมเดิม/พี่เลี้ยง)',d:'ถ่ายทอดความรู้/เป็น Mentor-Coach ให้ ADM ใหม่ + งานบทบาทเดิมช่วงเปลี่ยนผ่าน',opts:['Mentor/Coach ADM ใหม่','ถ่ายทอดความรู้/ประสบการณ์','รักษามาตรฐาน/วัฒนธรรม','กำกับดูแลการทำงานร่วม','ทำ Operation สำคัญช่วงแรก','อื่น ๆ']},
+  {t:'ADM — บริหารกลยุทธ์ (ทีมใหม่)',d:'รับ Operation + อำนาจตัดสินใจเพิ่มขึ้น + Tech/Digital/AI + สร้างธุรกิจใหม่',opts:['รับ Operation + ตัดสินใจเพิ่มขึ้น','พัฒนา Tech/Digital/AI/Automation','รักษา Culture/Value PKG','สร้างธุรกิจใหม่/ความสามารถใหม่','เรียนรู้จากพี่เลี้ยง (Co-Ownership)','อื่น ๆ']},
  ],
- GENERAL:[
-  {t:'สมาชิกทั่วไป — เสนอประเด็น/ข้อคิดเห็น',d:'มองรอบตัวแล้วแชร์ประเด็นที่เห็น — ไม่ต้องมีบทบาทบริหาร',opts:['ประเด็น/ข้อเสนอแนะ','อื่น ๆ']},
- ]
+ GENERAL:[{t:'สมาชิกทั่วไป — เสนอประเด็น/ข้อคิดเห็น',d:'แชร์ประเด็นที่เห็น',opts:['ประเด็น/ข้อเสนอแนะ','อื่น ๆ']}]
 };
 
-/* ================= state ================= */
 let cur=null;
-const LS='pkg_succession_member_form';
+const LS='pkg_succession_member_form_v2';
 function allData(){try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch{return {}}}
 function saveData(d){localStorage.setItem(LS,JSON.stringify(d))}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
+/* ===== ดึงข้อมูลเดิมจากชีต LIA (LIA_FULL) ===== */
+function liaEntry(n){ try{ return (typeof LIA_FULL!=='undefined' && LIA_FULL[n]) ? LIA_FULL[n] : null }catch(e){ return null } }
+function valAfter(cells,idx){
+  let v=String(cells[idx]||'').replace(/^.*จุดมุ่งหมาย\s*\(purpose\)\s*::\s*/i,'').replace(/^.*ภาพความสำเร็จ[^)]*\(vision\)\s*::\s*/i,'').trim();
+  if(!v) v=(cells.slice(idx+1).find(c=>c&&c.length>3&&!/^(L&G|MEI|3E|3P|OGC|\(|Time|แผนพัฒนา)/.test(c))||'');
+  return String(v).trim();
+}
+function extractOld(n){
+  const e=liaEntry(n);
+  const out={missing:!e,role:'',levels:{BU:{label:'',purpose:'',vision:''},TEAM:{label:'',purpose:'',vision:''},PERSONAL:{label:'',purpose:'',vision:''}},account:[],growth:{Business:[],Team:[],Personal:[]},raw:[]};
+  if(!e) return out;
+  const rows=e.rows||[];
+  let curLvl=null,inAcc=false,grp=null;
+  for(const row of rows){
+    const cells=row.map(x=>String(x??'').trim());
+    const ne=cells.filter(Boolean);
+    const joined=ne.join(' § ');
+    if(!joined){continue}
+    out.raw.push(ne.join(' | '));
+    const ri=cells.findIndex(c=>/^บทบาท/.test(c));
+    if(ri>=0){const v=cells.slice(ri+1).find(c=>c); if(v&&!out.role) out.role=v.replace(/^[:：]\s*/,'').replace(/^\.+\s*/,'');}
+    const buC=cells.find(c=>/^BU\s*[:.]/i.test(c));
+    const tmC=cells.find(c=>/^Team/i.test(c));
+    const pgC=cells.find(c=>/^Personal Goal/i.test(c));
+    if(buC||tmC||pgC){ curLvl=buC?'BU':(tmC?'TEAM':'PERSONAL'); out.levels[curLvl].label=(buC||tmC||pgC); }
+    const pIdx=cells.findIndex(c=>/จุดมุ่งหมาย\s*\(purpose\)/i.test(c));
+    if(pIdx>=0&&curLvl){ const v=valAfter(cells,pIdx); if(v) out.levels[curLvl].purpose=v; }
+    const vIdx=cells.findIndex(c=>/ภาพความสำเร็จ[^)]*\(vision\)/i.test(c));
+    if(vIdx>=0&&curLvl){ const v=valAfter(cells,vIdx); if(v) out.levels[curLvl].vision=v; }
+    if(/หน้าที่ความรับผิดชอบหลัก/.test(joined)){ inAcc=true; continue; }
+    if(/ACCOUNTABILITY & OWNERSHIP/.test(joined)){ inAcc=false; continue; }
+    if(inAcc){
+      const t=ne.find((c,i)=>i>0&&c.length>3&&!/^[\d.\s]+$/.test(c));
+      if(t) out.account.push(t.replace(/^\d+\s*[\.\)]?\s*/,''));
+      continue;
+    }
+    if(/^Business Growth/i.test(ne[0]||'')) grp='Business';
+    else if(/^Team Growth/i.test(ne[0]||'')||/^TEAM Growth/i.test(ne[0]||'')) grp='Team';
+    else if(/^Personal Growth/i.test(ne[0]||'')) grp='Personal';
+    else if(/Personal Credit|^รวม|Operational Excellence/i.test(joined)) grp=null;
+    if(grp && ne.length>1 && !/^(Execution|Growth|Weights|Points|Incentives|Currencies|Objectives|Key Results|Growth KPI)/i.test(ne[0])){
+      const txt=ne.filter(c=>!/^(Weight|Points|Incentives|Currencies|\d+%)/i.test(c)).join(' — ');
+      if(txt.length>6) out.growth[grp].push(txt);
+    }
+  }
+  return out;
+}
+function fmtOld(t){return t&&String(t).trim()?esc(t):'<span class="old-empty">— ไม่มีข้อมูลเดิม —</span>'}
+
+/* ===== chips ===== */
 function renderChips(q){
- const el=document.getElementById('me_chips');
- const qq=(q||'').trim();
- const list=qq?ALL_MEMBERS.filter(n=>n.includes(qq)||(LIA_BY_NICK[n]&&LIA_BY_NICK[n][1]||'').includes(qq)):ALL_MEMBERS;
- el.innerHTML=list.map(n=>{const g=GROUP_OF[n];return `<button type="button" class="mchip ${cur&&cur.nick===n?'active':''}" style="border-color:${g==='OAC'?'#e11d48':g==='GAT'?'#f59e0b':'#0284c7'}" onclick="selectMember('${n}')"><span class="dot" style="background:${g==='OAC'?'#e11d48':g==='GAT'?'#f59e0b':'#0284c7'}"></span>${n} <span style="font-size:10px;color:#94a3b8">${g}</span></button>`}).join('')
-  || '<div class="text-sm text-slate-400 py-2">ไม่พบชื่อ</div>';
+  const el=document.getElementById('me_chips');
+  const qq=(q||'').trim();
+  const list=qq?ALL_MEMBERS.filter(n=>n.includes(qq)||(FULLNAME[n]||'').includes(qq)):ALL_MEMBERS;
+  const hex=g=>g==='OAC'?'#e11d48':g==='GAT'?'#f59e0b':'#0284c7';
+  el.innerHTML=list.map(n=>{const g=GROUP_OF[n];return `<button type="button" class="mchip ${cur&&cur.nick===n?'active':''}" style="border-color:${hex(g)}" onclick="selectMember('${n}')"><span class="dot" style="background:${hex(g)}"></span>${n} <span style="font-size:10px;color:#94a3b8">${g}</span></button>`}).join('')
+   || '<div class="text-sm text-slate-400 py-2">ไม่พบชื่อ</div>';
+  const missing=ALL_MEMBERS.filter(n=>!liaEntry(n));
+  document.getElementById('data_note').innerHTML = missing.length
+    ? `<div class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">ℹ️ ยังไม่มีข้อมูลเดิมในไฟล์ (${missing.length} คน): <b>${missing.join(', ')}</b> — กรอกเองได้ หรือให้อัปเดตข้อมูลจากชีต</div>`
+    : `<div class="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">✅ มีข้อมูลเดิมครบทั้ง ${ALL_MEMBERS.length} คน</div>`;
 }
 function selectMember(n){
- cur={nick:n,group:GROUP_OF[n],sub:SUB_OF[n]};
- const d=allData()[n]||{};
- document.getElementById('work_area').classList.remove('hidden-sec');
- document.getElementById('me_banner').innerHTML=bannerHTML(n,d);
- document.getElementById('cmp_body').innerHTML=cmpHTML(n,d);
- document.getElementById('mentor_box').innerHTML=mentorHTML(n,d);
- renderChips('');
- window.scrollTo({top:document.getElementById('work_area').offsetTop-90,behavior:'smooth'});
+  cur={nick:n,group:GROUP_OF[n],sub:SUB_OF[n]};
+  const d=allData()[n]||{};
+  document.getElementById('work_area').classList.remove('hidden-sec');
+  document.getElementById('me_banner').innerHTML=bannerHTML(n,d);
+  document.getElementById('cmp_body').innerHTML=cmpHTML(n,d);
+  document.getElementById('mentor_box').innerHTML=mentorHTML(n,d);
+  renderChips('');
+  window.scrollTo({top:document.getElementById('work_area').offsetTop-90,behavior:'smooth'});
 }
-
 function bannerHTML(n,d){
- const g=GROUP_OF[n],lia=LIA_BY_NICK[n]||[];
- const hex=g==='OAC'?'#e11d48':g==='GAT'?'#f59e0b':'#0284c7';
- const subTxt=SUB_OF[n]==='—'?'':` · ${SUB_OF[n]}`;
- const saved=d&&Object.keys(d).length?`<span class="text-xs text-emerald-600 font-bold">💾 มีข้อมูลที่บันทึกแล้ว</span>`:'';
- return `<div class="bg-white border border-slate-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+  const g=GROUP_OF[n];
+  const hex=g==='OAC'?'#e11d48':g==='GAT'?'#f59e0b':'#0284c7';
+  const e=liaEntry(n);
+  const saved=d&&Object.keys(d).length?`<span class="text-xs text-emerald-600 font-bold">💾 มีข้อมูลที่บันทึกแล้ว</span>`:'';
+  return `<div class="bg-white border border-slate-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
   <div class="flex items-center gap-3">
    <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl font-extrabold text-white" style="background:${hex}">${n.charAt(0)}</div>
    <div>
-    <div class="text-lg font-extrabold">${n} <span class="text-sm font-normal text-slate-500">${lia[1]||''}</span></div>
-    <div class="text-xs text-slate-500">${g} ${subTxt} · บริษัท ${lia[3]||''} · tab เดิม: ${lia[4]||''}</div>
+    <div class="text-lg font-extrabold">${n} <span class="text-sm font-normal text-slate-500">${FULLNAME[n]||''}</span></div>
+    <div class="text-xs text-slate-500">${g}${SUB_OF[n]==='—'?'':' · '+SUB_OF[n]}${e&&e.tab?' · tab เดิม: '+esc(e.tab):''}</div>
    </div>
   </div>
   <div class="flex items-center gap-2">${saved}<button type="button" class="btn-outline" onclick="exportOneCSV()">⬇️ CSV</button><button type="button" class="btn-outline" onclick="clearOne()">🗑 ล้าง</button></div>
  </div>`;
 }
 
-/* ================= ดึงข้อมูลเดิมจากชีต LIA ================= */
-function extractOld(n){
- const rows=((typeof LIA_FULL!=="undefined"&&LIA_FULL[n])||{}).rows||[];
- const out={role:'',levels:{BU:{label:'',purpose:'',vision:''},TEAM:{label:'',purpose:'',vision:''},PERSONAL:{label:'',purpose:'',vision:''}},account:[],growth:[]};
- let curLvl=null,inAcc=false,inGrowth=false,grp=null;
- for(const row of rows){
-  const cells=row.map(x=>String(x??'').trim());
-  const joined=cells.filter(Boolean).join(' § ');
-  const ri=cells.findIndex(c=>/^บทบาท\s*:/.test(c));
-  if(ri>=0){const v=cells.slice(ri+1).find(c=>c);if(v&&!out.role)out.role=v;}
-  if(/หน้าที่ความรับผิดชอบหลัก/.test(joined)){inAcc=true;continue}
-  if(/ACCOUNTABILITY & OWNERSHIP/.test(joined)){inAcc=false;inGrowth=true;continue}
-  if(/^Execution/.test(joined)){inGrowth=false;continue}
-  if(/Personal Credit|รวม\s*$|Operational Excellence/.test(joined)){inGrowth=false;continue}
-  const lvlCell=cells.find(c=>/^BU\s*:/i.test(c))||cells.find(c=>/^Team/i.test(c))||cells.find(c=>/^Personal Goal/i.test(c));
-  if(lvlCell){curLvl=/^BU\s*:/i.test(lvlCell)?'BU':/^Team/i.test(lvlCell)?'TEAM':'PERSONAL';out.levels[curLvl].label=lvlCell;}
-  if(/Business Growth/.test(joined)){grp='Business';continue}
-  if(/Team Growth/.test(joined)){grp='Team';continue}
-  if(/Personal Growth/.test(joined)){grp='Personal';continue}
-  if(inAcc){
-   const t=cells.slice(1).find(c=>c&&c.length>3)||cells[0];
-   if(t&&!/^\.+$/.test(t)&&out.account.length<18)out.account.push(t.replace(/^\d+\s*/,''));
-   continue;
-  }
-  if(inGrowth&&grp&&joined&&!/^(Weights|Points|Incentives|Currencies|Objectives|Key Results|Execution|Growth)/.test(joined)){
-   out.growth.push(grp+': '+joined.slice(0,220));
-  }
- }
- return out;
-}
-function fmtOld(t){return t&&t.trim()?esc(t):'<span class="old-empty">— ไม่มีข้อมูลเดิม —</span>'}
-
-/* ================= ตาราง เดิม | ใหม่ ================= */
+/* ===== ตาราง เดิม | ใหม่ ===== */
+let OLD=null;
 function cmpHTML(n,d){
- const g=GROUP_OF[n];
- const roles=(ROLES[g]||ROLES.GENERAL);
- const old=extractOld(n);
- const nc=(d.ncass||{});
- const rlist=roles.map(r=>`<label class="role-badge" style="border-color:#c7d2fe"><input type="checkbox" class="new_role" value="${esc(r.t)}" ${(d.roles||[]).includes(r.t)?'checked':''} onchange="collectRoles()"> ${esc(r.t)}</label>`).join('') || '';
- const rows=[];
- const R=(title,oldHtml,newHtml)=>rows.push(`<div class="cmp-row"><div class="c-title">${title}</div><div class="c-old">${oldHtml}</div><div class="c-new">${newHtml}</div></div>`);
-
- // 1. บทบาท
- R('บทบาท (Role)',
-   `<div class="txt">${fmtOld(old.role||(LIA_BY_NICK[n]?LIA_BY_NICK[n][7]:''))}</div>`,
-   `<div class="flex flex-wrap gap-2">${rlist||'<span class="old-empty">ไม่มีบทบาทแนะนำ</span>'}</div>
-    <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2" id="role_details"></div>`);
-
- // 2. จุดมุ่งหมาย + ภาพความสำเร็จ 3 ระดับ
- ['BU','TEAM','PERSONAL'].forEach(k=>{
-  const names={BU:'🏢 BU — ระดับบริษัท',TEAM:'👥 Team — ระดับทีม',PERSONAL:'🎯 Personal Goal — ระดับบุคคล'};
-  const kk=k.toLowerCase();
-  const L=old.levels[k];
-  R(`${names[k]} — จุดมุ่งหมาย (purpose)`,
-    `<div class="txt">${fmtOld(L.purpose)}</div>`,
-    `<textarea id="np_${kk}" rows="2" placeholder="บทบาทใหม่ — จุดมุ่งหมาย…" class="mt-1">${esc(nc[kk]&&nc[kk].purpose||'')}</textarea>`);
-  R(`${names[k]} — ภาพความสำเร็จ (vision)`,
-    `<div class="txt">${fmtOld(L.vision)}</div>`,
-    `<textarea id="nv_${kk}" rows="2" placeholder="บทบาทใหม่ — ภาพความสำเร็จ…" class="mt-1">${esc(nc[kk]&&nc[kk].vision||'')}</textarea>`);
- });
-
- // 3. หน้าที่รับผิดชอบหลัก
- R('หน้าที่รับผิดชอบหลัก (Accountability)',
-   old.account.length?`<div class="txt">${old.account.map(a=>'• '+esc(a)).join('\n')}</div>`:'<span class="old-empty">— ไม่มีข้อมูลเดิม —</span>',
-   `<textarea id="new_resp" rows="4" placeholder="หน้าที่รับผิดชอบของบทบาทใหม่…" class="mt-1">${esc(d.resp||'')}</textarea>`);
-
- // 4. OKR/KPI แยกกลุ่ม
- [['Business','Business Growth'],['Team','Team Growth'],['Personal','Personal Growth']].forEach(([key,label])=>{
-  const lines=old.growth.filter(x=>x.startsWith(key));
-  R(`OKR / KPI — ${label}`,
-    lines.length?`<div class="txt">${lines.map(l=>'• '+esc(l.slice(key.length+2))).join('\n')}</div>`:'<span class="old-empty">— ไม่มีข้อมูลเดิม —</span>',
-    `<textarea id="new_okr_${key.toLowerCase()}" rows="3" placeholder="Objective + Key Results ของบทบาทใหม่…" class="mt-1">${esc((d.okrs&&d.okrs[key.toLowerCase()])||'')}</textarea>`);
- });
-
- // 5. กลยุทธ์ BSC
- R('กลยุทธ์ที่รับผิดชอบ (BSC)',
-   '<span class="old-empty">เลือกด้านตามบทบาทเดิม/ใหม่</span>',
-   `<div class="opt-grid">${['การเงิน (Financial)','ลูกค้า (Customer)','กระบวนการภายใน (Internal Process)','การเรียนรู้และเติบโต (Learning & Growth)'].map(x=>`<label class="opt-item"><input type="checkbox" class="new_bsc" value="${x}" ${(d.bsc||[]).includes(x)?'checked':''}> ${x}</label>`).join('')}</div>`);
-
- // 6. cover + note (เต็มความกว้าง)
- R('การ cover / ส่งต่อ',
-   '<span class="old-empty">—</span>',
-   `<textarea id="new_cover" rows="2" placeholder="ใครควรเรียนรู้/รับช่วง และช่องทาง (Shadow/Mentor/…)" class="mt-1">${esc(d.cover||'')}</textarea>`);
- R('หมายเหตุ / ข้อเสนอแนะ',
-   '<span class="old-empty">—</span>',
-   `<textarea id="new_note" rows="2" class="mt-1">${esc(d.note||'')}</textarea>`);
-
- return rows.join('');
+  const g=GROUP_OF[n];
+  const roles=(ROLES[g]||ROLES.GENERAL);
+  const old=extractOld(n); OLD=old;
+  const nc=(d.ncass||{});
+  const rlist=roles.map(r=>`<label class="role-badge" style="border-color:#c7d2fe"><input type="checkbox" class="new_role" value="${esc(r.t)}" ${(d.roles||[]).includes(r.t)?'checked':''} onchange="collectRoles()"> ${esc(r.t)}</label>`).join('');
+  const rows=[];
+  const R=(title,o,nn)=>rows.push(`<div class="cmp-row"><div class="c-title">${title}</div><div class="c-old">${o}</div><div class="c-new">${nn}</div></div>`);
+  if(old.missing){
+    rows.push(`<div class="cmp-row"><div class="c-title">สถานะข้อมูลเดิม</div><div class="c-old"><div class="old-block">⚠️ ยังไม่มีข้อมูลเดิมของ ${esc(n)} ในไฟล์ succession-lia-data.js — กรอกบทบาทใหม่ด้านขวาได้เลย (หรือแจ้ง KiloClaw ให้ดึงจากชีต)</div></div><div class="c-new"><div class="text-xs text-slate-500">—</div></div></div>`);
+  }
+  R('บทบาท (Role)',
+    `<div class="txt">${fmtOld(old.role)}</div>`,
+    `<div class="flex flex-wrap gap-2">${rlist}</div><div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2" id="role_details"></div>`);
+  ['BU','TEAM','PERSONAL'].forEach(k=>{
+    const names={BU:'🏢 BU — ระดับบริษัท',TEAM:'👥 Team — ระดับทีม',PERSONAL:'🎯 Personal Goal — ระดับบุคคล'};
+    const kk=k.toLowerCase(), L=old.levels[k];
+    R(`${names[k]} — จุดมุ่งหมาย (purpose)`,
+      `<div class="txt">${fmtOld(L.purpose)}</div>`,
+      `<textarea id="np_${kk}" rows="2" placeholder="บทบาทใหม่ — จุดมุ่งหมาย…">${esc(nc[kk]&&nc[kk].purpose||'')}</textarea>`);
+    R(`${names[k]} — ภาพความสำเร็จ (vision)`,
+      `<div class="txt">${fmtOld(L.vision)}</div>`,
+      `<textarea id="nv_${kk}" rows="2" placeholder="บทบาทใหม่ — ภาพความสำเร็จ…">${esc(nc[kk]&&nc[kk].vision||'')}</textarea>`);
+  });
+  R('หน้าที่รับผิดชอบหลัก (Accountability)',
+    old.account.length?old.account.map(a=>`<div class="txt">• ${esc(a)}</div>`).join(''):'<span class="old-empty">— ไม่มีข้อมูลเดิม —</span>',
+    `<textarea id="new_resp" rows="4" placeholder="หน้าที่รับผิดชอบของบทบาทใหม่…">${esc(d.resp||'')}</textarea>`);
+  [['Business','Business Growth'],['Team','Team Growth'],['Personal','Personal Growth']].forEach(([key,label])=>{
+    const lines=(old.growth&&old.growth[key])||[];
+    R(`OKR / KPI — ${label}`,
+      lines.length?lines.map(l=>`<div class="txt">• ${esc(l)}</div>`).join(''):'<span class="old-empty">— ไม่มีข้อมูลเดิม —</span>',
+      `<textarea id="new_okr_${key.toLowerCase()}" rows="3" placeholder="Objective + Key Results ของบทบาทใหม่…">${esc((d.okrs&&d.okrs[key.toLowerCase()])||'')}</textarea>`);
+  });
+  R('กลยุทธ์ที่รับผิดชอบ (BSC)',
+    '<span class="old-empty">— เลือกด้านตามบทบาทใหม่ —</span>',
+    `<div class="opt-grid">${['การเงิน (Financial)','ลูกค้า (Customer)','กระบวนการภายใน (Internal Process)','การเรียนรู้และเติบโต (Learning & Growth)'].map(x=>`<label class="opt-item"><input type="checkbox" class="new_bsc" value="${x}" ${(d.bsc||[]).includes(x)?'checked':''}> ${x}</label>`).join('')}</div>`);
+  R('การ cover / ส่งต่อ','<span class="old-empty">—</span>',`<textarea id="new_cover" rows="2" placeholder="ใครควรเรียนรู้/รับช่วง และช่องทาง (Shadow/Mentor/…)">${esc(d.cover||'')}</textarea>`);
+  R('หมายเหตุ / ข้อเสนอแนะ','<span class="old-empty">—</span>',`<textarea id="new_note" rows="2">${esc(d.note||'')}</textarea>`);
+  if(old.raw&&old.raw.length){
+    R('📋 ตารางเดิมเต็ม (raw)','',`<details class="mt-1"><summary class="text-xs font-bold text-rose-600 cursor-pointer">ดูทั้งหมด ${old.raw.length} แถว</summary><div class="mt-2 max-h-80 overflow-y-auto text-[11px] leading-relaxed text-slate-600" style="white-space:pre-wrap">${old.raw.map(r=>esc(r)).join('\n')}</div></details>`);
+    rows[rows.length-1]=rows[rows.length-1].replace('<div class="c-title">📋 ตารางเดิมเต็ม (raw)</div><div class="c-old"></div><div class="c-new">','<div class="c-title">📋 ตารางเดิมเต็ม (raw) — อยู่ในคอลัมน์เดิมด้านล่างนี้</div><div class="c-old"><details class="mt-1"><summary class="text-xs font-bold text-rose-600 cursor-pointer">ดูทั้งหมด '+old.raw.length+' แถว</summary><div class="mt-2 max-h-80 overflow-y-auto text-[11px] leading-relaxed" style="white-space:pre-wrap">'+old.raw.map(r=>esc(r)).join('\n')+'</div></details></div><div class="c-new"><div class="text-[11px] text-slate-400">เทียบกับข้อมูลเดิมด้านซ้าย</div>');
+  }
+  return rows.join('');
+}
+function collectRoles(){
+  const n=cur&&cur.nick; if(!n) return;
+  const el=document.getElementById('role_details');
+  const checked=[...document.querySelectorAll('.new_role:checked')].map(e=>e.value);
+  const group=GROUP_OF[n];
+  const detail=checked.map(t=>{const r=(ROLES[group]||[]).find(x=>x.t===t); if(!r) return ''; return `<div class="border border-indigo-100 rounded-xl p-3 bg-indigo-50/40"><div class="text-xs font-bold text-indigo-800 mb-1">${esc(t)}</div><div class="text-[11px] text-slate-500 mb-1.5">${esc(r.d)}</div><div class="flex flex-wrap gap-1">${r.opts.map(o=>`<label class="inline-flex items-center gap-1 text-[11px] bg-white border border-slate-200 rounded-lg px-2 py-1 cursor-pointer"><input type="checkbox" class="role_opt" value="${esc(o)}"> ${esc(o)}</label>`).join('')}</div></div>`}).join('');
+  el.innerHTML=detail||'<div class="text-xs text-slate-400">เลือกบทบาทด้านบนเพื่อระบุรายละเอียด</div>';
+  const saved=allData()[n]||{};
+  [...document.querySelectorAll('.role_opt')].forEach(cb=>{if((saved.roleOpts||[]).includes(cb.value))cb.checked=true});
 }
 
-/* -------- ระบบพี่เลี้ยง แนวดิ่ง + แนวราบ -------- */
+/* ===== พี่เลี้ยง แนวดิ่ง/แนวราบ ===== */
+function extractMentors(n){
+  const e=liaEntry(n); const v=[],h=[];
+  if(!e) return {v,h};
+  for(const row of (e.rows||[])){
+    const c=row.map(x=>String(x??'').trim());
+    const isMentor=(c[4]==='พี่เลี้ยง'||c[4]==='ผู้รับใช้ทีม');
+    if(!isMentor||!c[5]) continue;
+    if(c[2]==='BU') v.push({name:c[5],side:c[6]||''});
+    else if(c[2]==='Team') h.push({name:c[5],side:c[6]||''});
+  }
+  return {v,h};
+}
 function mentorHTML(n,d){
- const g=GROUP_OF[n];
- const rows=((typeof LIA_FULL!=="undefined"&&LIA_FULL[n])||{}).rows||[];
- const v=[],h=[];
- for(const r of rows){
-  const c=r.map(x=>String(x??'').trim());
-  const isMentor=c[4]==='พี่เลี้ยง'||c[4]==='ผู้รับใช้ทีม';
-  if(!isMentor)continue;
-  const name=c[5]||'';
-  if(!name)continue;
-  const team=c[6]||'';
-  if(c[2]==='BU')v.push({name,team});
-  else if(c[2]==='Team')h.push({name,team});
- }
- const saved=(d.mentor||{});
- const vRows=v.map((x,i)=>`<div class="border border-slate-200 rounded-xl p-3"><div class="flex items-center gap-2"><span class="text-sm font-bold">${esc(x.name)}</span><span class="text-[11px] text-slate-500">${esc(x.team||'')}</span></div><label class="q-help mt-1">ด้านที่ดูแล (เดิม: ${esc(x.team||'—')})</label><input type="text" class="m_v_side" value="${esc((saved.v&&saved.v[i]&&saved.v[i].side)||'')}" placeholder="เช่น ด้านกลยุทธ์และธุรกิจ / ด้านเงิน / ด้านคน" /></div>`).join('')||'<div class="text-sm text-slate-400">— ยังไม่มีข้อมูลพี่เลี้ยงแนวดิ่งจากชีต —</div>';
- const hRows=h.map((x,i)=>`<div class="border border-slate-200 rounded-xl p-3"><div class="flex items-center gap-2"><span class="text-sm font-bold">${esc(x.name)}</span><span class="text-[11px] text-slate-500">${esc(x.team||'')}</span></div><label class="q-help mt-1">ด้านที่ดูแล (เดิม: ${esc(x.team||'—')})</label><input type="text" class="m_h_side" value="${esc((saved.h&&saved.h[i]&&saved.h[i].side)||'')}" placeholder="เช่น ด้านกระบวนการและเทคโนโลยี / ด้านคน" /></div>`).join('')||'<div class="text-sm text-slate-400">— ยังไม่มีข้อมูลพี่เลี้ยงแนวราบจากชีต —</div>';
- const myV=(saved.myV||[]);
- const myH=(saved.myH||[]);
- return `
+  const {v,h}=extractMentors(n);
+  const saved=(d.mentor||{});
+  const vRows=v.map((x,i)=>`<div class="border border-slate-200 rounded-xl p-3 bg-white"><div class="flex items-center gap-2"><span class="text-sm font-bold">${esc(x.name)}</span><span class="text-[11px] text-slate-500">${esc(x.side||'')}</span></div><label class="q-help mt-1">ด้านที่ดูแล</label><input type="text" class="m_v_side" value="${esc((saved.v&&saved.v[i]&&saved.v[i].side)||x.side||'')}" placeholder="เช่น ด้านกลยุทธ์และธุรกิจ / ด้านเงิน / ด้านคน" /></div>`).join('')||'<div class="text-sm text-slate-400">— ยังไม่มีข้อมูลพี่เลี้ยงแนวดิ่ง —</div>';
+  const hRows=h.map((x,i)=>`<div class="border border-slate-200 rounded-xl p-3 bg-white"><div class="flex items-center gap-2"><span class="text-sm font-bold">${esc(x.name)}</span><span class="text-[11px] text-slate-500">${esc(x.side||'')}</span></div><label class="q-help mt-1">ด้านที่ดูแล</label><input type="text" class="m_h_side" value="${esc((saved.h&&saved.h[i]&&saved.h[i].side)||x.side||'')}" placeholder="เช่น ด้านกระบวนการและเทคโนโลยี / ด้านคน" /></div>`).join('')||'<div class="text-sm text-slate-400">— ยังไม่มีข้อมูลพี่เลี้ยงแนวราบ —</div>';
+  const myV=(saved.myV||[]), myH=(saved.myH||[]);
+  const rowHtml=(x,cls)=>`<div class="flex gap-2 mt-1"><input type="text" class="${cls}_name" value="${esc(x.name)}" placeholder="ชื่อ"/><input type="text" class="${cls}_side" value="${esc(x.side)}" placeholder="ด้านที่ดูแล"/></div>`;
+  return `
  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
   <div class="border border-violet-200 rounded-xl p-4 bg-violet-50/30">
    <div class="text-sm font-extrabold text-violet-800 mb-2">⬆️ พี่เลี้ยงแนวดิ่ง (Vertical) — ผู้ที่ดูแล/สอนงานคุณ</div>
    <div class="space-y-2">${vRows}</div>
-   <div class="mt-3 pt-3 border-t border-violet-100"><div class="text-xs font-bold text-violet-700 mb-1">คุณเป็นพี่เลี้ยงแนวดิ่งให้ใคร (กรอกเพิ่ม)</div><div id="m_v_my">${myV.map((x,i)=>`<div class="flex gap-2 mt-1"><input type="text" class="m_v_my_name" value="${esc(x.name)}" placeholder="ชื่อ"/><input type="text" class="m_v_my_side" value="${esc(x.side)}" placeholder="ด้านที่ดูแล"/></div>`).join('')}</div><button type="button" class="btn-outline mt-2" style="font-size:12px;padding:5px 12px" onclick="addMentorRow('v')">＋ เพิ่ม</button></div>
+   <div class="mt-3 pt-3 border-t border-violet-100"><div class="text-xs font-bold text-violet-700 mb-1">คุณเป็นพี่เลี้ยงแนวดิ่งให้ใคร</div><div id="m_v_my">${myV.map(x=>rowHtml(x,'m_v_my')).join('')}</div><button type="button" class="btn-outline mt-2" style="font-size:12px;padding:5px 12px" onclick="addMentorRow('v')">＋ เพิ่ม</button></div>
   </div>
   <div class="border border-sky-200 rounded-xl p-4 bg-sky-50/30">
    <div class="text-sm font-extrabold text-sky-800 mb-2">↔️ พี่เลี้ยงแนวราบ (Horizontal) — เพื่อนร่วมงานที่ปรึกษากัน</div>
    <div class="space-y-2">${hRows}</div>
-   <div class="mt-3 pt-3 border-t border-sky-100"><div class="text-xs font-bold text-sky-700 mb-1">คุณเป็นพี่เลี้ยงแนวราบให้ใคร (กรอกเพิ่ม)</div><div id="m_h_my">${myH.map((x,i)=>`<div class="flex gap-2 mt-1"><input type="text" class="m_h_my_name" value="${esc(x.name)}" placeholder="ชื่อ"/><input type="text" class="m_h_my_side" value="${esc(x.side)}" placeholder="ด้านที่ดูแล"/></div>`).join('')}</div><button type="button" class="btn-outline mt-2" style="font-size:12px;padding:5px 12px" onclick="addMentorRow('h')">＋ เพิ่ม</button></div>
+   <div class="mt-3 pt-3 border-t border-sky-100"><div class="text-xs font-bold text-sky-700 mb-1">คุณเป็นพี่เลี้ยงแนวราบให้ใคร</div><div id="m_h_my">${myH.map(x=>rowHtml(x,'m_h_my')).join('')}</div><button type="button" class="btn-outline mt-2" style="font-size:12px;padding:5px 12px" onclick="addMentorRow('h')">＋ เพิ่ม</button></div>
   </div>
  </div>`;
 }
 function addMentorRow(kind){
- const box=document.getElementById(kind==='v'?'m_v_my':'m_h_my');
- const cls=kind==='v'?'m_v_my_name m_v_my_side':'m_h_my_name m_h_my_side';
- const row=document.createElement('div');row.className='flex gap-2 mt-1';row.innerHTML=`<input type="text" class="${cls.split(' ')[0]}" placeholder="ชื่อ"/><input type="text" class="${cls.split(' ')[1]}" placeholder="ด้านที่ดูแล"/>`;box.appendChild(row);
+  const box=document.getElementById(kind==='v'?'m_v_my':'m_h_my');
+  const cls=kind==='v'?'m_v_my':'m_h_my';
+  const row=document.createElement('div'); row.className='flex gap-2 mt-1';
+  row.innerHTML=`<input type="text" class="${cls}_name" placeholder="ชื่อ"/><input type="text" class="${cls}_side" placeholder="ด้านที่ดูแล"/>`;
+  box.appendChild(row);
 }
 function collectMentors(){
- const v=[...document.querySelectorAll('.m_v_side')].map(e=>({side:e.value.trim()}));
- const h=[...document.querySelectorAll('.m_h_side')].map(e=>({side:e.value.trim()}));
- const myV=[...document.querySelectorAll('.m_v_my_name')].map((e,i)=>({name:e.value.trim(),side:(document.querySelectorAll('.m_v_my_side')[i]||{}).value||''})).filter(x=>x.name);
- const myH=[...document.querySelectorAll('.m_h_my_name')].map((e,i)=>({name:e.value.trim(),side:(document.querySelectorAll('.m_h_my_side')[i]||{}).value||''})).filter(x=>x.name);
- return {v,h,myV,myH};
+  const v=[...document.querySelectorAll('.m_v_side')].map(e=>({side:e.value.trim()}));
+  const h=[...document.querySelectorAll('.m_h_side')].map(e=>({side:e.value.trim()}));
+  const nv=[...document.querySelectorAll('.m_v_my_name')], ns=[...document.querySelectorAll('.m_v_my_side')];
+  const myV=nv.map((e,i)=>({name:e.value.trim(),side:(ns[i]||{}).value||''})).filter(x=>x.name);
+  const nv2=[...document.querySelectorAll('.m_h_my_name')], ns2=[...document.querySelectorAll('.m_h_my_side')];
+  const myH=nv2.map((e,i)=>({name:e.value.trim(),side:(ns2[i]||{}).value||''})).filter(x=>x.name);
+  return {v,h,myV,myH};
 }
 
-/* role details ตามบทบาทที่เลือก */
-function collectRoles(){
- const n=cur&&cur.nick;if(!n)return;
- const el=document.getElementById('role_details');
- const checked=[...document.querySelectorAll('.new_role:checked')].map(e=>e.value);
- const group=GROUP_OF[n];
- const detail=checked.map(t=>{const r=(ROLES[group]||[]).find(x=>x.t===t);if(!r)return'';return `<div class="border border-indigo-100 rounded-xl p-3 bg-indigo-50/40"><div class="text-xs font-bold text-indigo-800 mb-1">${esc(t)}</div><div class="text-[11px] text-slate-500 mb-1.5">${esc(r.d)}</div><div class="flex flex-wrap gap-1">${r.opts.map(o=>`<label class="inline-flex items-center gap-1 text-[11px] bg-white border border-slate-200 rounded-lg px-2 py-1 cursor-pointer"><input type="checkbox" class="role_opt" value="${esc(o)}"> ${esc(o)}</label>`).join('')}</div></div>`}).join('');
- el.innerHTML=detail||'<div class="text-xs text-slate-400">เลือกบทบาทด้านบนเพื่อระบุรายละเอียด</div>';
- const saved=allData()[n]||{};
- [...document.querySelectorAll('.role_opt')].forEach(cb=>{if((saved.roleOpts||[]).includes(cb.value))cb.checked=true});
-}
-
-/* -------- save/export -------- */
-function saveOne(){
- if(!cur){toast('กรุณาเลือกคนก่อน');return}
- const n=cur.nick;
- const roles=[...document.querySelectorAll('.new_role:checked')].map(e=>e.value);
- if(!roles.length){toast('กรุณาเลือกบทบาทใหม่อย่างน้อย 1 บทบาท');return}
- const roleOpts=[...document.querySelectorAll('.role_opt:checked')].map(e=>e.value);
- const rec={nick:n,group:GROUP_OF[n],sub:SUB_OF[n],company:(LIA_BY_NICK[n]||[])[3]||'',roles,roleOpts,
-  ncass:{bu:{purpose:idv('np_bu'),vision:idv('nv_bu')},team:{purpose:idv('np_team'),vision:idv('nv_team')},personal:{purpose:idv('np_personal'),vision:idv('nv_personal')}},
-  resp:idv('new_resp'),
-  okrs:{bu:idv('new_okr_bu'),team:idv('new_okr_team'),personal:idv('new_okr_personal')},
-  bsc:[...document.querySelectorAll('.new_bsc:checked')].map(e=>e.value),
-  cover:idv('new_cover'),note:idv('new_note'),
-  mentor:collectMentors(),
-  savedAt:new Date().toISOString()};
- const all=allData();all[n]=rec;saveData(all);
- document.getElementById('me_banner').innerHTML=bannerHTML(n,rec);
- toast('บันทึกข้อมูลของ '+n+' แล้ว');
-}
+/* ===== บันทึก / export ===== */
 function idv(id){const e=document.getElementById(id);return e?e.value.trim():''}
+function saveOne(){
+  if(!cur){toast('กรุณาเลือกคนก่อน');return}
+  const n=cur.nick;
+  const roles=[...document.querySelectorAll('.new_role:checked')].map(e=>e.value);
+  if(!roles.length){toast('กรุณาเลือกบทบาทใหม่อย่างน้อย 1 บทบาท');return}
+  const rec={nick:n,group:GROUP_OF[n],sub:SUB_OF[n],full:FULLNAME[n]||'',roles,
+    roleOpts:[...document.querySelectorAll('.role_opt:checked')].map(e=>e.value),
+    ncass:{bu:{purpose:idv('np_bu'),vision:idv('nv_bu')},team:{purpose:idv('np_team'),vision:idv('nv_team')},personal:{purpose:idv('np_personal'),vision:idv('nv_personal')}},
+    resp:idv('new_resp'),
+    okrs:{bu:idv('new_okr_bu'),team:idv('new_okr_team'),personal:idv('new_okr_personal')},
+    bsc:[...document.querySelectorAll('.new_bsc:checked')].map(e=>e.value),
+    cover:idv('new_cover'),note:idv('new_note'),
+    mentor:collectMentors(),
+    savedAt:new Date().toISOString()};
+  const all=allData(); all[n]=rec; saveData(all);
+  document.getElementById('me_banner').innerHTML=bannerHTML(n,rec);
+  toast('บันทึกข้อมูลของ '+n+' แล้ว');
+}
 function clearOne(){
- if(!cur){toast('กรุณาเลือกคนก่อน');return}
- if(!confirm('ล้างข้อมูลที่บันทึกของ '+cur.nick+'?'))return;
- const all=allData();delete all[cur.nick];saveData(all);
- selectMember(cur.nick);toast('ล้างแล้ว');
+  if(!cur){toast('กรุณาเลือกคนก่อน');return}
+  if(!confirm('ล้างข้อมูลที่บันทึกของ '+cur.nick+'?'))return;
+  const all=allData(); delete all[cur.nick]; saveData(all); selectMember(cur.nick); toast('ล้างแล้ว');
 }
 function exportOneCSV(){
- if(!cur){toast('กรุณาเลือกคนก่อน');return}
- const all=allData();
- const heads=['nick','group','sub','company','roles','roleOpts','ncass_bu_purpose','ncass_bu_vision','ncass_team_purpose','ncass_team_vision','ncass_personal_purpose','ncass_personal_vision','resp','okr_bu','okr_team','okr_personal','bsc','cover','note','mentor_v','mentor_h','mentor_myV','mentor_myH','savedAt'];
- const rows=Object.values(all).map(r=>({...r,
-  ncass_bu_purpose:r.ncass&&r.ncass.bu&&r.ncass.bu.purpose||'',ncass_bu_vision:r.ncass&&r.ncass.bu&&r.ncass.bu.vision||'',
-  ncass_team_purpose:r.ncass&&r.ncass.team&&r.ncass.team.purpose||'',ncass_team_vision:r.ncass&&r.ncass.team&&r.ncass.team.vision||'',
-  ncass_personal_purpose:r.ncass&&r.ncass.personal&&r.ncass.personal.purpose||'',ncass_personal_vision:r.ncass&&r.ncass.personal&&r.ncass.personal.vision||'',
-  okr_bu:r.okrs&&r.okrs.bu||'',okr_team:r.okrs&&r.okrs.team||'',okr_personal:r.okrs&&r.okrs.personal||'',
-  mentor_v:JSON.stringify(r.mentor&&r.mentor.v||[]),mentor_h:JSON.stringify(r.mentor&&r.mentor.h||[]),mentor_myV:JSON.stringify(r.mentor&&r.mentor.myV||[]),mentor_myH:JSON.stringify(r.mentor&&r.mentor.myH||[])}));
- let csv='\uFEFF'+heads.join(',')+'\n'+rows.map(r=>heads.map(h=>`"${String(r[h]??'').replace(/"/g,'""')}"`).join(',')).join('\n');
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='pkg_succession_member_form.csv';a.click();toast('Export แล้ว');
+  const all=allData();
+  if(!Object.keys(all).length){toast('ยังไม่มีข้อมูลที่บันทึก');return}
+  const heads=['nick','full','group','sub','roles','roleOpts','ncass_bu_purpose','ncass_bu_vision','ncass_team_purpose','ncass_team_vision','ncass_personal_purpose','ncass_personal_vision','resp','okr_bu','okr_team','okr_personal','bsc','cover','note','mentor_v','mentor_h','mentor_myV','mentor_myH','savedAt'];
+  const rows=Object.values(all).map(r=>({...r,
+    ncass_bu_purpose:(r.ncass&&r.ncass.bu&&r.ncass.bu.purpose)||'',ncass_bu_vision:(r.ncass&&r.ncass.bu&&r.ncass.bu.vision)||'',
+    ncass_team_purpose:(r.ncass&&r.ncass.team&&r.ncass.team.purpose)||'',ncass_team_vision:(r.ncass&&r.ncass.team&&r.ncass.team.vision)||'',
+    ncass_personal_purpose:(r.ncass&&r.ncass.personal&&r.ncass.personal.purpose)||'',ncass_personal_vision:(r.ncass&&r.ncass.personal&&r.ncass.personal.vision)||'',
+    okr_bu:(r.okrs&&r.okrs.bu)||'',okr_team:(r.okrs&&r.okrs.team)||'',okr_personal:(r.okrs&&r.okrs.personal)||'',
+    bsc:(r.bsc||[]).join(' | '),mentor_v:JSON.stringify((r.mentor&&r.mentor.v)||[]),mentor_h:JSON.stringify((r.mentor&&r.mentor.h)||[]),
+    mentor_myV:JSON.stringify((r.mentor&&r.mentor.myV)||[]),mentor_myH:JSON.stringify((r.mentor&&r.mentor.myH)||[])}));
+  const csv='\uFEFF'+heads.join(',')+'\n'+rows.map(r=>heads.map(h=>`"${String(r[h]??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})); a.download='pkg_succession_member_form.csv'; a.click(); toast('Export แล้ว');
 }
-
-document.addEventListener('DOMContentLoaded',()=>{renderChips('')});
+document.addEventListener('DOMContentLoaded',()=>renderChips(''));
 </script>
 </body>
 </html>
