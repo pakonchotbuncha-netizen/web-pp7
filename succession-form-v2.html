@@ -102,7 +102,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 <div class="text-[11px] leading-relaxed text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 mt-1.5">
 <b>🏛 OAC:</b> ทีมสูงสุด — ดูทุกกลยุทธ์ (3 คน: คุณประวิทย์ / พี่ต๋อง / พี่ก้อย)<br>
 <b>🛡 GAT:</b> ตรวจสอบ (Audit) — พี่อ๊อด (1 คน)<br>
-<b>🚀 ADM:</b> พี่เลี้ยง (อดีต GAT 11) + ADM ใหม่ (6) ทำงานคู่กัน<br>
+<b>🚀 ADM:</b> พี่เลี้ยง (อดีต GAT 11) + ADM ใหม่ (6) ทำงานคู่กัน (Co-Ownership)<br>
 <b>ℹ️</b> คนเดียวอยู่หลายกลุ่มได้ แต่นับเฉพาะกลุ่มสูงสุด (OAC &gt; GAT &gt; ADM) — 3 คนที่เป็น OAC จึงแสดงเฉพาะใน OAC
 </div>
 </div>
@@ -189,11 +189,11 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 </div>
 </div>
 <div class="border border-amber-200 bg-amber-50/60 rounded-xl p-3">
-<div class="text-xs font-extrabold text-amber-800 mb-1.5">🛡 GAT — ตรวจสอบ (Audit) — พี่อ๊อด (1)</div>
+<div class="text-xs font-extrabold text-amber-800 mb-1.5">🛡 GAT — ADM เก่าเปลี่ยนชื่อ/พี่เลี้ยง (12) — 3 คนที่เป็น OAC นับเฉพาะ OAC</div>
 <div class="opt-grid" id="q11_gat"><label class="opt-item"><input type="checkbox" value="พี่อ๊อด"> พี่อ๊อด</label></div>
 </div>
 <div class="border border-sky-200 bg-sky-50/60 rounded-xl p-3">
-<div class="text-xs font-extrabold text-sky-800 mb-1.5">🚀 ADM — พี่เลี้ยง (อดีต GAT 11) + ADM ใหม่ (6) ทำงานคู่กัน</div>
+<div class="text-xs font-extrabold text-sky-800 mb-1.5">🚀 ADM ใหม่ — ทีมบริหารชุดใหม่ (6)</div>
 <div class="opt-grid" id="q11_adm"><label class="opt-item"><input type="checkbox" value="พี่กอล์ฟ"> พี่กอล์ฟ</label><label class="opt-item"><input type="checkbox" value="พี่อี๊ด"> พี่อี๊ด</label><label class="opt-item"><input type="checkbox" value="พี่เก๋"> พี่เก๋</label><label class="opt-item"><input type="checkbox" value="พี่อ้วน"> พี่อ้วน</label><label class="opt-item"><input type="checkbox" value="พี่หวาน"> พี่หวาน</label><label class="opt-item"><input type="checkbox" value="พี่ญา"> พี่ญา</label><label class="opt-item"><input type="checkbox" value="พี่ติ๋ม"> พี่ติ๋ม</label><label class="opt-item"><input type="checkbox" value="พี่หนึ่ง"> พี่หนึ่ง</label><label class="opt-item"><input type="checkbox" value="พี่สิงห์"> พี่สิงห์</label><label class="opt-item"><input type="checkbox" value="พี่ปุ๊"> พี่ปุ๊</label><label class="opt-item"><input type="checkbox" value="คุณบอล"> คุณบอล</label><label class="opt-item"><input type="checkbox" value="น้องแซน"> น้องแซน</label><label class="opt-item"><input type="checkbox" value="โอม"> โอม</label><label class="opt-item"><input type="checkbox" value="จ้อน"> จ้อน</label><label class="opt-item"><input type="checkbox" value="แนน"> แนน</label><label class="opt-item"><input type="checkbox" value="คุณปอม"> คุณปอม</label><label class="opt-item"><input type="checkbox" value="วนิดา"> วนิดา</label></div>
 </div>
 </div>
@@ -399,8 +399,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 const GAS_URL = ""; // placeholder
 
 const OAC = ["คุณประวิทย์","พี่ต๋อง","พี่ก้อย"];
-const GAT = ["พี่อ๊อด"]; // GAT = ตรวจสอบ (Audit) — พี่อ๊อด คนเดียว (ปรับ 10 ก.ย. 69)
-const ADM = ["พี่กอล์ฟ","พี่อี๊ด","พี่เก๋","พี่อ้วน","พี่หวาน","พี่ญา","พี่ติ๋ม","พี่หนึ่ง","พี่สิงห์","พี่ปุ๊","คุณบอล","น้องแซน","โอม","จ้อน","แนน","คุณปอม","วนิดา"]; // ADM = พี่เลี้ยง(อดีต GAT 11) + ADM ใหม่ (6)
+const GAT = ["พี่อ๊อด"]; // 12 คน — 3 คนที่เป็น OAC (คุณประวิทย์/พี่ต๋อง/พี่ก้อย) นับเฉพาะ OAC
+const ADM = ["พี่กอล์ฟ","พี่อี๊ด","พี่เก๋","พี่อ้วน","พี่หวาน","พี่ญา","พี่ติ๋ม","พี่หนึ่ง","พี่สิงห์","พี่ปุ๊","คุณบอล","น้องแซน","โอม","จ้อน","แนน","คุณปอม","วนิดา"];
 const LS_KEY="pkg_succession_v2";
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
