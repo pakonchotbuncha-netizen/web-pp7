@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>✍️ ฟอร์มทบทวนบทบาท (เรียบง่าย) — PKG Succession 2026–2030</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap');
+body{font-family:'Sarabun',sans-serif}
+.card{border:1px solid #e5e7eb;background:#fff}
+.sec-chip{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;font-weight:800;color:#fff;flex:none;font-size:14px}
+input[type=text],textarea{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:9px 12px;font-size:14px;background:#fff}
+input:focus,textarea:focus{outline:2px solid #6366f1;outline-offset:1px;border-color:#6366f1}
+.btn{border:1px solid #cbd5e1;background:#fff;color:#475569;padding:8px 14px;border-radius:10px;font-weight:600;font-size:13px}
+.btn:hover{background:#f1f5f9}
+.btn-p{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;padding:10px 22px;border-radius:10px;font-weight:700;font-size:14px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid #e2e8f0;background:#fff;padding:7px 13px;border-radius:9999px;font-size:13px;font-weight:600;cursor:pointer}
+.chip.on{border-width:2px}
+.hide{display:none}
+.acc{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;margin-bottom:10px;background:#fff}
+.acc>summary{cursor:pointer;padding:12px 14px;font-weight:700;font-size:14px;color:#334155;background:#f8fafc;list-style:none;display:flex;align-items:center;gap:8px}
+.acc>summary::-webkit-details-marker{display:none}
+.acc>summary:after{content:'▾';margin-left:auto;color:#94a3b8}
+.acc[open]>summary:after{content:'▴'}
+.acc .body{padding:14px}
+.old{background:#fff7f7;border:1px solid #fecaca;border-radius:10px;padding:9px 11px;font-size:12.5px;color:#7f1d1d;line-height:1.7;white-space:pre-wrap;margin-bottom:8px}
+.old b{color:#b91c1c}
+.tip{font-size:12px;color:#94a3b8;margin-top:3px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:#1e293b;color:#fff;padding:11px 22px;border-radius:12px;font-size:14px;opacity:0;transition:.3s;pointer-events:none;z-index:90}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+<div id="toast" class="toast"></div>
+
+<header class="bg-white/95 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
+<div class="max-w-3xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-2">
+<div>
+<h1 class="text-xl sm:text-2xl font-extrabold text-slate-900">✍️ ทบทวนบทบาทของฉัน</h1>
+<p class="text-xs text-slate-500 mt-0.5">PKG Succession 2026–2030 · กรอกง่าย 4 ขั้น</p>
+</div>
+<a href="index.html" class="btn text-xs">🏠 หน้าแรก</a>
+</div>
+</header>
+
+<main class="max-w-3xl mx-auto px-4 py-6 pb-28">
+
+<!-- STEP 0: เลือกชื่อ -->
+<div class="card rounded-2xl p-5 mb-5 border-t-4 border-t-indigo-500">
+<div class="flex items-center gap-3 mb-3">
+<span class="sec-chip bg-indigo-500">0</span>
+<div><h2 class="font-bold">你是谁 / เลือกชื่อตัวเอง</h2><p class="text-xs text-slate-500">กดชื่อ → ระบบโหลดข้อมูลเดิมให้อัตโนมัติ</p></div>
+</div>
+<input type="text" id="search" placeholder="🔍 พิมพ์ชื่อ… เช่น พี่กอล์ฟ" oninput="renderChips(this.value)" class="mb-3" />
+<div id="chips" class="flex flex-wrap gap-2"></div>
+<div id="sel_note" class="mt-3"></div>
+</div>
+
+<div id="form" class="hide">
+
+<!-- STEP 1: ข้อมูลเดิม (อ้างอิง) -->
+<details class="acc" open>
+<summary>📖 ขั้น 1 — ข้อมูลเดิมของฉัน (CEO/LIA 2026)</summary>
+<div class="body" id="old_body"></div>
+</details>
+
+<!-- STEP 2: บทบาทใหม่ -->
+<details class="acc">
+<summary>🧭 ขั้น 2 — บทบาทใหม่ของฉัน</summary>
+<div class="body">
+<div class="tip mb-2">เลือกบทบาทใหม่ตามกลุ่มของคุณ (เลือกได้หลายอัน)</div>
+<div id="role_list" class="flex flex-wrap gap-2"></div>
+<div id="role_detail" class="mt-3"></div>
+<div class="mt-4">
+<label class="text-sm font-semibold">จุดมุ่งหมายใหม่ (purpose)</label>
+<textarea id="new_purpose" rows="2" placeholder="บทบาทใหม่ของฉันมีจุดมุ่งหมายว่าอะไร…"></textarea>
+</div>
+<div class="mt-3">
+<label class="text-sm font-semibold">หน้าที่รับผิดชอบใหม่</label>
+<textarea id="new_resp" rows="4" placeholder="งานหลักที่ฉันจะรับผิดชอบต่อจากนี้…"></textarea>
+</div>
+<div class="mt-3">
+<label class="text-sm font-semibold">กลยุทธ์ (BSC) ที่รับผิดชอบ</label>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1" id="bsc_box"></div>
+</div>
+</div>
+</details>
+
+<!-- STEP 3: เป้าหมาย 3 ระดับ -->
+<details class="acc">
+<summary>🎯 ขั้น 3 — จุดมุ่งหมาย & ภาพความสำเร็จ (3 ระดับ)</summary>
+<div class="body">
+<div class="tip mb-3">ข้อมูลเดิมแสดงด้านบน — ช่องว่างคือให้เขียนใหม่ (ไม่กรอก = คงเดิม)</div>
+<div id="ncass_box"></div>
+</div>
+</details>
+
+<!-- STEP 4: OKR/KPI -->
+<details class="acc">
+<summary>📏 ขั้น 4 — OKR / KPI ของบทบาทใหม่</summary>
+<div class="body">
+<div id="okr_box"></div>
+</div>
+</details>
+
+<!-- STEP 5: พี่เลี้ยง -->
+<details class="acc">
+<summary>🤝 ขั้น 5 — ระบบพี่เลี้ยง (แนวดิ่ง + แนวราบ)</summary>
+<div class="body" id="mentor_box"></div>
+</details>
+
+<!-- SAVE -->
+<div class="flex flex-wrap items-center gap-3 mt-5 card rounded-2xl p-4">
+<div class="flex-1 text-sm text-slate-500"><span id="save_state"></span></div>
+<button class="btn-p" onclick="saveOne()">💾 บันทึก</button>
+<button class="btn" onclick="exportCSV()">⬇️ CSV</button>
+<button class="btn" onclick="clearOne()">🗑 ล้าง</button>
+</div>
+
+</div>
+</main>
+
+<script src="succession-lia-data.js"></script>
+<script>
+const OAC_M=['คุณประวิทย์','พี่ต๋อง','พี่ก้อย'];
+const GAT_M=['พี่อ๊อด'];
+const ADM_MENTORS=['พี่กอล์ฟ','พี่อี๊ด','พี่เก๋','พี่อ้วน','พี่หวาน','พี่ญา','พี่ติ๋ม','พี่หนึ่ง','พี่สิงห์','พี่ปุ๊','คุณบอล'];
+const ADM_JUNIORS=['น้องแซน','โอม','จ้อน','แนน','คุณปอม','วนิดา'];
+const ALL=[...OAC_M,...GAT_M,...ADM_MENTORS,...ADM_JUNIORS];
+const GROUP=x=>OAC_M.includes(x)?'OAC':GAT_M.includes(x)?'GAT':'ADM';
+const SUB=x=>ADM_MENTORS.includes(x)?'พี่เลี้ยง (อดีต GAT)':ADM_JUNIORS.includes(x)?'ADM ใหม่':'';
+const FULL={"คุณประวิทย์":"ประวิทย์ ผ่องโสภา","พี่ต๋อง":"รนกร ณัทศศิร์","พี่ก้อย":"กาญจนา ขุนจิตต์","พี่กอล์ฟ":"วรพินิจ ศิริโชติ","พี่อี๊ด":"พัชนี สุขสำราญ","พี่เก๋":"ขวัญฤทัย ใจหาญ","พี่อ้วน":"โกวิทย์ สีเผือก","พี่อ๊อด":"อรุณี เลิศวศะ","พี่หวาน":"รัตนา สมภักดี","พี่ญา":"สุกัญญา แซ่เลียง","พี่ติ๋ม":"อารีย์ เขาจารีย์","พี่หนึ่ง":"ปกรณ์ โชติบัญชา","พี่สิงห์":"สมศักดิ์ ธัมมะปาละ","พี่ปุ๊":"ชุติมา สิทธิบุศย์","คุณบอล":"ศุภสิทธิ์ ผ่องโสภา","น้องแซน":"ณัฐภัทร ขุนจิตต์","โอม":"ปุญญพัฒน์ สนั่นพานิชกุล","จ้อน":"ไชยา เงื้อมผา","แนน":"รัฐพร คะชาแก้ว","คุณปอม":"ปวีร์ ผ่องโสภา","วนิดา":"วนิดา (ยุ้ย)"};
+const ROLES={
+ OAC:['OAC — กำกับดูแล (Oversight)','OAC — ให้คำปรึกษา (Advisory)','OAC — ทบทวนผล (Review)'],
+ GAT:['GAT — ตรวจสอบ (Audit)'],
+ ADM:['ADM — พี่เลี้ยง (ทีมเดิม)','ADM — ทีมใหม่ (รับช่วงงาน)']
+};
+const LS='pkg_succession_member_simple';
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const all=()=>{try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch{return {}}};
+let cur=null;
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+function entry(n){try{return (typeof LIA_FULL!=='undefined'&&LIA_FULL[n])?LIA_FULL[n]:null}catch(e){return null}}
+function clean(v){return String(v==null?'':v).replace(/\s+/g,' ').trim()}
+function after(cells,i){let v=clean(cells[i]).replace(/^.*จุดมุ่งหมาย\s*\(purpose\)\s*::\s*/i,'').replace(/^.*\(vision\)\s*::\s*/i,'');if(!v)v=clean(cells.slice(i+1).find(c=>c&&c.length>3&&!/^(L&G|MEI|3E|3P|OGC|\(|Time|แผน)/.test(c))||'');return v}
+function extract(n){
+ const e=entry(n),o={missing:!e,role:'',acc:[],bu:{p:'',v:''},team:{p:'',v:''},per:{p:'',v:''},okr:{b:[],t:[],p:[]},mentorV:[],mentorH:[]};
+ if(!e)return o; const rows=e.rows||[]; let lvl=null,inAcc=false,grp=null;
+ for(const r of rows){const c=r.map(x=>clean(x));const ne=c.filter(Boolean);const j=ne.join(' § ');if(!j)continue;
+  const ri=c.findIndex(x=>/^บทบาท/.test(x)); if(ri>=0){const v=c.slice(ri+1).find(x=>x);if(v&&!o.role)o.role=clean(v).replace(/^[:：]?\s*/,'').replace(/^\.+\s*/,'');}
+  const bu=c.find(x=>/^BU\s*[:.]/i.test(x)),tm=c.find(x=>/^Team/i.test(x)),pg=c.find(x=>/^Personal Goal/i.test(x));
+  if(bu||tm||pg){lvl=bu?'bu':tm?'team':'per';}
+  const pi=c.findIndex(x=>/จุดมุ่งหมาย\s*\(purpose\)/i.test(x)); if(pi>=0&&lvl){const v=after(c,pi);if(v)o[lvl].p=v;}
+  const vi=c.findIndex(x=>/ภาพความสำเร็จ[^)]*\(vision\)/i.test(x)); if(vi>=0&&lvl){const v=after(c,vi);if(v)o[lvl].v=v;}
+  if(/หน้าที่ความรับผิดชอบหลัก/.test(j)){inAcc=true;continue}
+  if(/ACCOUNTABILITY & OWNERSHIP/.test(j)){inAcc=false;continue}
+  if(inAcc){const t=ne.find((x,i)=>i>0&&x.length>3&&!/^[\d.\s]+$/.test(x));if(t)o.acc.push(t.replace(/^\d+\s*[\.\)]?\s*/,''));continue}
+  if(/^Business Growth/i.test(ne[0]||''))grp='b';else if(/^Team Growth/i.test(ne[0]||''))grp='t';else if(/^Personal Growth/i.test(ne[0]||''))grp='p';else if(/Personal Credit|^รวม|Operational Excellence/i.test(j))grp=null;
+  if(grp&&ne.length>1&&!/^(Execution|Growth|Weights|Points|Incentives|Currencies|Objectives|Key Results)/i.test(ne[0])){const t=ne.filter(x=>!/^(Weight|Points|Incentives|Currencies|\d+%)/i.test(x)).join(' — ');if(t.length>6)o.okr[grp].push(t)}
+  if((c[4]==='พี่เลี้ยง'||c[4]==='ผู้รับใช้ทีม')&&c[5]){const m={name:c[5],side:c[6]||''};(c[2]==='BU'?o.mentorV:o.mentorH).push(m)}
+ }
+ return o;
+}
+function renderChips(q){
+ const el=document.getElementById('chips');const qq=(q||'').trim();
+ const list=qq?ALL.filter(n=>n.includes(qq)||(FULL[n]||'').includes(qq)):ALL;
+ const hex=g=>g==='OAC'?'#e11d48':g==='GAT'?'#f59e0b':'#0284c7';
+ el.innerHTML=list.map(n=>{const g=GROUP(n);return `<button class="chip ${cur===n?'on':''}" style="border-color:${hex(g)}" onclick="pick('${n}')">${n} <span style="font-size:10px;color:#94a3b8">${g}</span></button>`}).join('')||'<div class="text-sm text-slate-400">ไม่พบชื่อ</div>';
+}
+function pick(n){
+ cur=n; renderChips('');
+ const d=all()[n]||{}; const o=extract(n);
+ const g=GROUP(n),hex=g==='OAC'?'#e11d48':g==='GAT'?'#f59e0b':'#0284c7';
+ document.getElementById('form').classList.remove('hide');
+ document.getElementById('sel_note').innerHTML=`<div class="rounded-xl p-3 text-sm border" style="border-color:${hex}55;background:${hex}0d">✅ เลือก <b>${n}</b> · ${FULL[n]||''} · กลุ่ม <b>${g}</b>${SUB(n)?' · '+SUB(n):''}</div>`;
+ // step1 old
+ let ob='';
+ ob+=`<div class="old"><b>บทบาทเดิม:</b> ${esc(o.role||'— ไม่มี —')}</div>`;
+ ob+=`<div class="old"><b>หน้าที่รับผิดชอบเดิม:</b>\n${o.acc.length?o.acc.map(a=>'• '+esc(a)).join('\n'):'— ไม่มี —'}</div>`;
+ ob+=`<div class="old"><b>BU purpose:</b> ${esc(o.bu.p||'—')}\n<b>BU vision:</b> ${esc(o.bu.v||'—')}</div>`;
+ ob+=`<div class="old"><b>Team purpose:</b> ${esc(o.team.p||'—')}\n<b>Team vision:</b> ${esc(o.team.v||'—')}</div>`;
+ ob+=`<div class="old"><b>Personal purpose:</b> ${esc(o.per.p||'—')}\n<b>Personal vision:</b> ${esc(o.per.v||'—')}</div>`;
+ ob+=`<div class="old"><b>OKR Business:</b> ${o.okr.b.length?esc(o.okr.b.join(' / ')):'—'}</div>`;
+ ob+=`<div class="old"><b>OKR Team:</b> ${o.okr.t.length?esc(o.okr.t.join(' / ')):'—'}</div>`;
+ ob+=`<div class="old"><b>OKR Personal:</b> ${o.okr.p.length?esc(o.okr.p.join(' / ')):'—'}</div>`;
+ document.getElementById('old_body').innerHTML=ob;
+ // step2 roles
+ const roles=ROLES[g]||[];
+ document.getElementById('role_list').innerHTML=roles.map(t=>`<label class="chip ${(d.roles||[]).includes(t)?'on':''}" style="border-color:#c7d2fe"><input type="checkbox" class="role" value="${esc(t)}" ${(d.roles||[]).includes(t)?'checked':''} onchange="this.parentNode.classList.toggle('on',this.checked)"> ${esc(t)}</label>`).join('');
+ document.getElementById('new_purpose').value=d.purpose||'';
+ document.getElementById('new_resp').value=d.resp||'';
+ document.getElementById('bsc_box').innerHTML=['การเงิน (Financial)','ลูกค้า (Customer)','กระบวนการภายใน (Internal Process)','การเรียนรู้และเติบโต (Learning & Growth)'].map(x=>`<label class="text-[13px] flex items-start gap-2 border border-slate-200 rounded-lg px-3 py-2 bg-white"><input type="checkbox" class="bsc" value="${x}" ${(d.bsc||[]).includes(x)?'checked':''}> ${x}</label>`).join('');
+ // step3 ncass
+ const nc=d.ncass||{};
+ const blk=(k,label)=>{const L=o[k];return `<div class="mb-4"><div class="text-sm font-bold text-slate-700 mb-1">${label}</div><div class="old"><b>เดิม purpose:</b> ${esc(L.p||'—')}\n<b>เดิม vision:</b> ${esc(L.v||'—')}</div><textarea class="ncp" data-k="${k}" rows="2" placeholder="จุดมุ่งหมายใหม่ (ว่าง = คงเดิม)">${esc(nc[k]&&nc[k].p||'')}</textarea><textarea class="ncv" data-k="${k}" rows="2" placeholder="ภาพความสำเร็จใหม่ (ว่าง = คงเดิม)" style="margin-top:6px">${esc(nc[k]&&nc[k].v||'')}</textarea></div>`};
+ document.getElementById('ncass_box').innerHTML=blk('bu','🏢 BU — ระดับบริษัท')+blk('team','👥 Team — ระดับทีม')+blk('per','🎯 Personal Goal — ระดับบุคคล');
+ // step4 okr
+ document.getElementById('okr_box').innerHTML=[['b','Business Growth',o.okr.b],['t','Team Growth',o.okr.t],['p','Personal Growth',o.okr.p]].map(([k,label,old])=>`<div class="mb-4"><div class="text-sm font-bold text-slate-700 mb-1">${label}</div>${old.length?`<div class="old">${old.map(x=>'• '+esc(x)).join('\n')}</div>`:'<div class="tip mb-1">— ไม่มีข้อมูลเดิม —</div>'}<textarea class="okr" data-k="${k}" rows="3" placeholder="OKR/KPI ใหม่…">${esc((d.okr&&d.okr[k])||'')}</textarea></div>`).join('');
+ // step5 mentor
+ const ms=(d.mentor||{});
+ const mrow=(m,i,cls)=>`<div class="border border-slate-200 rounded-xl p-3 mb-2 bg-white"><div class="text-sm font-bold">${esc(m.name)}</div><div class="tip mb-1">ด้านที่ดูแล</div><input type="text" class="${cls}" data-i="${i}" value="${esc((ms[cls]&&ms[cls][i])||m.side||'')}" placeholder="เช่น ด้านเงิน / ด้านคน" /></div>`;
+ document.getElementById('mentor_box').innerHTML=`
+ <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <div><div class="text-sm font-extrabold text-violet-700 mb-2">⬆️ แนวดิ่ง — ใครดูแลฉัน</div>${o.mentorV.length?o.mentorV.map((m,i)=>mrow(m,i,'mv')).join(''):'<div class="tip">— ไม่มีข้อมูลเดิม —</div>'}</div>
+  <div><div class="text-sm font-extrabold text-sky-700 mb-2">↔️ แนวราบ — เพื่อนที่ปรึกษากัน</div>${o.mentorH.length?o.mentorH.map((m,i)=>mrow(m,i,'mh')).join(''):'<div class="tip">— ไม่มีข้อมูลเดิม (กรอกเพิ่มได้ด้านล่าง) —</div>'}</div>
+ </div>
+ <div class="mt-3 text-xs font-bold text-slate-500">ฉันเป็นพี่เลี้ยงให้ใคร</div>
+ <div id="mymentor"></div>
+ <button class="btn mt-2 text-xs" onclick="addMy()">＋ เพิ่ม</button>`;
+ document.getElementById('save_state').innerHTML=d.savedAt?`💾 บันทึกล่าสุด: ${new Date(d.savedAt).toLocaleString('th-TH')}`:'ยังไม่ได้บันทึก';
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function addMy(){const b=document.getElementById('mymentor');const r=document.createElement('div');r.className='flex gap-2 mt-1';r.innerHTML='<input type="text" class="myname" placeholder="ชื่อ"/><input type="text" class="myside" placeholder="ด้านที่ดูแล"/>';b.appendChild(r)}
+function saveOne(){
+ if(!cur){toast('เลือกชื่อก่อน');return}
+ const roles=[...document.querySelectorAll('.role:checked')].map(e=>e.value);
+ if(!roles.length){toast('เลือกบทบาทใหม่อย่างน้อย 1');return}
+ const nc={}; document.querySelectorAll('.ncp').forEach(t=>{const k=t.dataset.k;nc[k]=nc[k]||{};nc[k].p=t.value.trim()});
+ document.querySelectorAll('.ncv').forEach(t=>{const k=t.dataset.k;nc[k]=nc[k]||{};nc[k].v=t.value.trim()});
+ const okr={}; document.querySelectorAll('.okr').forEach(t=>{okr[t.dataset.k]=t.value.trim()});
+ const mv={},mh={}; document.querySelectorAll('.mv').forEach(t=>{mv[t.dataset.i]=t.value.trim()});
+ document.querySelectorAll('.mh').forEach(t=>{mh[t.dataset.i]=t.value.trim()});
+ const my=[]; document.querySelectorAll('.myname').forEach((e,i)=>{const s=document.querySelectorAll('.myside')[i];if(e.value.trim())my.push({name:e.value.trim(),side:s?s.value.trim():''})});
+ const rec={nick:cur,group:GROUP(cur),full:FULL[cur]||'',roles,purpose:document.getElementById('new_purpose').value.trim(),resp:document.getElementById('new_resp').value.trim(),bsc:[...document.querySelectorAll('.bsc:checked')].map(e=>e.value),ncass:nc,okr,mentor:{mv,mh,my},savedAt:new Date().toISOString()};
+ const A=all();A[cur]=rec;localStorage.setItem(LS,JSON.stringify(A));
+ document.getElementById('save_state').innerHTML='💾 บันทึกล่าสุด: '+new Date().toLocaleString('th-TH');
+ toast('บันทึกแล้ว ✅');
+}
+function clearOne(){if(!cur){toast('เลือกชื่อก่อน');return}if(!confirm('ล้างข้อมูลของ '+cur+'?'))return;const A=all();delete A[cur];localStorage.setItem(LS,JSON.stringify(A));pick(cur);toast('ล้างแล้ว')}
+function exportCSV(){
+ const A=all();if(!Object.keys(A).length){toast('ยังไม่มีข้อมูล');return}
+ const H=['nick','full','group','roles','purpose','resp','bsc','ncass_bu_p','ncass_bu_v','ncass_team_p','ncass_team_v','ncass_per_p','ncass_per_v','okr_b','okr_t','okr_p','mentor','savedAt'];
+ const rows=Object.values(A).map(r=>({...r,bsc:(r.bsc||[]).join(' | '),ncass_bu_p:(r.ncass.bu&&r.ncass.bu.p)||'',ncass_bu_v:(r.ncass.bu&&r.ncass.bu.v)||'',ncass_team_p:(r.ncass.team&&r.ncass.team.p)||'',ncass_team_v:(r.ncass.team&&r.ncass.team.v)||'',ncass_per_p:(r.ncass.per&&r.ncass.per.p)||'',ncass_per_v:(r.ncass.per&&r.ncass.per.v)||'',okr_b:(r.okr&&r.okr.b)||'',okr_t:(r.okr&&r.okr.t)||'',okr_p:(r.okr&&r.okr.p)||'',mentor:JSON.stringify(r.mentor||{})}));
+ const csv='\uFEFF'+H.join(',')+'\n'+rows.map(r=>H.map(h=>`"${String(r[h]??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='pkg_succession_simple.csv';a.click();toast('Export แล้ว');
+}
+renderChips('');
+</script>
+</body>
+</html>
