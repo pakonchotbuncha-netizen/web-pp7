@@ -33,6 +33,10 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:700;border:1px solid}
 .hidden-sec{display:none}
+.mchip{display:inline-flex;align-items:center;gap:6px;border:1.5px solid #e2e8f0;background:#fff;color:#334155;padding:7px 13px;border-radius:9999px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.mchip:hover{border-color:#94a3b8;background:#f8fafc}
+.mchip.active{border-width:2px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.mchip .dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
 </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
@@ -64,6 +68,19 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 </div>
 </div>
 </header>
+
+<!-- Step 0: เลือกตัวตน -->
+<div class="card bg-white rounded-2xl overflow-hidden shadow-sm mb-6 border-t-4 border-t-indigo-500">
+<div class="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-indigo-50 to-white">
+<span class="sec-chip bg-indigo-500">0</span>
+<div><h2 class="font-bold text-slate-900">เริ่มต้น: กดชื่อตัวเอง</h2><p class="text-xs text-slate-500">กดชื่อ → ระบบเติมกลุ่ม/บริษัทให้อัตโนมัติ แล้วเข้าไปกรอกต่อได้เลย</p></div>
+</div>
+<div class="p-5">
+<input type="text" id="me_search" placeholder="🔍 พิมพ์ค้นหาชื่อตัวเอง… (เช่น พี่กอล์ฟ / น้องแซน)" oninput="renderPickChips(this.value)" class="mb-3" />
+<div id="me_chips" class="flex flex-wrap gap-2"></div>
+<div id="me_current" class="mt-3 hidden"></div>
+</div>
+</div>
 
 <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 pb-24">
 <!-- Info master plan -->
@@ -118,7 +135,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 <label class="q-label" for="q4_company">4. หน่วยงาน/บริษัท</label>
 <select id="q4_company" class="mt-1.5">
 <option value="">— เลือก —</option>
-<option>PMS</option><option>PMG</option><option>PMGI</option><option>AAM</option><option>21RT</option><option>TNR</option><option>CPDG</option><option>LDC</option><option>PKG</option>
+<option>PKG</option><option>AAMG</option><option>PMSG</option><option>AGS</option><option>PMS</option><option>PMG</option><option>PMGI</option><option>AAM</option><option>21RT</option><option>TNR</option><option>CPDG</option><option>LDC</option><option>PAC</option>
 </select>
 </div>
 <div>
@@ -397,12 +414,41 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 <div class="text-xs text-slate-400 mt-6 text-center">GAS_URL placeholder ว่าง — ใส่ URL เมื่อพร้อมเชื่อม Google Sheets • localStorage key: <code>pkg_succession_v2</code> • ใช้คำว่า "บทบาท" ตลอด • Web PP7</div>
 </main>
 
+<script src="succession-lia-data.js"></script>
 <script>
 const GAS_URL = ""; // placeholder
 
 const OAC = ["คุณประวิทย์","พี่ต๋อง","พี่ก้อย"];
 const GAT = ["พี่อ๊อด"]; // GAT = ตรวจสอบ (Audit) — พี่อ๊อด (1 คน)
 const ADM = ["พี่กอล์ฟ","พี่อี๊ด","พี่เก๋","พี่อ้วน","พี่หวาน","พี่ญา","พี่ติ๋ม","พี่หนึ่ง","พี่สิงห์","พี่ปุ๊","คุณบอล","น้องแซน","โอม","จ้อน","แนน","คุณปอม","วนิดา"];
+
+/* -------- Step 0: กดชื่อตัวเอง (เพิ่ม 11 ก.ย. 69) -------- */
+const ALL_ME = [...OAC.map(n=>({n,g:'OAC'})),...GAT.map(n=>({n,g:'GAT'})),...ADM.map(n=>({n,g:'ADM'}))];
+function companyOf(n){const e=(window.LIA_FULL&&LIA_FULL[n])||{};const rows=(e.rows||[]).flat(1).map(x=>String(x));const i=rows.indexOf('BU');return i>=0&&rows[i+1]?rows[i+1]:''}
+function renderPickChips(q){
+ const el=document.getElementById('me_chips');
+ const qq=(q||'').trim();
+ const list=qq?ALL_ME.filter(o=>o.n.includes(qq)):ALL_ME;
+ el.innerHTML=list.map(o=>`<button type="button" class="mchip" style="border-color:${o.g==='OAC'?'#e11d48':o.g==='GAT'?'#f59e0b':'#0284c7'}" onclick="pickMe('${o.n}')"><span class="dot" style="background:${o.g==='OAC'?'#e11d48':o.g==='GAT'?'#f59e0b':'#0284c7'}"></span>${o.n} <span style="font-size:10px;color:#94a3b8">${o.g}</span></button>`).join('')
+ || '<div class="text-sm text-slate-400 py-2">ไม่พบชื่อ — ถ้าไม่อยู่ในทีมบริหาร กด “ต่อไป” แล้วกรอกด้วยตัวเองได้เลย</div>';
+}
+function pickMe(n){
+ const o=ALL_ME.find(x=>x.n===n);if(!o)return;
+ document.getElementById('q1_name').value=n;
+ document.getElementById('q2_group').value=o.g;
+ populateNames();
+ const sel=document.getElementById('q3_nameingroup');[...sel.options].forEach(op=>{if(op.value===n)sel.value=n});
+ const comp=companyOf(n);
+ if(comp)document.getElementById('q4_company').value=comp;
+ const cur=document.getElementById('me_current');
+ cur.classList.remove('hidden');
+ cur.innerHTML=`<div class="flex flex-wrap items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-3"><span class="text-sm">✅ ลงชื่อ <b>${n}</b> แล้ว — กลุ่ม <b>${o.g}</b>${comp?' · บริษัท <b>'+comp+'</b>':''}</span><button type="button" class="btn-outline" style="font-size:12px;padding:5px 12px" onclick="clearPick()">เปลี่ยนคน</button><a href="#sf-form" class="btn-primary" style="font-size:12px;padding:7px 16px">เข้าไปกรอก ↓</a></div>`;
+ cur.scrollIntoView({behavior:'smooth',block:'nearest'});
+ toast('ลงชื่อ '+n+' แล้ว — เลื่อนลงกรอกได้เลย');
+}
+function clearPick(){document.getElementById('me_current').classList.add('hidden');document.getElementById('me_current').innerHTML='';document.getElementById('me_search').value='';renderPickChips('')}
+document.addEventListener('DOMContentLoaded',()=>renderPickChips(''));
+
 const LS_KEY="pkg_succession_v2";
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
