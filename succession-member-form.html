@@ -144,6 +144,29 @@ const CONDITIONS=[
  {t:'มี Co-ownership ระหว่างทีมเดิมและทีมใหม่ในช่วงเปลี่ยนผ่าน'}
 ];
 const LS='pkg_succession_member_form_v3';
+const GAS_URL=''; // ← ใส่ URL หลัง deploy Apps Script เพื่อบันทึกลง Google Sheet
+async function pushSheet(rec,formType){
+ if(!GAS_URL)return;
+ const nc=rec.ncass||{},okr=rec.okr||{},pl=rec.plan||{},m=rec.mentor||{};
+ const flat={formType:formType,nick:rec.nick,full:rec.full,group:rec.group,teamRole:rec.teamRole||'',
+  roles:(rec.roles||[]).join(' | '),roleOpts:(rec.roleOpts||[]).join(' | '),
+  ncass_bu_purpose:(nc.bu&&nc.bu.p)||'',ncass_bu_vision:(nc.bu&&nc.bu.v)||'',
+  ncass_team_purpose:(nc.team&&nc.team.p)||'',ncass_team_vision:(nc.team&&nc.team.v)||'',
+  ncass_per_purpose:(nc.per&&nc.per.p)||'',ncass_per_vision:(nc.per&&nc.per.v)||'',
+  resp:rec.resp||'',purpose:rec.purpose||'',
+  okr_b:okr.b||'',okr_t:okr.t||'',okr_p:okr.p||'',
+  bsc:(rec.bsc||[]).join(' | '),cover:rec.cover||'',note:rec.note||'',
+  plan_cond:JSON.stringify(pl.cond||{}),plan_coown:pl.coown||'',plan_timeline:pl.timeline||'',
+  mentor_mv:JSON.stringify(m.mv||{}),mentor_mh:JSON.stringify(m.mh||{}),mentor_my:JSON.stringify(m.my||[]),
+  savedAt:rec.savedAt||''};
+ try{
+  const res=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'saveMemberForm',data:flat})});
+  const j=await res.json();
+  if(j&&j.success){toast('☁️ บันทึกลง Google Sheet แล้ว (แถว '+j.row+')');}
+  else{toast('☁️ ชีต: '+((j&&j.message)||'ผิดพลาด'));}
+ }catch(err){toast('⚠️ ส่งชีตไม่สำเร็จ: '+err.message);}
+}
+
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const all=()=>{try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch{return {}}};
 let cur=null;
@@ -283,6 +306,7 @@ function saveOne(){
   plan:{cond,coown:idv('plan_coown'),timeline:idv('plan_timeline')},
   mentor:{mv,mh,my},savedAt:new Date().toISOString()};
  const A=all();A[cur]=rec;localStorage.setItem(LS,JSON.stringify(A));
+ pushSheet(rec,'v3');
  document.getElementById('save_state').innerHTML='💾 บันทึกล่าสุด: '+new Date().toLocaleString('th-TH');
  toast('บันทึกแล้ว ✅');
 }
