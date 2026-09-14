@@ -90,7 +90,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 <div class="flex gap-3"><span class="w-7 h-7 flex-none rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm">6</span><div><b>บันไดถ่ายทอดบทบาท 5 ขั้น</b> — ดูตารางแล้วเลือก <b>ขั้นที่ท่านอยู่</b> (ขั้น 1 = ปี 2569 · ขั้น 5 = ส่งมอบเต็มรูปแบบปี 2573) โดยดูคอลัมน์ที่ระบบไฮไลต์ให้: OAC/GAT = คอลัมน์กำกับ · ทีมเดิม = คอลัมน์ถ่ายทอด · ทีมใหม่ = คอลัมน์รับช่วง</div></div>
 <div class="flex gap-3"><span class="w-7 h-7 flex-none rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm">7</span><div><b>แผนงาน + ระยะเวลาการถ่ายทอด</b> — กรอกแผนของท่านเป็นรายช่วงเวลา 5 ช่วง (2569 → 2569–2570 → 2571–2572 → 2572–2573 → 2573) เช่น ทีมเดิม: “ถ่ายทอดคู่กับพี่เลี้ยง” / ทีมใหม่: “รับช่วงหลัก” พร้อมเลือกสถานะเงื่อนไขการถ่ายทอด (ยังไม่เริ่ม/กำลังทำ/สำเร็จ)</div></div>
 <div class="flex gap-3"><span class="w-7 h-7 flex-none rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm">8</span><div><b>ระบบพี่เลี้ยง</b> — ทบทวนพี่เลี้ยงแนวดิ่ง (ผู้ที่ดูแล/สอนงานท่าน) + แนวราบ (เพื่อนที่ปรึกษากัน) และกรอก “ฉันเป็นพี่เลี้ยงให้ใคร — ด้านไหน” (กด ＋ เพิ่มได้)</div></div>
-<div class="flex gap-3"><span class="w-7 h-7 flex-none rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm">9</span><div><b>กด 💾 บันทึกข้อมูลคนนี้</b> — ข้อมูลจะถูกส่งเข้าชีตกลาง “แผนสืบทอดบทบาท PKG” ทันที (ถ้าเน็ตหลุด ระบบจะเก็บคิวแล้วส่งซ้ำอัตโนมัติ) — กรอกไม่จบก็บันทึกก่อนได้ ระบบจำข้อมูลไว้กลับมากรอกต่อได้เสมอ</div></div>
+<div class="flex gap-3"><span class="w-7 h-7 flex-none rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm">9</span><div><b>กด 💾 บันทึกข้อมูลคนนี้</b> — ข้อมูลจะถูกส่งเข้าชีตกลาง “แผนสืบทอดบทบาท PKG” ทันที (ถ้าเน็ตหลุด ระบบจะเก็บคิวแล้วส่งซ้ำอัตโนมัติ) · ทุกครั้งที่บันทึก ระบบเก็บเวอร์ชันไว้ใน <b>🕘 ประวัติการกรอกของฉัน</b> (สูงสุด 20 เวอร์ชัน) — กด “👁 ดู” ทบทวนว่าแก้อะไรไปบ้าง · กด “↩️ โหลดมาแก้ไข” เพื่อดึงเวอร์ชันเก่ากลับมาแก้ แล้วบันทึกใหม่เป็นการแก้ไขล่าสุด · กรอกไม่จบก็บันทึกก่อนได้ กลับมากรอกต่อเสมอ</div></div>
 </div>
 <div class="mt-3 text-[11px] text-slate-500 bg-emerald-50 border border-emerald-100 rounded-xl p-3">💡 <b>หลักคิด:</b> คอลัมน์ซ้าย = ของเดิม (อ่านทบทวน ไม่ต้องแก้) · คอลัมน์ขวา = ของใหม่ (กรอกให้สอดคล้องกับบทบาทในโครงสร้าง OAC/GAT/ADM และบันไดถ่ายทอด 5 ขั้น) · ข้อความตัวอย่างทุกช่อง “✏️ แก้ไขหรือลบได้” — เป้าหมายคือเขียนเป็นภาษาของท่านเอง</div>
 </div>
@@ -124,6 +124,16 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 <div><h2 class="font-bold text-slate-900">ระบบพี่เลี้ยง — แนวดิ่ง + แนวราบ</h2><p class="text-xs text-slate-500">ใครเป็นพี่เลี้ยงคุณ / คุณเป็นพี่เลี้ยงใคร — ด้านที่ดูแล</p></div>
 </div>
 <div class="p-5" id="mentor_box"></div>
+</div>
+
+<!-- ส่วนที่ 4: ประวัติการกรอก -->
+<div class="card rounded-2xl overflow-hidden bg-white mt-6">
+<div class="flex items-center gap-3 px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-emerald-50 to-white">
+<span class="sec-chip bg-emerald-600">🕘</span>
+<div><h2 class="font-bold text-slate-900">ประวัติการกรอกของฉัน — ทบทวน / แก้ไขเพิ่มเติม</h2>
+<p class="text-xs text-slate-500">ทุกครั้งที่พักด “บันทึก” ระบบเก็บเวอร์ชันไว้ที่นี่ · กด “ดู” เพื่อทบทวนว่าแก้อะไรไปบ้าง · กด “โหลดมาแก้ไข” เพื่อดึงเวอร์ชันนั้นกลับมาแก้ แล้วบันทึกใหม่เป็นการแก้ไขล่าสุด</p></div>
+</div>
+<div class="p-5" id="hist_box"></div>
 </div>
 
 <div class="flex flex-wrap items-center gap-3 mt-6 bg-white border border-slate-200 rounded-2xl px-5 py-4">
@@ -247,7 +257,7 @@ function pick(n){
  <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl font-extrabold text-white" style="background:${hex}">${n.charAt(0)}</div>
  <div><div class="text-lg font-extrabold">${n} <span class="text-sm font-normal text-slate-500">${FULL[n]||''}</span></div>
  <div class="text-xs text-slate-500">${g}${TEAMROLE(n)!=='-'?' · '+TEAMROLE(n):''}${o.missing?' · ⚠️ ยังไม่มีข้อมูลเดิม':''}</div></div></div></div>`;
- renderCmp(n,d,o);renderPlan(n,d,o);renderMentor(n,d,o);
+ renderCmp(n,d,o);renderPlan(n,d,o);renderMentor(n,d,o);renderHistory();
  document.getElementById('save_state').innerHTML=d.savedAt?`💾 บันทึกล่าสุด: ${new Date(d.savedAt).toLocaleString('th-TH')}`:'ยังไม่ได้บันทึก';
  window.scrollTo({top:document.getElementById('work_area').offsetTop-90,behavior:'smooth'});
 }
@@ -463,9 +473,75 @@ function saveOne(){
   plan:{cond,step:plStep,coown:idv('plan_coown'),timeline:plTime,phases:plPhases},
   mentor:{mv,mh,my},savedAt:new Date().toISOString()};
  const A=all();A[cur]=rec;localStorage.setItem(LS,JSON.stringify(A));
+ pushHist(rec);
  pushSheet(rec,'v3');
  document.getElementById('save_state').innerHTML='💾 บันทึกล่าสุด: '+new Date().toLocaleString('th-TH');
- toast('บันทึกแล้ว ✅');
+ renderHistory();
+ toast('บันทึกแล้ว ✅ (เก็บเวอร์ชันไว้ในประวัติการกรอกแล้ว)');
+}
+/* ===== ประวัติการกรอก (version history) ===== */
+const HLS='pkg_succession_member_history_v3';
+function histAll(){try{return JSON.parse(localStorage.getItem(HLS)||'{}')}catch(e){return {}}}
+function pushHist(rec){const H=histAll();const arr=H[rec.nick]||[];arr.unshift(JSON.parse(JSON.stringify(rec)));if(arr.length>20)arr.length=20;H[rec.nick]=arr;localStorage.setItem(HLS,JSON.stringify(H))}
+function histSummary(r){
+ const g=k=>((r.ncass&&r.ncass[k])||{}).p||'';
+ const parts=[];
+ parts.push('บทบาทใหม่: '+((r.roles||[]).join(', ')||'-'));
+ if(g('bu'))parts.push('purpose BU: '+g('bu').slice(0,80));
+ if(r.resp)parts.push('Accountability: '+String(r.resp).replace(/\n/g,' · ').slice(0,100));
+ const okr=r.okr||{};if(okr.b)parts.push('OKR Business: '+String(okr.b).replace(/\n/g,' · ').slice(0,80));
+ if(r.plan&&r.plan.step)parts.push('บันไดถ่ายทอด: ขั้น '+r.plan.step);
+ if(r.plan&&r.plan.timeline)parts.push('ระยะเวลา: '+String(r.plan.timeline).slice(0,60));
+ const ph=((r.plan||{}).phases||[]).filter(x=>x);
+ if(ph.length)parts.push('แผนรายช่วง: '+ph.length+' ช่วงที่กรอกแล้ว');
+ return parts.join(' · ');
+}
+function histDetail(r){
+ const row=(t,v)=>v?`<div class="flex gap-2 text-[11px]"><div class="w-40 flex-none font-bold text-slate-500">${t}</div><div class="text-slate-700 whitespace-pre-wrap">${esc(String(v))}</div></div>`:'';
+ const nc=r.ncass||{},okr=r.okr||{},pl=r.plan||{},mt=r.mentor||{};
+ let h='<div class="space-y-1.5">';
+ h+=row('บันทึกเมื่อ',new Date(r.savedAt||Date.now()).toLocaleString('th-TH'));
+ h+=row('บทบาทใหม่',(r.roles||[]).join(', '));
+ ['bu','team','per'].forEach(k=>{const L={bu:'BU',team:'Team',per:'Personal'}[k];h+=row(L+' — purpose',(nc[k]||{}).p);h+=row(L+' — vision',(nc[k]||{}).v)});
+ h+=row('Accountability',r.resp);
+ [['b','Business'],['t','Team'],['p','Personal']].forEach(([k,L])=>h+=row('OKR '+L,okr[k]));
+ h+=row('BSC',(r.bsc||[]).join(', '));
+ h+=row('บันไดถ่ายทอด ขั้น',pl.step?'ขั้น '+pl.step:'');
+ h+=row('ระยะเวลาการถ่ายทอด',pl.timeline);
+ (pl.phases||[]).forEach((v,i)=>{if(v)h+=row('แผนช่วง '+(i+1),v)});
+ h+=row('Co-Ownership',pl.coown);
+ h+=row('cover / ส่งต่อ',r.cover);
+ h+=row('หมายเหตุ',r.note);
+ const my=(mt.my||[]).map(x=>x.name+(x.side?' ('+x.side+')':'')).join(', ');
+ h+=row('ฉันเป็นพี่เลี้ยงให้',my);
+ h+='</div>';
+ return h;
+}
+function renderHistory(){
+ const el=document.getElementById('hist_box');if(!el)return;
+ if(!cur){el.innerHTML='<div class="text-sm text-slate-400">กดชื่อตัวเองก่อน แล้วจะเห็นประวัติการกรอกของท่านที่นี่</div>';return}
+ const arr=(histAll()[cur]||[]);
+ if(!arr.length){el.innerHTML='<div class="text-sm text-slate-400">— ยังไม่มีประวัติ — ทุกครั้งที่กด “💾 บันทึกข้อมูลคนนี้” ระบบจะเก็บเวอร์ชันไว้ที่นี่ (สูงสุด 20 เวอร์ชัน) เพื่อให้ทบทวน/แก้ไขเพิ่มเติมได้</div>';return}
+ const latest=all()[cur]||{};
+ el.innerHTML=`<div class="text-xs text-slate-500 mb-2">เวอร์ชันล่าสุด = บนสุด (${arr.length} เวอร์ชัน) · เวอร์ชันปัจจุบันที่บันทึกไว้: ${latest.savedAt?new Date(latest.savedAt).toLocaleString('th-TH'):'-'}</div>`+
+ `<div class="space-y-2">${arr.map((r,i)=>`<div class="border border-slate-200 rounded-xl p-3 bg-white">
+  <div class="flex flex-wrap items-center gap-2">
+   <span class="text-xs font-extrabold ${i===0?'text-emerald-700':'text-slate-500'}">${i===0?'🟢 ล่าสุด':'เวอร์ชัน '+(arr.length-i)}</span>
+   <span class="text-xs text-slate-500">${new Date(r.savedAt||Date.now()).toLocaleString('th-TH')}</span>
+   <button class="btn-outline text-[11px] ml-auto" onclick="toggleHistDetail(${i})">👁 ดู</button>
+   ${i>0?`<button class="btn-primary text-[11px]" onclick="loadHist(${i})">↩️ โหลดมาแก้ไข</button>`:'<span class="text-[11px] text-emerald-600 font-semibold">✔ เวอร์ชันปัจจุบัน</span>'}
+  </div>
+  <div class="text-[11px] text-slate-600 mt-1.5">${esc(histSummary(r))}</div>
+  <div id="hist_detail_${i}" class="hidden-sec mt-2 border-t border-slate-100 pt-2">${histDetail(r)}</div>
+ </div>`).join('')}</div>`;
+}
+function toggleHistDetail(i){const el=document.getElementById('hist_detail_'+i);if(el)el.classList.toggle('hidden-sec')}
+function loadHist(i){
+ if(!cur)return;const arr=histAll()[cur]||[];const r=arr[i];if(!r){toast('ไม่พบเวอร์ชันนี้');return}
+ if(!confirm('โหลดเวอร์ชัน '+(new Date(r.savedAt).toLocaleString('th-TH'))+' กลับมาแก้ไข?\nข้อมูลที่กรอกค้างอยู่ (ยังไม่ได้บันทึก) จะถูกแทนที่'))return;
+ const A=all();A[cur]=JSON.parse(JSON.stringify(r));localStorage.setItem(LS,JSON.stringify(A));
+ pick(cur);
+ toast('โหลดเวอร์ชันเดิมมาแล้ว — แก้ไขแล้วกด “💾 บันทึก” จะเป็นการแก้ไขล่าสุด ✅');
 }
 function clearOne(){if(!cur){toast('เลือกชื่อก่อน');return}if(!confirm('ล้างข้อมูลของ '+cur+'?'))return;const A=all();delete A[cur];localStorage.setItem(LS,JSON.stringify(A));pick(cur);toast('ล้างแล้ว')}
 function exportCSV(){
