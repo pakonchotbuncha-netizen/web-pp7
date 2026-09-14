@@ -102,7 +102,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 <div class="cmp mb-6">
 <div class="cmp-head">
 <div class="h-old">📖 บทบาทเดิม — CEO 2026 (จากชีต LIA)</div>
-<div class="h-new">✍️ บทบาทใหม่ (กรอก/ทบทวน)</div>
+<div class="h-new">✍️ บทบาทใหม่ (กรอก/ทบทวน) — <span style="font-weight:500">ถ้าไม่แก้ไข = ยึดตามข้อเสนอทีมงาน</span></div>
 </div>
 <div id="cmp_body"></div>
 </div>
@@ -301,7 +301,7 @@ function renderCmp(n,d,o){
  const roleTxt=((o.role||'').trim())||(o.acc.length?o.acc[0]:'');
  const gLbl=g==='OAC'?'OAC (คณะกำกับดูแล)':g==='GAT'?'GAT (ทีมตรวจสอบ)':'ADM '+(TEAMROLE(n)==='ทีมใหม่'?'(ทีมใหม่ — ผู้รับช่วง)':'(ทีมเดิม — ผู้ถ่ายทอด)');
  const exHint=hasOld
-  ?`<div class="text-[10px] text-amber-600 mt-1">✏️ ตัวอย่างนี้เขียนให้สอดคล้องกับบทบาทเดิมของท่าน (${esc(roleTxt)}) + บทบาทหลักใหม่ ${gLbl} — แก้ไขหรือลบได้เลย</div>`
+  ?`<div class="text-[10px] text-amber-600 mt-1">✏️ ตัวอย่างนี้เขียนให้สอดคล้องกับบทบาทเดิมของท่าน (${esc(roleTxt)}) + บทบาทหลักใหม่ ${gLbl} — <b>แก้ไขหรือลบได้เลย · ถ้าไม่แก้ไข = ยึดตามข้อเสนอทีมงาน</b></div>`
   :`<div class="text-[11px] text-rose-600 mt-1">⚠️ ยังไม่พบข้อมูล CEO เดิมของท่านในระบบ — แนะนำกรอกบทบาทเดิม/หน้าที่หลักของท่านให้ครบก่อน แล้วปรับข้อความตัวอย่างนี้ให้สอดคล้องกับงานจริงของท่าน (แก้ไข/ลบได้)</div>`;
  const pers=txt=>hasOld&&roleTxt?('สานต่อจากบทบาทเดิม "'+roleTxt+'" — '+txt):txt;
  [['bu','🏢 BU — ระดับบริษัท'],['team','👥 Team — ระดับทีม'],['per','🎯 Personal Goal — ระดับบุคคล']].forEach(([k,label])=>{
