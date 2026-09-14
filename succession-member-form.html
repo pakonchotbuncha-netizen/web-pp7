@@ -84,7 +84,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 <div class="space-y-2.5 text-[13px] text-slate-700">
 <div class="flex gap-3"><span class="w-7 h-7 flex-none rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm">1</span><div><b>กดชื่อตัวเอง</b> — พิมพ์ชื่อในช่องค้นหาหรือกด chip ชื่อ ระบบจะโหลดข้อมูลเดิมจากชีต LIA มาแสดงในคอลัมน์ซ้าย และโชว์ <b>คอลัมน์ที่กลุ่มของท่านต้องโฟกัส</b> พร้อมแนวทางกรอกให้อัตโนมัติ</div></div>
 <div class="flex gap-3"><span class="w-7 h-7 flex-none rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm">2</span><div><b>ทบทวนบทบาทใหม่</b> — เทียบคอลัมน์ซ้าย (เดิม) กับคอลัมน์ขวา (ใหม่): ติ๊กเลือกบทบาทในโครงสร้างใหม่ (OAC/GAT/ADM) แล้วกรอกรายละเอียดบทบาทที่ติ๊ก</div></div>
-<div class="flex gap-3"><span class="w-7 h-7 flex-none rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm">3</span><div><b>จุดมุ่งหมาย + ภาพความสำเร็จ (purpose/vision)</b> — 3 ระดับ: BU (บริษัท) · Team (ทีม) · Personal (ตนเอง) · ช่องว่างมี<b>ตัวอย่างเขียนไว้ให้แล้ว</b> (รองรับการสืบทอดบทบาท) → อ่านแล้วแก้ไขให้เป็นของท่านเอง หรือลบแล้วเขียนใหม่</div></div>
+<div class="flex gap-3"><span class="w-7 h-7 flex-none rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm">3</span><div><b>จุดมุ่งหมาย + ภาพความสำเร็จ (purpose/vision)</b> — 3 ระดับ: BU (บริษัท) · Team (ทีม) · Personal (ตนเอง) · ช่องว่างมี<b>ตัวอย่างที่เขียนให้สอดคล้องกับบทบาท CEO เดิมของท่าน + บทบาทหลักใหม่ (OAC/GAT/ADM) เป็นรายบุคคล</b> → อ่านแล้วแก้ไขให้เป็นของท่านเอง · <span class="text-rose-600">ถ้ายังไม่พบข้อมูล CEO เดิม ระบบจะแจ้งให้กรอกบทบาทเดิมก่อน</span> แล้วปรับข้อความให้สอดคล้องกับงานจริง</div></div>
 <div class="flex gap-3"><span class="w-7 h-7 flex-none rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm">4</span><div><b>หน้าที่รับผิดชอบหลัก (Accountability)</b> — เขียนเป็นข้อ ๆ ว่าบทบาทใหม่ของท่านต้องทำอะไรบ้าง (มีตัวอย่างตามกลุ่มให้ปรับ) และระบุ BSC ที่รับผิดชอบ</div></div>
 <div class="flex gap-3"><span class="w-7 h-7 flex-none rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm">5</span><div><b>OKR/KPI ใหม่</b> — 3 ด้าน: Business Growth · Team Growth · Personal Growth (มีตัวอย่างตามกลุ่ม) · เคล็ดลับ: เขียนให้<b>วัดผลได้</b> เช่น “≥ 80%”, “ภายในปี 2572”</div></div>
 <div class="flex gap-3"><span class="w-7 h-7 flex-none rounded-full bg-emerald-100 text-emerald-800 font-extrabold flex items-center justify-center text-sm">6</span><div><b>บันไดถ่ายทอดบทบาท 5 ขั้น</b> — ดูตารางแล้วเลือก <b>ขั้นที่ท่านอยู่</b> (ขั้น 1 = ปี 2569 · ขั้น 5 = ส่งมอบเต็มรูปแบบปี 2573) โดยดูคอลัมน์ที่ระบบไฮไลต์ให้: OAC/GAT = คอลัมน์กำกับ · ทีมเดิม = คอลัมน์ถ่ายทอด · ทีมใหม่ = คอลัมน์รับช่วง</div></div>
@@ -287,17 +287,26 @@ function renderCmp(n,d,o){
    `<div class="flex flex-wrap gap-2">${roles.map(r=>`<label class="role-badge" style="border-color:#c7d2fe"><input type="checkbox" class="new_role" value="${esc(r.t)}" ${(d.roles||[]).includes(r.t)?'checked':''} onchange="collectRoles()"> ${esc(r.t)}</label>`).join('')}</div><div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2" id="role_details"></div>`);
  const exKey=g==='OAC'?'OAC':g==='GAT'?'GAT':(TEAMROLE(n)==='ทีมใหม่'?'ADM_NEW':'ADM_OLD');
  const EXW=EXAMPLES[exKey]||EXAMPLES.ADM_NEW;
- const exHint=`<div class="text-[10px] text-amber-600 mt-1">✏️ มีตัวอย่างแนวทางเขียนไว้ให้ (รองรับการสืบทอดบทบาท) — แก้ไขหรือลบได้เลย</div>`;
+ /* ===== ตัวอย่างแบบเฉพาะบุคคล — สอดคล้องกับ CEO เดิม + บทบาทหลักใหม่ (OAC/GAT/ADM) ===== */
+ const hasOld=!o.missing&&(!!((o.role||'').trim())||o.acc.length>0);
+ const roleTxt=((o.role||'').trim())||(o.acc.length?o.acc[0]:'');
+ const gLbl=g==='OAC'?'OAC (คณะกำกับดูแล)':g==='GAT'?'GAT (ทีมตรวจสอบ)':'ADM '+(TEAMROLE(n)==='ทีมใหม่'?'(ทีมใหม่ — ผู้รับช่วง)':'(ทีมเดิม — ผู้ถ่ายทอด)');
+ const exHint=hasOld
+  ?`<div class="text-[10px] text-amber-600 mt-1">✏️ ตัวอย่างนี้เขียนให้สอดคล้องกับบทบาทเดิมของท่าน (${esc(roleTxt)}) + บทบาทหลักใหม่ ${gLbl} — แก้ไขหรือลบได้เลย</div>`
+  :`<div class="text-[11px] text-rose-600 mt-1">⚠️ ยังไม่พบข้อมูล CEO เดิมของท่านในระบบ — แนะนำกรอกบทบาทเดิม/หน้าที่หลักของท่านให้ครบก่อน แล้วปรับข้อความตัวอย่างนี้ให้สอดคล้องกับงานจริงของท่าน (แก้ไข/ลบได้)</div>`;
+ const pers=txt=>hasOld&&roleTxt?('สานต่อจากบทบาทเดิม "'+roleTxt+'" — '+txt):txt;
  [['bu','🏢 BU — ระดับบริษัท'],['team','👥 Team — ระดับทีม'],['per','🎯 Personal Goal — ระดับบุคคล']].forEach(([k,label])=>{
   const sp=(nc[k]&&nc[k].p)||'', svv=(nc[k]&&nc[k].v)||'';
-  R(label+' — จุดมุ่งหมาย (purpose)',`<div class="txt">${fmt(o[k].p)}</div>`,`<textarea id="np_${k}" rows="2" placeholder="จุดมุ่งหมายใหม่…">${esc(sp||EXW[k].p)}</textarea>${sp?'':exHint}`);
+  R(label+' — จุดมุ่งหมาย (purpose)',`<div class="txt">${fmt(o[k].p)}</div>`,`<textarea id="np_${k}" rows="2" placeholder="จุดมุ่งหมายใหม่…">${esc(sp||pers(EXW[k].p))}</textarea>${sp?'':exHint}`);
   R(label+' — ภาพความสำเร็จ (vision)',`<div class="txt">${fmt(o[k].v)}</div>`,`<textarea id="nv_${k}" rows="2" placeholder="ภาพความสำเร็จใหม่…">${esc(svv||EXW[k].v)}</textarea>${svv?'':exHint}`);
  });
- R('หน้าที่รับผิดชอบหลัก (Accountability)',o.acc.length?o.acc.map(a=>`<div class="txt">• ${esc(a)}</div>`).join(''):'<span class="old-empty">— ไม่มีข้อมูลเดิม —</span>',`<textarea id="new_resp" rows="4" placeholder="หน้าที่รับผิดชอบของบทบาทใหม่…">${esc(d.resp||EXAMPLE_RESP[exKey])}</textarea>${d.resp?'':exHint}`);
+ const EXR=EXAMPLE_RESP[exKey];
+ const respBase=hasOld&&o.acc.length?('• รับผิดชอบต่อเนื่องจากงานเดิม: '+o.acc.slice(0,3).join(' / ')+'\n'+EXR):EXR;
+ R('หน้าที่รับผิดชอบหลัก (Accountability)',o.acc.length?o.acc.map(a=>`<div class="txt">• ${esc(a)}</div>`).join(''):'<span class="old-empty">— ไม่มีข้อมูลเดิม —</span>',`<textarea id="new_resp" rows="4" placeholder="หน้าที่รับผิดชอบของบทบาทใหม่…">${esc(d.resp||respBase)}</textarea>${d.resp?'':exHint}`);
  const EXO=EXAMPLE_OKR[exKey]||EXAMPLE_OKR.ADM_NEW;
  [['b','Business Growth'],['t','Team Growth'],['p','Personal Growth']].forEach(([k,label])=>{
   const L=o.okr[k]||[],ov=(d.okr&&d.okr[k])||'';
-  R('OKR / KPI — '+label,L.length?L.map(x=>`<div class="txt">• ${esc(x)}</div>`).join(''):'<span class="old-empty">— ไม่มีข้อมูลเดิม —</span>',`<textarea id="okr_${k}" rows="3" placeholder="OKR/KPI ใหม่…">${esc(ov||EXO[k])}</textarea>${ov?'':exHint}`);
+  R('OKR / KPI — '+label,L.length?L.map(x=>`<div class="txt">• ${esc(x)}</div>`).join(''):'<span class="old-empty">— ไม่มีข้อมูลเดิม —</span>',`<textarea id="okr_${k}" rows="3" placeholder="OKR/KPI ใหม่…">${esc(ov||(k==='b'?pers(EXO[k]):EXO[k]))}</textarea>${ov?'':exHint}`);
  });
  R('กลยุทธ์ที่รับผิดชอบ (BSC)','<span class="old-empty">—</span>',
    `<div class="opt-grid">${['การเงิน (Financial)','ลูกค้า (Customer)','กระบวนการภายใน (Internal Process)','การเรียนรู้และเติบโต (Learning & Growth)'].map(x=>`<label class="opt-item"><input type="checkbox" class="bsc" value="${x}" ${(d.bsc||[]).includes(x)?'checked':''}> ${x}</label>`).join('')}</div>`);
