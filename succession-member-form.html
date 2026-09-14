@@ -527,7 +527,7 @@ function renderHistory(){
   <div class="flex flex-wrap items-center gap-2">
    <span class="text-xs font-extrabold ${i===0?'text-emerald-700':'text-slate-500'}">${i===0?'🟢 ล่าสุด':'เวอร์ชัน '+(arr.length-i)}</span>
    <span class="text-xs text-slate-500">${new Date(r.savedAt||Date.now()).toLocaleString('th-TH')}</span>
-   <button class="btn-outline text-[11px] ml-auto" onclick="toggleHistDetail(${i})">👁 ดู</button>
+   <button class="btn-outline text-[11px] ml-auto" onclick="showHistInForm(${i})">👁 ดูและแก้ไขในฟอร์ม</button>
    ${i>0?`<button class="btn-primary text-[11px]" onclick="loadHist(${i})">↩️ โหลดมาแก้ไข</button>`:'<span class="text-[11px] text-emerald-600 font-semibold">✔ เวอร์ชันปัจจุบัน</span>'}
   </div>
   <div class="text-[11px] text-slate-600 mt-1.5">${esc(histSummary(r))}</div>
@@ -535,11 +535,20 @@ function renderHistory(){
  </div>`).join('')}</div>`;
 }
 function toggleHistDetail(i){const el=document.getElementById('hist_detail_'+i);if(el)el.classList.toggle('hidden-sec')}
+/* กด 'ดูและแก้ไขในฟอร์ม' — โหลดเวอร์ชันนั้นลงฟอร์มทันที (แสดงเนื้อหาเดิมให้แก้ไขได้เลย) · บันทึกใหม่ = การแก้ไขล่าสุด */
+function showHistInForm(i){
+ if(!cur)return;const arr=histAll()[cur]||[];const r=arr[i];if(!r){toast('ไม่พบเวอร์ชันนี้');return}
+ loadHistData(r);
+ toast('แสดงเวอร์ชันนี้ในฟอร์มแล้ว — แก้ไขได้เลย เสร็จแล้วกด “💾 บันทึก” = การแก้ไขล่าสุด ✅');
+}
+function loadHistData(r){
+ const A=all();A[cur]=JSON.parse(JSON.stringify(r));localStorage.setItem(LS,JSON.stringify(A));
+ pick(cur);
+}
 function loadHist(i){
  if(!cur)return;const arr=histAll()[cur]||[];const r=arr[i];if(!r){toast('ไม่พบเวอร์ชันนี้');return}
  if(!confirm('โหลดเวอร์ชัน '+(new Date(r.savedAt).toLocaleString('th-TH'))+' กลับมาแก้ไข?\nข้อมูลที่กรอกค้างอยู่ (ยังไม่ได้บันทึก) จะถูกแทนที่'))return;
- const A=all();A[cur]=JSON.parse(JSON.stringify(r));localStorage.setItem(LS,JSON.stringify(A));
- pick(cur);
+ loadHistData(r);
  toast('โหลดเวอร์ชันเดิมมาแล้ว — แก้ไขแล้วกด “💾 บันทึก” จะเป็นการแก้ไขล่าสุด ✅');
 }
 function clearOne(){if(!cur){toast('เลือกชื่อก่อน');return}if(!confirm('ล้างข้อมูลของ '+cur+'?'))return;const A=all();delete A[cur];localStorage.setItem(LS,JSON.stringify(A));pick(cur);toast('ล้างแล้ว')}
