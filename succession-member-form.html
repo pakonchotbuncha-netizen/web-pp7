@@ -203,13 +203,12 @@ async function pushSheet(rec,formType){
   savedAt:rec.savedAt||''};
  const payload={action:'saveMember',member:(rec.nick||''),group:(rec.group||''),level:'',data:flat};
  try{
-  const res=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+  const res=await fetch(GAS_URL+'?action=saveMember',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
   let j=null;try{j=await res.json()}catch(e){}
   if(j&&j.success){toast('☁️ บันทึกลง Google Sheet แล้ว (แถว '+j.row+')');}
-  else if(res.ok){toast('☁️ บันทึกลง Google Sheet แล้ว');}
-  else{throw new Error((j&&j.message)||('HTTP '+res.status));}
+  else{throw new Error((j&&(j.error||j.message))||('HTTP '+res.status));}
  }catch(err){
-  toast('⚠️ ส่งชีตไม่สำเร็จ: '+err.message);
+  toast('⚠️ ส่งชีตไม่สำเร็จ: '+err.message+' — เก็บเข้าคิวส่งซ้ำอัตโนมัติ');
   // ส่งไม่สำเร็จ → เก็บ payload เข้า queue รอ gas-retry.js ส่งซ้ำภายหลัง
   try{const q=JSON.parse(localStorage.getItem('pkg_gas_retry')||'[]');q.push(payload);localStorage.setItem('pkg_gas_retry',JSON.stringify(q));}
   catch(e2){}

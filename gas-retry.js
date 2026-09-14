@@ -31,7 +31,7 @@
     if (action !== 'saveMember' && action !== 'submitSuccessionEntry') {
       return Promise.resolve(true); // payload ไม่รู้จัก → เอาออกจากคิว (ส่งซ้ำไม่มีประโยชน์)
     }
-    return fetch(GAS_RETRY_URL, {
+    return fetch(GAS_RETRY_URL + '?action=' + encodeURIComponent(action), {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
@@ -40,7 +40,7 @@
       return res.json().then(function (j) {
         return !!(j && j.success);
       }).catch(function () {
-        return true; // ไม่มี JSON กลับแต่ HTTP 2xx (no-cors / proxy) → ถือว่าสำเร็จ
+        return false; // ไม่มี JSON กลับ = backend ตอบไม่ถูกรูปแบบ → ถือว่ายังไม่สำเร็จ เก็บคิวไว้ส่งซ้ำ
       });
     }).catch(function () {
       return false;

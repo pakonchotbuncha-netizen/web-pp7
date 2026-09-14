@@ -584,8 +584,10 @@ document.getElementById('sf-form').addEventListener('submit',async e=>{
    }
   };
   try{
-   await fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-   toast('ส่ง GAS แล้ว')
+   const res=await fetch(GAS_URL+'?action=submitSuccessionEntry',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+   const j=await res.json().catch(()=>null);
+   if(j&&j.success){toast('☁️ บันทึกลง Google Sheet แล้ว (แถว '+j.row+')')}
+   else{throw new Error((j&&(j.error||j.message))||('HTTP '+res.status))}
   }catch(err){
    // ส่งไม่สำเร็จ → เก็บเข้า queue รอ gas-retry.js ส่งซ้ำภายหลัง
    try{
