@@ -151,6 +151,9 @@ const LADDER=[
  {step:4,old:'ที่ปรึกษา + กำกับดูแล',neu:'เจ้าของ Operation เต็มตัว',og:'กำกับต่ำ',period:'2572–2573'},
  {step:5,old:'ที่ปรึกษา / พี่เลี้ยง',neu:'เป็นเจ้าของเต็มรูปแบบ',og:'กำกับเฉพาะ Governance',period:'2573 (ส่งมอบเต็มรูปแบบ)'}
 ];
+/* 5 ช่วงเวลาสำหรับแผนงานการถ่ายทอดของฉัน (ให้กรอกแผนเป็นข้อความต่อช่วง) */
+const PHASES=['2569','2569–2570','2571–2572','2572–2573','2573'];
+const PHASE_HELP=['ปีแรก — เริ่มนำ + ถ่ายทอดคู่กับทีมใหม่…','ถ่ายทอด + ให้ทีมใหม่ลงมือทำ/ตัดสินใจ…','ทีมใหม่เป็นเจ้าของงานหลัก…','ทีมใหม่เป็นเจ้าของ Operation เต็มตัว…','ส่งมอบเต็มรูปแบบ…'];
 const GAS_URL='https://script.google.com/macros/s/AKfycbwGWjI5cZkt80HOC6JNrn9RtjwrDRuPa4DDjapM8-LosR4o00310pwcIoS_j8bKP1OW/exec'; // backend กลาง (deploy แล้ว) — saveMember → tab SP-สมาชิกรายคน
 async function pushSheet(rec,formType){
  if(!GAS_URL)return;
@@ -164,6 +167,7 @@ async function pushSheet(rec,formType){
   okr_b:okr.b||'',okr_t:okr.t||'',okr_p:okr.p||'',
   bsc:(rec.bsc||[]).join(' | '),cover:rec.cover||'',note:rec.note||'',
   plan_cond:JSON.stringify(pl.cond||{}),plan_coown:pl.coown||'',plan_timeline:pl.timeline||'',
+  plan_step:pl.step||'',plan_phases:JSON.stringify(pl.phases||[]),
   mentor_mv:JSON.stringify(m.mv||{}),mentor_mh:JSON.stringify(m.mh||{}),mentor_my:JSON.stringify(m.my||[]),
   savedAt:rec.savedAt||''};
  const payload={action:'saveMember',member:(rec.nick||''),group:(rec.group||''),level:'',data:flat};
@@ -277,10 +281,66 @@ function renderPlan(n,d,o){
    <div class="li">• เข้มข้นสุด <b>2026–2027</b> แล้วลดลงตามลำดับ</div></div>` : '';
  const gatBlk = g==='GAT' ? `<div class="border border-amber-200 bg-amber-50/40 rounded-xl p-3"><div class="text-sm font-extrabold text-amber-700 mb-1">🛡 หน้าที่ตรวจสอบของฉัน</div>
    <div class="li">• ตรวจสอบ ดำเนินงาน / ความเสี่ยง / Compliance / ผลลัพธ์ · ใช้ Tech Audit · จัดทำ Monthly Audit Report → OAC</div></div>` : '';
+ // ===== ความหมายของแต่ละคอลัมน์ (ใช้เป็นแนวทางกรอก) =====
+ const colDesc={
+  old:'ทีมเดิม (ทีมที่ถ่ายทอด) — บทบาทที่พี่เลี้ยง/ทีมเดิมถืออยู่: นำ + ถ่ายทอด + รักษามาตรฐาน แล้วค่อย ๆ ถอยเป็นที่ปรึกษา',
+  neu:'ทีมใหม่ (ทีมที่รับช่วง) — บทบาทของทีมใหม่: เรียนรู้ + ลงมือทำ + ตัดสินใจ แล้วขยับเป็นเจ้าของเต็มตัว',
+  og:'OAC / GAT (คณะกำกับดูแล + ทีมตรวจสอบ) — ระดับการกำกับ/ตรวจสอบ: เริ่มจากกำกับสูงสุด + Veto แล้วลดเป็นกำกับเฉพาะ Governance'
+ };
+ const tdC='border border-slate-200 px-2 py-1.5 align-top';
+ const thC='border border-slate-200 px-2 py-1.5 text-center text-[11px] font-extrabold';
+ const hlTh=k=>col===k?'bg-rose-200 text-rose-900 ring-2 ring-inset ring-rose-400':'bg-slate-100 text-slate-600';
+ const hlTd=k=>col===k?'bg-rose-50':'bg-white';
+ const ladderTable=`<div class="overflow-x-auto mt-2 rounded-lg border border-slate-200">
+  <table class="w-full text-[11px] border-collapse bg-white">
+   <thead><tr>
+    <th class="${thC} bg-slate-100 text-slate-600">ขั้น</th>
+    <th class="${thC} bg-slate-100 text-slate-600">ระยะเวลา</th>
+    <th class="${thC} ${hlTh('old')}">ทีมเดิม (ทีมที่ถ่ายทอด)</th>
+    <th class="${thC} ${hlTh('neu')}">ทีมใหม่ (ทีมที่รับช่วง)</th>
+    <th class="${thC} ${hlTh('og')}">OAC / GAT (คณะกำกับดูแล + ทีมตรวจสอบ)</th>
+   </tr></thead>
+   <tbody>${LADDER.map(x=>`<tr>
+    <td class="${tdC} text-center font-extrabold bg-slate-50">${x.step}</td>
+    <td class="${tdC} whitespace-nowrap font-semibold">${x.period}</td>
+    <td class="${tdC} ${hlTd('old')}">${x.old}</td>
+    <td class="${tdC} ${hlTd('neu')}">${x.neu}</td>
+    <td class="${tdC} ${hlTd('og')}">${x.og}</td>
+   </tr>`).join('')}</tbody>
+   <tfoot><tr>
+    <td class="${tdC} bg-slate-50 font-extrabold text-slate-500" colspan="2">ความหมายของคอลัมน์</td>
+    <td class="${tdC} ${hlTd('old')} text-slate-600">${colDesc.old}</td>
+    <td class="${tdC} ${hlTd('neu')} text-slate-600">${colDesc.neu}</td>
+    <td class="${tdC} ${hlTd('og')} text-slate-600">${colDesc.og}</td>
+   </tr></tfoot>
+  </table></div>`;
+ const guideTxt = g==='OAC' ? 'ระบุ <b>ระดับการกำกับ/ดูแล</b> ที่ท่านอยู่ + <b>ช่วงเวลา</b>ที่จะลดความเข้มข้นลงตามลำดับขั้น (จากกำกับสูงสุด + Veto → กำกับเฉพาะ Governance)'
+   : g==='GAT' ? 'ระบุ <b>ระดับการตรวจสอบ</b> ที่ท่านอยู่ + <b>ช่วงเวลา</b>ที่จะลดความเข้มข้นลงตามลำดับขั้น (จากตรวจสอบเต็มรูปแบบ → ตรวจสอบเฉพาะ Governance)'
+   : isJunior ? 'ระบุ <b>ขั้น</b>ที่ท่านกำลัง “เรียนรู้/ลงมือทำ” + <b>ระยะเวลา</b>ที่จะรับช่วงเต็มตัว'
+   : 'ระบุ <b>ขั้น</b>ที่ท่านกำลัง “นำ + ถ่ายทอด” ให้ทีมใหม่ + <b>ระยะเวลา</b>ที่จะถ่ายทอด';
+ const guideBlk=`<div class="border border-indigo-200 bg-indigo-50/50 rounded-xl p-4">
+  <div class="text-sm font-extrabold text-indigo-700 mb-1">🧩 แนวทางกรอกของฉัน${g==='ADM'?(tr==='ทีมใหม่'?' — ทีมใหม่':tr==='ทีมเดิม (พี่เลี้ยง)'?' — ทีมเดิม':' — ADM'):' — '+g}</div>
+  <div class="text-[13px] text-slate-700 leading-relaxed">${guideTxt}</div>
+  <div class="text-[11px] text-slate-500 mt-1.5">คอลัมน์ที่ใช้กรอกของฉันคือ <b>${colLbl}</b> (ไฮไลต์สีชมพูในตารางด้านบน)</div>
+ </div>`;
+ const phArr=Array.isArray(p.phases)?p.phases:[];
+ const phaseRows=PHASES.map((t,i)=>`<tr>
+   <td class="${tdC} bg-slate-50 font-bold whitespace-nowrap text-slate-600">${t}</td>
+   <td class="${tdC} p-1"><input type="text" class="plan_phase" data-i="${i}" value="${esc(phArr[i]||'')}" placeholder="${PHASE_HELP[i]}"></td>
+  </tr>`).join('');
+ const phasesBlk=`<div class="border border-emerald-200 bg-emerald-50/40 rounded-xl p-4">
+  <div class="text-sm font-extrabold text-emerald-700 mb-1">🗓 แผนงาน/ระยะเวลาการถ่ายทอดของฉัน — 5 ช่วงเวลา</div>
+  <div class="text-[12px] text-slate-600 mb-2">กรอกแผนการถ่ายทอดบทบาทเป็นข้อความในแต่ละช่วงเวลา (2569 → 2573) เพื่อเป็นแนวทางและกำหนดระยะเวลาที่ชัดเจน</div>
+  <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+   <table class="w-full text-[12px] border-collapse">
+    <thead><tr><th class="${thC} bg-slate-100 text-slate-600">ช่วงเวลา</th><th class="${thC} bg-slate-100 text-slate-600" style="text-align:left">แผนการถ่ายทอดของฉัน</th></tr></thead>
+    <tbody>${phaseRows}</tbody>
+   </table></div>
+ </div>`;
  const ladderBlk = `<div class="border border-rose-200 bg-rose-50/40 rounded-xl p-4">
-  <div class="text-sm font-extrabold text-rose-700 mb-1">🪜 บันไดการถ่ายทอดบทบาท — ขั้นของฉัน</div>
-  <div class="text-[12px] text-slate-600 leading-relaxed">ตาราง 5 ขั้น: ทีมเดิมค่อย ๆ ถอยจาก "ลงมือทำ" → "ให้คำปรึกษา" · ทีมใหม่ขยับจาก "เรียนรู้" → "เป็นเจ้าของเต็มตัว" · OAC/GAT ลดความเข้มข้น "กำกับสูงสุด+Veto" → "กำกับเฉพาะ Governance"</div>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2 text-[11px]">${LADDER.map(x=>`<div class="bg-white border rounded-lg p-2"><b>ขั้น ${x.step}</b> · ${x.period}<div class="text-slate-600 mt-0.5">เดิม: ${x.old} · ใหม่: ${x.neu} · OAC/GAT: ${x.og}</div></div>`).join('')}</div>
+  <div class="text-sm font-extrabold text-rose-700 mb-1">🪜 บันไดการถ่ายทอดบทบาท — ขั้นของฉัน (ความหมายของแต่ละคอลัมน์)</div>
+  <div class="text-[12px] text-slate-600 leading-relaxed">ตาราง 5 ขั้น: ทีมเดิมค่อย ๆ ถอยจาก “ลงมือทำ” → “ให้คำปรึกษา” · ทีมใหม่ขยับจาก “เรียนรู้” → “เป็นเจ้าของเต็มตัว” · OAC/GAT ลดความเข้มข้น “กำกับสูงสุด+Veto” → “กำกับเฉพาะ Governance”</div>
+  ${ladderTable}
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
    <div><label class="q-label text-sm">ขั้นที่ฉันอยู่ตอนนี้ (คอลัมน์: ${colLbl})</label>
     <select id="plan_step"><option value="">— เลือกขั้น —</option>${ladderRows}</select>
@@ -294,7 +354,7 @@ function renderPlan(n,d,o){
   <div class="text-sm font-extrabold text-slate-700 mb-1">🧭 บทบาทของฉันในโครงสร้างใหม่</div>
   <div class="text-[13.5px] text-slate-700">${roleTxt}</div>
  </div>
- ${vetoBlk}${gatBlk}${ladderBlk}
+ ${vetoBlk}${gatBlk}${guideBlk}${ladderBlk}${phasesBlk}
  <div>
   <div class="text-sm font-extrabold text-violet-700 mb-2">📌 เงื่อนไขการถ่ายทอดบทบาท 5 ข้อ — สถานะของฉัน</div>
   <div class="space-y-2">${condRows}</div>
@@ -331,13 +391,14 @@ function saveOne(){
  const cond={};document.querySelectorAll('.plan_cond').forEach(s=>cond[s.dataset.i]=s.value);
  const plStep=document.getElementById('plan_step')?document.getElementById('plan_step').value:'';
  const plTime=document.getElementById('plan_timeline2')?document.getElementById('plan_timeline2').value.trim():idv('plan_timeline');
+ const plPhases=PHASES.map((_,i)=>{const e=document.querySelector('.plan_phase[data-i="'+i+'"]');return e?e.value.trim():''});
  const mv={},mh={};document.querySelectorAll('.mv').forEach(t=>mv[t.dataset.i]=t.value.trim());document.querySelectorAll('.mh').forEach(t=>mh[t.dataset.i]=t.value.trim());
  const my=[];document.querySelectorAll('.myname').forEach((e,i)=>{const s=document.querySelectorAll('.myside')[i];if(e.value.trim())my.push({name:e.value.trim(),side:s?s.value.trim():''})});
  const rec={nick:cur,group:GROUP(cur),teamRole:TEAMROLE(cur),full:FULL[cur]||'',roles,
   roleOpts:[...document.querySelectorAll('.role_opt:checked')].map(e=>e.value),
   ncass:nc,resp:idv('new_resp'),okr,bsc:[...document.querySelectorAll('.bsc:checked')].map(e=>e.value),
   cover:idv('new_cover'),note:idv('new_note'),
-  plan:{cond,step:plStep,coown:idv('plan_coown'),timeline:plTime},
+  plan:{cond,step:plStep,coown:idv('plan_coown'),timeline:plTime,phases:plPhases},
   mentor:{mv,mh,my},savedAt:new Date().toISOString()};
  const A=all();A[cur]=rec;localStorage.setItem(LS,JSON.stringify(A));
  pushSheet(rec,'v3');
@@ -347,8 +408,8 @@ function saveOne(){
 function clearOne(){if(!cur){toast('เลือกชื่อก่อน');return}if(!confirm('ล้างข้อมูลของ '+cur+'?'))return;const A=all();delete A[cur];localStorage.setItem(LS,JSON.stringify(A));pick(cur);toast('ล้างแล้ว')}
 function exportCSV(){
  const A=all();if(!Object.keys(A).length){toast('ยังไม่มีข้อมูล');return}
- const H=['nick','full','group','teamRole','roles','purpose_resp','bsc','ncass','okr','plan','mentor','savedAt'];
- const rows=Object.values(A).map(r=>({...r,bsc:(r.bsc||[]).join(' | '),ncass:JSON.stringify(r.ncass||{}),okr:JSON.stringify(r.okr||{}),plan:JSON.stringify(r.plan||{}),mentor:JSON.stringify(r.mentor||{})}));
+ const H=['nick','full','group','teamRole','roles','purpose_resp','bsc','ncass','okr','plan','plan_phases','mentor','savedAt'];
+ const rows=Object.values(A).map(r=>({...r,bsc:(r.bsc||[]).join(' | '),ncass:JSON.stringify(r.ncass||{}),okr:JSON.stringify(r.okr||{}),plan:JSON.stringify(r.plan||{}),plan_phases:(PHASES.map((t,i)=>t+': '+(((r.plan&&r.plan.phases)||[])[i]||'-')).join(' | ')),mentor:JSON.stringify(r.mentor||{})}));
  const csv='\uFEFF'+H.join(',')+'\n'+rows.map(r=>H.map(h=>`"${String(r[h]??'').replace(/"/g,'""')}"`).join(',')).join('\n');
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='pkg_succession_form.csv';a.click();toast('Export แล้ว');
 }
