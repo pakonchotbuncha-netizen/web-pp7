@@ -230,6 +230,21 @@ function pick(n){
  document.getElementById('save_state').innerHTML=d.savedAt?`💾 บันทึกล่าสุด: ${new Date(d.savedAt).toLocaleString('th-TH')}`:'ยังไม่ได้บันทึก';
  window.scrollTo({top:document.getElementById('work_area').offsetTop-90,behavior:'smooth'});
 }
+/* ===== ตัวอย่างแนวทางเขียน purpose/vision ใหม่ (รองรับการสืบทอดบทบาท) — แก้ไข/ลบได้ ===== */
+const EXAMPLES={
+ OAC:{bu:{p:'กำกับดูแลและให้คำปรึกษาการบริหาร BU ให้ทีมใหม่ตัดสินใจได้อย่างมั่นใจ โดยรักษาวัฒนธรรมและคุณค่า PKG เป็นแกนหลัก',v:'BU บริหารโดยทีมใหม่เต็มตัวภายในปี 2573 โดย OAC คงบทบาทกำกับ Governance และทบทวนผลรายไตรมาส'},
+  team:{p:'สร้างกลไก Oversight / Advise / Review ที่ทีมใช้งานจริง ไม่เป็นภาระงานเพิ่ม และใช้สิทธิ Veto เฉพาะเรื่องสำคัญ (สูงสุด 3 ครั้ง)',v:'ทีมทำงานด้วยฉันทมติและข้อมูลจริง โดย OAC ลดความเข้มข้นการกำกับลงตามบันไดถ่ายทอดแต่ละขั้น'},
+  per:{p:'ถ่ายทอดประสบการณ์และหลักการตัดสินใจสำคัญให้ทีมใหม่ ผ่านการโค้ชและทบทวนผลอย่างเป็นระบบ',v:'ทีมใหม่แต่ละคนมีหลักการตัดสินใจของตนเองที่สอดคล้องกับคุณค่า PKG และรับผิดชอบผลได้เต็มตัว'}},
+ GAT:{bu:{p:'ตรวจสอบการดำเนินงาน ความเสี่ยง และ Compliance ของ BU ให้โปร่งใส และรายงานผลต่อ OAC รายเดือน',v:'BU มีระบบตรวจสอบภายในที่ทีมใหม่ดำเนินการเองได้ โดย GAT คงบทบาท Audit เทคโนโลยีและทบทวนอิสระ'},
+  team:{p:'พัฒนาระบบ Tech Audit และ dashboard ตัวชี้วัดที่ทีมใช้ทำงานจริง ลดการตรวจสอบด้วยกระดาษ',v:'ทุก BU มี Monthly Audit Report อัตโนมัติ และทีมใหม่ตอบข้อสังเกตได้ภายในรอบเดือน'},
+  per:{p:'ยกระดับทักษะ Audit / Digital ของตนเอง และส่งต่อเป็นหลักสูตรภายในให้ทีมตรวจสอบรุ่นใหม่',v:'มีผู้สืบทอดงานตรวจสอบอย่างน้อย 1 คนต่อ BU ที่ทำงานอิสระได้ภายในปี 2572'}},
+ ADM_OLD:{bu:{p:'นำการบริหาร BU ควบคู่ถ่ายทอดบทบาทให้ทีมใหม่ โดยรักษามาตรฐานคุณภาพ ผลประกอบการ และวัฒนธรรม PKG',v:'ทีมใหม่รับช่วงบริหาร BU เต็มตัวภายในปี 2572–2573 โดยพี่เลี้ยงคงบทบาทที่ปรึกษาและ Co-Ownership เฉพาะเรื่องสำคัญ'},
+  team:{p:'โค้ชทีมใหม่รายสัปดาห์ ถ่ายทอดความรู้ Operation / การเงิน / การอนุมัติสินเชื่อ และสร้างเกณฑ์ตัดสินใจที่ชัดเจน',v:'ทีมใหม่ตัดสินใจงานประจำวันได้เอง 100% โดยพี่เลี้ยงถูกปรึกษาเฉพาะเรื่องกลยุทธ์ใหญ่'},
+  per:{p:'สรุปความรู้และประสบการณ์สำคัญเป็นเอกสาร/คลิปภายใน เพื่อให้การถ่ายทอดไม่ขึ้นอยู่กับตัวบุคคล',v:'มีคู่มือบทบาทและ checklist ส่งมอบครบทุกด้าน ก่อนส่งมอบเต็มรูปแบบในปี 2573'}},
+ ADM_NEW:{bu:{p:'เรียนรู้และรับช่วงบริหาร BU จากพี่เลี้ยง โดยรับผิดชอบต่อผลประกอบการและคุณภาพบริการตั้งแต่ขั้นที่ 2 เป็นต้นไป',v:'บริหาร BU เต็มตัวภายในปี 2573 ด้วยข้อมูลจริง นวัตกรรม และทีมที่ผูกพันกับวัฒนธรรม PKG'},
+  team:{p:'ลงมือทำงาน Operation จริงควบคู่พี่เลี้ยง พัฒนาทักษะ Tech / Digital / AI และสร้างธุรกิจใหม่ใน BU',v:'ทีมใน BU ทำงานด้วยระบบดิจิทัลและฉันทมติ โดยฉันรับผิดชอบตัดสินใจงานประจำวันได้เอง'},
+  per:{p:'พัฒนาตนเองตามบันไดถ่ายทอด 5 ขั้น และขอ feedback จากพี่เลี้ยง/OAC ทุกไตรมาส',v:'ผ่านเกณฑ์ส่งมอบทุกข้อภายในปี 2573 และพร้อมเป็นพี่เลี้ยงให้รุ่นถัดไป'}}
+};
 function renderCmp(n,d,o){
  const g=GROUP(n),roles=ROLES[g]||[],nc=d.ncass||{};
  const rows=[];
@@ -237,9 +252,13 @@ function renderCmp(n,d,o){
  const fmt=v=>v&&String(v).trim()?esc(v):'<span class="old-empty">— ไม่มีข้อมูลเดิม —</span>';
  R('บทบาท (Role)',`<div class="txt">${fmt(o.role)}</div>`,
    `<div class="flex flex-wrap gap-2">${roles.map(r=>`<label class="role-badge" style="border-color:#c7d2fe"><input type="checkbox" class="new_role" value="${esc(r.t)}" ${(d.roles||[]).includes(r.t)?'checked':''} onchange="collectRoles()"> ${esc(r.t)}</label>`).join('')}</div><div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2" id="role_details"></div>`);
+ const exKey=g==='OAC'?'OAC':g==='GAT'?'GAT':(TEAMROLE(n)==='ทีมใหม่'?'ADM_NEW':'ADM_OLD');
+ const EXW=EXAMPLES[exKey]||EXAMPLES.ADM_NEW;
+ const exHint=`<div class="text-[10px] text-amber-600 mt-1">✏️ มีตัวอย่างแนวทางเขียนไว้ให้ (รองรับการสืบทอดบทบาท) — แก้ไขหรือลบได้เลย</div>`;
  [['bu','🏢 BU — ระดับบริษัท'],['team','👥 Team — ระดับทีม'],['per','🎯 Personal Goal — ระดับบุคคล']].forEach(([k,label])=>{
-  R(label+' — จุดมุ่งหมาย (purpose)',`<div class="txt">${fmt(o[k].p)}</div>`,`<textarea id="np_${k}" rows="2" placeholder="จุดมุ่งหมายใหม่…">${esc((nc[k]&&nc[k].p)||'')}</textarea>`);
-  R(label+' — ภาพความสำเร็จ (vision)',`<div class="txt">${fmt(o[k].v)}</div>`,`<textarea id="nv_${k}" rows="2" placeholder="ภาพความสำเร็จใหม่…">${esc((nc[k]&&nc[k].v)||'')}</textarea>`);
+  const sp=(nc[k]&&nc[k].p)||'', svv=(nc[k]&&nc[k].v)||'';
+  R(label+' — จุดมุ่งหมาย (purpose)',`<div class="txt">${fmt(o[k].p)}</div>`,`<textarea id="np_${k}" rows="2" placeholder="จุดมุ่งหมายใหม่…">${esc(sp||EXW[k].p)}</textarea>${sp?'':exHint}`);
+  R(label+' — ภาพความสำเร็จ (vision)',`<div class="txt">${fmt(o[k].v)}</div>`,`<textarea id="nv_${k}" rows="2" placeholder="ภาพความสำเร็จใหม่…">${esc(svv||EXW[k].v)}</textarea>${svv?'':exHint}`);
  });
  R('หน้าที่รับผิดชอบหลัก (Accountability)',o.acc.length?o.acc.map(a=>`<div class="txt">• ${esc(a)}</div>`).join(''):'<span class="old-empty">— ไม่มีข้อมูลเดิม —</span>',`<textarea id="new_resp" rows="4" placeholder="หน้าที่รับผิดชอบของบทบาทใหม่…">${esc(d.resp||'')}</textarea>`);
  [['b','Business Growth'],['t','Team Growth'],['p','Personal Growth']].forEach(([k,label])=>{
