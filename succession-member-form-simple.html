@@ -87,6 +87,32 @@ input:focus,textarea:focus{outline:2px solid #6366f1;outline-offset:1px;border-c
 </div>
 </details>
 
+<!-- STEP 2.5: บันไดถ่ายทอด + ระยะเวลา -->
+<details class="acc">
+<summary>🪜 ขั้น 2.5 — บันไดการถ่ายทอดบทบาท + ระยะเวลา</summary>
+<div class="body">
+<div class="tip mb-2">แนวทาง 5 ขั้น — ยิ่งขั้นสูง ทีมเดิมถอยไปเป็นที่ปรึกษา · ทีมใหม่เป็นเจ้าของเต็มตัว · OAC/GAT ลดการกำกับ (ดูคอลัมน์ของทีมคุณ)</div>
+<div id="ladder_preview" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 mb-3"></div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+<div>
+<label class="text-sm font-semibold">ขั้นที่ฉันอยู่ตอนนี้ (ตามคอลัมน์ทีมของฉัน)</label>
+<select id="plan_step">
+<option value="">— เลือกขั้น —</option>
+<option value="1">ขั้น 1 — นำ + เป็นเจ้าของร่วม (2569)</option>
+<option value="2">ขั้น 2 — เจ้าของร่วม + พี่เลี้ยง (2569–2570)</option>
+<option value="3">ขั้น 3 — พี่เลี้ยง + ที่ปรึกษา (2571–2572)</option>
+<option value="4">ขั้น 4 — ที่ปรึกษา + กำกับดูแล (2572–2573)</option>
+<option value="5">ขั้น 5 — เป็นเจ้าของเต็มรูปแบบ (2573)</option>
+</select>
+</div>
+<div>
+<label class="text-sm font-semibold">⏱ ระยะเวลาการถ่ายทอดของฉัน (แผนงาน)</label>
+<input type="text" id="plan_timeline" placeholder="เช่น 2569–2570 ถ่ายทอดคู่กับพี่เลี้ยง …, 2571–2572 รับช่วงหลัก, 2573 ส่งมอบเต็มรูปแบบ">
+</div>
+</div>
+</div>
+</details>
+
 <!-- STEP 3: เป้าหมาย 3 ระดับ -->
 <details class="acc">
 <summary>🎯 ขั้น 3 — จุดมุ่งหมาย & ภาพความสำเร็จ (3 ระดับ)</summary>
@@ -137,6 +163,13 @@ const ROLES={
  ADM:['ADM — พี่เลี้ยง (ทีมเดิม)','ADM — ทีมใหม่ (รับช่วงงาน)']
 };
 const LS='pkg_succession_member_simple';
+const LADDER=[
+ {step:1,old:'นำ + เป็นเจ้าของร่วม',neu:'เรียนรู้ + เป็นเจ้าของร่วม',og:'กำกับสูงสุด / ใช้ Veto',period:'2569 (ปีแรก — เข้มข้นสุด)'},
+ {step:2,old:'เจ้าของร่วม + พี่เลี้ยง',neu:'ลงมือทำ + ตัดสินใจ',og:'กำกับสูง → ปานกลาง',period:'2569–2570'},
+ {step:3,old:'พี่เลี้ยง + ที่ปรึกษา',neu:'เจ้าของงานหลัก',og:'กำกับปานกลาง',period:'2571–2572'},
+ {step:4,old:'ที่ปรึกษา + กำกับดูแล',neu:'เจ้าของ Operation เต็มตัว',og:'กำกับต่ำ',period:'2572–2573'},
+ {step:5,old:'ที่ปรึกษา / พี่เลี้ยง',neu:'เป็นเจ้าของเต็มรูปแบบ',og:'กำกับเฉพาะ Governance',period:'2573 (ส่งมอบเต็มรูปแบบ)'}
+];
 const GAS_URL='https://script.google.com/macros/s/AKfycbwGWjI5cZkt80HOC6JNrn9RtjwrDRuPa4DDjapM8-LosR4o00310pwcIoS_j8bKP1OW/exec'; // backend กลาง (deploy แล้ว) — saveMember → tab SP-สมาชิกรายคน
 async function pushSheet(rec,formType){
  if(!GAS_URL)return;
@@ -220,6 +253,10 @@ function pick(n){
  document.getElementById('role_list').innerHTML=roles.map(t=>`<label class="chip ${(d.roles||[]).includes(t)?'on':''}" style="border-color:#c7d2fe"><input type="checkbox" class="role" value="${esc(t)}" ${(d.roles||[]).includes(t)?'checked':''} onchange="this.parentNode.classList.toggle('on',this.checked)"> ${esc(t)}</label>`).join('');
  document.getElementById('new_purpose').value=d.purpose||'';
  document.getElementById('new_resp').value=d.resp||'';
+ const col=g==='ADM'?(SUB(n)==='ADM ใหม่'?'neu':'old'):'og';
+ document.getElementById('ladder_preview').innerHTML=LADDER.map(x=>`<div class="bg-white border border-slate-200 rounded-lg p-2 text-[11px]"><b>ขั้น ${x.step}</b> · ${x.period}<div class="text-slate-600 mt-0.5">${col==='og'?('OAC/GAT: '+x.og):col==='old'?('ทีมเดิม: '+x.old):('ทีมใหม่: '+x.neu)}</div></div>`).join('');
+ const ps=document.getElementById('plan_step');if(ps)ps.value=(d.plan&&d.plan.step)||'';
+ const pt=document.getElementById('plan_timeline');if(pt)pt.value=(d.plan&&d.plan.timeline)||'';
  document.getElementById('bsc_box').innerHTML=['การเงิน (Financial)','ลูกค้า (Customer)','กระบวนการภายใน (Internal Process)','การเรียนรู้และเติบโต (Learning & Growth)'].map(x=>`<label class="text-[13px] flex items-start gap-2 border border-slate-200 rounded-lg px-3 py-2 bg-white"><input type="checkbox" class="bsc" value="${x}" ${(d.bsc||[]).includes(x)?'checked':''}> ${x}</label>`).join('');
  // step3 ncass
  const nc=d.ncass||{};
@@ -252,7 +289,9 @@ function saveOne(){
  const mv={},mh={}; document.querySelectorAll('.mv').forEach(t=>{mv[t.dataset.i]=t.value.trim()});
  document.querySelectorAll('.mh').forEach(t=>{mh[t.dataset.i]=t.value.trim()});
  const my=[]; document.querySelectorAll('.myname').forEach((e,i)=>{const s=document.querySelectorAll('.myside')[i];if(e.value.trim())my.push({name:e.value.trim(),side:s?s.value.trim():''})});
- const rec={nick:cur,group:GROUP(cur),full:FULL[cur]||'',roles,purpose:document.getElementById('new_purpose').value.trim(),resp:document.getElementById('new_resp').value.trim(),bsc:[...document.querySelectorAll('.bsc:checked')].map(e=>e.value),ncass:nc,okr,mentor:{mv,mh,my},savedAt:new Date().toISOString()};
+ const plStep=document.getElementById('plan_step')?document.getElementById('plan_step').value:'';
+ const plTime=document.getElementById('plan_timeline')?document.getElementById('plan_timeline').value.trim():'';
+ const rec={nick:cur,group:GROUP(cur),full:FULL[cur]||'',roles,purpose:document.getElementById('new_purpose').value.trim(),resp:document.getElementById('new_resp').value.trim(),bsc:[...document.querySelectorAll('.bsc:checked')].map(e=>e.value),ncass:nc,okr,plan:{step:plStep,timeline:plTime},mentor:{mv,mh,my},savedAt:new Date().toISOString()};
  const A=all();A[cur]=rec;localStorage.setItem(LS,JSON.stringify(A));
  pushSheet(rec,'simple');
  document.getElementById('save_state').innerHTML='💾 บันทึกล่าสุด: '+new Date().toLocaleString('th-TH');

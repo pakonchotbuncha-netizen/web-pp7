@@ -144,6 +144,13 @@ const CONDITIONS=[
  {t:'มี Co-ownership ระหว่างทีมเดิมและทีมใหม่ในช่วงเปลี่ยนผ่าน'}
 ];
 const LS='pkg_succession_member_form_v3';
+const LADDER=[
+ {step:1,old:'นำ + เป็นเจ้าของร่วม',neu:'เรียนรู้ + เป็นเจ้าของร่วม',og:'กำกับสูงสุด / ใช้ Veto',period:'2569 (ปีแรก — เข้มข้นสุด)'},
+ {step:2,old:'เจ้าของร่วม + พี่เลี้ยง',neu:'ลงมือทำ + ตัดสินใจ',og:'กำกับสูง → ปานกลาง',period:'2569–2570'},
+ {step:3,old:'พี่เลี้ยง + ที่ปรึกษา',neu:'เจ้าของงานหลัก',og:'กำกับปานกลาง',period:'2571–2572'},
+ {step:4,old:'ที่ปรึกษา + กำกับดูแล',neu:'เจ้าของ Operation เต็มตัว',og:'กำกับต่ำ',period:'2572–2573'},
+ {step:5,old:'ที่ปรึกษา / พี่เลี้ยง',neu:'เป็นเจ้าของเต็มรูปแบบ',og:'กำกับเฉพาะ Governance',period:'2573 (ส่งมอบเต็มรูปแบบ)'}
+];
 const GAS_URL='https://script.google.com/macros/s/AKfycbwGWjI5cZkt80HOC6JNrn9RtjwrDRuPa4DDjapM8-LosR4o00310pwcIoS_j8bKP1OW/exec'; // backend กลาง (deploy แล้ว) — saveMember → tab SP-สมาชิกรายคน
 async function pushSheet(rec,formType){
  if(!GAS_URL)return;
@@ -252,6 +259,12 @@ function collectRoles(){
 function renderPlan(n,d,o){
  const g=GROUP(n),tr=TEAMROLE(n);
  const st=(d.plan&&d.plan.cond)||{};
+ const col=g==='ADM'?(tr==='ทีมใหม่'?'neu':'old'):'og';
+ const isJunior=g==='ADM'&&tr==='ทีมใหม่';
+ const myStep=(d.plan&&d.plan.step)||'';
+ const myRow=LADDER.find(x=>String(x.step)===String(myStep));
+ const colLbl=col==='og'?'OAC / GAT (คณะกำกับดูแล + ทีมตรวจสอบ)':col==='old'?'ทีมเดิม (ทีมที่ถ่ายทอด)':'ทีมใหม่ (ทีมที่รับช่วง)';
+ const ladderRows=LADDER.map(x=>{const on=String(x.step)===String(myStep);return `<option value="${x.step}" ${on?'selected':''}>ขั้น ${x.step} — ${x[col]}${x.period?' (':''}${x.period?x.period:''}${x.period?')':''}</option>`}).join('');
  const roleTxt = g==='OAC' ? 'อยู่ <b>OAC</b> — กำกับ ดูแล ให้คำปรึกษา (Oversight/Advise/Review/Veto)'
    : g==='GAT' ? 'อยู่ <b>GAT</b> — ตรวจสอบการดำเนินงาน/ความเสี่ยง/Compliance/ผลลัพธ์ + รายงานต่อ OAC'
    : 'อยู่ <b>ADM</b> — '+(tr==='ทีมเดิม (พี่เลี้ยง)'?'ทีเดิม ทำหน้าที่ Mentor/Coach ถ่ายทอด รักษามาตรฐาน (Co-Ownership)':'ทีมใหม่ รับ Operation + อำนาจตัดสินใจ + Tech/Digital/AI + สร้างธุรกิจใหม่');
@@ -264,12 +277,24 @@ function renderPlan(n,d,o){
    <div class="li">• เข้มข้นสุด <b>2026–2027</b> แล้วลดลงตามลำดับ</div></div>` : '';
  const gatBlk = g==='GAT' ? `<div class="border border-amber-200 bg-amber-50/40 rounded-xl p-3"><div class="text-sm font-extrabold text-amber-700 mb-1">🛡 หน้าที่ตรวจสอบของฉัน</div>
    <div class="li">• ตรวจสอบ ดำเนินงาน / ความเสี่ยง / Compliance / ผลลัพธ์ · ใช้ Tech Audit · จัดทำ Monthly Audit Report → OAC</div></div>` : '';
+ const ladderBlk = `<div class="border border-rose-200 bg-rose-50/40 rounded-xl p-4">
+  <div class="text-sm font-extrabold text-rose-700 mb-1">🪜 บันไดการถ่ายทอดบทบาท — ขั้นของฉัน</div>
+  <div class="text-[12px] text-slate-600 leading-relaxed">ตาราง 5 ขั้น: ทีมเดิมค่อย ๆ ถอยจาก "ลงมือทำ" → "ให้คำปรึกษา" · ทีมใหม่ขยับจาก "เรียนรู้" → "เป็นเจ้าของเต็มตัว" · OAC/GAT ลดความเข้มข้น "กำกับสูงสุด+Veto" → "กำกับเฉพาะ Governance"</div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2 text-[11px]">${LADDER.map(x=>`<div class="bg-white border rounded-lg p-2"><b>ขั้น ${x.step}</b> · ${x.period}<div class="text-slate-600 mt-0.5">เดิม: ${x.old} · ใหม่: ${x.neu} · OAC/GAT: ${x.og}</div></div>`).join('')}</div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+   <div><label class="q-label text-sm">ขั้นที่ฉันอยู่ตอนนี้ (คอลัมน์: ${colLbl})</label>
+    <select id="plan_step"><option value="">— เลือกขั้น —</option>${ladderRows}</select>
+    ${myStep&&myRow?`<div class="text-[11px] text-rose-700 mt-1">${isJunior?'ทีมใหม่':'ทีมเดิม'} · ${myRow[col]}</div>`:''}</div>
+   <div><label class="q-label text-sm">⏱ ระยะเวลาการถ่ายทอดของฉัน</label>
+    <input type="text" id="plan_timeline2" value="${esc((p.timeline)||'')}" placeholder="เช่น 2569–2570 ถ่ายทอดคู่กับพี่เลี้ยง…, 2571–2572 รับช่วงหลัก, 2573 ส่งมอบเต็มรูปแบบ"></div>
+  </div>
+ </div>`;
  document.getElementById('plan_box').innerHTML=`
  <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/60">
   <div class="text-sm font-extrabold text-slate-700 mb-1">🧭 บทบาทของฉันในโครงสร้างใหม่</div>
   <div class="text-[13.5px] text-slate-700">${roleTxt}</div>
  </div>
- ${vetoBlk}${gatBlk}
+ ${vetoBlk}${gatBlk}${ladderBlk}
  <div>
   <div class="text-sm font-extrabold text-violet-700 mb-2">📌 เงื่อนไขการถ่ายทอดบทบาท 5 ข้อ — สถานะของฉัน</div>
   <div class="space-y-2">${condRows}</div>
@@ -304,13 +329,15 @@ function saveOne(){
  const nc={};document.querySelectorAll('#cmp_body textarea[id^=np_],#cmp_body textarea[id^=nv_]').forEach(t=>{const k=t.id.replace(/^n[pc]_/,'');nc[k]=nc[k]||{};if(t.id.startsWith('np_'))nc[k].p=t.value.trim();else nc[k].v=t.value.trim()});
  const okr={};document.querySelectorAll('textarea[id^=okr_]').forEach(t=>okr[t.id.replace('okr_','')]=t.value.trim());
  const cond={};document.querySelectorAll('.plan_cond').forEach(s=>cond[s.dataset.i]=s.value);
+ const plStep=document.getElementById('plan_step')?document.getElementById('plan_step').value:'';
+ const plTime=document.getElementById('plan_timeline2')?document.getElementById('plan_timeline2').value.trim():idv('plan_timeline');
  const mv={},mh={};document.querySelectorAll('.mv').forEach(t=>mv[t.dataset.i]=t.value.trim());document.querySelectorAll('.mh').forEach(t=>mh[t.dataset.i]=t.value.trim());
  const my=[];document.querySelectorAll('.myname').forEach((e,i)=>{const s=document.querySelectorAll('.myside')[i];if(e.value.trim())my.push({name:e.value.trim(),side:s?s.value.trim():''})});
  const rec={nick:cur,group:GROUP(cur),teamRole:TEAMROLE(cur),full:FULL[cur]||'',roles,
   roleOpts:[...document.querySelectorAll('.role_opt:checked')].map(e=>e.value),
   ncass:nc,resp:idv('new_resp'),okr,bsc:[...document.querySelectorAll('.bsc:checked')].map(e=>e.value),
   cover:idv('new_cover'),note:idv('new_note'),
-  plan:{cond,coown:idv('plan_coown'),timeline:idv('plan_timeline')},
+  plan:{cond,step:plStep,coown:idv('plan_coown'),timeline:plTime},
   mentor:{mv,mh,my},savedAt:new Date().toISOString()};
  const A=all();A[cur]=rec;localStorage.setItem(LS,JSON.stringify(A));
  pushSheet(rec,'v3');

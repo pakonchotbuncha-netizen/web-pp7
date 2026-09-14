@@ -98,7 +98,7 @@ const ORG = {
       ['📊 ตรวจสอบผลลัพธ์','ตรวจสอบผลลัพธ์เทียบเป้าหมาย — ตรงกับข้อมูลจริง'],
       ['💻 Tech / Audit Technology','ใช้เทคโนโลยีช่วยตรวจสอบ (Audit Tech) เพิ่มความแม่นยำและครอบคลุม'],
       ['📄 Monthly Audit/Oversight Report','จัดทำรายงาน Audit/Oversight ประจำเดือนส่ง OAC'],
-      ['📊 รายงานตัวเลข BSC กลุ่ม ADM','รายงานตัวเลข/ผลลัพธ์ BSC ของกลุ่ม ADM ต่อ OAC — สรุปตัวเลขให้ OAC ใช้กำกับ'],
+      ['📊 รายงานตัวเลข BSC กลุ่ม ADM','รายงานตัวเลข/ผลลัพธ์ BSC ของกลุ่ม ADM ต่อ OAC — สรุปตัวเลขให้ OAC ใช้กำกับ']],
     members:['พี่อ๊อด']},
   ADM:{icon:'🚀',label:'ADM',level:3,levelTxt:'บริหาร - ทีมเดิม(พี่เลี้ยง) + ทีมใหม่',color:'sky',hex:'#0284c7',
     scope:'เฉพาะด้าน BSC ที่รับผิดชอบ',role:'ทีมเดิม(พี่เลี้ยง อดีต GAT 11 คน) + ทีมใหม่(ADM 6 คน) ทำงานร่วมกันด้วย Co-Ownership - บริหารแนวทางกลยุทธ์ (ไม่ใช่ operation)',
@@ -200,6 +200,21 @@ const ORG_OKR=[
 const ALL_ORG_KRS=ORG_OKR.flatMap(o=>o.krs.map(k=>({...k,obj:o.obj,oid:o.id})));
 const OTHER_ALIGN=['เงื่อนไขถ่ายทอด: Operation Strategy Execution','เงื่อนไขถ่ายทอด: ลดหนี้ตามเป้าหมาย','เงื่อนไขถ่ายทอด: งานเงื่อนไข (เช่น AMS5)','เงื่อนไขถ่ายทอด: รับผิดชอบจริง','เงื่อนไขถ่ายทอด: Co-Ownership','พัฒนาทีมใหม่: Operation + อำนาจตัดสินใจ','พัฒนาทีมใหม่: Tech/Digital/AI/Automation','พัฒนาทีมใหม่: รักษา Culture/Value PKG','พัฒนาทีมใหม่: สร้างธุรกิจใหม่'];
 
+/* ===== 🪜 บันไดการถ่ายทอดบทบาท 5 ขั้น (แนวทางกรอกของสมาชิกแต่ละทีม) ===== */
+const LADDER=[
+ {step:1,old:'นำ + เป็นเจ้าของร่วม',oldEn:'Lead + Co-Owner',neu:'เรียนรู้ + เป็นเจ้าของร่วม',neuEn:'Learn + Co-Owner',og:'กำกับสูงสุด / ใช้ Veto',ogEn:'Oversight สูงสุด + Veto',period:'2569 (ปีแรก — เข้มข้นสุด)'},
+ {step:2,old:'เจ้าของร่วม + พี่เลี้ยง',oldEn:'Co-Owner + Mentor',neu:'ลงมือทำ + ตัดสินใจ',neuEn:'Execute + Decision',og:'กำกับสูง → ปานกลาง',ogEn:'Oversight สูง → ปานกลาง',period:'2569–2570'},
+ {step:3,old:'พี่เลี้ยง + ที่ปรึกษา',oldEn:'Mentor + Advisor',neu:'เจ้าของงานหลัก',neuEn:'Primary Owner',og:'กำกับปานกลาง',ogEn:'Oversight ปานกลาง',period:'2571–2572'},
+ {step:4,old:'ที่ปรึกษา + กำกับดูแล',oldEn:'Advisor + Oversight',neu:'เจ้าของ Operation เต็มตัว',neuEn:'Full Operation Owner',og:'กำกับต่ำ',ogEn:'Oversight ต่ำ',period:'2572–2573'},
+ {step:5,old:'ที่ปรึกษา / พี่เลี้ยง',oldEn:'Advisor / Mentor',neu:'เป็นเจ้าของเต็มรูปแบบ',neuEn:'Full Ownership',og:'กำกับเฉพาะ Governance',ogEn:'Governance Only',period:'2573 (ส่งมอบเต็มรูปแบบ)'}
+];
+// คอลัมน์ที่สมาชิกแต่ละกลุ่มต้องโฟกัส (อ้างอิงตอนกรอก)
+function ladderColFor(g,m){ // OAC/GAT → คอลัมน์ OAC-GAT · ADM พี่เลี้ยง → ทีมเดิม · ADM ใหม่ → ทีมใหม่
+ if(g==='OAC'||g==='GAT')return 'og';
+ return (ADM_JUNIORS||[]).includes(m)?'neu':'old';
+}
+function ladderColLabel(col){return col==='og'?'OAC / GAT (คณะกำกับดูแล + ทีมตรวจสอบ)':col==='old'?'ทีมเดิม (ทีมที่ถ่ายทอด)':'ทีมใหม่ (ทีมที่รับช่วง)'}
+
 const LS='pkg_succession_members_v1';
 /* ☁️ เชื่อมชีตกลาง — Google Sheet "แผนสืบทอดบทบาท PKG" tab "SP-สมาชิกรายคน" */
 const GAS_URL='https://script.google.com/macros/s/AKfycbwGWjI5cZkt80HOC6JNrn9RtjwrDRuPa4DDjapM8-LosR4o00310pwcIoS_j8bKP1OW/exec';
@@ -252,7 +267,7 @@ function updateCloudBadge(){
 function saveDeb(){clearTimeout(window._sv);window._sv=setTimeout(()=>{save();toast('💾 บันทึกอัตโนมัติแล้ว');if(curMember)pushMember(curMember)},1200)}
 function rec(m){if(!DB[m])DB[m]=blank();return DB[m]}
 function save(){localStorage.setItem(LS,JSON.stringify(DB))}
-function blank(){return {meta:{company:'',note:''},resp:[],strat:[],links:[],okrs:[],alignNote:'',mentees:[],peers:[],cross:[]}}
+function blank(){return {meta:{company:'',note:''},resp:[],strat:[],links:[],okrs:[],alignNote:'',mentees:[],peers:[],cross:[],step:'',timeline:''}}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
 function saveDebOld_removed(){}
@@ -279,7 +294,7 @@ function renderMain(){
    <div class="text-xs mt-2">แต่ละคนมี tab ของตนเอง — กรอก/แก้ไข: งานรับผิดชอบ · กลยุทธ์ (BSC) · ความเชื่อมโยงข้ามระดับ · OKR/KPI เทียบเป้าหมาย</div>
    <div class="text-xs mt-3 text-slate-400">💾 บันทึกอัตโนมัติลงเครื่อง (localStorage) · ⬇️ Export CSV/JSON ได้ทุกเมื่อ</div></div>`;return}
  const g=GROUP_OF[curMember],c=ORG[g],r=rec(curMember);
- const tabs=[['resp','📋 งานที่รับผิดชอบ'],['strat','🎯 กลยุทธ์ (BSC)'],['links','🔗 บทบาทเชื่อมโยง'],['okr','📏 OKR / KPI'],['align','✅ สอดคล้องเป้าหมาย']];
+ const tabs=[['resp','📋 งานที่รับผิดชอบ'],['ladder','🪜 บันไดถ่ายทอด'],['strat','🎯 กลยุทธ์ (BSC)'],['links','🔗 บทบาทเชื่อมโยง'],['okr','📏 OKR / KPI'],['align','✅ สอดคล้องเป้าหมาย']];
  el.innerHTML=`
  <div class="card bg-white rounded-2xl p-5 border-t-4 mb-4" style="border-top-color:${c.hex}">
   <div class="flex flex-wrap items-center justify-between gap-3">
@@ -313,6 +328,7 @@ function setTab(t){curTab=t;renderMain()}
 function renderTab(){
  const b=document.getElementById('tabBody');
  if(curTab==='resp')b.innerHTML=tabResp();
+ else if(curTab==='ladder')b.innerHTML=tabLadder();
  else if(curTab==='strat')b.innerHTML=tabStrat();
  else if(curTab==='links')b.innerHTML=tabLinks();
  else if(curTab==='okr')b.innerHTML=tabOKR();
@@ -463,6 +479,51 @@ function menteeBlock(m){
 function toggleMentee(n){const r=rec(curMember);r.mentees=r.mentees||[];const i=r.mentees.indexOf(n);const kind=menteeRules(GROUP_OF[curMember]).kind;i>=0?r.mentees.splice(i,1):r.mentees.push(n);save();renderTab();pushMember(curMember);toast(i>=0?`เอา "${n}" ออกจาก${kind==='mentor'?'พี่เลี้ยง':'น้องเลี้ยง'}แล้ว`:`เลือก "${n}" เป็น${kind==='mentor'?'พี่เลี้ยง':'น้องเลี้ยง'}แล้ว ✅`)}
 function togglePeer(n){const r=rec(curMember);r.peers=r.peers||[];const i=r.peers.indexOf(n);i>=0?r.peers.splice(i,1):r.peers.push(n);save();renderTab();pushMember(curMember);toast(i>=0?`เอา "${n}" ออกจากร่วมเลี้ยงแล้ว`:`เลือก "${n}" ร่วมเลี้ยงแล้ว ✅`)}
 function toggleCross(n){const r=rec(curMember);r.cross=r.cross||[];const i=r.cross.indexOf(n);i>=0?r.cross.splice(i,1):r.cross.push(n);save();renderTab();pushMember(curMember);toast(i>=0?`เอา "${n}" ออกจากสืบทอดข้ามสายงานแล้ว`:`เลือก "${n}" สืบทอดข้ามสายงานแล้ว ✅`)}
+
+/* ========== TAB 1.5: บันไดการถ่ายทอดบทบาท ========== */
+function tabLadder(){
+ const r=rec(curMember);const g=GROUP_OF[curMember];
+ const col=ladderColFor(g,curMember);
+ const myRow=LADDER.find(x=>String(x.step)===String(r.step||''));
+ const isMentor=g==='ADM'&&(ADM_JUNIORS||[]).includes(curMember)?false:g==='ADM';
+ const chipTxt=r.step?('ขั้น '+r.step+' — '+(myRow?myRow[col]:'')):'ยังไม่ระบุขั้น';
+ const stepRows=LADDER.map(x=>{
+  const on=String(x.step)===String(r.step||'');
+  return `<tr class="border-b border-slate-100 last:border-0 ${on?'bg-indigo-50/70':''}">
+   <td class="px-2 py-2 align-top"><button type="button" onclick="setStep(${x.step})" class="align-tag ${on?'on':'off'}" style="font-size:12px">ขั้น ${x.step}${on?' ✓':''}</button></td>
+   <td class="px-2 py-2 align-top text-slate-700"><b>${x.old}</b><div class="text-[10px] text-slate-400">${x.oldEn}</div></td>
+   <td class="px-2 py-2 align-top text-slate-700"><b>${x.neu}</b><div class="text-[10px] text-slate-400">${x.neuEn}</div></td>
+   <td class="px-2 py-2 align-top text-slate-700"><b>${x.og}</b><div class="text-[10px] text-slate-400">${x.ogEn}</div></td>
+   <td class="px-2 py-2 align-top text-slate-500 text-[11px]">${x.period}</td>
+  </tr>`;
+ }).join('');
+ return `
+ <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 mb-4">
+  <div class="text-sm font-extrabold text-rose-800">🪜 บันไดการถ่ายทอดบทบาท (PKG Succession Plan) — 5 ขั้น</div>
+  <div class="text-[12px] text-rose-700 mt-1 leading-relaxed">ยิ่งขยับขั้นสูงขึ้น → ทีมเดิมค่อย ๆ ถอยจาก "ลงมือทำ" ไปเป็น "ให้คำปรึกษา" · ทีมใหม่ขยับจาก "เรียนรู้" → "เป็นเจ้าของเต็มตัว" · OAC/GAT ลดความเข้มข้นจาก "กำกับสูงสุด + Veto" → "กำกับเฉพาะ Governance"</div>
+ </div>
+ <div class="overflow-x-auto rounded-xl border border-slate-200 mb-4">
+  <table class="w-full text-[12px] border-collapse min-w-[640px]">
+   <thead><tr class="bg-slate-100 text-slate-700">
+    <th class="px-2 py-2 text-left">ขั้น</th><th class="px-2 py-2 text-left">ทีมเดิม</th><th class="px-2 py-2 text-left">ทีมใหม่</th><th class="px-2 py-2 text-left">OAC / GAT</th><th class="px-2 py-2 text-left">ช่วงเวลา</th>
+   </tr></thead>
+   <tbody>${stepRows}</tbody>
+  </table>
+ </div>
+ <div class="rounded-xl border border-indigo-200 bg-indigo-50/60 p-4 mb-4">
+  <div class="text-sm font-extrabold text-indigo-800">🧭 คอลัมน์ที่ ${curMember} ต้องโฟกัส: <span class="badge" style="background:#eef2ff;color:#4338ca;border-color:#c7d2fe">${ladderColLabel(col)}</span></div>
+  <div class="text-[12px] text-slate-600 mt-1 leading-relaxed">${isMentor?'คุณคือทีมเดิม (พี่เลี้ยง) — ดูคอลัมน์ "ทีมเดิม": ระบุขั้นที่คุณกำลัง "นำ + ถ่ายทอด" ให้ทีมใหม่ และระยะเวลาที่จะถ่ายทอด':g==='ADM'?'คุณคือทีมใหม่ — ดูคอลัมน์ "ทีมใหม่": ระบุขั้นที่คุณกำลัง "เรียนรู้/ลงมือทำ" และระยะเวลาที่จะรับช่วงเต็มตัว':g==='OAC'?'คุณคือ OAC — ดูคอลัมน์ "OAC / GAT": ระบุระดับกำกับที่คุณอยู่ และช่วงเวลาที่จะลดความเข้มข้น':'คุณคือ GAT — ดูคอลัมน์ "OAC / GAT": ระบุระดับการตรวจสอบ/กำกับ และช่วงเวลาที่จะลดความเข้มข้น'}</div>
+ </div>
+ <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+  <div><span class="lbl">🪜 ขั้นปัจจุบันของฉันในบันไดถ่ายทอด (เลือกจากตารางด้านบน)</span>
+   <input type="text" readonly value="${chipTxt}" placeholder="— คลิกเลือกขั้นในตารางด้านบน —" style="background:#f8fafc"></div>
+  <div><span class="lbl">⏱ ระยะเวลาการถ่ายทอดบทบาทของฉัน (แผนงาน/ไทม์ไลน์)</span>
+   <input type="text" value="${esc(r.timeline||'')}" placeholder="เช่น 2569–2570 ถ่ายทอดคู่กับพี่เลี้ยง …, 2571–2572 รับช่วงหลัก, 2573 ส่งมอบเต็มรูปแบบ" onchange="updField('timeline',this.value)"></div>
+ </div>
+ <div class="text-[11px] text-slate-400">💾 บันทึกอัตโนมัติ + อัปโหลดเข้าชีตกลาง (SP-สมาชิกรายคน) ทันที — ข้อมูล "ช่วงเวลา" ของแต่ละขั้นในตารางเป็นแนวทางคร่าว ๆ (2569 = ปีแรกเข้มข้นสุด → 2573 = ส่งมอบเต็มรูปแบบ) ปรับได้ตามแผนของแต่ละคน</div>`;
+}
+function setStep(n){rec(curMember).step=String(n);save();renderTab();pushMember(curMember);toast('ตั้งขั้นบันไดถ่ายทอด = ขั้น '+n+' ✅')}
+function updField(f,v){rec(curMember)[f]=v;saveDeb()}
 
 /* ========== TAB 2: กลยุทธ์ (BSC) ========== */
 function tabStrat(){
@@ -685,6 +746,7 @@ function importJSON(ev){
 function exportCSV(){
  const rows=[];const head=['member','group','level','section','item_no','field1','field2','field3','field4','field5','field6','field7'];
  ALL_MEMBERS.forEach(m=>{const r=DB[m];if(!r)return;const g=GROUP_OF[m],c=ORG[g];
+  if(r.step||r.timeline)rows.push([m,g,c.levelTxt,'บันไดถ่ายทอด',1,r.step||'',r.timeline||'','','','','','']);
   (r.resp||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'งานรับผิดชอบ',i+1,x.title,RESP_TYPES.find(t=>t[0]===x.type)?.[1]||x.type,x.mainRole||'',x.detail,x.period,x.status,'']));
   (r.strat||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'กลยุทธ์',i+1,x.bsc,x.name,x.how,x.goal,x.involve,'','']));
   (r.links||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'เชื่อมโยง',i+1,x.dir,x.toGroup,x.toName,(x.mechs||[]).map(v=>MECHS.find(t=>t[0]===v)?.[1]||v).join('; '),x.detail,'','']));
