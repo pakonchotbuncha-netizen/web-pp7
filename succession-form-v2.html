@@ -411,12 +411,12 @@ input:focus,textarea:focus,select:focus{outline:2px solid #6366f1;outline-offset
 <div id="rec-list" class="mt-3 space-y-2 text-sm"></div>
 </div>
 
-<div class="text-xs text-slate-400 mt-6 text-center">GAS_URL placeholder ว่าง — ใส่ URL เมื่อพร้อมเชื่อม Google Sheets • localStorage key: <code>pkg_succession_v2</code> • ใช้คำว่า "บทบาท" ตลอด • Web PP7</div>
+<div class="text-xs text-slate-400 mt-6 text-center">บันทึกลง Google Sheets (tab SP-บันทึกประเด็น) • localStorage key: <code>pkg_succession_v2</code> • ใช้คำว่า "บทบาท" ตลอด • Web PP7</div>
 </main>
 
 <script src="succession-lia-data.js"></script>
 <script>
-const GAS_URL = ""; // placeholder
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwGWjI5cZkt80HOC6JNrn9RtjwrDRuPa4DDjapM8-LosR4o00310pwcIoS_j8bKP1OW/exec"; // backend กลาง (deploy แล้ว)
 
 const OAC = ["คุณประวิทย์","พี่ต๋อง","พี่ก้อย"];
 const GAT = ["พี่อ๊อด"]; // GAT = ตรวจสอบ (Audit) — พี่อ๊อด (1 คน)
@@ -563,11 +563,41 @@ document.getElementById('sf-form').addEventListener('submit',async e=>{
  const all=getAll();all.push(d);saveAll(all);render();
  toast('บันทึกแล้ว (#'+all.length+')');
  if(GAS_URL){
-  try{await fetch(GAS_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(d)});toast('ส่ง GAS แล้ว')}catch{}
+  // แปลงข้อมูลฟอร์ม v2 → รูปแบบ submitSuccessionEntry (HEADERS 25 คอลัมน์ของ tab SP-บันทึกประเด็น)
+  const payload={
+   action:'submitSuccessionEntry',
+   spreadsheetId:'1MKbtnxe8bYFXhTSDqybQ752mGdIO8UOU-Z41xBjvJSs',
+   data:{
+    a1_name:d.q1_name, a2_company:d.q4_company, a3_role:d.q3_nameingroup||d.q2_group, a4_date:d.q6_date,
+    b1_roles:d.q7_roles,
+    b2_text:d.q9_impact_text, b2_level:d.q9_level,
+    b3_spof:d.q10_spof,
+    b4_successors:[d.q11_oac,d.q11_gat,d.q11_adm].filter(Boolean).join(' | ')+(d.q11_other?' | '+d.q11_other:''),
+    b5_obstacles:d.q12_channels, b5_other:d.q12_other,
+    c1_text:d.q13_cover_exp, c1_level:d.q13_diff,
+    c2_period:d.q15_duration,
+    c3_formats:d.q14, c4_readiness:d.q17,
+    c5_gat:d.q20_gat,
+    c6_systems:d.q22, c6_detail:d.q22_detail,
+    d1_suggestions:d.q26_other||d.q23_culture, d2_willing:d.q24_willing, d3_urgency:d.q25_urgency,
+    savedAt:d._ts, id:'V2'+Date.now().toString(36)+Math.random().toString(36).slice(2,6)
+   }
+  };
+  try{
+   await fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+   toast('ส่ง GAS แล้ว')
+  }catch(err){
+   // ส่งไม่สำเร็จ → เก็บเข้า queue รอ gas-retry.js ส่งซ้ำภายหลัง
+   try{
+    const q=JSON.parse(localStorage.getItem('pkg_gas_retry_v2')||'[]');q.push(payload);localStorage.setItem('pkg_gas_retry_v2',JSON.stringify(q));
+    toast('☁️ ออฟไลน์ — เก็บเข้าคิวส่งซ้ำแล้ว')
+   }catch(e2){toast('⚠️ ส่ง GAS ไม่ได้')}
+  }
  }
 });
 document.getElementById('q2_group').addEventListener('change',populateNames);
 document.addEventListener('DOMContentLoaded',()=>{document.getElementById('q6_date').valueAsDate=new Date();populateNames();render()});
 </script>
+<script src="gas-retry.js"></script>
 </body>
 </html>

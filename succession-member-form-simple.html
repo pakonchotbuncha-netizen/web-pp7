@@ -137,7 +137,7 @@ const ROLES={
  ADM:['ADM — พี่เลี้ยง (ทีมเดิม)','ADM — ทีมใหม่ (รับช่วงงาน)']
 };
 const LS='pkg_succession_member_simple';
-const GAS_URL=''; // ← ใส่ URL หลัง deploy Apps Script เพื่อบันทึกลง Google Sheet
+const GAS_URL='https://script.google.com/macros/s/AKfycbwGWjI5cZkt80HOC6JNrn9RtjwrDRuPa4DDjapM8-LosR4o00310pwcIoS_j8bKP1OW/exec'; // backend กลาง (deploy แล้ว) — saveMember → tab SP-สมาชิกรายคน
 async function pushSheet(rec,formType){
  if(!GAS_URL)return;
  const nc=rec.ncass||{},okr=rec.okr||{},pl=rec.plan||{},m=rec.mentor||{};
@@ -152,12 +152,19 @@ async function pushSheet(rec,formType){
   plan_cond:JSON.stringify(pl.cond||{}),plan_coown:pl.coown||'',plan_timeline:pl.timeline||'',
   mentor_mv:JSON.stringify(m.mv||{}),mentor_mh:JSON.stringify(m.mh||{}),mentor_my:JSON.stringify(m.my||[]),
   savedAt:rec.savedAt||''};
+ const payload={action:'saveMember',member:(rec.nick||''),group:(rec.group||''),level:'',data:flat};
  try{
-  const res=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'saveMemberForm',data:flat})});
-  const j=await res.json();
+  const res=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+  let j=null;try{j=await res.json()}catch(e){}
   if(j&&j.success){toast('☁️ บันทึกลง Google Sheet แล้ว (แถว '+j.row+')');}
-  else{toast('☁️ ชีต: '+((j&&j.message)||'ผิดพลาด'));}
- }catch(err){toast('⚠️ ส่งชีตไม่สำเร็จ: '+err.message);}
+  else if(res.ok){toast('☁️ บันทึกลง Google Sheet แล้ว');}
+  else{throw new Error((j&&j.message)||('HTTP '+res.status));}
+ }catch(err){
+  toast('⚠️ ส่งชีตไม่สำเร็จ: '+err.message);
+  // ส่งไม่สำเร็จ → เก็บ payload เข้า queue รอ gas-retry.js ส่งซ้ำภายหลัง
+  try{const q=JSON.parse(localStorage.getItem('pkg_gas_retry')||'[]');q.push(payload);localStorage.setItem('pkg_gas_retry',JSON.stringify(q));}
+  catch(e2){}
+ }
 }
 
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -261,5 +268,6 @@ function exportCSV(){
 }
 renderChips('');
 </script>
+<script src="gas-retry.js"></script>
 </body>
 </html>

@@ -538,9 +538,8 @@
     const LS_KEY = 'pkg_succession_entries';
     const LS_META_KEY = 'pkg_succession_last_meta';
     const SPREADSHEET_ID = '1MKbtnxe8bYFXhTSDqybQ752mGdIO8UOU-Z41xBjvJSs';
-    // ยังไม่มี Web App (GAS) ที่ deploy สำหรับชีต Succession → ปล่อยว่างไว้ก่อน
-    // เมื่อ deploy เสร็จ เอา URL มาวางตรงนี้ ระบบจะ POST ให้อัตโนมัติ
-    const GAS_URL = '';
+    // Backend กลาง (deploy แล้ว) — รับ POST {action:'submitSuccessionEntry', spreadsheetId, data}
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwGWjI5cZkt80HOC6JNrn9RtjwrDRuPa4DDjapM8-LosR4o00310pwcIoS_j8bKP1OW/exec';
 
     // ================= Utils =================
     function esc(s) {
@@ -692,7 +691,15 @@
       if (GAS_URL) {
         const r = await pushToSheets(record);
         if (r.status === 'error') {
-          showToast('☁️ ส่ง Google Sheets ไม่ได้ (บันทึกในเครื่องแล้ว): ' + r.error.slice(0, 60));
+          // ส่งไม่สำเร็จ → เก็บ payload เข้า queue รอ gas-retry.js ส่งซ้ำภายหลัง
+          try {
+            const q = JSON.parse(localStorage.getItem('pkg_gas_retry_v2') || '[]');
+            q.push({ action: 'submitSuccessionEntry', spreadsheetId: SPREADSHEET_ID, data: record });
+            localStorage.setItem('pkg_gas_retry_v2', JSON.stringify(q));
+            showToast('☁️ ส่ง Google Sheets ไม่ได้ — เก็บเข้าคิวส่งซ้ำแล้ว');
+          } catch (e) {
+            showToast('☁️ ส่ง Google Sheets ไม่ได้ (บันทึกในเครื่องแล้ว): ' + r.error.slice(0, 60));
+          }
           setCloudStatus('error');
         } else if (r.success) {
           setCloudStatus('ok');
@@ -934,5 +941,6 @@
     renderAll();
     setCloudStatus(GAS_URL ? 'warn' : 'skip');
   </script>
+  <script src="gas-retry.js"></script>
 </body>
 </html>
