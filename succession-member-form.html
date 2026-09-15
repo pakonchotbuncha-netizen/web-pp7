@@ -549,17 +549,38 @@ function unflattenV3(d){
     savedAt:d.savedAt||''
   };
 }
+/* แปลงข้อมูลจากหน้าแยก tab รายคน (resp/strat เป็น array) → โครง v3 เพื่อ seed ประวัติ */
+function tabsToV3(nick,d){
+  const respArr=Array.isArray(d.resp)?d.resp:[];
+  const respTxt=respArr.map(x=>'• '+(x&&x.title||'')+(x&&x.mainRole&&x.mainRole!==x.title?' ('+x.mainRole+')':'')+(x&&x.detail?': '+x.detail:'')).join('\n');
+  const stratArr=Array.isArray(d.strat)?d.strat:[];
+  const okrArr=Array.isArray(d.okrs)?d.okrs:[];
+  const okrTxt=okrArr.map(o=>(o&&o.objective?'🎯 '+(o.objective.includes('Obj')?o.objective:'Objective: '+o.objective):'')+(o&&Array.isArray(o.krs)?o.krs.map(k=>'\n  - KR: '+(k&&k.kr||'')).join(''):'')).join('\n');
+  return {
+    formType:'tab',nick:nick,full:'',group:'',teamRole:'',roles:[],roleOpts:[],
+    ncass:{bu:{p:'',v:''},team:{p:'',v:''},per:{p:'',v:''}},
+    resp:respTxt,bsc:stratArr.map(s=>(s&&s.name)||'').filter(Boolean),cover:d.alignNote||'',note:(d.meta&&d.meta.note)||'',
+    okr:{b:okrTxt,t:'',p:''},
+    plan:{cond:{},coown:'',timeline:d.plan_timeline||d.timeline||'',step:d.plan_step||d.step||'',phases:Array.isArray(d.plan_phases)?d.plan_phases:(Array.isArray(d.phases)?d.phases:[])},
+    mentor:{mv:{},mh:{},my:[]},
+    savedAt:d.savedAt||''
+  };
+}
 async function pullCloudForm(){
   if(!GAS_URL)return;
   try{
-    const res=await fetch(GAS_URL+'?action=listMembers',{cache:'no-store'});
+    const res=await fetch(GAS_URL+'?action=listMembers&t='+Date.now(),{cache:'no-store'});
     const j=await res.json();
     if(!j||!j.success)return;
     const A=all(),H=histAll();let added=0,seeded=0;
     (j.members||[]).forEach(cm=>{
       const nick=String(cm.member||'').trim(),d=cm.data||{};
-      if(!nick||d.formType!=='v3')return;
-      const rec=unflattenV3(d);
+      if(!nick)return;
+      const isV3=d.formType==='v3';
+      const hasTabs=!isV3&&(Array.isArray(d.resp)?d.resp.length>0:Array.isArray(d.strat)?d.strat.length>0:!!(d.plan_step||d.step));
+      if(!isV3&&!hasTabs)return;
+      const rec=isV3?unflattenV3(d):tabsToV3(nick,d);
+      if(!rec.savedAt)rec.savedAt=cm.timestamp||'';
       if(!A[nick]||!A[nick].savedAt){A[nick]=rec;added++}
       if(!H[nick]||!H[nick].length){H[nick]=[JSON.parse(JSON.stringify(rec))];seeded++}
     });
