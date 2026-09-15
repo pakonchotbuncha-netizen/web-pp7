@@ -271,13 +271,13 @@ function pick(n){
   <div><div class="text-sm font-extrabold text-violet-700 mb-2">⬆️ แนวดิ่ง — ใครดูแลฉัน</div>${o.mentorV.length?o.mentorV.map((m,i)=>mrow(m,i,'mv')).join(''):'<div class="tip">— ไม่มีข้อมูลเดิม —</div>'}</div>
   <div><div class="text-sm font-extrabold text-sky-700 mb-2">↔️ แนวราบ — เพื่อนที่ปรึกษากัน</div>${o.mentorH.length?o.mentorH.map((m,i)=>mrow(m,i,'mh')).join(''):'<div class="tip">— ไม่มีข้อมูลเดิม (กรอกเพิ่มได้ด้านล่าง) —</div>'}</div>
  </div>
- <div class="mt-3 text-xs font-bold text-slate-500">ฉันเป็นพี่เลี้ยงให้ใคร</div>
+ <div class="mt-3 text-xs font-bold text-slate-500">ฉันเป็นพี่เลี้ยงให้ใคร <span class="font-normal text-slate-400">(ชื่อ “น้อง” ที่ฉันดูแล)</span></div>
  <div id="mymentor"></div>
  <button class="btn mt-2 text-xs" onclick="addMy()">＋ เพิ่ม</button>`;
  document.getElementById('save_state').innerHTML=d.savedAt?`💾 บันทึกล่าสุด: ${new Date(d.savedAt).toLocaleString('th-TH')}`:'ยังไม่ได้บันทึก';
  window.scrollTo({top:0,behavior:'smooth'});
 }
-function addMy(){const b=document.getElementById('mymentor');const r=document.createElement('div');r.className='flex gap-2 mt-1';r.innerHTML='<input type="text" class="myname" placeholder="ชื่อ"/><input type="text" class="myside" placeholder="ด้านที่ดูแล"/>';b.appendChild(r)}
+function addMy(){const b=document.getElementById('mymentor');const r=document.createElement('div');r.className='flex gap-2 mt-1';r.innerHTML='<input type="text" class="myname" placeholder="ชื่อน้องเลี้ยง (คนที่ฉันดูแล)"/><input type="text" class="myside" placeholder="ด้านที่ฉันดูแลเขา"/>';b.appendChild(r)}
 function saveOne(){
  if(!cur){toast('เลือกชื่อก่อน');return}
  const roles=[...document.querySelectorAll('.role:checked')].map(e=>e.value);
