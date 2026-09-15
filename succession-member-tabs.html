@@ -217,7 +217,7 @@ function ladderColLabel(col){return col==='og'?'OAC / GAT (คณะกำกั
 
 const LS='pkg_succession_members_v1';
 /* ☁️ เชื่อมชีตกลาง — Google Sheet "แผนสืบทอดบทบาท PKG" tab "SP-สมาชิกรายคน" */
-const GAS_URL='https://script.google.com/macros/s/AKfycbwGWjI5cZkt80HOC6JNrn9RtjwrDRuPa4DDjapM8-LosR4o00310pwcIoS_j8bKP1OW/exec';
+const GAS_URL='https://script.google.com/macros/s/AKfycbwfbwJgOhzH4EgrgpCtYVsYUuwhhDBAJd0eIN1O0fB9GzdkZpxd6W9KJsZWVgDdgg2N/exec';
 let DB={}; try{DB=JSON.parse(localStorage.getItem(LS)||'{}')}catch{DB={}}
 let curMember=null, curTab='resp', curGroup='ALL';
 let cloudOk=null; // null=ยังไม่รู้, true/false
@@ -243,7 +243,7 @@ async function pullCloud(){
  if(!GAS_URL){toast('ยังไม่ได้ตั้ง GAS_URL');return}
  toast('⏳ กำลังโหลดจากชีตกลาง…');
  try{
-  const res=await fetch(GAS_URL+'?action=listMembers');
+  const res=await fetch(GAS_URL+'?action=listMembers&t='+Date.now());
   const j=await res.json();
   cloudOk=!!j.success;
   let n=0;

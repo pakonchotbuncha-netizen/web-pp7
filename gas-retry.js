@@ -8,7 +8,7 @@
 (function () {
   'use strict';
 
-  var GAS_RETRY_URL = 'https://script.google.com/macros/s/AKfycbwGWjI5cZkt80HOC6JNrn9RtjwrDRuPa4DDjapM8-LosR4o00310pwcIoS_j8bKP1OW/exec';
+  var GAS_RETRY_URL = 'https://script.google.com/macros/s/AKfycbwfbwJgOhzH4EgrgpCtYVsYUuwhhDBAJd0eIN1O0fB9GzdkZpxd6W9KJsZWVgDdgg2N/exec';
 
   function readQueue(key) {
     try {
