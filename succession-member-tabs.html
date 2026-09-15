@@ -484,13 +484,14 @@ function toggleCross(n){const r=rec(curMember);r.cross=r.cross||[];const i=r.cro
 function tabLadder(){
  const r=rec(curMember);const g=GROUP_OF[curMember];
  const col=ladderColFor(g,curMember);
- const myRow=LADDER.find(x=>String(x.step)===String(r.step||''));
+ const steps=String(r.step||'').split(',').map(s=>s.trim()).filter(Boolean);
+ const myRow=LADDER.find(x=>String(x.step)===String(steps[steps.length-1]||''));
  const isMentor=g==='ADM'&&(ADM_JUNIORS||[]).includes(curMember)?false:g==='ADM';
- const chipTxt=r.step?('ขั้น '+r.step+' — '+(myRow?myRow[col]:'')):'ยังไม่ระบุขั้น';
+ const chipTxt=steps.length?('ขั้น '+steps.join(', ')+' — '+(myRow?myRow[col]:'')):'ยังไม่ระบุขั้น';
  const stepRows=LADDER.map(x=>{
-  const on=String(x.step)===String(r.step||'');
+  const on=steps.includes(String(x.step));
   return `<tr class="border-b border-slate-100 last:border-0 ${on?'bg-indigo-50/70':''}">
-   <td class="px-2 py-2 align-top"><button type="button" onclick="setStep(${x.step})" class="align-tag ${on?'on':'off'}" style="font-size:12px">ขั้น ${x.step}${on?' ✓':''}</button></td>
+   <td class="px-2 py-2 align-top"><button type="button" onclick="toggleStep(${x.step})" class="align-tag ${on?'on':'off'}" style="font-size:12px">ขั้น ${x.step}${on?' ✓':''}</button></td>
    <td class="px-2 py-2 align-top text-slate-700"><b>${x.old}</b><div class="text-[10px] text-slate-400">${x.oldEn}</div></td>
    <td class="px-2 py-2 align-top text-slate-700"><b>${x.neu}</b><div class="text-[10px] text-slate-400">${x.neuEn}</div></td>
    <td class="px-2 py-2 align-top text-slate-700"><b>${x.og}</b><div class="text-[10px] text-slate-400">${x.ogEn}</div></td>
@@ -522,7 +523,8 @@ function tabLadder(){
  </div>
  <div class="text-[11px] text-slate-400">💾 บันทึกอัตโนมัติ + อัปโหลดเข้าชีตกลาง (SP-สมาชิกรายคน) ทันที — ข้อมูล "ช่วงเวลา" ของแต่ละขั้นในตารางเป็นแนวทางคร่าว ๆ (2569 = ปีแรกเข้มข้นสุด → 2573 = ส่งมอบเต็มรูปแบบ) ปรับได้ตามแผนของแต่ละคน</div>`;
 }
-function setStep(n){rec(curMember).step=String(n);save();renderTab();pushMember(curMember);toast('ตั้งขั้นบันไดถ่ายทอด = ขั้น '+n+' ✅')}
+function toggleStep(n){const r=rec(curMember);const arr=String(r.step||'').split(',').map(s=>s.trim()).filter(Boolean);const k=String(n);if(arr.includes(k))arr.splice(arr.indexOf(k),1);else arr.push(k);arr.sort();r.step=arr.join(',');save();renderTab();pushMember(curMember);toast(arr.length?('ขั้นบันไดถ่ายทอดของฉัน: ขั้น '+arr.join(', ')+' ✅'):'ยกเลิกการเลือกขั้นแล้ว')}
+function setStep(n){toggleStep(n)}
 function updField(f,v){rec(curMember)[f]=v;saveDeb()}
 
 /* ========== TAB 2: กลยุทธ์ (BSC) ========== */

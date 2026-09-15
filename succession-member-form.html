@@ -336,10 +336,11 @@ function renderPlan(n,d,o){
  const st=(d.plan&&d.plan.cond)||{};
  const col=g==='ADM'?(tr==='ทีมใหม่'?'neu':'old'):'og';
  const isJunior=g==='ADM'&&tr==='ทีมใหม่';
- const myStep=(d.plan&&d.plan.step)||'';
- const myRow=LADDER.find(x=>String(x.step)===String(myStep));
+ const myStepRaw=(d.plan&&d.plan.step)||'';
+ const mySteps=String(myStepRaw).split(',').map(s=>s.trim()).filter(Boolean);
+ const myRow=LADDER.find(x=>String(x.step)===String(mySteps[mySteps.length-1]||''));
  const colLbl=col==='og'?'OAC / GAT (คณะกำกับดูแล + ทีมตรวจสอบ)':col==='old'?'ทีมเดิม (ทีมที่ถ่ายทอด)':'ทีมใหม่ (ทีมที่รับช่วง)';
- const ladderRows=LADDER.map(x=>{const on=String(x.step)===String(myStep);return `<option value="${x.step}" ${on?'selected':''}>ขั้น ${x.step} — ${x[col]}${x.period?' (':''}${x.period?x.period:''}${x.period?')':''}</option>`}).join('');
+ const stepChips=LADDER.map(x=>{const on=mySteps.includes(String(x.step));return `<label class="inline-flex items-center gap-1.5 text-[11px] border rounded-lg px-2 py-1.5 bg-white ${on?'border-rose-400 ring-1 ring-rose-300':'border-slate-200'}" style="cursor:pointer"><input type="checkbox" class="plan_step_chk" value="${x.step}" ${on?'checked':''}> <b>ขั้น ${x.step}</b> <span class="text-slate-500">${x[col]}${x.period?' ('+x.period+')':''}</span></label>`}).join('');
  const roleTxt = g==='OAC' ? 'อยู่ <b>OAC</b> — กำกับ ดูแล ให้คำปรึกษา (Oversight/Advise/Review/Veto)'
    : g==='GAT' ? 'อยู่ <b>GAT</b> — ตรวจสอบการดำเนินงาน/ความเสี่ยง/Compliance/ผลลัพธ์ + รายงานต่อ OAC'
    : 'อยู่ <b>ADM</b> — '+(tr==='ทีมเดิม (พี่เลี้ยง)'?'ทีเดิม ทำหน้าที่ Mentor/Coach ถ่ายทอด รักษามาตรฐาน (Co-Ownership)':'ทีมใหม่ รับ Operation + อำนาจตัดสินใจ + Tech/Digital/AI + สร้างธุรกิจใหม่');
@@ -413,9 +414,9 @@ function renderPlan(n,d,o){
   <div class="text-[12px] text-slate-600 leading-relaxed">ตาราง 5 ขั้น: ทีมเดิมค่อย ๆ ถอยจาก “ลงมือทำ” → “ให้คำปรึกษา” · ทีมใหม่ขยับจาก “เรียนรู้” → “เป็นเจ้าของเต็มตัว” · OAC/GAT ลดความเข้มข้น “กำกับสูงสุด+Veto” → “กำกับเฉพาะ Governance”</div>
   ${ladderTable}
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
-   <div><label class="q-label text-sm">ขั้นที่ฉันอยู่ตอนนี้ (คอลัมน์: ${colLbl})</label>
-    <select id="plan_step"><option value="">— เลือกขั้น —</option>${ladderRows}</select>
-    ${myStep&&myRow?`<div class="text-[11px] text-rose-700 mt-1">${isJunior?'ทีมใหม่':'ทีมเดิม'} · ${myRow[col]}</div>`:''}</div>
+   <div><label class="q-label text-sm">ขั้นที่ฉันอยู่ตอนนี้ (คอลัมน์: ${colLbl}) — <span class="text-rose-600">เลือกได้หลายขั้นตามความเป็นจริง</span></label>
+    <div class="flex flex-wrap gap-1.5 mt-1">${stepChips}</div>
+    ${mySteps.length&&myRow?`<div class="text-[11px] text-rose-700 mt-1">${isJunior?'ทีมใหม่':'ทีมเดิม'} · ขั้นที่เลือก: ${mySteps.map(s=>'ขั้น '+s).join(', ')}</div>`:''}</div>
    <div><label class="q-label text-sm">⏱ ระยะเวลาการถ่ายทอดของฉัน</label>
     <input type="text" id="plan_timeline2" value="${esc((p.timeline)||'')}" placeholder="เช่น 2569–2570 ถ่ายทอดคู่กับพี่เลี้ยง…, 2571–2572 รับช่วงหลัก, 2573 ส่งมอบเต็มรูปแบบ"></div>
   </div>
@@ -460,7 +461,7 @@ function saveOne(){
  const nc={};document.querySelectorAll('#cmp_body textarea[id^=np_],#cmp_body textarea[id^=nv_]').forEach(t=>{const k=t.id.replace(/^n[pc]_/,'');nc[k]=nc[k]||{};if(t.id.startsWith('np_'))nc[k].p=t.value.trim();else nc[k].v=t.value.trim()});
  const okr={};document.querySelectorAll('textarea[id^=okr_]').forEach(t=>okr[t.id.replace('okr_','')]=t.value.trim());
  const cond={};document.querySelectorAll('.plan_cond').forEach(s=>cond[s.dataset.i]=s.value);
- const plStep=document.getElementById('plan_step')?document.getElementById('plan_step').value:'';
+ const plStep=[...document.querySelectorAll('.plan_step_chk:checked')].map(e=>e.value).join(',');
  const plTime=document.getElementById('plan_timeline2')?document.getElementById('plan_timeline2').value.trim():idv('plan_timeline');
  const plPhases=PHASES.map((_,i)=>{const e=document.querySelector('.plan_phase[data-i="'+i+'"]');return e?e.value.trim():''});
  const mv={},mh={};document.querySelectorAll('.mv').forEach(t=>mv[t.dataset.i]=t.value.trim());document.querySelectorAll('.mh').forEach(t=>mh[t.dataset.i]=t.value.trim());

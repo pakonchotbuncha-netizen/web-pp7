@@ -95,15 +95,8 @@ input:focus,textarea:focus{outline:2px solid #6366f1;outline-offset:1px;border-c
 <div id="ladder_preview" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 mb-3"></div>
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
 <div>
-<label class="text-sm font-semibold">ขั้นที่ฉันอยู่ตอนนี้ (ตามคอลัมน์ทีมของฉัน)</label>
-<select id="plan_step">
-<option value="">— เลือกขั้น —</option>
-<option value="1">ขั้น 1 — นำ + เป็นเจ้าของร่วม (2569)</option>
-<option value="2">ขั้น 2 — เจ้าของร่วม + พี่เลี้ยง (2569–2570)</option>
-<option value="3">ขั้น 3 — พี่เลี้ยง + ที่ปรึกษา (2571–2572)</option>
-<option value="4">ขั้น 4 — ที่ปรึกษา + กำกับดูแล (2572–2573)</option>
-<option value="5">ขั้น 5 — เป็นเจ้าของเต็มรูปแบบ (2573)</option>
-</select>
+<label class="text-sm font-semibold">ขั้นที่ฉันอยู่ตอนนี้ (ตามคอลัมน์ทีมของฉัน) — <span class="text-rose-600">เลือกได้หลายขั้นตามความเป็นจริง</span></label>
+<div id="step_chips" class="flex flex-wrap gap-1.5 mt-1"></div>
 </div>
 <div>
 <label class="text-sm font-semibold">⏱ ระยะเวลาการถ่ายทอดของฉัน (แผนงาน)</label>
@@ -254,7 +247,7 @@ function pick(n){
  document.getElementById('new_resp').value=d.resp||'';
  const col=g==='ADM'?(SUB(n)==='ADM ใหม่'?'neu':'old'):'og';
  document.getElementById('ladder_preview').innerHTML=LADDER.map(x=>`<div class="bg-white border border-slate-200 rounded-lg p-2 text-[11px]"><b>ขั้น ${x.step}</b> · ${x.period}<div class="text-slate-600 mt-0.5">${col==='og'?('OAC/GAT: '+x.og):col==='old'?('ทีมเดิม: '+x.old):('ทีมใหม่: '+x.neu)}</div></div>`).join('');
- const ps=document.getElementById('plan_step');if(ps)ps.value=(d.plan&&d.plan.step)||'';
+ const ps=document.getElementById('step_chips');if(ps){const sel=String((d.plan&&d.plan.step)||'').split(',').map(s=>s.trim()).filter(Boolean);ps.innerHTML=LADDER.map(x=>`<label class="inline-flex items-center gap-1.5 text-[11px] border rounded-lg px-2 py-1.5 bg-white ${sel.includes(String(x.step))?'border-rose-400 ring-1 ring-rose-300':'border-slate-200'}" style="cursor:pointer"><input type="checkbox" class="plan_step_chk" value="${x.step}" ${sel.includes(String(x.step))?'checked':''}> <b>ขั้น ${x.step}</b> <span class="text-slate-500">${col==='og'?x.og:col==='old'?x.old:x.neu} (${x.period})</span></label>`).join('')}
  const pt=document.getElementById('plan_timeline');if(pt)pt.value=(d.plan&&d.plan.timeline)||'';
  document.getElementById('bsc_box').innerHTML=['การเงิน (Financial)','ลูกค้า (Customer)','กระบวนการภายใน (Internal Process)','การเรียนรู้และเติบโต (Learning & Growth)'].map(x=>`<label class="text-[13px] flex items-start gap-2 border border-slate-200 rounded-lg px-3 py-2 bg-white"><input type="checkbox" class="bsc" value="${x}" ${(d.bsc||[]).includes(x)?'checked':''}> ${x}</label>`).join('');
  // step3 ncass
@@ -288,7 +281,7 @@ function saveOne(){
  const mv={},mh={}; document.querySelectorAll('.mv').forEach(t=>{mv[t.dataset.i]=t.value.trim()});
  document.querySelectorAll('.mh').forEach(t=>{mh[t.dataset.i]=t.value.trim()});
  const my=[]; document.querySelectorAll('.myname').forEach((e,i)=>{const s=document.querySelectorAll('.myside')[i];if(e.value.trim())my.push({name:e.value.trim(),side:s?s.value.trim():''})});
- const plStep=document.getElementById('plan_step')?document.getElementById('plan_step').value:'';
+ const plStep=[...document.querySelectorAll('.plan_step_chk:checked')].map(e=>e.value).join(',');
  const plTime=document.getElementById('plan_timeline')?document.getElementById('plan_timeline').value.trim():'';
  const rec={nick:cur,group:GROUP(cur),full:FULL[cur]||'',roles,purpose:document.getElementById('new_purpose').value.trim(),resp:document.getElementById('new_resp').value.trim(),bsc:[...document.querySelectorAll('.bsc:checked')].map(e=>e.value),ncass:nc,okr,plan:{step:plStep,timeline:plTime},mentor:{mv,mh,my},savedAt:new Date().toISOString()};
  const A=all();A[cur]=rec;localStorage.setItem(LS,JSON.stringify(A));
