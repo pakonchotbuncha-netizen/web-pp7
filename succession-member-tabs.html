@@ -251,12 +251,29 @@ async function pullCloud(){
    if(!ALL_MEMBERS.includes(cm.member))return;
    const local=DB[cm.member];
    // cloud ชนะเมื่อ local ว่าง/ไม่มี (ไม่ทับงานที่คนนั้นกำลังกรอกบนเครื่องตัวเอง)
-   if(!local||isEmptyRec(local)){DB[cm.member]={...blank(),...(cm.data||{})};n++}
+   if(!local||isEmptyRec(local)){DB[cm.member]=normalizeCloudRec(cm.data||{});n++}
   });
   save();renderHead();renderMain();
   toast('☁️ โหลดจากชีตกลางแล้ว ('+(j.count||0)+' ชุดในชีต · ใส่เครื่องนี้ '+n+' คน)');
  }catch(e){cloudOk=false;toast('โหลดไม่สำเร็จ: '+e.message)}
  updateCloudBadge();
+}
+/* แปลงข้อมูลจากชีตกลาง (ได้ทั้งรูปแบบ tabs และ flat v3) → โครง tabs ที่ปลอดภัย (array เสมอ) */
+function normalizeCloudRec(d){
+ const b=blank();
+ if(!d||typeof d!=='object')return b;
+ const asArr=v=>Array.isArray(v)?v:(typeof v==='string'&&v.trim()?v.split('\n').filter(x=>x.trim()).map(t=>({title:String(t).replace(/^•\s*/,''),type:'',detail:'',period:'',status:'',mainRole:''})):(v&&typeof v==='object'?Object.values(v).filter(x=>x&&typeof x==='object'):[]));
+ const out={...b,...d};
+ ['resp','strat','links','okrs','mentees','peers','cross'].forEach(k=>{if(!Array.isArray(out[k]))out[k]=[]});
+ out.resp=asArr(d.resp);
+ out.strat=Array.isArray(d.strat)?d.strat:(typeof d.bsc==='string'&&d.bsc.trim()?d.bsc.split(' | ').filter(Boolean).map(t=>({name:t,detail:'',period:'',status:''})):(Array.isArray(d.bsc)?d.bsc:[]));
+ out.links=Array.isArray(d.links)?d.links:[];
+ out.okrs=Array.isArray(d.okrs)?d.okrs:[];
+ out.meta=(d.meta&&typeof d.meta==='object')?{...b.meta,...d.meta}:b.meta;
+ out.step=d.plan_step||d.step||'';
+ out.timeline=d.plan_timeline||d.timeline||'';
+ out.phases=Array.isArray(d.plan_phases)?d.plan_phases:(Array.isArray(d.phases)?d.phases:[]);
+ return out;
 }
 function updateCloudBadge(){
  const el=document.getElementById('cloudBadge');
@@ -265,7 +282,7 @@ function updateCloudBadge(){
  el.style.color=cloudOk===false?'#dc2626':'#0284c7';
 }
 function saveDeb(){clearTimeout(window._sv);window._sv=setTimeout(()=>{save();toast('💾 บันทึกอัตโนมัติแล้ว');if(curMember)pushMember(curMember)},1200)}
-function rec(m){if(!DB[m])DB[m]=blank();return DB[m]}
+function rec(m){if(!DB[m])DB[m]=blank();const r=DB[m];['resp','strat','links','okrs','mentees','peers','cross','phases'].forEach(k=>{if(!Array.isArray(r[k]))r[k]=[]});if(!r.meta||typeof r.meta!=='object')r.meta={company:'',note:''};return r}
 function save(){localStorage.setItem(LS,JSON.stringify(DB))}
 function blank(){return {meta:{company:'',note:''},resp:[],strat:[],links:[],okrs:[],alignNote:'',mentees:[],peers:[],cross:[],step:'',timeline:'',phases:[]}}
 function updPhase(i,v){const r=rec(curMember);if(!Array.isArray(r.phases))r.phases=[];r.phases[i]=v;saveDeb()}

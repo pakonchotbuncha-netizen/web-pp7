@@ -534,6 +534,41 @@ function exportCSV(){
  const csv='\uFEFF'+H.join(',')+'\n'+rows.map(r=>H.map(h=>`"${String(r[h]??'').replace(/"/g,'""')}"`).join(',')).join('\n');
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='pkg_succession_form.csv';a.click();toast('Export แล้ว');
 }
+/* ===== โหลดข้อมูล + ประวัติจากชีตกลาง (แก้: เปิดเครื่องอื่นแล้วไม่เห็นประวัติ) ===== */
+function unflattenV3(d){
+  const arr=s=>String(s||'').split(' | ').filter(Boolean);
+  const js=(s,f)=>{try{return JSON.parse(s||f)}catch(e){return JSON.parse(f)}};
+  return {
+    formType:d.formType||'v3',nick:d.nick,full:d.full,group:d.group,teamRole:d.teamRole||'',
+    roles:arr(d.roles),roleOpts:arr(d.roleOpts),
+    ncass:{bu:{p:d.ncass_bu_purpose||'',v:d.ncass_bu_vision||''},team:{p:d.ncass_team_purpose||'',v:d.ncass_team_vision||''},per:{p:d.ncass_per_purpose||'',v:d.ncass_per_vision||''}},
+    resp:d.resp||'',bsc:arr(d.bsc),cover:d.cover||'',note:d.note||'',
+    okr:{b:d.okr_b||'',t:d.okr_t||'',p:d.okr_p||''},
+    plan:{cond:js(d.plan_cond,'{}'),coown:d.plan_coown||'',timeline:d.plan_timeline||'',step:d.plan_step||'',phases:js(d.plan_phases,'[]')},
+    mentor:{mv:js(d.mentor_mv,'{}'),mh:js(d.mentor_mh,'{}'),my:js(d.mentor_my,'[]')},
+    savedAt:d.savedAt||''
+  };
+}
+async function pullCloudForm(){
+  if(!GAS_URL)return;
+  try{
+    const res=await fetch(GAS_URL+'?action=listMembers',{cache:'no-store'});
+    const j=await res.json();
+    if(!j||!j.success)return;
+    const A=all(),H=histAll();let added=0,seeded=0;
+    (j.members||[]).forEach(cm=>{
+      const nick=String(cm.member||'').trim(),d=cm.data||{};
+      if(!nick||d.formType!=='v3')return;
+      const rec=unflattenV3(d);
+      if(!A[nick]||!A[nick].savedAt){A[nick]=rec;added++}
+      if(!H[nick]||!H[nick].length){H[nick]=[JSON.parse(JSON.stringify(rec))];seeded++}
+    });
+    if(added)localStorage.setItem(LS,JSON.stringify(A));
+    if(seeded)localStorage.setItem(HLS,JSON.stringify(H));
+    if(added||seeded){renderChips('');if(cur)pick(cur);toast('☁️ โหลดข้อมูล+ประวัติจากชีตกลางแล้ว ('+added+' ข้อมูล · '+seeded+' ประวัติ)')}
+  }catch(e){/* offline/เน็ตหลุด — ใช้ข้อมูลในเครื่องต่อได้ปกติ */}
+}
+pullCloudForm();
 renderChips('');
 </script>
 <script src="gas-retry.js"></script>
