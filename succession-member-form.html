@@ -396,18 +396,15 @@ function renderPlan(n,d,o){
   <div class="text-[11px] text-slate-500 mt-1.5">คอลัมน์ที่ใช้กรอกของฉันคือ <b>${colLbl}</b> (ไฮไลต์สีชมพูในตารางด้านบน)</div>
  </div>`;
  const phArr=Array.isArray(p.phases)?p.phases:[];
- const phaseRows=PHASES.map((t,i)=>`<tr>
-   <td class="${tdC} bg-slate-50 font-bold whitespace-nowrap text-slate-600">${t}</td>
-   <td class="${tdC} p-1"><input type="text" class="plan_phase" data-i="${i}" value="${esc(phArr[i]||'')}" placeholder="${PHASE_HELP[i]}"></td>
-  </tr>`).join('');
+ const phaseCards=PHASES.map((t,i)=>{const L=LADDER[i]||{};return `<div class="border border-emerald-200 rounded-xl p-3 bg-white">
+   <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5"><span class="text-[12px] font-extrabold text-emerald-700">ขั้น ${i+1}</span><span class="text-[11px] font-bold text-slate-500">${t}</span></div>
+   <div class="text-[10.5px] text-rose-600 mt-0.5 mb-1.5">${esc(L[col]||'')}</div>
+   <textarea class="plan_phase w-full text-[12px] border border-slate-200 rounded-lg p-2" data-i="${i}" rows="2" placeholder="${PHASE_HELP[i]}">${esc(phArr[i]||'')}</textarea>
+  </div>`}).join('');
  const phasesBlk=`<div class="border border-emerald-200 bg-emerald-50/40 rounded-xl p-4">
-  <div class="text-sm font-extrabold text-emerald-700 mb-1">🗓 แผนงาน/ระยะเวลาการถ่ายทอดของฉัน — 5 ช่วงเวลา</div>
-  <div class="text-[12px] text-slate-600 mb-2">กรอกแผนการถ่ายทอดบทบาทเป็นข้อความในแต่ละช่วงเวลา (2569 → 2573) เพื่อเป็นแนวทางและกำหนดระยะเวลาที่ชัดเจน</div>
-  <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-   <table class="w-full text-[12px] border-collapse">
-    <thead><tr><th class="${thC} bg-slate-100 text-slate-600">ช่วงเวลา</th><th class="${thC} bg-slate-100 text-slate-600" style="text-align:left">แผนการถ่ายทอดของฉัน</th></tr></thead>
-    <tbody>${phaseRows}</tbody>
-   </table></div>
+  <div class="text-sm font-extrabold text-emerald-700 mb-1">🗓 แผนงาน/ระยะเวลาการถ่ายทอดของฉัน — บล็อกกรอกรายขั้น (ขั้น 1–5)</div>
+  <div class="text-[12px] text-slate-600 mb-2">แต่ละขั้นมีบล็อกให้กรอกแผน/ระยะเวลาของท่านเอง (ข้อความสีชมพู = บทบาทของทีมท่านในขั้นนั้น ตามคอลัมน์ ${colLbl})</div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">${phaseCards}</div>
  </div>`;
  const ladderBlk = `<div class="border border-rose-200 bg-rose-50/40 rounded-xl p-4">
   <div class="text-sm font-extrabold text-rose-700 mb-1">🪜 บันไดการถ่ายทอดบทบาท — ขั้นของฉัน (ความหมายของแต่ละคอลัมน์)</div>

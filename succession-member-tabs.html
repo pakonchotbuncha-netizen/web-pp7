@@ -227,7 +227,7 @@ async function pushMember(m){
  if(!GAS_URL)return;
  const r=rec(m);
  try{
-  const res=await fetch(GAS_URL+'?action=saveMember',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({member:m,group:GROUP_OF[m],level:ORG[GROUP_OF[m]].levelTxt,data:r})});
+  const res=await fetch(GAS_URL+'?action=saveMember',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({member:m,group:GROUP_OF[m],level:ORG[GROUP_OF[m]].levelTxt,data:{...r,plan_step:r.step||'',plan_timeline:r.timeline||'',plan_phases:r.phases||[]}})});
   cloudOk=res.ok||res.type==='opaque';
  }catch(e){cloudOk=false}
  updateCloudBadge();
@@ -267,7 +267,8 @@ function updateCloudBadge(){
 function saveDeb(){clearTimeout(window._sv);window._sv=setTimeout(()=>{save();toast('💾 บันทึกอัตโนมัติแล้ว');if(curMember)pushMember(curMember)},1200)}
 function rec(m){if(!DB[m])DB[m]=blank();return DB[m]}
 function save(){localStorage.setItem(LS,JSON.stringify(DB))}
-function blank(){return {meta:{company:'',note:''},resp:[],strat:[],links:[],okrs:[],alignNote:'',mentees:[],peers:[],cross:[],step:'',timeline:''}}
+function blank(){return {meta:{company:'',note:''},resp:[],strat:[],links:[],okrs:[],alignNote:'',mentees:[],peers:[],cross:[],step:'',timeline:'',phases:[]}}
+function updPhase(i,v){const r=rec(curMember);if(!Array.isArray(r.phases))r.phases=[];r.phases[i]=v;saveDeb()}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
 function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
 function saveDebOld_removed(){}
@@ -516,10 +517,21 @@ function tabLadder(){
   <div class="text-[12px] text-slate-600 mt-1 leading-relaxed">${isMentor?'คุณคือทีมเดิม (พี่เลี้ยง) — ดูคอลัมน์ "ทีมเดิม": ระบุขั้นที่คุณกำลัง "นำ + ถ่ายทอด" ให้ทีมใหม่ และระยะเวลาที่จะถ่ายทอด':g==='ADM'?'คุณคือทีมใหม่ — ดูคอลัมน์ "ทีมใหม่": ระบุขั้นที่คุณกำลัง "เรียนรู้/ลงมือทำ" และระยะเวลาที่จะรับช่วงเต็มตัว':g==='OAC'?'คุณคือ OAC — ดูคอลัมน์ "OAC / GAT": ระบุระดับกำกับที่คุณอยู่ และช่วงเวลาที่จะลดความเข้มข้น':'คุณคือ GAT — ดูคอลัมน์ "OAC / GAT": ระบุระดับการตรวจสอบ/กำกับ และช่วงเวลาที่จะลดความเข้มข้น'}</div>
  </div>
  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
-  <div><span class="lbl">🪜 ขั้นปัจจุบันของฉันในบันไดถ่ายทอด (เลือกจากตารางด้านบน)</span>
+  <div><span class="lbl">🪜 ขั้นปัจจุบันของฉันในบันไดถ่ายทอด (เลือกจากตารางด้านบน — เลือกได้หลายขั้น)</span>
    <input type="text" readonly value="${chipTxt}" placeholder="— คลิกเลือกขั้นในตารางด้านบน —" style="background:#f8fafc"></div>
-  <div><span class="lbl">⏱ ระยะเวลาการถ่ายทอดบทบาทของฉัน (แผนงาน/ไทม์ไลน์)</span>
+  <div><span class="lbl">⏱ ระยะเวลาการถ่ายทอดบทบาทของฉัน (ภาพรวม/ไทม์ไลน์)</span>
    <input type="text" value="${esc(r.timeline||'')}" placeholder="เช่น 2569–2570 ถ่ายทอดคู่กับพี่เลี้ยง …, 2571–2572 รับช่วงหลัก, 2573 ส่งมอบเต็มรูปแบบ" onchange="updField('timeline',this.value)"></div>
+ </div>
+ <div class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 mb-2">
+  <div class="text-sm font-extrabold text-emerald-700 mb-1">🗓 แผนงาน/ระยะเวลาการถ่ายทอด — บล็อกกรอกรายขั้น (ขั้น 1–5)</div>
+  <div class="text-[11px] text-slate-600 mb-2">แต่ละขั้นมีบล็อกให้กรอกแผน/ระยะเวลาของท่านเอง (ข้อความชมพู = บทบาทของทีมท่านในขั้นนั้น ตามคอลัมน์ที่ไฮไลต์)</div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+   ${LADDER.map((x,i)=>{const ph=Array.isArray(r.phases)?r.phases:[];return `<div class="border border-emerald-200 rounded-xl p-2.5 bg-white">
+    <div class="text-[11px] font-extrabold text-emerald-700">ขั้น ${x.step} <span class="text-slate-500">· ${x.period}</span></div>
+    <div class="text-[10px] text-rose-600 my-1">${col==='og'?x.og:col==='old'?x.old:x.neu}</div>
+    <textarea class="w-full text-[11px] border border-slate-200 rounded-lg p-1.5" rows="3" placeholder="แผน/ระยะเวลาของท่านในขั้นนี้…" onchange="updPhase(${i},this.value)">${esc(ph[i]||'')}</textarea>
+   </div>`}).join('')}
+  </div>
  </div>
  <div class="text-[11px] text-slate-400">💾 บันทึกอัตโนมัติ + อัปโหลดเข้าชีตกลาง (SP-สมาชิกรายคน) ทันที — ข้อมูล "ช่วงเวลา" ของแต่ละขั้นในตารางเป็นแนวทางคร่าว ๆ (2569 = ปีแรกเข้มข้นสุด → 2573 = ส่งมอบเต็มรูปแบบ) ปรับได้ตามแผนของแต่ละคน</div>`;
 }
@@ -749,6 +761,7 @@ function exportCSV(){
  const rows=[];const head=['member','group','level','section','item_no','field1','field2','field3','field4','field5','field6','field7'];
  ALL_MEMBERS.forEach(m=>{const r=DB[m];if(!r)return;const g=GROUP_OF[m],c=ORG[g];
   if(r.step||r.timeline)rows.push([m,g,c.levelTxt,'บันไดถ่ายทอด',1,r.step||'',r.timeline||'','','','','','']);
+  (r.phases||[]).forEach((v,i)=>{if(v)rows.push([m,g,c.levelTxt,'แผนรายขั้น (2569→2573)',i+1,'ขั้น '+(i+1),v,'','','','',''])});
   (r.resp||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'งานรับผิดชอบ',i+1,x.title,RESP_TYPES.find(t=>t[0]===x.type)?.[1]||x.type,x.mainRole||'',x.detail,x.period,x.status,'']));
   (r.strat||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'กลยุทธ์',i+1,x.bsc,x.name,x.how,x.goal,x.involve,'','']));
   (r.links||[]).forEach((x,i)=>rows.push([m,g,c.levelTxt,'เชื่อมโยง',i+1,x.dir,x.toGroup,x.toName,(x.mechs||[]).map(v=>MECHS.find(t=>t[0]===v)?.[1]||v).join('; '),x.detail,'','']));

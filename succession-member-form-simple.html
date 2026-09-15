@@ -99,9 +99,14 @@ input:focus,textarea:focus{outline:2px solid #6366f1;outline-offset:1px;border-c
 <div id="step_chips" class="flex flex-wrap gap-1.5 mt-1"></div>
 </div>
 <div>
-<label class="text-sm font-semibold">⏱ ระยะเวลาการถ่ายทอดของฉัน (แผนงาน)</label>
+<label class="text-sm font-semibold">⏱ ระยะเวลาการถ่ายทอดของฉัน (ภาพรวม)</label>
 <input type="text" id="plan_timeline" placeholder="เช่น 2569–2570 ถ่ายทอดคู่กับพี่เลี้ยง …, 2571–2572 รับช่วงหลัก, 2573 ส่งมอบเต็มรูปแบบ">
 </div>
+</div>
+<div class="mt-3">
+<label class="text-sm font-semibold">🗓 แผนงาน/ระยะเวลาการถ่ายทอด — บล็อกกรอกรายขั้น (ขั้น 1–5)</label>
+<div class="tip mb-2">แต่ละขั้นมีบล็อกให้กรอกแผน/ระยะเวลาของท่านเอง (ข้อความชมพู = บทบาททีมท่านในขั้นนั้น)</div>
+<div id="phase_blocks" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2"></div>
 </div>
 </div>
 </details>
@@ -176,6 +181,7 @@ async function pushSheet(rec,formType){
   okr_b:okr.b||'',okr_t:okr.t||'',okr_p:okr.p||'',
   bsc:(rec.bsc||[]).join(' | '),cover:rec.cover||'',note:rec.note||'',
   plan_cond:JSON.stringify(pl.cond||{}),plan_coown:pl.coown||'',plan_timeline:pl.timeline||'',
+  plan_step:pl.step||'',plan_phases:JSON.stringify(pl.phases||[]),
   mentor_mv:JSON.stringify(m.mv||{}),mentor_mh:JSON.stringify(m.mh||{}),mentor_my:JSON.stringify(m.my||[]),
   savedAt:rec.savedAt||''};
  const payload={action:'saveMember',member:(rec.nick||''),group:(rec.group||''),level:'',data:flat};
@@ -248,6 +254,7 @@ function pick(n){
  const col=g==='ADM'?(SUB(n)==='ADM ใหม่'?'neu':'old'):'og';
  document.getElementById('ladder_preview').innerHTML=LADDER.map(x=>`<div class="bg-white border border-slate-200 rounded-lg p-2 text-[11px]"><b>ขั้น ${x.step}</b> · ${x.period}<div class="text-slate-600 mt-0.5">${col==='og'?('OAC/GAT: '+x.og):col==='old'?('ทีมเดิม: '+x.old):('ทีมใหม่: '+x.neu)}</div></div>`).join('');
  const ps=document.getElementById('step_chips');if(ps){const sel=String((d.plan&&d.plan.step)||'').split(',').map(s=>s.trim()).filter(Boolean);ps.innerHTML=LADDER.map(x=>`<label class="inline-flex items-center gap-1.5 text-[11px] border rounded-lg px-2 py-1.5 bg-white ${sel.includes(String(x.step))?'border-rose-400 ring-1 ring-rose-300':'border-slate-200'}" style="cursor:pointer"><input type="checkbox" class="plan_step_chk" value="${x.step}" ${sel.includes(String(x.step))?'checked':''}> <b>ขั้น ${x.step}</b> <span class="text-slate-500">${col==='og'?x.og:col==='old'?x.old:x.neu} (${x.period})</span></label>`).join('')}
+ const pb=document.getElementById('phase_blocks');if(pb){const ph=Array.isArray(d.plan&&d.plan.phases)?d.plan.phases:[];pb.innerHTML=LADDER.map((x,i)=>`<div class="border border-emerald-200 rounded-xl p-2.5 bg-white"><div class="text-[11px] font-extrabold text-emerald-700">ขั้น ${x.step} <span class="text-slate-500">· ${x.period}</span></div><div class="text-[10px] text-rose-600 my-1">${col==='og'?x.og:col==='old'?x.old:x.neu}</div><textarea class="plan_phase w-full text-[11px] border border-slate-200 rounded-lg p-1.5" data-i="${i}" rows="3" placeholder="แผน/ระยะเวลาของท่านในขั้นนี้…">${esc(ph[i]||'')}</textarea></div>`).join('')}
  const pt=document.getElementById('plan_timeline');if(pt)pt.value=(d.plan&&d.plan.timeline)||'';
  document.getElementById('bsc_box').innerHTML=['การเงิน (Financial)','ลูกค้า (Customer)','กระบวนการภายใน (Internal Process)','การเรียนรู้และเติบโต (Learning & Growth)'].map(x=>`<label class="text-[13px] flex items-start gap-2 border border-slate-200 rounded-lg px-3 py-2 bg-white"><input type="checkbox" class="bsc" value="${x}" ${(d.bsc||[]).includes(x)?'checked':''}> ${x}</label>`).join('');
  // step3 ncass
@@ -282,8 +289,9 @@ function saveOne(){
  document.querySelectorAll('.mh').forEach(t=>{mh[t.dataset.i]=t.value.trim()});
  const my=[]; document.querySelectorAll('.myname').forEach((e,i)=>{const s=document.querySelectorAll('.myside')[i];if(e.value.trim())my.push({name:e.value.trim(),side:s?s.value.trim():''})});
  const plStep=[...document.querySelectorAll('.plan_step_chk:checked')].map(e=>e.value).join(',');
+ const plPhases=[...document.querySelectorAll('.plan_phase')].map(e=>e.value.trim());
  const plTime=document.getElementById('plan_timeline')?document.getElementById('plan_timeline').value.trim():'';
- const rec={nick:cur,group:GROUP(cur),full:FULL[cur]||'',roles,purpose:document.getElementById('new_purpose').value.trim(),resp:document.getElementById('new_resp').value.trim(),bsc:[...document.querySelectorAll('.bsc:checked')].map(e=>e.value),ncass:nc,okr,plan:{step:plStep,timeline:plTime},mentor:{mv,mh,my},savedAt:new Date().toISOString()};
+ const rec={nick:cur,group:GROUP(cur),full:FULL[cur]||'',roles,purpose:document.getElementById('new_purpose').value.trim(),resp:document.getElementById('new_resp').value.trim(),bsc:[...document.querySelectorAll('.bsc:checked')].map(e=>e.value),ncass:nc,okr,plan:{step:plStep,timeline:plTime,phases:plPhases},mentor:{mv,mh,my},savedAt:new Date().toISOString()};
  const A=all();A[cur]=rec;localStorage.setItem(LS,JSON.stringify(A));
  pushSheet(rec,'simple');
  document.getElementById('save_state').innerHTML='💾 บันทึกล่าสุด: '+new Date().toLocaleString('th-TH');
