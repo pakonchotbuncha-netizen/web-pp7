@@ -581,7 +581,8 @@ async function pullCloudForm(){
       if(!isV3&&!hasTabs)return;
       const rec=isV3?unflattenV3(d):tabsToV3(nick,d);
       if(!rec.savedAt)rec.savedAt=cm.timestamp||'';
-      if(!A[nick]||!A[nick].savedAt){A[nick]=rec;added++}
+      const local=A[nick];
+      if(!local||!local.savedAt||(rec.savedAt&&String(rec.savedAt)>String(local.savedAt||''))){A[nick]=rec;added++}
       if(!H[nick]||!H[nick].length){H[nick]=[JSON.parse(JSON.stringify(rec))];seeded++}
     });
     if(added)localStorage.setItem(LS,JSON.stringify(A));
