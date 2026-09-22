@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔄 กระบวนการทำงานใหม่ — Task PP7 ไก่จัง (2 กระบวนการ) | Web PP7</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Prompt',sans-serif;background:#f1f5f9}
+  .card{background:#fff;border:1px solid #e5e7eb;border-radius:1rem}
+  .sec{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9999px;color:#fff;font-weight:800;font-size:.85rem;flex:none}
+  .step{display:flex;align-items:flex-start;gap:.6rem;padding:.5rem .7rem;border-radius:.7rem;background:#f8fafc;border:1px solid #e2e8f0;font-size:.85rem}
+  .step b{color:#1e3a5f}
+  .flow-line{width:2px;height:14px;background:#cbd5e1;margin-left:14px}
+  .badge-done{background:#d1fae5;color:#065f46;font-size:.7rem;font-weight:700;padding:.1rem .5rem;border-radius:9999px}
+  .badge-todo{background:#fef3c7;color:#92400e;font-size:.7rem;font-weight:700;padding:.1rem .5rem;border-radius:9999px}
+  .tab-btn{padding:.6rem 1.2rem;border-radius:.8rem;font-weight:700;border:2px solid transparent}
+  .tab-btn.active{background:#1e3a5f;color:#fff}
+  .part{border-left:4px solid #3b82f6;padding:.75rem 1rem;background:#fff;border-radius:0 .8rem .8rem 0;margin-bottom:.8rem}
+</style>
+</head>
+<body class="text-slate-800">
+
+<header class="bg-gradient-to-r from-slate-900 to-indigo-900 text-white sticky top-0 z-40 shadow">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between flex-wrap gap-2">
+    <div>
+      <h1 class="text-lg sm:text-xl font-bold">🔄 กระบวนการทำงานใหม่ — 2 กระบวนการ (Task PP7 ไก่จัง)</h1>
+      <p class="text-xs text-slate-300">มาตรฐานสรุป 7 ส่วน · อัปเดต 22 ก.ย. 2569 · พัฒนาเสร็จแล้วบน Web PP7</p>
+    </div>
+    <div class="flex gap-2 text-sm">
+      <a href="index.html" class="px-3 py-2 rounded-lg bg-white/15 hover:bg-white/25 font-semibold">🏠 หน้าหลัก</a>
+      <a href="PROCESS-GAIJANG-TASKS-2569.md" class="px-3 py-2 rounded-lg bg-white/15 hover:bg-white/25 font-semibold">📄 ฉบับเอกสาร</a>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-6">
+
+  <nav class="card p-2 flex flex-wrap gap-2 mb-6">
+    <button class="tab-btn active" id="btn-p1" onclick="showP(1)">🌏 กระบวนการที่ 1 — รับสมัครงานภายนอกแยก FU</button>
+    <button class="tab-btn" id="btn-p2" onclick="showP(2)">🏗️ กระบวนการที่ 2 — โครงสร้างองค์กร (4 เมนู)</button>
+  </nav>
+
+  <!-- ══════ PROCESS 1 ══════ -->
+  <section id="p1" class="space-y-4">
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3"><span class="sec" style="background:#ea580c">1</span><h2 class="font-bold text-slate-900">กระบวนการเดิม</h2></div>
+      <ul class="text-sm space-y-1 text-slate-600 list-disc list-inside">
+        <li>ผู้สมัครเข้าเว็บเดียวรวมทุกบริษัททุกภาษา — ไม่รู้ว่าสมัครบริษัท/สาขาไหน</li>
+        <li>HR คัดแยกใบสมัครตามบริษัทด้วยมือทีละใบ</li>
+        <li>ผู้สมัครลาว/กัมพูชาต้องใช้ฟอร์มไทย/อังกฤษ ไม่มีภาษาแม่</li>
+        <li>เปิด-ปิดบริษัท = แก้หน้าเว็บ/ไฟล์ เสี่ยงข้อมูลเก่าหาย</li>
+        <li>สมัคร 2 ตำแหน่ง = กรอกข้อมูลส่วนตัวใหม่ทั้งหมด</li>
+      </ul>
+    </div>
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3"><span class="sec" style="background:#7c3aed">2</span><h2 class="font-bold text-slate-900">จุดที่ AI เข้ามาช่วย</h2></div>
+      <ul class="text-sm space-y-1 text-slate-600 list-disc list-inside">
+        <li>AI คัดกรองใบสมัครตามคุณสมบัติ/CC อัตโนมัติ (WI-002)</li>
+        <li>แปลป้าย/ชื่อ/เอกสาร 4 ภาษา (TH/EN/LA/KH) ระบบเดียว</li>
+        <li>แจ้งผลผู้สมัครอัตโนมัติ — ลด HR ตอบแชทซ้ำ</li>
+        <li>ตรวจจับใบสมัครซ้ำจาก APPLICANT Stock เดิม</li>
+      </ul>
+    </div>
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3"><span class="sec" style="background:#059669">3</span><h2 class="font-bold text-slate-900">กระบวนการใหม่ (13 ขั้น)</h2></div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+        <div class="step"><b>1</b> เข้าหน้า "ร่วมงานกับ PKG Group"</div>
+        <div class="step"><b>2</b> เลือก FU → ภาษา+ธีม+ชื่อบริษัทภาษาแม่ auto</div>
+        <div class="step"><b>3</b> เลือกบริษัท (ACTIVE เท่านั้น)</div>
+        <div class="step"><b>4</b> เลือกสาขา (cascade ตามบริษัท)</div>
+        <div class="step"><b>5</b> เลือกตำแหน่งที่เปิดรับ (OPEN)</div>
+        <div class="step"><b>6</b> ยินยอม PDPA (เก็บหลักฐาน)</div>
+        <div class="step"><b>7</b> กรอกใบสมัคร</div>
+        <div class="step"><b>8</b> อัปโหลดเอกสาร</div>
+        <div class="step"><b>9</b> ระบบ Validate</div>
+        <div class="step"><b>10</b> สร้าง APPLICANT_ID → DB1</div>
+        <div class="step"><b>11</b> แสดงเลขใบสมัครให้ติดตาม</div>
+        <div class="step"><b>12</b> ไหลเข้า Dashboard HR → Flow ข้อ 4</div>
+        <div class="step"><b>13</b> ผู้สมัครติดตามสถานะเอง</div>
+      </div>
+    </div>
+    <div class="grid lg:grid-cols-2 gap-4">
+      <div class="card p-5">
+        <div class="flex items-center gap-2 mb-3"><span class="sec" style="background:#dc2626">4</span><h2 class="font-bold text-slate-900">ความซ้ำซ้อน/ซับซ้อน</h2></div>
+        <ul class="text-sm space-y-1 text-slate-600 list-disc list-inside">
+          <li>ฟอร์มแยกประเทศ = ดูแล 3 ชุด แก้ที 3 ที่</li>
+          <li>เลขลำดับบริษัทไม่ต่อเนื่อง+ซ้ำ ใช้เป็น key ไม่ได้</li>
+          <li>ปิดบริษัท = ลบข้อมูล → ประวัติผู้สมัครหาย</li>
+          <li>ข้อมูลผู้สมัครผูกกับใบสมัคร → สมัครซ้ำกรอกใหม่หมด</li>
+        </ul>
+      </div>
+      <div class="card p-5">
+        <div class="flex items-center gap-2 mb-3"><span class="sec" style="background:#0284c7">5</span><h2 class="font-bold text-slate-900">หลังลดความซ้ำซ้อน</h2></div>
+        <ul class="text-sm space-y-1 text-slate-600 list-disc list-inside">
+          <li>ระบบเดียว + FU_ID คุม Theme/ภาษา/Company (Dynamic Theme)</li>
+          <li>COMPANY_ID รหัสระบบไม่ซ้ำ 49 รายการ แทนเลขลำดับ</li>
+          <li>ปิดบริษัท = INACTIVE (ไม่ลบประวัติ + Audit Log)</li>
+          <li>APPLICANT แยกจาก APPLICATION → กรอกโปรไฟล์ครั้งเดียว</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3"><span class="sec" style="background:#d97706">6</span><h2 class="font-bold text-slate-900">Task หลังลดความซ้ำซ้อน</h2></div>
+      <div class="grid sm:grid-cols-2 gap-2 text-sm">
+        <div class="part" style="border-color:#10b981">✅ recruitment-master-data.js (FU/COMPANY/BRANCH MASTER) <span class="badge-done">เสร็จ 22 ก.ย.</span></div>
+        <div class="part" style="border-color:#10b981">✅ recruit-landing-fu.html หน้าเลือก FU 3 ธีม <span class="badge-done">เสร็จ</span></div>
+        <div class="part" style="border-color:#10b981">✅ form-register ฝัง cascade + i18n ลาว/เขมรเต็ม <span class="badge-done">เสร็จ</span></div>
+        <div class="part" style="border-color:#f59e0b">⏳ Admin Master Data บริษัท (เพิ่ม/ปิด + Audit Log) <span class="badge-todo">ถัดไป</span></div>
+        <div class="part" style="border-color:#f59e0b">⏳ JOB_POSTING module (เปิด/ปิดตำแหน่ง) <span class="badge-todo">ถัดไป</span></div>
+        <div class="part" style="border-color:#f59e0b">⏳ เชื่อม APPLICANT_ID → Dashboard + Flow 10 ขั้น <span class="badge-todo">ถัดไป</span></div>
+        <div class="part" style="border-color:#f59e0b">⏳ AI Screening (WI-002) ต่อท่อจากใบสมัคร <span class="badge-todo">ถัดไป</span></div>
+      </div>
+    </div>
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3"><span class="sec" style="background:#1e3a5f">7</span><h2 class="font-bold text-slate-900">แนวทางออกแบบโครงสร้าง Web PP7</h2></div>
+      <div class="text-sm text-slate-600 space-y-2">
+        <p><b>Key หลัก:</b> FU_ID → COMPANY_ID → BRANCH_ID → JOB_ID → APPLICANT_ID → APPLICATION_ID (เชื่อม Public ถึง HR ครบวงจร)</p>
+        <p><b>สิทธิ์:</b> Public เห็นเฉพาะ ร่วมงาน/FU/บริษัท/ตำแหน่ง/สมัคร + ข้อมูลตนเอง · HR/BMC/ADM จัดการ Company/Job/Screening/Interview ตามสิทธิ์ · Flow 10 ขั้น = PKG Member ขึ้นไป</p>
+        <p><b>ตารางข้อมูล:</b> MASTER 7 ตาราง · DB1 APPLICANT 10 ตาราง + PDPA_CONSENT · RECRUITMENT 10 ตาราง (JOB_POSTING→ONBOARDING) · AUDIT 4 ตาราง</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════ PROCESS 2 ══════ -->
+  <section id="p2" class="space-y-4 hidden">
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3"><span class="sec" style="background:#ea580c">1</span><h2 class="font-bold text-slate-900">กระบวนการเดิม</h2></div>
+      <ul class="text-sm space-y-1 text-slate-600 list-disc list-inside">
+        <li>BU เสนอบอร์ด → บอร์ดเคาะ → HR คีย์ลง Excel</li>
+        <li>โครงสร้างคีย์ซ้ำ 3 ที่: เอกสารบอร์ด / Excel HR / Flowchart วาดมือ</li>
+        <li>BMC ขออัตรากำลัง (Step 2) คีย์ข้อมูลบริษัท/ตำแหน่ง/เงินเดือนใหม่ทั้งหมด</li>
+        <li>Flowchart ล้าหลังของจริงเสมอ · โครงสร้างภายนอก/ภายในปนกัน</li>
+      </ul>
+    </div>
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3"><span class="sec" style="background:#7c3aed">2</span><h2 class="font-bold text-slate-900">จุดที่ AI เข้ามาช่วย</h2></div>
+      <ul class="text-sm space-y-1 text-slate-600 list-disc list-inside">
+        <li>AI ตรวจความสมบูรณ์คำขอ (ตำแหน่งซ้ำ/สายบังคับบัญชาขัดแย้ง/เกินกรอบเงินเดือน) ก่อนถึง PAO</li>
+        <li>AI สรุปรายงานรายเดือน: คำขอ/อนุมัติ/ค้าง/โครงสร้างที่เปลี่ยน</li>
+        <li>ดึงคำขอจากฟอร์ม GAS เข้าคิว PAO อัตโนมัติ + แจ้งเตือนคำขอใหม่</li>
+      </ul>
+    </div>
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3"><span class="sec" style="background:#059669">3</span><h2 class="font-bold text-slate-900">กระบวนการใหม่ (8 ขั้น)</h2></div>
+      <div class="grid sm:grid-cols-2 gap-2">
+        <div class="step"><b>1</b> BMC คีย์คำขอผ่านเมนู ① ในเว็บ (BU/บริษัท/หน่วยงาน/ตำแหน่ง/อัตรา/เหตุผล)</div>
+        <div class="step"><b>2</b> บันทึก STRUCTURE_REQUEST = REQUEST → แจ้ง PAO อัตโนมัติ</div>
+        <div class="step"><b>3</b> PAO เห็นคิวในเมนู ② ภายนอก / ③ ภายใน (แยกเด็ดขาด)</div>
+        <div class="step"><b>4</b> PAO Set โครงสร้างแทนบอร์ด (หน่วยงาน/ตำแหน่ง/สายบังคับบัญชา/ระดับ/เงินเดือน)</div>
+        <div class="step"><b>5</b> APPROVE → STRUCTURE_MASTER + STRUCTURE_VERSION ใหม่</div>
+        <div class="step"><b>6</b> เมนู ④ Flowchart ราย BU อัปเดตเองอัตโนมัติ</div>
+        <div class="step"><b>7</b> Step 2 ขออัตรากำลัง: BMC เลือกจากโครงสร้างอนุมัติแล้วเท่านั้น</div>
+        <div class="step"><b>8</b> Audit Log ทุกการเพิ่ม/แก้ไข/อนุมัติ</div>
+      </div>
+    </div>
+    <div class="grid lg:grid-cols-2 gap-4">
+      <div class="card p-5">
+        <div class="flex items-center gap-2 mb-3"><span class="sec" style="background:#dc2626">4</span><h2 class="font-bold text-slate-900">ความซ้ำซ้อน/ซับซ้อน</h2></div>
+        <ul class="text-sm space-y-1 text-slate-600 list-disc list-inside">
+          <li>คีย์โครงสร้างซ้ำ 3-4 จุด (บอร์ด/HR/Flowchart/Step 2)</li>
+          <li>Flowchart วาดมือ ไม่ sync ของจริง</li>
+          <li>ภายนอก/ภายในปนชุดเดียว</li>
+          <li>BMC คีย์ข้อมูลใหม่ทุกครั้งที่ขออัตรากำลัง — ผิดบ่อย</li>
+        </ul>
+      </div>
+      <div class="card p-5">
+        <div class="flex items-center gap-2 mb-3"><span class="sec" style="background:#0284c7">5</span><h2 class="font-bold text-slate-900">หลังลดความซ้ำซ้อน</h2></div>
+        <ul class="text-sm space-y-1 text-slate-600 list-disc list-inside">
+          <li>STRUCTURE DATABASE = Single Source of Truth ชุดเดียว</li>
+          <li>อนุมัติครั้งเดียว → ไหลทั้ง Flowchart + Step 2 อัตโนมัติ</li>
+          <li>EXTERNAL/INTERNAL แยกตารางแยกสิทธิ์ (PAO เท่านั้น Set ได้)</li>
+          <li>Flowchart = view render จากฐานข้อมูล ไม่ใช่ไฟล์วาดมือ</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3"><span class="sec" style="background:#d97706">6</span><h2 class="font-bold text-slate-900">Task หลังลดความซ้ำซ้อน</h2></div>
+      <div class="grid sm:grid-cols-2 gap-2 text-sm">
+        <div class="part" style="border-color:#10b981">✅ recruit-step1-structure.html 4 เมนู + Flowchart 5 BU <span class="badge-done">เสร็จ 22 ก.ย.</span></div>
+        <div class="part" style="border-color:#10b981">✅ ฝังฟอร์มคีย์ขอโครงสร้าง GAS ในเมนู ① <span class="badge-done">เสร็จ</span></div>
+        <div class="part" style="border-color:#f59e0b">⏳ Backend GAS ฝั่ง PAO (save/set/approve → STRUCTURE_VERSION) <span class="badge-todo">ถัดไป</span></div>
+        <div class="part" style="border-color:#f59e0b">⏳ ผูก RBAC จริง BMC/PAO/Public <span class="badge-todo">ถัดไป</span></div>
+        <div class="part" style="border-color:#f59e0b">⏳ Sync ชีตต้นทางภายนอก/ภายใน 2 ลิงก์อัตโนมัติ <span class="badge-todo">ถัดไป</span></div>
+        <div class="part" style="border-color:#f59e0b">⏳ Step 2 ดึง dropdown จาก STRUCTURE APPROVED <span class="badge-todo">ถัดไป</span></div>
+      </div>
+    </div>
+    <div class="card p-5">
+      <div class="flex items-center gap-2 mb-3"><span class="sec" style="background:#1e3a5f">7</span><h2 class="font-bold text-slate-900">แนวทางออกแบบโครงสร้าง Web PP7</h2></div>
+      <div class="text-sm text-slate-600 space-y-2">
+        <p><b>สิทธิ์:</b> คีย์ขอโครงสร้าง BMC✅/PAO👁 · DATA ภายนอก+ภายใน PAO✅ เท่านั้น · Flowchart BMC👁/PAO✅/Public👁 · แก้ไขโครงสร้าง PAO✅ เท่านั้น</p>
+        <p><b>Database:</b> FU → BU → COMPANY → BRANCH → DEPARTMENT → POSITION → STRUCTURE_MASTER (REQUEST/EXTERNAL/INTERNAL/VERSION) → FLOWCHART → MANPOWER_REQUEST → Step 2</p>
+        <p><b>หัวใจ:</b> ไม่ต้องคีย์ข้อมูลซ้ำระหว่างเมนู — ลด Human Error ของข้อมูลโครงสร้างทั้งหมด</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="card p-4 mt-6 text-center text-sm">
+    🔗 ระบบที่เปิดใช้จริง: <a class="text-blue-600 underline" href="recruit-landing-fu.html">หน้าเลือก FU</a> ·
+    <a class="text-blue-600 underline" href="form-register.html?fu=FU02">ใบสมัคร (ลาว)</a> ·
+    <a class="text-blue-600 underline" href="recruit-step1-structure.html">โครงสร้างองค์กร 4 เมนู</a> ·
+    <a class="text-blue-600 underline" href="presentation-dashboard.html">ภาพรวมโครงการ</a>
+  </div>
+</main>
+
+<script>
+function showP(n){
+  document.getElementById('p1').style.display = n===1?'':'none';
+  document.getElementById('p2').style.display = n===2?'':'none';
+  document.getElementById('btn-p1').classList.toggle('active', n===1);
+  document.getElementById('btn-p2').classList.toggle('active', n===2);
+}
+</script>
+</body>
+</html>
