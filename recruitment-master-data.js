@@ -25,10 +25,10 @@ const COMPANY_MASTER = [
   { COMPANY_ID: 'TH007', FU_ID: 'FU01', BU: 'AAMG',  NAME: 'บริษัท เอเอเอ็ม ฉะเชิงเทรา จำกัด',                              STATUS: 'ACTIVE' },
   { COMPANY_ID: 'TH008', FU_ID: 'FU01', BU: 'AAMG',  NAME: 'บริษัท อีเอซี กาญจนบุรี จำกัด',                                  STATUS: 'ACTIVE' },
   { COMPANY_ID: 'TH009', FU_ID: 'FU01', BU: 'AAMG',  NAME: 'บริษัท เอเอเอ็ม ลพบุรี จำกัด',                                    STATUS: 'ACTIVE' },
-  { COMPANY_ID: 'TH009', FU_ID: 'FU01', BU: 'AAMG',  NAME: 'บริษัท เอเอเอ็ม แคปปิตอล เซอร์วิส พัทยา จำกัด',                  STATUS: 'ACTIVE' },
+  { COMPANY_ID: 'TH009B', FU_ID: 'FU01', BU: 'AAMG',  NAME: 'บริษัท เอเอเอ็ม แคปปิตอล เซอร์วิส พัทยา จำกัด',                  STATUS: 'ACTIVE' },
   { COMPANY_ID: 'TH010', FU_ID: 'FU01', BU: 'AAMG',  NAME: 'บริษัท เอเอเอ็ม มุกดาหาร จำกัด',                                  STATUS: 'ACTIVE' },
   { COMPANY_ID: 'TH011', FU_ID: 'FU01', BU: 'AAMG',  NAME: 'บริษัท เอเอเอ็ม แคปปิตอล เซอร์วิส นนทบุรี จำกัด',                STATUS: 'ACTIVE' },
-  { COMPANY_ID: 'TH011', FU_ID: 'FU01', BU: 'AAMG',  NAME: 'บริษัท เอเอเอ็ม ปากช่อง จำกัด',                                    STATUS: 'ACTIVE' },
+  { COMPANY_ID: 'TH011B', FU_ID: 'FU01', BU: 'AAMG',  NAME: 'บริษัท เอเอเอ็ม ปากช่อง จำกัด',                                    STATUS: 'ACTIVE' },
   { COMPANY_ID: 'TH012', FU_ID: 'FU01', BU: 'AAMG',  NAME: 'บริษัท พีซีแอล แคปปิตอล เซอร์วิส จำกัด',                          STATUS: 'ACTIVE' },
   { COMPANY_ID: 'TH013', FU_ID: 'FU01', BU: 'AAMG',  NAME: 'บริษัท พีเอ็มเอส แคปปิตอล เซอร์วิส จำกัด',                        STATUS: 'ACTIVE' },
   { COMPANY_ID: 'TH014', FU_ID: 'FU01', BU: 'AAMG',  NAME: 'บริษัท พรีเชียส สโตน แอสเซท เมแนจเมนท์ จำกัด',                    STATUS: 'ACTIVE' },
@@ -45,32 +45,32 @@ const COMPANY_MASTER = [
   { COMPANY_ID: 'TH025', FU_ID: 'FU01', BU: 'CPDG',  NAME: 'บริษัท แอจจิลซอฟท์ คอร์ปอเรชั่น จำกัด',                          STATUS: 'ACTIVE' },
   { COMPANY_ID: 'TH026', FU_ID: 'FU01', BU: 'CPDG',  NAME: 'บริษัท 21ซีที รีเสิร์ท จำกัด',                                    STATUS: 'ACTIVE' },
   { COMPANY_ID: 'TH027', FU_ID: 'FU01', BU: 'CPDG',  NAME: 'บริษัท ไซฟินเวสท์ ดิจิตอล โบรคเกอร์ จำกัด',                      STATUS: 'ACTIVE' },
-  { COMPANY_ID: 'TH027', FU_ID: 'FU01', BU: 'CPDG',  NAME: 'บริษัท ศูนย์พัฒนาผู้นำ จำกัด',                                    STATUS: 'ACTIVE' },
+  { COMPANY_ID: 'TH027B', FU_ID: 'FU01', BU: 'CPDG',  NAME: 'บริษัท ศูนย์พัฒนาผู้นำ จำกัด',                                    STATUS: 'ACTIVE' },
   { COMPANY_ID: 'TH028', FU_ID: 'FU01', BU: 'CPDG',  NAME: 'บริษัท เล็นด์เอ็กซ์ จำกัด',                                        STATUS: 'ACTIVE' },
   // ── FU02 RPLCG (ลาว) ──
-  { COMPANY_ID: 'LA001', FU_ID: 'FU02', BU: 'RPLCG', NAME: 'บริษัท ร่วมพัฒนา เช่าสินเชื่อ จำกัด',                            STATUS: 'ACTIVE' },
-  { COMPANY_ID: 'LA002', FU_ID: 'FU02', BU: 'RPLCG', NAME: 'ร้านจะเลินมอเตอร์ (ส่วนบุคคล)',                                    STATUS: 'ACTIVE' },
-  { COMPANY_ID: 'LA002', FU_ID: 'FU02', BU: 'RPLCG', NAME: 'ร้านหลวงพะบางมอเตอร์เซลล์ (ส่วนบุคคล)',                          STATUS: 'ACTIVE' },
-  { COMPANY_ID: 'LA003', FU_ID: 'FU02', BU: 'RPLCG', NAME: 'ร้านเวียงมอเตอร์ (ส่วนบุคคล)',                                    STATUS: 'ACTIVE' },
-  { COMPANY_ID: 'LA003', FU_ID: 'FU02', BU: 'RPLCG', NAME: 'ร้านมงคลมอเตอร์ สะหวันเขต',                                        STATUS: 'ACTIVE' },
-  { COMPANY_ID: 'LA004', FU_ID: 'FU02', BU: 'RPLCG', NAME: 'สถาบันการเงินจุละพากที่ไม่รับฝากเงิน ราฟโค ไฟแนนซ์เชียล ลาว จำกัด (ผู้เดียว)', STATUS: 'ACTIVE' },
-  { COMPANY_ID: 'LA005', FU_ID: 'FU02', BU: 'RPLCG', NAME: 'บริษัท เพ็ดจะเลินบริการ จำกัด (ผู้เดียว)',                        STATUS: 'ACTIVE' },
+  { COMPANY_ID: 'LA001', FU_ID: 'FU02', BU: 'RPLCG', NAME: 'บริษัท ร่วมพัฒนา เช่าสินเชื่อ จำกัด',                            STATUS: 'ACTIVE', NAME_LA: 'ບໍລິສັດ ຮ່ວມພັດທະນາ ເຊົ່າສິນເຊື່ອ ຈຳກັດ' },
+  { COMPANY_ID: 'LA002', FU_ID: 'FU02', BU: 'RPLCG', NAME: 'ร้านจะเลินมอเตอร์ (ส่วนบุคคล)',                                    STATUS: 'ACTIVE', NAME_LA: 'ຮ້ານຈະເລີນມໍເຕີ (ບຸກຄົນດຽວ)' },
+  { COMPANY_ID: 'LA002B', FU_ID: 'FU02', BU: 'RPLCG', NAME: 'ร้านหลวงพะบางมอเตอร์เซลล์ (ส่วนบุคคล)',                          STATUS: 'ACTIVE', NAME_LA: 'ຮ້ານຫຼວງພະບາງມໍເຕີເຊວ (ບຸກຄົນດຽວ)' },
+  { COMPANY_ID: 'LA003', FU_ID: 'FU02', BU: 'RPLCG', NAME: 'ร้านเวียงมอเตอร์ (ส่วนบุคคล)',                                    STATUS: 'ACTIVE', NAME_LA: 'ຮ້ານວຽງມໍເຕີ (ບຸກຄົນດຽວ)' },
+  { COMPANY_ID: 'LA003B', FU_ID: 'FU02', BU: 'RPLCG', NAME: 'ร้านมงคลมอเตอร์ สะหวันเขต',                                        STATUS: 'ACTIVE', NAME_LA: 'ຮ້ານມົງຄົນມໍເຕີ ສະຫວັນນະເຂດ' },
+  { COMPANY_ID: 'LA004', FU_ID: 'FU02', BU: 'RPLCG', NAME: 'สถาบันการเงินจุละพากที่ไม่รับฝากเงิน ราฟโค ไฟแนนซ์เชียล ลาว จำกัด (ผู้เดียว)', STATUS: 'ACTIVE', NAME_LA: 'ສະຖາບັນການເງິນຈຸລະພາກທີ່ບໍ່ຮັບເງິນຝາກ ຣາຟໂຄ ຟແນນເຊຍ ລາວ ຈກັດ (ຜູ້ດຽວ)' },
+  { COMPANY_ID: 'LA005', FU_ID: 'FU02', BU: 'RPLCG', NAME: 'บริษัท เพ็ดจะเลินบริการ จำกัด (ผู้เดียว)',                        STATUS: 'ACTIVE', NAME_LA: 'ບໍລິສັດ ເພັດຈະເລີນບໍລິການ ຈຳກັດ (ຜູ້ດຽວ)' },
   // ── FU03 RAFCOG (กัมพูชา) ──
-  { COMPANY_ID: 'KH001', FU_ID: 'FU03', BU: 'RAFCOG', NAME: 'บริษัท ราฟโค ไฟแนนเซียล (เขมโบเดีย) จำกัดมหาชน',                STATUS: 'ACTIVE' },
-  { COMPANY_ID: 'KH002', FU_ID: 'FU03', BU: 'RAFCOG', NAME: 'บริษัท เอไอไอแอล แคปปิตอล พาร์ทเนอร์ จำกัด',                    STATUS: 'ACTIVE' },
-  { COMPANY_ID: 'KH003', FU_ID: 'FU03', BU: 'RAFCOG', NAME: 'FIV INVESTMENT TRUST KH CO.,LTD.',                                STATUS: 'ACTIVE' },
-  { COMPANY_ID: 'KH004', FU_ID: 'FU03', BU: 'RAFCOG', NAME: 'บริษัท เนทีฟ ไฟแนนเชี่ยล เทคโนโลยี เคเอช จำกัด',                STATUS: 'ACTIVE' }
+  { COMPANY_ID: 'KH001', FU_ID: 'FU03', BU: 'RAFCOG', NAME: 'บริษัท ราฟโค ไฟแนนเซียล (เขมโบเดีย) จำกัดมหาชน',                STATUS: 'ACTIVE', NAME_KH: 'ក្រុមហ៊ុន រាហ្វកូ ហ្វាយណាន់សៀល (ខេមបូឌា) មហាជន' },
+  { COMPANY_ID: 'KH002', FU_ID: 'FU03', BU: 'RAFCOG', NAME: 'บริษัท เอไอไอแอล แคปปิตอล พาร์ทเนอร์ จำกัด',                    STATUS: 'ACTIVE', NAME_KH: 'ក្រុមហ៊ុន អេអាយអាយអែល ខេភីថល ផាថណឺ ឯ.ក' },
+  { COMPANY_ID: 'KH003', FU_ID: 'FU03', BU: 'RAFCOG', NAME: 'FIV INVESTMENT TRUST KH CO.,LTD.',                                STATUS: 'ACTIVE', NAME_KH: 'FIV INVESTMENT TRUST KH CO.,LTD.' },
+  { COMPANY_ID: 'KH004', FU_ID: 'FU03', BU: 'RAFCOG', NAME: 'บริษัท เนทีฟ ไฟแนนเชี่ยล เทคโนโลยี เคเอช จำกัด',                STATUS: 'ACTIVE', NAME_KH: 'ក្រុមហ៊ុន ណេធីវ ហ្វាយណាន់សៀល ថេកណូឡូជី ខេអេច ឯ.ក' }
 ];
 
 // BRANCH_MASTER — บริษัทที่มีหลายสาขา (อ้างอิง COMPANY_ID)
 const BRANCH_MASTER = [
-  { BRANCH_ID: 'BR001', COMPANY_ID: 'TH002', NAME: 'สำนักงานใหญ่',     STATUS: 'ACTIVE' },
-  { BRANCH_ID: 'BR002', COMPANY_ID: 'TH002', NAME: 'สาขากบินทร์บุรี',   STATUS: 'ACTIVE' },
-  { BRANCH_ID: 'BR003', COMPANY_ID: 'TH002', NAME: 'สาขานครนายก',       STATUS: 'ACTIVE' },
-  { BRANCH_ID: 'BR003', COMPANY_ID: 'TH002', NAME: 'สาขาปลวกแดง',       STATUS: 'ACTIVE' },
-  { BRANCH_ID: 'BR004', COMPANY_ID: 'TH002', NAME: 'สาขาศรีนครินทร์',   STATUS: 'ACTIVE' },
-  { BRANCH_ID: 'BR005', COMPANY_ID: 'TH002', NAME: 'สาขาสระบุรี',       STATUS: 'ACTIVE' },
-  { BRANCH_ID: 'BR006', COMPANY_ID: 'TH002', NAME: 'สาขาวังน้ำเย็น',    STATUS: 'ACTIVE' }
+  { BRANCH_ID: 'BR001', COMPANY_ID: 'TH002B', NAME: 'สำนักงานใหญ่',     STATUS: 'ACTIVE' },
+  { BRANCH_ID: 'BR002', COMPANY_ID: 'TH002C', NAME: 'สาขากบินทร์บุรี',   STATUS: 'ACTIVE' },
+  { BRANCH_ID: 'BR003', COMPANY_ID: 'TH002D', NAME: 'สาขานครนายก',       STATUS: 'ACTIVE' },
+  { BRANCH_ID: 'BR003', COMPANY_ID: 'TH002E', NAME: 'สาขาปลวกแดง',       STATUS: 'ACTIVE' },
+  { BRANCH_ID: 'BR004', COMPANY_ID: 'TH002F', NAME: 'สาขาศรีนครินทร์',   STATUS: 'ACTIVE' },
+  { BRANCH_ID: 'BR005', COMPANY_ID: 'TH002G', NAME: 'สาขาสระบุรี',       STATUS: 'ACTIVE' },
+  { BRANCH_ID: 'BR006', COMPANY_ID: 'TH002H', NAME: 'สาขาวังน้ำเย็น',    STATUS: 'ACTIVE' }
 ];
 
 // THEME ราย FU (Dynamic Theme ตามชีตข้อ 14)
