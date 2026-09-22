@@ -825,6 +825,7 @@
             });
             const data = await loadTranslation(lang);
             if (data) updateLabels(data);
+            if (typeof initFU === 'function') initFU(); // re-render company/branch list ตามภาษา (รองรับกรณีไม่มี FU = โชว์ทุกกลุ่ม)
         }
 
         function updateLabels(data) {
@@ -1145,13 +1146,46 @@
             set('fu-section-title', t.title); set('fu-section-hint', t.hint);
             set('fu-label-company', t.company); set('fu-label-branch', t.branch);
         }
-        (function initFU() {
+        function initFU() {
             const params = new URLSearchParams(location.search);
             const fuParam = params.get('fu');
             if (fuParam && typeof FU_MASTER !== 'undefined') {
                 CURRENT_FU = FU_MASTER.find(f => f.FU_ID === fuParam) || FU_MASTER.find(f => f.FU === fuParam) || null;
             }
-            if (!CURRENT_FU) return;
+            const sec = document.getElementById('fu-section');
+            if (!CURRENT_FU) {
+                // ไม่มี FU → แสดงบริษัททุกกลุ่ม (THAI + RPLCG + RAFCOG) ให้เลือกเอง
+                if (sec) {
+                    const t = fuT();
+                    sec.style.display = '';
+                    const sel = document.getElementById('fu-company');
+                    const grpLabels = { FU01: '🟠 THAI', FU02: '🟡 RPLCG (ລາວ)', FU03: '🔴🔵 RAFCOG' };
+                    COMPANY_MASTER.filter(c => c.STATUS === 'ACTIVE').forEach(c => {
+                        const o = document.createElement('option');
+                        o.value = c.COMPANY_ID;
+                        o.textContent = '[' + (grpLabels[c.FU_ID] || c.FU_ID) + '] ' + localizeCompany(c, currentLang);
+                        sel.appendChild(o);
+                    });
+                    sel.addEventListener('change', function(){
+                        const bSel = document.getElementById('fu-branch');
+                        const branches = getBranchesByCompany(this.value);
+                        const t2 = fuT();
+                        if (!branches.length) {
+                            bSel.disabled = true;
+                            bSel.innerHTML = '<option value="">' + (t2.phBranchNone || '— สำนักงานใหญ่ (ไม่มีสาขา) —') + '</option>';
+                        } else {
+                            bSel.disabled = false;
+                            bSel.innerHTML = '<option value="">' + (t2.phBranch || '— เลือกสาขา —') + '</option>';
+                            branches.forEach(b => {
+                                const o = document.createElement('option');
+                                o.value = b.BRANCH_ID; o.textContent = localizeBranch(b.NAME, currentLang);
+                                bSel.appendChild(o);
+                            });
+                        }
+                    });
+                }
+                return;
+            }
             const theme = FU_THEME[CURRENT_FU.FU_ID];
             if (theme) {
                 const banner = document.getElementById('fu-banner');
@@ -1159,14 +1193,14 @@
                 const submitBtn = document.getElementById('btn-submit');
                 if (submitBtn) { submitBtn.style.background = theme.primary; }
             }
-            const sec = document.getElementById('fu-section');
             if (sec && theme) { sec.style.background = theme.soft; }
             document.getElementById('fu-company').addEventListener('change', refreshFUOptions);
             refreshFUOptions(); // เติมตัวเลือกทันที (กัน translation โหลดช้า/ล้มเหลว)
             // ภาษาเริ่มต้นตาม FU: FU02=ลาว(lo), FU03=เขมร(km)
             const defLang = CURRENT_FU.FU_ID === 'FU02' ? 'lo' : (CURRENT_FU.FU_ID === 'FU03' ? 'km' : 'th');
             if (defLang !== 'th') setLanguage(defLang);
-        })();
+        }
+        initFU();
     </script>
 
 <script>
