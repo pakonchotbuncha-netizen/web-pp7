@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ร่วมงานกับ PKG Group — เลือกกลุ่มธุรกิจ | Web PP7</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Noto+Sans+Lao:wght@400;600;700&family=Noto+Sans+Khmer:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  body { font-family:'Prompt',sans-serif; background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 55%,#134e4a 100%); min-height:100vh; }
+  .fu-card { transition: transform .18s, box-shadow .18s; border:1px solid rgba(255,255,255,.12); }
+  .fu-card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(0,0,0,.35); }
+</style>
+</head>
+<body class="text-slate-100 antialiased">
+<div class="max-w-5xl mx-auto px-4 py-10">
+
+  <header class="text-center mb-10">
+    <div class="text-5xl mb-3">🏢</div>
+    <h1 class="text-3xl sm:text-4xl font-extrabold">ร่วมงานกับ PKG Group</h1>
+    <p class="text-slate-300 mt-2">ระบบรับสมัครงานออนไลน์ที่ทันสมัย ง่าย และรวดเร็ว — เลือกกลุ่ม (FU) เพื่อเริ่มสมัคร</p>
+    <div class="mt-4 flex justify-center gap-2 flex-wrap text-xs text-slate-400">
+      <span class="bg-white/10 rounded-full px-3 py-1">🔒 PDPA Consent</span>
+      <span class="bg-white/10 rounded-full px-3 py-1">🌐 4 ภาษา (TH/EN/LA/KH)</span>
+      <span class="bg-white/10 rounded-full px-3 py-1">📄 ติดตามสถานะใบสมัครได้</span>
+    </div>
+  </header>
+
+  <!-- FU Selector — Dynamic Theme ตามชีตข้อ 14 -->
+  <div class="grid sm:grid-cols-3 gap-5">
+    <a href="form-register.html?fu=FU01" class="fu-card rounded-3xl p-7 text-center block" style="background:linear-gradient(160deg,rgba(234,88,12,.22),rgba(255,255,255,.06))">
+      <div class="text-4xl mb-2">🇹🇭</div>
+      <div class="text-xl font-bold text-orange-300">THAI</div>
+      <div class="text-sm text-slate-300 mt-1">สมัครงานภาษาไทย / English</div>
+      <div class="mt-3 inline-block rounded-full px-3 py-1 text-xs font-semibold" style="background:rgba(234,88,12,.25);color:#fdba74">🟠 Theme ส้ม</div>
+      <div class="mt-4 text-xs text-slate-400" id="fu01-count">— บริษัท</div>
+      <div class="mt-4 bg-white/10 rounded-xl py-2.5 font-semibold text-sm">เริ่มสมัคร <i class="fa-solid fa-arrow-right ml-1 text-xs"></i></div>
+    </a>
+    <a href="form-register.html?fu=FU02" class="fu-card rounded-3xl p-7 text-center block" style="background:linear-gradient(160deg,rgba(202,138,4,.22),rgba(255,255,255,.06))">
+      <div class="text-4xl mb-2">🇱🇦</div>
+      <div class="text-xl font-bold text-yellow-200">RPLCG</div>
+      <div class="text-sm text-slate-300 mt-1" style="font-family:'Noto Sans Lao',sans-serif">ສະໝັກວຽກ ພາສາລາວ</div>
+      <div class="mt-3 inline-block rounded-full px-3 py-1 text-xs font-semibold" style="background:rgba(202,138,4,.25);color:#fde047">🟡 Theme เหลือง</div>
+      <div class="mt-4 text-xs text-slate-400" id="fu02-count">— บริษัท</div>
+      <div class="mt-4 bg-white/10 rounded-xl py-2.5 font-semibold text-sm">ເລີ່ມສະໝັກ <i class="fa-solid fa-arrow-right ml-1 text-xs"></i></div>
+    </a>
+    <a href="form-register.html?fu=FU03" class="fu-card rounded-3xl p-7 text-center block" style="background:linear-gradient(160deg,rgba(220,38,38,.2),rgba(29,78,216,.18))">
+      <div class="text-4xl mb-2">🇰🇭</div>
+      <div class="text-xl font-bold text-red-300">RAFCOG</div>
+      <div class="text-sm text-slate-300 mt-1" style="font-family:'Noto Sans Khmer',sans-serif">ការដាក់ពាក្យសុំការងារ / English</div>
+      <div class="mt-3 inline-block rounded-full px-3 py-1 text-xs font-semibold" style="background:linear-gradient(90deg,rgba(220,38,38,.3),rgba(29,78,216,.3));color:#fca5a5">🔴🔵 Theme แดง-น้ำเงิน</div>
+      <div class="mt-4 text-xs text-slate-400" id="fu03-count">— บริษัท</div>
+      <div class="mt-4 bg-white/10 rounded-xl py-2.5 font-semibold text-sm">Apply Now <i class="fa-solid fa-arrow-right ml-1 text-xs"></i></div>
+    </a>
+  </div>
+
+  <!-- Flow หลักบ้าง steps -->
+  <section class="glass rounded-3xl p-6 mt-10" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)">
+    <h2 class="text-lg font-bold mb-4"><i class="fa-solid fa-route text-blue-300 mr-2"></i>ขั้นตอนการสมัคร</h2>
+    <div class="flex flex-wrap items-center gap-2 text-xs">
+      <span class="bg-white/10 rounded-lg px-3 py-2">1. เลือก FU</span><span class="text-slate-500">→</span>
+      <span class="bg-white/10 rounded-lg px-3 py-2">2. เลือกบริษัท</span><span class="text-slate-500">→</span>
+      <span class="bg-white/10 rounded-lg px-3 py-2">3. เลือกสาขา</span><span class="text-slate-500">→</span>
+      <span class="bg-white/10 rounded-lg px-3 py-2">4. เลือกตำแหน่ง</span><span class="text-slate-500">→</span>
+      <span class="bg-white/10 rounded-lg px-3 py-2">5. PDPA + กรอกใบสมัคร</span><span class="text-slate-500">→</span>
+      <span class="bg-white/10 rounded-lg px-3 py-2">6. ได้เลขใบสมัคร</span><span class="text-slate-500">→</span>
+      <span class="bg-emerald-500/20 text-emerald-300 rounded-lg px-3 py-2">7. ติดตามสถานะ</span>
+    </div>
+  </section>
+
+  <footer class="text-center text-xs text-slate-500 mt-8">
+    <a href="index.html" class="hover:text-slate-300">← กลับหน้าหลัก Web PP7</a> · PKG Group Recruitment · ข้อมูลส่วนบุคคลของท่านได้รับการคุ้มครองตาม PDPA
+  </footer>
+</div>
+
+<script src="recruitment-master-data.js"></script>
+<script>
+  document.getElementById('fu01-count').textContent = getCompaniesByFU('FU01').length + ' บริษัทเปิดรับ';
+  document.getElementById('fu02-count').textContent = getCompaniesByFU('FU02').length + ' บริษัท';
+  document.getElementById('fu03-count').textContent = getCompaniesByFU('FU03').length + ' บริษัท';
+</script>
+</body>
+</html>

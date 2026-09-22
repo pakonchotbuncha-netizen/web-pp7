@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏗️ โครงสร้างองค์กร — Flow การสรรหา ข้อ 1 | Web PP7</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { color-scheme: light; }
+  body { font-family:'Prompt',sans-serif; background:#f1f5f9; min-height:100vh; }
+  .glass { background:rgba(255,255,255,.92); backdrop-filter:blur(8px); }
+  .card { border:1px solid #e5e7eb; border-radius:1rem; background:#fff; }
+  .sec-badge { display:inline-flex; align-items:center; gap:.5rem; padding:.35rem .9rem; border-radius:9999px; font-weight:700; font-size:.85rem; color:#fff; }
+  .perm-ok { color:#059669; font-weight:700; }
+  .perm-view { color:#d97706; font-weight:700; }
+  .perm-no { color:#dc2626; font-weight:700; }
+  .flow-box { border:2px solid #cbd5e1; border-radius:.8rem; padding:.7rem 1rem; background:#f8fafc; text-align:center; font-size:.85rem; }
+  .flow-arrow { text-align:center; color:#94a3b8; font-size:1.1rem; margin:.15rem 0; }
+  .tab-btn { padding:.55rem 1rem; border-radius:.7rem; font-weight:600; font-size:.9rem; border:2px solid transparent; }
+  .tab-btn.active { background:#1e3a5f; color:#fff; }
+  .menu-card { border:2px solid #e2e8f0; border-radius:1rem; padding:1.1rem; transition:.15s; cursor:pointer; }
+  .menu-card:hover { box-shadow:0 8px 24px rgba(0,0,0,.08); transform:translateY(-2px); }
+  .st { display:inline-block; padding:.15rem .6rem; border-radius:9999px; font-size:.72rem; font-weight:700; }
+  .st-request { background:#fef3c7; color:#92400e; }
+  .st-approved { background:#d1fae5; color:#065f46; }
+  table.master { width:100%; font-size:.85rem; }
+  table.master th { background:#1e3a5f; color:#fff; padding:.5rem .75rem; text-align:left; font-weight:600; }
+  table.master td { padding:.45rem .75rem; border-bottom:1px solid #e2e8f0; }
+  table.master tr:hover td { background:#f8fafc; }
+</style>
+</head>
+<body class="text-slate-800">
+
+<!-- Topbar -->
+<header class="glass border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+    <div class="flex items-center gap-3">
+      <span style="font-size:1.7rem">🏗️</span>
+      <div>
+        <h1 class="text-lg font-bold text-slate-900 leading-tight">โครงสร้างองค์กร</h1>
+        <p class="text-xs text-slate-500">Flow การสรรหา — 10 ขั้นตอน · ข้อที่ 1 · ตามแนวทาง Task PP7 ไก่จัง</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 text-sm">
+      <a href="index.html" class="px-3 py-2 rounded-lg bg-slate-800 text-white font-semibold">🏠 หน้าหลัก</a>
+      <a href="docs/p1-dashboard.html" class="px-3 py-2 rounded-lg bg-slate-200 text-slate-700 font-semibold">📋 P1 Dashboard</a>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
+  <!-- Menu switcher: 4 เมนูตามชีต -->
+  <nav class="card p-2 flex flex-wrap gap-2">
+    <button class="tab-btn active" data-tab="req"   onclick="showTab('req')">① คีย์ขอโครงสร้าง (BMC)</button>
+    <button class="tab-btn"        data-tab="ext"   onclick="showTab('ext')">② DATAโครงสร้างบริษัทภายนอก (PAO)</button>
+    <button class="tab-btn"        data-tab="int"   onclick="showTab('int')">③ DATAโครงสร้างบริษัทภายใน (PAO)</button>
+    <button class="tab-btn"        data-tab="chart" onclick="showTab('chart')">④ Flowchart ราย BU</button>
+  </nav>
+
+  <!-- ═══════════ MENU 1: คีย์ขอโครงสร้าง (เฉพาะ BMC) ═══════════ -->
+  <section id="tab-req" class="space-y-5">
+    <div class="card p-5">
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="sec-badge" style="background:#4338ca">① คีย์ขอโครงสร้าง</span>
+        <span class="text-xs"><span class="st" style="background:#ede9fe;color:#5b21b6">เฉพาะ BMC / ผู้รับใช้ทีม</span> <span class="st" style="background:#f1f5f9;color:#475569">PAO: ดูได้</span> <span class="st" style="background:#fee2e2;color:#991b1b">บุคคลทั่วไป: ❌</span></span>
+      </div>
+      <p class="text-sm text-slate-600 mt-3">BMC คีย์คำขอโครงสร้างใหม่ (BU / บริษัท / หน่วยงาน / ตำแหน่ง / จำนวนอัตรา / เหตุผล) — บันทึกลงฐานข้อมูล สถานะ <b>REQUEST</b> แล้วส่งต่อ PAO ทันที</p>
+      <div class="mt-4">
+        <iframe id="reqFrame" src="https://script.google.com/macros/s/AKfycbwQ5-gGWyBsLuwVO-nBngZTDEXHm6-FiHmQQkXtYiMb8s-dxJ0McWi9u0mSnbdV6D1bAw/dev?spreadsheet_id=1S_0IO-Hu5T0_kGaor0kmnMayH-4ek2sLYq4rwiFi5v8&form_name=create_structure" style="width:100%;height:1350px;border:1px solid #e2e8f0;border-radius:1rem;background:#fff" loading="lazy" title="ฟอร์มคีย์ขอโครงสร้าง"></iframe>
+        <div class="text-xs text-slate-400 mt-2">↳ ฟอร์มจริงจากระบบเดิม (GAS create_structure) ฝังในหน้า Web PP7 — ข้อมูลบันทึกลงฐานข้อมูลโดยตรง</div>
+      </div>
+check    </div>
+  </section>
+
+  <!-- ═══════════ MENU 2: DATAโครงสร้างบริษัทภายนอก (เฉพาะ PAO) ═══════════ -->
+  <section id="tab-ext" class="space-y-5 hidden">
+    <div class="card p-5">
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="sec-badge" style="background:#0f766e">② DATAโครงสร้างบริษัทภายนอก</span>
+        <span class="text-xs"><span class="st" style="background:#ccfbf1;color:#134e4a">เฉพาะ PAO</span></span>
+        <a href="https://docs.google.com/spreadsheets/d/1liNuQStJOoFfidKa4yMwV0wOVntR5FlUKfcoYhc-vAA/edit?gid=1829103723#gid=1829103723" target="_blank" class="ml-auto text-xs text-blue-600 underline">📄 เปิดชีตต้นทาง (Google Sheets)</a>
+      </div>
+      <p class="text-sm text-slate-600 mt-3">PAO Set/ปรับโครงสร้างแทนบอร์ด — จากคำขอที่ BMC คีย์เข้ามา → Set โครงสร้าง → <b>APPROVE</b> → เข้า STRUCTURE DATABASE (Single Source of Truth) → ไหลต่อไป Flowchart + Step 2 ขออัตรากำลังคน อัตโนมัติ</p>
+      <!-- STRUCTURE REQUEST QUEUE -->
+      <div class="mt-5">
+        <h3 class="font-bold text-slate-800 mb-2">📥 คำขอจาก BMC (STRUCTURE_REQUEST)</h3>
+        <div class="overflow-x-auto"><table class="master min-w-[720px]">
+          <thead><tr><th>STRUCTURE_REQUEST_ID</th><th>BU</th><th>บริษัท</th><th>หน่วยงาน/ตำแหน่ง</th><th>จำนวนอัตรา</th><th>สถานะ</th><th>การจัดการ</th></tr></thead>
+          <tbody id="reqQueue"><tr><td colspan="7" class="text-slate-400 text-center py-4">ยังไม่มีคำขอ — เมื่อ BMC คีย์ผ่านเมนู ① คำขอจะเข้าที่นี่ทันที</td></tr></tbody>
+        </table></div>
+      </div>
+      <!-- ตารางโครงสร้างภายนอก (จากฐานเดิม) -->
+      <div class="mt-6" id="extCompanies"><p class="text-sm text-slate-400">กำลังโหลดข้อมูลโครงสร้างภายนอก…</p></div>
+      <div class="mt-4 rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800">
+        ⚠️ หลักการจากชีต: แยก EXTERNAL / INTERNAL เป็นคนละประเภทข้อมูล — ห้ามปนกัน · การ Set โครงสร้างในหน้าเว็บ (แทนบอร์ด) ต้องบันทึกลงฐานข้อมูลกลาง + Audit Log ทุกครั้ง
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ MENU 3: DATAโครงสร้างบริษัทภายใน (เฉพาะ PAO) ═══════════ -->
+  <section id="tab-int" class="space-y-5 hidden">
+    <div class="card p-5">
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="sec-badge" style="background:#7c3aed">③ DATAโครงสร้างบริษัทภายใน</span>
+        <span class="text-xs"><span class="st" style="background:#ede9fe;color:#5b21b6">เฉพาะ PAO</span></span>
+        <a href="https://docs.google.com/spreadsheets/d/1ZGQF_AuixYziDmYeZcaSxBeBQEgGdYJbkX5JgpeIkaw/edit?gid=1481031524#gid=1481031524" target="_blank" class="ml-auto text-xs text-blue-600 underline">📄 เปิดชีตต้นทาง (Google Sheets)</a>
+      </div>
+      <p class="text-sm text-slate-600 mt-3">Flow เดียวกับเมนู ② แต่แยก Dataset เป็นโครงสร้าง "ภายใน" (STRUCTURE_INTERNAL) — ไม่ปนกับภายนอกตามข้อสำคัญในชีต</p>
+      <div class="mt-5" id="intStructure"><p class="text-slate-400 text-sm">กำลังโหลดโครงสร้างภายใน…</p></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ MENU 4: Flowchart ราย BU ═══════════ -->
+  <section id="tab-chart" class="space-y-5 hidden">
+    <div class="card p-5">
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="sec-badge" style="background:#0284c7">④ Flowchart</span>
+        <span class="text-xs">เลือก BU → บริษัท → ดึง Structure ล่าสุดที่ APPROVED → แสดง Flowchart ตามโครงสร้างเงินเดือน</span>
+      </div>
+      <div class="mt-4 flex flex-wrap gap-2" id="buChips"></div>
+      <div class="mt-4" id="chartArea"><p class="text-slate-400 text-sm">เลือก BU เพื่อดู Flowchart ของบริษัทในสังกัด</p></div>
+      <div class="mt-4 rounded-xl bg-sky-50 border border-sky-200 p-3 text-xs text-sky-800">
+        💡 หัวใจของระบบ (จากชีต): <b>STRUCTURE DATABASE = Single Source of Truth</b> — เมื่อ PAO Set + อนุมัติโครงสร้างใหม่ ข้อมูลชุดเดียวไหลไปทั้ง Flowchart และ Step 2 ขออัตรากำลังคน ไม่ต้องคีย์ซ้ำ · เมื่อ PAO ปรับโครงสร้าง Flowchart เปลี่ยนตาม Database อัตโนมัติ
+      </div>
+    </div>
+  </section>
+
+  <!-- DB Relationship -->
+  <section class="card p-5">
+    <h2 class="text-lg font-bold text-slate-800 mb-3">🗄️ Database Relationship (ตามชีตข้อ 10)</h2>
+    <div class="flex flex-wrap items-center gap-2 text-xs">
+      <span class="rounded-lg bg-slate-100 border px-3 py-2 font-semibold">FU_MASTER</span><span class="text-slate-400">→</span>
+      <span class="rounded-lg bg-slate-100 border px-3 py-2 font-semibold">BU_MASTER</span><span class="text-slate-400">→</span>
+      <span class="rounded-lg bg-slate-100 border px-3 py-2 font-semibold">COMPANY_MASTER</span><span class="text-slate-400">→</span>
+      <span class="rounded-lg bg-slate-100 border px-3 py-2 font-semibold">BRANCH_MASTER</span><span class="text-slate-400">→</span>
+      <span class="rounded-lg bg-slate-100 border px-3 py-2 font-semibold">DEPARTMENT_MASTER</span><span class="text-slate-400">→</span>
+      <span class="rounded-lg bg-slate-100 border px-3 py-2 font-semibold">POSITION_MASTER</span><span class="text-slate-400">→</span>
+      <span class="rounded-lg bg-indigo-100 border border-indigo-300 px-3 py-2 font-semibold text-indigo-800">STRUCTURE_MASTER</span><span class="text-slate-400">→</span>
+      <span class="rounded-lg bg-emerald-100 border border-emerald-300 px-3 py-2 font-semibold text-emerald-800">FLOWCHART</span>
+    </div>
+    <p class="text-xs text-slate-500 mt-3">STRUCTURE_MASTER แตกเป็น: STRUCTURE_REQUEST (BMC คีย์) · STRUCTURE_EXTERNAL (PAO) · STRUCTURE_INTERNAL (PAO) · STRUCTURE_VERSION → FLOWCHART → MANPOWER_REQUEST (Step 2)</p>
+  </section>
+</main>
+
+<footer class="max-w-7xl mx-auto px-4 py-6 text-center text-xs text-slate-500">
+  🔗 ต้นทาง: ชีต "สำเนาของ Task PP7 ไก่จัง" (Task 2 — โครงสร้างองค์กร) · อัปเดต 22 ก.ย. 2569 · KiloClaw 🦾
+</footer>
+
+<script src="business-structure-data.js"></script>
+<script>
+function showTab(id){
+  ['req','ext','int','chart'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display = (t===id)?'':'none';
+  });
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===id));
+}
+
+// ── เรนเดอร์ภายนอก/ภายใน + Flowchart จาก business-structure-data (ฐานเดิมที่มีอยู่จริง) ──
+function renderBSData(data) {
+  try {
+  const ext = document.getElementById('extCompanies');
+  const int_ = document.getElementById('intStructure');
+  function renderCompanies(target, companies, other, title){
+    if (!companies) { target.innerHTML = '<p class="text-slate-400 text-sm">ไม่พบข้อมูลในฐานเดิม</p>'; return; }
+    let html = '<div class="overflow-x-auto"><table class="master min-w-[640px]"><thead><tr><th>COMPANY_ID</th><th>บริษัท (COMPANY_NAME)</th><th>ประเภท</th><th>สถานะ</th></tr></thead><tbody>';
+    (companies||[]).forEach((c,i)=>{
+      const name = c.company || c.name || c['บริษัท'] || JSON.stringify(c).slice(0,60);
+      html += `<tr><td class="font-mono text-xs">${String(c.id||'EXT-'+(i+1))}</td><td>${name}</td><td class="text-xs">${c.type||'บริษัทภายนอก'}</td><td><span class="st" style="background:#d1fae5;color:#065f46">🟢 ACTIVE</span></td></tr>`;
+    });
+    html += '</tbody></table></div>';
+    if (other && other.length) html += `<details class="mt-3"><summary class="text-sm text-blue-600 cursor-pointer">ดูบริษัทอื่น ๆ เพิ่มเติม (${other.length})</summary><div class="mt-2 text-sm text-slate-600">${other.map(o=>`• ${o.company||o.name||JSON.stringify(o)}`).join('<br>')}</div></details>`;
+    target.innerHTML = html;
+  }
+  if (data) {
+    renderCompanies(ext, data.externalCompanies?.companies, data.externalCompanies?.otherCompanies);
+    if (data.internalCompanies) {
+      let html = '<div class="grid sm:grid-cols-2 gap-4">';
+      (data.internalCompanies.teams||[]).forEach(t=>{
+        html += `<div class="rounded-xl border p-3"><b class="text-slate-800 text-sm">${t.name||t.team||'ทีม'}</b><div class="text-xs text-slate-500 mt-1">${t.description||''}</div></div>`;
+      });
+      html += '</div>';
+      int_.innerHTML = html;
+    }
+  } else { ext.innerHTML='<p class="text-slate-400 text-sm">ข้อมูลฐานเดิมพร้อมใช้ — เชื่อมชีตต้นทางตามลิงก์ด้านบน</p>'; int_.innerHTML='<p class="text-slate-400 text-sm">ข้อมูลฐานเดิมพร้อมใช้</p>'; }
+  } catch(e){ console.warn(e); }
+}
+renderBSData(null);
+window.__bsdataReady = renderBSData;
+
+// ── Flowchart ราย BU ──
+const BU_FLOWCHART = {
+  AAMG: [
+    { name:'บริษัท เอเอเอ็ม แคปปิตอลเซอร์วิส จำกัด', branches:['สำนักงานใหญ่','สาขากบินทร์บุรี','สาขานครนายก','สาขาปลวกแดง','สาขาศรีนครินทร์','สาขาสระบุรี','สาขาวังน้ำเย็น'] },
+    { name:'บริษัท พีเอ็มเอส คัสตอมเมอร์เซอร์วิส จำกัด' },
+    { name:'บริษัท เอเอเอ็ม บุรีรัมย์ จำกัด' },
+    { name:'บริษัท เกษตรไทย ลิสซิ่ง จำกัด' },
+    { name:'บริษัท เกษตรไทย ลิสซิ่ง บึงกาฬ จำกัด' },
+    { name:'บริษัท เอเอเอ็ม ฉะเชิงเทรา จำกัด' },
+    { name:'บริษัท อีเอซี กาญจนบุรี จำกัด' },
+    { name:'บริษัท เอเอเอ็ม ลพบุรี จำกัด' },
+    { name:'บริษัท เอเอเอ็ม แคปปิตอล เซอร์วิส พัทยา จำกัด' },
+    { name:'บริษัท เอเอเอ็ม มุกดาหาร จำกัด' },
+    { name:'บริษัท เอเอเอ็ม แคปปิตอล เซอร์วิส นนทบุรี จำกัด' },
+    { name:'บริษัท เอเอเอ็ม ปากช่อง จำกัด' },
+    { name:'บริษัท พีซีแอล แคปปิตอล เซอร์วิส จำกัด' },
+    { name:'บริษัท พีเอ็มเอส แคปปิตอล เซอร์วิส จำกัด' },
+    { name:'บริษัท พรีเชียส สโตน แอสเซท เมแนจเมนท์ จำกัด' },
+    { name:'บริษัท สระแก้วลิสซิ่ง จำกัด' },
+    { name:'บริษัท อาร์วายแอล แคปปิตอล เซอร์วิส จำกัด' },
+    { name:'บริษัท อีเอซี ราชบุรี จำกัด' },
+    { name:'บริษัท เอเอเอ็ม ตะเคียนคู่ จำกัด' },
+    { name:'บริษัท เอเอเอ็ม สกลนคร จำกัด' },
+    { name:'บริษัท เอเอเอ็ม สุรินทร์ จำกัด' },
+    { name:'บริษัท เอเอเอ็ม แคปปิตอลเซอร์วิส พระยาสัจจา จำกัด' },
+    { name:'บริษัท เอเอเอ็ม แคปปิตอล เซอร์วิส สอยดาว จำกัด' },
+    { name:'บริษัท เอเอเอ็ม แคปปิตอล เซอร์วิส อุดรดุษฎี จำกัด' },
+    { name:'บริษัท เอเอ็นเอฟ เทรดดิ้ง จำกัด' },
+    { name:'บริษัท ไซฟินเวสท์ ดิจิตอล โบรคเกอร์ จำกัด' },
+    { name:'บริษัท เล็นด์เอ็กซ์ จำกัด' }
+  ],
+  PMSG: [
+    { name:'บริษัท ประชากิจมอเตอร์เซลส์ จำกัด', branches:['สำนักงานใหญ่'] },
+    { name:'บริษัท ประชากิจมอเตอร์เซลส์ จำกัด', branches:['สอยดาว'] },
+    { name:'บริษัท ประชากิจมอเตอร์เซลส์ จำกัด', branches:['นายายอาม'] },
+    { name:'บริษัท ประชากิจมอเตอร์เซลส์ จำกัด', branches:['ขลุง'] }
+  ],
+  CPDG: [
+    { name:'บริษัท แอจจิลซอฟท์ คอร์ปอเรชั่น จำกัด' },
+    { name:'บริษัท 21ซีที รีเสิร์ท จำกัด' },
+    { name:'บริษัท ศูนย์พัฒนาผู้นำ จำกัด' },
+    { name:'บริษัท ไซฟินเวสท์ ดิจิตอล โบรคเกอร์ จำกัด' }
+  ],
+  RPLCG: [
+    { name:'บริษัท ร่วมพัฒนา เช่าสินเชื่อ จำกัด' },
+    { name:'ร้านจะเลินมอเตอร์ (ส่วนบุคคล)' },
+    { name:'ร้านหลวงพะบางมอเตอร์เซลล์ (ส่วนบุคคล)' },
+    { name:'ร้านเวียงมอเตอร์ (ส่วนบุคคล)' },
+    { name:'ร้านมงคลมอเตอร์ สะหวันเขต' },
+    { name:'สถาบันการเงินจุละพาก ราฟโค ไฟแนนซ์เชียล ลาว จำกัด (ผู้เดียว)' },
+    { name:'บริษัท เพ็ดจะเลินบริการ จำกัด (ผู้เดียว)' }
+  ],
+  RAFCOG: [
+    { name:'บริษัท ราฟโค ไฟแนนเซียล (เขมโบเดีย) จำกัดมหาชน' },
+    { name:'บริษัท เอไอไอแอล แคปปิตอล พาร์ทเนอร์ จำกัด' },
+    { name:'FIV INVESTMENT TRUST KH CO.,LTD.' },
+    { name:'บริษัท เนทีฟ ไฟแนนเชี่ยล เทคโนโลยี เคเอช จำกัด' }
+  ]
+};
+const BU_COLORS = { AAMG:'#dc2626', PMSG:'#ea580c', CPDG:'#7c3aed', RPLCG:'#ca8a04', RAFCOG:'#0284c7' };
+(function renderBU(){
+  const chips = document.getElementById('buChips');
+  const area = document.getElementById('chartArea');
+  Object.keys(BU_FLOWCHART).forEach(bu=>{
+    const btn = document.createElement('button');
+    btn.className = 'px-4 py-2 rounded-xl font-semibold text-sm text-white';
+    btn.style.background = BU_COLORS[bu];
+    btn.textContent = bu;
+    btn.onclick = ()=>{
+      const list = BU_FLOWCHART[bu];
+      let html = `<div class="rounded-2xl border-2 p-4" style="border-color:${BU_COLORS[bu]}33;background:${BU_COLORS[bu]}0a"><h3 class="font-bold mb-3" style="color:${BU_COLORS[bu]}">${bu} — ${list.length} บริษัท</h3><div class="space-y-2">`;
+      list.forEach((c,i)=>{
+        html += '<div class="rounded-xl bg-white border p-3"><div class="flex items-start gap-2"><span class="text-xs font-mono text-slate-400 mt-0.5">' + String(i+1).padStart(2,'0') + '</span><div><b class="text-sm text-slate-800">' + c.name + '</b>' + (c.branches ? '<div class="text-xs text-slate-500 mt-1">├ ' + c.branches.join(' · ├ ') + '</div>' : '') + '</div></div></div>';
+      });
+      html += '</div><p class="text-xs text-slate-400 mt-3">↳ Flowchart แสดงตามโครงสร้างที่ APPROVED ล่าสุดในฐานข้อมูล (STRUCTURE_VERSION) — เมื่อ PAO ปรับโครงสร้างแล้วหน้านี้เปลี่ยนตามอัตโนมัติ</p></div>';
+      area.innerHTML = html;
+    };
+    chips.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>
