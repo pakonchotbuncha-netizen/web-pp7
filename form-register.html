@@ -1159,6 +1159,10 @@
                     const t = fuT();
                     sec.style.display = '';
                     const sel = document.getElementById('fu-company');
+                    if (sel.dataset.noFuDone === currentLang) return; // กัน render ซ้ำ (duplicate options)
+                    sel.dataset.noFuDone = currentLang;
+                    const keep = sel.value;
+                    sel.innerHTML = '<option value="">' + (t.phCompany || '— เลือกบริษัท —') + '</option>';
                     const grpLabels = { FU01: '🟠 THAI', FU02: '🟡 RPLCG (ລາວ)', FU03: '🔴🔵 RAFCOG' };
                     COMPANY_MASTER.filter(c => c.STATUS === 'ACTIVE').forEach(c => {
                         const o = document.createElement('option');
@@ -1166,6 +1170,7 @@
                         o.textContent = '[' + (grpLabels[c.FU_ID] || c.FU_ID) + '] ' + localizeCompany(c, currentLang);
                         sel.appendChild(o);
                     });
+                    if (keep) sel.value = keep;
                     sel.addEventListener('change', function(){
                         const bSel = document.getElementById('fu-branch');
                         const branches = getBranchesByCompany(this.value);
