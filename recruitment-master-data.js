@@ -63,14 +63,21 @@ const COMPANY_MASTER = [
 ];
 
 // BRANCH_MASTER — บริษัทที่มีหลายสาขา (อ้างอิง COMPANY_ID)
+// ตามชีตไก่จัง: AAM แคปปิตอลเซอร์วิส 7 สาขา · PMSG ประชากิจมอเตอร์เซลส์ 4 สาขา (สำนักงานใหญ่/สอยดาว/นายายอาม/ขลุง)
 const BRANCH_MASTER = [
-  { BRANCH_ID: 'BR001', COMPANY_ID: 'TH002B', NAME: 'สำนักงานใหญ่',     STATUS: 'ACTIVE' },
-  { BRANCH_ID: 'BR002', COMPANY_ID: 'TH002C', NAME: 'สาขากบินทร์บุรี',   STATUS: 'ACTIVE' },
-  { BRANCH_ID: 'BR003', COMPANY_ID: 'TH002D', NAME: 'สาขานครนายก',       STATUS: 'ACTIVE' },
-  { BRANCH_ID: 'BR003', COMPANY_ID: 'TH002E', NAME: 'สาขาปลวกแดง',       STATUS: 'ACTIVE' },
-  { BRANCH_ID: 'BR004', COMPANY_ID: 'TH002F', NAME: 'สาขาศรีนครินทร์',   STATUS: 'ACTIVE' },
-  { BRANCH_ID: 'BR005', COMPANY_ID: 'TH002G', NAME: 'สาขาสระบุรี',       STATUS: 'ACTIVE' },
-  { BRANCH_ID: 'BR006', COMPANY_ID: 'TH002H', NAME: 'สาขาวังน้ำเย็น',    STATUS: 'ACTIVE' }
+  // เอเอเอ็ม แคปปิตอลเซอร์วิส (TH002)
+  { BRANCH_ID: 'BR001', COMPANY_ID: 'TH002', NAME: 'สำนักงานใหญ่',   STATUS: 'ACTIVE' },
+  { BRANCH_ID: 'BR002', COMPANY_ID: 'TH002', NAME: 'สาขากบินทร์บุรี', STATUS: 'ACTIVE' },
+  { BRANCH_ID: 'BR003', COMPANY_ID: 'TH002', NAME: 'สาขานครนายก',     STATUS: 'ACTIVE' },
+  { BRANCH_ID: 'BR004', COMPANY_ID: 'TH002', NAME: 'สาขาปลวกแดง',     STATUS: 'ACTIVE' },
+  { BRANCH_ID: 'BR005', COMPANY_ID: 'TH002', NAME: 'สาขาศรีนครินทร์', STATUS: 'ACTIVE' },
+  { BRANCH_ID: 'BR006', COMPANY_ID: 'TH002', NAME: 'สาขาสระบุรี',     STATUS: 'ACTIVE' },
+  { BRANCH_ID: 'BR007', COMPANY_ID: 'TH002', NAME: 'สาขาวังน้ำเย็น',  STATUS: 'ACTIVE' },
+  // ประชากิจมอเตอร์เซลส์ (TH001) — ตามชีต 4.2.2 PMSG
+  { BRANCH_ID: 'BR010', COMPANY_ID: 'TH001', NAME: 'สำนักงานใหญ่', STATUS: 'ACTIVE' },
+  { BRANCH_ID: 'BR011', COMPANY_ID: 'TH001', NAME: 'สาขาสอยดาว',   STATUS: 'ACTIVE' },
+  { BRANCH_ID: 'BR012', COMPANY_ID: 'TH001', NAME: 'สาขานายายอาม', STATUS: 'ACTIVE' },
+  { BRANCH_ID: 'BR013', COMPANY_ID: 'TH001', NAME: 'สาขาขลุง',     STATUS: 'ACTIVE' }
 ];
 
 // THEME ราย FU (Dynamic Theme ตามชีตข้อ 14)
