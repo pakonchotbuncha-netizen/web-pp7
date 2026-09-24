@@ -1221,9 +1221,10 @@
                         o.value = fuId; o.textContent = groupLabel(fuId);
                         gSel.appendChild(o);
                     });
-                    if (keepG) gSel.value = keepG;
+                    if (keepG && gSel.dataset.manual === '1') gSel.value = keepG;
+                    else gSel.value = ({ th: 'FU01', lo: 'FU02', km: 'FU03' })[currentLang] || ''; // ภาษาไหน = กลุ่มประเทศนั้น (เขมร=เห็นแต่บริษัทกัมพูชา)
                     renderNoFuCompanies(keepC);
-                    gSel.onchange = function(){ renderNoFuCompanies(''); };
+                    gSel.onchange = function(){ gSel.dataset.manual = '1'; renderNoFuCompanies(''); };
                     sel.onchange = function(){ refreshNoFuBranch(); };
                     const setG = (id, v) => { const el = document.getElementById(id); if (el && v) el.textContent = v; };
                     setG('fu-label-group', t.group);
