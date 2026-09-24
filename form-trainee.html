@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ใบสมัครขอฝึกงาน - PKG Trainee Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Noto+Sans+Lao:wght@300;400;500;600;700&family=Noto+Sans+Khmer:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Prompt', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        body[data-lang="lo"] { font-family: 'Noto Sans Lao', sans-serif; }
+        body[data-lang="km"] { font-family: 'Noto Sans Khmer', sans-serif; }
+        .section-title { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .required::after { content: " *"; color: #ef4444; }
+        input:invalid, select:invalid, textarea:invalid { border-color: #fca5a5; }
+        .pkg-badge { background: rgba(255,255,255,.15); backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body data-lang="th" class="py-6 px-3">
+    <div class="max-w-3xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-white mb-1" id="form-title">ใบสมัครขอฝึกงาน</h1>
+            <p class="text-sm text-indigo-100" id="form-subtitle">กลุ่มบริษัทประชากิจ (PKG)</p>
+            <div class="flex justify-center gap-2 mt-4" id="lang-btns">
+                <button onclick="setLanguage('th')" id="btn-th" class="px-3 py-1 bg-blue-600 text-white rounded text-sm font-medium">🇹🇭 ไทย</button>
+                <button onclick="setLanguage('en')" id="btn-en" class="px-3 py-1 bg-white/20 text-white rounded text-sm font-medium hover:bg-white/30">🇬🇧 EN</button>
+                <button onclick="setLanguage('lo')" id="btn-lo" class="px-3 py-1 bg-white/20 text-white rounded text-sm font-medium hover:bg-white/30">🇱🇦 ລາວ</button>
+                <button onclick="setLanguage('km')" id="btn-km" class="px-3 py-1 bg-white/20 text-white rounded text-sm font-medium hover:bg-white/30">🇰🇭 ខ្មែរ</button>
+            </div>
+        </div>
+
+        <!-- PDPA Consent -->
+        <div class="bg-white shadow-lg p-6 rounded-t-xl border-b">
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                <h2 class="text-xl font-bold text-yellow-800 mb-2" id="consent-title">📋 ความยินยอมในการเก็บรวบรวมข้อมูลส่วนบุคคล</h2>
+                <div id="consent-content" class="text-sm text-gray-700 space-y-3 max-h-96 overflow-y-auto"></div>
+            </div>
+            <div class="flex items-start gap-2 mt-4">
+                <input type="checkbox" id="consent-check" class="w-5 h-5 mt-1 text-blue-600 rounded focus:ring-blue-500">
+                <label for="consent-check" class="text-sm font-medium text-gray-700" id="consent-label">ข้าพเจ้ายินยอมให้เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลตามนโยบายข้างต้น</label>
+            </div>
+        </div>
+
+        <form id="trainee-form" class="bg-white shadow-lg rounded-b-xl mb-10">
+            <!-- Section 1: ข้อมูลส่วนตัวของนักศึกษา -->
+            <div class="p-6 border-b">
+                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec1-title">👤 ข้อมูลส่วนตัวของนักศึกษา</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-prefix-th">คำนำหน้า (ภาษาไทย)</label>
+                        <select id="prefix-th" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- เลือก --</option>
+                            <option value="นาย">นาย</option>
+                            <option value="นาง">นาง</option>
+                            <option value="นางสาว">นางสาว</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-prefix-en">คำนำหน้า (English)</label>
+                        <select id="prefix-en" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- เลือก --</option>
+                            <option value="Mr.">Mr.</option>
+                            <option value="Mrs.">Mrs.</option>
+                            <option value="Miss.">Miss.</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-firstname-th">ชื่อ (ภาษาไทย)</label>
+                        <input type="text" id="firstname-th" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-lastname-th">นามสกุล (ภาษาไทย)</label>
+                        <input type="text" id="lastname-th" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-firstname-en">First Name (English)</label>
+                        <input type="text" id="firstname-en" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-lastname-en">Last Name (English)</label>
+                        <input type="text" id="lastname-en" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-nickname">ชื่อเล่น</label>
+                        <input type="text" id="nickname" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-age">อายุ</label>
+                        <input type="number" id="age" min="15" max="60" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-gender">เพศ</label>
+                        <div class="flex items-center gap-6 pt-2">
+                            <label class="flex items-center gap-2 text-sm"><input type="radio" name="gender" value="ชาย" required> <span id="opt-gender-male">ชาย</span></label>
+                            <label class="flex items-center gap-2 text-sm"><input type="radio" name="gender" value="หญิง"> <span id="opt-gender-female">หญิง</span></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-idcard">รหัสบัตรประชาชน</label>
+                        <input type="text" id="idcard" required maxlength="13" inputmode="numeric" pattern="[0-9]{13}" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-phone">เบอร์โทรศัพท์</label>
+                        <input type="tel" id="phone" required maxlength="10" inputmode="tel" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-address">ที่อยู่ปัจจุบัน</label>
+                        <textarea id="address" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-facebook">Facebook</label>
+                        <input type="text" id="facebook" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-line">ID Line</label>
+                        <input type="text" id="line" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: ข้อมูลการศึกษาและการฝึกงาน -->
+            <div class="p-6 border-b">
+                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec2-title">🎓 ข้อมูลการศึกษาและการฝึกงาน</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-apprentice-type">ประเภทฝึกงาน</label>
+                        <select id="apprentice-type" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- เลือก --</option>
+                            <option value="ทวิภาคี">ทวิภาคี</option>
+                            <option value="นักศึกษาฝึกงาน">นักศึกษาฝึกงาน</option>
+                            <option value="นักศึกษาฝึกงานสหกิจ">นักศึกษาฝึกงานสหกิจ</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-education">ระดับการศึกษา</label>
+                        <select id="education" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- เลือก --</option>
+                            <option value="ปวช.">ปวช.</option>
+                            <option value="ปวส.">ปวส.</option>
+                            <option value="ปริญญาตรี">ปริญญาตรี</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-place-education">ชื่อสถานศึกษา</label>
+                        <input type="text" id="place-education" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-major">สาขาวิชา</label>
+                        <input type="text" id="major" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-grade">เกรดเฉลี่ย</label>
+                        <input type="text" id="grade" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-start-date">วันที่เริ่มฝึกงาน</label>
+                        <input type="date" id="start-date" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-stop-date">วันครบกำหนดการฝึกงาน</label>
+                        <input type="date" id="stop-date" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-interest">ความสามารถพิเศษ</label>
+                        <input type="text" id="interest" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-skill-computer">ความสามารถด้านคอมพิวเตอร์</label>
+                        <textarea id="skill-computer" required rows="3" maxlength="200" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: อาจารย์ที่ปรึกษาและผู้ปกครอง -->
+            <div class="p-6">
+                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec3-title">🧑‍🏫 อาจารย์ที่ปรึกษาและผู้ปกครอง</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-name-advisors">ชื่ออาจารย์ที่ปรึกษา</label>
+                        <input type="text" id="name-advisors" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-tel-advisors">เบอร์โทรอาจารย์ที่ปรึกษา</label>
+                        <input type="tel" id="tel-advisors" required maxlength="10" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-name-parent">ชื่อ-นามสกุลของผู้ปกครอง</label>
+                        <input type="text" id="name-parent" required placeholder="ชื่อ....... นามสกุล....... เกี่ยวข้องเป็น......." class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-tel-parent">เบอร์โทรผู้ปกครอง</label>
+                        <input type="tel" id="tel-parent" required maxlength="10" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="p-6 pt-0">
+                <button type="submit" id="btn-submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 rounded-lg shadow transition">
+                    📤 ส่งใบสมัคร
+                </button>
+            </div>
+        </form>
+        <p class="text-center text-xs text-indigo-100 mt-4 pb-6">PKG Recruitment • Web PP7 — กลุ่มบริษัทประชากิจ</p>
+    </div>
+
+<script>
+        let currentLang = 'th';
+        let translations = {};
+
+        async function loadTranslation(lang) {
+            try {
+                const res = await fetch(`i18n/form-trainee-${lang}.json`);
+                translations[lang] = await res.json();
+                return translations[lang];
+            } catch (e) { return null; }
+        }
+
+        async function setLanguage(lang) {
+            currentLang = lang;
+            document.body.setAttribute('data-lang', lang);
+            ['th','en','lo','km'].forEach(l => {
+                const btn = document.getElementById(`btn-${l}`);
+                if (l === lang) { btn.className = 'px-3 py-1 bg-blue-600 text-white rounded text-sm font-medium'; }
+                else { btn.className = 'px-3 py-1 bg-white/20 text-white rounded text-sm font-medium hover:bg-white/30'; }
+            });
+            const data = await loadTranslation(lang);
+            if (data) updateLabels(data);
+        }
+
+        function updateLabels(data) {
+            document.getElementById('form-title').textContent = data.pageTitle || 'ใบสมัครขอฝึกงาน';
+            document.getElementById('form-subtitle').textContent = data.pageSubtitle || 'กลุ่มบริษัทประชากิจ (PKG)';
+            document.getElementById('consent-title').textContent = data.consentTitle || '📋 ความยินยอมในการเก็บรวบรวมข้อมูลส่วนบุคคล';
+            document.getElementById('consent-label').textContent = data.consentLabel || 'ข้าพเจ้ายินยอมให้เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลตามนโยบายข้างต้น';
+
+            // Build consent content
+            let html = `<p class="font-medium">${data.companies}</p><p>${data.intro}</p>`;
+            (data.sections || []).forEach(s => {
+                html += `<div class="mt-3"><p class="font-semibold">${s.title}</p><p>${s.content}</p>`;
+                if (s.items?.length) { html += '<ol class="list-decimal list-inside ml-2 mt-1">'; s.items.forEach(i => html += `<li>${i}</li>`); html += '</ol>'; }
+                html += '</div>';
+            });
+            html += `<p class="mt-3 font-medium">${data.consent}</p><p>${data.consentAgree}</p>`;
+            document.getElementById('consent-content').innerHTML = html;
+
+            // Section titles
+            const st = data.sectionTitles || {};
+            ['sec1','sec2','sec3'].forEach(k => { const el = document.getElementById(`${k}-title`); if (el && st[k]) el.textContent = st[k]; });
+
+            // All labels
+            const lbl = data.labels || {};
+            Object.keys(lbl).forEach(id => { const el = document.getElementById(id); if (el) el.textContent = lbl[id]; });
+
+            // All placeholder texts
+            const ph = data.placeholders || {};
+            Object.keys(ph).forEach(id => { const el = document.getElementById(id); if (el) el.placeholder = ph[id]; });
+
+            // Gender radios
+            const g = data.genderOptions || {};
+            if (g.male) document.getElementById('opt-gender-male').textContent = g.male;
+            if (g.female) document.getElementById('opt-gender-female').textContent = g.female;
+
+            translateSelectOptions(data);
+
+            const btnSubmit = document.getElementById('btn-submit');
+            if (btnSubmit && data.buttons?.submit) btnSubmit.textContent = '📤 ' + data.buttons.submit;
+        }
+
+        function translateSelectOptions(data) {
+            const opt = data.options || {};
+            const selectMaps = {
+                'prefix-th': { 'นาย': 'opt-prefix-mr', 'นาง': 'opt-prefix-mrs', 'นางสาว': 'opt-prefix-miss' },
+                'prefix-en': { 'Mr.': 'opt-prefix-en-mr', 'Mrs.': 'opt-prefix-en-mrs', 'Miss.': 'opt-prefix-en-miss' },
+                'apprentice-type': { 'ทวิภาคี': 'opt-type-dual', 'นักศึกษาฝึกงาน': 'opt-type-intern', 'นักศึกษาฝึกงานสหกิจ': 'opt-type-coop' },
+                'education': { 'ปวช.': 'opt-edu-voc', 'ปวส.': 'opt-edu-hvoc', 'ปริญญาตรี': 'opt-edu-bachelor' },
+            };
+            for (const [selectId, valueMap] of Object.entries(selectMaps)) {
+                const select = document.getElementById(selectId);
+                if (!select) continue;
+                select.querySelectorAll('option').forEach(option => {
+                    if (option.value === '') {
+                        option.textContent = opt['opt-placeholder-select'] || '-- Select --';
+                    } else if (valueMap[option.value] && opt[valueMap[option.value]]) {
+                        option.textContent = opt[valueMap[option.value]];
+                    }
+                });
+            }
+        }
+
+        // ===== Submit to backend (GAS — pipeline เดียวกับ form-register) =====
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyp7f6kX699UhK3e7EHyjQYSQgAzmeTNu4bAJqW2f5n4Zj5AreGoM2TrPqv_AmP3v_r/exec';
+
+        async function submitToBackend(data) {
+            const response = await fetch(GAS_URL + '?action=submitApplication', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return await response.json();
+        }
+
+        function collectFormData() {
+            const data = {};
+            data.applicationType = 'trainee'; // แยกประเภทจากใบสมัครงานประจำ
+            data.positionOpen = 'trainee';
+
+            // Personal
+            data.prefixTh = document.getElementById('prefix-th').value;
+            data.firstnameTh = document.getElementById('firstname-th').value;
+            data.lastnameTh = document.getElementById('lastname-th').value;
+            data.prefixEn = document.getElementById('prefix-en').value;
+            data.firstnameEn = document.getElementById('firstname-en').value;
+            data.lastnameEn = document.getElementById('lastname-en').value;
+            data.nickname = document.getElementById('nickname').value;
+            data.age = document.getElementById('age').value;
+            data.gender = document.querySelector('input[name="gender"]:checked')?.value || '';
+            data.idCard = document.getElementById('idcard').value;
+            data.phone = document.getElementById('phone').value;
+            data.currentAddress = document.getElementById('address').value;
+            data.facebook = document.getElementById('facebook').value;
+            data.line = document.getElementById('line').value;
+
+            // Education & Internship
+            data.apprenticeType = document.getElementById('apprentice-type').value;
+            data.education = document.getElementById('education').value;
+            data.school = document.getElementById('place-education').value;
+            data.major = document.getElementById('major').value;
+            data.grade = document.getElementById('grade').value;
+            data.startDate = document.getElementById('start-date').value;
+            data.stopDate = document.getElementById('stop-date').value;
+            data.specialSkill = document.getElementById('interest').value;
+            data.computerSkill = document.getElementById('skill-computer').value;
+
+            // Advisor & Parent
+            data.advisorName = document.getElementById('name-advisors').value;
+            data.advisorPhone = document.getElementById('tel-advisors').value;
+            data.parentName = document.getElementById('name-parent').value;
+            data.parentPhone = document.getElementById('tel-parent').value;
+
+            data.consentGiven = document.getElementById('consent-check').checked;
+            return data;
+        }
+
+        document.getElementById('trainee-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!document.getElementById('consent-check').checked) {
+                alert((translations[currentLang]?.validation?.consent_required) || 'กรุณากดยินยอมก่อนส่งใบสมัคร');
+                return;
+            }
+
+            const t = translations[currentLang] || {};
+            const submitBtn = document.getElementById('btn-submit');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ ' + (t?.buttons?.submitting || 'กำลังส่ง...');
+
+            try {
+                const formData = collectFormData();
+                const response = await submitToBackend(formData);
+
+                if (response.success) {
+                    const msg = (t?.validation?.success_msg || 'ส่งใบสมัครสำเร็จ!\n\nรหัสผู้สมัคร: {id}')
+                        .replace('{id}', response.applicantId);
+                    alert(msg);
+                    this.reset();
+                    document.getElementById('consent-check').checked = false;
+                } else {
+                    throw new Error(response.error || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Submit error:', error);
+                alert((t?.validation?.error_msg || 'เกิดข้อผิดพลาด: {err}\n\nกรุณาลองใหม่อีกครั้ง').replace('{err}', error.message));
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+
+        // Initialize with Thai
+        setLanguage('th');
+</script>
+</body>
+</html>
