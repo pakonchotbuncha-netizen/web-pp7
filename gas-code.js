@@ -65,6 +65,10 @@ function doPost(e) {
  * Submit new application
  */
 function submitApplication(data) {
+  // ใบสมัครขอฝึกงาน → ชีท Trainees (แยกจาก Applicants)
+  if (data.applicationType === 'trainee') {
+    return submitTraineeApplication(data);
+  }
   try {
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     let sheet = ss.getSheetByName(SHEET_NAME);
@@ -202,6 +206,138 @@ function submitApplication(data) {
 /**
  * Generate unique applicant ID
  */
+/**
+ * Submit trainee (internship) application → sheet 'Trainees'
+ * พอร์ตจากฟอร์มเดิม formTraniee.php (23 ฟิลด์) เข้าระบบ Web PP7
+ */
+const TRAINEE_SHEET_NAME = 'Trainees';
+
+function submitTraineeApplication(data) {
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    let sheet = ss.getSheetByName(TRAINEE_SHEET_NAME);
+
+    // Create sheet if not exists
+    if (!sheet) {
+      sheet = ss.insertSheet(TRAINEE_SHEET_NAME);
+      initializeTraineeSheet(sheet);
+    }
+
+    const applicantId = generateApplicantId();
+    const timestamp = new Date();
+
+    const rowData = [
+      applicantId,
+      timestamp,
+      'new', // status
+
+      // ข้อมูลส่วนตัวของนักศึกษา
+      data.prefixTh || '',
+      data.firstnameTh || '',
+      data.lastnameTh || '',
+      data.prefixEn || '',
+      data.firstnameEn || '',
+      data.lastnameEn || '',
+      data.nickname || '',
+      data.age || '',
+      data.gender || '',
+      data.idCard || '',
+      data.currentAddress || '',
+      data.phone || '',
+      data.facebook || '',
+      data.line || '',
+
+      // ข้อมูลการศึกษาและการฝึกงาน
+      data.apprenticeType || '',
+      data.education || '',
+      data.school || '',
+      data.major || '',
+      data.grade || '',
+      data.startDate || '',
+      data.stopDate || '',
+      data.specialSkill || '',
+      data.computerSkill || '',
+
+      // อาจารย์ที่ปรึกษาและผู้ปกครอง
+      data.advisorName || '',
+      data.advisorPhone || '',
+      data.parentName || '',
+      data.parentPhone || '',
+
+      // Consent (PDPA)
+      data.consentGiven === true ? 'yes' : 'no'
+    ];
+
+    sheet.appendRow(rowData);
+    logAction('submitTraineeApplication', applicantId, 'New trainee application submitted');
+
+    return {
+      success: true,
+      applicantId: applicantId,
+      message: 'Trainee application submitted successfully'
+    };
+  } catch (error) {
+    logError('submitTraineeApplication', error);
+    return {
+      success: false,
+      error: error.toString()
+    };
+  }
+}
+
+/**
+ * Initialize trainee sheet with headers
+ */
+function initializeTraineeSheet(sheet) {
+  const headers = [
+    'Trainee ID',
+    'Timestamp',
+    'Status',
+
+    // ข้อมูลส่วนตัวของนักศึกษา
+    'Prefix (TH)',
+    'First Name (TH)',
+    'Last Name (TH)',
+    'Prefix (EN)',
+    'First Name (EN)',
+    'Last Name (EN)',
+    'Nickname',
+    'Age',
+    'Gender',
+    'ID Card',
+    'Current Address',
+    'Phone',
+    'Facebook',
+    'Line ID',
+
+    // ข้อมูลการศึกษาและการฝึกงาน
+    'Internship Type',
+    'Education Level',
+    'School',
+    'Major',
+    'GPA',
+    'Start Date',
+    'End Date',
+    'Special Talents',
+    'Computer Skills',
+
+    // อาจารย์ที่ปรึกษาและผู้ปกครอง
+    'Advisor Name',
+    'Advisor Phone',
+    'Parent Name',
+    'Parent Phone',
+
+    // Consent (PDPA)
+    'PDPA Consent'
+  ];
+
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold');
+  sheet.getRange(1, 1, 1, headers.length).setBackground('#0d9488');
+  sheet.getRange(1, 1, 1, headers.length).setFontColor('#ffffff');
+  sheet.setFrozenRows(1);
+}
+
 function generateApplicantId() {
   const timestamp = Date.now();
   const random = Math.floor(Math.random() * 1000);
