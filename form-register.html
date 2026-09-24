@@ -1163,12 +1163,20 @@
                     sel.dataset.noFuDone = currentLang;
                     const keep = sel.value;
                     sel.innerHTML = '<option value="">' + (t.phCompany || '— เลือกบริษัท —') + '</option>';
-                    const grpLabels = { FU01: '🟠 THAI', FU02: '🟡 RPLCG (ລາວ)', FU03: '🔴🔵 RAFCOG' };
-                    COMPANY_MASTER.filter(c => c.STATUS === 'ACTIVE').forEach(c => {
-                        const o = document.createElement('option');
-                        o.value = c.COMPANY_ID;
-                        o.textContent = '[' + (grpLabels[c.FU_ID] || c.FU_ID) + '] ' + localizeCompany(c, currentLang);
-                        sel.appendChild(o);
+                    const grpLabels = { FU01: '🇹🇭 THAI (ไทย)', FU02: '🇱🇦 RPLCG (ลาว)', FU03: '🇰🇭 RAFCOG (กัมพูชา)' };
+                    // จัดกลุ่มบริษัทด้วย optgroup แยกตามประเทศ — แก้ปัญหาบริษัทปนกัน
+                    ['FU01','FU02','FU03'].forEach(fuId => {
+                        const comps = COMPANY_MASTER.filter(c => c.STATUS === 'ACTIVE' && c.FU_ID === fuId);
+                        if (!comps.length) return;
+                        const og = document.createElement('optgroup');
+                        og.label = grpLabels[fuId] || fuId;
+                        comps.forEach(c => {
+                            const o = document.createElement('option');
+                            o.value = c.COMPANY_ID;
+                            o.textContent = localizeCompany(c, currentLang);
+                            og.appendChild(o);
+                        });
+                        sel.appendChild(og);
                     });
                     if (keep) sel.value = keep;
                     sel.addEventListener('change', function(){
