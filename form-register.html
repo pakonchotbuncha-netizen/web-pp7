@@ -143,7 +143,13 @@
         <div class="bg-white shadow-lg p-6 border-b" id="fu-section">
             <h2 class="text-lg font-bold text-gray-800 mb-1" id="fu-section-title">🏢 เลือกบริษัทและสาขาที่ต้องการสมัคร</h2>
             <p class="text-xs text-gray-500 mb-4" id="fu-section-hint">เลือกจากกลุ่มธุรกิจที่ท่านต้องการร่วมงาน — เปลี่ยนได้จากปุ่มธงภาษาด้านบน</p>
-            <div class="grid sm:grid-cols-2 gap-4">
+            <div class="grid sm:grid-cols-3 gap-4">
+                <div id="fu-group-row" style="display:none">
+                    <label class="block text-sm font-medium text-gray-700 mb-1 required" id="fu-label-group">กลุ่มประเทศ/กลุ่มธุรกิจ (Group)</label>
+                    <select id="fu-group" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">— เลือกกลุ่มประเทศ/กลุ่มธุรกิจ —</option>
+                    </select>
+                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1 required" id="fu-label-company">บริษัท (Company)</label>
                     <select id="fu-company" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
@@ -825,7 +831,7 @@
             });
             const data = await loadTranslation(lang);
             if (data) updateLabels(data);
-            if (typeof initFU === 'function') initFU(); // re-render company/branch list ตามภาษา (รองรับกรณีไม่มี FU = โชว์ทุกกลุ่ม)
+            if (typeof initFU === 'function') initFU(); // re-render group/company/branch list ตามภาษา (รองรับกรณีไม่มี FU = เลือกกลุ่มก่อน)
         }
 
         function updateLabels(data) {
@@ -1115,6 +1121,48 @@
             return name;
         }
         function fuT() { return (translations[currentLang] && translations[currentLang].fuSection) || {}; }
+        function groupLabel(fuId) {
+            const names = {
+                th: { FU01: '🇹🇭 กลุ่มไทย (THAI)', FU02: '🇱🇦 กลุ่ม สปป.ลาว (RPLCG)', FU03: '🇰🇭 กลุ่มกัมพูชา (RAFCOG)' },
+                en: { FU01: '🇹🇭 Thailand group (THAI)', FU02: '🇱🇦 Lao PDR group (RPLCG)', FU03: '🇰🇭 Cambodia group (RAFCOG)' },
+                lo: { FU01: '🇹🇭 ກຸ່ມປະເທດໄທ (THAI)', FU02: '🇱🇦 ກຸ່ມ ສປປ ລາວ (RPLCG)', FU03: '🇰🇭 ກຸ່ມປະເທດກຳປູເຈຍ (RAFCOG)' },
+                km: { FU01: '🇹🇭 ក្រុមថៃ (THAI)', FU02: '🇱🇦 ក្រុម សបប លាវ (RPLCG)', FU03: '🇰🇭 ក្រុមកម្ពុជា (RAFCOG)' }
+            };
+            return (names[currentLang] || names.th)[fuId] || fuId;
+        }
+        function renderNoFuCompanies(keep) {
+            const gSel = document.getElementById('fu-group');
+            const sel = document.getElementById('fu-company');
+            const t = fuT();
+            sel.innerHTML = '<option value="">' + (t.phCompanyInGroup || t.phCompany || '— เลือกบริษัท —') + '</option>';
+            if (gSel.value) {
+                COMPANY_MASTER.filter(c => c.STATUS === 'ACTIVE' && c.FU_ID === gSel.value).forEach(c => {
+                    const o = document.createElement('option');
+                    o.value = c.COMPANY_ID; o.textContent = localizeCompany(c, currentLang);
+                    sel.appendChild(o);
+                });
+            }
+            if (keep) sel.value = keep;
+            refreshNoFuBranch();
+        }
+        function refreshNoFuBranch() {
+            const sel = document.getElementById('fu-company');
+            const bSel = document.getElementById('fu-branch');
+            const branches = sel.value ? getBranchesByCompany(sel.value) : [];
+            const t2 = fuT();
+            if (!branches.length) {
+                bSel.disabled = true;
+                bSel.innerHTML = '<option value="">' + (t2.phBranchNone || '— สำนักงานใหญ่ (ไม่มีสาขา) —') + '</option>';
+            } else {
+                bSel.disabled = false;
+                bSel.innerHTML = '<option value="">' + (t2.phBranch || '— เลือกสาขา —') + '</option>';
+                branches.forEach(b => {
+                    const o = document.createElement('option');
+                    o.value = b.BRANCH_ID; o.textContent = localizeBranch(b.NAME, currentLang);
+                    bSel.appendChild(o);
+                });
+            }
+        }
         function refreshFUOptions() {
             if (!CURRENT_FU) return;
             const t = fuT();
@@ -1154,51 +1202,36 @@
             }
             const sec = document.getElementById('fu-section');
             if (!CURRENT_FU) {
-                // ไม่มี FU → แสดงบริษัททุกกลุ่ม (THAI + RPLCG + RAFCOG) ให้เลือกเอง
+                // ไม่มี FU → เลือก 2 ขั้น: (1) กลุ่มประเทศ/กลุ่มธุรกิจ → (2) บริษัทในกลุ่มนั้นเท่านั้น
+                // แก้ปัญหาบริษัทไทย/ลาว/กัมพูชาปนกันในรายการเดียว (พี่ปกรณ์ 24 ก.ย. 69)
                 if (sec) {
                     const t = fuT();
                     sec.style.display = '';
+                    const gRow = document.getElementById('fu-group-row');
+                    if (gRow) gRow.style.display = '';
+                    const gSel = document.getElementById('fu-group');
                     const sel = document.getElementById('fu-company');
-                    if (sel.dataset.noFuDone === currentLang) return; // กัน render ซ้ำ (duplicate options)
-                    sel.dataset.noFuDone = currentLang;
-                    const keep = sel.value;
-                    sel.innerHTML = '<option value="">' + (t.phCompany || '— เลือกบริษัท —') + '</option>';
-                    const grpLabels = { FU01: '🇹🇭 THAI (ไทย)', FU02: '🇱🇦 RPLCG (ลาว)', FU03: '🇰🇭 RAFCOG (กัมพูชา)' };
-                    // จัดกลุ่มบริษัทด้วย optgroup แยกตามประเทศ — แก้ปัญหาบริษัทปนกัน
+                    if (gSel.dataset.noFuDone === currentLang) return; // กัน render ซ้ำ (duplicate options)
+                    gSel.dataset.noFuDone = currentLang;
+                    const keepG = gSel.value, keepC = sel.value;
+                    gSel.innerHTML = '<option value="">' + (t.phGroup || '— เลือกกลุ่มประเทศ/กลุ่มธุรกิจ —') + '</option>';
                     ['FU01','FU02','FU03'].forEach(fuId => {
-                        const comps = COMPANY_MASTER.filter(c => c.STATUS === 'ACTIVE' && c.FU_ID === fuId);
-                        if (!comps.length) return;
-                        const og = document.createElement('optgroup');
-                        og.label = grpLabels[fuId] || fuId;
-                        comps.forEach(c => {
-                            const o = document.createElement('option');
-                            o.value = c.COMPANY_ID;
-                            o.textContent = localizeCompany(c, currentLang);
-                            og.appendChild(o);
-                        });
-                        sel.appendChild(og);
+                        if (!COMPANY_MASTER.some(c => c.STATUS === 'ACTIVE' && c.FU_ID === fuId)) return;
+                        const o = document.createElement('option');
+                        o.value = fuId; o.textContent = groupLabel(fuId);
+                        gSel.appendChild(o);
                     });
-                    if (keep) sel.value = keep;
-                    sel.addEventListener('change', function(){
-                        const bSel = document.getElementById('fu-branch');
-                        const branches = getBranchesByCompany(this.value);
-                        const t2 = fuT();
-                        if (!branches.length) {
-                            bSel.disabled = true;
-                            bSel.innerHTML = '<option value="">' + (t2.phBranchNone || '— สำนักงานใหญ่ (ไม่มีสาขา) —') + '</option>';
-                        } else {
-                            bSel.disabled = false;
-                            bSel.innerHTML = '<option value="">' + (t2.phBranch || '— เลือกสาขา —') + '</option>';
-                            branches.forEach(b => {
-                                const o = document.createElement('option');
-                                o.value = b.BRANCH_ID; o.textContent = localizeBranch(b.NAME, currentLang);
-                                bSel.appendChild(o);
-                            });
-                        }
-                    });
+                    if (keepG) gSel.value = keepG;
+                    renderNoFuCompanies(keepC);
+                    gSel.onchange = function(){ renderNoFuCompanies(''); };
+                    sel.onchange = function(){ refreshNoFuBranch(); };
+                    const setG = (id, v) => { const el = document.getElementById(id); if (el && v) el.textContent = v; };
+                    setG('fu-label-group', t.group);
                 }
                 return;
             }
+            const gRowHide = document.getElementById('fu-group-row');
+            if (gRowHide) gRowHide.style.display = 'none'; // เข้าผ่าน ?fu= แล้ว → กลุ่มถูกกำหนดแล้ว ไม่ต้องโชว์
             const theme = FU_THEME[CURRENT_FU.FU_ID];
             if (theme) {
                 const banner = document.getElementById('fu-banner');
