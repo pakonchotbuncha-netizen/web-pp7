@@ -85,6 +85,8 @@
   .tag-dash { background: #e0e7ff; color: #3730a3; }
   .tag-own { background: #fff7ed; color: #9a3412; }
   .tag-dept { background: #ecfeff; color: #155e75; }
+  .ctr { text-align: center; }
+  .ok { font-weight: 600; }
   .note {
     background: #fffbeb;
     border-left: 4px solid #f59e0b;
@@ -129,7 +131,38 @@
 </section>
 
 <section>
-  <h2>2) Permission Matrix ที่ Implement จริง <span class="en">(backend/Auth.gs → hasPermission)</span></h2>
+  <h2>2) Access Matrix 12 Modules × 5 Roles <span class="en">(auth-config.js / auth-admin-panel.html — หน้าจอ จัดการผู้ใช้งาน)</span></h2>
+  <table>
+    <tr>
+      <th>Module</th>
+      <th class="ctr">👑 Admin<br><small>ผู้ดูแลระบบ</small></th>
+      <th class="ctr">⚙️ Operator<br><small>ผู้ปฏิบัติหน้าที่</small></th>
+      <th class="ctr">📊 BMC<br><small>ผู้บริหาร</small></th>
+      <th class="ctr">👤 User<br><small>สมาชิกภายใน</small></th>
+      <th class="ctr">🌐 External<br><small>ลูกค้าภายนอก</small></th>
+    </tr>
+    <tr><td>📊 Dashboard</td><td class="ctr ok">✅</td><td class="ctr ok">✅</td><td class="ctr ro">👁</td><td class="ctr no">❌</td><td class="ctr no">❌</td></tr>
+    <tr><td>👥 จัดการ Users</td><td class="ctr ok">✅</td><td class="ctr no">❌</td><td class="ctr no">❌</td><td class="ctr no">❌</td><td class="ctr no">❌</td></tr>
+    <tr><td>📋 Access Logs</td><td class="ctr ro">👁</td><td class="ctr no">❌</td><td class="ctr no">❌</td><td class="ctr no">❌</td><td class="ctr no">❌</td></tr>
+    <tr><td>🔍 P1 แสวงหา</td><td class="ctr ok">✅</td><td class="ctr ok">✅</td><td class="ctr ro">👁</td><td class="ctr no">❌</td><td class="ctr ap">📝 สมัครงาน</td></tr>
+    <tr><td>📝 P2 หยั่งประเมิน</td><td class="ctr ok">✅</td><td class="ctr ok">✅</td><td class="ctr ro">👁</td><td class="ctr no">❌</td><td class="ctr no">❌</td></tr>
+    <tr><td>🎯 P3 จับคู่</td><td class="ctr ok">✅</td><td class="ctr ok">✅</td><td class="ctr ro">👁</td><td class="ctr no">❌</td><td class="ctr no">❌</td></tr>
+    <tr><td>📈 P4 ประเมินผล</td><td class="ctr ok">✅</td><td class="ctr ok">✅</td><td class="ctr ro">👁</td><td class="ctr own">👤 ตัวเอง</td><td class="ctr no">❌</td></tr>
+    <tr><td>📚 P5 พัฒนา</td><td class="ctr ok">✅</td><td class="ctr ok">✅</td><td class="ctr ro">👁</td><td class="ctr own">👤 ตัวเอง</td><td class="ctr no">❌</td></tr>
+    <tr><td>💰 P6 ค่าตอบแทน</td><td class="ctr ok">✅</td><td class="ctr ok">✅</td><td class="ctr ro">👁</td><td class="ctr own">👤 ตัวเอง</td><td class="ctr no">❌</td></tr>
+    <tr><td>❤️ P7 คุณภาพชีวิต</td><td class="ctr ok">✅</td><td class="ctr ok">✅</td><td class="ctr ro">👁</td><td class="ctr own">👤 ตัวเอง</td><td class="ctr no">❌</td></tr>
+    <tr><td>📑 รายงาน</td><td class="ctr ok">✅</td><td class="ctr ok">✅</td><td class="ctr ro">👁</td><td class="ctr no">❌</td><td class="ctr no">❌</td></tr>
+    <tr><td>⚙️ ตั้งค่าระบบ</td><td class="ctr ok">✅</td><td class="ctr no">❌</td><td class="ctr no">❌</td><td class="ctr no">❌</td><td class="ctr no">❌</td></tr>
+  </table>
+  <p style="margin-top:0.8rem; font-size:0.82rem; color:#64748b;">✅ = อ่าน+เขียน · 👁 = อ่านอย่างเดียว · 👤 = ข้อมูลตัวเอง · 📝 = สมัคร/ส่งข้อมูล · ❌ = ไม่มีสิทธิ์</p>
+  <div class="note">
+    ⏱️ <b>Session timeout ต่อ role (auth-config.js):</b> admin/operator/bmc = 8 ชม. · user = 4 ชม. · external = 2 ชม. ·
+    🔐 Login: ผิด 5 ครั้งล็อก 30 นาที · รหัสผ่าน: 8 ตัวขึ้นไป มีตัวพิมพ์ใหญ่+เล็ก+ตัวเลข เปลี่ยนทุก 90 วัน · OTP 6 หลัก หมดอายุ 10 นาที
+  </div>
+</section>
+
+<section>
+  <h2>3) Permission Matrix ที่ Implement จริง <span class="en">(backend/Auth.gs → hasPermission)</span></h2>
   <table>
     <tr>
       <th>Resource</th>
@@ -241,7 +274,7 @@
 </section>
 
 <section>
-  <h2>3) Data Scope — ขอบเขตข้อมูลที่มองเห็น <span class="en">(backend/Auth.gs → getDataScope)</span></h2>
+  <h2>4) Data Scope — ขอบเขตข้อมูลที่มองเห็น <span class="en">(backend/Auth.gs → getDataScope)</span></h2>
   <table>
     <tr><th>Role</th><th>Scope</th><th>คำอธิบาย</th></tr>
     <tr><td><code>admin</code></td><td><span class="tag tag-all">all</span></td><td>เห็นข้อมูลทุกแผนก / ทุก BU</td></tr>
@@ -254,7 +287,7 @@
 </section>
 
 <section>
-  <h2>4) สถานะการพัฒนา & หมายเหตุสำหรับทีมพัฒนา</h2>
+  <h2>5) สถานะการพัฒนา & หมายเหตุสำหรับทีมพัฒนา</h2>
   <table>
     <tr><th>หัวข้อ</th><th>สถานะ</th><th>รายละเอียด</th></tr>
     <tr><td>RBAC 6 roles (hardcode)</td><td>✅ ทำแล้ว</td><td>ฝังใน <code>Auth.gs</code> ฟังก์ชัน <code>hasPermission()</code></td></tr>
