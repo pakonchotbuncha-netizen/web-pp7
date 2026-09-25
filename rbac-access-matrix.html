@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web PP7 — RBAC Access Control Matrix</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Noto Sans Thai', Tahoma, sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+    padding: 2rem;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  header {
+    background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+    color: #fff;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  header h1 { font-size: 1.6rem; margin-bottom: 0.5rem; }
+  header p { opacity: 0.85; font-size: 0.95rem; }
+  .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    margin-top: 0.75rem;
+  }
+  section {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.75rem;
+    margin-bottom: 1.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  h2 {
+    font-size: 1.2rem;
+    color: #1e3a8a;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  h2 .en { color: #94a3b8; font-weight: 400; font-size: 0.9rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th {
+    background: #1e3a8a;
+    color: #fff;
+    padding: 0.7rem 0.9rem;
+    text-align: left;
+    font-weight: 600;
+  }
+  td {
+    padding: 0.65rem 0.9rem;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #f8fafc; }
+  tr:hover td { background: #eff6ff; }
+  code {
+    background: #e2e8f0;
+    padding: 0.1rem 0.4rem;
+    border-radius: 6px;
+    font-family: 'Cascadia Code', Consolas, monospace;
+    font-size: 0.85em;
+    color: #0f172a;
+  }
+  .tag {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin: 0.1rem;
+  }
+  .tag-c { background: #dcfce7; color: #166534; }
+  .tag-r { background: #dbeafe; color: #1e40af; }
+  .tag-u { background: #fef3c7; color: #92400e; }
+  .tag-d { background: #fee2e2; color: #991b1b; }
+  .tag-m { background: #f3e8ff; color: #6b21a8; }
+  .tag-all { background: #f3e8ff; color: #6b21a8; }
+  .tag-dash { background: #e0e7ff; color: #3730a3; }
+  .tag-own { background: #fff7ed; color: #9a3412; }
+  .tag-dept { background: #ecfeff; color: #155e75; }
+  .note {
+    background: #fffbeb;
+    border-left: 4px solid #f59e0b;
+    padding: 0.9rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    margin-top: 1rem;
+  }
+  footer {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.82rem;
+    padding: 1rem 0;
+  }
+  @media print {
+    body { background: #fff; padding: 0; }
+    section { box-shadow: none; border: 1px solid #e2e8f0; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>🔐 Web PP7 — ตารางบทบาทการเข้าถึง (RBAC Access Control Matrix)</h1>
+  <p>เอกสารประกอบการพัฒนา — ระบบบริหารบุคลากร PP7, Pakorn Group</p>
+  <span class="badge">แหล่งอ้างอิง: web-pp7/backend/Auth.gs (hasPermission + getDataScope)</span>
+</header>
+
+<section>
+  <h2>1) RBAC 6 Roles — แบบออกแบบตั้งต้น <span class="en">(Design Baseline, 25 มิ.ย. 2569)</span></h2>
+  <table>
+    <tr><th>Role</th><th>ขอบเขตการเข้าถึง</th><th>ผู้ใช้ตัวอย่าง</th></tr>
+    <tr><td><code>admin</code></td><td>เข้าถึงทุกห้อง ทุก P (P1–P7)</td><td>IT Admin</td></tr>
+    <tr><td><code>hr_manager</code></td><td>P1–P7 อ่าน/เขียน</td><td>HR Team</td></tr>
+    <tr><td><code>bu_manager</code></td><td>P1–P4 ของ BU ตนเอง</td><td>BU Head</td></tr>
+    <tr><td><code>employee</code></td><td>ดูข้อมูลตัวเอง + Self-Service</td><td>พนักงานทั่วไป</td></tr>
+    <tr><td><code>auditor</code></td><td>อ่านอย่างเดียว ทุก P</td><td>Auditing Team</td></tr>
+    <tr><td><code>guest</code></td><td>Dashboard เท่านั้น</td><td>ผู้เยี่ยมชม</td></tr>
+  </table>
+  <div class="note">📌 ตารางนี้เป็นแบบออกแบบเดิม — ฝั่ง backend ปัจจุบันแมป role ตามทีมงานจริงของ PKG (ดูตารางถัดไป) โดย <code>hr_manager ≈ pao</code>, <code>bu_manager ≈ bmc</code>, <code>employee ≈ member</code></div>
+</section>
+
+<section>
+  <h2>2) Permission Matrix ที่ Implement จริง <span class="en">(backend/Auth.gs → hasPermission)</span></h2>
+  <table>
+    <tr>
+      <th>Resource</th>
+      <th><code>admin</code></th>
+      <th><code>pao</code><br><small>HR Admin</small></th>
+      <th><code>bmc</code><br><small>Business Mgr</small></th>
+      <th><code>pad</code><br><small>Training & Dev</small></th>
+      <th><code>wcd</code><br><small>Welfare & Comp</small></th>
+      <th><code>member</code></th>
+    </tr>
+    <tr>
+      <td><code>members</code></td>
+      <td><span class="tag tag-all">ALL</span></td>
+      <td><span class="tag tag-c">C</span><span class="tag tag-r">R</span><span class="tag tag-u">U</span></td>
+      <td><span class="tag tag-r">R</span></td>
+      <td><span class="tag tag-r">R</span></td>
+      <td><span class="tag tag-r">R</span></td>
+      <td><span class="tag tag-r">R</span><span class="tag tag-own">own</span></td>
+    </tr>
+    <tr>
+      <td><code>headcount</code></td>
+      <td><span class="tag tag-all">ALL</span></td>
+      <td><span class="tag tag-c">C</span><span class="tag tag-r">R</span><span class="tag tag-u">U</span></td>
+      <td><span class="tag tag-c">C</span><span class="tag tag-r">R</span></td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td><code>recruitment</code></td>
+      <td><span class="tag tag-all">ALL</span></td>
+      <td><span class="tag tag-c">C</span><span class="tag tag-r">R</span><span class="tag tag-u">U</span></td>
+      <td><span class="tag tag-r">R</span><span class="tag tag-u">U</span></td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td><code>assessment</code></td>
+      <td><span class="tag tag-all">ALL</span></td>
+      <td><span class="tag tag-c">C</span><span class="tag tag-r">R</span><span class="tag tag-u">U</span></td>
+      <td><span class="tag tag-r">R</span></td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td><code>matching</code></td>
+      <td><span class="tag tag-all">ALL</span></td>
+      <td><span class="tag tag-c">C</span><span class="tag tag-r">R</span><span class="tag tag-u">U</span></td>
+      <td><span class="tag tag-r">R</span><span class="tag tag-u">U</span></td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td><code>performance</code></td>
+      <td><span class="tag tag-all">ALL</span></td>
+      <td><span class="tag tag-c">C</span><span class="tag tag-r">R</span><span class="tag tag-u">U</span></td>
+      <td><span class="tag tag-r">R</span><span class="tag tag-u">U</span></td>
+      <td><span class="tag tag-r">R</span></td>
+      <td>—</td>
+      <td><span class="tag tag-r">R</span><span class="tag tag-own">own</span></td>
+    </tr>
+    <tr>
+      <td><code>development</code></td>
+      <td><span class="tag tag-all">ALL</span></td>
+      <td><span class="tag tag-r">R</span></td>
+      <td><span class="tag tag-r">R</span></td>
+      <td><span class="tag tag-c">C</span><span class="tag tag-r">R</span><span class="tag tag-u">U</span></td>
+      <td>—</td>
+      <td><span class="tag tag-r">R</span><span class="tag tag-own">own</span></td>
+    </tr>
+    <tr>
+      <td><code>compensation</code></td>
+      <td><span class="tag tag-all">ALL</span></td>
+      <td><span class="tag tag-r">R</span></td>
+      <td><span class="tag tag-r">R</span></td>
+      <td>—</td>
+      <td><span class="tag tag-c">C</span><span class="tag tag-r">R</span><span class="tag tag-u">U</span></td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td><code>welfare</code></td>
+      <td><span class="tag tag-all">ALL</span></td>
+      <td><span class="tag tag-r">R</span></td>
+      <td><span class="tag tag-r">R</span></td>
+      <td>—</td>
+      <td><span class="tag tag-c">C</span><span class="tag tag-r">R</span><span class="tag tag-u">U</span></td>
+      <td><span class="tag tag-c">C</span><span class="tag tag-r">R</span><span class="tag tag-own">own</span></td>
+    </tr>
+    <tr>
+      <td><code>dashboard</code></td>
+      <td><span class="tag tag-all">ALL</span></td>
+      <td><span class="tag tag-r">R</span></td>
+      <td><span class="tag tag-r">R</span></td>
+      <td><span class="tag tag-r">R</span></td>
+      <td><span class="tag tag-r">R</span></td>
+      <td>—</td>
+    </tr>
+  </table>
+  <p style="margin-top:0.8rem; font-size:0.82rem; color:#64748b;">
+    C = create · R = read · U = update · D = delete · ALL = create/read/update/delete/manage · — = ไม่มีสิทธิ์ ·
+    <span class="tag tag-own">own</span> = เฉพาะข้อมูลของตนเอง
+  </p>
+  <div class="note">
+    ⚙️ <b>หลักการตรวจสอบสิทธิ์ในโค้ด:</b> <code>admin</code> ใช้ wildcard <code>'*'</code> ครบทุก action · role อื่นตรวจทีละ resource → <code>resourcePerms.includes(action)</code> · role ที่ไม่อยู่ในตารางจะถูกปฏิเสธทันที (<code>return false</code>)
+  </div>
+</section>
+
+<section>
+  <h2>3) Data Scope — ขอบเขตข้อมูลที่มองเห็น <span class="en">(backend/Auth.gs → getDataScope)</span></h2>
+  <table>
+    <tr><th>Role</th><th>Scope</th><th>คำอธิบาย</th></tr>
+    <tr><td><code>admin</code></td><td><span class="tag tag-all">all</span></td><td>เห็นข้อมูลทุกแผนก / ทุก BU</td></tr>
+    <tr><td><code>pao</code></td><td><span class="tag tag-all">all</span></td><td>เห็นข้อมูลทุกแผนก / ทุก BU (HR กลาง)</td></tr>
+    <tr><td><code>bmc</code></td><td><span class="tag tag-dept">department</span></td><td>เห็นเฉพาะข้อมูลแผนก/BU ของตนเอง</td></tr>
+    <tr><td><code>pad</code></td><td><span class="tag tag-dept">department</span></td><td>เห็นเฉพาะข้อมูลแผนก/BU ของตนเอง</td></tr>
+    <tr><td><code>wcd</code></td><td><span class="tag tag-dept">department</span></td><td>เห็นเฉพาะข้อมูลแผนก/BU ของตนเอง</td></tr>
+    <tr><td><code>member</code></td><td><span class="tag tag-own">member_id ของตัวเอง</span></td><td>เห็นเฉพาะข้อมูลตัวเอง (filter ด้วย member_id จาก session)</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>4) สถานะการพัฒนา & หมายเหตุสำหรับทีมพัฒนา</h2>
+  <table>
+    <tr><th>หัวข้อ</th><th>สถานะ</th><th>รายละเอียด</th></tr>
+    <tr><td>RBAC 6 roles (hardcode)</td><td>✅ ทำแล้ว</td><td>ฝังใน <code>Auth.gs</code> ฟังก์ชัน <code>hasPermission()</code></td></tr>
+    <tr><td>Data Scope filtering</td><td>✅ ทำแล้ว</td><td>ฟังก์ชัน <code>getDataScope()</code> — admin/pao = all, bmc/pad/wcd = department, member = own</td></tr>
+    <tr><td>Audit Log ทุก action</td><td>✅ ทำแล้ว</td><td>Object <code>AuditLog</code> บันทึก user_id, action, entity, old/new value, timestamp</td></tr>
+    <tr><td>หน้าจัดการ Role แบบ Dynamic</td><td>⏳ ยังไม่ทำ</td><td>ปัจจุบันแก้สิทธิ์ต้องแก้โค้ด — ควรทำ auth-admin-panel ให้จัดการ role จากหน้าเว็บ</td></tr>
+    <tr><td>Deploy Backend GAS</td><td>⏳ รออนุมัติ</td><td>โครงสร้าง Auth/Database ยังไม่ deploy ขึ้น Google Web App</td></tr>
+  </table>
+  <div class="note">
+    💡 <b>ข้อเสนอแนะต่อทีมพัฒนา:</b> แนะนำให้ sync ชื่อ role ระหว่าง 2 ชุดให้ตรงกัน หรือเพิ่ม alias mapping (<code>hr_manager→pao</code>, <code>bu_manager→bmc</code>, <code>employee→member</code>, <code>auditor→อ่านอย่างเดียว</code>) เพื่อไม่ให้เอกสาร presentation กับโค้ดจริงต่างกัน
+  </div>
+</section>
+
+<footer>
+  เอกสารนี้สร้างโดย KiloClaw (PM + Developer Web PP7) · อ้างอิง: <code>web-pp7/backend/Auth.gs</code>, <code>web-pp7/MEMORY.md</code>, <code>P1-P3_USER_GUIDE.md</code> · อัปเดต 25 ก.ย. 2569
+</footer>
+
+</div>
+</body>
+</html>
