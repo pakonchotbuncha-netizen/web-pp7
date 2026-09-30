@@ -11,7 +11,7 @@
    - ทุก FU โชว์ตำแหน่งงานว่าง → form-register.html
 2. เมนูเพิ่ม/ลบบริษัท (เปิด-ปิด) — ใช้ ACTIVE/INACTIVE ห้ามลบข้อมูลจริง (soft-close + Audit Log)
 3. Theme สีตาม FU: THAI=ส้ม / RPLCG=เหลือง / RAFCOG=แดง-น้ำเงิน (Dynamic Theme ระบบเดียว FU_ID ควบคุม ไม่สร้างเว็บแยก 3 ชุด)
-   - ⚠️ **ทุก FU ต้องมี "สมัครนักศึกษาฝึกงาน" ด้วย** (comment พี่ปกรณ์ 30 ก.ย. 69) — ปุ่มใต้การ์ดแต่ละ FU → form-trainee.html?fu=FUxx&lang=th/lo/km · form-trainee รองรับ ?lang= auto-set ภาษา + ส่ง fu/formLang เข้า backend แล้ว · ทำจริงใน recruit-landing-fu.html แล้ว
+   - ⚠️ **สมัครขอฝึกงานมีเฉพาะฝั่งไทย (FU01 THAI)** (ยืนยันพี่ปกรณ์ 30 ก.ย. 69) — ปุ่ม 🎓 ใต้การ์ด THAI → form-trainee.html · ฝั่งลาว/กัมพูชาไม่มีฝึกงาน · form-trainee รองรับ ?lang= + ส่ง fu/formLang เข้า backend
 4. หน้ารับสมัครเปิดให้บุคคลทั่วไป + สมาชิก PKG ใช้ได้เลย
 5. เมนู 🔄 Flow การสรรหา 10 ขั้นตอน: สมาชิก PKG ดูได้เท่านั้น / ใช้งานเฉพาะ HR BMC ADM + ผู้รับใช้ทีม
 
@@ -71,7 +71,7 @@ STRUCTURE DATABASE = Single Source of Truth — PAO set/อนุมัติค
    - 📣 Super สรรหา PKG (chat id -1001237535741): "New Candidate มีผู้สมัครงานใหม่ คุณ : {ชื่อ} สมัครตำแหน่ง : {job_code}##{ตำแหน่ง} ดูรายละเอียดได้ที่ >>> {Application URL}"
    - 👥 ชุมชนคนหางาน (chat id -1001528940221): ข้อความสรุปสั้น (ชื่อ XXXXXXX บางส่วน) — ห้องนี้สมาชิกเยอะ ห้ามส่งข้อมูลส่วนบุคคลละเอียด
    - Notification Log ทุกครั้ง (สำเร็จ/ล้มเหลว)
-7. หน้า "เริ่มสมัครงาน" แยก 2 เมนู: สมัครทั่วไป / สมัครขอฝึกงาน (ฟอร์มฝึกงานพอร์ตจาก formTraniee.php → form-trainee.html แล้ว) — ฝึกงาน submit → Trainee Application ID → DB (ชีท Trainees) → Telegram ห้อง super สรรหา: "New Candidate คุณ: {ชื่อ} / ประเภทฝึก / การศึกษา / สถานศึกษา / สาขาวิชา"
+7. หน้า "เริ่มสมัครงาน" แยก 2 เมนู: สมัครทั่วไป / สมัครขอฝึกงาน (**เฉพาะฝั่งไทย — ยืนยันพี่ปกรณ์ 30 ก.ย. 69**) (ฟอร์มฝึกงานพอร์ตจาก formTraniee.php → form-trainee.html แล้ว) — ฝึกงาน submit → Trainee Application ID → DB (ชีท Trainees) → Telegram ห้อง super สรรหา: "New Candidate คุณ: {ชื่อ} / ประเภทฝึก / การศึกษา / สถานศึกษา / สาขาวิชา"
 8. Application Status กลาง: NEW → CONSENTED → APPLICATION_COMPLETED → DOCUMENT_PENDING → DOCUMENT_VERIFIED → AI_TRANSLATED → READY_FOR_SCREENING → SCREENING → INTERVIEW → BACKGROUND_CHECK → OFFER → HIRED (ไม่ผ่าน: NOT_SELECTED) — ต่อ P1–P4 ได้ทันที
 9. DB1 Applicant แตกเป็น: Applicant / Personal Data / Job Application / Address / Education / Experience / Family / Skills / Documents / Translation / Consent / Notification Log
 10. Security: ข้อมูลบัตรประชาชน+ทะเบียนบ้าน = อ่อนไหว → encryption, access control, audit log, retention policy · สมัครเสร็จส่งเลข Application ID + สถานะกลับผู้สมัครทันที
