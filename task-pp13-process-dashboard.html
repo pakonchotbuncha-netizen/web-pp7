@@ -25,7 +25,7 @@
     <div class="text-2xl">🧭</div>
     <div class="flex-1 min-w-[240px]">
       <h1 class="font-bold text-lg leading-tight">Task PP1-3 (ไก่จัง) — สรุปกระบวนการอย่างละเอียด สำหรับทีมพัฒนา</h1>
-      <p class="text-indigo-200 text-xs">แหล่งข้อมูล: ชีต "Task PP1-3 ไก่จัง" · Task 1: ปรับหน้า Web PP7 สำหรับบุคคลภายนอก · Task 2: Flow การสรรหา 10 ขั้นตอน — ข้อ 1 โครงสร้างองค์กร · อัปเดต 30 ก.ย. 2569</p>
+      <p class="text-indigo-200 text-xs">แหล่งข้อมูล: ชีต "Task PP1-3 ไก่จัง" · Task 1: ปรับหน้า Web PP7 สำหรับบุคคลภายนอก · Task 2: Flow การสรรหา 10 ขั้นตอน — ข้อ 1 โครงสร้างองค์กร · Task 3: ใบสมัครงาน upload + AI ดึงข้อมูล 3 ประเทศ · อัปเดต 30 ก.ย. 2569</p>
     </div>
     <a href="index.html" class="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg">← กลับหน้าหลัก PP7</a>
   </div>
@@ -38,6 +38,7 @@
     <a href="#task2" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">Task 2 · โครงสร้างองค์กร</a>
     <a href="#task2-menus" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">4 เมนู</a>
     <a href="#task2-db" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">DB + Step 2</a>
+    <a href="#task3" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">Task 3 · ใบสมัคร + OCR/AI</a>
     <a href="#devchecklist" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">Checklist ทีมพัฒนา</a>
   </nav>
 </header>
@@ -46,8 +47,8 @@
 
 <!-- ============ OVERVIEW ============ -->
 <section id="overview" class="sec">
-  <h2 class="text-xl font-bold text-indigo-800 mb-3">🎯 ภาพรวม 2 Tasks</h2>
-  <div class="grid md:grid-cols-2 gap-4">
+  <h2 class="text-xl font-bold text-indigo-800 mb-3">🎯 ภาพรวม 3 Tasks</h2>
+  <div class="grid md:grid-cols-3 gap-4">
     <div class="bg-white rounded-xl shadow p-5 border-t-4 border-orange-500">
       <h3 class="font-bold text-orange-700 mb-2">Task 1 — ปรับหน้า Web PP7 สำหรับบุคคลภายนอก</h3>
       <ul class="text-sm space-y-1.5 list-disc pl-5 text-slate-700">
@@ -73,9 +74,20 @@
         <li>โครงสร้างที่ Approved แล้ว <b>ดึงต่อไปเมนูที่ 2 "ขออัตรากำลังคน"</b> ให้ BMC คีย์ขออัตรา โดยไม่ต้องคีย์บริษัท/หน่วยงาน/ตำแหน่ง/โครงสร้างเงินเดือนซ้ำ</li>
       </ul>
     </div>
+    <div class="bg-white rounded-xl shadow p-5 border-t-4 border-emerald-500">
+      <h3 class="font-bold text-emerald-700 mb-2">Task 3 — ใบสมัครงาน Upload + AI ดึงข้อมูลอัตโนมัติ (3 ประเทศ)</h3>
+      <ul class="text-sm space-y-1.5 list-disc pl-5 text-slate-700">
+        <li><b>PDPA Consent Gate</b> — ต้องกดยินยอมก่อนเข้าฟอร์ม ทั้ง 3 ประเทศ (เก็บ consent_id/version/IP/device)</li>
+        <li>Upload <b>บัตรประชาชน + ทะเบียนบ้าน + รูป + วุฒิ</b> → OCR/Document AI เติมช่องฟอร์มอัตโนมัติ ลดการกรอก</li>
+        <li><b>AI Translation ทุกช่อง</b>: TH→EN / LA→TH / KH→EN+TH เก็บทั้งต้นฉบับ+คำแปล ลงฐานข้อมูลรองรับการใช้ทั้ง 3 ประเทศ</li>
+        <li>Submit แล้ว <b>แจ้งเตือน Telegram 2 ห้อง</b>: super สรรหา PKG (-1001237535741) + ชุมชนคนหางาน (-1001528940221)</li>
+        <li>เพิ่มเมนู <b>สมัครทั่วไป / สมัครขอฝึกงาน</b> (ฟอร์มฝึกงาน + แจ้งเตือน Telegram แยกชุดข้อความ)</li>
+        <li>กำหนด <b>Application Status กลาง</b> NEW → … → HIRED เพื่อต่อ P1–P4 ได้ทันที</li>
+      </ul>
+    </div>
   </div>
   <div class="mt-4 bg-amber-50 border border-amber-300 rounded-xl p-4 text-sm">
-    <b class="text-amber-800">🔑 หัวใจของระบบ (ทั้ง 2 Tasks):</b>
+    <b class="text-amber-800">🔑 หัวใจของระบบ (ทุก Tasks):</b>
     <span class="text-slate-700"> STRUCTURE DATABASE เป็น <b>Single Source of Truth</b> — เมื่อ PAO set และอนุมัติโครงสร้างใหม่ ข้อมูลชุดเดียวกันถูกใช้ทั้ง Flowchart และ Step 2 ขออัตรากำลังคน ไม่ต้องคีย์ซ้ำ ลดความผิดพลาด · และ Key chain หลักของ Task 1 คือ <code class="bg-amber-100 px-1 rounded">FU_ID → COMPANY_ID → BRANCH_ID → JOB_ID → APPLICANT_ID → APPLICATION_ID</code> เชื่อมข้อมูลตั้งแต่หน้า Public จนถึง HR และ Flow 10 ขั้นตอน</span>
   </div>
 </section>
@@ -490,10 +502,195 @@ BMC กรอกเฉพาะ "จำนวนอัตราที่ขอ"<
   </div>
 </section>
 
+<!-- ============ TASK 3 ============ -->
+<section id="task3" class="sec">
+  <h2 class="text-xl font-bold text-emerald-700 mb-3">🟢 Task 3 — ใบสมัครงาน: Upload เอกสาร + AI ดึงข้อมูลอัตโนมัติ (ทั้ง 3 ประเทศ)</h2>
+
+  <div class="bg-white rounded-xl shadow p-5 mb-4">
+    <h3 class="font-bold mb-2">3.1 ข้อกำหนดจากชีต (7 ข้อ)</h3>
+    <ol class="text-sm space-y-2 list-decimal pl-5 text-slate-700">
+      <li>หน้า "ร่วมงานกับ PKG Group" → "เริ่มสมัครงาน" — ส่วน <b>"ความยินยอมในการเก็บรวบรวมข้อมูลส่วนบุคคล" (PDPA)</b> ผู้สมัครต้อง<b>คลิกยอมรับก่อนจึงจะกรอกใบสมัครได้</b> (Required Consent Gate) ทำทั้ง 3 ประเทศ</li>
+      <li>เพิ่มช่อง <b>upload บัตรประชาชน</b> + AI ดึงข้อมูลอัตโนมัติลงช่องที่กำหนดในใบสมัคร</li>
+      <li>เพิ่มช่อง <b>upload ทะเบียนบ้าน</b> + AI ดึงข้อมูลอัตโนมัติลงช่องที่กำหนด</li>
+      <li><b>ทุกช่องมีการแปลภาษา</b>: 🇹🇭 ช่องบน=ไทย ช่องล่าง=AI แปลอังกฤษ · 🇱🇦 ช่องบน=ลาว ช่องล่าง=AI แปลไทย · 🇰🇭 ช่องบน=เขมร ช่องล่างที่ 1=อังกฤษ ช่องล่างที่ 2=ไทย — <b>ทั้งหมดบันทึกลงฐานข้อมูล</b> รองรับการใช้ข้อมูลของแต่ละประเทศ</li>
+      <li>กรอกเสร็จแล้วมี <b>script แจ้งเตือนไป Telegram</b>: ห้อง <b>super สรรหา PKG</b> (chat id <code>-1001237535741</code>) ข้อความ "New Candidate มีผู้สมัครงานใหม่ คุณ : … สมัครตำแหน่ง : 340##แม่ครัว + ลิงก์ดูรายละเอียด" · ห้อง <b>ชุมชนคนหางาน</b> (chat id <code>-1001528940221</code>) ข้อความสรุปสั้น "มีผู้สมัครงานใหม่ คุณ : ลำดวน XXXXXXX สมัครตำแหน่ง : 340##แม่ครัว เรียบร้อยแล้ว"</li>
+      <li>เพิ่ม link สมัครงาน/ขอฝึกงาน — หน้า "เริ่มสมัครงาน" แยก 2 เมนู: <b>สมัครทั่วไป</b> และ <b>สมัครขอฝึกงาน</b> (ต้นทางฟอร์มฝึกงาน: <code>devdev.prachakij.com/appformPKG/formTraniee.php</code> → พอร์ตเข้า Web PP7 แล้วที่ <b>form-trainee.html</b>)</li>
+      <li>นักศึกษาฝึกงานกรอกเสร็จ → แจ้งเตือน Telegram ห้อง <b>super สรรหา PKG</b> (chat id <code>-1001237535741</code>) ข้อความ: "New Candidate มีผู้สมัครงานใหม่ คุณ : … ประเภทฝึก : นักศึกษาฝึกงาน / การศึกษา / ชื่อสถานศึกษา / สาขาวิชา"</li>
+    </ol>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-5 mb-4">
+    <h3 class="font-bold mb-3">3.2 DATA FLOW หลัก — ระบบรับสมัครงานภายนอก</h3>
+    <pre class="diagram">ผู้สมัครภายนอก (ไทย / ลาว / กัมพูชา)
+   ↓
+หน้า "ร่วมงานกับ PKG Group" → "เริ่มสมัครงาน"
+   ├── สมัครทั่วไป: เลือกประเทศ → แสดง PDPA ตามประเทศ → อ่าน → ☐ ข้าพเจ้ายินยอม
+   │      → Consent = TRUE? → NO: ไม่ให้เข้าใบสมัคร
+   │                        → YES: บันทึก Consent (consent_id, application_id, country,
+   │                                consent_status, consent_version, consent_datetime,
+   │                                ip_address, user_agent) → เข้าสู่ใบสมัคร
+   └── สมัครขอฝึกงาน: แบบฟอร์มฝึกงาน (Trainee Application) → กรอก → Validate
+   ↓
+กรอกใบสมัครงาน → Upload เอกสาร (บัตรประชาชน · ทะเบียนบ้าน · รูปผู้สมัคร · วุฒิการศึกษา)
+   ↓
+OCR / Document AI → อ่านข้อความ → ตรวจสอบความถูกต้อง → Mapping Field → เติมลงฟอร์มอัตโนมัติ
+   ↓
+AI Translation (แปลข้อมูลแต่ละช่อง — ไม่แปลทับต้นฉบับ)
+   ↓
+ผู้สมัครตรวจสอบ/แก้ไข → Confirm (OCR ห้ามบันทึกลง DB ทันทีโดยไม่ให้ผู้สมัครตรวจ)
+   ↓
+Submit Application → สร้าง Application ID → DATABASE (DB1 Applicant)
+   ├── ข้อมูลผู้สมัคร (Personal Data)  ├── เอกสาร/รูป (Document Store)  └── ข้อมูลภาษา (Translation DB)
+   ↓
+Telegram Notification
+   ├── Super สรรหา PKG  (-1001237535741)
+   └── ชุมชนคนหางาน     (-1001528940221)</pre>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-4 mb-4">
+    <div class="bg-white rounded-xl shadow p-5">
+      <h3 class="font-bold text-sm mb-2">3.3 OCR Mapping — บัตรประชาชน</h3>
+      <table class="mtx text-xs">
+        <tr><th>ข้อมูลจากบัตร</th><th>ช่องในใบสมัคร</th></tr>
+        <tr><td>เลขบัตรประชาชน</td><td>รหัสบัตรประชาชน</td></tr>
+        <tr><td>ชื่อ / นามสกุล</td><td>ชื่อ / นามสกุล</td></tr>
+        <tr><td>วันเกิด</td><td>วันเกิด</td></tr>
+        <tr><td>ที่อยู่ / จังหวัด</td><td>ที่อยู่ / จังหวัด</td></tr>
+        <tr><td>อื่น ๆ</td><td>Field ที่กำหนด</td></tr>
+      </table>
+      <pre class="diagram mt-3">Flow: Upload → ตรวจชนิดไฟล์ → ตรวจคุณภาพภาพ
+→ OCR/Document AI → อ่านข้อความ → ตรวจสอบ
+ความถูกต้อง → Mapping Field → เติมลงใบสมัคร
+→ ผู้สมัครตรวจ/แก้ไข → Confirm → Save DB</pre>
+      <h3 class="font-bold text-sm mt-4 mb-2">3.4 OCR — ทะเบียนบ้าน</h3>
+      <pre class="diagram">Upload → Document AI/OCR → อ่าน → แยกข้อมูล
+→ Mapping → เติม "ที่อยู่ตามทะเบียนบ้าน"
+(บ้านเลขที่ · ตำบล · อำเภอ · จังหวัด · รหัสไปรษณีย์)
+→ ผู้สมัครตรวจสอบ → Confirm → Save DB
+หมายเหตุ: ฟอร์มปัจจุบันมีช่องที่อยู่ตามทะเบียนบ้าน
++ ที่อยู่ปัจจุบันอยู่แล้ว → เติม OCR เข้าได้โดยตรง</pre>
+      <h3 class="font-bold text-sm mt-4 mb-2">3.5 รูปผู้สมัคร</h3>
+      <pre class="diagram">📷 Upload → ตรวจประเภทไฟล์ → ตรวจขนาด
+→ ตรวจว่าเป็นภาพบุคคล → Crop/Resize → Preview
+→ Confirm → Storage → บันทึก URL/Document ID ใน DB
+⚠️ ห้ามเก็บไฟล์รูปขนาดใหญ่ใน Database ตรง ๆ
+→ ใช้ File/Object Storage, DB เก็บ file_id/file_url/storage_path</pre>
+    </div>
+    <div class="bg-white rounded-xl shadow p-5">
+      <h3 class="font-bold text-sm mb-2">3.6 หลายภาษา + AI Translation</h3>
+      <pre class="diagram">หลักการ: ไม่แปลทับข้อมูลต้นฉบับ — เก็บแยกหลายภาษา
+🇹🇭 ช่องบน = ไทย        | ช่องล่าง = AI → อังกฤษ
+🇱🇦 ช่องบน = ລາວ          | ช่องล่าง = AI → ไทย
+🇰🇭 ช่องบน = ខ្មែរ        | ช่องล่าง 1 = AI → EN
+                       | ช่องล่าง 2 = AI → ไทย
+
+FIELD
+├── source_language
+├── source_value        (ต้นฉบับ — ห้ามทับ)
+├── translation_en
+├── translation_th
+└── translation_km / lo
+
+ทุก field หลักเก็บครบ 4 ภาษา:
+First Name · Last Name · Address · Education · Experience
+
+AI Translation ต้องเก็บ: Original + Translated
++ Translation Status (PENDING / SUCCESS / FAILED / REVIEW)
+→ ป้องกัน AI แปลผิด ย้อนดูต้นฉบับได้</pre>
+      <h3 class="font-bold text-sm mt-4 mb-2">3.7 Telegram Notification Flow</h3>
+      <pre class="diagram">Submit → Validate → Generate Application ID
+→ Save DB → Save Documents → Save Translation
+→ สร้าง Application URL จาก application_id จริง
+   (เช่น /application/2230300018201 — ห้าม hard-code)
+→ Telegram API (ต้องเรียกผ่าน Backend เท่านั้น
+   ห้ามเปิด Bot Token ใน Frontend)
+   ├── 📣 Super สรรหา PKG (-1001237535741)
+   │     "New Candidate — มีผู้สมัครงานใหม่
+   │      คุณ : {ชื่อ-สกุล} สมัครตำแหน่ง : {job_code}##{ตำแหน่ง}
+   │      ดูรายละเอียดได้ที่ >>> {Application URL}"
+   └── 👥 ชุมชนคนหางาน (-1001528940221)
+         "มีผู้สมัครงานใหม่ คุณ : {ชื่อ} XXXXXXX
+          สมัครตำแหน่ง : {job_code}##{ตำแหน่ง} เรียบร้อยแล้ว"
+         ⚠️ ห้องนี้สมาชิกเยอะ — ห้ามส่งข้อมูลส่วนบุคคลละเอียด
+         (เลขบัตร/ที่อยู่/เอกสาร) ส่งเฉพาะที่จำเป็น
++ Notification Log (ส่งสำเร็จ/ล้มเหลว)</pre>
+      <h3 class="font-bold text-sm mt-4 mb-2">3.8 ฝึกงาน (Trainee) Flow</h3>
+      <pre class="diagram">ร่วมงานกับ PKG Group → เริ่มสมัครงาน → สมัครขอฝึกงาน
+→ ฟอร์มฝึกงาน (form-trainee.html — พอร์ตจาก formTraniee.php แล้ว)
+→ กรอก → Validate → Submit → สร้าง Trainee Application ID
+→ บันทึก Database (แยกชีท Trainees ใน GAS แล้ว)
+→ Telegram API → 📣 Super สรรหา PKG
+   "New Candidate — คุณ: {ชื่อ} / ประเภทฝึก: นักศึกษาฝึกงาน
+    / การศึกษา: {ระดับ} / สถานศึกษา: {ชื่อ} / สาขาวิชา: {สาขา}"</pre>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-4 mb-4">
+    <div class="bg-white rounded-xl shadow p-5">
+      <h3 class="font-bold text-sm mb-2">3.9 DB1 Applicant — โครงสร้างที่แนะนำ (แตกตามชีต)</h3>
+      <pre class="diagram">DB1 Applicant
+├── Applicant (applicant_id, application_id, country,
+│              application_type [general/trainee], status, created_at)
+├── Personal Data (name, surname, DOB, gender, nationality, …)
+├── Job Application (job_id, job_code, position,
+│                    expected_salary, application_channel)
+├── Address (registered_address, current_address)
+├── Education · Experience · Family · Skills
+├── Documents (ID Card, House Registration,
+│              Education Certificate, Applicant Photo)
+├── Translation (ทุกภาษา + status)
+├── Consent (PDPA — ผูกกับ Application + version ข้อความ)
+└── Notification Log (Telegram ส่งสำเร็จ/ล้มเหลว)</pre>
+    </div>
+    <div class="bg-white rounded-xl shadow p-5">
+      <h3 class="font-bold text-sm mb-2">3.10 Application Status กลาง (ต่อ P1–P4 ได้ทันที)</h3>
+      <pre class="diagram">NEW → CONSENTED → APPLICATION_COMPLETED
+→ DOCUMENT_PENDING → DOCUMENT_VERIFIED
+→ AI_TRANSLATED → READY_FOR_SCREENING
+→ SCREENING → INTERVIEW → BACKGROUND_CHECK
+→ OFFER → HIRED
+
+กรณีไม่ผ่าน: SCREENING → NOT_SELECTED
+
+โครงสร้างนี้ต่อกับ Flow ปัจจุบันของ PP7:
+รับใบสมัคร → คัดเลือก → นัดสัมภาษณ์ → สัมภาษณ์
+→ ตรวจสอบประวัติ → นัดเริ่มงาน → ส่งต่อ P4/PAO</pre>
+      <h3 class="font-bold text-sm mt-4 mb-2">3.11 DATA FLOW ฉบับ Developer</h3>
+      <pre class="diagram">FRONTEND
+├── Country Selection → Application Type (General/Trainee)
+├── PDPA Consent → Application Form
+└── Upload Documents (ID Card/House Reg/Education/Photo)
+        ↓
+BACKEND API ── [OCR · AI Translate · Validation]
+        ↓
+DATABASE ── [Applicant · Documents · Translation]
+        ↓
+Application Status
+        ├── Telegram API → Super HR + Job Community
+        └── HR Dashboard</pre>
+    </div>
+  </div>
+
+  <div class="bg-red-50 border border-red-300 rounded-xl p-4 text-sm">
+    <b class="text-red-800">⚠️ จุดที่ต้องกำหนดกับ Developer (จากชีต — ห้ามตก):</b>
+    <ol class="list-decimal pl-5 mt-2 space-y-1 text-slate-700 text-xs">
+      <li>OCR ต้องมีหน้าตรวจสอบข้อมูลก่อนบันทึกจริง (ห้าม auto-save)</li>
+      <li>AI แปลต้องไม่เขียนทับข้อมูลต้นฉบับ</li>
+      <li>ทุก Application ต้องมี application_id เดียวตลอดกระบวนการ · ทุกไฟล์ต้องผูกกับ application_id</li>
+      <li>Consent ต้องผูกกับ Application + เก็บ Version ของข้อความ Consent</li>
+      <li>Telegram ต้องทำผ่าน Backend — ห้ามเปิด Bot Token ไว้ใน Frontend · ต้องมี Notification Log</li>
+      <li>ข้อมูลบัตรประชาชน/ทะเบียนบ้าน = ข้อมูลอ่อนไหว → กำหนดสิทธิ์การเข้าถึง, encryption, audit log, retention ให้ชัดเจน</li>
+      <li>AI Translation เก็บสถานะ PENDING / SUCCESS / FAILED / REVIEW</li>
+      <li>สมัครเสร็จส่งเลข Application ID + สถานะกลับให้ผู้สมัครทันที</li>
+    </ol>
+    <p class="mt-2 text-xs text-slate-600"><b>โครงสร้างหลัก:</b> ผู้สมัคร → เลือกประเทศ → เลือกประเภทสมัคร → Consent → Form → Upload → OCR → Auto Fill → AI Translation → ตรวจสอบ → Submit → DB1 → Telegram → HR Screening → P1/P2/P3/P4 — ทำให้ PP7 เป็นจุดเริ่มต้นของ Applicant Data ที่ใช้ต่อได้ทั้งระบบ</p>
+  </div>
+</section>
+
 <!-- ============ DEV CHECKLIST ============ -->
 <section id="devchecklist" class="sec">
   <h2 class="text-xl font-bold text-emerald-700 mb-3">✅ Checklist สำหรับทีมพัฒนา (เรียงตามลำดับที่ควรทำ)</h2>
-  <div class="grid md:grid-cols-2 gap-4">
+  <div class="grid md:grid-cols-3 gap-4">
     <div class="bg-white rounded-xl shadow p-5">
       <h3 class="font-bold text-orange-700 text-sm mb-2">Task 1 · Public Recruitment Web</h3>
       <ol class="text-xs space-y-1.5 list-decimal pl-5 text-slate-700">
@@ -516,6 +713,21 @@ BMC กรอกเฉพาะ "จำนวนอัตราที่ขอ"<
         <li>สร้าง STRUCTURE_MASTER + STRUCTURE_VERSION (มี history) + Audit ทุกการอนุมัติ</li>
         <li>เชื่อมต่อ Step 2: MANPOWER_REQUEST ดึงโครงสร้างที่ approved แล้ว ให้ BMC กรอกเฉพาะจำนวนอัตรา</li>
         <li>RBAC ตามตารางสิทธิ์ BMC/PAO/บุคคลทั่วไป</li>
+      </ol>
+    </div>
+    <div class="bg-white rounded-xl shadow p-5">
+      <h3 class="font-bold text-emerald-700 text-sm mb-2">Task 3 · ใบสมัคร + OCR/AI</h3>
+      <ol class="text-xs space-y-1.5 list-decimal pl-5 text-slate-700">
+        <li>PDPA Consent Gate (บังคับกดยินยอมก่อนเข้าฟอร์ม, 3 ประเทศ) + เก็บ consent_id/version/IP/device</li>
+        <li>หน้า "เริ่มสมัครงาน" แยก 2 เมนู: สมัครทั่วไป (form-register) / สมัครขอฝึกงาน (form-trainee — ทำแล้ว ✅ คงเหลือเชื่อม notification)</li>
+        <li>Upload 4 ชนิด: บัตรประชาชน/ทะเบียนบ้าน/รูป/วุฒิ → ตรวจไฟล์+คุณภาพ → OCR → Mapping → auto-fill → หน้า Confirm ก่อน Save</li>
+        <li>รูปผู้สมัคร: Crop/Resize + เก็บใน File/Object Storage (DB เก็บ file_id/url เท่านั้น)</li>
+        <li>AI Translation ทุกช่อง TH/LA/KH → EN/TH ตามประเทศ + เก็บ source_value + translation status (PENDING/SUCCESS/FAILED/REVIEW)</li>
+        <li>ขยาย DB1: Translation, Consent, Notification Log + application_type (general/trainee)</li>
+        <li>Telegram notify ผ่าน Backend (ห้ามเปิด token ใน frontend): Super สรรหา PKG -1001237535741 + ชุมชนคนหางาน -1001528940221 (ห้องหลังห้ามส่งข้อมูลละเอียด) + ฟอร์มฝึกงานแจ้งห้อง super สรรหา + Notification Log</li>
+        <li>Application URL สร้างจาก application_id จริง (ห้าม hard-code) + ส่งเลขสมัคร/สถานะกลับผู้สมัครทันที</li>
+        <li>Application Status กลาง NEW→…→HIRED (+NOT_SELECTED) ต่อ P1–P4</li>
+        <li>Security: ข้อมูลอ่อนไหว (บัตร/ทะเบียนบ้าน) → encryption, access control, audit log, retention policy</li>
       </ol>
     </div>
   </div>

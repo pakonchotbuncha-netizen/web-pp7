@@ -59,3 +59,20 @@ FU_MASTER → BU_MASTER → COMPANY_MASTER → BRANCH_MASTER → DEPARTMENT_MAST
 
 ### หัวใจของระบบ
 STRUCTURE DATABASE = Single Source of Truth — PAO set/อนุมัติครั้งเดียว ใช้ทั้ง Flowchart และ Step 2 ไม่ต้องคีย์ซ้ำ ลดความผิดพลาดระหว่างเมนู
+
+## Task 3 — ใบสมัครงาน: Upload เอกสาร + AI ดึงข้อมูลอัตโนมัติ (ทั้ง 3 ประเทศ)
+1. PDPA Consent Gate — ต้องคลิกยอมรับก่อนเข้าฟอร์ม ทั้ง 3 ประเทศ (เก็บ consent_id, application_id, country, consent_status, consent_version, consent_datetime, ip_address, user_agent)
+2. Upload บัตรประชาชน → OCR/Document AI → Mapping (เลขบัตร/ชื่อ/สกุล/วันเกิด/ที่อยู่/จังหวัด) → auto-fill → ผู้สมัครตรวจ/แก้ไข → Confirm → Save DB (ห้าม auto-save)
+3. Upload ทะเบียนบ้าน → OCR → เติม "ที่อยู่ตามทะเบียนบ้าน" (บ้านเลขที่/ตำบล/อำเภอ/จังหวัด/รหัสไปรษณีย์)
+4. รูปผู้สมัคร → ตรวจไฟล์/ขนาด/เป็นภาพบุคคล → Crop/Resize → เก็บ File/Object Storage (DB เก็บ file_id/url เท่านั้น)
+5. AI Translation ทุกช่อง: 🇹🇭 TH→EN · 🇱🇦 LA→TH · 🇰🇭 KH→EN+TH — ไม่แปลทับต้นฉบับ (เก็บ source_value + translation_en/th/km/lo + status PENDING/SUCCESS/FAILED/REVIEW) — ทั้งหมดลงฐานข้อมูลรองรับ 3 ประเทศ
+6. Submit → Validate → Application ID → Save DB/Documents/Translation → สร้าง Application URL จาก application_id จริง (ห้าม hard-code) → Telegram API ผ่าน Backend (ห้ามเปิด token ใน frontend):
+   - 📣 Super สรรหา PKG (chat id -1001237535741): "New Candidate มีผู้สมัครงานใหม่ คุณ : {ชื่อ} สมัครตำแหน่ง : {job_code}##{ตำแหน่ง} ดูรายละเอียดได้ที่ >>> {Application URL}"
+   - 👥 ชุมชนคนหางาน (chat id -1001528940221): ข้อความสรุปสั้น (ชื่อ XXXXXXX บางส่วน) — ห้องนี้สมาชิกเยอะ ห้ามส่งข้อมูลส่วนบุคคลละเอียด
+   - Notification Log ทุกครั้ง (สำเร็จ/ล้มเหลว)
+7. หน้า "เริ่มสมัครงาน" แยก 2 เมนู: สมัครทั่วไป / สมัครขอฝึกงาน (ฟอร์มฝึกงานพอร์ตจาก formTraniee.php → form-trainee.html แล้ว) — ฝึกงาน submit → Trainee Application ID → DB (ชีท Trainees) → Telegram ห้อง super สรรหา: "New Candidate คุณ: {ชื่อ} / ประเภทฝึก / การศึกษา / สถานศึกษา / สาขาวิชา"
+8. Application Status กลาง: NEW → CONSENTED → APPLICATION_COMPLETED → DOCUMENT_PENDING → DOCUMENT_VERIFIED → AI_TRANSLATED → READY_FOR_SCREENING → SCREENING → INTERVIEW → BACKGROUND_CHECK → OFFER → HIRED (ไม่ผ่าน: NOT_SELECTED) — ต่อ P1–P4 ได้ทันที
+9. DB1 Applicant แตกเป็น: Applicant / Personal Data / Job Application / Address / Education / Experience / Family / Skills / Documents / Translation / Consent / Notification Log
+10. Security: ข้อมูลบัตรประชาชน+ทะเบียนบ้าน = อ่อนไหว → encryption, access control, audit log, retention policy · สมัครเสร็จส่งเลข Application ID + สถานะกลับผู้สมัครทันที
+
+โครงสร้างหลัก: ผู้สมัคร → เลือกประเทศ → เลือกประเภทสมัคร → Consent → Form → Upload → OCR → Auto Fill → AI Translation → ตรวจสอบ → Submit → DB1 → Telegram → HR Screening → P1/P2/P3/P4
