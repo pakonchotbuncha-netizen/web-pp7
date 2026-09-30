@@ -39,6 +39,7 @@
     <a href="#task2-menus" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">4 เมนู</a>
     <a href="#task2-db" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">DB + Step 2</a>
     <a href="#task3" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">Task 3 · ใบสมัคร + OCR/AI</a>
+    <a href="#estimate" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">⏱️ ประเมินเวลา</a>
     <a href="#devchecklist" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">Checklist ทีมพัฒนา</a>
   </nav>
 </header>
@@ -685,6 +686,31 @@ Application Status
       <li>สมัครเสร็จส่งเลข Application ID + สถานะกลับให้ผู้สมัครทันที</li>
     </ol>
     <p class="mt-2 text-xs text-slate-600"><b>โครงสร้างหลัก:</b> ผู้สมัคร → เลือกประเทศ → เลือกประเภทสมัคร → Consent → Form → Upload → OCR → Auto Fill → AI Translation → ตรวจสอบ → Submit → DB1 → Telegram → HR Screening → P1/P2/P3/P4 — ทำให้ PP7 เป็นจุดเริ่มต้นของ Applicant Data ที่ใช้ต่อได้ทั้งระบบ</p>
+  </div>
+</section>
+
+<!-- ============ ESTIMATE ============ -->
+<section id="estimate" class="sec">
+  <h2 class="text-xl font-bold text-rose-700 mb-3">⏱️ ประเมินเวลาทำงาน 3 Tasks (สำหรับแจ้งทีมพัฒนา)</h2>
+  <div class="bg-white rounded-xl shadow p-5 mb-4">
+    <table class="mtx">
+      <tr><th>Task</th><th>งานหลัก</th><th>คน-วัน</th></tr>
+      <tr><td class="font-semibold">Task 1 · Public Recruitment Web</td><td>FU/Company/Branch/Job Master + seed ข้อมูล ~50 บริษัท · Landing เลือก FU + Dynamic Theme 3 สี 4 ภาษา · Admin เพิ่ม/ปิดบริษัท (Audit Log) · DB1 แยก Applicant/Application · RBAC 4 ระดับ · Funnel Dashboard</td><td class="text-center font-bold">15 วัน</td></tr>
+      <tr><td class="font-semibold">Task 2 · Step 1 โครงสร้างองค์กร</td><td>4 เมนูย่อย · embed ฟอร์ม GAS + REQUEST_ID · หน้า PAO set โครงสร้างภายนอก/ภายใน · Flowchart render จาก APPROVED STRUCTURE (5 BU) · STRUCTURE_VERSION + Audit · เชื่อม Step 2 ขออัตรากำลัง</td><td class="text-center font-bold">12 วัน</td></tr>
+      <tr><td class="font-semibold">Task 3 · ใบสมัคร + OCR/AI</td><td>PDPA Consent Gate · Upload 4 ชนิด + OCR (บัตร/ทะเบียนบ้าน/รูป/วุฒิ) + หน้า Confirm · AI Translation 3 ประเทศ (เก็บต้นฉบับ+status) · Telegram notify 2 ห้อง + Log · ฟอร์มฝึกงานเชื่อม FU+notify · Status pipeline NEW→HIRED · security ข้อมูลอ่อนไหว</td><td class="text-center font-bold">15 วัน</td></tr>
+      <tr class="bg-slate-50"><td colspan="2" class="text-right font-semibold">รวมดิบ (ไม่คิดงานซ้ำ)</td><td class="text-center font-bold">42 คน-วัน</td></tr>
+      <tr class="bg-emerald-50"><td colspan="2" class="text-right font-semibold">หักงานที่ใช้ร่วมกัน (DB1/RBAC/Application ID ทำครั้งเดียว) + รวม Integration Test &amp; UAT buffer 20%</td><td class="text-center font-bold text-emerald-700">~35 คน-วัน</td></tr>
+    </table>
+    <div class="mt-4 grid md:grid-cols-3 gap-3 text-sm">
+      <div class="border rounded-lg p-3 bg-slate-50"><b>ทีม 1 คน</b><br>~35 วันทำการ ≈ <b>7 สัปดาห์</b></div>
+      <div class="border rounded-lg p-3 bg-blue-50"><b>ทีม 2 คน</b> (แยกหน้า Dev ได้: คนหนึ่ง Master/Admin อีกคน OCR/AI/Notify)<br>~20–22 วันทำการ ≈ <b>4–5 สัปดาห์</b></div>
+      <div class="border rounded-lg p-3 bg-emerald-50"><b>ทีม 3 คน</b><br>~15–17 วันทำการ ≈ <b>3–3.5 สัปดาห์</b></div>
+    </div>
+    <div class="mt-4 text-xs text-slate-600 bg-amber-50 border border-amber-200 rounded-lg p-3">
+      <b>ข้อเสนอแนะลำดับงาน (ทำให้เห็นผลเร็ว):</b>
+      สัปดาห์ที่ 1: Task 1 ส่วน Master + Landing (FU/Company/Branch) — เห็นหน้าเว็บจริงทันที · สัปดาห์ที่ 2: Task 3 ส่วน PDPA + Upload + Telegram notify — ฟอร์มใช้งานได้จริง · สัปดาห์ที่ 3: Task 3 OCR + AI Translation (งานเสี่ยงสุด ทำก่อนเหลือเวลาแก้) · สัปดาห์ที่ 4: Task 2 โครงสร้างองค์กร + Flowchart · สัปดาห์ที่ 5: Integration + RBAC ครบ + UAT
+      <br><b>ความเสี่ยง/ตัวแปร:</b> คุณภาพ OCR เอกสารไทย/ลาว/เขมร (บัตรลาว-เขมรอาจต้อง fine-tune เพิ่ม +2–3 วัน) · ค่าบริการ OCR/AI Translate ต่อรายการ · รอข้อมูล seed บริษัท/ตำแหน่งจริงจาก HR
+    </div>
   </div>
 </section>
 
