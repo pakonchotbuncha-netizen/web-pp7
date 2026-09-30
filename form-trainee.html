@@ -325,6 +325,10 @@
             const data = {};
             data.applicationType = 'trainee'; // แยกประเภทจากใบสมัครงานประจำ
             data.positionOpen = 'trainee';
+            // FU + ภาษาที่เข้ามาจาก link หน้าเลือก FU (THAI/RPLCG/RAFCOG)
+            const _q = new URLSearchParams(location.search);
+            data.fu = _q.get('fu') || '';
+            data.formLang = _q.get('lang') || '';
 
             // Personal
             data.prefixTh = document.getElementById('prefix-th').value;
@@ -399,8 +403,12 @@
             }
         });
 
-        // Initialize with Thai
-        setLanguage('th');
+        // Initialize language from URL (?lang=th|en|lo|km) — default Thai
+        (function(){
+            const _p = new URLSearchParams(location.search);
+            const _lang = ['th','en','lo','km'].includes(_p.get('lang')) ? _p.get('lang') : 'th';
+            setLanguage(_lang);
+        })();
 </script>
 </body>
 </html>

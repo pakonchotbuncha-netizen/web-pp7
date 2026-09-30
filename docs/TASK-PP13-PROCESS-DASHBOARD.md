@@ -11,6 +11,7 @@
    - ทุก FU โชว์ตำแหน่งงานว่าง → form-register.html
 2. เมนูเพิ่ม/ลบบริษัท (เปิด-ปิด) — ใช้ ACTIVE/INACTIVE ห้ามลบข้อมูลจริง (soft-close + Audit Log)
 3. Theme สีตาม FU: THAI=ส้ม / RPLCG=เหลือง / RAFCOG=แดง-น้ำเงิน (Dynamic Theme ระบบเดียว FU_ID ควบคุม ไม่สร้างเว็บแยก 3 ชุด)
+   - ⚠️ **ทุก FU ต้องมี "สมัครนักศึกษาฝึกงาน" ด้วย** (comment พี่ปกรณ์ 30 ก.ย. 69) — ปุ่มใต้การ์ดแต่ละ FU → form-trainee.html?fu=FUxx&lang=th/lo/km · form-trainee รองรับ ?lang= auto-set ภาษา + ส่ง fu/formLang เข้า backend แล้ว · ทำจริงใน recruit-landing-fu.html แล้ว
 4. หน้ารับสมัครเปิดให้บุคคลทั่วไป + สมาชิก PKG ใช้ได้เลย
 5. เมนู 🔄 Flow การสรรหา 10 ขั้นตอน: สมาชิก PKG ดูได้เท่านั้น / ใช้งานเฉพาะ HR BMC ADM + ผู้รับใช้ทีม
 
