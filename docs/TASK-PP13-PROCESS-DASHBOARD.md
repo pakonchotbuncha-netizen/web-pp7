@@ -1,0 +1,61 @@
+# Task PP1-3 (ไก่จัง) — สรุปกระบวนการอย่างละเอียดสำหรับทีมพัฒนา
+> แหล่งข้อมูล: ชีต "Task PP1-3 ไก่จัง" (spreadsheet 1FiKLcmMw7a1Q1Td2KiSfGJmQBrI6Fteup9SXntbfono)
+> Dashboard HTML: https://pakonchotbuncha-netizen.github.io/web-pp7/task-pp13-process-dashboard.html
+> อัปเดต: 30 ก.ย. 2569
+
+## Task 1 — ปรับหน้า Web PP7 สำหรับบุคคลภายนอก
+1. หน้า "ร่วมงานกับ PKG Group" → เมนูระบบรับสมัครงาน แยก FU:
+   - 🇹🇭 THAI (ฟอร์มภาษาไทย) — 29+ บริษัท (ประชากิจมอเตอร์เซลส์, เอเอเอ็ม แคปปิตอลเซอร์วิส +6 สาขา, พีเอ็มเอส, เกษตรไทย ลิสซิ่ง ฯลฯ)
+   - 🇱🇦 RPLCG (ภาษาลาว) — 7 บริษัท/ร้าน
+   - 🇰🇭 RAFCOG (เขมร & อังกฤษ) — 4 บริษัท
+   - ทุก FU โชว์ตำแหน่งงานว่าง → form-register.html
+2. เมนูเพิ่ม/ลบบริษัท (เปิด-ปิด) — ใช้ ACTIVE/INACTIVE ห้ามลบข้อมูลจริง (soft-close + Audit Log)
+3. Theme สีตาม FU: THAI=ส้ม / RPLCG=เหลือง / RAFCOG=แดง-น้ำเงิน (Dynamic Theme ระบบเดียว FU_ID ควบคุม ไม่สร้างเว็บแยก 3 ชุด)
+4. หน้ารับสมัครเปิดให้บุคคลทั่วไป + สมาชิก PKG ใช้ได้เลย
+5. เมนู 🔄 Flow การสรรหา 10 ขั้นตอน: สมาชิก PKG ดูได้เท่านั้น / ใช้งานเฉพาะ HR BMC ADM + ผู้รับใช้ทีม
+
+### DB Design
+- Key chain: FU_ID → COMPANY_ID → BRANCH_ID → JOB_ID → APPLICANT_ID → APPLICATION_ID
+- DB1 = APPLICANT (stock: PROFILE/ADDRESS/EDUCATION/SKILL/LANGUAGE/EXPERIENCE/FAMILY/REFERENCE/DOCUMENT/PDPA_CONSENT)
+- APPLICATION แยกการสมัครแต่ละครั้ง (1 คนสมัครหลายตำแหน่งได้)
+- MASTER: M_FU, M_COMPANY, M_BRANCH, M_TEAM, M_POSITION, M_LANGUAGE, M_RECRUITMENT_SOURCE
+- RECRUITMENT: JOB_POSTING, APPLICATION, SCREENING, AI_ANALYSIS, INTERVIEW_SCHEDULE, INTERVIEW, INTERVIEW_SUMMARY, BACKGROUND_CHECK, JOB_OFFER, ONBOARDING
+- AUDIT: USER, ROLE, PERMISSION, AUDIT_LOG
+- เชื่อม Flow 10 steps ด้วย APPLICATION_ID: 01 BU REQUEST → 02 HEADCOUNT/STRUCTURE → 03 JOB POSTING → 04 APPLICATION → 05 SCREENING → 06 INTERVIEW SCHEDULE → 07 INTERVIEW → 08 BACKGROUND CHECK → 09 OFFER/START DATE → 10 ONBOARDING → P4 PAO
+
+### ข้อควรแก้ก่อนพัฒนา
+ข้อมูลต้นทาง: เลขบริษัทไม่ต่อเนื่อง, พีซีแอลฯ ซ้ำ 2 ครั้ง, เลข 1.1.24/1.1.26 หาย, สาขาปลวกแดงซ้ำ → ใช้ COMPANY_ID เป็นรหัสระบบแทนเลขลำดับหน้าเว็บ
+
+### RBAC
+- บุคคลทั่วไป/สมาชิก PKG: หน้ารับสมัคร, FU, บริษัท, ตำแหน่ง, สมัครงาน, Dashboard ผู้สมัคร (เฉพาะข้อมูลตนเอง)
+- สมาชิก PKG: ดู Flow 10 ขั้นตอน
+- HR/BMC/ADM: FULL ACCESS (จัดการ Company/Job/Applicant DB/Screening/Interview/BG Check/Offer) + ผู้รับใช้ทีมตามสิทธิ์
+- Pattern: PKG MEMBER → Authentication → Role/Permission → Resource Access
+
+## Task 2 — Flow การสรรหา 10 ขั้นตอน · STEP 1 โครงสร้างองค์กร
+คลิก "1. โครงสร้างองค์กร" → เพิ่ม 4 เมนูย่อย:
+1. **คีย์ขอโครงสร้าง** (เฉพาะ BMC) — embed ฟอร์ม GAS (create_structure, spreadsheet 1S_0IO-Hu5T0_kGaor0kmnMayH-4ek2sLYq4rwiFi5v8) ในหน้า PP7 (BMC ไม่ต้องออกจากระบบ) — ฟิลด์: BU/บริษัท/หน่วยงาน/ตำแหน่ง/จำนวนอัตรา/โครงสร้างเดิม/โครงสร้างที่ต้องการ/เหตุผล/รายละเอียด — Submit → REQUEST_ID + STATUS=REQUEST → ส่ง PAO
+2. **DATAโครงสร้างบริษัทภายนอก** (เฉพาะ PAO) — set แทนบอร์ดจากคำขอ BU — แหล่งข้อมูล sheet 1liNuQStJOoFfidKa4yMwV0wOVntR5FlUKfcoYhc-vAA (gid=1829103723) — ฟิลด์ set: บริษัท/BU/หน่วยงาน/ตำแหน่ง/จำนวน/ผู้รับใช้ทีม/สายบังคับบัญชา/ระดับตำแหน่ง/โครงสร้างเงินเดือน → SAVE → APPROVE
+3. **DATAโครงสร้างบริษัทภายใน** (เฉพาะ PAO) — flow เหมือนข้อ 2 แต่แยก dataset EXTERNAL/INTERNAL ห้ามปนกัน — sheet 1ZGQF_AuixYziDmYeZcaSxBeBQEgGdYJbkX5JgpeIkaw (gid=1481031524)
+4. **Flowchart** — เลือก BU (AAMG/PMSG/CPDG/RPLCG/RAFCOG) → เลือกบริษัท → ดึง Structure ล่าสุดที่ APPROVED → แสดง flowchart ตามโครงสร้างเงินเดือน (รูปแบบอ้างอิง sheet 1vX3CErpU0OuYqkr3apVw_PFSlTdNw1CsIF_XB6lAdEI gid=1755774749) — Flowchart ไม่คีย์ซ้ำ เปลี่ยนตาม DB อัตโนมัติ
+
+### เชื่อมต่อ Step 2 — ขออัตรากำลังคน
+STRUCTURE APPROVED → ดึงไป Step 2 → BMC เลือก BU/บริษัท/หน่วยงาน/ตำแหน่ง/โครงสร้างเงินเดือน (ระบบดึงจาก APPROVED STRUCTURE ห้ามคีย์ใหม่) → กรอกเฉพาะจำนวนอัตรา → MANPOWER REQUEST → บันทึก DB → Step 3
+
+### DB Relationship
+FU_MASTER → BU_MASTER → COMPANY_MASTER → BRANCH_MASTER → DEPARTMENT_MASTER → POSITION_MASTER → STRUCTURE_MASTER
+- STRUCTURE_MASTER: STRUCTURE_REQUEST (BMC) / STRUCTURE_EXTERNAL (PAO) / STRUCTURE_INTERNAL (PAO) / STRUCTURE_VERSION → FLOWCHART → MANPOWER_REQUEST → STEP 2
+- Keys: BU_ID, COMPANY_ID, BRANCH_ID, DEPARTMENT_ID, POSITION_ID, STRUCTURE_REQUEST_ID, STRUCTURE_ID, STRUCTURE_VERSION, FLOWCHART_ID, MANPOWER_REQUEST_ID
+
+### สิทธิ์ STEP 1
+| เมนู | BMC | PAO | บุคคลทั่วไป |
+|---|---|---|---|
+| 1. โครงสร้างองค์กร | 👁️ | ✅ | ❌ |
+| คีย์ขอโครงสร้าง | ✅ | 👁️ | ❌ |
+| DATA ภายนอก/ภายใน | ❌ | ✅ | ❌ |
+| Flowchart / เลือก BU-บริษัท | 👁️ | ✅ | 👁️ |
+| แก้ไขโครงสร้าง | ❌ | ✅ | ❌ |
+| 2. ขออัตรากำลังคน | ✅ | 👁️ | ❌ |
+
+### หัวใจของระบบ
+STRUCTURE DATABASE = Single Source of Truth — PAO set/อนุมัติครั้งเดียว ใช้ทั้ง Flowchart และ Step 2 ไม่ต้องคีย์ซ้ำ ลดความผิดพลาดระหว่างเมนู
