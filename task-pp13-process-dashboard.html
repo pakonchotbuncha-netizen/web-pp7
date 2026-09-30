@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task PP1-3 (ไก่จัง) — สรุปกระบวนการสำหรับทีมพัฒนา | Web PP7</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: 'Sarabun', 'Noto Sans Thai', sans-serif; }
+  .flow-box { @apply border rounded-lg px-3 py-2 text-center text-sm; }
+  .arrow { text-align:center; color:#64748b; font-size:1.1rem; line-height:1.2; }
+  pre.diagram { background:#0f172a; color:#e2e8f0; padding:14px; border-radius:10px; overflow-x:auto; font-size:11.5px; line-height:1.45; }
+  .navlink { @apply block px-3 py-1.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100; }
+  .sec { scroll-margin-top: 80px; }
+  table.mtx { @apply w-full text-sm border-collapse; }
+  table.mtx th { @apply bg-slate-100 border border-slate-300 px-2 py-1.5 text-left; }
+  table.mtx td { @apply border border-slate-300 px-2 py-1.5; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+<!-- HEADER -->
+<header class="bg-gradient-to-r from-indigo-700 to-purple-700 text-white sticky top-0 z-40 shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-3">
+    <div class="text-2xl">🧭</div>
+    <div class="flex-1 min-w-[240px]">
+      <h1 class="font-bold text-lg leading-tight">Task PP1-3 (ไก่จัง) — สรุปกระบวนการอย่างละเอียด สำหรับทีมพัฒนา</h1>
+      <p class="text-indigo-200 text-xs">แหล่งข้อมูล: ชีต "Task PP1-3 ไก่จัง" · Task 1: ปรับหน้า Web PP7 สำหรับบุคคลภายนอก · Task 2: Flow การสรรหา 10 ขั้นตอน — ข้อ 1 โครงสร้างองค์กร · อัปเดต 30 ก.ย. 2569</p>
+    </div>
+    <a href="index.html" class="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg">← กลับหน้าหลัก PP7</a>
+  </div>
+  <nav class="max-w-7xl mx-auto px-4 pb-2 flex flex-wrap gap-2 text-xs">
+    <a href="#overview" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">ภาพรวม</a>
+    <a href="#task1" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">Task 1 · Web ภายนอก</a>
+    <a href="#task1-flow" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">Data Flow</a>
+    <a href="#task1-db" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">DB Design</a>
+    <a href="#task1-access" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">สิทธิ์</a>
+    <a href="#task2" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">Task 2 · โครงสร้างองค์กร</a>
+    <a href="#task2-menus" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">4 เมนู</a>
+    <a href="#task2-db" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">DB + Step 2</a>
+    <a href="#devchecklist" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">Checklist ทีมพัฒนา</a>
+  </nav>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-6 space-y-8">
+
+<!-- ============ OVERVIEW ============ -->
+<section id="overview" class="sec">
+  <h2 class="text-xl font-bold text-indigo-800 mb-3">🎯 ภาพรวม 2 Tasks</h2>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-white rounded-xl shadow p-5 border-t-4 border-orange-500">
+      <h3 class="font-bold text-orange-700 mb-2">Task 1 — ปรับหน้า Web PP7 สำหรับบุคคลภายนอก</h3>
+      <ul class="text-sm space-y-1.5 list-disc pl-5 text-slate-700">
+        <li>หน้า "ร่วมงานกับ PKG Group" → เมนูระบบรับสมัครงาน <b>แยกตาม FU</b>: THAI 🇹🇭 / RPLCG 🇱🇦 / RAFCOG 🇰🇭</li>
+        <li>แต่ละ FU โชว์<b>ตำแหน่งงานว่าง</b>ของบริษัทในสังกัด (THAI ~30 บริษัท, RPLCG 7, RAFCOG 4)</li>
+        <li>ระบบ<b>เพิ่ม/ลบ (เปิด–ปิด) บริษัท</b>ได้ — ใช้ ACTIVE/INACTIVE ไม่ลบข้อมูลจริง</li>
+        <li><b>Theme สีตาม FU</b>: THAI = ส้ม, RPLCG = เหลือง, RAFCOG = แดง–น้ำเงิน (เหมือนแอปที่ลูกค้าภายนอกใช้)</li>
+        <li>เปิดสิทธิ์หน้ารับสมัครให้<b>บุคคลทั่วไป + สมาชิก PKG</b> เข้าใช้ได้เลย (ไม่ต้องล็อกอิน)</li>
+        <li>เมนู "🔄 Flow การสรรหา — 10 ขั้นตอน" เห็น<b>เฉพาะสมาชิก PKG</b> และใช้งานจริงเฉพาะ <b>HR / BMC / ADM / ผู้รับใช้ทีม</b></li>
+      </ul>
+    </div>
+    <div class="bg-white rounded-xl shadow p-5 border-t-4 border-indigo-500">
+      <h3 class="font-bold text-indigo-700 mb-2">Task 2 — Flow การสรรหา 10 ขั้นตอน · ข้อ 1 โครงสร้างองค์กร</h3>
+      <ul class="text-sm space-y-1.5 list-disc pl-5 text-slate-700">
+        <li>คลิกเข้า "1. โครงสร้างองค์กร" แล้วเพิ่ม<b> 4 เมนูย่อย</b>:
+          <ol class="list-decimal pl-5 mt-1 space-y-1">
+            <li><b>คีย์ขอโครงสร้าง</b> (เฉพาะ BMC) — ฟอร์มจาก GAS link ที่กำหนด บันทึกลงฐานข้อมูล</li>
+            <li><b>DATAโครงสร้างบริษัทภายนอก</b> (เฉพาะ PAO) — set แทนบอร์ด จากคำขอของ BU</li>
+            <li><b>DATAโครงสร้างบริษัทภายใน</b> (เฉพาะ PAO) — เหมือนข้อ 2 แยก dataset</li>
+            <li><b>Flowchart</b> — โชว์ flowchart แต่ละ BU ตามโครงสร้างองค์กร (เงินเดือน) ให้ BU นำไปใช้กับหน่วยงานภายนอก</li>
+          </ol>
+        </li>
+        <li>โครงสร้างที่ Approved แล้ว <b>ดึงต่อไปเมนูที่ 2 "ขออัตรากำลังคน"</b> ให้ BMC คีย์ขออัตรา โดยไม่ต้องคีย์บริษัท/หน่วยงาน/ตำแหน่ง/โครงสร้างเงินเดือนซ้ำ</li>
+      </ul>
+    </div>
+  </div>
+  <div class="mt-4 bg-amber-50 border border-amber-300 rounded-xl p-4 text-sm">
+    <b class="text-amber-800">🔑 หัวใจของระบบ (ทั้ง 2 Tasks):</b>
+    <span class="text-slate-700"> STRUCTURE DATABASE เป็น <b>Single Source of Truth</b> — เมื่อ PAO set และอนุมัติโครงสร้างใหม่ ข้อมูลชุดเดียวกันถูกใช้ทั้ง Flowchart และ Step 2 ขออัตรากำลังคน ไม่ต้องคีย์ซ้ำ ลดความผิดพลาด · และ Key chain หลักของ Task 1 คือ <code class="bg-amber-100 px-1 rounded">FU_ID → COMPANY_ID → BRANCH_ID → JOB_ID → APPLICANT_ID → APPLICATION_ID</code> เชื่อมข้อมูลตั้งแต่หน้า Public จนถึง HR และ Flow 10 ขั้นตอน</span>
+  </div>
+</section>
+
+<!-- ============ TASK 1 ============ -->
+<section id="task1" class="sec">
+  <h2 class="text-xl font-bold text-orange-700 mb-3">🟠 Task 1 — ปรับหน้า Web PP7 สำหรับบุคคลภายนอก (ระบบรับสมัครงานออนไลน์)</h2>
+
+  <!-- เมนู & FU -->
+  <div class="bg-white rounded-xl shadow p-5 mb-4">
+    <h3 class="font-bold mb-3">1.1 โครงสร้างเมนูหน้า Public</h3>
+    <pre class="diagram">เมนูหลัก
+   ↓
+หน้า "ร่วมงานกับ PKG Group — ระบบรับสมัครงานออนไลน์ที่ทันสมัย ง่าย และรวดเร็ว"
+   ↓
+เมนู ระบบรับสมัครงาน  →  แยก FU:
+   ├── 1.1 🇹🇭 THAI   (link สมัครงานภาษาไทย)   → โชว์ตำแหน่งงานว่าง → form-register.html
+   ├── 1.2 🇱🇦 RPLCG  (link สมัครงานภาษาลาว)    → โชว์ตำแหน่งงานว่าง → form-register.html
+   └── 1.3 🇰🇭 RAFCOG (link สมัครงานเขมร&อังกฤษ) → โชว์ตำแหน่งงานว่าง → form-register.html</pre>
+
+    <h4 class="font-semibold mt-4 mb-2 text-sm">FU MASTER — ใช้ระบบเดียว FU_ID ควบคุมข้อมูล + Theme (ไม่สร้างเว็บแยก 3 ชุด)</h4>
+    <table class="mtx">
+      <tr><th>FU_ID</th><th>FU</th><th>ภาษา</th><th>Theme</th><th>ผู้ใช้งาน</th></tr>
+      <tr><td>FU01</td><td>THAI</td><td>TH (+EN)</td><td>🟠 ส้ม</td><td>ผู้สมัครทั่วไป + สมาชิก PKG</td></tr>
+      <tr><td>FU02</td><td>RPLCG</td><td>LA</td><td>🟡 เหลือง</td><td>ผู้สมัครทั่วไป + สมาชิก PKG</td></tr>
+      <tr><td>FU03</td><td>RAFCOG</td><td>KH / EN</td><td>🔴🔵 แดง–น้ำเงิน</td><td>ผู้สมัครทั่วไป + สมาชิก PKG</td></tr>
+    </table>
+    <p class="text-xs text-slate-500 mt-2">ฟิลด์ FU Master: FU_ID, FU_CODE, FU_NAME, DEFAULT_LANGUAGE, THEME_COLOR, LOGO, STATUS, SORT_ORDER, CREATED_DATE — อนาคตมี FU04 เพียงเพิ่มข้อมูลใน Master ไม่ต้องเขียนเว็บใหม่</p>
+
+    <h4 class="font-semibold mt-4 mb-2 text-sm">Dynamic Theme — Component เดียวกัน เปลี่ยนแค่ FU_ID / Language / Theme / Logo / Company List / Job List</h4>
+    <pre class="diagram">/FU → /company → /branch → /jobs → /job-detail → /application</pre>
+  </div>
+
+  <!-- รายชื่อบริษัท -->
+  <div class="bg-white rounded-xl shadow p-5 mb-4">
+    <h3 class="font-bold mb-3">1.2 รายชื่อบริษัทแต่ละ FU (ตามข้อมูลในชีต — ใช้เป็น seed data ของ COMPANY_MASTER)</h3>
+    <div class="grid md:grid-cols-3 gap-4 text-sm">
+      <div class="border-l-4 border-orange-400 pl-3">
+        <h4 class="font-bold text-orange-700 mb-1">🇹🇭 THAI (29+ รายการ)</h4>
+        <ol class="list-decimal pl-5 space-y-0.5 text-slate-700 text-xs">
+          <li>บริษัท ประชากิจมอเตอร์เซลส์ จำกัด</li>
+          <li>บริษัท เอเอเอ็ม แคปปิตอลเซอร์วิส จำกัด <span class="text-slate-500">(สำนักงานใหญ่ + 6 สาขา: กบินทร์บุรี, นครนายก, ปลวกแดง, ศรีนครินทร์, สระบุรี, วังน้ำเย็น)</span></li>
+          <li>บริษัท พีเอ็มเอส คัสตอมเมอร์เซอร์วิส จำกัด</li>
+          <li>บริษัท เอเอเอ็ม บุรีรัมย์ จำกัด</li>
+          <li>บริษัท เกษตรไทย ลิสซิ่ง จำกัด</li>
+          <li>บริษัท เกษตรไทย ลิสซิ่ง บึงกาฬ จำกัด</li>
+          <li>บริษัท เอเอเอ็ม ฉะเชิงเทรา จำกัด</li>
+          <li>บริษัท อีเอซี กาญจนบุรี จำกัด</li>
+          <li>บริษัท เอเอเอ็ม ลพบุรี จำกัด</li>
+          <li>บริษัท เอเอเอ็ม แคปปิตอล เซอร์วิส พัทยา จำกัด</li>
+          <li>บริษัท เอเอเอ็ม มุกดาหาร จำกัด</li>
+          <li>บริษัท เอเอเอ็ม แคปปิตอล เซอร์วิส นนทบุรี จำกัด</li>
+          <li>บริษัท เอเอเอ็ม ปากช่อง จำกัด</li>
+          <li>บริษัท พีซีแอล แคปปิตอล เซอร์วิส จำกัด</li>
+          <li>บริษัท พีเอ็มเอส แคปปิตอล เซอร์วิส จำกัด</li>
+          <li>บริษัท พรีเชียส สโตน แอสเซท เมแนจเมนท์ จำกัด</li>
+          <li>บริษัท สระแก้วลิสซิ่ง จำกัด</li>
+          <li>บริษัท อาร์วายแอล แคปปิตอล เซอร์วิส จำกัด</li>
+          <li>บริษัท อีเอซี ราชบุรี จำกัด</li>
+          <li>บริษัท เอเอเอ็ม ตะเคียนคู่ จำกัด</li>
+          <li>บริษัท เอเอเอ็ม สกลนคร จำกัด</li>
+          <li>บริษัท เอเอเอ็ม สุรินทร์ จำกัด</li>
+          <li>บริษัท เอเอเอ็ม แคปปิตอลเซอร์วิส พระยาสัจจา จำกัด</li>
+          <li>บริษัท เอเอเอ็ม แคปปิตอล เซอร์วิส สอยดาว จำกัด</li>
+          <li>บริษัท เอเอเอ็ม แคปปิตอล เซอร์วิส อุดรดุษฎี จำกัด</li>
+          <li>บริษัท เอเอ็นเอฟ เทรดดิ้ง จำกัด</li>
+          <li>บริษัท แอจจิลซอฟท์ คอร์ปอเรชั่น จำกัด</li>
+          <li>บริษัท 21ซีที รีเสิร์ท จำกัด</li>
+          <li>บริษัท ไซฟินเวสท์ ดิจิตอล โบรคเกอร์ จำกัด</li>
+          <li>บริษัท ศูนย์พัฒนาผู้นำ จำกัด</li>
+          <li>บริษัท เล็นด์เอ็กซ์ จำกัด</li>
+        </ol>
+      </div>
+      <div class="border-l-4 border-yellow-400 pl-3">
+        <h4 class="font-bold text-yellow-600 mb-1">🇱🇦 RPLCG (7 รายการ)</h4>
+        <ol class="list-decimal pl-5 space-y-0.5 text-slate-700 text-xs">
+          <li>บริษัท ร่วมพัฒนา เช่าสินเชื่อ จำกัด</li>
+          <li>ร้านจะเลินมอเตอร์ (ส่วนบุคคล)</li>
+          <li>ร้านหลวงพะบางมอเตอร์เซลล์ (ส่วนบุคคล)</li>
+          <li>ร้านเวียงมอเตอร์ (ส่วนบุคคล)</li>
+          <li>ร้านมงคลมอเตอร์ สะหวันเขต</li>
+          <li>สถาบันการเงินจุละพากที่ไม่รับฝากเงิน ราฟโค ไฟแนนซ์เชียล ลาว จำกัด (ผู้เดียว)</li>
+          <li>บริษัท เพ็ดจะเลินบริการ จำกัด (ผู้เดียว)</li>
+        </ol>
+      </div>
+      <div class="border-l-4 border-red-500 pl-3">
+        <h4 class="font-bold text-red-600 mb-1">🇰🇭 RAFCOG (4 รายการ)</h4>
+        <ol class="list-decimal pl-5 space-y-0.5 text-slate-700 text-xs">
+          <li>บริษัท ราฟโค ไฟแนนเซียล (เขมโบเดีย) จำกัดมหาชน</li>
+          <li>บริษัท เอไอไอแอล แคปปิตอล พาร์ทเนอร์ จำกัด</li>
+          <li>FIV INVESTMENT TRUST KH CO.,LTD.</li>
+          <li>บริษัท เนทีฟ ไฟแนนเชี่ยล เทคโนโลยี เคเอช จำกัด</li>
+        </ol>
+      </div>
+    </div>
+    <div class="mt-3 bg-red-50 border border-red-200 rounded-lg p-3 text-xs text-red-800">
+      ⚠️ <b>ข้อควรแก้ก่อนเริ่มพัฒนา (จากข้อมูลชีต):</b> ลำดับเลขบริษัทในข้อมูลต้นทางไม่ต่อเนื่องและมีรายการซ้ำ — "บริษัท พีซีแอล แคปปิตอล เซอร์วิส จำกัด" ปรากฏ 2 ครั้ง, เลข 1.1.24 / 1.1.26 หายไป, สาขาปลวกแดงซ้ำ → <b>ให้ใช้ COMPANY_ID เป็นรหัสระบบ</b> แทนเลขลำดับที่แสดงบนเว็บ เพื่อป้องกันปัญหาใน Database
+    </div>
+  </div>
+
+  <!-- Company Master + Admin -->
+  <div class="bg-white rounded-xl shadow p-5 mb-4" id="task1-flow">
+    <h3 class="font-bold mb-3">1.3 เพิ่ม/ปิดบริษัท — COMPANY_MASTER + Admin Data Flow</h3>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div>
+        <h4 class="font-semibold text-sm mb-2">โครงสร้าง COMPANY_MASTER</h4>
+        <pre class="diagram">COMPANY_MASTER
+├── COMPANY_ID  (PK — รหัสระบบ ไม่ใช่เลขลำดับหน้าเว็บ)
+├── FU_ID       (FK → M_FU)
+├── COMPANY_CODE
+├── COMPANY_NAME_TH / _EN / _LA / _KH
+├── COMPANY_TYPE
+├── STATUS      (ACTIVE / INACTIVE)
+├── DISPLAY_ORDER
+├── EFFECTIVE_DATE / CLOSE_DATE
+└── CREATED_BY / CREATED_DATE / UPDATED_BY / UPDATED_DATE</pre>
+        <h4 class="font-semibold text-sm mt-3 mb-2">BRANCH_MASTER (แยกสาขาออกจากบริษัท)</h4>
+        <pre class="diagram">BRANCH_MASTER
+├── BRANCH_ID / COMPANY_ID (FK)
+├── BRANCH_CODE / BRANCH_NAME
+├── ADDRESS / PROVINCE / DISTRICT
+├── STATUS / DISPLAY_ORDER / UPDATED_DATE</pre>
+      </div>
+      <div>
+        <h4 class="font-semibold text-sm mb-2">Logic เปิด–ปิดบริษัท</h4>
+        <pre class="diagram">เปิดบริษัท → STATUS = ACTIVE
+   → แสดงหน้า Web → เปิดตำแหน่งงานได้
+
+ปิดบริษัท → STATUS = INACTIVE
+   → ไม่แสดงหน้า Web
+   → ห้ามสร้าง Job ใหม่
+   → Jobs ที่เปิดอยู่ = CLOSED
+   → ข้อมูล Application เดิมยังคงอยู่ (ห้ามลบ)
+   → Audit Log บันทึกผู้ดำเนินการ</pre>
+        <h4 class="font-semibold text-sm mt-3 mb-2">หน้า Admin: ⚙️ Admin &gt; Master Data &gt; บริษัท</h4>
+        <ul class="text-xs space-y-1 list-disc pl-5 text-slate-700">
+          <li>ปุ่ม "+ เพิ่มบริษัท" — ระบุ บริษัท / FU / สถานะ / ลำดับแสดงผล / วันที่เริ่มใช้ / วันที่ปิด</li>
+          <li>การ์ดบริษัทแสดงสถานะ 🟢 เปิดใช้งาน พร้อมปุ่ม [แก้ไข] [ปิดบริษัท] → มี CONFIRM ก่อนปิด</li>
+          <li><b>ห้าม Delete บริษัทจริง</b> — ใบสมัครเก่า/ประวัติต้องอ้างอิงบริษัทเดิมได้ (Soft-close เท่านั้น)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Job Posting + Applicant flow -->
+  <div class="bg-white rounded-xl shadow p-5 mb-4">
+    <h3 class="font-bold mb-3">1.4 Job Posting → Application → Applicant DB (Data Flow ระดับผู้ใช้)</h3>
+    <div class="grid md:grid-cols-2 gap-4">
+      <pre class="diagram">Public User journey (ระดับเมนูหน้าเว็บ):
+หน้าแรก → ร่วมงานกับ PKG Group → ระบบรับสมัครงาน
+→ เลือก FU (THAI / RPLCG / RAFCOG)
+→ เลือกบริษัท → เลือกสาขา → ดูตำแหน่งงานว่าง
+→ เลือกตำแหน่ง → สมัครงาน → PDPA Consent
+→ กรอกใบสมัคร → Upload เอกสาร → Submit
+→ สร้าง Applicant ID → บันทึก DB1 Applicant
+→ แสดงเลขที่ใบสมัคร → ติดตามสถานะ
+
+หมายเหตุ: หน้าเว็บปัจจุบันมีขั้นตอน
+ลงทะเบียน → เลือกตำแหน่ง → กรอกใบสมัคร → รอผล
+อยู่แล้ว โครงสร้างใหม่ต่อยอดของเดิมได้โดยไม่ต้อง
+เปลี่ยนแนวคิดหลัก</pre>
+      <div>
+        <h4 class="font-semibold text-sm mb-2">JOB_POSTING</h4>
+        <pre class="diagram">COMPANY → BRANCH → TEAM/FUNCTION → POSITION → JOB POSTING → OPEN/CLOSE
+
+JOB_POSTING
+├── JOB_ID / FU_ID / COMPANY_ID / BRANCH_ID
+├── TEAM_ID / POSITION_ID
+├── JOB_TITLE_TH/_EN/_LA/_KH
+├── JOB_DESCRIPTION / QUALIFICATION
+├── SALARY_MIN / SALARY_MAX / NUMBER_OF_VACANCIES
+├── OPEN_DATE / CLOSE_DATE / STATUS
+└── CREATED_BY / UPDATED_DATE</pre>
+        <h4 class="font-semibold text-sm mt-3 mb-2">Applicant Submit Flow</h4>
+        <pre class="diagram">Applicant → เลือก FU → เลือก Company → เลือก Branch
+→ เลือก Job → PDPA Consent → กรอกข้อมูล
+→ Upload File → Validate Data
+→ Generate Applicant ID → Save DB1
+
+ข้อมูลที่ฟอร์มต้องรองรับ (จากแบบฟอร์มปัจจุบัน):
+ตำแหน่ง · ข้อมูลส่วนตัว · ที่อยู่ · การศึกษา ·
+บัตรประชาชน · รูปถ่าย · ความสามารถ ·
+ประสบการณ์ทำงาน · บุคคลอ้างอิง · ข้อมูลทั่วไป ·
+เอกสารประกอบ</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- DB -->
+  <div class="bg-white rounded-xl shadow p-5 mb-4" id="task1-db">
+    <h3 class="font-bold mb-3">1.5 โครงสร้าง Database (DB1 = Applicant Stock — แยก APPLICANT ออกจาก APPLICATION)</h3>
+    <div class="grid md:grid-cols-2 gap-4">
+      <pre class="diagram">DB1 : APPLICANT STOCK
+APPLICANT
+├── APPLICANT_PROFILE
+├── APPLICANT_ADDRESS
+├── APPLICANT_EDUCATION
+├── APPLICANT_SKILL
+├── APPLICANT_LANGUAGE
+├── APPLICANT_EXPERIENCE
+├── APPLICANT_FAMILY
+├── APPLICANT_REFERENCE
+├── APPLICANT_DOCUMENT
+└── PDPA_CONSENT
+
+APPLICATION (แยกการสมัครแต่ละครั้ง)
+├── APPLICATION_ID / APPLICANT_ID
+├── FU_ID / COMPANY_ID / BRANCH_ID / JOB_ID
+├── APPLY_DATE / SOURCE / STATUS</pre>
+      <div>
+        <p class="text-xs text-slate-600 mb-2"><b>ข้อดี:</b> ผู้สมัคร 1 คนสมัครหลายตำแหน่งได้โดยไม่ต้องกรอกข้อมูลส่วนตัวใหม่ทั้งหมด</p>
+        <pre class="diagram">Applicant A
+ ├── Application #001 → AAM → พนักงานสินเชื่อ
+ ├── Application #002 → PMSG → Customer Service
+ └── Application #003 → AAM → เจ้าหน้าที่เร่งรัดหนี้</pre>
+        <h4 class="font-semibold text-sm mt-3 mb-2">ตารางข้อมูลทั้งหมดที่ควรมี</h4>
+        <pre class="diagram">MASTER: M_FU, M_COMPANY, M_BRANCH, M_TEAM,
+        M_POSITION, M_LANGUAGE, M_RECRUITMENT_SOURCE
+DB1:    APPLICANT (+ PROFILE/ADDRESS/EDUCATION/SKILL/
+        LANGUAGE/EXPERIENCE/REFERENCE/DOCUMENT/PDPA_CONSENT)
+RECRUIT: JOB_POSTING, APPLICATION, SCREENING, AI_ANALYSIS,
+        INTERVIEW_SCHEDULE, INTERVIEW, INTERVIEW_SUMMARY,
+        BACKGROUND_CHECK, JOB_OFFER, ONBOARDING
+AUDIT:  USER, ROLE, PERMISSION, AUDIT_LOG</pre>
+      </div>
+    </div>
+    <h4 class="font-semibold text-sm mt-4 mb-2">เชื่อม DB → Recruitment 10 Steps (ทุกขั้นตอนเชื่อมกันด้วย APPLICATION_ID)</h4>
+    <pre class="diagram">01 BU REQUEST → 02 HEADCOUNT/STRUCTURE → 03 JOB POSTING → 04 APPLICATION → 05 SCREENING
+→ 06 INTERVIEW SCHEDULE → 07 INTERVIEW → 08 BACKGROUND CHECK → 09 JOB OFFER/START DATE
+→ 10 ONBOARDING → ส่งต่อ P4 PAO (รับเข้าระบบ)</pre>
+    <h4 class="font-semibold text-sm mt-4 mb-2">Master Data Flow ฉบับ Developer ใช้เป็นหลัก</h4>
+    <pre class="diagram">PUBLIC WEB PKG PP7 → Recruitment Landing (ร่วมงานกับ PKG) → SELECT FU (THAI/RPLCG/RAFCOG)
+→ COMPANY MASTER → BRANCH MASTER → JOB POSTING → APPLICATION
+→ [PDPA CONSENT + DOCUMENT] → APPLICANT DB (DB1) → RECRUITMENT FLOW 10 STEPS
+→ [SCREENING · AI MATCH · INTERVIEW] → BACKGROUND CHECK → JOB OFFER → ONBOARDING → P4 PAO</pre>
+  </div>
+
+  <!-- Access -->
+  <div class="bg-white rounded-xl shadow p-5 mb-4" id="task1-access">
+    <h3 class="font-bold mb-3">1.6 สิทธิ์การเข้าถึง (แยก Public User กับ PKG Member ชัดเจน)</h3>
+    <table class="mtx text-xs md:text-sm">
+      <tr><th>เมนู</th><th>บุคคลทั่วไป</th><th>สมาชิก PKG</th><th>HR / BMC / ADM</th><th>ผู้รับใช้ทีม</th></tr>
+      <tr><td>ร่วมงานกับ PKG Group / ดู FU / ดูบริษัท / ดูตำแหน่งงาน / สมัครงาน / ลงทะเบียน–เข้าสู่ระบบ</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+      <tr><td>Dashboard ผู้สมัคร</td><td>เฉพาะข้อมูลตนเอง</td><td>เฉพาะข้อมูลตนเอง</td><td>ตามสิทธิ์</td><td>ตามสิทธิ์</td></tr>
+      <tr><td>🔄 Flow การสรรหา 10 ขั้นตอน</td><td>❌</td><td>✅ (ดูได้)</td><td>✅</td><td>✅</td></tr>
+      <tr><td>จัดการ Company / เพิ่ม–ปิด Company / เปิด–ปิด Job</td><td>❌</td><td>❌</td><td>✅</td><td>ตามสิทธิ์</td></tr>
+      <tr><td>ดู Applicant DB / Screening / Interview / Background Check / Offer</td><td>❌</td><td>❌</td><td>✅</td><td>ตามสิทธิ์</td></tr>
+    </table>
+    <div class="grid md:grid-cols-2 gap-4 mt-3">
+      <pre class="diagram">หลักการ: "สมาชิก PKG" ไม่ได้แปลว่าเห็นข้อมูลผู้สมัครทั้งหมด
+PKG MEMBER → Authentication → Role/Permission → Resource Access
+
+Data flow สิทธิ์เมนู Flow 10 ขั้นตอน:
+LOGIN → ตรวจสอบ USER
+ ├─ PUBLIC USER → ไม่มีสิทธิ์
+ └─ PKG MEMBER → ตรวจสอบ ROLE
+      ├─ HR/BMC/ADM → FULL ACCESS
+      ├─ ผู้รับใช้ทีม → ตามสิทธิ์ที่กำหนด
+      └─ MEMBER ทั่วไป → VIEW ONLY</pre>
+      <div class="text-xs text-slate-600 bg-slate-50 rounded-lg p-3">
+        <b>สิ่งที่ควรพัฒนา (สรุปจากชีต):</b>
+        <ol class="list-decimal pl-4 mt-1 space-y-0.5">
+          <li>FU Master (THAI/RPLCG/RAFCOG)</li>
+          <li>Company Master — เพิ่ม/ปิดบริษัทโดยไม่ลบข้อมูลเก่า</li>
+          <li>Branch Master (บริษัท → สาขา)</li>
+          <li>Job Posting (บริษัท → สาขา → ตำแหน่ง)</li>
+          <li>Dynamic Theme — สี/ภาษาตาม FU</li>
+          <li>Applicant DB1 — Stock ผู้สมัคร</li>
+          <li>Application — แยกการสมัครแต่ละครั้งจาก Profile</li>
+          <li>PDPA Consent — เก็บประวัติการยินยอม</li>
+          <li>Document Storage — รูป/วุฒิ/เอกสาร</li>
+          <li>Recruitment Flow 10 ขั้นตอน เชื่อมด้วย APPLICATION_ID</li>
+          <li>Role &amp; Permission — Public / PKG Member / HR BMC ADM / ผู้รับใช้ทีม</li>
+          <li>Audit Log — ทุกการเพิ่ม/แก้ไข/ปิดบริษัท/ตำแหน่ง/เปลี่ยนสถานะ</li>
+          <li>Dashboard — Funnel และสถานะการสรรหา</li>
+          <li>หลายภาษา TH/LA/KH/EN โดยไม่สร้างระบบแยก</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TASK 2 ============ -->
+<section id="task2" class="sec">
+  <h2 class="text-xl font-bold text-indigo-700 mb-3">🔵 Task 2 — Flow การสรรหา 10 ขั้นตอน · STEP 1: โครงสร้างองค์กร</h2>
+
+  <div class="bg-white rounded-xl shadow p-5 mb-4">
+    <h3 class="font-bold mb-2">2.1 ภาพรวมการทำงาน</h3>
+    <pre class="diagram">PP7 WEB → Flow การสรรหา 10 ขั้นตอน → ① โครงสร้างองค์กร
+   ├── 1. คีย์ขอโครงสร้าง (BMC ONLY) → BMC กรอกคำขอ → ตรวจสอบข้อมูล ─┐
+   ├── 2. DATAโครงสร้างบริษัทภายนอก (PAO ONLY) ────────────────────┼→ STRUCTURE REQUEST DB
+   └── 3. DATAโครงสร้างบริษัทภายใน (PAO ONLY) ────────────────────┘        ↓
+                                              PAO ตรวจสอบ / Set โครงสร้างใหม่
+                                                        ↓
+                                          STRUCTURE DATABASE (Approved)
+                                              ├──→ Flowchart บริษัท/BU
+                                              └──→ STEP 2 ขออัตรากำลังคน → BMC ขออัตรา</pre>
+    <h4 class="font-semibold text-sm mt-3 mb-2">เส้นทางเมนูที่ต้องเพิ่ม</h4>
+    <pre class="diagram">PP7 → Flow การสรรหา — 10 ขั้นตอน → 1. โครงสร้างองค์กร
+        ├── 1. คีย์ขอโครงสร้าง
+        ├── 2. DATAโครงสร้างบริษัทภายนอก
+        ├── 3. DATAโครงสร้างบริษัทภายใน
+        └── 4. Flowchart</pre>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-5 mb-4" id="task2-menus">
+    <h3 class="font-bold mb-3">2.2 รายละเอียด 4 เมนูย่อย</h3>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="border rounded-xl p-4 bg-indigo-50/50">
+        <h4 class="font-bold text-indigo-800 text-sm mb-2">เมนู 1 · คีย์ขอโครงสร้าง (สิทธิ์: BMC / PAO / ผู้รับใช้ทีม)</h4>
+        <pre class="diagram">เข้า PP7 → Flow การสรรหา → 1.โครงสร้างองค์กร
+→ คีย์ขอโครงสร้าง → ดึง Form → กรอกข้อมูล:
+   BU · บริษัท · หน่วยงาน · ตำแหน่ง · จำนวนอัตรา
+   · โครงสร้างเดิม · โครงสร้างที่ต้องการ · เหตุผล
+   · รายละเอียดเพิ่มเติม
+→ SUBMIT → บันทึก DATABASE → STATUS = REQUEST
+→ ส่งข้อมูลให้ PAO</pre>
+        <p class="text-xs text-slate-600 mt-2">📌 ฟอร์มต้นทาง (GAS Web App — create_structure): <code class="break-all bg-white px-1 rounded">https://script.google.com/macros/s/AKfycbwQ5-gGWyBsLuwVO-nBngZTDEXHm6-FiHmQQkXtYiMb8s-dxJ0McWi9u0mSnbdV6D1bAw/dev?spreadsheet_id=1S_0IO-Hu5T0_kGaor0kmnMayH-4ek2sLYq4rwiFi5v8&amp;form_name=create_structure</code></p>
+        <p class="text-xs text-red-700 mt-1"><b>สำคัญ:</b> ต้องนำ Form มาแสดง<b>ภายใน Web PP7</b> (embed) — BMC ไม่ต้องออกจากระบบไปกรอกอีกหน้า · เมื่อ Submit ต้องมี <b>REQUEST_ID</b> สำหรับติดตามรายการ · ใช้กรณี BU ไม่มีโครงสร้าง</p>
+      </div>
+      <div class="border rounded-xl p-4 bg-purple-50/50">
+        <h4 class="font-bold text-purple-800 text-sm mb-2">เมนู 2 · DATAโครงสร้างบริษัทภายนอก (สิทธิ์: PAO เท่านั้น)</h4>
+        <pre class="diagram">PAO → DATAโครงสร้างบริษัทภายนอก
+→ ดึงรายการ STRUCTURE REQUEST → เลือก BU
+→ เลือกบริษัท → ดูคำขอจาก BMC
+→ Set / ปรับโครงสร้าง:
+   บริษัท · BU · หน่วยงาน · ตำแหน่ง · จำนวน
+   · ผู้รับใช้ทีม · สายบังคับบัญชา · ระดับตำแหน่ง
+   · โครงสร้างเงินเดือน
+→ SAVE → DATABASE → APPROVE</pre>
+        <p class="text-xs text-slate-600 mt-2">📌 แหล่งข้อมูล: <code class="break-all bg-white px-1 rounded">docs.google.com/spreadsheets/d/1liNuQStJOoFfidKa4yMwV0wOVntR5FlUKfcoYhc-vAA (gid=1829103723)</code></p>
+        <h4 class="font-bold text-purple-800 text-sm mt-3 mb-2">เมนู 3 · DATAโครงสร้างบริษัทภายใน (สิทธิ์: PAO เท่านั้น)</h4>
+        <p class="text-xs text-slate-700">Flow ทำงานเหมือนเมนู 2 แต่<b>แยก Dataset เป็นโครงสร้างบริษัทภายใน</b> — ต้องแยก EXTERNAL / INTERNAL เป็นคนละประเภทข้อมูล <b>ห้ามนำมาปนกัน</b></p>
+        <p class="text-xs text-slate-600 mt-1">📌 แหล่งข้อมูล: <code class="break-all bg-white px-1 rounded">docs.google.com/spreadsheets/d/1ZGQF_AuixYziDmYeZcaSxBeBQEgGdYJbkX5JgpeIkaw (gid=1481031524)</code></p>
+      </div>
+    </div>
+
+    <div class="border rounded-xl p-4 bg-slate-50 mt-4">
+      <h4 class="font-bold text-slate-800 text-sm mb-2">เมนู 4 · Flowchart (BU ดูได้ · PAO จัดการ · บุคคลทั่วไปดูได้)</h4>
+      <div class="grid md:grid-cols-2 gap-4">
+        <pre class="diagram">Flowchart → เลือก BU (AAMG / PMSG / CPDG / RPLCG / RAFCOG)
+→ เลือกบริษัท → ดึง Structure ล่าสุดที่ APPROVED
+→ แสดง Flowchart ตามโครงสร้างเงินเดือน
+
+Data flow (Flowchart ไม่คีย์ซ้ำ):
+BMC ขอปรับ/เพิ่มโครงสร้าง → STRUCTURE REQUEST
+→ PAO SET STRUCTURE → STRUCTURE DATABASE
+→ APPROVED VERSION ├→ FLOWCHART บริษัท/BU
+                   └→ STEP 2 ขออัตรากำลังคน
+เมื่อ PAO ปรับโครงสร้างแล้ว Flowchart เปลี่ยนตาม
+Database อัตโนมัติ ไม่ต้องทำใหม่ทุกครั้ง
+
+📌 รูปแบบอ้างอิง: docs.google.com/spreadsheets/d/
+1vX3CErpU0OuYqkr3apVw_PFSlTdNw1CsIF_XB6lAdEI
+(gid=1755774749)</pre>
+        <div class="text-xs text-slate-700">
+          <b>โครงสร้างบริษัทใน Flowchart (แยกตาม BU — โครงสร้างเงินเดือน):</b>
+          <ul class="mt-1 space-y-1 list-disc pl-4">
+            <li><b>AAMG</b> — เอเอเอ็ม แคปปิตอลเซอร์วิส (สำนักงานใหญ่ + สาขากบินทร์บุรี/นครนายก/ปลวกแดง/ศรีนครินทร์/สระบุรี/วังน้ำเย็น) · พีเอ็มเอส คัสตอมเมอร์เซอร์วิส · เอเอเอ็ม บุรีรัมย์/ฉะเชิงเทรา/ลพบุรี/พัทยา/มุกดาหาร/นนทบุรี/ปากช่อง/ตะเคียนคู่/สกลนคร/สุรินทร์/พระยาสัจจา/สอยดาว/อุดรดุษฎี · เกษตรไทย ลิสซิ่ง (+บึงกาฬ) · อีเอซี กาญจนบุรี/ราชบุรี · พีซีแอล/พีเอ็มเอส แคปปิตอล เซอร์วิส · พรีเชียส สโตน · สระแก้วลิสซิ่ง · อาร์วายแอล · เอเอ็นเอฟ เทรดดิ้ง · ไซฟินเวสท์ · เล็นด์เอ็กซ์ (รวม 25+ รายการ)</li>
+            <li><b>PMSG</b> — ประชากิจมอเตอร์เซลส์: สำนักงานใหญ่ · สอยดาว · นายายอาม · ขลุง</li>
+            <li><b>CPDG</b> — แอจจิลซอฟท์ คอร์ปอเรชั่น · 21ซีที รีเสิร์ท · ศูนย์พัฒนาผู้นำ · ไซฟินเวสท์ ดิจิตอล โบรคเกอร์</li>
+            <li><b>RPLCG</b> — ร่วมพัฒนา เช่าสินเชื่อ · ร้านจะเลินมอเตอร์ · ร้านหลวงพะบางมอเตอร์เซลล์ · ร้านเวียงมอเตอร์ · ร้านมงคลมอเตอร์ สะหวันเขต · ราฟโค ไฟแนนซ์เชียล ลาว · เพ็ดจะเลินบริการ</li>
+            <li><b>RAFCOG</b> — ราฟโค ไฟแนนเซียล (เขมโบเดีย) มหาชน · เอไอไอแอล แคปปิตอล พาร์ทเนอร์ · FIV INVESTMENT TRUST KH · เนทีฟ ไฟแนนเชี่ยล เทคโนโลยี เคเอช</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-5 mb-4" id="task2-db">
+    <h3 class="font-bold mb-3">2.3 Database Relationship + จุดเชื่อมต่อ Step 2 + สิทธิ์</h3>
+    <div class="grid md:grid-cols-2 gap-4">
+      <pre class="diagram">FU_MASTER → BU_MASTER → COMPANY_MASTER → BRANCH_MASTER
+→ DEPARTMENT_MASTER → POSITION_MASTER → STRUCTURE_MASTER
+STRUCTURE_MASTER
+├── STRUCTURE_REQUEST   (BMC คีย์ขอ)
+├── STRUCTURE_EXTERNAL  (PAO set)
+├── STRUCTURE_INTERNAL  (PAO set)
+└── STRUCTURE_VERSION → FLOWCHART → MANPOWER_REQUEST → STEP 2
+
+Keys ที่ใช้:
+BU_ID · COMPANY_ID · BRANCH_ID · DEPARTMENT_ID · POSITION_ID
+STRUCTURE_REQUEST_ID · STRUCTURE_ID · STRUCTURE_VERSION
+FLOWCHART_ID · MANPOWER_REQUEST_ID</pre>
+      <div>
+        <h4 class="font-semibold text-sm mb-2">เชื่อมต่อ Step 2 — ขออัตรากำลังคน</h4>
+        <pre class="diagram">STEP 1 โครงสร้างองค์กร → STRUCTURE APPROVED
+→ ดึงข้อมูลไป Step 2 → BMC เลือก BU → บริษัท → หน่วยงาน
+→ ตำแหน่ง → โครงสร้างเงินเดือน → จำนวนอัตราที่ขอ
+→ MANPOWER REQUEST → บันทึก DATABASE
+
+⚠️ Step 2 ห้ามให้ BMC คีย์ข้อมูลบริษัท/หน่วยงาน/ตำแหน่ง/
+โครงสร้างเงินเดือนใหม่ทั้งหมด — ระบบต้องดึงจาก
+STRUCTURE DATABASE (APPROVED STRUCTURE)
+BMC กรอกเฉพาะ "จำนวนอัตราที่ขอ"</pre>
+        <h4 class="font-semibold text-sm mt-3 mb-2">🔐 สิทธิ์การใช้งาน STEP 1</h4>
+        <table class="mtx text-xs">
+          <tr><th>เมนู</th><th>BMC</th><th>PAO</th><th>บุคคลทั่วไป</th></tr>
+          <tr><td>1. โครงสร้างองค์กร</td><td>👁️ ดู</td><td>✅</td><td>❌</td></tr>
+          <tr><td>คีย์ขอโครงสร้าง</td><td>✅</td><td>👁️ ดู</td><td>❌</td></tr>
+          <tr><td>DATAโครงสร้างบริษัทภายนอก</td><td>❌</td><td>✅</td><td>❌</td></tr>
+          <tr><td>DATAโครงสร้างบริษัทภายใน</td><td>❌</td><td>✅</td><td>❌</td></tr>
+          <tr><td>Flowchart / เลือก BU–บริษัท</td><td>👁️ ดู</td><td>✅</td><td>👁️ ดู</td></tr>
+          <tr><td>แก้ไขโครงสร้าง</td><td>❌</td><td>✅</td><td>❌</td></tr>
+          <tr><td>2. ขออัตรากำลังคน</td><td>✅</td><td>👁️ ดู</td><td>❌</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="mt-4 bg-indigo-50 border border-indigo-200 rounded-lg p-3 text-xs text-indigo-900">
+      <b>🎯 FLOW หลักที่ Developer ต้องทำ:</b> PP7 WEB → Flow การสรรหา 10 ขั้นตอน → ① โครงสร้างองค์กร → [BMC REQUEST | PAO EXTERNAL | PAO INTERNAL] → STRUCTURE DATABASE → APPROVED STRUCTURE → [FLOWCHART บริษัท/BU] + [② ขออัตรากำลังคน → BMC → MANPOWER REQUEST] → STEP 3 · <b>หัวใจ = STRUCTURE DATABASE เป็น Single Source of Truth</b> ข้อมูลชุดเดียวใช้ทั้ง Flowchart และ Step 2 ไม่ต้องคีย์ซ้ำ ลดความผิดพลาดระหว่างเมนู
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEV CHECKLIST ============ -->
+<section id="devchecklist" class="sec">
+  <h2 class="text-xl font-bold text-emerald-700 mb-3">✅ Checklist สำหรับทีมพัฒนา (เรียงตามลำดับที่ควรทำ)</h2>
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-white rounded-xl shadow p-5">
+      <h3 class="font-bold text-orange-700 text-sm mb-2">Task 1 · Public Recruitment Web</h3>
+      <ol class="text-xs space-y-1.5 list-decimal pl-5 text-slate-700">
+        <li>สร้าง Master Data: M_FU (3 FU) + M_COMPANY (seed ~40 บริษัท พร้อม COMPANY_ID) + M_BRANCH</li>
+        <li>ทำหน้า Recruitment Landing → เลือก FU → Dynamic Theme (ส้ม/เหลือง/แดง–น้ำเงิน) + ภาษา (TH/LA/KH-EN)</li>
+        <li>หน้าเลือกบริษัท → สาขา → ตำแหน่งงานว่าง (JOB_POSTING) ต่อด้วย form-register.html เดิม</li>
+        <li>แยก APPLICANT (stock) ออกจาก APPLICATION + PDPA_CONSENT + APPLICANT_DOCUMENT</li>
+        <li>Admin &gt; Master Data &gt; บริษัท: เพิ่ม/แก้ไข/ปิดบริษัท (ACTIVE–INACTIVE + CONFIRM + Audit Log)</li>
+        <li>RBAC: Public เห็นหน้ารับสมัคร + Flow 10 ขั้นตอนเฉพาะ PKG Member + จัดการ recruitment เฉพาะ HR/BMC/ADM/ผู้รับใช้ทีม</li>
+        <li>Dashboard Funnel การสรรหา + เชื่อม Flow 10 ขั้นตอนด้วย APPLICATION_ID → ส่งต่อ P4 PAO</li>
+      </ol>
+    </div>
+    <div class="bg-white rounded-xl shadow p-5">
+      <h3 class="font-bold text-indigo-700 text-sm mb-2">Task 2 · Step 1 โครงสร้างองค์กร</h3>
+      <ol class="text-xs space-y-1.5 list-decimal pl-5 text-slate-700">
+        <li>เพิ่ม 4 เมนูย่อยในหน้า Flow การสรรหา → 1. โครงสร้างองค์กร</li>
+        <li>เมนู 1: embed ฟอร์ม create_structure (GAS) ในหน้า PP7 → submit แล้วออก REQUEST_ID + STATUS=REQUEST → ส่งต่อ PAO</li>
+        <li>เมนู 2/3: หน้า PAO set โครงสร้างภายนอก/ภายใน (แยก dataset ห้ามปน) — ดึงคำขอ → set → SAVE → APPROVE</li>
+        <li>เมนู 4: Flowchart เลือก BU → บริษัท → render จาก APPROVED STRUCTURE อัตโนมัติ (version-based)</li>
+        <li>สร้าง STRUCTURE_MASTER + STRUCTURE_VERSION (มี history) + Audit ทุกการอนุมัติ</li>
+        <li>เชื่อมต่อ Step 2: MANPOWER_REQUEST ดึงโครงสร้างที่ approved แล้ว ให้ BMC กรอกเฉพาะจำนวนอัตรา</li>
+        <li>RBAC ตามตารางสิทธิ์ BMC/PAO/บุคคลทั่วไป</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<footer class="text-center text-xs text-slate-400 py-6">
+  สร้างโดย KiloClaw 🦾 จากชีต "Task PP1-3 ไก่จัง" (เอกสาร 1FiKLcmMw7a1Q1Td2KiSfGJmQBrI6Fteup9SXntbfono) · Web PP7 · 30 ก.ย. 2569
+</footer>
+</main>
+</body>
+</html>
