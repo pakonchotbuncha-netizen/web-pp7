@@ -8,57 +8,57 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Noto+Sans+Lao:wght@300;400;500;600;700&family=Noto+Sans+Khmer:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Prompt', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-        body[data-lang="lo"] { font-family: 'Noto Sans Lao', sans-serif; }
-        body[data-lang="km"] { font-family: 'Noto Sans Khmer', sans-serif; }
+        .sub-en { font-size: 0.72rem; color: #9ca3af; font-style: italic; line-height: 1.2; }
         .section-title { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         .required::after { content: " *"; color: #ef4444; }
         input:invalid, select:invalid, textarea:invalid { border-color: #fca5a5; }
         .pkg-badge { background: rgba(255,255,255,.15); backdrop-filter: blur(4px); }
     </style>
 </head>
-<body data-lang="th" class="py-6 px-3">
+<body class="py-6 px-3">
     <div class="max-w-3xl mx-auto">
-        <!-- Header -->
+        <!-- Header — ฟอร์มเดียว ไทยเป็นหลัก + อังกฤษกำกับทุกช่อง (ยืนยันพี่ปกรณ์ 1 ต.ค. 69 — ฝึกงานมีเฉพาะไทย ไม่มีลาว/เขมร) -->
         <div class="text-center mb-6">
-            <h1 class="text-2xl md:text-3xl font-bold text-white mb-1" id="form-title">ใบสมัครขอฝึกงาน</h1>
-            <p class="text-sm text-indigo-100" id="form-subtitle">กลุ่มบริษัทประชากิจ (PKG)</p>
-            <div class="flex justify-center gap-2 mt-4" id="lang-btns">
-                <button onclick="setLanguage('th')" id="btn-th" class="px-3 py-1 bg-blue-600 text-white rounded text-sm font-medium">🇹🇭 ไทย</button>
-                <button onclick="setLanguage('en')" id="btn-en" class="px-3 py-1 bg-white/20 text-white rounded text-sm font-medium hover:bg-white/30">🇬🇧 EN</button>
-                <!-- ฝึกงานมีเฉพาะประเทศไทย → 2 ภาษา TH/EN เท่านั้น (ยืนยันพี่ปกรณ์ 1 ต.ค. 69) -->
-            </div>
+            <h1 class="text-2xl md:text-3xl font-bold text-white mb-1">ใบสมัครขอฝึกงาน</h1>
+            <p class="text-base text-indigo-100 font-medium">(Trainee Application Form)</p>
+            <p class="text-sm text-indigo-100">กลุ่มบริษัทประชากิจ (PKG Group)</p>
         </div>
 
         <!-- PDPA Consent -->
         <div class="bg-white shadow-lg p-6 rounded-t-xl border-b">
             <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-                <h2 class="text-xl font-bold text-yellow-800 mb-2" id="consent-title">📋 ความยินยอมในการเก็บรวบรวมข้อมูลส่วนบุคคล</h2>
+                <h2 class="text-xl font-bold text-yellow-800 mb-2" id="consent-title">📋 ความยินยอมในการเก็บรวบรวมข้อมูลส่วนบุคคล (Personal Data Consent)</h2>
                 <div id="consent-content" class="text-sm text-gray-700 space-y-3 max-h-96 overflow-y-auto"></div>
             </div>
             <div class="flex items-start gap-2 mt-4">
                 <input type="checkbox" id="consent-check" class="w-5 h-5 mt-1 text-blue-600 rounded focus:ring-blue-500">
-                <label for="consent-check" class="text-sm font-medium text-gray-700" id="consent-label">ข้าพเจ้ายินยอมให้เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลตามนโยบายข้างต้น</label>
+<div>
+                    <label for="consent-check" class="text-sm font-medium text-gray-700" id="consent-label">ข้าพเจ้ายินยอมให้เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลตามนโยบายข้างต้น</label>
+                    <div class="sub-en">I consent to the collection, use, and disclosure of my personal data as per the policy above</div>
+                </div>
             </div>
         </div>
 
         <form id="trainee-form" class="bg-white shadow-lg rounded-b-xl mb-10">
             <!-- Section 1: ข้อมูลส่วนตัวของนักศึกษา -->
             <div class="p-6 border-b">
-                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec1-title">👤 ข้อมูลส่วนตัวของนักศึกษา</h3>
+                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec1-title">👤 ข้อมูลส่วนตัวของนักศึกษา (Student Personal Information)</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-prefix-th">คำนำหน้า (ภาษาไทย)</label>
+                        <div class="sub-en">Prefix (Thai)</div>
                         <select id="prefix-th" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                            <option value="">-- เลือก --</option>
-                            <option value="นาย">นาย</option>
-                            <option value="นาง">นาง</option>
-                            <option value="นางสาว">นางสาว</option>
+                            <option value="">-- เลือก / Select --</option>
+                            <option value="นาย">นาย (Mr.)</option>
+                            <option value="นาง">นาง (Mrs.)</option>
+                            <option value="นางสาว">นางสาว (Miss.)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-prefix-en">คำนำหน้า (English)</label>
+                        <div class="sub-en">Prefix</div>
                         <select id="prefix-en" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                            <option value="">-- เลือก --</option>
+                            <option value="">-- เลือก / Select --</option>
                             <option value="Mr.">Mr.</option>
                             <option value="Mrs.">Mrs.</option>
                             <option value="Miss.">Miss.</option>
@@ -68,63 +68,75 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-firstname-th">ชื่อ (ภาษาไทย)</label>
+                        <div class="sub-en">First Name (Thai)</div>
                         <input type="text" id="firstname-th" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-lastname-th">นามสกุล (ภาษาไทย)</label>
+                        <div class="sub-en">Last Name (Thai)</div>
                         <input type="text" id="lastname-th" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-firstname-en">First Name (English)</label>
+                        <div class="sub-en">First Name</div>
                         <input type="text" id="firstname-en" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-lastname-en">Last Name (English)</label>
+                        <div class="sub-en">Last Name</div>
                         <input type="text" id="lastname-en" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-nickname">ชื่อเล่น</label>
+                        <div class="sub-en">Nickname</div>
                         <input type="text" id="nickname" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-age">อายุ</label>
+                        <div class="sub-en">Age</div>
                         <input type="number" id="age" min="15" max="60" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-gender">เพศ</label>
+                        <div class="sub-en">Gender</div>
                         <div class="flex items-center gap-6 pt-2">
-                            <label class="flex items-center gap-2 text-sm"><input type="radio" name="gender" value="ชาย" required> <span id="opt-gender-male">ชาย</span></label>
-                            <label class="flex items-center gap-2 text-sm"><input type="radio" name="gender" value="หญิง"> <span id="opt-gender-female">หญิง</span></label>
+                            <label class="flex items-center gap-2 text-sm"><input type="radio" name="gender" value="ชาย" required> <span id="opt-gender-male">ชาย (Male)</span></label>
+                            <label class="flex items-center gap-2 text-sm"><input type="radio" name="gender" value="หญิง"> <span id="opt-gender-female">หญิง (Female)</span></label>
                         </div>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-idcard">รหัสบัตรประชาชน</label>
+                        <div class="sub-en">ID Card Number (13 digits)</div>
                         <input type="text" id="idcard" required maxlength="13" inputmode="numeric" pattern="[0-9]{13}" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-phone">เบอร์โทรศัพท์</label>
+                        <div class="sub-en">Phone Number</div>
                         <input type="tel" id="phone" required maxlength="10" inputmode="tel" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-address">ที่อยู่ปัจจุบัน</label>
+                        <div class="sub-en">Current Address</div>
                         <textarea id="address" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"></textarea>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-facebook">Facebook</label>
+                        <div class="sub-en">Facebook Name</div>
                         <input type="text" id="facebook" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-line">ID Line</label>
+                        <div class="sub-en">LINE ID</div>
                         <input type="text" id="line" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
@@ -132,58 +144,67 @@
 
             <!-- Section 2: ข้อมูลการศึกษาและการฝึกงาน -->
             <div class="p-6 border-b">
-                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec2-title">🎓 ข้อมูลการศึกษาและการฝึกงาน</h3>
+                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec2-title">🎓 ข้อมูลการศึกษาและการฝึกงาน (Education & Internship Details)</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-apprentice-type">ประเภทฝึกงาน</label>
+                        <div class="sub-en">Internship Type</div>
                         <select id="apprentice-type" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                            <option value="">-- เลือก --</option>
-                            <option value="ทวิภาคี">ทวิภาคี</option>
-                            <option value="นักศึกษาฝึกงาน">นักศึกษาฝึกงาน</option>
-                            <option value="นักศึกษาฝึกงานสหกิจ">นักศึกษาฝึกงานสหกิจ</option>
+                            <option value="">-- เลือก / Select --</option>
+                            <option value="ทวิภาคี">ทวิภาคี (Dual Vocational)</option>
+                            <option value="นักศึกษาฝึกงาน">นักศึกษาฝึกงาน (Internship Student)</option>
+                            <option value="นักศึกษาฝึกงานสหกิจ">นักศึกษาฝึกงานสหกิจ (Co-op Student)</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-education">ระดับการศึกษา</label>
+                        <div class="sub-en">Education Level</div>
                         <select id="education" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                            <option value="">-- เลือก --</option>
-                            <option value="ปวช.">ปวช.</option>
-                            <option value="ปวส.">ปวส.</option>
-                            <option value="ปริญญาตรี">ปริญญาตรี</option>
+                            <option value="">-- เลือก / Select --</option>
+                            <option value="ปวช.">ปวช. (Vocational)</option>
+                            <option value="ปวส.">ปวส. (High Vocational)</option>
+                            <option value="ปริญญาตรี">ปริญญาตรี (Bachelor Degree)</option>
                         </select>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-place-education">ชื่อสถานศึกษา</label>
+                        <div class="sub-en">School / University</div>
                         <input type="text" id="place-education" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-major">สาขาวิชา</label>
+                        <div class="sub-en">Major / Field of Study</div>
                         <input type="text" id="major" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-grade">เกรดเฉลี่ย</label>
+                        <div class="sub-en">GPA</div>
                         <input type="text" id="grade" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-start-date">วันที่เริ่มฝึกงาน</label>
+                        <div class="sub-en">Internship Start Date</div>
                         <input type="date" id="start-date" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-stop-date">วันครบกำหนดการฝึกงาน</label>
+                        <div class="sub-en">Internship End Date</div>
                         <input type="date" id="stop-date" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-interest">ความสามารถพิเศษ</label>
+                        <div class="sub-en">Special Talents</div>
                         <input type="text" id="interest" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-skill-computer">ความสามารถด้านคอมพิวเตอร์</label>
+                        <div class="sub-en">Computer Skills</div>
                         <textarea id="skill-computer" required rows="3" maxlength="200" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"></textarea>
                     </div>
                 </div>
@@ -195,20 +216,24 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-name-advisors">ชื่ออาจารย์ที่ปรึกษา</label>
+                        <div class="sub-en">Advisor Name</div>
                         <input type="text" id="name-advisors" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-tel-advisors">เบอร์โทรอาจารย์ที่ปรึกษา</label>
+                        <div class="sub-en">Advisor Phone</div>
                         <input type="tel" id="tel-advisors" required maxlength="10" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-name-parent">ชื่อ-นามสกุลของผู้ปกครอง</label>
-                        <input type="text" id="name-parent" required placeholder="ชื่อ....... นามสกุล....... เกี่ยวข้องเป็น......." class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                        <div class="sub-en">Parent / Guardian Name</div>
+                        <input type="text" id="name-parent" required placeholder="ชื่อ....... นามสกุล....... เกี่ยวข้องเป็น....... / Name....... Surname....... Relationship......." class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-tel-parent">เบอร์โทรผู้ปกครอง</label>
+                        <div class="sub-en">Parent Phone</div>
                         <input type="tel" id="tel-parent" required maxlength="10" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
@@ -217,7 +242,7 @@
             <!-- Submit -->
             <div class="p-6 pt-0">
                 <button type="submit" id="btn-submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 rounded-lg shadow transition">
-                    📤 ส่งใบสมัคร
+                    📤 ส่งใบสมัคร / Submit Application
                 </button>
             </div>
         </form>
@@ -225,91 +250,37 @@
     </div>
 
 <script>
-        let currentLang = 'th';
+        // ฟอร์มเดียว: ภาษาไทยเป็นหลัก + ภาษาอังกฤษกำกับทุกช่อง (ยืนยันพี่ปกรณ์ 1 ต.ค. 69 — ฝึกงานมีเฉพาะไทย)
         let translations = {};
 
         async function loadTranslation(lang) {
-            try {
-                const res = await fetch(`i18n/form-trainee-${lang}.json`);
-                translations[lang] = await res.json();
-                return translations[lang];
-            } catch (e) { return null; }
+            if (translations[lang]) return translations[lang];
+            const res = await fetch(`i18n/form-trainee-${lang}.json`);
+            translations[lang] = await res.json();
+            return translations[lang];
         }
 
-        async function setLanguage(lang) {
-            currentLang = lang;
-            document.body.setAttribute('data-lang', lang);
-            ['th','en'].forEach(l => {
-                const btn = document.getElementById(`btn-${l}`);
-                if (!btn) return;
-                if (l === lang) { btn.className = 'px-3 py-1 bg-blue-600 text-white rounded text-sm font-medium'; }
-                else { btn.className = 'px-3 py-1 bg-white/20 text-white rounded text-sm font-medium hover:bg-white/30'; }
-            });
-            const data = await loadTranslation(lang);
-            if (data) updateLabels(data);
-        }
-
-        function updateLabels(data) {
-            document.getElementById('form-title').textContent = data.pageTitle || 'ใบสมัครขอฝึกงาน';
-            document.getElementById('form-subtitle').textContent = data.pageSubtitle || 'กลุ่มบริษัทประชากิจ (PKG)';
-            document.getElementById('consent-title').textContent = data.consentTitle || '📋 ความยินยอมในการเก็บรวบรวมข้อมูลส่วนบุคคล';
-            document.getElementById('consent-label').textContent = data.consentLabel || 'ข้าพเจ้ายินยอมให้เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลตามนโยบายข้างต้น';
-
-            // Build consent content
-            let html = `<p class="font-medium">${data.companies}</p><p>${data.intro}</p>`;
-            (data.sections || []).forEach(s => {
+        function renderConsent(d) {
+            let html = `<p class="font-medium">${d.companies}</p><p>${d.intro}</p>`;
+            (d.sections || []).forEach(s => {
                 html += `<div class="mt-3"><p class="font-semibold">${s.title}</p><p>${s.content}</p>`;
                 if (s.items?.length) { html += '<ol class="list-decimal list-inside ml-2 mt-1">'; s.items.forEach(i => html += `<li>${i}</li>`); html += '</ol>'; }
                 html += '</div>';
             });
-            html += `<p class="mt-3 font-medium">${data.consent}</p><p>${data.consentAgree}</p>`;
-            document.getElementById('consent-content').innerHTML = html;
-
-            // Section titles
-            const st = data.sectionTitles || {};
-            ['sec1','sec2','sec3'].forEach(k => { const el = document.getElementById(`${k}-title`); if (el && st[k]) el.textContent = st[k]; });
-
-            // All labels
-            const lbl = data.labels || {};
-            Object.keys(lbl).forEach(id => { const el = document.getElementById(id); if (el) el.textContent = lbl[id]; });
-
-            // All placeholder texts
-            const ph = data.placeholders || {};
-            Object.keys(ph).forEach(id => { const el = document.getElementById(id); if (el) el.placeholder = ph[id]; });
-
-            // Gender radios
-            const g = data.genderOptions || {};
-            if (g.male) document.getElementById('opt-gender-male').textContent = g.male;
-            if (g.female) document.getElementById('opt-gender-female').textContent = g.female;
-
-            translateSelectOptions(data);
-
-            const btnSubmit = document.getElementById('btn-submit');
-            if (btnSubmit && data.buttons?.submit) btnSubmit.textContent = '📤 ' + data.buttons.submit;
+            html += `<p class="mt-3 font-medium">${d.consent}</p><p>${d.consentAgree}</p>`;
+            return html;
         }
 
-        function translateSelectOptions(data) {
-            const opt = data.options || {};
-            const selectMaps = {
-                'prefix-th': { 'นาย': 'opt-prefix-mr', 'นาง': 'opt-prefix-mrs', 'นางสาว': 'opt-prefix-miss' },
-                'prefix-en': { 'Mr.': 'opt-prefix-en-mr', 'Mrs.': 'opt-prefix-en-mrs', 'Miss.': 'opt-prefix-en-miss' },
-                'apprentice-type': { 'ทวิภาคี': 'opt-type-dual', 'นักศึกษาฝึกงาน': 'opt-type-intern', 'นักศึกษาฝึกงานสหกิจ': 'opt-type-coop' },
-                'education': { 'ปวช.': 'opt-edu-voc', 'ปวส.': 'opt-edu-hvoc', 'ปริญญาตรี': 'opt-edu-bachelor' },
-            };
-            for (const [selectId, valueMap] of Object.entries(selectMaps)) {
-                const select = document.getElementById(selectId);
-                if (!select) continue;
-                select.querySelectorAll('option').forEach(option => {
-                    if (option.value === '') {
-                        option.textContent = opt['opt-placeholder-select'] || '-- Select --';
-                    } else if (valueMap[option.value] && opt[valueMap[option.value]]) {
-                        option.textContent = opt[valueMap[option.value]];
-                    }
-                });
-            }
-        }
+        // เนื้อหาความยินยอม PDPA สองภาษาในกล่องเดียว (ไทยตามด้วยอังกฤษ)
+        (async function buildBilingualConsent(){
+            try {
+                const th = await loadTranslation('th');
+                const en = await loadTranslation('en');
+                document.getElementById('consent-content').innerHTML = renderConsent(th) + '<hr class="my-3 border-gray-300">' + renderConsent(en);
+            } catch (e) { console.error('consent build failed', e); }
+        })();
 
-        // ===== Submit to backend (GAS — pipeline เดียวกับ form-register) =====
+// ===== Submit to backend (GAS — pipeline เดียวกับ form-register) =====
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbyp7f6kX699UhK3e7EHyjQYSQgAzmeTNu4bAJqW2f5n4Zj5AreGoM2TrPqv_AmP3v_r/exec';
 
         async function submitToBackend(data) {
@@ -328,7 +299,7 @@
             // FU + ภาษาที่เข้ามาจาก link หน้าเลือก FU (THAI/RPLCG/RAFCOG)
             const _q = new URLSearchParams(location.search);
             data.fu = _q.get('fu') || '';
-            data.formLang = _q.get('lang') || '';
+            data.formLang = 'th'; // ฟอร์มสองภาษาในหน้าเดียว
 
             // Personal
             data.prefixTh = document.getElementById('prefix-th').value;
@@ -371,22 +342,21 @@
             e.preventDefault();
 
             if (!document.getElementById('consent-check').checked) {
-                alert((translations[currentLang]?.validation?.consent_required) || 'กรุณากดยินยอมก่อนส่งใบสมัคร');
+                alert('กรุณากดยินยอมก่อนส่งใบสมัคร / Please accept the consent before submitting');
                 return;
             }
 
-            const t = translations[currentLang] || {};
             const submitBtn = document.getElementById('btn-submit');
             const originalText = submitBtn.textContent;
             submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ ' + (t?.buttons?.submitting || 'กำลังส่ง...');
+            submitBtn.textContent = '⏳ กำลังส่งข้อมูล... / Submitting...';
 
             try {
                 const formData = collectFormData();
                 const response = await submitToBackend(formData);
 
                 if (response.success) {
-                    const msg = (t?.validation?.success_msg || 'ส่งใบสมัครสำเร็จ!\n\nรหัสผู้สมัคร: {id}')
+                    const msg = 'ส่งใบสมัครสำเร็จ! ✅\n\nรหัสผู้สมัคร (Applicant ID): {id}\n\nขอบคุณที่สนใจฝึกงานกับกลุ่มบริษัทประชากิจ\nThank you for your interest in interning with PKG Group'
                         .replace('{id}', response.applicantId);
                     alert(msg);
                     this.reset();
@@ -396,19 +366,13 @@
                 }
             } catch (error) {
                 console.error('Submit error:', error);
-                alert((t?.validation?.error_msg || 'เกิดข้อผิดพลาด: {err}\n\nกรุณาลองใหม่อีกครั้ง').replace('{err}', error.message));
+                alert(('เกิดข้อผิดพลาด: {err}\n\nกรุณาลองใหม่อีกครั้ง / An error occurred, please try again').replace('{err}', error.message));
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
             }
         });
 
-        // Initialize language from URL (?lang=th|en) — default Thai (ฝึกงานเฉพาะไทย → 2 ภาษา)
-        (function(){
-            const _p = new URLSearchParams(location.search);
-            const _lang = ['th','en'].includes(_p.get('lang')) ? _p.get('lang') : 'th';
-            setLanguage(_lang);
-        })();
 </script>
 </body>
 </html>
