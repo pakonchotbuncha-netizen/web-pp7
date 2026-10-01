@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task 6 · Applicant Portal Design — Web แยกสำหรับผู้สมัคร (Web PP7)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+  * { font-family: 'Prompt', sans-serif; }
+  .screen { display:none; }
+  .screen.active { display:block; }
+  .tabbtn.active { background:#0ea5e9; color:#fff; }
+  .chatmsg { max-width:80%; }
+  pre.diagram { background:#0f172a; color:#e2e8f0; padding:14px; border-radius:10px; overflow-x:auto; font-size:11.5px; line-height:1.45; }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+<header class="bg-gradient-to-r from-sky-700 to-cyan-600 text-white">
+  <div class="max-w-6xl mx-auto px-4 py-5">
+    <h1 class="text-xl md:text-2xl font-bold">💬 Task 6 · Applicant Portal — Web แยกสำหรับผู้สมัครงาน</h1>
+    <p class="text-xs md:text-sm text-sky-100 mt-1">ออกแบบ Dashboard ผู้สมัคร (นิยามพี่ปกรณ์ 1 ต.ค. 69) · ลงทะเบียนก่อนกรอกใบสมัคร · เห็นเฉพาะ ตำแหน่งว่าง / ฟอร์มสมัคร / แบบทดสอบ (ครั้งเดียว) / สถานะตัวเอง / Chatbot — <b>ไม่เห็น tab ภายในของ Web PP7 หลัก</b> · Mockup คลิกดูได้ทุกรูปแบบด้านล่าง (เสนอเข้าประชุมทีม 7 ต.ค.)</p>
+    <nav class="flex flex-wrap gap-2 mt-3 text-xs">
+      <button class="tabbtn active px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/30" data-screen="s1">① Landing (Public)</button>
+      <button class="tabbtn px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/30" data-screen="s2">② ลงทะเบียน/เข้าสู่ระบบ</button>
+      <button class="tabbtn px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/30" data-screen="s3">③ Dashboard สถานะ</button>
+      <button class="tabbtn px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/30" data-screen="s4">④ ตำแหน่งงานว่าง</button>
+      <button class="tabbtn px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/30" data-screen="s5">⑤ แบบทดสอบ 3 แบบ</button>
+      <button class="tabbtn px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/30" data-screen="s6">⑥ Chatbot</button>
+      <button class="tabbtn px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/30" data-screen="s7">📐 Spec: RBAC/DB/Flow</button>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+
+<!-- ① LANDING -->
+<section id="s1" class="screen active">
+  <div class="bg-white rounded-2xl shadow overflow-hidden">
+    <div class="bg-gradient-to-r from-orange-500 to-amber-400 text-white px-6 py-10 text-center">
+      <div class="text-4xl mb-2">🏢</div>
+      <h2 class="text-2xl font-bold">PKG Careers — ร่วมงานกับเรา</h2>
+      <p class="text-sm text-orange-100 mt-1">เลือกบริษัทในเครือ · ดูตำแหน่งงานว่าง · สมัครได้ในไม่กี่นาที</p>
+      <div class="mt-4 flex justify-center gap-3">
+        <button class="bg-white text-orange-600 font-semibold px-5 py-2 rounded-full text-sm" onclick="go('s2')">ลงทะเบียนสมัครงาน</button>
+        <button class="border border-white px-5 py-2 rounded-full text-sm" onclick="go('s4')">ดูตำแหน่งทั้งหมด</button>
+      </div>
+    </div>
+    <div class="p-6">
+      <h3 class="font-bold text-sm mb-3">เลือกกลุ่มบริษัท (FU)</h3>
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="border-2 border-orange-300 rounded-xl p-4 text-center cursor-pointer hover:bg-orange-50">
+          <div class="text-2xl">🇹🇭</div><b>FU01 · THAI</b><p class="text-xs text-slate-500 mt-1">12 บริษัท · 34 ตำแหน่ง · มีสมัครฝึกงาน 🎓</p>
+        </div>
+        <div class="border-2 border-yellow-300 rounded-xl p-4 text-center cursor-pointer hover:bg-yellow-50">
+          <div class="text-2xl">🇱🇦</div><b>FU02 · LAO</b><p class="text-xs text-slate-500 mt-1">5 บริษัท · 9 ตำแหน่ง</p>
+        </div>
+        <div class="border-2 border-blue-300 rounded-xl p-4 text-center cursor-pointer hover:bg-blue-50">
+          <div class="text-2xl">🇰🇭</div><b>FU03 · KHMER</b><p class="text-xs text-slate-500 mt-1">4 บริษัท · 6 ตำแหน่ง</p>
+        </div>
+      </div>
+      <div class="mt-5 bg-slate-50 rounded-xl p-4 text-xs text-slate-600">
+        <b>สิ่งที่ผู้สมัครเห็นใน Portal นี้เท่านั้น:</b> ตำแหน่งงานว่าง · แบบฟอร์มสมัครงาน · แบบทดสอบ 3 แบบ (ทำได้ครั้งเดียว) · สถานะของตัวเอง · Chatbot — <b class="text-rose-600">ไม่มีเมนู/tab ใด ๆ ของ Web PP7 หลัก (P1–P7 ภายใน, Dashboard HR, Succession ฯลฯ)</b>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ② REGISTER -->
+<section id="s2" class="screen">
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-white rounded-2xl shadow p-6">
+      <h2 class="font-bold text-lg mb-1">📝 ลงทะเบียนผู้สมัคร</h2>
+      <p class="text-xs text-slate-500 mb-4">บังคับลงทะเบียนก่อนกรอกใบสมัคร — บัญชีนี้คือ<b>ช่องทางติดต่อหลัก</b>ระหว่าง PKG กับผู้สมัคร (แจ้งสถานะ/นัดสัมภาษณ์ผ่าน Chatbot + อีเมล)</p>
+      <div class="space-y-3 text-sm">
+        <div><label class="text-xs font-semibold">อีเมล <span class="text-rose-500">*</span></label><input class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="name@email.com"></div>
+        <div><label class="text-xs font-semibold">เบอร์โทรศัพท์ <span class="text-rose-500">*</span></label><input class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="+66 / +856 / +855"></div>
+        <div><label class="text-xs font-semibold">รหัสผ่าน <span class="text-rose-500">*</span></label><input type="password" class="w-full border rounded-lg px-3 py-2 mt-1" placeholder="อย่างน้อย 8 ตัวอักษร"></div>
+        <div class="bg-sky-50 border border-sky-200 rounded-lg p-3 text-xs">
+          ✅ ยินยอม PDPA (เก็บ/ใช้/เปิดเผยข้อมูลเพื่อกระบวนการสรรหา) — บันทึกลง PDPA_CONSENT: consent_id/version/IP/device
+        </div>
+        <button class="w-full bg-sky-600 text-white font-semibold py-2.5 rounded-lg">ลงทะเบียน → ส่ง OTP ยืนยัน</button>
+        <p class="text-xs text-center text-slate-500">มีบัญชีแล้ว? <a class="text-sky-600 font-semibold" href="#" onclick="go('s2b');return false;">เข้าสู่ระบบ</a></p>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-6">
+      <h3 class="font-bold text-sm mb-2">🔐 ขั้นตอนยืนยันตัวตน</h3>
+<pre class="diagram">กรอกข้อมูล + PDPA consent
+        ▼
+ระบบส่ง OTP (SMS/อีเมล)
+        ▼
+ผู้สมัครกรอก OTP (หมดอายุ 10 นาที
+· ขอใหม่ได้ 3 ครั้ง/วัน)
+        ▼
+สร้างบัญชี → ผูก APPLICANT_ID
+(role = applicant เท่านั้น)
+        ▼
+เข้าสู่ Dashboard ผู้สมัคร
+• ยังไม่ลงทะเบียน → กด "สมัครงาน"
+  ไม่ได้ (Gate บังคับ)</pre>
+      <div class="mt-3 text-xs text-slate-600 bg-amber-50 border border-amber-200 rounded-lg p-3">
+        <b>กันลงทะเบียนซ้ำ:</b> อีเมล/เบอร์โทรเดิม → แจ้ง "มีบัญชีอยู่แล้ว" + ลิงก์กู้รหัสผ่าน · คนเดียวสมัครได้หลายตำแหน่งภายใต้บัญชีเดียว (APPLICATION หลายใบผูก APPLICANT เดียว)
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ③ APPLICANT DASHBOARD -->
+<section id="s3" class="screen">
+  <div class="bg-white rounded-2xl shadow overflow-hidden">
+    <div class="bg-gradient-to-r from-sky-600 to-cyan-500 text-white px-6 py-4 flex justify-between items-center">
+      <div>
+        <b>สวัสดี คุณอรุณ เค้าทอง 👋</b>
+        <p class="text-xs text-sky-100">บัญชี: ar***@email.com · สมัครแล้ว 2 ตำแหน่ง</p>
+      </div>
+      <div class="flex gap-2 items-center text-sm">
+        <button class="bg-white/20 rounded-full px-3 py-1.5 text-xs" onclick="go('s6')">💬 Chatbot <span class="bg-rose-500 text-white rounded-full px-1.5 text-[10px] ml-1">2</span></button>
+        <button class="bg-white/20 rounded-full px-3 py-1.5 text-xs">ออกจากระบบ</button>
+      </div>
+    </div>
+    <div class="p-6 space-y-5">
+      <!-- ใบสมัคร 1 -->
+      <div class="border rounded-xl p-4">
+        <div class="flex justify-between items-start">
+          <div><b class="text-sm">ช่างยนต์ · บริษัท PKG Auto Service (สาขาขอนแก่น)</b><p class="text-xs text-slate-500 mt-0.5">หมายเลขสมัคร: APP-2026-00142 · สมัครเมื่อ 28 ก.ย. 69</p></div>
+          <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full">กำลังประเมิน</span>
+        </div>
+        <!-- stepper -->
+        <div class="mt-4 flex items-center text-[11px] text-center">
+          <div class="flex-1"><div class="w-7 h-7 mx-auto rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold">✓</div><p class="mt-1 font-semibold text-emerald-700">ส่งใบสมัคร</p></div>
+          <div class="w-8 h-0.5 bg-emerald-400"></div>
+          <div class="flex-1"><div class="w-7 h-7 mx-auto rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold">✓</div><p class="mt-1 font-semibold text-emerald-700">แบบทดสอบ 3 แบบ</p></div>
+          <div class="w-8 h-0.5 bg-amber-400"></div>
+          <div class="flex-1"><div class="w-7 h-7 mx-auto rounded-full bg-amber-500 text-white flex items-center justify-center font-bold animate-pulse">3</div><p class="mt-1 font-semibold text-amber-700">HR ประเมิน</p></div>
+          <div class="w-8 h-0.5 bg-slate-200"></div>
+          <div class="flex-1"><div class="w-7 h-7 mx-auto rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold">4</div><p class="mt-1 text-slate-400">นัดสัมภาษณ์</p></div>
+          <div class="w-8 h-0.5 bg-slate-200"></div>
+          <div class="flex-1"><div class="w-7 h-7 mx-auto rounded-full bg-slate-200 text-slate-500 flex items-center justify-center font-bold">5</div><p class="mt-1 text-slate-400">ผลลัพธ์</p></div>
+        </div>
+        <div class="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs">
+          ⏳ <b>สิ่งที่คุณต้องทำตอนนี้:</b> ไม่มี — รอผลประเมินจาก HR (คาดว่าจะทราบผลภายใน 5 วันทำการ) · มีอัปเดตจะแจ้งผ่าน Chatbot + อีเมล
+        </div>
+      </div>
+      <!-- ใบสมัคร 2 -->
+      <div class="border rounded-xl p-4">
+        <div class="flex justify-between items-start">
+          <div><b class="text-sm">ช่างรถเล็ก · บริษัท PKG Auto Service (สาขาอุดรธานี)</b><p class="text-xs text-slate-500 mt-0.5">หมายเลขสมัคร: APP-2026-00155 · สมัครเมื่อ 30 ก.ย. 69</p></div>
+          <span class="bg-rose-100 text-rose-700 text-xs font-bold px-3 py-1 rounded-full">! ต้องดำเนินการ</span>
+        </div>
+        <div class="mt-3 bg-rose-50 border border-rose-200 rounded-lg p-3 text-xs">
+          🚨 <b>สิ่งที่คุณต้องทำตอนนี้:</b> ทำแบบทดสอบ 3 แบบให้ครบ (ทำแล้ว 1/3 — เหลือ ทุนองค์กรฯ และ 3E3P) ภายใน 3 ต.ค. 69 <span class="text-rose-600 font-semibold">⚠️ แบบทดสอบแต่ละชุดทำได้เพียงครั้งเดียว</span>
+          <div class="mt-2"><button class="bg-rose-600 text-white text-xs font-semibold px-4 py-1.5 rounded-full" onclick="go('s5')">ไปทำแบบทดสอบ →</button></div>
+        </div>
+      </div>
+      <!-- แจ้งเตือน -->
+      <div class="border rounded-xl p-4">
+        <h3 class="font-bold text-sm mb-2">🔔 การแจ้งเตือนล่าสุด</h3>
+        <ul class="text-xs space-y-2 text-slate-600">
+          <li>• 30 ก.ย. 14:20 — ได้รับใบสมัคร APP-2026-00155 แล้ว (ช่างรถเล็ก อุดรธานี)</li>
+          <li>• 28 ก.ย. 10:05 — ผลแบบทดสอบ 3 แบบของ APP-2026-00142 ส่งถึง HR แล้ว ✓</li>
+          <li>• 27 ก.ย. 16:40 — ลงทะเบียนสำเร็จ ยินดีต้อนรับ 🎉</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <p class="text-xs text-slate-500 mt-2">หลักออกแบบ: ผู้สมัครเปิดมาแล้วต้องรู้ทันที 3 อย่าง — <b>① สมัครตำแหน่งไหนไว้บ้าง ② ตอนนี้อยู่ขั้นไหน ③ ต้องทำอะไรต่อไป</b> (ดึงจาก Application Status กลาง NEW→HIRED ของ Task 3 — ผู้สมัครเห็น label ภาษาคน ไม่ใช่ code สถานะ)</p>
+</section>
+
+<!-- ④ JOBS -->
+<section id="s4" class="screen">
+  <div class="bg-white rounded-2xl shadow p-6">
+    <h2 class="font-bold text-lg mb-1">🧳 ตำแหน่งงานว่าง</h2>
+    <div class="flex flex-wrap gap-2 my-3 text-xs">
+      <input class="border rounded-full px-4 py-1.5 flex-1 min-w-[200px]" placeholder="🔍 ค้นหาตำแหน่ง / บริษัท / สาขา">
+      <select class="border rounded-full px-3 py-1.5"><option>ทุก FU</option><option>THAI</option><option>LAO</option><option>KHMER</option></select>
+      <select class="border rounded-full px-3 py-1.5"><option>ทุกประเภท</option><option>งานประจำ</option><option>ฝึกงาน 🎓 (เฉพาะไทย)</option></select>
+    </div>
+    <div class="grid md:grid-cols-2 gap-3">
+      <div class="border rounded-xl p-4 hover:border-sky-400 cursor-pointer">
+        <div class="flex justify-between"><b class="text-sm">ช่างยนต์</b><span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">เปิดรับ</span></div>
+        <p class="text-xs text-slate-500 mt-1">PKG Auto Service · ขอนแก่น · งานประจำ · 2 อัตรา</p>
+        <div class="mt-2 flex gap-2"><button class="bg-sky-600 text-white text-xs px-4 py-1.5 rounded-full">สมัครตำแหน่งนี้</button><button class="border text-xs px-4 py-1.5 rounded-full">ดูรายละเอียด</button></div>
+      </div>
+      <div class="border rounded-xl p-4 hover:border-sky-400 cursor-pointer">
+        <div class="flex justify-between"><b class="text-sm">บริการลูกค้า</b><span class="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">เปิดรับ</span></div>
+        <p class="text-xs text-slate-500 mt-1">PKG Motor · เวียงจันทน์ (LAO) · งานประจำ · 1 อัตรา</p>
+        <div class="mt-2 flex gap-2"><button class="bg-sky-600 text-white text-xs px-4 py-1.5 rounded-full">สมัครตำแหน่งนี้</button><button class="border text-xs px-4 py-1.5 rounded-full">ดูรายละเอียด</button></div>
+      </div>
+      <div class="border rounded-xl p-4 hover:border-sky-400 cursor-pointer">
+        <div class="flex justify-between"><b class="text-sm">นักศึกษาฝึกงาน (ธุรการ)</b><span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">ฝึกงาน 🎓</span></div>
+        <p class="text-xs text-slate-500 mt-1">PKG THAI · กรุงเทพฯ · ฟอร์ม 2 ภาษา TH/EN</p>
+        <div class="mt-2 flex gap-2"><button class="bg-sky-600 text-white text-xs px-4 py-1.5 rounded-full">สมัครฝึกงาน</button></div>
+      </div>
+      <div class="border rounded-xl p-4 opacity-60">
+        <div class="flex justify-between"><b class="text-sm">ช่างอะไหล่ TIS</b><span class="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">ปิดรับ</span></div>
+        <p class="text-xs text-slate-500 mt-1">PKG Parts · อุดรธานี · ปิดรับสมัครแล้ว</p>
+      </div>
+    </div>
+    <p class="text-xs text-slate-500 mt-3">กด "สมัคร" → ระบบตรวจ Gate: ยังไม่ลงทะเบียน = เด้งไปหน้า ② ก่อน · ลงทะเบียนแล้ว = เข้าฟอร์มใบสมัคร (Task 3: PDPA + OCR เอกสาร)</p>
+  </div>
+</section>
+
+<!-- ⑤ TESTS -->
+<section id="s5" class="screen">
+  <div class="bg-white rounded-2xl shadow p-6">
+    <h2 class="font-bold text-lg mb-1">📝 แบบทดสอบผู้สมัคร 3 แบบ</h2>
+    <div class="bg-rose-50 border border-rose-300 rounded-xl p-3 text-xs text-rose-700 font-semibold mb-4">
+      ⚠️ แบบทดสอบแต่ละชุด <u>ทำได้เพียงครั้งเดียว</u> — ตรวจการเชื่อมต่อ/อุปกรณ์ก่อนเริ่ม · ระหว่างทำบันทึกความคืบหน้าอัตโนมัติ (หลุดแล้วกลับมาทำต่อได้) แต่เมื่อกด "ส่ง" แล้วแก้ไข/ทำใหม่ไม่ได้
+    </div>
+    <div class="space-y-3">
+      <div class="border rounded-xl p-4 flex justify-between items-center bg-emerald-50/50">
+        <div><b class="text-sm">1. แบบทดสอบทัศนคติ</b><p class="text-xs text-slate-500">จากปรัชญา PKG · ~15 ข้อ · จับเวลา 20 นาที</p></div>
+        <span class="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-full font-semibold">✓ ส่งแล้ว 28 ก.ย.</span>
+      </div>
+      <div class="border-2 border-rose-400 rounded-xl p-4 flex justify-between items-center">
+        <div><b class="text-sm">2. แบบทดสอบทุนองค์กรและการให้บริการลูกค้า</b><p class="text-xs text-slate-500">ดึงจาก Google Form ของ PKG · คำตอบเก็บกลับเข้าระบบอัตโนมัติ</p></div>
+        <button class="text-xs bg-rose-600 text-white px-4 py-2 rounded-full font-semibold">เริ่มทำ (ครั้งเดียว)</button>
+      </div>
+      <div class="border-2 border-rose-400 rounded-xl p-4 flex justify-between items-center">
+        <div><b class="text-sm">3. แบบทดสอบแรงจูงใจ 3E3P</b><p class="text-xs text-slate-500">15 ข้อ · จับเวลา 20 นาที</p></div>
+        <button class="text-xs bg-rose-600 text-white px-4 py-2 rounded-full font-semibold">เริ่มทำ (ครั้งเดียว)</button>
+      </div>
+    </div>
+    <div class="mt-4 bg-slate-50 rounded-xl p-3 text-xs text-slate-600">
+      ทำครบ 3 แบบ → สถานะใบสมัครเปลี่ยนเป็น "ส่งใบสมัครสมบูรณ์" + แจ้ง HR อัตโนมัติ → ผลแบบทดสอบถูกส่งเป็นอินพุตให้ AI คัดกรอง (Task 4) · <b>ผู้สมัครไม่เห็นคะแนนของตัวเอง</b> (เห็นเฉพาะสถานะ) · แบบทดสอบทักษะตามทีม/ตำแหน่ง HR จะส่งลิงก์แยกเฉพาะรายภายหลัง (ไม่อยู่ในชุดนี้)
+    </div>
+  </div>
+</section>
+
+<!-- ⑥ CHATBOT -->
+<section id="s6" class="screen">
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-white rounded-2xl shadow overflow-hidden flex flex-col" style="height:520px">
+      <div class="bg-sky-600 text-white px-4 py-3 flex justify-between items-center">
+        <div><b class="text-sm">💬 PKG Career Bot</b><p class="text-[10px] text-sky-100">ตอบอัตโนมัติ · ส่งต่อ HR ได้ตลอด</p></div>
+        <span class="text-[10px] bg-emerald-400 text-emerald-900 px-2 py-0.5 rounded-full font-bold">● ออนไลน์</span>
+      </div>
+      <div class="flex-1 overflow-y-auto p-4 space-y-3 text-xs bg-slate-50">
+        <div class="chatmsg bg-white border rounded-xl rounded-tl-none p-3 shadow-sm">สวัสดีค่ะคุณอรุณ 🙏 มีอะไรให้ช่วยไหมคะ?<div class="text-[9px] text-slate-400 mt-1">10:02 · Bot</div></div>
+        <div class="chatmsg bg-sky-100 rounded-xl rounded-tr-none p-3 ml-auto">ใบสมัครช่างยนต์ของผมถึงขั้นไหนแล้วครับ<div class="text-[9px] text-slate-400 mt-1">10:03 · คุณ</div></div>
+        <div class="chatmsg bg-white border rounded-xl rounded-tl-none p-3 shadow-sm">ใบสมัคร APP-2026-00142 (ช่างยนต์ ขอนแก่น) อยู่ขั้น <b>HR กำลังประเมิน</b> ค่ะ คาดว่าทราบผลภายใน 5 วันทำการ — คุณทำครบทุกขั้นตอนแล้ว ไม่ต้องทำอะไรเพิ่มค่ะ ✅<div class="text-[9px] text-slate-400 mt-1">10:03 · Bot (ข้อมูลจากบัญชีคุณ)</div></div>
+        <div class="chatmsg bg-sky-100 rounded-xl rounded-tr-none p-3 ml-auto">แล้วแบบทดสอบ 3E3P ทำซ้ำได้ไหม<div class="text-[9px] text-slate-400 mt-1">10:04 · คุณ</div></div>
+        <div class="chatmsg bg-white border rounded-xl rounded-tl-none p-3 shadow-sm">แบบทดสอบแต่ละชุดทำได้เพียงครั้งเดียวนะคะ ถ้ายังไม่เริ่มทำ สามารถเข้าไปทำได้ตลอดค่ะ เหลืออีก 2 ชุด (ทุนองค์กรฯ + 3E3P) ของใบสมัครช่างรถเล็กนะคะ 📝<div class="text-[9px] text-slate-400 mt-1">10:04 · Bot</div></div>
+        <div class="flex gap-2 flex-wrap">
+          <button class="border border-sky-300 text-sky-700 rounded-full px-3 py-1">ถามเรื่องเอกสาร</button>
+          <button class="border border-sky-300 text-sky-700 rounded-full px-3 py-1">ขอเลื่อนสัมภาษณ์</button>
+          <button class="bg-slate-700 text-white rounded-full px-3 py-1 font-semibold">🙋 พูดคุยกับ HR</button>
+        </div>
+      </div>
+      <div class="p-3 border-t flex gap-2">
+        <input class="flex-1 border rounded-full px-4 py-2 text-xs" placeholder="พิมพ์ข้อความ...">
+        <button class="bg-sky-600 text-white rounded-full px-4 py-2 text-xs font-bold">ส่ง</button>
+      </div>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-5 text-sm space-y-3">
+      <h3 class="font-bold">🤖 สเปก Chatbot</h3>
+      <div class="bg-slate-50 rounded-xl p-3 text-xs">
+        <b>ขาเข้า (ผู้สมัครถาม):</b><br>
+        • FAQ อัตโนมัติ: ตำแหน่ง/คุณสมบัติ/เอกสาร/ขั้นตอน/ผล<br>
+        • AI ตอบจากข้อมูลบัญชีตัวเอง (ผูก APPLICANT_ID): สถานะใบสมัคร, สิ่งที่ต้องทำต่อ, กำหนดการ<br>
+        • ขอบเขตข้อมูล: เฉพาะของตัวเองเท่านั้น (กัน IDOR — ตรวจสิทธิ์ทุก query)<br>
+        • ตอบไม่ได้/เรื่องละเอียดอ่อน (เงินเดือน, เหตุผลไม่ผ่าน) → ปุ่ม "ส่งต่อ HR" + แจ้งเวลาทำการที่ตอบ<br>
+        • เก็บประวัติแชททั้งหมด + Audit Log
+      </div>
+      <div class="bg-slate-50 rounded-xl p-3 text-xs">
+        <b>ขาออก (ระบบแจ้งผู้สมัคร):</b><br>
+        • สถานะใบสมัครเปลี่ยน (แต่ละขั้นของ stepper)<br>
+        • สิ่งที่ต้องทำ + deadline (เช่น แบบทดสอบค้าง 3 ชุด)<br>
+        • นัดสัมภาษณ์: วัน/เวลา/สถานที่/เอกสาร + ปุ่มยืนยัน/ขอเลื่อน<br>
+        • แจ้งผล: ผ่าน → แนะขั้นถัดไป · ไม่ผ่าน → ข้อความสุภาพตามมาตรฐานถาวร + เสนอตำแหน่งสำรอง<br>
+        • ช่องทาง: Chatbot ใน portal + อีเมล/แจ้งเตือนที่ลงทะเบียนไว้
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs">
+        <b>ห้าม:</b> Chatbot บอกคะแนนแบบทดสอบ/AI · ตัดสินผ่าน-ไม่ผ่านเอง · เปิดเผยข้อมูลผู้สมัครคนอื่น — ทุกการตัดสินเป็นของ BMC/PAO ("AI ช่วยคัด คนตัดสิน")
+      </div>
+      <p class="text-xs text-slate-500">ใช้ AI engine เดียวกับ Task 4/5 (คนละ prompt + จำกัด context เฉพาะข้อมูลเจ้าของบัญชี) · รองรับ 3 ภาษา TH/LA/KH-EN ตาม FU</p>
+    </div>
+  </div>
+</section>
+
+<!-- ⑦ SPEC -->
+<section id="s7" class="screen">
+  <div class="space-y-4">
+    <div class="bg-white rounded-2xl shadow p-5">
+      <h3 class="font-bold text-sm mb-2">🔒 RBAC — role "applicant" (เพิ่มจากตารางสิทธิ์ Task 1)</h3>
+      <table class="w-full text-xs border">
+        <tr class="bg-slate-100"><th class="border p-2 text-left">พื้นที่</th><th class="border p-2">applicant</th><th class="border p-2">hr_officer</th><th class="border p-2">admin</th></tr>
+        <tr><td class="border p-2">Landing + ตำแหน่งงานว่าง (Public)</td><td class="border p-2 text-center">✓</td><td class="border p-2 text-center">✓</td><td class="border p-2 text-center">✓</td></tr>
+        <tr><td class="border p-2">Dashboard ผู้สมัคร + ใบสมัคร/สถานะ/แบบทดสอบ <b>ของตัวเอง</b></td><td class="border p-2 text-center">✓</td><td class="border p-2 text-center">✓ (ทุกคน)</td><td class="border p-2 text-center">✓</td></tr>
+        <tr><td class="border p-2">Chatbot (ผูกบัญชีตัวเอง)</td><td class="border p-2 text-center">✓</td><td class="border p-2 text-center">✓ (ห้องรวม HR)</td><td class="border p-2 text-center">✓</td></tr>
+        <tr class="bg-rose-50"><td class="border p-2">ทุก tab ภายใน Web PP7 (P1–P7, HR Screening, Succession, PRG/PDG ฯลฯ)</td><td class="border p-2 text-center font-bold text-rose-600">✗ มองไม่เห็น</td><td class="border p-2 text-center">ตามสิทธิ์</td><td class="border p-2 text-center">✓</td></tr>
+        <tr class="bg-rose-50"><td class="border p-2">คะแนนแบบทดสอบ / คะแนน AI / เหตุผลรายบุคคล</td><td class="border p-2 text-center font-bold text-rose-600">✗</td><td class="border p-2 text-center">✓</td><td class="border p-2 text-center">✓</td></tr>
+      </table>
+      <p class="text-xs text-slate-500 mt-2">สถาปัตยกรรม: <b>Portal ผู้สมัครแยกต่างหาก</b> (คนละ route/entry กับ Web PP7 หลัก) — ซ่อนเมนูภายในตั้งแต่ระดับ navigation ไม่ใช่แค่ปิดปุ่ม + ตรวจสิทธิ์ซ้ำที่ backend ทุก request (defense in depth)</p>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-5">
+      <h3 class="font-bold text-sm mb-2">🗄️ ตารางข้อมูลใหม่/ขยาย</h3>
+      <table class="w-full text-xs border">
+        <tr class="bg-slate-100"><th class="border p-2 text-left">ตาราง</th><th class="border p-2 text-left">ฟิลด์หลัก</th><th class="border p-2 text-left">หมายเหตุ</th></tr>
+        <tr><td class="border p-2 font-mono">APPLICANT_ACCOUNT</td><td class="border p-2">applicant_id (FK), email, phone, password_hash, otp_status, locale, created_at</td><td class="border p-2">ใหม่ — บัญชีลงทะเบียน (1 คน = 1 บัญชี หลายใบสมัคร)</td></tr>
+        <tr><td class="border p-2 font-mono">PDPA_CONSENT</td><td class="border p-2">consent_id, version, ip, device, consented_at</td><td class="border p-2">มีแล้ว (Task 3) — ผูก applicant_id</td></tr>
+        <tr><td class="border p-2 font-mono">TEST_RESULTS</td><td class="border p-2">application_id, test_type (ATTITUDE/CC_SERVICE/3E3P), score, submitted_at, <b>attempt_count</b></td><td class="border p-2">มีแล้ว (Task 4) — เพิ่ม attempt_count บล็อกครั้งที่ 2</td></tr>
+        <tr><td class="border p-2 font-mono">APPLICANT_STATUS_VIEW</td><td class="border p-2">application_id, status_code, label_th/la/kh, next_action, deadline</td><td class="border p-2">ใหม่ — map สถานะภายใน → ข้อความภาษาคนที่ผู้สมัครเห็น</td></tr>
+        <tr><td class="border p-2 font-mono">CHAT_HISTORY</td><td class="border p-2">chat_id, applicant_id, role (user/bot/hr), message, escalated, created_at</td><td class="border p-2">ใหม่ — ประวัติแชท + ส่งต่อ HR + Audit</td></tr>
+        <tr><td class="border p-2 font-mono">NOTIFICATION_LOG</td><td class="border p-2">applicant_id, channel (chatbot/email), template, sent_at, read_at</td><td class="border p-2">มีแล้ว (Task 3) — เพิ่ม channel chatbot</td></tr>
+      </table>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-5">
+      <h3 class="font-bold text-sm mb-2">🔗 เชื่อมกับระบบเดิม + แผนเวลา</h3>
+<pre class="diagram">Task 1 (Public Web/RBAC) ──► role applicant + Portal แยก
+Task 3 (ใบสมัคร+OCR)     ──► ฟอร์มสมัคร + Status กลาง NEW→HIRED
+Task 4 (AI คัดกรอง)       ──► แบบทดสอบ 3 แบบ (ครั้งเดียว) → TEST_RESULTS → อินพุต AI
+Task 6 (ใหม่นี้)          ──► ลงทะเบียน + Dashboard สถานะ + Chatbot + Notification
+
+แผนเวลาเบื้องต้น (~7 วันทำการ · ทีม 2 คน + AI):
+  ลงทะเบียน + OTP + RBAC applicant ....... 2 วัน
+  Dashboard สถานะ + stepper ............... 1 วัน
+  Chatbot FAQ + AI + ส่งต่อ HR ............ 2 วัน
+  Notification ขาออก ...................... 1 วัน
+  เทส + security (IDOR/one-attempt) ....... 1 วัน
+ตำแหน่งในแผน: เสนอ Phase 2 ต่อจากชุด Task 5 (หลัง ศ. 6 พ.ย. 69)
+หรือแทรกเข้าช่วง Task 1 ถ้าต้องการให้พร้อมตั้งแต่วันเปิดตัว — รอสรุปประชุมทีม พ. 7 ต.ค.</pre>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="text-xs text-slate-400 py-6 text-center">
+  สร้างโดย KiloClaw 🦾 · Task 6 Applicant Portal Design · Web PP7 · 1 ต.ค. 2569 · กลับหน้าแผนหลัก: <a class="text-sky-600" href="task-pp13-process-dashboard.html#task6">task-pp13-process-dashboard.html#task6</a>
+</footer>
+
+<!-- Chatbot floating widget (ตัวอย่างปรากฏทุกหน้า portal) -->
+<button onclick="go('s6')" class="fixed bottom-5 right-5 bg-sky-600 hover:bg-sky-700 text-white rounded-full w-14 h-14 shadow-lg text-2xl flex items-center justify-center" title="Chatbot">💬<span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-bold">2</span></button>
+
+<script>
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tabbtn').forEach(b=>b.classList.toggle('active', b.dataset.screen===id));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.tabbtn').forEach(b=>b.addEventListener('click',()=>go(b.dataset.screen)));
+</script>
+</body>
+</html>
