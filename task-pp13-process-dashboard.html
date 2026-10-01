@@ -42,7 +42,7 @@
     <a href="#estimate" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">⏱️ ประเมินเวลา</a>
     <a href="#devchecklist" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">Checklist ทีมพัฒนา</a>
     <a href="#task5" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">Task 5 · AI ใน P2</a>
-    <a href="#task6" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">Task 6 · Chatbot ผู้สมัคร</a>
+    <a href="#task6" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">Task 6 · web สมัครงาน</a>
   </nav>
 </header>
 
@@ -1014,9 +1014,90 @@ Application Status
 
 <section id="task6" class="sec">
   <div class="bg-white rounded-xl shadow p-5 border-t-4 border-sky-500 mb-4">
-    <h2 class="text-xl font-bold text-sky-700 mb-1">💬 Task 6 · Chatbot ผู้สมัคร + ลงทะเบียนก่อนสมัคร (นิยามพี่ปกรณ์ 1 ต.ค. 69)</h2>
-    <p class="text-xs text-slate-500">เพิ่ม Chatbot ให้ผู้สมัครผ่านหน้า Web PP7 · ก่อนเข้ามากรอกใบสมัครต้อง <b>ลงทะเบียน</b> เพื่อใช้เป็นช่องทางการติดต่อกับผู้สมัคร · ผู้สมัครเข้ามาดูสถานะของตนเองว่าต้องทำอะไรบ้าง · <b>ขอบเขตที่ผู้สมัครเห็น:</b> ตำแหน่งงานว่าง · แบบฟอร์มสมัครงาน · แบบทดสอบ (ทำได้เพียงครั้งเดียว) — <b>ไม่เห็น tab ต่าง ๆ ใน Web PP7 หลัก</b> (พื้นที่ภายในเฉพาะสมาชิก/HR)</p>
+    <h2 class="text-xl font-bold text-sky-700 mb-1">💬 Task 6 · web สมัครงาน — Chatbot ผู้สมัคร + ลงทะเบียนก่อนสมัคร (นิยามพี่ปกรณ์ 1 ต.ค. 69)</h2>
+    <p class="text-xs text-slate-500">สร้าง <b>web แยกต่างหาก (Applicant Portal)</b> ให้ผู้สมัครกรอกข้อมูล · ก่อนเข้ามากรอกใบสมัครต้อง <b>ลงทะเบียน</b> เพื่อใช้เป็นช่องทางการติดต่อกับผู้สมัคร · ผู้สมัครเข้ามาดูสถานะของตนเองว่าต้องทำอะไรบ้าง · <b>ขอบเขตที่ผู้สมัครเห็น:</b> ตำแหน่งงานว่าง · แบบฟอร์มสมัครงาน · แบบทดสอบ (ทำได้เพียงครั้งเดียว) · สถานะตัวเอง · Chatbot — <b>ไม่เห็น tab ต่าง ๆ ใน Web PP7 หลัก</b> (พื้นที่ภายในเฉพาะสมาชิก/HR) · สื่อสารทีมพัฒนาด้วย 7 หน้าจอตาม Mockup ด้านล่าง</p>
     <p class="text-sm mt-2"><a href="task6-applicant-portal-design.html" class="bg-sky-600 hover:bg-sky-700 text-white font-semibold px-4 py-2 rounded-full text-xs">🎨 ดู Mockup + ออกแบบ Dashboard ผู้สมัคร (คลิกดูได้ 7 หน้าจอ)</a></p>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-5 mb-4">
+    <h3 class="font-bold text-sky-700 text-sm mb-2">📋 กระบวนการทำงาน 7 ส่วน — สำหรับสื่อสารทีมพัฒนา (เรียงตามลำดับที่สร้าง)</h3>
+    <div class="space-y-4 text-xs text-slate-700">
+
+      <div class="border-l-4 border-sky-400 pl-3">
+        <b class="text-sky-800">ส่วน 1 · ① Landing (Public) — หน้าแรกของ portal</b>
+        <ul class="list-disc pl-5 mt-1 space-y-0.5">
+          <li>เลือก FU 3 กลุ่ม (THAI/LAO/KHMER) — Dynamic Theme 3 สี 4 ภาษา ตาม Task 1 (ใช้ Master เดียวกัน M_FU/M_COMPANY/M_BRANCH)</li>
+          <li>ปุ่มหลัก 2 ปุ่ม: ลงทะเบียนสมัครงาน / ดูตำแหน่งทั้งหมด</li>
+          <li>มีป้าย/ข้อความบอกชัดว่าผู้สมัครเห็นอะไรได้บ้าง (ตำแหน่งว่าง · ฟอร์มสมัคร · แบบทดสอบ · สถานะ · Chatbot)</li>
+          <li><b>งาน dev:</b> สร้าง entry/route ใหม่แยกจาก Web PP7 หลัก · navigation ของ portal มีเฉพาะ 5 เมนูผู้สมัคร · ฝั่งลาว/กัมพูชาไม่แสดงปุ่มฝึกงาน (เฉพาะไทย — ยืนยัน 30 ก.ย. 69)</li>
+        </ul>
+      </div>
+
+      <div class="border-l-4 border-sky-400 pl-3">
+        <b class="text-sky-800">ส่วน 2 · ② ลงทะเบียน/เข้าสู่ระบบ — บังคับก่อนกรอกใบสมัคร</b>
+        <ul class="list-disc pl-5 mt-1 space-y-0.5">
+          <li>ฟอร์ม: อีเมล/เบอร์โทร + รหัสผ่าน + PDPA consent (เก็บ consent_id/version/IP/device ตาม Task 3)</li>
+          <li>ยืนยันตัวตน OTP (SMS/อีเมล หมดอายุ 10 นาที · ขอใหม่ได้ 3 ครั้ง/วัน) → สร้างบัญชีผูก APPLICANT_ID (role = applicant เท่านั้น)</li>
+          <li>1 คน = 1 บัญชี · สมัครได้หลายตำแหน่ง (APPLICATION หลายใบผูก APPLICANT เดียว)</li>
+          <li><b>Gate:</b> ยังไม่ลงทะเบียน → กด "สมัครงาน" ไม่ได้ (เด้งไปหน้าลงทะเบียนก่อน) · กันลงทะเบียนซ้ำ (อีเมล/เบอร์เดิม → แจ้งมีบัญชีแล้ว + ลิงก์กู้รหัสผ่าน)</li>
+          <li><b>งาน dev:</b> ตารางใหม่ APPLICANT_ACCOUNT (applicant_id, email, phone, password_hash, otp_status, locale) · password hashing (bcrypt) · rate limit กัน OTP ยิงรัว · ใช้ร่วมกับ DB1 APPLICANT ของ Task 1/3</li>
+        </ul>
+      </div>
+
+      <div class="border-l-4 border-sky-400 pl-3">
+        <b class="text-sky-800">ส่วน 3 · ③ Dashboard สถานะผู้สมัคร — หัวใจหลักของ portal</b>
+        <ul class="list-disc pl-5 mt-1 space-y-0.5">
+          <li>รายใบสมัครแสดง stepper 5 ขั้น: ส่งใบสมัคร → แบบทดสอบ 3 แบบ → HR ประเมิน → นัดสัมภาษณ์ → ผลลัพธ์</li>
+          <li>กล่องสีเด่น <b>"สิ่งที่คุณต้องทำตอนนี้"</b>: เขียว = ไม่มีอะไรต้องทำ (รอผล + บอกเวลาคาดทราบผล) · แดง = มีงานค้าง (เช่น แบบทดสอบเหลือ 2/3 ชุด) พร้อม deadline + ปุ่มไปทำทันที</li>
+          <li>การแจ้งเตือนล่าสุด (timeline) + badge จำนวนใหม่</li>
+          <li>หลักออกแบบ: เปิดมาแล้วต้องรู้ทันที 3 อย่าง — <i>สมัครอะไรไว้ · อยู่ขั้นไหน · ต้องทำอะไรต่อ</i></li>
+          <li><b>งาน dev:</b> ตารางใหม่ APPLICANT_STATUS_VIEW — map Application Status กลาง (NEW→HIRED จาก Task 3) → label ภาษาคน 3 ภาษา (TH/LA/KH-EN) + next_action + deadline · ห้ามโชว์ status code ภายใน/คะแนน AI ให้ผู้สมัครเห็น</li>
+        </ul>
+      </div>
+
+      <div class="border-l-4 border-sky-400 pl-3">
+        <b class="text-sky-800">ส่วน 4 · ④ ตำแหน่งงานว่าง</b>
+        <ul class="list-disc pl-5 mt-1 space-y-0.5">
+          <li>ค้นหา/filter ตาม FU · บริษัท · สาขา · ประเภท (งานประจำ/ฝึกงาน 🎓 เฉพาะไทย)</li>
+          <li>ตำแหน่งปิดรับ = การ์ดเทา กดสมัครไม่ได้ · ปุ่มสมัครตรวจ Gate ลงทะเบียนก่อน (ส่วน 2)</li>
+          <li><b>งาน dev:</b> ดึงจาก JOB_POSTING (Task 1) แสดงเฉพาะ status = เปิดรับ · ฟอร์มสมัคร = Task 3 (PDPA + OCR) · ฟอร์มฝึกงาน 2 ภาษา TH/EN (ทำแล้ว ✅ คงเหลือเชื่อม notification)</li>
+        </ul>
+      </div>
+
+      <div class="border-l-4 border-sky-400 pl-3">
+        <b class="text-sky-800">ส่วน 5 · ⑤ แบบทดสอบ 3 แบบ (ทำได้เพียงครั้งเดียว)</b>
+        <ul class="list-disc pl-5 mt-1 space-y-0.5">
+          <li>3 ชุด: ① ทัศนคติ (ปรัชญา PKG ~15 ข้อ) ② ทุนองค์กรและการให้บริการลูกค้า (Google Form ของ PKG) ③ แรงจูงใจ 3E3P (15 ข้อ) — ทำหลังกรอกใบสมัครเสร็จ (Flow อยู่ใน Task 4)</li>
+          <li>ป้ายเตือนแดง "ทำได้เพียงครั้งเดียว" · ระหว่างทำบันทึกความคืบหน้าอัตโนมัติ (หลุดแล้วกลับมาทำต่อได้) · เมื่อกดส่งแล้วล็อก (attempt_count) แก้ไข/ทำใหม่ไม่ได้</li>
+          <li>ครบ 3 แบบ → สถานะ "ส่งใบสมัครสมบูรณ์" + แจ้ง HR + ผลเข้า TEST_RESULTS เป็นอินพุต AI คัดกรอง (Task 4) · ผู้สมัครไม่เห็นคะแนนตัวเอง</li>
+          <li>แบบทดสอบทักษะตามทีม/ตำแหน่ง ไม่อยู่ในชุดนี้ — HR ส่งลิงก์แยกเฉพาะรายภายหลัง</li>
+          <li><b>งาน dev:</b> เพิ่ม attempt_count ใน TEST_RESULTS · บล็อก submit ครั้งที่ 2 ฝั่ง backend (ไม่ใช่แค่ซ่อนปุ่ม)</li>
+        </ul>
+      </div>
+
+      <div class="border-l-4 border-sky-400 pl-3">
+        <b class="text-sky-800">ส่วน 6 · ⑥ Chatbot — ช่องทางติดต่อ 2 ทาง + ปุ่มลอย 💬 ทุกหน้า</b>
+        <ul class="list-disc pl-5 mt-1 space-y-0.5">
+          <li><b>ขาเข้า:</b> FAQ อัตโนมัติ (ตำแหน่ง/เอกสาร/ขั้นตอน) + AI ตอบจากข้อมูลบัญชีตัวเอง (ผูก APPLICANT_ID — ถามสถานะใบสมัครตัวเองได้จริง) + ปุ่ม "ส่งต่อ HR" เมื่อตอบไม่ได้/เรื่องละเอียดอ่อน (เงินเดือน, เหตุผลไม่ผ่าน) + เก็บประวัติแชท/Audit Log</li>
+          <li><b>ขาออก:</b> แจ้งเตือนสถานะเปลี่ยน · สิ่งที่ต้องทำ + deadline · นัดสัมภาษณ์ (วัน/เวลา/สถานที่/เอกสาร + ปุ่มยืนยัน/ขอเลื่อน) · แจ้งผล (ไม่ผ่าน = ข้อความสุภาพมาตรฐานถาวร + เสนอตำแหน่งสำรอง) — ผ่าน Chatbot + อีเมล (เชื่อม NOTIFICATION_LOG ของ Task 3 เพิ่ม channel chatbot)</li>
+          <li><b>ห้าม:</b> Chatbot บอกคะแนนแบบทดสอบ/AI · ตัดสินผ่าน-ไม่ผ่านเอง · เปิดเผยข้อมูลคนอื่น — ทุกการตัดสินเป็นของ BMC/PAO ("AI ช่วยคัด คนตัดสิน")</li>
+          <li><b>งาน dev:</b> ตารางใหม่ CHAT_HISTORY (chat_id, applicant_id, role, message, escalated) · AI engine เดียวกับ Task 4/5 (คนละ prompt + จำกัด context เฉพาะข้อมูลเจ้าของบัญชี) · 3 ภาษาตาม FU</li>
+        </ul>
+      </div>
+
+      <div class="border-l-4 border-sky-400 pl-3">
+        <b class="text-sky-800">ส่วน 7 · 📐 Spec รวม — RBAC / DB / Security / เวลา</b>
+        <ul class="list-disc pl-5 mt-1 space-y-0.5">
+          <li><b>RBAC role "applicant" (เพิ่มจากตารางสิทธิ์ Task 1):</b> ✓ Landing + ตำแหน่งว่าง + Dashboard ตัวเอง + Chatbot · <b>✗ ทุก tab ภายใน Web PP7 (P1–P7, HR Screening, Succession, PRG/PDG) · ✗ คะแนนแบบทดสอบ/คะแนน AI/เหตุผลรายบุคคล</b></li>
+          <li><b>สถาปัตยกรรม:</b> portal แยก route/entry จาก Web PP7 หลัก — ซ่อนเมนูภายในตั้งแต่ระดับ navigation (ไม่ใช่แค่ปิดปุ่ม) + ตรวจสิทธิ์ซ้ำที่ backend ทุก request (defense in depth)</li>
+          <li><b>DB 6 ใบ:</b> ใหม่ 3 (APPLICANT_ACCOUNT · APPLICANT_STATUS_VIEW · CHAT_HISTORY) + ขยายเดิม 3 (PDPA_CONSENT · TEST_RESULTS +attempt_count · NOTIFICATION_LOG +channel)</li>
+          <li><b>Security:</b> กัน IDOR — ผู้สมัครเห็น/ถามได้เฉพาะข้อมูลตัวเอง ตรวจสิทธิ์ทุก query · ห้าม hard-code application_id · ข้อมูลอ่อนไหวยังอยู่ใต้มาตรการ Task 3 (encryption/retention)</li>
+          <li><b>เวลา ~7 วันทำการ</b> (ทีม 2 คน + AI): ลงทะเบียน+OTP+RBAC 2 วัน · Dashboard สถานะ 1 วัน · Chatbot 2 วัน · Notification 1 วัน · เทส+security 1 วัน — เสนอ Phase 2 ต่อจาก Task 5 (หลัง 6 พ.ย. 69) หรือแทรก Task 1 ถ้าต้องการพร้อมวันเปิดตัว (รอสรุปประชุมทีม พ. 7 ต.ค.)</li>
+          <li><b>เทสรับงาน (UAT):</b> ลงทะเบียนซ้ำต้องถูกกัน · ไม่ลงทะเบียนกดสมัครไม่ได้ · ทำแบบทดสอบครั้งที่ 2 ต้องถูกบล็อก (backend) · login applicant แล้วมองไม่เห็น/เข้าถึง tab ภายในไม่ได้แม้พิมพ์ URL ตรง · Chatbot ตอบผิดบัญชี = fail ทันที</li>
+        </ul>
+      </div>
+
+    </div>
   </div>
 
   <div class="bg-white rounded-xl shadow p-5 mb-4">
