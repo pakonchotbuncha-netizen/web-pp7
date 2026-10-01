@@ -17,48 +17,43 @@
 </head>
 <body class="py-6 px-3">
     <div class="max-w-3xl mx-auto">
-        <!-- Header — ฟอร์มเดียว ไทยเป็นหลัก + อังกฤษกำกับทุกช่อง (ยืนยันพี่ปกรณ์ 1 ต.ค. 69 — ฝึกงานมีเฉพาะไทย ไม่มีลาว/เขมร) -->
+        <!-- ฟอร์มเดียว ภาษาไทย — อังกฤษกำกับเฉพาะหัวข้อที่กรอก (ยืนยันพี่ปกรณ์ 1 ต.ค. 69 — ฝึกงานมีเฉพาะไทย ไม่มีลาว/เขมร) -->
         <div class="text-center mb-6">
             <h1 class="text-2xl md:text-3xl font-bold text-white mb-1">ใบสมัครขอฝึกงาน</h1>
-            <p class="text-base text-indigo-100 font-medium">(Trainee Application Form)</p>
-            <p class="text-sm text-indigo-100">กลุ่มบริษัทประชากิจ (PKG Group)</p>
+            <p class="text-sm text-indigo-100">กลุ่มบริษัทประชากิจ (PKG)</p>
         </div>
 
         <!-- PDPA Consent -->
         <div class="bg-white shadow-lg p-6 rounded-t-xl border-b">
             <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-                <h2 class="text-xl font-bold text-yellow-800 mb-2" id="consent-title">📋 ความยินยอมในการเก็บรวบรวมข้อมูลส่วนบุคคล (Personal Data Consent)</h2>
+                <h2 class="text-xl font-bold text-yellow-800 mb-2" id="consent-title">📋 ความยินยอมในการเก็บรวบรวมข้อมูลส่วนบุคคล</h2>
                 <div id="consent-content" class="text-sm text-gray-700 space-y-3 max-h-96 overflow-y-auto"></div>
             </div>
             <div class="flex items-start gap-2 mt-4">
                 <input type="checkbox" id="consent-check" class="w-5 h-5 mt-1 text-blue-600 rounded focus:ring-blue-500">
-<div>
-                    <label for="consent-check" class="text-sm font-medium text-gray-700" id="consent-label">ข้าพเจ้ายินยอมให้เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลตามนโยบายข้างต้น</label>
-                    <div class="sub-en">I consent to the collection, use, and disclosure of my personal data as per the policy above</div>
-                </div>
+                <label for="consent-check" class="text-sm font-medium text-gray-700" id="consent-label">ข้าพเจ้ายินยอมให้เก็บรวบรวม ใช้ และเปิดเผยข้อมูลส่วนบุคคลตามนโยบายข้างต้น</label>
             </div>
         </div>
 
         <form id="trainee-form" class="bg-white shadow-lg rounded-b-xl mb-10">
             <!-- Section 1: ข้อมูลส่วนตัวของนักศึกษา -->
             <div class="p-6 border-b">
-                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec1-title">👤 ข้อมูลส่วนตัวของนักศึกษา (Student Personal Information)</h3>
+                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec1-title">👤 ข้อมูลส่วนตัวของนักศึกษา</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-prefix-th">คำนำหน้า (ภาษาไทย)</label>
                         <div class="sub-en">Prefix (Thai)</div>
                         <select id="prefix-th" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                            <option value="">-- เลือก / Select --</option>
-                            <option value="นาย">นาย (Mr.)</option>
-                            <option value="นาง">นาง (Mrs.)</option>
-                            <option value="นางสาว">นางสาว (Miss.)</option>
+                            <option value="">-- เลือก --</option>
+                            <option value="นาย">นาย</option>
+                            <option value="นาง">นาง</option>
+                            <option value="นางสาว">นางสาว</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-prefix-en">คำนำหน้า (English)</label>
-                        <div class="sub-en">Prefix</div>
                         <select id="prefix-en" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                            <option value="">-- เลือก / Select --</option>
+                            <option value="">-- เลือก --</option>
                             <option value="Mr.">Mr.</option>
                             <option value="Mrs.">Mrs.</option>
                             <option value="Miss.">Miss.</option>
@@ -80,12 +75,10 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-firstname-en">First Name (English)</label>
-                        <div class="sub-en">First Name</div>
                         <input type="text" id="firstname-en" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-lastname-en">Last Name (English)</label>
-                        <div class="sub-en">Last Name</div>
                         <input type="text" id="lastname-en" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
@@ -104,8 +97,8 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-gender">เพศ</label>
                         <div class="sub-en">Gender</div>
                         <div class="flex items-center gap-6 pt-2">
-                            <label class="flex items-center gap-2 text-sm"><input type="radio" name="gender" value="ชาย" required> <span id="opt-gender-male">ชาย (Male)</span></label>
-                            <label class="flex items-center gap-2 text-sm"><input type="radio" name="gender" value="หญิง"> <span id="opt-gender-female">หญิง (Female)</span></label>
+                            <label class="flex items-center gap-2 text-sm"><input type="radio" name="gender" value="ชาย" required> <span id="opt-gender-male">ชาย</span></label>
+                            <label class="flex items-center gap-2 text-sm"><input type="radio" name="gender" value="หญิง"> <span id="opt-gender-female">หญิง</span></label>
                         </div>
                     </div>
                 </div>
@@ -144,26 +137,26 @@
 
             <!-- Section 2: ข้อมูลการศึกษาและการฝึกงาน -->
             <div class="p-6 border-b">
-                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec2-title">🎓 ข้อมูลการศึกษาและการฝึกงาน (Education & Internship Details)</h3>
+                <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec2-title">🎓 ข้อมูลการศึกษาและการฝึกงาน</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-apprentice-type">ประเภทฝึกงาน</label>
                         <div class="sub-en">Internship Type</div>
                         <select id="apprentice-type" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                            <option value="">-- เลือก / Select --</option>
-                            <option value="ทวิภาคี">ทวิภาคี (Dual Vocational)</option>
-                            <option value="นักศึกษาฝึกงาน">นักศึกษาฝึกงาน (Internship Student)</option>
-                            <option value="นักศึกษาฝึกงานสหกิจ">นักศึกษาฝึกงานสหกิจ (Co-op Student)</option>
+                            <option value="">-- เลือก --</option>
+                            <option value="ทวิภาคี">ทวิภาคี</option>
+                            <option value="นักศึกษาฝึกงาน">นักศึกษาฝึกงาน</option>
+                            <option value="นักศึกษาฝึกงานสหกิจ">นักศึกษาฝึกงานสหกิจ</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-education">ระดับการศึกษา</label>
                         <div class="sub-en">Education Level</div>
                         <select id="education" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
-                            <option value="">-- เลือก / Select --</option>
-                            <option value="ปวช.">ปวช. (Vocational)</option>
-                            <option value="ปวส.">ปวส. (High Vocational)</option>
-                            <option value="ปริญญาตรี">ปริญญาตรี (Bachelor Degree)</option>
+                            <option value="">-- เลือก --</option>
+                            <option value="ปวช.">ปวช.</option>
+                            <option value="ปวส.">ปวส.</option>
+                            <option value="ปริญญาตรี">ปริญญาตรี</option>
                         </select>
                     </div>
                 </div>
@@ -229,7 +222,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-name-parent">ชื่อ-นามสกุลของผู้ปกครอง</label>
                         <div class="sub-en">Parent / Guardian Name</div>
-                        <input type="text" id="name-parent" required placeholder="ชื่อ....... นามสกุล....... เกี่ยวข้องเป็น....... / Name....... Surname....... Relationship......." class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="name-parent" required placeholder="ชื่อ....... นามสกุล....... เกี่ยวข้องเป็น......." class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-tel-parent">เบอร์โทรผู้ปกครอง</label>
@@ -242,7 +235,7 @@
             <!-- Submit -->
             <div class="p-6 pt-0">
                 <button type="submit" id="btn-submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 rounded-lg shadow transition">
-                    📤 ส่งใบสมัคร / Submit Application
+                    📤 ส่งใบสมัคร
                 </button>
             </div>
         </form>
@@ -250,7 +243,7 @@
     </div>
 
 <script>
-        // ฟอร์มเดียว: ภาษาไทยเป็นหลัก + ภาษาอังกฤษกำกับทุกช่อง (ยืนยันพี่ปกรณ์ 1 ต.ค. 69 — ฝึกงานมีเฉพาะไทย)
+        // ฟอร์มเดียว ภาษาไทย: มีภาษาอังกฤษกำกับเฉพาะหัวข้อที่กรอก (ยืนยันพี่ปกรณ์ 1 ต.ค. 69 — ฝึกงานมีเฉพาะไทย)
         let translations = {};
 
         async function loadTranslation(lang) {
@@ -271,12 +264,11 @@
             return html;
         }
 
-        // เนื้อหาความยินยอม PDPA สองภาษาในกล่องเดียว (ไทยตามด้วยอังกฤษ)
-        (async function buildBilingualConsent(){
+        // เนื้อหาความยินยอม PDPA ภาษาไทย (อังกฤษมีเฉพาะหัวข้อกรอก — ยืนยันพี่ปกรณ์ 1 ต.ค. 69)
+        (async function buildConsent(){
             try {
                 const th = await loadTranslation('th');
-                const en = await loadTranslation('en');
-                document.getElementById('consent-content').innerHTML = renderConsent(th) + '<hr class="my-3 border-gray-300">' + renderConsent(en);
+                document.getElementById('consent-content').innerHTML = renderConsent(th);
             } catch (e) { console.error('consent build failed', e); }
         })();
 
@@ -342,21 +334,21 @@
             e.preventDefault();
 
             if (!document.getElementById('consent-check').checked) {
-                alert('กรุณากดยินยอมก่อนส่งใบสมัคร / Please accept the consent before submitting');
+                alert('กรุณากดยินยอมก่อนส่งใบสมัคร');
                 return;
             }
 
             const submitBtn = document.getElementById('btn-submit');
             const originalText = submitBtn.textContent;
             submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ กำลังส่งข้อมูล... / Submitting...';
+            submitBtn.textContent = '⏳ กำลังส่งข้อมูล...';
 
             try {
                 const formData = collectFormData();
                 const response = await submitToBackend(formData);
 
                 if (response.success) {
-                    const msg = 'ส่งใบสมัครสำเร็จ! ✅\n\nรหัสผู้สมัคร (Applicant ID): {id}\n\nขอบคุณที่สนใจฝึกงานกับกลุ่มบริษัทประชากิจ\nThank you for your interest in interning with PKG Group'
+                    const msg = 'ส่งใบสมัครสำเร็จ!\n\nรหัสผู้สมัคร: {id}\n\nขอบคุณที่สนใจฝึกงานกับกลุ่มบริษัทประชากิจ'
                         .replace('{id}', response.applicantId);
                     alert(msg);
                     this.reset();
@@ -366,7 +358,7 @@
                 }
             } catch (error) {
                 console.error('Submit error:', error);
-                alert(('เกิดข้อผิดพลาด: {err}\n\nกรุณาลองใหม่อีกครั้ง / An error occurred, please try again').replace('{err}', error.message));
+                alert(('เกิดข้อผิดพลาด: {err}\n\nกรุณาลองใหม่อีกครั้ง').replace('{err}', error.message));
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
