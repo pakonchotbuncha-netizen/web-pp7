@@ -831,9 +831,22 @@ Application Status
       </ol>
     </div>
   </div>
+  <div class="bg-white rounded-xl shadow p-5 mt-4 border-t-4 border-violet-500">
+    <h3 class="font-bold text-violet-700 text-sm mb-2">Task 4 · AI คัดกรองเบื้องต้นจากใบสมัครงาน — AI วิเคราะห์เทียบจากคุณสมบัติ <a href="#task4-detail" class="text-xs text-blue-600">📋 รายละเอียด + Flow</a></h3>
+    <ol class="text-xs space-y-1.5 list-decimal pl-5 text-slate-700">
+      <li>เพิ่ม field คุณสมบัติใน JOB_POSTING (วุฒิ/สาขา/เกรด/ประสบการณ์/ทักษะ) — ถ้า HR ยังไม่มีข้อมูล +1 วันทำ Master</li>
+      <li>สร้าง prompt วิเคราะห์: อ่านข้อมูลใบสมัคร (+OCR) เทียบกับคุณสมบัติตำแหน่งรายหัวข้อ → คะแนน + เหตุผลทุกคน (ห้ามให้ AI ตัดสินผ่าน/ไม่ผ่านเอง)</li>
+      <li>เก็บผล AI: SCORE + REASON รายหัวข้อ ลง DB (ผูก APPLICATION_ID) + เวลา/เวอร์ชัน prompt</li>
+      <li>หน้า HR Screening: รายชื่อต่อตำแหน่ง เรียงตามคะแนน + สถานะ (ผ่าน/รอพิจารณา/ไม่ผ่าน) + ดูเหตุผลรายบุคคล</li>
+      <li>ปุ่มตัดสิน BMC/PAO (ผ่าน→P2 / รอ / ไม่ผ่าน→แจ้งผลสุภาพ+เสนอตำแหน่งสำรอง) + Audit Log ทุกการตัดสิน</li>
+      <li>ตำแหน่งสำรอง: เสนอตำแหน่งที่เปิดรับที่เหมาะจากผล AI → ผู้สมัครตอบรับ → กลับเข้ากระบวนการเทียบตำแหน่งใหม่</li>
+      <li>เทส: ใบสมัครตัวอย่างจริง 5–10 ชุด → AI จัดลำดับตรงตาม HR ≥ 80% + ทุกผลมีเหตุผลครบทุกหัวข้อคุณสมบัติ</li>
+      <li>RBAC: เห็นคะแนน AI เฉพาะ HR/PAO/BMC (ตามตารางสิทธิ์) — ผู้สมัครไม่เห็นคะแนน</li>
+    </ol>
+  </div>
 </section>
 
-<footer class="text-center text-xs text-slate-400 py-6">
+<footer class="text-xs text-slate-400 py-6 text-center">
   สร้างโดย KiloClaw 🦾 จากชีต "Task PP1-3 ไก่จัง" (เอกสาร 1FiKLcmMw7a1Q1Td2KiSfGJmQBrI6Fteup9SXntbfono) · Web PP7 · 30 ก.ย. 2569
 </footer>
 </main>
