@@ -8,7 +8,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Noto+Sans+Lao:wght@300;400;500;600;700&family=Noto+Sans+Khmer:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Prompt', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-        .sub-en { font-size: 0.72rem; color: #9ca3af; font-style: italic; line-height: 1.2; }
         .section-title { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         .required::after { content: " *"; color: #ef4444; }
         input:invalid, select:invalid, textarea:invalid { border-color: #fca5a5; }
@@ -17,7 +16,7 @@
 </head>
 <body class="py-6 px-3">
     <div class="max-w-3xl mx-auto">
-        <!-- ฟอร์มเดียว ภาษาไทย — อังกฤษกำกับเฉพาะหัวข้อที่กรอก (ยืนยันพี่ปกรณ์ 1 ต.ค. 69 — ฝึกงานมีเฉพาะไทย ไม่มีลาว/เขมร) -->
+        <!-- ฟอร์มเดียว ภาษาไทย — EN กำกับ inline บรรทัดเดียวกับหัวข้อช่องกรอก เช่น "ชื่อ Name" (ยืนยันพี่ปกรณ์ 1 ต.ค. 69 — ฝึกงานมีเฉพาะไทย ไม่มีลาว/เขมร) -->
         <div class="text-center mb-6">
             <h1 class="text-2xl md:text-3xl font-bold text-white mb-1">ใบสมัครขอฝึกงาน</h1>
             <p class="text-sm text-indigo-100">กลุ่มบริษัทประชากิจ (PKG)</p>
@@ -41,8 +40,7 @@
                 <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec1-title">👤 ข้อมูลส่วนตัวของนักศึกษา</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-prefix-th">คำนำหน้า (ภาษาไทย)</label>
-                        <div class="sub-en">Prefix (Thai)</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-prefix-th">คำนำหน้า Prefix (ภาษาไทย)</label>
                         <select id="prefix-th" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                             <option value="">-- เลือก --</option>
                             <option value="นาย">นาย</option>
@@ -51,7 +49,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-prefix-en">คำนำหน้า (English)</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-prefix-en">คำนำหน้า Prefix (English)</label>
                         <select id="prefix-en" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                             <option value="">-- เลือก --</option>
                             <option value="Mr.">Mr.</option>
@@ -62,13 +60,11 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-firstname-th">ชื่อ (ภาษาไทย)</label>
-                        <div class="sub-en">First Name (Thai)</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-firstname-th">ชื่อ Name (ภาษาไทย)</label>
                         <input type="text" id="firstname-th" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-lastname-th">นามสกุล (ภาษาไทย)</label>
-                        <div class="sub-en">Last Name (Thai)</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-lastname-th">นามสกุล Surname (ภาษาไทย)</label>
                         <input type="text" id="lastname-th" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
@@ -84,18 +80,15 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-nickname">ชื่อเล่น</label>
-                        <div class="sub-en">Nickname</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-nickname">ชื่อเล่น Nickname</label>
                         <input type="text" id="nickname" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-age">อายุ</label>
-                        <div class="sub-en">Age</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-age">อายุ Age</label>
                         <input type="number" id="age" min="15" max="60" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-gender">เพศ</label>
-                        <div class="sub-en">Gender</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-gender">เพศ Gender</label>
                         <div class="flex items-center gap-6 pt-2">
                             <label class="flex items-center gap-2 text-sm"><input type="radio" name="gender" value="ชาย" required> <span id="opt-gender-male">ชาย</span></label>
                             <label class="flex items-center gap-2 text-sm"><input type="radio" name="gender" value="หญิง"> <span id="opt-gender-female">หญิง</span></label>
@@ -104,32 +97,27 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-idcard">รหัสบัตรประชาชน</label>
-                        <div class="sub-en">ID Card Number (13 digits)</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-idcard">รหัสบัตรประชาชน ID Card</label>
                         <input type="text" id="idcard" required maxlength="13" inputmode="numeric" pattern="[0-9]{13}" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-phone">เบอร์โทรศัพท์</label>
-                        <div class="sub-en">Phone Number</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-phone">เบอร์โทรศัพท์ Phone Number</label>
                         <input type="tel" id="phone" required maxlength="10" inputmode="tel" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-address">ที่อยู่ปัจจุบัน</label>
-                        <div class="sub-en">Current Address</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-address">ที่อยู่ปัจจุบัน Current Address</label>
                         <textarea id="address" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"></textarea>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-facebook">Facebook</label>
-                        <div class="sub-en">Facebook Name</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-facebook">Facebook (ชื่อFB)</label>
                         <input type="text" id="facebook" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl-line">ID Line</label>
-                        <div class="sub-en">LINE ID</div>
                         <input type="text" id="line" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
@@ -140,8 +128,7 @@
                 <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec2-title">🎓 ข้อมูลการศึกษาและการฝึกงาน</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-apprentice-type">ประเภทฝึกงาน</label>
-                        <div class="sub-en">Internship Type</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-apprentice-type">ประเภทฝึกงาน Internship Type</label>
                         <select id="apprentice-type" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                             <option value="">-- เลือก --</option>
                             <option value="ทวิภาคี">ทวิภาคี</option>
@@ -150,8 +137,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-education">ระดับการศึกษา</label>
-                        <div class="sub-en">Education Level</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-education">ระดับการศึกษา Education Level</label>
                         <select id="education" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                             <option value="">-- เลือก --</option>
                             <option value="ปวช.">ปวช.</option>
@@ -162,42 +148,35 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-place-education">ชื่อสถานศึกษา</label>
-                        <div class="sub-en">School / University</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-place-education">ชื่อสถานศึกษา School / University</label>
                         <input type="text" id="place-education" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-major">สาขาวิชา</label>
-                        <div class="sub-en">Major / Field of Study</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-major">สาขาวิชา Major</label>
                         <input type="text" id="major" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-grade">เกรดเฉลี่ย</label>
-                        <div class="sub-en">GPA</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-grade">เกรดเฉลี่ย GPA</label>
                         <input type="text" id="grade" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-start-date">วันที่เริ่มฝึกงาน</label>
-                        <div class="sub-en">Internship Start Date</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-start-date">วันที่เริ่มฝึกงาน Internship Start Date</label>
                         <input type="date" id="start-date" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-stop-date">วันครบกำหนดการฝึกงาน</label>
-                        <div class="sub-en">Internship End Date</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-stop-date">วันครบกำหนดการฝึกงาน Internship End Date</label>
                         <input type="date" id="stop-date" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-interest">ความสามารถพิเศษ</label>
-                        <div class="sub-en">Special Talents</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-interest">ความสามารถพิเศษ Special Talents</label>
                         <input type="text" id="interest" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-skill-computer">ความสามารถด้านคอมพิวเตอร์</label>
-                        <div class="sub-en">Computer Skills</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-skill-computer">ความสามารถด้านคอมพิวเตอร์ Computer Skills</label>
                         <textarea id="skill-computer" required rows="3" maxlength="200" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"></textarea>
                     </div>
                 </div>
@@ -208,25 +187,21 @@
                 <h3 class="section-title text-white text-lg font-bold px-4 py-2 rounded mb-4" id="sec3-title">🧑‍🏫 อาจารย์ที่ปรึกษาและผู้ปกครอง</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-name-advisors">ชื่ออาจารย์ที่ปรึกษา</label>
-                        <div class="sub-en">Advisor Name</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-name-advisors">ชื่ออาจารย์ที่ปรึกษา Advisor Name</label>
                         <input type="text" id="name-advisors" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-tel-advisors">เบอร์โทรอาจารย์ที่ปรึกษา</label>
-                        <div class="sub-en">Advisor Phone</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-tel-advisors">เบอร์โทรอาจารย์ที่ปรึกษา Advisor Phone</label>
                         <input type="tel" id="tel-advisors" required maxlength="10" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-name-parent">ชื่อ-นามสกุลของผู้ปกครอง</label>
-                        <div class="sub-en">Parent / Guardian Name</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-name-parent">ชื่อ-นามสกุลของผู้ปกครอง Parent / Guardian Name</label>
                         <input type="text" id="name-parent" required placeholder="ชื่อ....... นามสกุล....... เกี่ยวข้องเป็น......." class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-tel-parent">เบอร์โทรผู้ปกครอง</label>
-                        <div class="sub-en">Parent Phone</div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 required" id="lbl-tel-parent">เบอร์โทรผู้ปกครอง Parent Phone</label>
                         <input type="tel" id="tel-parent" required maxlength="10" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
