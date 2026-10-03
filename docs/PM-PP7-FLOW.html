@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ผังกระบวนการ PM PP7 (P1→P7) — ระบบคุณภาพ ISO</title>
+<meta name="description" content="แผนผังกระบวนการ PM PP7 ฉบับระบบคุณภาพ ISO — P1-P7 พร้อม Swimlane และตารางเอกสารคุณภาพ">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{
+  --bg:#f7f5f0; --fg:#1a1a2e; --card:#fff; --border:#ddd5c7;
+  --p1:#e87a3a; --p2:#2a8cd7; --p3:#3fa36f; --p4:#7e57c2; --p5:#e05aa8; --p6:#f0b020; --p7:#6ac87e;
+  --hdr:#2c2c3a; --hdr2:#23232f; --note:#8a7b6a; --shadow:rgba(0,0,0,.08);
+  --font:'Segoe UI',Tahoma,'Noto Sans Thai',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{font-family:var(--font);background:var(--bg);color:var(--fg);line-height:1.65;}
+
+/* Header */
+header.site{position:sticky;top:0;z-index:120;background:linear-gradient(135deg,var(--hdr) 0%,var(--hdr2) 100%);color:#fff;padding:22px 24px 18px;box-shadow:0 6px 22px var(--shadow);}
+header.site .inner{max-width:1200px;margin:0 auto;}
+header.site h1{font-size:1.65rem;font-weight:700;letter-spacing:.02em;line-height:1.3;margin-bottom:6px;}
+header.site .meta{font-size:.82rem;color:#cfc9b6;display:flex;flex-wrap:wrap;gap:14px;align-items:center;}
+header.site .badge{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:2px 10px;font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
+header.site .btn-print{margin-left:auto;background:#fff;color:var(--hdr);border:0;border-radius:8px;padding:6px 14px;font-size:.78rem;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+header.site .btn-print:hover{background:#f0ede3;}
+
+/* Nav tabs */
+nav.tabs{position:sticky;top:111px;z-index:110;background:rgba(255,255,255,.92);backdrop-filter:saturate(120%) blur(10px);border-bottom:1px solid var(--border);padding:6px 14px;display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:thin;}
+nav.tabs a{flex:0 0 auto;padding:6px 12px;border-radius:8px;font-size:.82rem;font-weight:600;text-decoration:none;color:#555;background:#f4f3ee;border:1px solid #eceae3;white-space:nowrap;transition:.18s;}
+nav.tabs a:hover,nav.tabs a.active{background:var(--hdr);color:#fff;border-color:var(--hdr);box-shadow:0 2px 8px rgba(44,44,58,.18);}
+
+/* Main layout */
+main{max-width:1200px;margin:0 auto;padding:28px 20px 60px;}
+section{margin-bottom:52px;}
+section h2{font-size:1.35rem;margin-bottom:12px;padding-left:14px;border-left:6px solid var(--hdr);line-height:1.25;}
+section .sub{color:var(--note);font-size:.85rem;margin:-4px 0 14px 18px;}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;box-shadow:0 4px 16px var(--shadow);margin-bottom:22px;}
+.card h3{font-size:1.05rem;margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+.card .dot{display:inline-block;width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+
+/* Color headers per P */
+.p1 .dot{background:var(--p1);}.p1 .card-header{border-left:6px solid var(--p1);}
+.p2 .dot{background:var(--p2);}.p2 .card-header{border-left:6px solid var(--p2);}
+.p3 .dot{background:var(--p3);}.p3 .card-header{border-left:6px solid var(--p3);}
+.p4 .dot{background:var(--p4);}.p4 .card-header{border-left:6px solid var(--p4);}
+.p5 .dot{background:var(--p5);}.p5 .card-header{border-left:6px solid var(--p5);}
+.p6 .dot{background:var(--p6);}.p6 .card-header{border-left:6px solid var(--p6);}
+.p7 .dot{background:var(--p7);}.p7 .card-header{border-left:6px solid var(--p7);}
+
+/* Mermaid blocks */
+.mermaid{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 8px;margin:10px 0;overflow-x:auto;}
+.mermaid svg{display:block;margin:0 auto;max-width:100%;}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:.85rem;background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+thead th{background:linear-gradient(180deg,#f4f3ee,#eceae3);font-weight:700;text-align:left;padding:10px 12px;border-bottom:2px solid var(--border);font-size:.82rem;color:#2c2c3a;}
+tbody td{padding:9px 12px;border-bottom:1px solid #efece4;vertical-align:top;}
+tbody tr:last-child td{border-bottom:0;}
+
+/* Swimlane lanes */
+.swimlane .lane{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px;}
+.swimlane .lane .lane-title{font-weight:700;font-size:.9rem;margin-bottom:6px;color:#2c2c3a;}
+.swimlane .lane .lane-desc{font-size:.82rem;color:#555;}
+
+/* Print */
+@media print{
+  nav.tabs{display:none!important;}
+  header.site{box-shadow:none;background:#1a1a2e!important;color:#fff!important;}
+  .btn-print{display:none!important;}
+  .card{box-shadow:none;border:1px solid #ccc!important;}
+  a{color:#1a1a2e!important;text-decoration:none!important;}
+}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="inner">
+    <h1>ผังกระบวนการ PM PP7 (P1→P7) ฉบับระบบคุณภาพ ISO</h1>
+    <div class="meta">
+      <span class="badge">PM-PP7-001 · v1.0</span>
+      <span>3 ตุลาคม 2569</span>
+      <span>PKG Group — ระบบ Web PP7</span>
+      <button class="btn-print" onclick="window.print()">🖨 พิมพ์</button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="เมนูนำทาง">
+  <a href="#section-overview" class="active">ภาพรวม</a>
+  <a href="#section-p1">P1</a><a href="#section-p2">P2</a><a href="#section-p3">P3</a><a href="#section-p4">P4</a>
+  <a href="#section-p5">P5</a><a href="#section-p6">P6</a><a href="#section-p7">P7</a>
+  <a href="#section-swimlane">Swimlane</a><a href="#section-docs">เอกสาร/บันทึก</a>
+</nav>
+
+<main>
+
+<!-- 0. ภาพรวม -->
+<section id="section-overview">
+  <h2>ภาพรวม — Flow PP7 (P1→P7)</h2>
+  <p class="sub">ทุก P ขับเคลื่อนด้วย CC1–CC7 · AI Talent Intelligence เชื่อมทุกขั้น · ทางแยก: ไม่ผ่านเกณฑ์ / ส่งต่อข้าม BU / loop P6→P4 · P7→P4</p>
+  <div class="card">
+    <div class="mermaid">
+flowchart TD
+    START([▶️ เริ่มต้น]) --> P1["🧲 P1 แสวงหา<br/>สรรหาอัตรากำลัง (PAO)"]
+    P1 --> P2["🎯 P2 หยั่งประเมิน<br/>ประเมินก่อนรบ (CC)"]
+    P2 --> P3["🤝 P3 จับคู่คนกับงาน<br/>ประเมินก่อนทำงาน"]
+    P3 --> P4["📈 P4 ประเมินผล<br/>ประเมินหลังรบ (CC)"]
+    P4 --> P5["🎓 P5 พัฒนา<br/>พัฒนาตาม CC"]
+    P5 --> P6["💰 P6 ค่าตอบแทน<br/>ตอบแทนตาม CC"]
+    P5 --> P7["🌿 P7 คุณภาพชีวิต<br/>5 มิติ: สุขภาพ / มั่งคั่ง / บรรยากาศ / เวลา / อารมณ์ขัน"]
+    P6 --> P4
+    P7 --> P4
+    P2 -->|ไม่ผ่านเกณฑ์| END1([🔚 ปิดใบสมัคร])
+    P3 -->|เหมาะกับ BU อื่น| FWD["🔄 ส่งต่อข้าม BU"]
+    AI1{{"🤖 AI Talent Intelligence<br/>วิเคราะห์ทุกขั้น P1-P7"}} -.-> P1
+    AI1 -.-> P2
+    AI1 -.-> P3
+    AI1 -.-> P4
+    AI1 -.-> P5
+    AI1 -.-> P6
+    AI1 -.-> P7
+    style P1 fill:#ffe6d6,stroke:#e87a3a,stroke-width:2px,color:#1a1a2e
+    style P2 fill:#d6ebfa,stroke:#2a8cd7,stroke-width:2px,color:#1a1a2e
+    style P3 fill:#d6f0e0,stroke:#3fa36f,stroke-width:2px,color:#1a1a2e
+    style P4 fill:#ede8f6,stroke:#7e57c2,stroke-width:2px,color:#1a1a2e
+    style P5 fill:#fce0f0,stroke:#e05aa8,stroke-width:2px,color:#1a1a2e
+    style P6 fill:#fff5d6,stroke:#f0b020,stroke-width:2px,color:#1a1a2e
+    style P7 fill:#d8f0e0,stroke:#6ac87e,stroke-width:2px,color:#1a1a2e
+</div>
+  </div>
+  <div class="card">
+    <h3><span class="dot" style="background:#e87a3a"></span>หมายเหตุสำคัญ</h3>
+    <ul style="font-size:.88rem;padding-left:22px;color:#333;line-height:1.7;">
+      <li><strong>ทุก P ขับเคลื่อนด้วย CC1–CC7</strong> — CC1 (Servant Leadership) · CC2 (Adaptive Innovation) · CC3 (Trust-Based Value) · CC4 (Consensus Teamwork) · CC5 (Disciplined Professionalism) · CC6 (Technology Mastery) · CC7 (Humor &amp; Joy)</li>
+      <li><strong>ข้อมูลไหลต่อเนื่อง P1→P7</strong> — AI ดึงข้อมูลข้ามขั้นตอนลดการคีย์ซ้ำ</li>
+      <li><strong>หลักการ “AI เสนอ มนุษย์ยืนยัน”</strong> — AI ร่าง/คำนวณ/เตือน การตัดสินใจ final เป็นของคนเสมอ (PAO / PAD / HR / การเงิน)</li>
+      <li><strong>Loop ป้อนกลับ:</strong> P6 → P4 (ค่าตอบแทน → ประเมินผล) / P7 → P4 (คุณภาพชีวิต → ประเมินผล) เพื่อพัฒนาอย่างต่อเนื่อง</li>
+    </ul>
+  </div>
+</section>
+
+<!-- P1 -->
+<section id="section-p1" class="p1">
+  <h2><span class="dot" style="background:var(--p1)"></span>P1 แสวงหา (Recruit / People Sourcing)</h2>
+  <p class="sub">PAO · Web PP7 Tab-02 แสวงหา (P1) + Tab-01 Headcount Request · สถานะ: ข้อมูลครบ ✅</p>
+  <div class="card">
+    <h3 class="card-header"><span class="dot" style="background:var(--p1)"></span>P1 — กระบวนการใหม่ (S4 ย่อ)</h3>
+    <div class="mermaid">
+flowchart LR
+    A["BU ยื่นคำขออัตรากำลัง"] --> B["🤖 AI Auto-validate<br/>+ แนะนำตำแหน่ง/สมรรถนะ"]
+    B --> C["✅ อนุมัติ → เปิดรับสมัคร<br/>Web PP7 Tab-02"]
+    C --> D1["📥 รับใบสมัคร<br/>ทุกช่องทาง"]
+    D1 --> E["🤖 AI Screening<br/>ให้คะแนน + เรียงลำดับ"]
+    E --> F["📅 Auto-schedule<br/>นัดหมายสัมภาษณ์"]
+    F --> G["👥 สัมภาษณ์ + ประเมิน"]
+    G --> H{ผ่าน?}
+    H -->|ผ่าน| I["➡️ ส่งต่อ P2"]
+    H -->|ไม่ผ่าน| X["🔚 ปิดใบสมัคร<br/>เก็บ Talent Pool"]
+    style A fill:#ffe6d6,stroke:#e87a3a,stroke-width:2px
+    style B fill:#ffe6d6,stroke:#e87a3a
+    style C fill:#ffe6d6,stroke:#e87a3a
+    style E fill:#ffe6d6,stroke:#e87a3a
+</div>
+  </div>
+  <div class="card">
+    <h3>ตารางขั้นตอน P1 — รายละเอียดจากบท 2.1 (PM-PP7-001)</h3>
+    <table>
+      <thead><tr><th>ขั้น</th><th>กิจกรรม</th><th>ผู้รับผิดชอบ</th><th>เอกสาร / บันทึกคุณภาพ (Web PP7)</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>BU ยื่นคำขออัตรากำลัง (Web Form)</td><td>BU / BMC</td><td>Web PP7 — Tab-01 Headcount Request (MANPOWER_REQUEST)</td></tr>
+        <tr><td>2</td><td>AI ตรวจสอบความถูกต้องอัตโนมัติ → แจ้ง BU หากขาดข้อมูล</td><td>ระบบ AI</td><td>AI Validation Engine</td></tr>
+        <tr><td>3</td><td>AI เสนอ HR/ผู้บริหาร อนุมัติ พร้อมสรุปข้อมูล</td><td>ระบบ AI + HR</td><td>Approval Route Engine</td></tr>
+        <tr><td>4</td><td>ระบบเปิดรับสมัครทันทีหลังอนุมัติ (ทุกช่องทาง + Source Tracking)</td><td>ระบบ</td><td>Tab-02 แสวงหา + Tracking Source</td></tr>
+        <tr><td>5</td><td>AI คัดกรองใบสมัคร (Screening) — ให้คะแนน + เรียงลำดับ</td><td>ระบบ AI</td><td>AI Analysis Log (Audit 100%)</td></tr>
+        <tr><td>6</td><td>Auto-schedule นัดหมายสัมภาษณ์ + แจ้งเตือนทุกฝ่าย</td><td>ระบบ</td><td>Interview Schedule + Notification</td></tr>
+        <tr><td>7</td><td>HR/กรรมการสรุปผล → ผ่านส่ง P2 / ไม่ผ่านปิด + Talent Pool</td><td>HR + ระบบ AI</td><td>Interview Summary + Talent Pool</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- P2 -->
+<section id="section-p2" class="p2">
+  <h2><span class="dot" style="background:var(--p2)"></span>P2 หยั่งประเมิน (Assess / “ประเมินก่อนรบ”)</h2>
+  <p class="sub">PAO + กรรมการสัมภาษณ์ · Web PP7 Tab-03 หยั่งประเมิน · สถานะ: ข้อมูลครบ ✅</p>
+  <div class="card">
+    <h3 class="card-header"><span class="dot" style="background:var(--p2)"></span>P2 — กระบวนการใหม่ (S4 ย่อ)</h3>
+    <div class="mermaid">
+flowchart TD
+    A["📥 รับผู้สมัครจาก P1"] --> B["🤖 AI Auto-generate<br/>ใบประเมินตามประเภท"]
+    B --> C["📅 แจ้งนัดหมาย<br/>ผู้ประเมินอัตโนมัติ"]
+    C --> D["🧪 ผู้สมัครทำแบบทดสอบ 4 ชุด<br/>ทัศนคติ / ทักษะ / CC 7 ด้าน / 3E3P"]
+    D --> E["👥 ผู้ประเมินกรอก<br/>แบบสัมภาษณ์ 3 แบบ (TCC 50 / ผ่าน ≥65%)"]
+    E --> F["🤖 AI คำนวณ<br/>Overall + CC Match + Skill Gap"]
+    F --> G["🤖 AI สรุปผล + Recommendation<br/>ผ่าน / พิจารณา / ไม่ผ่าน"]
+    G --> H{"ผ่านเกณฑ์?"}
+    H -->|ผ่าน| I["📊 Dashboard CC<br/>➡️ ส่งต่อ P3"]
+    H -->|ไม่ผ่าน| X["🔚 ปิดใบสมัคร + Talent Pool"]
+    style B fill:#d6ebfa,stroke:#2a8cd7,stroke-width:2px
+    style F fill:#d6ebfa,stroke:#2a8cd7,stroke-width:2px
+    style G fill:#d6ebfa,stroke:#2a8cd7,stroke-width:2px
+</div>
+  </div>
+  <div class="card">
+    <h3>ตารางขั้นตอน P2 — รายละเอียดจากบท 2.2.1 (PM-PP7-001)</h3>
+    <table>
+      <thead><tr><th>ขั้น</th><th>กิจกรรม</th><th>ผู้รับผิดชอบ</th><th>เอกสาร / บันทึกคุณภาพ</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>AI สร้างใบประเมินตามประเภท (ภายนอก/ภายใน/ฝึกงาน) — แบบ 3 แบบ</td><td>ระบบ AI</td><td>Web PP7 แบบสัมภาษณ์ 3 แบบ</td></tr>
+        <tr><td>2</td><td>แจ้งนัดหมายผู้ประเมินผ่าน Telegram/Email</td><td>ระบบ</td><td>Notification + Schedule Log</td></tr>
+        <tr><td>3</td><td>ผู้สมัครทำแบบทดสอบ 4 ชุด (ทัศนคติ 30 / ทักษะ 40 / CC 70 / 3E3P 30)</td><td>ผู้สมัคร</td><td>Web PP7 ระบบแบบทดสอบดิจิทัล (Audit Log)</td></tr>
+        <tr><td>4</td><td>ผู้ประเมินกรอกแบบฟอร์มสัมภาษณ์ (TCC 10 หัวข้อ × 5 + 7 EVP)</td><td>กรรมการ</td><td>P2_Assessments / P2_Interviews</td></tr>
+        <tr><td>5</td><td>AI คำนวณ Overall Score + CC Match + Skill Gap + Recommendation</td><td>ระบบ AI</td><td>P2_AIAnalysis (Audit 100%)</td></tr>
+        <tr><td>6</td><td>AI สรุปผล + Dashboard ภาพรวม Core Competency → ส่ง P3 หรือปิด</td><td>ระบบ AI + HR</td><td>P2_Screening / P2_InterviewSummary</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- P3 -->
+<section id="section-p3" class="p3">
+  <h2><span class="dot" style="background:var(--p3)"></span>P3 จับคู่คนกับงาน (Match / “ประเมินก่อนทำงาน”)</h2>
+  <p class="sub">PAO + BMC · Web PP7 Tab-04 จับคู่ · สถานะ: ข้อมูลครบ ✅</p>
+  <div class="card">
+    <h3 class="card-header"><span class="dot" style="background:var(--p3)"></span>P3 — กระบวนการใหม่ (S4 ย่อ)</h3>
+    <div class="mermaid">
+flowchart TD
+    A["📥 รับจาก P2 (ผ่าน CC)"] --> B["🤖 AI Matching Engine<br/>ทักษะ 50% + CC 30% + เป้าหมาย 20%"]
+    B --> C["✅ สร้างข้อเสนองาน<br/>(ตำแหน่ง + ค่าตอบแทน + วันเริ่ม)"]
+    C --> D{"ตอบรับ / ปฏิเสธ<br/>ทางออนไลน์ (Portal)"}
+    D -->|ตอบรับ| E["🔍 Background Check<br/>การศึกษา / การทำงาน / Reference"]
+    E --> F["🤖 AI Route ไป Onboarding<br/>+ เชื่อมระบบพี่เลี้ยง"]
+    F --> G["📊 Dashboard สถานะจับคู่"]
+    D -->|ปฏิเสธ| X["🔚 ปิด + บันทึกเหตุผล"]
+    B -.->|เหมาะ BU อื่น| Y["🔄 ส่งต่อข้าม BU<br/>ใบส่งต่ออัตโนมัติ"]
+    style B fill:#d6f0e0,stroke:#3fa36f,stroke-width:2px
+    style B fill:#d6f0e0,stroke:#3fa36f,stroke-width:2px
+    style C fill:#d6f0e0,stroke:#3fa36f
+    style F fill:#d6f0e0,stroke:#3fa36f
+</div>
+  </div>
+  <div class="card">
+    <h3>ตารางขั้นตอน P3 — รายละเอียดจากบท 2.3.1 (PM-PP7-001)</h3>
+    <table>
+      <thead><tr><th>ขั้น</th><th>กิจกรรม</th><th>ผู้รับผิดชอบ</th><th>เอกสาร / บันทึกคุณภาพ</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>AI จับคู่คุณสมบัติกับตำแหน่ง (Matching Score 50/30/20)</td><td>ระบบ AI</td><td>P3_Matching + LIA Compatibility</td></tr>
+        <tr><td>2</td><td>ตรวจสอบประวัติ (Background Check — การศึกษา / งาน / Reference)</td><td>HR</td><td>P3_BackgroundCheck</td></tr>
+        <tr><td>3</td><td>ระบบสร้างข้อเสนองาน (ตำแหน่ง + ค่าตอบแทนจากโครงสร้างที่อนุมัติ)</td><td>ระบบ</td><td>P3_JobOffer (เชื่อมโครงสร้างเงินเดือน)</td></tr>
+        <tr><td>4</td><td>ผู้สมัครตอบรับ/ปฏิเสธออนไลน์ (Portal)</td><td>ผู้สมัคร</td><td>Portal Status + Audit Log</td></tr>
+        <tr><td>5</td><td>AI Route ไป Onboarding (เชื่อม WI-011 + ระบบพี่เลี้ยง)</td><td>ระบบ AI</td><td>ONBOARDING + Auto-notify</td></tr>
+        <tr><td>6</td><td>Dashboard ติดตามสถานะจับคู่ (Funnel + Audit Log)</td><td>ทุกบทบาท</td><td>Dashboard P3 (Web PP7)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- P4 -->
+<section id="section-p4" class="p4">
+  <h2><span class="dot" style="background:var(--p4)"></span>P4 ประเมินผล (Performance / “ประเมินหลังรบ”)</h2>
+  <p class="sub">PAD + BMC + กรรมการ 360° · Web PP7 Tab-05 ประเมินผล · สถานะ: ข้อมูลครบ ✅</p>
+  <div class="card">
+    <h3 class="card-header"><span class="dot" style="background:var(--p4)"></span>P4 — กระบวนการใหม่ (S4 ย่อ)</h3>
+    <div class="mermaid">
+flowchart TD
+    A["📥 สมาชิกทำงานครบรอบ"] --> B["⚙️ กำหนดเกณฑ์ประเมิน<br/>ในระบบ (สอดคล้อง CC 5 ด้าน)"]
+    B --> C["🤖 AI Auto-distribute<br/>แบบประเมิน 360° (5 มุมมอง)"]
+    C --> D["👥 ผู้เกี่ยวข้องประเมิน<br/>ผ่าน Web Form (แยกกลุ่มงาน)"]
+    D --> E["🤖 AI Aggregate ผล<br/>+ จับ bias + วิเคราะห์แนวโน้ม"]
+    E --> F["🤖 Auto-generate<br/>Development Plan ตามจุดอ่อน"]
+    F --> G["📊 Dashboard Performance Trends<br/>+ แจ้งเตือน TG"]
+    G --> H["➡️ ส่งผลเข้าสู่ P5 พัฒนา"]
+    style B fill:#ede8f6,stroke:#7e57c2,stroke-width:2px
+    style C fill:#ede8f6,stroke:#7e57c2,stroke-width:2px
+    style E fill:#ede8f6,stroke:#7e57c2,stroke-width:2px
+    style F fill:#ede8f6,stroke:#7e57c2,stroke-width:2px
+</div>
+  </div>
+  <div class="card">
+    <h3>ตารางขั้นตอน P4 — รายละเอียดจากบท 2.4.1 (PM-PP7-001)</h3>
+    <table>
+      <thead><tr><th>ขั้น</th><th>กิจกรรม</th><th>ผู้รับผิดชอบ</th><th>เอกสาร / บันทึกคุณภาพ</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>กำหนดเกณฑ์ประเมินในระบบ (สอดคล้อง CC 1–7)</td><td>PAD / HR</td><td>Web PP7 — Tab-05 (ตั้งเกณฑ์)</td></tr>
+        <tr><td>2</td><td>AI แจกแบบประเมิน 360° อัตโนมัติ (กันคำถามซ้ำซ้อน + เตือนครบ)</td><td>ระบบ AI</td><td>Notification + Form 360°</td></tr>
+        <tr><td>3</td><td>ผู้ประเมิน 5 มุม (ตนเอง / หัวหน้า / เพื่อน / ลูกน้อง / ลูกค้า)</td><td>ผู้ประเมิน</td><td>P4 Score — 5 ด้าน + Development Plan</td></tr>
+        <tr><td>4</td><td>AI รวมผล + วิเคราะห์แนวโน้ม + จับ bias + แปลงความรู้สึก→ข้อมูล</td><td>ระบบ AI</td><td>P4 Analysis (Trends) + Audit Log</td></tr>
+        <tr><td>5</td><td>AI สร้าง Development Plan อัตโนมัติตามจุดอ่อน → เชื่อม P5</td><td>ระบบ AI</td><td>P5-DEV-001 (IDP Engine)</td></tr>
+        <tr><td>6</td><td>แจ้งเตือนผลผ่าน Telegram + Dashboard Performance Trends</td><td>ระบบ AI</td><td>Dashboard + TG Notification</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- P5 -->
+<section id="section-p5" class="p5">
+  <h2><span class="dot" style="background:var(--p5)"></span>P5 พัฒนา (Develop / ตาม CC)</h2>
+  <p class="sub">PAD · Web PP7 Tab-06 พัฒนา · ระบบพี่เลี้ยง + IDP + อบรม · สถานะ: ข้อมูลครบ ✅</p>
+  <div class="card">
+    <h3 class="card-header"><span class="dot" style="background:var(--p5)"></span>P5 — กระบวนการใหม่ (S4 ย่อ)</h3>
+    <div class="mermaid">
+flowchart TD
+    A["📥 P4 ส่งผล + CC Gap"] --> B["🤖 AI วิเคราะห์ + แนะนำ IDP"]
+    B --> C["🤖 AI จับคู่หลักสูตร<br/>Soft / Technical / Leadership"]
+    C --> D["📭 แจ้งหัวหน้า + พนักงาน"]
+    D --> E["📚 บันทึกการเข้าอบรม<br/>(QR / Online)"]
+    E --> F["🤖 AI ติดตามผล<br/>30 / 60 / 90 วัน"]
+    F --> G["📊 Dashboard IDP<br/>+ ระบบพี่เลี้ยง / 3 ผ่าน / TA"]
+    style B fill:#fce0f0,stroke:#e05aa8,stroke-width:2px
+    style C fill:#fce0f0,stroke:#e05aa8,stroke-width:2px
+    style F fill:#fce0f0,stroke:#e05aa8,stroke-width:2px
+</div>
+  </div>
+  <div class="card">
+    <h3>ตารางขั้นตอน P5 — รายละเอียดจากบท 2.5 (PM-PP7-001)</h3>
+    <table>
+      <thead><tr><th>ขั้น</th><th>กิจกรรม</th><th>ผู้รับผิดชอบ</th><th>เอกสาร / บันทึกคุณภาพ</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>AI วิเคราะห์ P4 Score + CC Gap → แนะนำ IDP รายบุคคล</td><td>ระบบ AI</td><td>Web PP7 — IDP Engine</td></tr>
+        <tr><td>2</td><td>AI จับคู่หลักสูตรกับจุดอ่อน (Soft / Technical / Leadership)</td><td>ระบบ AI</td><td>Course Matching (Web PP7)</td></tr>
+        <tr><td>3</td><td>แจ้งเตือนหัวหน้า + พนักงานให้เข้าอบรมตามแผน</td><td>ระบบ + หัวหน้า</td><td>Notification (TG / Email)</td></tr>
+        <tr><td>4</td><td>บันทึกการเข้าอบรมอัตโนมัติ (QR check-in / Online course)</td><td>ระบบ</td><td>Attendance Record</td></tr>
+        <tr><td>5</td><td>AI ติดตามผลหลังอบรม (30 / 60 / 90 วัน) ผ่านแบบประเมิน</td><td>ระบบ AI</td><td>Follow-up (30/60/90 วัน)</td></tr>
+        <tr><td>6</td><td>Dashboard IDP + ระบบพี่เลี้ยง (DTA / Form Coach / 3 ผ่าน / TA)</td><td>PAD + ระบบ</td><td>Dashboard IDP + Mentoring System Log</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- P6 -->
+<section id="section-p6" class="p6">
+  <h2><span class="dot" style="background:var(--p6)"></span>P6 ค่าตอบแทน (Welfare / Pay &amp; Benefits / INC)</h2>
+  <p class="sub">WCD / การเงิน · Web PP7 Tab-07 ค่าตอบแทน (P6) · สถานะ: ข้อมูลครบ ✅</p>
+  <div class="card">
+    <h3 class="card-header"><span class="dot" style="background:var(--p6)"></span>P6 — กระบวนการใหม่ (Payroll Workflow ย่อ)</h3>
+    <div class="mermaid">
+flowchart TD
+    A["📥 ดึงเหตุการณ์จาก P1/P3<br/>1–10 เดือน"] --> B["🤖 AI ตรวจจับการเปลี่ยนแปลง<br/>+ เช็คเลขบัญชีซ้ำ"]
+    B --> C["💼 เตรียมข้อมูลทำเงินเดือน<br/>(BCT step_3.2)"]
+    C --> D["🤖 AI ดึงรายได้/หัก<br/>+ ตรวจความครบถ้วน"]
+    D --> E["🧮 คำนวณภาษี + สปส.<br/>ขั้นบันได + ลดหย่อน"]
+    E --> F["🔍 ตรวจสอบเงินเดือน<br/>AI ตรวจ anomaly + เทียบย้อนหลัง"]
+    F --> G["📧 บันทึก e-slip + ส่ง Line<br/>+ รับแจ้งผิด"]
+    G --> H["📄 ปริ้น VC + รายงานกระทบยอด<br/>ภาษี / สปส. / เงินเดือน"]
+    H --> I["✅ การเงินตรวจสอบ<br/>+ AI กระทบยอดอัตโนมัติ"]
+    I --> J["💰 PAO ตั้งโอนเงิน<br/>AI เตรียมไฟล์ + ตรวจซ้ำ"]
+    style B fill:#fff5d6,stroke:#f0b020,stroke-width:2px
+    style D fill:#fff5d6,stroke:#f0b020,stroke-width:2px
+    style J fill:#fff5d6,stroke:#f0b020,stroke-width:2px
+</div>
+  </div>
+  <div class="card">
+    <h3>ตารางขั้นตอน P6 — รายละเอียดจากบท 2.6 (PM-PP7-001)</h3>
+    <table>
+      <thead><tr><th>ขั้น</th><th>กิจกรรม</th><th>ผู้รับผิดชอบ</th><th>เอกสาร / บันทึกคุณภาพ</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>ดึงเหตุการณ์จาก P1/P3 อัตโนมัติ (เข้าใหม่ / จับคู่ใหม่ / ลาออก / ปรับเงินเดือน)</td><td>ระบบ AI</td><td>Payroll Event Log</td></tr>
+        <tr><td>2</td><td>AI ตรวจจับการเปลี่ยนแปลง + เสนอรายการ + เช็คเลขบัญชีซ้ำ</td><td>ระบบ AI</td><td>Audit Change Log</td></tr>
+        <tr><td>3</td><td>AI ดึงข้อมูลรายได้/หัก + ตรวจความครบถ้วนก่อนคิดเงิน</td><td>ระบบ AI</td><td>BCT step_3.2 Data</td></tr>
+        <tr><td>4</td><td>AI คำนวณภาษี (ขั้นบันได + ลดหย่อน + สปส. 5% สูงสุด 750)</td><td>ระบบ AI</td><td>Tax Calculation Record</td></tr>
+        <tr><td>5</td><td>AI ตรวจสอบ anomaly (เทียบย้อนหลัง 2 เดือน) + flag รายการต้องแก้</td><td>ระบบ AI</td><td>Anomaly Detection Log</td></tr>
+        <tr><td>6</td><td>AI สร้าง e-slip + ส่ง Line + รับคำแจ้งผิดจากสมาชิก</td><td>ระบบ AI + สมาชิก</td><td>e-slip + Notification + Feedback</td></tr>
+        <tr><td>7</td><td>AI สร้างเอกสารกระทบยอด (VC / ภาษี / สปส.) อัตโนมัติ → การเงินตรวจ</td><td>ระบบ AI + การเงิน</td><td>VC + กระทบยอดเอกสาร</td></tr>
+        <tr><td>8</td><td>AI เตรียมไฟล์โอนเงิน + ตรวจซ้ำ → โอนตรงเวลา ปลอดภัย</td><td>PAO + ระบบ AI</td><td>Payroll Transfer File + Status</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- P7 -->
+<section id="section-p7" class="p7">
+  <h2><span class="dot" style="background:var(--p7)"></span>P7 คุณภาพชีวิต (Quality of Life / 5 องค์ประกอบ)</h2>
+  <p class="sub">WCD + PAD · Web PP7 Tab-08 คุณภาพชีวิต (P7) · 5 มิติ: สุขภาพ / ความมั่งคั่ง / บรรยากาศ / เวลา / อารมณ์ขัน · สถานะ: ข้อมูลครบ ✅</p>
+  <div class="card">
+    <h3 class="card-header"><span class="dot" style="background:var(--p7)"></span>P7 — กระบวนการใหม่ (S4 ย่อ)</h3>
+    <div class="mermaid">
+flowchart LR
+    A["🌿 คุณภาพชีวิต<br/>5 มิติ: สุขภาพ / มั่งคั่ง / บรรยากาศ / เวลา / อารมณ์ขัน"] --> B["🤖 AI Wellbeing Tracker<br/>ติดตามสุขภาวะ ≥ 90%"]
+    B --> C["📬 แจ้งเตือนสวัสดิการ<br/>รายบุคคล + หลายภาษา"]
+    C --> D["🤖 AI Chatbot HR<br/>ตอบคำถามซ้ำ 24 ชม.<br/>ลดการสอบถาม ≥ 50%"]
+    D --> E["📊 AI วิเคราะห์ความผูกพัน<br/>Engagement Score / ลาออก / Burnout"]
+    E --> F["➡️ ป้อนกลับ P4<br/>ประเมินผล + พัฒนา"]
+    style A fill:#d8f0e0,stroke:#6ac87e,stroke-width:2px
+    style B fill:#d8f0e0,stroke:#6ac87e,stroke-width:2px
+    style E fill:#d8f0e0,stroke:#6ac87e,stroke-width:2px
+</div>
+  </div>
+  <div class="card">
+    <h3>ตารางขั้นตอน P7 — รายละเอียดจากบท 1.3.1 และ 3.5 (PM-PP7-001)</h3>
+    <table>
+      <thead><tr><th>ขั้น</th><th>กิจกรรม</th><th>ผู้รับผิดชอบ</th><th>เอกสาร / บันทึกคุณภาพ</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>ติดตามสุขภาวะสมาชิก (Wellbeing Tracker) — 5 มิติ</td><td>WCD + AI</td><td>Wellbeing Tracker Log</td></tr>
+        <tr><td>2</td><td>AI แจ้งเตือนสวัสดิการรายบุคคล (หลายภาษา TH/LA/KH)</td><td>ระบบ AI</td><td>Notification + Multi-language</td></tr>
+        <tr><td>3</td><td>AI Chatbot HR ตอบคำถามซ้ำซ้อน 24 ชม. (ลดสอบถาม HR ≥50%)</td><td>ระบบ AI</td><td>Chatbot Log + FAQ</td></tr>
+        <tr><td>4</td><td>AI วิเคราะห์ความผูกพัน (Engagement Score ราย BU + แนวโน้มลาออก + Burnout)</td><td>ระบบ AI</td><td>Engagement Analysis + Dashboard</td></tr>
+        <tr><td>5</td><td>แนะนำกิจกรรมสร้างความสุข (Fun) ตามผลวิเคราะห์ → ป้อนกลับ P4</td><td>PAD + AI</td><td>P4 Performance Feedback</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Swimlane -->
+<section id="section-swimlane" class="swimlane">
+  <h2>Swimlane — การไหลข้ามหน่วยงาน P1→P7</h2>
+  <p class="sub">BU/BMC → PAO → PAD → WCD/การเงิน → สมาชิก · แสดง handoff หลักทุก P</p>
+  <div class="card">
+    <div class="mermaid">
+flowchart LR
+    subgraph BU["🏢 BU / BMC"]
+      BU1["ขออัตรากำลัง"]
+      BU2["ตัดสินใจรับ / โอนย้าย"]
+    end
+    subgraph PAO["👥 PAO (People Acquisition & Operations)"]
+      PA1["สรรหา / คัดเลือก / ประกาศ"]
+      PA2["สัมภาษณ์ / ตรวจประวัติ / นัดหมาย"]
+      PA3["ลงทะเบียน / บรรจุ / สิทธิ์ RBAC"]
+    end
+    subgraph PAD["🎓 PAD (People Admin & Development)"]
+      PD1["ประเมินผล 360° / IDP"]
+      PD2["ระบบพี่เลี้ยง / อบรม / 3 ผ่าน / TA"]
+    end
+    subgraph WCD["💰 WCD / การเงิน"]
+      WC1["เงินเดือน / INC / สวัสดิการ"]
+      WC2["ภาษี / สปส. / VC / โอนเงิน"]
+    end
+    subgraph MEMBER["👤 สมาชิก"]
+      M1["สมัคร / ทำแบบทดสอบ / สัมภาษณ์"]
+      M2["เข้าอบรม / รายงาน DTA / รับสวัสดิการ"]
+    end
+
+    BU1 --> PA1 --> PA2 --> PA3 --> PD1 --> PD2 --> WC1 --> WC2
+    BU2 --> PA3
+    M1 --> PA1
+    PA2 --> M1
+    PD2 --> M2
+    WC1 --> M2
+    M2 --> PD1
+    style BU fill:#f5f0e6,stroke:#bfae88,stroke-width:2px
+    style PAO fill:#e6f0fa,stroke:#4a8fc7,stroke-width:2px
+    style PAD fill:#e6f5e6,stroke:#4aa87e,stroke-width:2px
+    style WCD fill:#faf5e6,stroke:#c7a64a,stroke-width:2px
+    style MEMBER fill:#f5e6f5,stroke:#a84aa8,stroke-width:2px
+</div>
+  </div>
+  <div class="card">
+    <h3>คำอธิบาย Swimlane — จุด handoff หลัก</h3>
+    <table>
+      <thead><tr><th>จาก → ไป</th><th>กระบวนการ</th><th>ข้อมูลที่ส่งต่อ</th><th>บันทึกคุณภาพ</th></tr></thead>
+      <tbody>
+        <tr><td>BU → PAO</td><td>P1 ขออัตรากำลัง</td><td>คำขอ + โครงสร้างตำแหน่ง</td><td>MANPOWER_REQUEST</td></tr>
+        <tr><td>PAO → PAD</td><td>P3 จับคู่ → P4 ประเมิน + P5 พัฒนา</td><td>ผล P4 + CC Gap + IDP</td><td>P4_Score / IDP Record</td></tr>
+        <tr><td>PAO → WCD</td><td>P3 ผ่าน → P6 ค่าตอบแทน</td><td>ข้อมูลสมาชิก + โครงสร้างเงินเดือน</td><td>Payroll Event / VC</td></tr>
+        <tr><td>PAD → WCD</td><td>P5 อบรม → P6 INC (จาก P4)</td><td>คะแนน P4 → คำนวณ INC</td><td>P6-WCD-PM-003 (INC Points)</td></tr>
+        <tr><td>WCD → สมาชิก</td><td>P6 จ่ายเงิน + P7 สวัสดิการ</td><td>e-slip + สวัสดิการ + Wellbeing</td><td>Payroll / Wellbeing Tracker</td></tr>
+        <tr><td>P4 → P5 / P7</td><td>Loop ป้อนกลับ</td><td>คะแนนประเมินผล → แผนพัฒนา / คุณภาพชีวิต</td><td>P4 Analysis → P5 IDP</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- เอกสาร/บันทึก -->
+<section id="section-docs">
+  <h2>เอกสาร / บันทึกคุณภาพรวม (ISO 9001:2015 ข้อ 7.5)</h2>
+  <p class="sub">รหัสเอกสาร PM-PP7-001 · รหัสบันทึกใช้รูปแบบ WEB_PP7_{P}_{TYPE} ตามบท 4.1 ของคู่มือ</p>
+  <div class="card">
+    <table>
+      <thead><tr><th>รหัส (WI/FM/PM)</th><th>ชื่อเอกสาร / บันทึก</th><th>เก็บที่ไหน (Web PP7 Tab)</th><th>สถานะ</th></tr></thead>
+      <tbody>
+        <tr><td>PM-PP7-001</td><td>คู่มือกระบวนการ PM PP7 (ฉบับ ISO)</td><td>📋 สรุปผู้บริหาร / เอกสาร</td><td>✅</td></tr>
+        <tr><td>P1-HC-001 / WI-001</td><td>ขออัตรากำลัง + บันทึก MANPOWER_REQUEST</td><td>📋 Headcount Request (Tab-01)</td><td>✅</td></tr>
+        <tr><td>P1-PM-001 / WI-002</td><td>แสวงหา + ใบสมัคร + AI Screening Log</td><td>🔎 แสวงหา (Tab-02)</td><td>✅</td></tr>
+        <tr><td>P1-WI-010</td><td>รับสมัครงานภายใน (Internal Mobility)</td><td>🔎 แสวงหา (Tab-02 Internal)</td><td>✅</td></tr>
+        <tr><td>P2-ASM-001 / WI</td><td>หยั่งประเมิน CC + แบบสัมภาษณ์ 3 แบบ + AI Analysis</td><td>🎯 หยั่งประเมิน (Tab-03)</td><td>✅</td></tr>
+        <tr><td>P3-MAT-001 / WI-003 / WI-004</td><td>จับคู่คนกับงาน + สรุปผล + โอนย้าย / Background Check</td><td>🤝 จับคู่ (Tab-04)</td><td>✅</td></tr>
+        <tr><td>P4-PER-001 / WI-012 / WI-016</td><td>ประเมินผล + เครดิตสมาชิก + วัดผล 30 วัน</td><td>📈 ประเมินผล (Tab-05)</td><td>✅</td></tr>
+        <tr><td>P5-6-DEV-001 / PM-001 / PM-004</td><td>IDP + ระบบพี่เลี้ยง + อบรม + 3 ผ่าน + TA</td><td>🎓 พัฒนา (Tab-06)</td><td>✅</td></tr>
+        <tr><td>P6-WCD-004 / PM-001 / PM-002 / PM-003</td><td>เงินเดือน / INC Points / สวัสดิการ / เกษียณ</td><td>💰 ค่าตอบแทน (Tab-07)</td><td>✅</td></tr>
+        <tr><td>P7-Quality / FM-001 / FM-002</td><td>คุณภาพชีวิต (5 มิติ) + EVP + Wellbeing Tracker</td><td>🌿 คุณภาพชีวิต (Tab-08)</td><td>✅</td></tr>
+        <tr><td>LDC-PAD-FM-001</td><td>Communication Plan ISMS</td><td>🎓 พัฒนา (Tab-06)</td><td>✅</td></tr>
+        <tr><td>LDC-PAO-FM-002</td><td>ทะเบียนเอกสาร (Document Registry)</td><td>📋 Headcount Request</td><td>✅</td></tr>
+        <tr><td>LDC-PAO-WI-032 / WI-018 / WI-019 / WI-020 / WI-021 / WI-023</td><td>งาน IT / ระบบ LIA / ทบทวนสิทธิ / ยกเลิกสิทธิ / อุปกรณ์เคลื่อนที่ / หนังสือเตือน</td><td>🔧 ระบบ (Placeholder ⏳)</td><td>⏳</td></tr>
+        <tr><td>LDC-PAO-WI-008 / WI-009 / WI-015</td><td>ใบอนุญาตต่างด้าว / ปรับปรุงโครงสร้าง / แบบบรรจุสมาชิก</td><td>🔎 แสวงหา (ต่างด้าว)</td><td>⏳</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<footer style="border-top:2px solid var(--border);background:#2c2c3a;color:#ccc;padding:28px 24px;text-align:center;font-size:.82rem;">
+  <p><strong>จัดทำโดย KiloClaw (PM + Developer Web PP7)</strong> · ผู้อนุมัติ: <strong>พี่ปกรณ์ (Executive Sponsor)</strong></p>
+  <p style="margin-top:6px;color:#999;">รหัสเอกสาร: <strong>PM-PP7-001</strong> · เวอร์ชัน: <strong>v1.0</strong> · วันที่: <strong>3 ตุลาคม 2569</strong></p>
+  <p style="margin-top:6px;">อ้างอิงคู่มือหลัก: <a href="PM-PROCESS-MANUAL-ISO.html" style="color:#8ecae6;text-decoration:underline;">PM-PROCESS-MANUAL-ISO.html</a> · ระบบ: <strong>Web PP7</strong> (ISO 9001:2015 / ISO/IEC 27001:2022)</p>
+  <p style="margin-top:10px;font-size:.75rem;color:#777;">ไฟล์นี้สร้างเป็น standalone (inline CSS + mermaid.js CDN) — เปิดผ่าน file:// หรือ GitHub Pages ได้ · พิมพ์ได้ด้วยปุ่ม “พิมพ์” ด้านบน</p>
+</footer>
+
+<script>
+mermaid.initialize({startOnLoad:true,theme:'default',themeVariables:{primaryColor:'#2c2c3a',primaryTextColor:'#fff',primaryBorderColor:'#ddd5c7',lineColor:'#777',secondaryColor:'#f4f3ee',tertiaryColor:'#fff'}});
+</script>
+</body>
+</html>
