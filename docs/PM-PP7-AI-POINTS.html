@@ -86,8 +86,8 @@ tbody tr:last-child td{border-bottom:0;}
     </div>
     <div class="mermaid">
 flowchart LR
-    P1["🟠 P1 แสวงหา<br/>AI 5 จุด<br/>ตรวจฟอร์ม / OCR / แปล 3 ภาษา<br/>PDPA+แจ้งเตือน / คัดกรอง"]
-    P2["🔵 P2 หยั่งประเมิน<br/>AI 4 จุด<br/>สร้างคำถาม / วิเคราะห์บันทึก<br/>สรุป CMC / ร่างรายงาน"]
+    P1["🟠 P1 แสวงหา<br/>AI 6 จุด<br/>ตรวจฟอร์ม / OCR / แปล 3 ภาษา<br/>PDPA+แจ้งเตือน / คัดกรอง / แนะนำตำแหน่งทางเลือก"]
+    P2["🔵 P2 หยั่งประเมิน<br/>AI 5 จุด<br/>สร้างคำถาม / วิเคราะห์บันทึก<br/>สรุป CMC / ร่างรายงาน / แนะนำบทบาทใหม่"]
     P3["🟢 P3 จับคู่คนกับงาน<br/>AI 3 จุด<br/>Matching Score<br/>ตรวจประวัติ / ปิด-ส่งต่อ"]
     P1 --> P2 --> P3
     P3 --> OUT["➡️ ผ่าน → Onboarding<br/>เป็นสมาชิก PKG"]
@@ -102,8 +102,8 @@ flowchart LR
     <table>
       <thead><tr><th>P</th><th>ชื่อ</th><th>จุด AI</th><th>คนตัดสินสุดท้าย</th><th>สถานะ</th></tr></thead>
       <tbody>
-        <tr><td><b>P1</b></td><td>แสวงหา</td><td>5 จุด (A1–A5)</td><td>HR / BMC / PAO</td><td><span class="tag tag-done">Task 3 ทำแล้ว</span> <span class="tag tag-wait">Task 4 ออกแบบแล้ว</span></td></tr>
-        <tr><td><b>P2</b></td><td>หยั่งประเมิน</td><td>4 จุด (B1–B4)</td><td>BMC / PAO + กรรมการ</td><td><span class="tag tag-wait">Phase 2 หลัง 6 พ.ย. 69</span></td></tr>
+        <tr><td><b>P1</b></td><td>แสวงหา</td><td>6 จุด (A1–A6)</td><td>HR / BMC / PAO (+ ผู้สมัครเลือกตำแหน่งทางเลือก)</td><td><span class="tag tag-done">Task 3 ทำแล้ว</span> <span class="tag tag-wait">Task 4 + A6 ออกแบบแล้ว</span></td></tr>
+        <tr><td><b>P2</b></td><td>หยั่งประเมิน</td><td>5 จุด (B1–B5)</td><td>BMC / PAO + กรรมการ</td><td><span class="tag tag-wait">Phase 2 หลัง 6 พ.ย. 69</span></td></tr>
         <tr><td><b>P3</b></td><td>จับคู่คนกับงาน</td><td>3 จุด (C1–C3)</td><td>HR / BMC</td><td><span class="tag tag-wait">ออกแบบแล้ว รอพัฒนา</span></td></tr>
       </tbody>
     </table>
@@ -112,7 +112,7 @@ flowchart LR
 
 <!-- P1 -->
 <section id="section-p1">
-  <h2><span class="dot" style="background:var(--p1)"></span>🟠 P1 แสวงหา — AI 5 จุด</h2>
+  <h2><span class="dot" style="background:var(--p1)"></span>🟠 P1 แสวงหา — AI 6 จุด</h2>
   <p class="sub">อ้างอิง: PP7_Design_P1 + Task 3 (OCR/แปล/PDPA/แจ้งเตือน) + Task 4 (AI คัดกรอง) · DB: candidates / positions</p>
   <div class="card">
     <h3><span class="dot" style="background:var(--p1)"></span>ผัง P1 — จุด AI (ม่วง) vs คนตัดสิน (ขาว)</h3>
@@ -123,13 +123,15 @@ flowchart LR
     C{{"🤖 A2 OCR ดึงข้อมูล<br/>บัตร / ทะเบียนบ้าน / วุฒิ / CV"}}
     D{{"🤖 A3 แปล 3 ภาษา<br/>TH / LA / KH"}}
     E["📣 ลง DB candidates<br/>+ แจ้ง HR ทาง Telegram"]
-    F{{"🤖 A5 คัดกรอง Task 4<br/>เทียบ JOB_POSTING<br/>คะแนน + เหตุผล + จัดอันดับ"}}
-    G["👥 HR/BMC/PAO ตัดสิน<br/>ผ่าน → P2 / ไม่ผ่าน → ปิด"]
-    A --> B --> C --> D --> E --> F --> G
+    F{{"🤖 A5 คัดกรอง Task 4<br/>เทียบตำแหน่งที่สมัคร<br/>คะแนน + เหตุผล + จัดอันดับ"}}
+    F2{{"🤖 A6 แนะนำตำแหน่งทางเลือก<br/>เทียบตำแหน่งว่างทั้งหมด<br/>Top-N + เหตุผลรายตำแหน่ง"}}
+    G["👥 ผู้สมัครเลือก + HR/BMC/PAO ตัดสิน<br/>ตรงสาย → P2 / เลือกตำแหน่งใหม่ → P2 / ไม่ผ่าน → ปิด"]
+    A --> B --> C --> D --> E --> F --> F2 --> G
     style B fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
     style C fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
     style D fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
     style F fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
+    style F2 fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
     style G fill:#ffffff,stroke:#0f766e,stroke-width:2px,color:#1a1a2e
     style E fill:#ffe6d6,stroke:#e87a3a,stroke-width:2px,color:#1a1a2e
     </div>
@@ -143,7 +145,8 @@ flowchart LR
         <tr><td><b>A2</b></td><td><span class="tag tag-ai">AI</span> OCR/Parser ดึงข้อมูลเอกสาร</td><td>บัตรปชช / ทะเบียนบ้าน / วุฒิ / CV → ข้อมูลลงฟอร์มอัตโนมัติ</td><td>ผู้สมัครยืนยันข้อมูล</td><td><span class="tag tag-done">ทำแล้ว (Task 3)</span></td></tr>
         <tr><td><b>A3</b></td><td><span class="tag tag-ai">AI</span> แปล 3 ประเทศ</td><td>ใบสมัคร TH/LA/KH → แปลข้ามภาษาอัตโนมัติ</td><td>HR ตรวจทาน</td><td><span class="tag tag-done">ทำแล้ว (Task 3)</span></td></tr>
         <tr><td><b>A4</b></td><td><span class="tag tag-ai">AI</span> แจ้งเตือน + จัดหมวดหมู่เบื้องต้น</td><td>ใบสมัครใหม่ → Telegram หา HR + แยกตามตำแหน่ง</td><td>HR เปิดดู Dashboard</td><td><span class="tag tag-done">ทำแล้ว (Task 3)</span></td></tr>
-        <tr><td><b>A5</b></td><td><span class="tag tag-ai">AI</span> คัดกรองเบื้องต้น Task 4</td><td>ใบสมัคร+OCR เทียบ JOB_POSTING → คะแนน + เหตุผลรายหัวข้อ + จัดอันดับ</td><td><span class="tag tag-human">คน</span> BMC/PAO ตัดสินร่วม (ผ่าน/รอ/ไม่ผ่าน)</td><td><span class="tag tag-wait">ออกแบบแล้ว +3 วันทำการ</span></td></tr>
+        <tr><td><b>A5</b></td><td><span class="tag tag-ai">AI</span> คัดกรองเบื้องต้น Task 4</td><td>ใบสมัคร+OCR เทียบตำแหน่งที่สมัคร → คะแนน + เหตุผลรายหัวข้อ + จัดอันดับ</td><td><span class="tag tag-human">คน</span> BMC/PAO ตัดสินร่วม (ผ่าน/รอ/ไม่ผ่าน)</td><td><span class="tag tag-wait">ออกแบบแล้ว +3 วันทำการ</span></td></tr>
+        <tr><td><b>A6</b></td><td><span class="tag tag-ai">AI</span> แนะนำตำแหน่งทางเลือก (ใหม่ 3 ต.ค. 69)</td><td>คุณสมบัติผู้สมัคร เทียบตำแหน่งว่างทั้งหมดที่เปิดอยู่ → Top-N ตำแหน่งที่เหมาะกว่า + เหตุผลรายตำแหน่ง → เป็นตัวเลือกให้ผู้สมัครตัดสินใจ</td><td><span class="tag tag-human">คน</span> ผู้สมัครเลือกเอง + HR/BMC/PAO ยืนยัน (ตรงสาย→P2 / เลือกใหม่→P2 / ไม่ผ่าน→ปิด)</td><td><span class="tag tag-wait">ออกแบบแล้ว (สั่งพี่ปกรณ์ 3 ต.ค. 69)</span></td></tr>
       </tbody>
     </table>
   </div>
@@ -151,7 +154,7 @@ flowchart LR
 
 <!-- P2 -->
 <section id="section-p2">
-  <h2><span class="dot" style="background:var(--p2)"></span>🔵 P2 หยั่งประเมิน — AI 4 จุด</h2>
+  <h2><span class="dot" style="background:var(--p2)"></span>🔵 P2 หยั่งประเมิน — AI 5 จุด</h2>
   <p class="sub">“ประเมินก่อนรบ” — วัด CC1–CC7 · อ้างอิง: P2-หยั่งประเมิน-กระบวนการใหม่ (S4) + Task 5.1–5.4 · DB: P2_Assessments / P2_Interviews / P2_AIAnalysis</p>
   <div class="card">
     <h3><span class="dot" style="background:var(--p2)"></span>ผัง P2 — จุด AI (ม่วง) vs คนตัดสิน (ขาว)</h3>
@@ -163,12 +166,14 @@ flowchart TD
     D{{"🤖 B2 วิเคราะห์บันทึก<br/>คะแนนราย CC + หลักฐาน (5.2)"}}
     E{{"🤖 B3 สรุป CMC/ทัศนคติ<br/>+ Cross-check P1 (5.3)"}}
     F{{"🤖 B4 ร่างรายงาน P2<br/>+ Audit log (5.4)"}}
-    G["👥 BMC/PAO ตัดสิน<br/>ผ่าน → P3 / ไม่ผ่าน → ปิด"]}
-    A --> B --> C --> D --> E --> F --> G
+    F2{{"🤖 B5 แนะนำบทบาทใหม่<br/>เทียบตำแหน่งว่างทั้งหมด + คะแนน CC<br/>Top-N + เหตุผล (ใหม่ 3 ต.ค. 69)"}}
+    G["👥 ทีมสัมภาษณ์พิจารณา<br/>ตามคำแนะนำ AI<br/>ตรงสาย → P3 / บทบาทใหม่ → P3 / ไม่ผ่าน → ปิด"]
+    A --> B --> C --> D --> E --> F --> F2 --> G
     style B fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
     style D fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
     style E fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
     style F fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
+    style F2 fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
     style G fill:#ffffff,stroke:#0f766e,stroke-width:2px,color:#1a1a2e
     style C fill:#d6ebfa,stroke:#2a8cd7,stroke-width:2px,color:#1a1a2e
     </div>
@@ -182,6 +187,7 @@ flowchart TD
         <tr><td><b>B2</b></td><td><span class="tag tag-ai">AI</span> วิเคราะห์บันทึกสัมภาษณ์ (5.2)</td><td>บันทึกสัมภาษณ์ → คะแนนราย CC + หลักฐานอ้างอิง</td><td>กรรมการยืนยันคะแนน</td><td><span class="tag tag-wait">Phase 2 (1.5 วัน)</span></td></tr>
         <tr><td><b>B3</b></td><td><span class="tag tag-ai">AI</span> สรุป CMC/ทัศนคติ + Cross-check P1 (5.3)</td><td>ผล CMC + ทัศนคติ + ข้อมูล P1 → โปรไฟล์ + ธงขัดแย้ง</td><td>กรรมการพิจารณาธง</td><td><span class="tag tag-wait">Phase 2 (0.5 วัน)</span></td></tr>
         <tr><td><b>B4</b></td><td><span class="tag tag-ai">AI</span> ร่างรายงานสรุป P2 (5.4)</td><td>คะแนนทั้งหมด → รายงานสรุป + Recommendation + Audit</td><td><span class="tag tag-human">คน</span> BMC/PAO ตัดสินสุดท้าย</td><td><span class="tag tag-wait">Phase 2 (1 วัน)</span></td></tr>
+        <tr><td><b>B5</b></td><td><span class="tag tag-ai">AI</span> แนะนำบทบาทใหม่ที่เหมาะกว่า (ใหม่ 3 ต.ค. 69)</td><td>หลังให้คะแนนสัมภาษณ์: AI ประมวลว่าเหมาะกับตำแหน่งที่สัมภาษณ์หรือไม่ + เทียบตำแหน่งว่างทั้งหมด → Top-N บทบาทใหม่ที่เหมาะกว่า + เหตุผล → ทีมสัมภาษณ์พิจารณาจากคำแนะนำ AI</td><td><span class="tag tag-human">คน</span> ทีมสัมภาษณ์/BMC/PAO ตัดสิน (ตรงสาย→P3 / บทบาทใหม่→P3 / ไม่ผ่าน→ปิด)</td><td><span class="tag tag-wait">Phase 2 (สั่งพี่ปกรณ์ 3 ต.ค. 69)</span></td></tr>
       </tbody>
     </table>
   </div>
@@ -239,7 +245,8 @@ flowchart TD
         <tr><td>2</td><td><b>คนตัดสินสุดท้ายเสมอ</b></td><td>P1: HR/BMC/PAO · P2: BMC/PAO + กรรมการ · P3: HR/BMC</td></tr>
         <tr><td>3</td><td><b>Audit 100%</b></td><td>ทุกจุด AI เก็บ log: input → output → คนยืนยัน (P1_AIAnalysis / P2_AIAnalysis / P3_Matching)</td></tr>
         <tr><td>4</td><td><b>ข้อความภายนอกสุภาพ</b></td><td>แจ้งผลไม่ผ่านใช้ภาษาอบอุ่น ไม่ใช้ศัพท์ภายใน (P1/P2/P3/CC) — ตามรูปแบบที่กำหนด 14 ก.ค. 69</td></tr>
-        <tr><td>5</td><td><b>ลำดับพัฒนา</b></td><td>P1 Task 3 เสร็จแล้ว → Task 4 (+3 วัน) → P3 engine → P2 Task 5.1–5.4 Phase 2 หลัง 6 พ.ย. 69</td></tr>
+        <tr><td>5</td><td><b>ลำดับพัฒนา</b></td><td>P1 Task 3 เสร็จแล้ว → Task 4 (+3 วัน, รวม A6 แนะนำตำแหน่งทางเลือก) → P3 engine (C1 รับช่วงต่อจาก A6/B5) → P2 Task 5.1–5.4 + B5 Phase 2 หลัง 6 พ.ย. 69</td></tr>
+        <tr><td>6</td><td><b>แนะนำตำแหน่งทางเลือก 2 ช่วง (ใหม่ 3 ต.ค. 69)</b></td><td><b>P1-A6:</b> หลังคัดกรองคุณสมบัติ เทียบตำแหน่งว่างทั้งหมด → Top-N + เหตุผล → ผู้สมัครเลือกเอง <b>P2-B5:</b> หลังสัมภาษณ์ให้คะแนน เทียบตำแหน่งว่างทั้งหมด + คะแนน CC → Top-N บทบาทใหม่ → ทีมสัมภาษณ์พิจารณา · ทั้ง 2 ช่วงส่งต่อเข้า P3 Matching (C1) เพื่อออก Job Offer</td></tr>
       </tbody>
     </table>
   </div>
