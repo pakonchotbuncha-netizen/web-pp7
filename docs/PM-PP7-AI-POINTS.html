@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ผังจุด AI ช่วยราย P (P1→P3) — เอกสารเสริมชุด PM-PP7-FLOW</title>
+<meta name="description" content="ผังจุดที่ AI เข้ามาช่วย แยกตาม P1 แสวงหา / P2 หยั่งประเมิน / P3 จับคู่คนกับงาน — เอกสารเสริมชุด PM-PP7-FLOW (PM-PP7-002 v1.0)">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{
+  --bg:#f7f5f0; --fg:#1a1a2e; --card:#fff; --border:#ddd5c7;
+  --p1:#e87a3a; --p2:#2a8cd7; --p3:#3fa36f;
+  --ai:#6d28d9; --human:#0f766e;
+  --hdr:#2c2c3a; --hdr2:#1e1b3a; --note:#8a7b6a; --shadow:rgba(0,0,0,.08);
+  --font:'Segoe UI',Tahoma,'Noto Sans Thai',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{font-family:var(--font);background:var(--bg);color:var(--fg);line-height:1.65;}
+header.site{position:sticky;top:0;z-index:120;background:linear-gradient(135deg,var(--hdr) 0%,var(--hdr2) 100%);color:#fff;padding:22px 24px 18px;box-shadow:0 6px 22px var(--shadow);}
+header.site .inner{max-width:1200px;margin:0 auto;}
+header.site h1{font-size:1.55rem;font-weight:700;letter-spacing:.02em;line-height:1.35;margin-bottom:6px;}
+header.site .meta{font-size:.82rem;color:#cfc9b6;display:flex;flex-wrap:wrap;gap:14px;align-items:center;}
+header.site .badge{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:2px 10px;font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
+header.site .btn-print{margin-left:auto;background:#fff;color:var(--hdr);border:0;border-radius:8px;padding:6px 14px;font-size:.78rem;font-weight:700;cursor:pointer;}
+nav.tabs{position:sticky;top:112px;z-index:110;background:rgba(255,255,255,.94);backdrop-filter:saturate(120%) blur(10px);border-bottom:1px solid var(--border);padding:6px 14px;display:flex;gap:6px;align-items:center;overflow-x:auto;scrollbar-width:thin;}
+nav.tabs a{flex:0 0 auto;padding:6px 12px;border-radius:8px;font-size:.82rem;font-weight:600;text-decoration:none;color:#555;background:#f4f3ee;border:1px solid #eceae3;white-space:nowrap;}
+nav.tabs a:hover,nav.tabs a.active{background:var(--hdr);color:#fff;border-color:var(--hdr);}
+main{max-width:1200px;margin:0 auto;padding:28px 20px 60px;}
+section{margin-bottom:52px;}
+section h2{font-size:1.3rem;margin-bottom:12px;padding-left:14px;border-left:6px solid var(--hdr);line-height:1.3;}
+section .sub{color:var(--note);font-size:.85rem;margin:-4px 0 14px 18px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;box-shadow:0 4px 16px var(--shadow);margin-bottom:22px;}
+.card h3{font-size:1.02rem;margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+.card .dot{display:inline-block;width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+.legend{display:flex;flex-wrap:wrap;gap:10px;font-size:.82rem;margin:8px 0 2px;}
+.legend span{display:inline-flex;align-items:center;gap:6px;background:#f6f4ee;border:1px solid var(--border);border-radius:999px;padding:3px 12px;}
+.mermaid{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 8px;margin:10px 0;overflow-x:auto;}
+.mermaid svg{display:block;margin:0 auto;max-width:100%;}
+table{width:100%;border-collapse:collapse;font-size:.84rem;background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+thead th{background:linear-gradient(180deg,#f4f3ee,#eceae3);font-weight:700;text-align:left;padding:10px 12px;border-bottom:2px solid var(--border);font-size:.8rem;color:#2c2c3a;}
+tbody td{padding:9px 12px;border-bottom:1px solid #efece4;vertical-align:top;}
+tbody tr:last-child td{border-bottom:0;}
+.tag{display:inline-block;border-radius:6px;padding:1px 8px;font-size:.74rem;font-weight:700;white-space:nowrap;}
+.tag-ai{background:#ede9fe;color:#5b21b6;border:1px solid #c4b5fd;}
+.tag-human{background:#ccfbf1;color:#0f766e;border:1px solid #5eead4;}
+.tag-done{background:#dcfce7;color:#15803d;border:1px solid #86efac;}
+.tag-wait{background:#fef9c3;color:#a16207;border:1px solid #fde047;}
+@media print{nav.tabs,.btn-print{display:none!important;}.card{box-shadow:none;}}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="inner">
+    <h1>🤖 ผังจุด AI ช่วยราย P (P1 → P3)<br><span style="font-size:.95rem;font-weight:400;">เอกสารเสริมชุด PM-PP7-FLOW · แยกชัดว่า AI ทำอะไร / คนตัดสินตรงไหน</span></h1>
+    <div class="meta">
+      <span class="badge">PM-PP7-002 · v1.0</span>
+      <span>3 ตุลาคม 2569</span>
+      <span>PKG Group — ระบบ Web PP7</span>
+      <button class="btn-print" onclick="window.print()">🖨 พิมพ์</button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="เมนูนำทาง">
+  <a href="#section-overview">ภาพรวม</a>
+  <a href="#section-p1">🟠 P1 แสวงหา</a>
+  <a href="#section-p2">🔵 P2 หยั่งประเมิน</a>
+  <a href="#section-p3">🟢 P3 จับคู่</a>
+  <a href="#section-rule">หลักการ</a>
+  <a href="PM-PP7-FLOW.html">⬅ กลับผังหลัก PM-PP7-FLOW</a>
+</nav>
+
+<main>
+
+<!-- ภาพรวม -->
+<section id="section-overview">
+  <h2>ภาพรวม — AI ช่วยตรงไหนใน P1→P3</h2>
+  <p class="sub">P1 = หาคน · P2 = ประเมินคน (ก่อนรบ) · P3 = จับคู่คนกับงาน (ก่อนทำงาน) · หลักการเดียวกันทุก P: AI เสนอ / คนตัดสิน</p>
+  <div class="card">
+    <div class="legend">
+      <span>🤖 <b>&nbsp;กล่องม่วง = AI ทำ</b></span>
+      <span>👥 <b>&nbsp;กล่องขาว = คนตัดสิน</b></span>
+      <span>📄 <b>&nbsp;กล่องสี = เอกสาร/ระบบ</b></span>
+    </div>
+    <div class="mermaid">
+flowchart LR
+    P1["🟠 P1 แสวงหา<br/>AI 5 จุด<br/>ตรวจฟอร์ม / OCR / แปล 3 ภาษา<br/>PDPA+แจ้งเตือน / คัดกรอง"]
+    P2["🔵 P2 หยั่งประเมิน<br/>AI 4 จุด<br/>สร้างคำถาม / วิเคราะห์บันทึก<br/>สรุป CMC / ร่างรายงาน"]
+    P3["🟢 P3 จับคู่คนกับงาน<br/>AI 3 จุด<br/>Matching Score<br/>ตรวจประวัติ / ปิด-ส่งต่อ"]
+    P1 --> P2 --> P3
+    P3 --> OUT["➡️ ผ่าน → Onboarding<br/>เป็นสมาชิก PKG"]
+    style P1 fill:#ffe6d6,stroke:#e87a3a,stroke-width:2px,color:#1a1a2e
+    style P2 fill:#d6ebfa,stroke:#2a8cd7,stroke-width:2px,color:#1a1a2e
+    style P3 fill:#d6f0e0,stroke:#3fa36f,stroke-width:2px,color:#1a1a2e
+    style OUT fill:#f4f3ee,stroke:#2c2c3a,stroke-width:2px,color:#1a1a2e
+    </div>
+  </div>
+  <div class="card">
+    <h3>ตารางสรุป — นับจุด AI ราย P</h3>
+    <table>
+      <thead><tr><th>P</th><th>ชื่อ</th><th>จุด AI</th><th>คนตัดสินสุดท้าย</th><th>สถานะ</th></tr></thead>
+      <tbody>
+        <tr><td><b>P1</b></td><td>แสวงหา</td><td>5 จุด (A1–A5)</td><td>HR / BMC / PAO</td><td><span class="tag tag-done">Task 3 ทำแล้ว</span> <span class="tag tag-wait">Task 4 ออกแบบแล้ว</span></td></tr>
+        <tr><td><b>P2</b></td><td>หยั่งประเมิน</td><td>4 จุด (B1–B4)</td><td>BMC / PAO + กรรมการ</td><td><span class="tag tag-wait">Phase 2 หลัง 6 พ.ย. 69</span></td></tr>
+        <tr><td><b>P3</b></td><td>จับคู่คนกับงาน</td><td>3 จุด (C1–C3)</td><td>HR / BMC</td><td><span class="tag tag-wait">ออกแบบแล้ว รอพัฒนา</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- P1 -->
+<section id="section-p1">
+  <h2><span class="dot" style="background:var(--p1)"></span>🟠 P1 แสวงหา — AI 5 จุด</h2>
+  <p class="sub">อ้างอิง: PP7_Design_P1 + Task 3 (OCR/แปล/PDPA/แจ้งเตือน) + Task 4 (AI คัดกรอง) · DB: candidates / positions</p>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--p1)"></span>ผัง P1 — จุด AI (ม่วง) vs คนตัดสิน (ขาว)</h3>
+    <div class="mermaid">
+flowchart LR
+    A["📝 ผู้สมัครกรอกใบสมัคร<br/>+ แนบเอกสาร CV/บัตร/วุฒิ"]
+    B{{"🤖 A1 ตรวจฟอร์ม<br/>Validation + PDPA Gate"}}
+    C{{"🤖 A2 OCR ดึงข้อมูล<br/>บัตร / ทะเบียนบ้าน / วุฒิ / CV"}}
+    D{{"🤖 A3 แปล 3 ภาษา<br/>TH / LA / KH"}}
+    E["📣 ลง DB candidates<br/>+ แจ้ง HR ทาง Telegram"]
+    F{{"🤖 A5 คัดกรอง Task 4<br/>เทียบ JOB_POSTING<br/>คะแนน + เหตุผล + จัดอันดับ"}}
+    G["👥 HR/BMC/PAO ตัดสิน<br/>ผ่าน → P2 / ไม่ผ่าน → ปิด"]
+    A --> B --> C --> D --> E --> F --> G
+    style B fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
+    style C fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
+    style D fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
+    style F fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
+    style G fill:#ffffff,stroke:#0f766e,stroke-width:2px,color:#1a1a2e
+    style E fill:#ffe6d6,stroke:#e87a3a,stroke-width:2px,color:#1a1a2e
+    </div>
+  </div>
+  <div class="card">
+    <h3>ตารางจุด AI — P1</h3>
+    <table>
+      <thead><tr><th>รหัส</th><th>จุด AI</th><th>Input → Output</th><th>คนตัดสิน</th><th>สถานะ</th></tr></thead>
+      <tbody>
+        <tr><td><b>A1</b></td><td><span class="tag tag-ai">AI</span> ตรวจความครบฟอร์ม + PDPA Gate</td><td>ฟอร์มใบสมัคร → ผ่าน/ไม่ผ่าน (ขาดช่องไหน)</td><td>ระบบกันอัตโนมัติ (PDPA ต้อง True)</td><td><span class="tag tag-done">ทำแล้ว (Task 3)</span></td></tr>
+        <tr><td><b>A2</b></td><td><span class="tag tag-ai">AI</span> OCR/Parser ดึงข้อมูลเอกสาร</td><td>บัตรปชช / ทะเบียนบ้าน / วุฒิ / CV → ข้อมูลลงฟอร์มอัตโนมัติ</td><td>ผู้สมัครยืนยันข้อมูล</td><td><span class="tag tag-done">ทำแล้ว (Task 3)</span></td></tr>
+        <tr><td><b>A3</b></td><td><span class="tag tag-ai">AI</span> แปล 3 ประเทศ</td><td>ใบสมัคร TH/LA/KH → แปลข้ามภาษาอัตโนมัติ</td><td>HR ตรวจทาน</td><td><span class="tag tag-done">ทำแล้ว (Task 3)</span></td></tr>
+        <tr><td><b>A4</b></td><td><span class="tag tag-ai">AI</span> แจ้งเตือน + จัดหมวดหมู่เบื้องต้น</td><td>ใบสมัครใหม่ → Telegram หา HR + แยกตามตำแหน่ง</td><td>HR เปิดดู Dashboard</td><td><span class="tag tag-done">ทำแล้ว (Task 3)</span></td></tr>
+        <tr><td><b>A5</b></td><td><span class="tag tag-ai">AI</span> คัดกรองเบื้องต้น Task 4</td><td>ใบสมัคร+OCR เทียบ JOB_POSTING → คะแนน + เหตุผลรายหัวข้อ + จัดอันดับ</td><td><span class="tag tag-human">คน</span> BMC/PAO ตัดสินร่วม (ผ่าน/รอ/ไม่ผ่าน)</td><td><span class="tag tag-wait">ออกแบบแล้ว +3 วันทำการ</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- P2 -->
+<section id="section-p2">
+  <h2><span class="dot" style="background:var(--p2)"></span>🔵 P2 หยั่งประเมิน — AI 4 จุด</h2>
+  <p class="sub">“ประเมินก่อนรบ” — วัด CC1–CC7 · อ้างอิง: P2-หยั่งประเมิน-กระบวนการใหม่ (S4) + Task 5.1–5.4 · DB: P2_Assessments / P2_Interviews / P2_AIAnalysis</p>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--p2)"></span>ผัง P2 — จุด AI (ม่วง) vs คนตัดสิน (ขาว)</h3>
+    <div class="mermaid">
+flowchart TD
+    A["📥 รับผู้สมัครจาก P1<br/>สถานะ Passed_to_P2"]
+    B{{"🤖 B1 สร้างคำถาม<br/>ราย CC1-CC7 (5.1)"}}
+    C["👥 สัมภาษณ์ + ทดสอบ<br/>ทัศนคติ / ทักษะ / CC 70 ข้อ / 3E3P"]
+    D{{"🤖 B2 วิเคราะห์บันทึก<br/>คะแนนราย CC + หลักฐาน (5.2)"}}
+    E{{"🤖 B3 สรุป CMC/ทัศนคติ<br/>+ Cross-check P1 (5.3)"}}
+    F{{"🤖 B4 ร่างรายงาน P2<br/>+ Audit log (5.4)"}}
+    G["👥 BMC/PAO ตัดสิน<br/>ผ่าน → P3 / ไม่ผ่าน → ปิด"]}
+    A --> B --> C --> D --> E --> F --> G
+    style B fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
+    style D fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
+    style E fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
+    style F fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
+    style G fill:#ffffff,stroke:#0f766e,stroke-width:2px,color:#1a1a2e
+    style C fill:#d6ebfa,stroke:#2a8cd7,stroke-width:2px,color:#1a1a2e
+    </div>
+  </div>
+  <div class="card">
+    <h3>ตารางจุด AI — P2</h3>
+    <table>
+      <thead><tr><th>รหัส</th><th>จุด AI</th><th>Input → Output</th><th>คนตัดสิน</th><th>สถานะ</th></tr></thead>
+      <tbody>
+        <tr><td><b>B1</b></td><td><span class="tag tag-ai">AI</span> สร้างชุดคำถามราย CC (5.1)</td><td>ตำแหน่ง + CC ที่ต้องการ → ชุดคำถามสัมภาษณ์ราย CC1–CC7</td><td>กรรมการเลือก/ปรับคำถาม</td><td><span class="tag tag-wait">Phase 2 (1 วัน)</span></td></tr>
+        <tr><td><b>B2</b></td><td><span class="tag tag-ai">AI</span> วิเคราะห์บันทึกสัมภาษณ์ (5.2)</td><td>บันทึกสัมภาษณ์ → คะแนนราย CC + หลักฐานอ้างอิง</td><td>กรรมการยืนยันคะแนน</td><td><span class="tag tag-wait">Phase 2 (1.5 วัน)</span></td></tr>
+        <tr><td><b>B3</b></td><td><span class="tag tag-ai">AI</span> สรุป CMC/ทัศนคติ + Cross-check P1 (5.3)</td><td>ผล CMC + ทัศนคติ + ข้อมูล P1 → โปรไฟล์ + ธงขัดแย้ง</td><td>กรรมการพิจารณาธง</td><td><span class="tag tag-wait">Phase 2 (0.5 วัน)</span></td></tr>
+        <tr><td><b>B4</b></td><td><span class="tag tag-ai">AI</span> ร่างรายงานสรุป P2 (5.4)</td><td>คะแนนทั้งหมด → รายงานสรุป + Recommendation + Audit</td><td><span class="tag tag-human">คน</span> BMC/PAO ตัดสินสุดท้าย</td><td><span class="tag tag-wait">Phase 2 (1 วัน)</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- P3 -->
+<section id="section-p3">
+  <h2><span class="dot" style="background:var(--p3)"></span>🟢 P3 จับคู่คนกับงาน — AI 3 จุด</h2>
+  <p class="sub">“ประเมินก่อนทำงาน” — คนผ่าน P2 แล้วเหมาะกับงานนี้ไหม · อ้างอิง: p1-p3-process-summary §3 + P2 S9–11 · DB: P3_Matching / P3_JobOffer / P3_BackgroundCheck</p>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--p3)"></span>ผัง P3 — จุด AI (ม่วง) vs คนตัดสิน (ขาว)</h3>
+    <div class="mermaid">
+flowchart TD
+    A["📥 รับจาก P2<br/>โปรไฟล์ + คะแนน CC"]
+    B{{"🤖 C1 Matching Engine<br/>ทักษะ 30 + CC 40<br/>ประสบการณ์ 20 + LIA 10"}}
+    C{"Match Score?"}
+    D["📄 สร้าง Job Offer<br/>Portal ตอบรับออนไลน์"]
+    E["🔄 เหมาะ BU อื่น<br/>ส่งต่ออัตโนมัติ"]
+    X["🔚 ปิดใบสมัคร<br/>แจ้งผลสุภาพ + Talent Pool"]
+    F{{"🤖 C2 ตรวจประวัติ<br/>การศึกษา / งาน / Reference"}}
+    G["👥 HR/BMC อนุมัติสุดท้าย<br/>→ Onboarding"]}
+    A --> B --> C
+    C -->|สูง| D
+    C -->|เหมาะ BU อื่น| E
+    C -->|ต่ำ| X
+    D --> F --> G
+    style B fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
+    style F fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
+    style G fill:#ffffff,stroke:#0f766e,stroke-width:2px,color:#1a1a2e
+    style D fill:#d6f0e0,stroke:#3fa36f,stroke-width:2px,color:#1a1a2e
+    </div>
+  </div>
+  <div class="card">
+    <h3>ตารางจุด AI — P3</h3>
+    <table>
+      <thead><tr><th>รหัส</th><th>จุด AI</th><th>Input → Output</th><th>คนตัดสิน</th><th>สถานะ</th></tr></thead>
+      <tbody>
+        <tr><td><b>C1</b></td><td><span class="tag tag-ai">AI</span> Matching Engine</td><td>โปรไฟล์ + JD + LIA → Match Score + Gap + คำแนะนำ (เหมาะสมมาก→ไม่เหมาะสม)</td><td>HR ดูประกอบ + BMC อนุมัติ</td><td><span class="tag tag-wait">ออกแบบแล้ว (schema P3_Matching)</span></td></tr>
+        <tr><td><b>C2</b></td><td><span class="tag tag-ai">AI</span> ตรวจประวัติ/เอกสารเบื้องต้น</td><td>วุฒิ / ประวัติงาน / Reference → ผลตรวจ Pass/Fail + หมายเหตุ</td><td>HR ตรวจซ้ำเคสสำคัญ</td><td><span class="tag tag-wait">ออกแบบแล้ว</span></td></tr>
+        <tr><td><b>C3</b></td><td><span class="tag tag-ai">AI</span> ปิดใบสมัคร / ส่งต่อข้าม BU</td><td>คะแนนต่ำ → ปิด + แจ้งผลสุภาพ + Talent Pool · เหมาะที่อื่น → ใบส่งต่อ</td><td><span class="tag tag-human">คน</span> HR ยืนยันก่อนปิด</td><td><span class="tag tag-wait">ออกแบบแล้ว</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- หลักการ -->
+<section id="section-rule">
+  <h2>หลักการ — AI เสนอ / คนตัดสิน</h2>
+  <p class="sub">ใช้เหมือนกันทุก P · กัน AI ตัดสินคนเดียว</p>
+  <div class="card">
+    <table>
+      <thead><tr><th>ข้อ</th><th>หลักการ</th><th>รายละเอียด</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><b>AI ช่วยคัด–วิเคราะห์–สรุป</b></td><td>AI ทำหน้าที่เตรียมข้อมูลพร้อมตัดสิน (คะแนน + เหตุผล + หลักฐาน) ไม่ตัดสินแทนคน</td></tr>
+        <tr><td>2</td><td><b>คนตัดสินสุดท้ายเสมอ</b></td><td>P1: HR/BMC/PAO · P2: BMC/PAO + กรรมการ · P3: HR/BMC</td></tr>
+        <tr><td>3</td><td><b>Audit 100%</b></td><td>ทุกจุด AI เก็บ log: input → output → คนยืนยัน (P1_AIAnalysis / P2_AIAnalysis / P3_Matching)</td></tr>
+        <tr><td>4</td><td><b>ข้อความภายนอกสุภาพ</b></td><td>แจ้งผลไม่ผ่านใช้ภาษาอบอุ่น ไม่ใช้ศัพท์ภายใน (P1/P2/P3/CC) — ตามรูปแบบที่กำหนด 14 ก.ค. 69</td></tr>
+        <tr><td>5</td><td><b>ลำดับพัฒนา</b></td><td>P1 Task 3 เสร็จแล้ว → Task 4 (+3 วัน) → P3 engine → P2 Task 5.1–5.4 Phase 2 หลัง 6 พ.ย. 69</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<footer style="border-top:2px solid var(--border);background:#2c2c3a;color:#ccc;padding:28px 24px;text-align:center;font-size:.82rem;">
+  <p><strong>จัดทำโดย KiloClaw (PM + Developer Web PP7)</strong> · ผู้อนุมัติ: <strong>พี่ปกรณ์ (Executive Sponsor)</strong></p>
+  <p style="margin-top:6px;color:#999;">รหัสเอกสาร: <strong>PM-PP7-002</strong> · เวอร์ชัน: <strong>v1.0</strong> · วันที่: <strong>3 ตุลาคม 2569</strong> · เอกสารเสริมของ <strong>PM-PP7-001</strong></p>
+  <p style="margin-top:6px;">ผังหลัก: <a href="PM-PP7-FLOW.html" style="color:#8ecae6;text-decoration:underline;">PM-PP7-FLOW.html</a> · คู่มือหลัก: <a href="PM-PROCESS-MANUAL-ISO.html" style="color:#8ecae6;text-decoration:underline;">PM-PROCESS-MANUAL-ISO.html</a> · ระบบ: <strong>Web PP7</strong></p>
+  <p style="margin-top:10px;font-size:.75rem;color:#777;">ไฟล์ standalone (inline CSS + mermaid.js CDN) — เปิดผ่าน file:// หรือ GitHub Pages ได้ · พิมพ์ได้ด้วยปุ่ม “พิมพ์” ด้านบน</p>
+</footer>
+
+<script>
+mermaid.initialize({startOnLoad:true,theme:'default',themeVariables:{primaryColor:'#2c2c3a',primaryTextColor:'#fff',primaryBorderColor:'#ddd5c7',lineColor:'#777',secondaryColor:'#f4f3ee',tertiaryColor:'#fff'}});
+</script>
+</body>
+</html>
