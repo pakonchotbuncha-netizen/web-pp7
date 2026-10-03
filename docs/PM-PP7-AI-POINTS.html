@@ -88,9 +88,9 @@ tbody tr:last-child td{border-bottom:0;}
 flowchart LR
     P1["🟠 P1 แสวงหา<br/>AI 6 จุด<br/>ตรวจฟอร์ม / OCR / แปล 3 ภาษา<br/>PDPA+แจ้งเตือน / คัดกรอง / แนะนำตำแหน่งทางเลือก"]
     P2["🔵 P2 หยั่งประเมิน<br/>AI 5 จุด<br/>สร้างคำถาม / วิเคราะห์บันทึก<br/>สรุป CMC / ร่างรายงาน / แนะนำบทบาทใหม่"]
-    P3["🟢 P3 จับคู่คนกับงาน<br/>AI 3 จุด<br/>Matching Score<br/>ตรวจประวัติ / ปิด-ส่งต่อ"]
+    P3["🟢 P3 จับคู่คนกับงาน<br/>บันทึกผลลงฐาน<br/>(ไม่ตัดสินใจ — รับผลตัดสินจาก P2)"]
     P1 --> P2 --> P3
-    P3 --> OUT["➡️ ผ่าน → Onboarding<br/>เป็นสมาชิก PKG"]
+    P3 --> OUT["📦 ฐานข้อมูลพร้อมใช้<br/>➡️ P4 ประเมินผล / P5 พัฒนา<br/>P6 ค่าตอบแทน / P7 คุณภาพชีวิต"]
     style P1 fill:#ffe6d6,stroke:#e87a3a,stroke-width:2px,color:#1a1a2e
     style P2 fill:#d6ebfa,stroke:#2a8cd7,stroke-width:2px,color:#1a1a2e
     style P3 fill:#d6f0e0,stroke:#3fa36f,stroke-width:2px,color:#1a1a2e
@@ -104,7 +104,7 @@ flowchart LR
       <tbody>
         <tr><td><b>P1</b></td><td>แสวงหา</td><td>6 จุด (A1–A6)</td><td>HR / BMC / PAO (+ ผู้สมัครเลือกตำแหน่งทางเลือก)</td><td><span class="tag tag-done">Task 3 ทำแล้ว</span> <span class="tag tag-wait">Task 4 + A6 ออกแบบแล้ว</span></td></tr>
         <tr><td><b>P2</b></td><td>หยั่งประเมิน</td><td>5 จุด (B1–B5)</td><td>BMC / PAO + กรรมการ</td><td><span class="tag tag-wait">Phase 2 หลัง 6 พ.ย. 69</span></td></tr>
-        <tr><td><b>P3</b></td><td>จับคู่คนกับงาน</td><td>3 จุด (C1–C3)</td><td>HR / BMC</td><td><span class="tag tag-wait">ออกแบบแล้ว รอพัฒนา</span></td></tr>
+        <tr><td><b>P3</b></td><td>จับคู่คนกับงาน (บันทึกผล)</td><td>0 จุดตัดสิน — บันทึกผลอย่างเดียว (ระบบอัตโนมัติ)</td><td>— (ผลตัดสินจบที่ P2 โดย BMC/PAO + ทีมสัมภาษณ์)</td><td><span class="tag tag-done">นิยามใหม่ 3 ต.ค. 69 ✅</span></td></tr>
       </tbody>
     </table>
   </div>
@@ -195,39 +195,50 @@ flowchart TD
 
 <!-- P3 -->
 <section id="section-p3">
-  <h2><span class="dot" style="background:var(--p3)"></span>🟢 P3 จับคู่คนกับงาน — AI 3 จุด</h2>
-  <p class="sub">“ประเมินก่อนทำงาน” — คนผ่าน P2 แล้วเหมาะกับงานนี้ไหม · อ้างอิง: p1-p3-process-summary §3 + P2 S9–11 · DB: P3_Matching / P3_JobOffer / P3_BackgroundCheck</p>
+  <h2><span class="dot" style="background:var(--p3)"></span>🟢 P3 จับคู่คนกับงาน — บันทึกผลลงฐาน (นิยามใหม่ 3 ต.ค. 69)</h2>
+  <p class="sub">เมื่อจบ P2 แล้ว P3 เป็นเพียง “บันทึกผลลงฐานข้อมูล” เพื่อนำไปใช้ใน P อื่นๆ ต่อไป — ไม่มีการตัดสินใหม่ · DB: P3_Matching / P3_JobOffer / P3_BackgroundCheck → เชื่อม P4–P7</p>
   <div class="card">
-    <h3><span class="dot" style="background:var(--p3)"></span>ผัง P3 — จุด AI (ม่วง) vs คนตัดสิน (ขาว)</h3>
+    <h3><span class="dot" style="background:var(--p3)"></span>ผัง P3 — รับผลตัดสินจาก P2 → บันทึกลงฐาน → ส่งต่อ P4–P7</h3>
     <div class="mermaid">
 flowchart TD
-    A["📥 รับจาก P2<br/>โปรไฟล์ + คะแนน CC"]
-    B{{"🤖 C1 Matching Engine<br/>ทักษะ 30 + CC 40<br/>ประสบการณ์ 20 + LIA 10"}}
-    C{"Match Score?"}
-    D["📄 สร้าง Job Offer<br/>Portal ตอบรับออนไลน์"]
-    E["🔄 เหมาะ BU อื่น<br/>ส่งต่ออัตโนมัติ"]
-    X["🔚 ปิดใบสมัคร<br/>แจ้งผลสุภาพ + Talent Pool"]
-    F{{"🤖 C2 ตรวจประวัติ<br/>การศึกษา / งาน / Reference"}}
-    G["👥 HR/BMC อนุมัติสุดท้าย<br/>→ Onboarding"]}
-    A --> B --> C
-    C -->|สูง| D
-    C -->|เหมาะ BU อื่น| E
-    C -->|ต่ำ| X
-    D --> F --> G
-    style B fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
-    style F fill:#ede9fe,stroke:#6d28d9,stroke-width:2px,color:#1a1a2e
-    style G fill:#ffffff,stroke:#0f766e,stroke-width:2px,color:#1a1a2e
+    A["📥 รับผลตัดสินจาก P2<br/>(ทีมสัมภาษณ์/BMC/PAO ตัดสินแล้ว)<br/>ตำแหน่งสุดท้าย + คะแนน CC + เหตุผล AI"]
+    B["📝 บันทึกผลลงฐาน P3_Matching<br/>ผู้สมัคร × ตำแหน่งที่จับคู่<br/>+ คะแนน + Audit log + PDPA"]
+    C["📄 บันทึก Job Offer / สถานะตอบรับ<br/>P3_JobOffer + Portal"]
+    D["🔍 บันทึกผลตรวจประวัติ<br/>P3_BackgroundCheck (HR)"]
+    E["📦 ฐานข้อมูลพร้อมใช้ — ส่งต่อ P อื่นๆ"]
+    F["➡️ P4 ประเมินผล (ตาม CC)"]
+    G["➡️ P5 พัฒนา (IDP ตาม CC Gap)"]
+    H["➡️ P6 ค่าตอบแทน (โครงสร้างเงินเดือน)"]
+    I["➡️ P7 คุณภาพชีวิต (Onboarding + สวัสดิการ)"]
+    A --> B --> C --> D --> E
+    E --> F & G & H & I
+    style A fill:#d6ebfa,stroke:#2a8cd7,stroke-width:2px,color:#1a1a2e
+    style B fill:#d6f0e0,stroke:#3fa36f,stroke-width:2px,color:#1a1a2e
+    style C fill:#d6f0e0,stroke:#3fa36f,stroke-width:2px,color:#1a1a2e
     style D fill:#d6f0e0,stroke:#3fa36f,stroke-width:2px,color:#1a1a2e
+    style E fill:#f4f3ee,stroke:#2c2c3a,stroke-width:2px,color:#1a1a2e
     </div>
   </div>
   <div class="card">
-    <h3>ตารางจุด AI — P3</h3>
+    <h3>ตาราง P3 — สิ่งที่บันทึก + ผู้ใช้ข้อมูลต่อ</h3>
     <table>
-      <thead><tr><th>รหัส</th><th>จุด AI</th><th>Input → Output</th><th>คนตัดสิน</th><th>สถานะ</th></tr></thead>
+      <thead><tr><th>รหัส</th><th>สิ่งที่บันทึก (ระบบอัตโนมัติ/HR)</th><th>ข้อมูลจาก</th><th>นำไปใช้ใน</th></tr></thead>
       <tbody>
-        <tr><td><b>C1</b></td><td><span class="tag tag-ai">AI</span> Matching Engine</td><td>โปรไฟล์ + JD + LIA → Match Score + Gap + คำแนะนำ (เหมาะสมมาก→ไม่เหมาะสม)</td><td>HR ดูประกอบ + BMC อนุมัติ</td><td><span class="tag tag-wait">ออกแบบแล้ว (schema P3_Matching)</span></td></tr>
-        <tr><td><b>C2</b></td><td><span class="tag tag-ai">AI</span> ตรวจประวัติ/เอกสารเบื้องต้น</td><td>วุฒิ / ประวัติงาน / Reference → ผลตรวจ Pass/Fail + หมายเหตุ</td><td>HR ตรวจซ้ำเคสสำคัญ</td><td><span class="tag tag-wait">ออกแบบแล้ว</span></td></tr>
-        <tr><td><b>C3</b></td><td><span class="tag tag-ai">AI</span> ปิดใบสมัคร / ส่งต่อข้าม BU</td><td>คะแนนต่ำ → ปิด + แจ้งผลสุภาพ + Talent Pool · เหมาะที่อื่น → ใบส่งต่อ</td><td><span class="tag tag-human">คน</span> HR ยืนยันก่อนปิด</td><td><span class="tag tag-wait">ออกแบบแล้ว</span></td></tr>
+        <tr><td><b>D1</b></td><td>ผลการจับคู่คนกับงาน (ตำแหน่งสุดท้าย + คะแนน + เหตุผล AI + Audit)</td><td>ผลตัดสิน P2 (B2–B5 + ทีมสัมภาษณ์)</td><td>P4 ประเมินผล · P5 IDP · HR Dashboard</td></tr>
+        <tr><td><b>D2</b></td><td>Job Offer + สถานะตอบรับ (Portal)</td><td>โครงสร้างค่าตอบแทนที่อนุมัติ</td><td>P6 ค่าตอบแทน (เงินเดือน/INC) · P7 Onboarding</td></tr>
+        <tr><td><b>D3</b></td><td>ผลตรวจประวัติ (การศึกษา/งาน/Reference)</td><td>HR ตรวจสอบ (AI ช่วยตรวจเอกสารเบื้องต้น)</td><td>P4 เครดิตสมาชิก · Compliance</td></tr>
+        <tr><td><b>D4</b></td><td>โปรไฟล์ CC1–CC7 วันเข้า (baseline)</td><td>คะแนน P2</td><td>P5 พัฒนา (เทียบกับเป้าหมาย) · P4 ประเมินรายปี</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h3>⚠️ การเปลี่ยนแปลงจากนิยามเดิม</h3>
+    <table>
+      <thead><tr><th>จุดเดิม (v1.0–1.1)</th><th>ย้ายไปที่</th></tr></thead>
+      <tbody>
+        <tr><td><b>C1 Matching Engine</b> (คำนวณ Match Score)</td><td>→ รวมใน <b>P2-B5</b> (AI ประมวลหลังสัมภาษณ์ + ทีมสัมภาษณ์พิจารณา) — P3 แค่บันทึกผล</td></tr>
+        <tr><td><b>C2 ตรวจประวัติ</b></td><td>→ เหลือเป็น <b>บันทึกผล D3</b> (HR ตรวจ / AI ช่วยตรวจเอกสารเบื้องต้น ไม่ใช่จุดตัดสิน)</td></tr>
+        <tr><td><b>C3 ปิดใบสมัคร / ส่งต่อข้าม BU</b></td><td>→ ปิด: ตัดสินที่ <b>P1-A5</b> / ส่งต่อ-แนะนำตำแหน่ง: ตัดสินที่ <b>P1-A6 + P2-B5</b> — P3 ไม่ตัดสินใจ</td></tr>
       </tbody>
     </table>
   </div>
@@ -242,11 +253,11 @@ flowchart TD
       <thead><tr><th>ข้อ</th><th>หลักการ</th><th>รายละเอียด</th></tr></thead>
       <tbody>
         <tr><td>1</td><td><b>AI ช่วยคัด–วิเคราะห์–สรุป</b></td><td>AI ทำหน้าที่เตรียมข้อมูลพร้อมตัดสิน (คะแนน + เหตุผล + หลักฐาน) ไม่ตัดสินแทนคน</td></tr>
-        <tr><td>2</td><td><b>คนตัดสินสุดท้ายเสมอ</b></td><td>P1: HR/BMC/PAO · P2: BMC/PAO + กรรมการ · P3: HR/BMC</td></tr>
+        <tr><td>2</td><td><b>คนตัดสินสุดท้ายเสมอ</b></td><td>P1: HR/BMC/PAO (+ผู้สมัครเลือก) · P2: BMC/PAO + ทีมสัมภาษณ์ (จุดตัดสินสุดท้าย) · P3: ไม่ตัดสิน — บันทึกผลอย่างเดียว</td></tr>
         <tr><td>3</td><td><b>Audit 100%</b></td><td>ทุกจุด AI เก็บ log: input → output → คนยืนยัน (P1_AIAnalysis / P2_AIAnalysis / P3_Matching)</td></tr>
         <tr><td>4</td><td><b>ข้อความภายนอกสุภาพ</b></td><td>แจ้งผลไม่ผ่านใช้ภาษาอบอุ่น ไม่ใช้ศัพท์ภายใน (P1/P2/P3/CC) — ตามรูปแบบที่กำหนด 14 ก.ค. 69</td></tr>
-        <tr><td>5</td><td><b>ลำดับพัฒนา</b></td><td>P1 Task 3 เสร็จแล้ว → Task 4 (+3 วัน, รวม A6 แนะนำตำแหน่งทางเลือก) → P3 engine (C1 รับช่วงต่อจาก A6/B5) → P2 Task 5.1–5.4 + B5 Phase 2 หลัง 6 พ.ย. 69</td></tr>
-        <tr><td>6</td><td><b>แนะนำตำแหน่งทางเลือก 2 ช่วง (ใหม่ 3 ต.ค. 69)</b></td><td><b>P1-A6:</b> หลังคัดกรองคุณสมบัติ เทียบตำแหน่งว่างทั้งหมด → Top-N + เหตุผล → ผู้สมัครเลือกเอง <b>P2-B5:</b> หลังสัมภาษณ์ให้คะแนน เทียบตำแหน่งว่างทั้งหมด + คะแนน CC → Top-N บทบาทใหม่ → ทีมสัมภาษณ์พิจารณา · ทั้ง 2 ช่วงส่งต่อเข้า P3 Matching (C1) เพื่อออก Job Offer</td></tr>
+        <tr><td>5</td><td><b>ลำดับพัฒนา</b></td><td>P1 Task 3 เสร็จแล้ว → Task 4 (+3 วัน, รวม A6 แนะนำตำแหน่งทางเลือก) → P3 = บันทึกผลลงฐาน (ไม่มี engine ตัดสิน) → P2 Task 5.1–5.4 + B5 Phase 2 หลัง 6 พ.ย. 69</td></tr>
+        <tr><td>6</td><td><b>แนะนำตำแหน่งทางเลือก 2 ช่วง (ใหม่ 3 ต.ค. 69)</b></td><td><b>P1-A6:</b> หลังคัดกรองคุณสมบัติ เทียบตำแหน่งว่างทั้งหมด → Top-N + เหตุผล → ผู้สมัครเลือกเอง <b>P2-B5:</b> หลังสัมภาษณ์ให้คะแนน เทียบตำแหน่งว่างทั้งหมด + คะแนน CC → Top-N บทบาทใหม่ → ทีมสัมภาษณ์พิจารณา · ผลตัดสินจบที่ P2 แล้ว P3 บันทึกผลลงฐานเพื่อใช้ต่อใน P4–P7</td></tr>
       </tbody>
     </table>
   </div>
