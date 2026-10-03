@@ -226,36 +226,32 @@ flowchart TD
 <!-- P3 -->
 <section id="section-p3" class="p3">
   <h2><span class="dot" style="background:var(--p3)"></span>P3 จับคู่คนกับงาน (Match / “ประเมินก่อนทำงาน”)</h2>
-  <p class="sub">PAO + BMC · Web PP7 Tab-04 จับคู่ · สถานะ: ข้อมูลครบ ✅</p>
+  <p class="sub">PAO + BMC · Web PP7 Tab-04 จับคู่ · ⚠️ นิยามใหม่ 3 ต.ค. 69: เมื่อจบ P2 แล้ว P3 เป็นเพียง “บันทึกผลลงฐานข้อมูล” เพื่อนำไปใช้ใน P อื่นๆ ต่อไป — จุดตัดสินสุดท้ายอยู่ที่ P2 (ทีมสัมภาษณ์/BMC/PAO)</p>
   <div class="card">
     <h3 class="card-header"><span class="dot" style="background:var(--p3)"></span>P3 — กระบวนการใหม่ (S4 ย่อ)</h3>
     <div class="mermaid">
 flowchart TD
-    A["📥 รับจาก P2 (ผ่าน CC)"] --> B["🤖 AI Matching Engine<br/>ทักษะ 50% + CC 30% + เป้าหมาย 20%"]
-    B --> C["✅ สร้างข้อเสนองาน<br/>(ตำแหน่ง + ค่าตอบแทน + วันเริ่ม)"]
-    C --> D{"ตอบรับ / ปฏิเสธ<br/>ทางออนไลน์ (Portal)"}
-    D -->|ตอบรับ| E["🔍 Background Check<br/>การศึกษา / การทำงาน / Reference"]
-    E --> F["🤖 AI Route ไป Onboarding<br/>+ เชื่อมระบบพี่เลี้ยง"]
-    F --> G["📊 Dashboard สถานะจับคู่"]
-    D -->|ปฏิเสธ| X["🔚 ปิด + บันทึกเหตุผล"]
-    B -.->|เหมาะ BU อื่น| Y["🔄 ส่งต่อข้าม BU<br/>ใบส่งต่ออัตโนมัติ"]
+    A["📥 รับผลตัดสินจาก P2<br/>(ทีมสัมภาษณ์/BMC/PAO ตัดสินแล้ว)<br/>ตำแหน่งสุดท้าย + คะแนน CC + เหตุผล AI"] --> B["📝 บันทึกผลลงฐาน P3_Matching<br/>+ Job Offer + ตอบรับ (Portal)<br/>+ Background Check + Audit log"]
+    B --> C["📦 ฐานข้อมูลพร้อมใช้ — ส่งต่อ P อื่นๆ"]
+    C --> D["➡️ P4 ประเมินผล (ตาม CC baseline)"]
+    C --> E["➡️ P5 พัฒนา (IDP ตาม CC Gap)"]
+    C --> F["➡️ P6 ค่าตอบแทน (โครงสร้างเงินเดือน)"]
+    C --> G["➡️ P7 คุณภาพชีวิต (Onboarding + พี่เลี้ยง)"]
     style B fill:#d6f0e0,stroke:#3fa36f,stroke-width:2px
-    style B fill:#d6f0e0,stroke:#3fa36f,stroke-width:2px
-    style C fill:#d6f0e0,stroke:#3fa36f
-    style F fill:#d6f0e0,stroke:#3fa36f
+    style C fill:#d6f0e0,stroke:#3fa36f,stroke-width:2px
 </div>
   </div>
   <div class="card">
     <h3>ตารางขั้นตอน P3 — รายละเอียดจากบท 2.3.1 (PM-PP7-001)</h3>
     <table>
-      <thead><tr><th>ขั้น</th><th>กิจกรรม</th><th>ผู้รับผิดชอบ</th><th>เอกสาร / บันทึกคุณภาพ</th></tr></thead>
+      <thead><tr><th>ขั้น</th><th>กิจกรรม (บันทึกผล — ไม่ตัดสินใหม่)</th><th>ผู้รับผิดชอบ</th><th>เอกสาร / บันทึกคุณภาพ</th></tr></thead>
       <tbody>
-        <tr><td>1</td><td>AI จับคู่คุณสมบัติกับตำแหน่ง (Matching Score 50/30/20)</td><td>ระบบ AI</td><td>P3_Matching + LIA Compatibility</td></tr>
-        <tr><td>2</td><td>ตรวจสอบประวัติ (Background Check — การศึกษา / งาน / Reference)</td><td>HR</td><td>P3_BackgroundCheck</td></tr>
-        <tr><td>3</td><td>ระบบสร้างข้อเสนองาน (ตำแหน่ง + ค่าตอบแทนจากโครงสร้างที่อนุมัติ)</td><td>ระบบ</td><td>P3_JobOffer (เชื่อมโครงสร้างเงินเดือน)</td></tr>
+        <tr><td>1</td><td>บันทึกผลการจับคู่จาก P2 (ตำแหน่งสุดท้าย + คะแนน CC + เหตุผล AI + Audit)</td><td>ระบบอัตโนมัติ</td><td>P3_Matching + LIA Compatibility</td></tr>
+        <tr><td>2</td><td>บันทึกผลตรวจประวัติ (Background Check — การศึกษา / งาน / Reference)</td><td>HR</td><td>P3_BackgroundCheck</td></tr>
+        <tr><td>3</td><td>บันทึกข้อเสนองาน (ตำแหน่ง + ค่าตอบแทนจากโครงสร้างที่อนุมัติ)</td><td>ระบบ</td><td>P3_JobOffer (เชื่อมโครงสร้างเงินเดือน → P6)</td></tr>
         <tr><td>4</td><td>ผู้สมัครตอบรับ/ปฏิเสธออนไลน์ (Portal)</td><td>ผู้สมัคร</td><td>Portal Status + Audit Log</td></tr>
-        <tr><td>5</td><td>AI Route ไป Onboarding (เชื่อม WI-011 + ระบบพี่เลี้ยง)</td><td>ระบบ AI</td><td>ONBOARDING + Auto-notify</td></tr>
-        <tr><td>6</td><td>Dashboard ติดตามสถานะจับคู่ (Funnel + Audit Log)</td><td>ทุกบทบาท</td><td>Dashboard P3 (Web PP7)</td></tr>
+        <tr><td>5</td><td>Route ไป Onboarding อัตโนมัติ (เชื่อม WI-011 + ระบบพี่เลี้ยง → P7)</td><td>ระบบ</td><td>ONBOARDING + Auto-notify</td></tr>
+        <tr><td>6</td><td>Dashboard สถานะจับคู่ — ฐานข้อมูลพร้อมใช้ส่งต่อ P4–P7 (Funnel + Audit Log)</td><td>ทุกบทบาท</td><td>Dashboard P3 (Web PP7)</td></tr>
       </tbody>
     </table>
   </div>
