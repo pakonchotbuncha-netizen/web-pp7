@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard: กระบวนการแสวงหาผู้สมัครงาน (สรรหา) + จุด AI — LDC-PAO-PM-001 | Web PP7</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family:'Sarabun','Noto Sans Thai',sans-serif; }
+  .sec { scroll-margin-top:96px; }
+  .flowchip { transition:all .15s; cursor:default; }
+  .flowchip:hover { transform:translateY(-2px); }
+  details summary::-webkit-details-marker { display:none; }
+  details summary { cursor:pointer; list-style:none; }
+  table.mtx th { background:#f1f5f9; }
+  table.mtx th, table.mtx td { border:1px solid #cbd5e1; padding:6px 10px; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+<!-- HEADER -->
+<header class="bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-800 text-white sticky top-0 z-40 shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center gap-3">
+    <div class="text-2xl">🎯</div>
+    <div class="flex-1 min-w-[260px]">
+      <h1 class="font-bold text-lg leading-tight">Dashboard กระบวนการแสวงหาผู้สมัครงาน (สรรหา) + จุดที่ AI เข้ามาช่วย</h1>
+      <p class="text-blue-200 text-xs">อ้างอิงผัง LDC-PAO-PM-001 · Cycle Time 45 วัน · 12 ขั้นตอน · ประกอบการประชุมทีมพัฒนา 7 ต.ค. 2569 · จัดทำโดย KiloClaw</p>
+    </div>
+    <a href="index.html" class="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg">← กลับหน้าหลัก PP7</a>
+  </div>
+  <nav class="max-w-7xl mx-auto px-4 pb-2 flex flex-wrap gap-2 text-xs">
+    <a href="#overview" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">ภาพรวม</a>
+    <a href="#flow" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">ผัง 12 ขั้น + AI</a>
+    <a href="#steps" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">รายละเอียดรายขั้น</a>
+    <a href="#extra" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">6 จุดเสริม</a>
+    <a href="#compare" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">เปรียบเทียบ เดิม vs AI</a>
+    <a href="#lessons" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">บทเรียน Bug Log</a>
+    <a href="#hitl" class="bg-white/10 hover:bg-white/25 px-3 py-1 rounded-full">หลัก HITL + OKR</a>
+  </nav>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-6 space-y-8">
+
+<!-- OVERVIEW -->
+<section id="overview" class="sec">
+  <h2 class="text-xl font-bold mb-3 flex items-center gap-2">📊 ภาพรวม</h2>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div class="bg-white rounded-xl border p-4 text-center">
+      <div class="text-3xl font-extrabold text-blue-700">12</div>
+      <div class="text-xs text-slate-500 mt-1">ขั้นตอนของกระบวนการเดิม<br>(คงเดิมทุกขั้น ไม่ตัด/ไม่ย้าย)</div>
+    </div>
+    <div class="bg-white rounded-xl border-2 border-blue-300 p-4 text-center">
+      <div class="text-3xl font-extrabold text-blue-600">6</div>
+      <div class="text-xs text-slate-500 mt-1">จุด AI ในผังเดิม (03 · 06 · 07 · 08 · 09 · 12)</div>
+    </div>
+    <div class="bg-white rounded-xl border-2 border-orange-300 p-4 text-center">
+      <div class="text-3xl font-extrabold text-orange-600">6</div>
+      <div class="text-xs text-slate-500 mt-1">จุดเสริม AI ใหม่ (A–F — เสนอเพิ่ม)</div>
+    </div>
+    <div class="bg-white rounded-xl border-2 border-orange-400 p-4 text-center">
+      <div class="text-3xl font-extrabold text-orange-700">2</div>
+      <div class="text-xs text-slate-500 mt-1">HITL Gate — คนตัดสินเสมอ<br>(ขั้น 10-11 ผรช./PAO Lead)</div>
+    </div>
+  </div>
+  <div class="mt-3 bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm leading-relaxed">
+    <b class="text-blue-800">หลักการออกแบบเดียวกับ Web PP7:</b> "AI ช่วยคัด · ช่วยร่าง · ช่วยคำนวณ — คนตัดสิน คนอนุมัติ"
+    ทั้งกระบวนการยึดกระบวนการเดิม 12 ขั้นตอนเป็นฐาน แล้ว <b>แทรกบทบาท AI เฉพาะจุดที่งานมือซ้ำ ๆ / งานเอกสาร / งานสรุปผล</b>
+    ไม่แทนที่ผู้รับผิดชอบและไม่เปลี่ยนเจ้าของงาน · จุดตัดสินคนยังอยู่ครบ (ผล AI = ข้อมูลประกอบ มีเหตุผลที่อ่านได้)
+  </div>
+</section>
+
+<!-- FLOW -->
+<section id="flow" class="sec">
+  <h2 class="text-xl font-bold mb-3 flex items-center gap-2">🗺️ ผังกระบวนการ 12 ขั้นตอน + จุด AI</h2>
+  <div class="mb-3 flex flex-wrap gap-2 text-xs">
+    <span class="px-3 py-1 rounded-full bg-blue-100 border border-blue-400 text-blue-700 font-semibold">🔵 AI ช่วย</span>
+    <span class="px-3 py-1 rounded-full bg-orange-100 border border-orange-400 text-orange-700 font-semibold">🟠 HITL — คนตัดสิน</span>
+    <span class="px-3 py-1 rounded-full bg-emerald-100 border border-emerald-400 text-emerald-700 font-semibold">🟢 System/Rule</span>
+    <span class="px-3 py-1 rounded-full bg-slate-200 border border-slate-400 text-slate-600 font-semibold">⚪ กระบวนการเดิม</span>
+  </div>
+  <div class="bg-white rounded-xl border p-4 overflow-x-auto">
+    <div class="flex items-stretch gap-2 min-w-[1050px]">
+      <!-- row 1 -->
+      <div class="flex flex-col gap-2 flex-1">
+        <div class="grid grid-cols-4 gap-2">
+          <div class="flowchip rounded-lg border-2 border-slate-300 bg-slate-50 px-2 py-3 text-center"><div class="text-[10px] text-slate-400 font-bold">01</div><div class="text-xs font-bold leading-tight mt-1">แจ้งขออัตรากำลัง</div><div class="text-[10px] text-slate-500">หน่วยงาน · 24 ชม.</div></div>
+          <div class="flowchip rounded-lg border-2 border-slate-300 bg-slate-50 px-2 py-3 text-center"><div class="text-[10px] text-slate-400 font-bold">02</div><div class="text-xs font-bold leading-tight mt-1">P1 แสวงหา</div><div class="text-[10px] text-slate-500">PAO · 2 วัน</div></div>
+          <div class="flowchip rounded-lg border-2 border-blue-500 bg-blue-50 px-2 py-3 text-center relative"><span class="absolute top-1 right-1 text-[9px] bg-blue-600 text-white px-1.5 rounded-full font-bold">AI</span><div class="text-[10px] text-blue-400 font-bold">03</div><div class="text-xs font-bold leading-tight mt-1">ประกาศรับสมัคร</div><div class="text-[10px] text-blue-700">AI Draft · 45 วัน</div></div>
+          <div class="flowchip rounded-lg border-2 border-emerald-500 bg-emerald-50 px-2 py-3 text-center"><span class="block text-[9px] bg-emerald-600 text-white px-1.5 rounded-full font-bold w-fit mx-auto mb-1">RULE</span><div class="text-[10px] text-emerald-500 font-bold">04</div><div class="text-xs font-bold leading-tight mt-1">Gateway ช่องทาง</div><div class="text-[10px] text-emerald-700">Rule Engine · 30 นาที</div></div>
+        </div>
+        <div class="text-center text-slate-400">↓</div>
+        <div class="grid grid-cols-4 gap-2">
+          <div class="flowchip rounded-lg border-2 border-slate-300 bg-slate-50 px-2 py-3 text-center"><div class="text-[10px] text-slate-400 font-bold">05</div><div class="text-xs font-bold leading-tight mt-1">ภายใน (โอนย้าย)</div><div class="text-[10px] text-slate-500">PAO · 7 วัน</div></div>
+          <div class="flowchip rounded-lg border-2 border-blue-500 bg-blue-50 px-2 py-3 text-center relative"><span class="absolute top-1 right-1 text-[9px] bg-blue-600 text-white px-1.5 rounded-full font-bold">AI</span><div class="text-[10px] text-blue-400 font-bold">06</div><div class="text-xs font-bold leading-tight mt-1">ภายนอก (ใบสมัคร)</div><div class="text-[10px] text-blue-700">AI Validator · 45 วัน</div></div>
+          <div class="flowchip rounded-lg border-2 border-blue-500 bg-blue-50 px-2 py-3 text-center relative"><span class="absolute top-1 right-1 text-[9px] bg-blue-600 text-white px-1.5 rounded-full font-bold">AI</span><div class="text-[10px] text-blue-400 font-bold">07</div><div class="text-xs font-bold leading-tight mt-1">คัดเลือกใบสมัคร</div><div class="text-[10px] text-blue-700">AI Screening · 30 นาที</div></div>
+          <div class="flowchip rounded-lg border-2 border-blue-500 bg-blue-50 px-2 py-3 text-center relative"><span class="absolute top-1 right-1 text-[9px] bg-blue-600 text-white px-1.5 rounded-full font-bold">AI</span><div class="text-[10px] text-blue-400 font-bold">08</div><div class="text-xs font-bold leading-tight mt-1">P2 หยั่งประเมิน</div><div class="text-[10px] text-blue-700">AI Scoring · 14 วัน</div></div>
+        </div>
+        <div class="text-center text-slate-400">↓</div>
+        <div class="grid grid-cols-4 gap-2">
+          <div class="flowchip rounded-lg border-2 border-blue-500 bg-blue-50 px-2 py-3 text-center relative"><span class="absolute top-1 right-1 text-[9px] bg-blue-600 text-white px-1.5 rounded-full font-bold">AI</span><div class="text-[10px] text-blue-400 font-bold">09</div><div class="text-xs font-bold leading-tight mt-1">P3 จับคู่</div><div class="text-[10px] text-blue-700">AI Matching · 7 วัน</div></div>
+          <div class="flowchip rounded-lg border-2 border-orange-500 bg-orange-50 px-2 py-3 text-center relative"><span class="absolute top-1 right-1 text-[9px] bg-orange-500 text-white px-1.5 rounded-full font-bold">HITL</span><div class="text-[10px] text-orange-400 font-bold">10</div><div class="text-xs font-bold leading-tight mt-1">พิจารณาโดย ผรช.</div><div class="text-[10px] text-orange-700">คนตัดสิน · 4 ชม.</div></div>
+          <div class="flowchip rounded-lg border-2 border-orange-500 bg-orange-50 px-2 py-3 text-center relative"><span class="absolute top-1 right-1 text-[9px] bg-orange-500 text-white px-1.5 rounded-full font-bold">HITL</span><div class="text-[10px] text-orange-400 font-bold">11</div><div class="text-xs font-bold leading-tight mt-1">อนุมัติขั้นสุดท้าย</div><div class="text-[10px] text-orange-700">ผรช./PAO Lead · 4 ชม.</div></div>
+          <div class="flowchip rounded-lg border-2 border-blue-500 bg-blue-50 px-2 py-3 text-center relative"><span class="absolute top-1 right-1 text-[9px] bg-blue-600 text-white px-1.5 rounded-full font-bold">AI</span><div class="text-[10px] text-blue-400 font-bold">12</div><div class="text-xs font-bold leading-tight mt-1">สร้างกลุ่ม + สัญญา</div><div class="text-[10px] text-blue-700">AI System · 30 นาที</div></div>
+        </div>
+        <div class="text-center text-slate-400 text-xs pt-1">→ เข้าสู่ Onboarding (ส่งต่อ P4 ประเมินผล · P5 พัฒนา · P6 ค่าตอบแทน · P7 คุณภาพชีวิต)</div>
+      </div>
+    </div>
+  </div>
+  <p class="text-xs text-slate-500 mt-2">💡 ภาพเวอร์ชัน PNG ขนาดใหญ่สำหรับแปะประชุม: <a class="text-blue-600 underline" href="docs/flow-png/LDC-PAO-PM-001-AI-FLOW.png" target="_blank">ผัง 12 ขั้น+AI</a> · <a class="text-blue-600 underline" href="docs/flow-png/LDC-PAO-PM-001-AI-EXTRA.png" target="_blank">6 จุดเสริม</a></p>
+</section>
+
+<!-- STEP DETAILS -->
+<section id="steps" class="sec">
+  <h2 class="text-xl font-bold mb-3 flex items-center gap-2">🔍 รายละเอียดรายขั้น — กระบวนการเดิม + AI ทำอะไร</h2>
+  <div class="space-y-3">
+
+    <details open class="bg-white rounded-xl border-2 border-slate-200 overflow-hidden">
+      <summary class="px-4 py-3 flex items-center gap-3"><span class="w-9 h-9 rounded-full bg-slate-400 text-white font-bold flex items-center justify-center text-sm">01</span><b>แจ้งขออัตรากำลัง</b><span class="text-xs text-slate-500">(หน่วยงาน · SLA 24 ชม.)</span><span class="ml-auto text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">กระบวนการเดิม</span></summary>
+      <div class="px-5 pb-4 text-sm border-t pt-3 leading-relaxed">หน่วยงานแจ้งความต้องการและกรอกแบบฟอร์มใบขออัตรากำลังคนลง BCT Spreadsheet — <b class="text-blue-700">ผลลัพธ์ที่สำคัญ:</b> JOB_POSTING (คุณสมบัติ + จำนวนที่รับ) เป็นอินพุตหลักของ AI ขั้น 03 และ 07 → ต้องครบและถูก format ตั้งแต่หน้านี้</div>
+    </details>
+
+    <details class="bg-white rounded-xl border-2 border-slate-200 overflow-hidden">
+      <summary class="px-4 py-3 flex items-center gap-3"><span class="w-9 h-9 rounded-full bg-slate-400 text-white font-bold flex items-center justify-center text-sm">02</span><b>P1 แสวงหา</b><span class="text-xs text-slate-500">(PAO · SLA 2 วัน)</span><span class="ml-auto text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">กระบวนการเดิม</span></summary>
+      <div class="px-5 pb-4 text-sm border-t pt-3 leading-relaxed">จัดทำแผนการแสวงหาอัตรากำลังคน วางแผนแบ่งเป็นกรณีภายใน (โอนย้าย) และภายนอก (รับสมัคร) — <b class="text-blue-700">ความเชื่อม:</b> แผนนี้กำหนดช่องทางที่ขั้น 03 จะเผยแพร่ และเส้นทางที่ 04 Gateway จะพิจารณา</div>
+    </details>
+
+    <details class="bg-white rounded-xl border-2 border-blue-400 overflow-hidden">
+      <summary class="px-4 py-3 flex items-center gap-3"><span class="w-9 h-9 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm">03</span><b>ประกาศรับสมัคร</b><span class="text-xs text-slate-500">(PAO / <b class="text-blue-700">AI Draft</b> · SLA 45 วัน = รอบเปิดรับ)</span><span class="ml-auto text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">🤖 AI ช่วย</span></summary>
+      <div class="px-5 pb-4 text-sm border-t pt-3 space-y-2 leading-relaxed">
+        <p><b>กระบวนการเดิมคงเดิม:</b> เผยแพร่ประกาศรับสมัครตามช่องทางต่าง ๆ รวมกว่า 10+ ช่องทาง (Facebook · LINE · เว็บ · LinkedIn ฯลฯ)</p>
+        <div class="bg-blue-50 border-l-4 border-blue-500 rounded-r-lg p-3">
+          <b class="text-blue-700">🤖 AI Draft ทำอะไร:</b>
+          <ul class="list-disc ml-5 mt-1 space-y-1">
+            <li><b>ร่างข้อความประกาศ</b>จากใบขออัตราอัตโนมัติ (เดิม PAO เขียนเองทีละช่องทาง)</li>
+            <li><b>ปรับภาษา/ความยาวตามช่องทาง:</b> Facebook แบบเห็นภาพ · LINE แบบสั้นมี emoji · เว็บประกาศแบบเต็ม · LinkedIn เน้นคุณสมบัติ</li>
+            <li><b>ตรวจความสม่ำเสมอ:</b> ทุกช่องทางต้องระบุคุณสมบัติ/จำนวน/วันปิดรับตรงกัน — กัน "คนละเวอร์ชันข้ามช่องทาง"</li>
+          </ul>
+          <p class="mt-2 text-xs text-blue-900"><b>ผลผลิต:</b> จากหลายชั่วโมงต่อช่องทาง → PAO รีวิวรวม ~15 นาที แล้วกดเผยแพร่เองทุกครั้ง (ไม่ auto-post)</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="bg-white rounded-xl border-2 border-emerald-400 overflow-hidden">
+      <summary class="px-4 py-3 flex items-center gap-3"><span class="w-9 h-9 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-sm">04</span><b>ช่องทาง (Gateway)</b><span class="text-xs text-slate-500">(System / Rule Engine · SLA 30 นาที)</span><span class="ml-auto text-xs bg-emerald-600 text-white px-2 py-0.5 rounded-full">⚙️ System/Rule</span></summary>
+      <div class="px-5 pb-4 text-sm border-t pt-3 leading-relaxed">ระบบตรวจสอบเงื่อนไขและตัดสินใจเลือกเส้นทาง: <b>ย้ายภายใน</b> → ขั้น 05 หรือ <b>รับสมัครภายนอก</b> → ขั้น 06 — เป็น <b class="text-emerald-700">กฎเชิงตรรกะ (Rule Engine) ไม่ใช่ AI</b> — ผังเดิมออกแบบถูกต้องแล้ว ไม่ต้องเพิ่ม AI (ประหยัดความซับซ้อน)</div>
+    </details>
+
+    <details class="bg-white rounded-xl border-2 border-slate-200 overflow-hidden">
+      <summary class="px-4 py-3 flex items-center gap-3"><span class="w-9 h-9 rounded-full bg-slate-400 text-white font-bold flex items-center justify-center text-sm">05</span><b>ภายใน (โอนย้าย)</b><span class="text-xs text-slate-500">(PAO · SLA 7 วัน)</span><span class="ml-auto text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">กระบวนการเดิม</span></summary>
+      <div class="px-5 pb-4 text-sm border-t pt-3 leading-relaxed">กรณีเลือกภายใน: ดำเนินการโอนย้ายและจัดคนให้เหมาะกับงาน ผ่าน OnePage และ Telegram Bot — <b class="text-blue-700">จุดเสริม (ภาพที่ 2 · C):</b> AI เทียบ CC ปัจจุบันของสมาชิกกับงานที่เปิด + ชี้เคส "คนนี้ fit งานอื่นมากกว่า" — ลด 7 วันที่ต้องเปิดไฟล์เก่าทีละไฟล์</div>
+    </details>
+
+    <details class="bg-white rounded-xl border-2 border-blue-400 overflow-hidden">
+      <summary class="px-4 py-3 flex items-center gap-3"><span class="w-9 h-9 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm">06</span><b>ภายนอก (ใบสมัคร)</b><span class="text-xs text-slate-500">(PAO / <b class="text-blue-700">AI Validator</b> · SLA 45 วัน)</span><span class="ml-auto text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">🤖 AI ช่วย</span></summary>
+      <div class="px-5 pb-4 text-sm border-t pt-3 space-y-2 leading-relaxed">
+        <p><b>กระบวนการเดิมคงเดิม:</b> เปิดรับและบันทึกใบสมัครจาก 10 ช่องทางลง BCT Spreadsheet</p>
+        <div class="bg-blue-50 border-l-4 border-blue-500 rounded-r-lg p-3">
+          <b class="text-blue-700">🤖 AI Validator ทำอะไร:</b>
+          <ul class="list-disc ml-5 mt-1 space-y-1">
+            <li><b>ตรวจความครบถ้วน:</b> ทุกฟิลด์ที่จำเป็น + format เลขบัตร/เบอร์โทร/อีเมล</li>
+            <li><b>กันสมัครซ้ำ:</b> match เลขบัตรประชาชนกับใบสมัครเก่าในฐาน — เตือนทันที (บทเรียน Bug Log: ไฟล์ pkgmember ข้อมูลซ้ำเพี้ยนไปทุกไฟล์)</li>
+            <li><b>OCR อัตโนมัติ:</b> บัตรประชาชน/ใบประกาศ → เติมฟิลด์เอง ลดการคีย์มือ</li>
+            <li><b>รวม 10 ช่องทางเป็น schema เดียว</b> (Single Source of Truth — เป้าลด Manual HR ≥ 60%)</li>
+          </ul>
+          <p class="mt-2 text-xs text-blue-900"><b>ผลผลิต:</b> ใบสมัครทุกใบเข้าฐานถูกต้องตั้งแต่ต้นทาง + สรุป "ผลตรวจ" (ถ้วน/ไม่ถ้วน/ซ้ำ) ให้ PAO กดยืนยันหรือแจ้งผู้สมัครแก้เอง (Self-Service)</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="bg-white rounded-xl border-2 border-blue-400 overflow-hidden">
+      <summary class="px-4 py-3 flex items-center gap-3"><span class="w-9 h-9 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm">07</span><b>คัดเลือกใบสมัคร (Gateway)</b><span class="text-xs text-slate-500">(System / <b class="text-blue-700">AI Screening</b> · SLA 30 นาที)</span><span class="ml-auto text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">🤖 AI ช่วย</span></summary>
+      <div class="px-5 pb-4 text-sm border-t pt-3 space-y-2 leading-relaxed">
+        <p><b>กระบวนการเดิมคงเดิม:</b> ระบบคัดเลือกและตรวจสอบความครบถ้วนสมบูรณ์ของเอกสารในใบสมัคร</p>
+        <div class="bg-blue-50 border-l-4 border-blue-500 rounded-r-lg p-3">
+          <b class="text-blue-700">🤖 AI Screening — ตรงกับ Task 4 ของ Web PP7:</b>
+          <ul class="list-disc ml-5 mt-1 space-y-1">
+            <li><b>วิเคราะห์เทียบรายบุคคล:</b> การศึกษา/ประสบการณ์/ทักษะ/เงื่อนไขบังคับ (อายุ/วุฒิ/ปีประสบการณ์) เทียบคุณสมบัติตำแหน่ง (JOB_POSTING จากขั้น 01)</li>
+            <li><b>คะแนนความเหมาะสม + เหตุผลรายข้อ</b>ที่อ่านได้ — ไม่ใช่กล่องดำ</li>
+            <li><b>รวมผล 3 แบบทดสอบ</b> (นิยามถาวร 1 ต.ค. 69): ทัศนคติ (ปรัชญา PKG ~15 ข้อ) · ทุนองค์กร/บริการลูกค้า · แรงจูงใจ 3E3P</li>
+            <li><b>จัดกลุ่ม:</b> ผ่าน → ไม่ผ่าน → เส้นเทา + เสนอตำแหน่งทางเลือกที่คุณสมบัติตรง (P1-A6)</li>
+          </ul>
+          <p class="mt-2 text-xs text-blue-900"><b>ผลผลิต:</b> ทุกใบมีผลคัดกรอง+เหตุผลทุกใบ — คนรีวิวเฉพาะเส้นเทา · หลักการ <b>"AI ช่วยคัด คนตัดสิน"</b> หน้า HR Screening ให้ BMC/PAO ตัดสินร่วม</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="bg-white rounded-xl border-2 border-blue-400 overflow-hidden">
+      <summary class="px-4 py-3 flex items-center gap-3"><span class="w-9 h-9 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm">08</span><b>P2 หยั่งประเมิน</b><span class="text-xs text-slate-500">(PAO / <b class="text-blue-700">AI Scoring</b> · SLA 14 วัน)</span><span class="ml-auto text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">🤖 AI ช่วย</span></summary>
+      <div class="px-5 pb-4 text-sm border-t pt-3 space-y-2 leading-relaxed">
+        <p><b>กระบวนการเดิมคงเดิม:</b> ประเมินผู้สมัครด้วยการสัมภาษณ์ + ทดสอบทักษะ CMC + วัดทัศนคติ</p>
+        <div class="bg-blue-50 border-l-4 border-blue-500 rounded-r-lg p-3">
+          <b class="text-blue-700">🤖 AI Scoring ทำอะไร:</b>
+          <ul class="list-disc ml-5 mt-1 space-y-1">
+            <li><b>รวมโปรไฟล์เดียวต่อคน:</b> คะแนนทัศนคติ/ทุนองค์กร/แรงจูงใจ/ทักษะ CMC ในหน้าเดียว</li>
+            <li><b>วิเคราะห์คำตอบอิสระ</b>โยงกับ Core Competency CC1–CC7 พร้อม quote ต้นทางให้ทีมสัมภาษณ์อ้าง</li>
+            <li><b>ธงเตือน:</b> คำตอบที่ขัดกันเอง/สวนปรัชญาองค์กร → ให้สัมภาษณ์ถามต่อ</li>
+            <li><b>ตรวจความสม่ำเสมอของผลประเมิน</b> (บทเรียน Bug Log: เคสคะแนนผิดปกติที่ประเมินครบ 6 คน แต่ระบบ #N/A)</li>
+          </ul>
+          <p class="mt-2 text-xs text-blue-900"><b>ผลผลิต:</b> ทีมลดเวลาสรุปตัวเลข → เหลือเวลาวิเคราะห์ "นัย" ต่อคน — ผล AI เป็นข้อมูลประกอบเสมอ</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="bg-white rounded-xl border-2 border-blue-400 overflow-hidden">
+      <summary class="px-4 py-3 flex items-center gap-3"><span class="w-9 h-9 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm">09</span><b>P3 จับคู่</b><span class="text-xs text-slate-500">(PAO / <b class="text-blue-700">AI Matching Algorithm</b> · SLA 7 วัน)</span><span class="ml-auto text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">🤖 AI ช่วย</span></summary>
+      <div class="px-5 pb-4 text-sm border-t pt-3 space-y-2 leading-relaxed">
+        <p><b>กระบวนการเดิมคงเดิม:</b> จับคู่ผู้สมัครที่ผ่านการประเมินเข้ากับตำแหน่งและทีมงานที่เหมาะสม</p>
+        <div class="bg-blue-50 border-l-4 border-blue-500 rounded-r-lg p-3">
+          <b class="text-blue-700">🤖 AI Matching ทำอะไร:</b>
+          <ul class="list-disc ml-5 mt-1 space-y-1">
+            <li><b>จัดอันดับ</b>ผู้สมัครกับตำแหน่งที่เปิดทุกตำแหน่ง (ไม่ใช่แค่ตำแหน่งที่สมัคร) + เหตุผล: คะแนน CC ใดตรงทีมไหน</li>
+            <li><b>แนะนำตำแหน่งทางเลือก (P1-A6)</b>หากไม่ผ่านตำแหน่งหลัก</li>
+          </ul>
+          <p class="mt-2 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2"><b>⚠ จัดแนวนิยามถาวร 3 ต.ค. 69:</b> จบ P2 แล้ว P3 = <b>บันทึกผลลงฐานข้อมูล</b>เพื่อใช้ P4-P7 ต่อ — ไม่มีการตัดสินใหม่ที่ P3 · ดังนั้น AI Matching ในบริบท Web PP7 = <b>"ผู้เสนออันดับ + จัดเก็บผลอัตโนมัติ"</b> ไม่ใช่ผู้ตัดสิน</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="bg-white rounded-xl border-2 border-orange-400 overflow-hidden">
+      <summary class="px-4 py-3 flex items-center gap-3"><span class="w-9 h-9 rounded-full bg-orange-500 text-white font-bold flex items-center justify-center text-sm">10</span><b>พิจารณาโดย ผรช.</b><span class="text-xs text-slate-500">(ผรช. · SLA 4 ชม.)</span><span class="ml-auto text-xs bg-orange-500 text-white px-2 py-0.5 rounded-full">👤 HITL Gate</span></summary>
+      <div class="px-5 pb-4 text-sm border-t pt-3 leading-relaxed">ผู้รับใช้ผรช. ตรวจสอบทักษะ/ทัศนคติ/ตัดสินใจเลือกผู้สมัครผ่าน Telegram Bot/OnePage — <b class="text-orange-700">AI ไม่เข้าแทรกการตัดสิน</b> (มี Executive Summary ช่วยให้อ่านจบใน 1 นาที — จุดเสริม D) — ทุก decision มี audit log</div>
+    </details>
+
+    <details class="bg-white rounded-xl border-2 border-orange-400 overflow-hidden">
+      <summary class="px-4 py-3 flex items-center gap-3"><span class="w-9 h-9 rounded-full bg-orange-500 text-white font-bold flex items-center justify-center text-sm">11</span><b>อนุมัติขั้นสุดท้าย</b><span class="text-xs text-slate-500">(ผรช. / PAO Lead · SLA 4 ชม.)</span><span class="ml-auto text-xs bg-orange-500 text-white px-2 py-0.5 rounded-full">👤 HITL Gate</span></summary>
+      <div class="px-5 pb-4 text-sm border-t pt-3 leading-relaxed">ตรวจสอบภาพรวม + ความเสี่ยงด้าน Compliance + อนุมัติขั้นสุดท้าย — ทุกการตัดสินถูกบันทึก audit log (OKR Obj.1 KR3: <b>Audit Log ครบ 100%</b>) — ใครตัดสินอะไรเมื่อไร ตรวจย้อนหลังได้</div>
+    </details>
+
+    <details class="bg-white rounded-xl border-2 border-blue-400 overflow-hidden">
+      <summary class="px-4 py-3 flex items-center gap-3"><span class="w-9 h-9 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm">12</span><b>สร้างกลุ่ม + สัญญา</b><span class="text-xs text-slate-500">(<b class="text-blue-700">AI System</b> · SLA 30 นาที)</span><span class="ml-auto text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">🤖 AI</span></summary>
+      <div class="px-5 pb-4 text-sm border-t pt-3 space-y-2 leading-relaxed">
+        <p><b>กระบวนการเดิมคงเดิม:</b> เข้าสู่กระบวนการ Onboarding</p>
+        <div class="bg-blue-50 border-l-4 border-blue-500 rounded-r-lg p-3">
+          <b class="text-blue-700">🤖 AI System ทำอะไร:</b>
+          <ul class="list-disc ml-5 mt-1 space-y-1">
+            <li><b>ออกเอกสารสัญญาอัตโนมัติ</b>ผ่าน OCR/APIs — อ่านข้อมูลจากฐาน → เติม template สัญญา → ส่งเซ็นดิจิทัล</li>
+            <li><b>สร้างกลุ่ม Telegram รับใช้</b>+ เชิญสมาชิก + จัดบทบาท + ตั้ง notify ระบบ</li>
+            <li><b>เปิดสิทธิ์อัตโนมัติ</b>ตามตำแหน่ง (บทเรียน Bug Log: ไม่มี whitelist มือ — ลืมเกิดซ้ำ)</li>
+            <li><b>เข้าสู่ Onboarding pipeline:</b> push งาน + แบบฟอร์มแนะนำตัว + แจ้งเตือนชุดแรก</li>
+          </ul>
+          <p class="mt-2 text-xs text-blue-900"><b>ผลผลิต:</b> จาก "อนุมัติเสร็จ" ถึง "เริ่มงาน" ภายใน 30 นาที (เดิมหลายวัน + คีย์ซ้ำหลายช่องทาง)</p>
+        </div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- EXTRA -->
+<section id="extra" class="sec">
+  <h2 class="text-xl font-bold mb-3 flex items-center gap-2">➕ 6 จุดเสริม AI (A–F) — นอกเหนือ 6 จุดในผังเดิม</h2>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="bg-white rounded-xl border p-4"><div class="flex justify-between"><b class="text-blue-800">A · ขั้น 01 — AI ตรวจฟอร์มขออัตรากำลัง</b></div><p class="text-sm mt-2">ตรวจว่าฟอร์มขออัตราครบ/ถูก format ทันทีที่กรอก (คุณสมบัติ · จำนวน · เงื่อนไข) เด้งให้หน่วยงานแก้ภายใน 5-10 นาที</p><p class="text-xs text-blue-700 mt-2 bg-blue-50 p-2 rounded">ทำไม: JOB_POSTING ไม่ครบ = ทั้งสายขั้น 03-07 ต้องตามถามซ้ำ</p></div>
+    <div class="bg-white rounded-xl border p-4"><b class="text-blue-800">B · ขั้น 02 — AI ช่วยวางแผนสรรหา (P1)</b><p class="text-sm mt-2">วิเคราะห์ประวัติการจ้าง + อัตราลาออก + การเคลื่อนที่ของทีม → ช่วย PAO ตั้งจำนวนเสนอ/ช่องทางที่เหมาะกับตำแหน่ง</p><p class="text-xs text-blue-700 mt-2 bg-blue-50 p-2 rounded">ทำไม: เปลี่ยนจากประสบการณ์ล้วน → ข้อมูลจริง (Data-Driven)</p></div>
+    <div class="bg-white rounded-xl border p-4"><b class="text-blue-800">C · ขั้น 05 — AI จับคู่โอนย้ายภายใน</b><p class="text-sm mt-2">เทียบ CC ปัจจุบันของสมาชิกกับงานที่เปิดโอนย้าย + ชี้เคส "คน fit งานอื่นมากขึ้น"</p><p class="text-xs text-blue-700 mt-2 bg-blue-50 p-2 rounded">ทำไม: ลด 7 วันของขั้นตอน ที่ต้องเปิดไฟล์เก่าทีละไฟล์</p></div>
+    <div class="bg-white rounded-xl border p-4"><b class="text-blue-800">D · ขั้น 10-11 — AI Executive Summary หน้าเดียว</b><p class="text-sm mt-2">ผู้สมัครแต่ละคนสรุปเป็นหน้าเดียว: ผลคัดกรอง / ตัวเลขทุกแบบทดสอบ / ธงเตือน / quote สำคัญ</p><p class="text-xs text-blue-700 mt-2 bg-blue-50 p-2 rounded">ทำไม: HITL มีเวลาแค่ 4 ชม. — decision-ready ตัดสินไว + ไม่ต้องเปิดเอกสารซ้อน</p></div>
+    <div class="bg-white rounded-xl border p-4"><b class="text-blue-800">E · ผล 3E3P → AI แปลเป็นบทบาท/สไตล์การดูแลที่เหมาะ</b><p class="text-sm mt-2">แปลโปรไฟล์แรงจูงใจ 3E3P เป็นข้อเสนอบทบาท + สไตล์การดูแลของหัวหน้าที่ fit กับลักษณะคน</p><p class="text-xs text-blue-700 mt-2 bg-blue-50 p-2 rounded">ทำไม: การจับคู่เป็น "เหมาะกับงาน + คน" ไม่ใช่ "คุณสมบัติบนกระดาษ"</p></div>
+    <div class="bg-white rounded-xl border-2 border-orange-300 p-4"><b class="text-blue-800">F · Chatbot ฝั่งผู้สมัคร + ลงทะเบียน + สถานะตนเอง</b><p class="text-sm mt-2">Chatbot ตอบคำถามบนหน้าเว็บ + ระบบลงทะเบียน + หน้าสถานะของผู้สมัคร (ต้องทำอะไรต่อ)</p><p class="text-xs text-orange-700 mt-2 bg-orange-50 p-2 rounded border border-orange-200">สั่งพี่ปกรณ์ 1 ต.ค. 69 — เป็น Web PP7 Task 6 · รอประชุมทีม 7 ต.ค. ยืนยันบนแผนหลัก</p></div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section id="compare" class="sec">
+  <h2 class="text-xl font-bold mb-3 flex items-center gap-2">⚖️ เปรียบเทียบ: กระบวนการเดิม vs เพิ่ม AI</h2>
+  <div class="bg-white rounded-xl border overflow-x-auto">
+    <table class="mtx w-full text-sm">
+      <thead><tr class="text-left"><th>ขั้น</th><th>งานที่เคยใช้มือ (เดิม)</th><th>AI ช่วยอะไร</th><th>งานคนต่อหน้าเหลือ (จริง)</th><th>รูปแบบ</th></tr></thead>
+      <tbody class="align-top">
+        <tr><td><b>03</b></td><td>เขียนประกาศทีละช่องทาง 10+ ช่องทาง (เวลาหลายชั่วโมง)</td><td>ร่างอัตโนมัติ + ตรวจความตรงกันข้ามช่องทาง</td><td>รีวิว ~15 นาที + กดเผยแพร่ (คนควบคุม)</td><td class="text-blue-700 font-semibold">AI ร่าง → คนอนุมัติ</td></tr>
+        <tr class="bg-slate-50"><td><b>06</b></td><td>คีย์ใบสมัคร + เช็คความครบ + เก็บเอกสารแนบ (ต่อใบ ~10-20 นาที)</td><td>ตรวจ/format/กันซ้ำ/OCR เติมฟิลด์/รวม schema</td><td>กดยืนยัน + แจ้งผู้สมัครแก้เฉพาะเคสผิด</td><td class="text-blue-700 font-semibold">อัตโนมัติ → คนสุดท้าย</td></tr>
+        <tr><td><b>07</b></td><td>คัดใบสมัครดูคุณสมบัติทีละใบ (~15-30 นาทีต่อใบ)</td><td>คะแนน + เหตุผล + รวม 3 แบบทดสอบ + เสนอทางเลือก</td><td>คนรีวิวเหตุผล + ตัดสินร่วม BMC/PAO (หน้า HR Screening)</td><td class="text-blue-700 font-semibold">AI ช่วยคัด → คนตัดสิน</td></tr>
+        <tr class="bg-slate-50"><td><b>08</b></td><td>สรุปคะแนนทุกแบบ + เทียบตาราง + พิจารณาความเหมาะ (เกือบ 1 วันต่อ candidate)</td><td>โปรไฟล์รวม + วิเคราะห์เชิงลึก + ธงคำตอบขัดแย้ง</td><td>ทีมสัมภาษณ์วินิจฉัย + แยกนัยต่อคน</td><td class="text-blue-700 font-semibold">AI สรุป → คนวิเคราะห์</td></tr>
+        <tr><td><b>09</b></td><td>จับคู่ด้วยการเทียบตารางกันมือ (ใช้เวลานาน)</td><td>จัดอันดับ + เหตุผล + ตำแหน่งทางเลือก</td><td>PAO ยืนยัน + บันทึกเข้าฐาน</td><td class="text-blue-700 font-semibold">AI เสนอ → คนบันทึก</td></tr>
+        <tr class="bg-slate-50"><td><b>10-11</b></td><td>ผรช./ผู้บริหารเปิดเอกสารซ้อนหลายชั้น เพื่อประกอบการตัดสิน</td><td>(เสริม) Executive Summary หน้าเดียว — decision-ready</td><td>ผรช./PAO Lead ตัดสิน + ลงนาม (4 ชม.)</td><td class="text-orange-700 font-semibold">คนตัดสินเต็ม 100%</td></tr>
+        <tr><td><b>12</b></td><td>คีย์สัญญา + สร้างกลุ่ม + เปิดสิทธิ์ (หลายวัน + คีย์ซ้ำ)</td><td>สัญญา OCR/APIs + กลุ่ม TG + สิทธิ์อัตโนมัติ + Onboarding</td><td>ตรวจกำกับ + ยืนยันสถานะ</td><td class="text-blue-700 font-semibold">อัตโนมัติเต็ม → คนตรวจ</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+    <div class="bg-white border rounded-xl p-3"><div class="text-2xl font-extrabold text-blue-700">~70-80%</div><div class="text-[11px] text-slate-500">งานมือลดของ PAO<br>(ร่าง/คีย์/สรุป — รอบเปิดรับ 45 วัน คงเดิมตามตลาด)</div></div>
+    <div class="bg-white border rounded-xl p-3"><div class="text-2xl font-extrabold text-emerald-700">30 นาที</div><div class="text-[11px] text-slate-500">อนุมัติ → เริ่มงาน<br>(เดิมหลายวัน)</div></div>
+    <div class="bg-white border rounded-xl p-3"><div class="text-2xl font-extrabold text-blue-700">100%</div><div class="text-[11px] text-slate-500">ตัดสินเสมอโดยคน<br>(HITL — ขั้น 10-11)</div></div>
+    <div class="bg-white border rounded-xl p-3"><div class="text-2xl font-extrabold text-indigo-700">0</div><div class="text-[11px] text-slate-500">จุดที่ AI แทรกในผัง 12 ขั้น แล้วละเมิด HITL หรือเปลี่ยนเจ้าของงาน</div></div>
+  </div>
+</section>
+
+<!-- LESSONS -->
+<section id="lessons" class="sec">
+  <h2 class="text-xl font-bold mb-3 flex items-center gap-2">📚 บังคับใช้บทเรียนจาก Bug Log ระบบเดิม (3,007 tickets / 25 เดือน) กับแผนนี้</h2>
+  <div class="grid md:grid-cols-2 gap-3 text-sm">
+    <div class="bg-white rounded-xl border p-4"><b class="text-red-700">L1 · อย่าทำระบบเป็นสูตรลูกโซ่ชีต (29.5% ของ bug)</b><p class="mt-2">ตารางต้นทางเดียว + API (GAS backend) — รายงานคำนวณจากข้อมูลต้นทาง เทียบ #N/A นี้ห้ามเกิด</p></div>
+    <div class="bg-white rounded-xl border p-4"><b class="text-red-700">L2 · แจ้งเตือนอ่าน state สด + log + idempotent (11.6%)</b><p class="mt-2">ขั้น 12 และ notify ทุกแบบ — ห้ามแจ้งผิด/แจ้งซ้ำ/แจ้งไม่ครบ — เคยเป็น 348 เคสในระบบเดิม</p></div>
+    <div class="bg-white rounded-xl border p-4"><b class="text-red-700">L3 · Edit/Delete ผู้ใช้ทำเองตาม RBAC (11.6%)</b><p class="mt-2">ตัดงาน "รบกวนแก้ให้หน่อย" 348 เคส — ลดการแจ้งแบบมือ + soft delete + audit trail</p></div>
+    <div class="bg-white rounded-xl border p-4"><b class="text-red-700">L4 · เวลาทำงาน/ใบลา = transaction เดียว (8.9%)</b><p class="mt-2">แม้ในบริบทสรรหา — ทุกขั้นต้องมี status เดียว ไม่ sync หลายแหล่ง (กัน "ทำแล้วระบบบอกยังไม่ทำ")</p></div>
+    <div class="bg-white rounded-xl border p-4"><b class="text-red-700">L5 · กระแสเงิน reconcile ได้ (8.4%)</b><p class="mt-2">ค่าตอบแทนไม่อยู่ในสรรหาโดยตรง แต่ flow API + transaction log ต้องพร้อมต่อ P6</p></div>
+    <div class="bg-white rounded-xl border p-4"><b class="text-red-700">L6 · สิทธิ์จากฐานสมาชิกอัตโนมัติ (4.0%)</b><p class="mt-2">ขั้น 12 เปิดสิทธิ์จากฐานอัตโนมัติ — ไม่ whitelist อีเมลมือ (เคยลืม 3 อัน ใน 1 วัน)</p></div>
+    <div class="bg-white rounded-xl border p-4"><b class="text-red-700">L7 · กันข้อมูลซ้ำ ณ ฟอร์ม</b><p class="mt-2">AI Validator ขั้น 06 ตรวจใบซ้ำ/ต่างชื่อด้วยเลขบัตร — เคส pkgmember ID ซ้ำยังเพี้ยนไปทุกไฟล์</p></div>
+    <div class="bg-white rounded-xl border p-4"><b class="text-red-700">L8 · แก้ที่ต้นเหตุ ไม่แก้ที่เคส</b><p class="mt-2">ระบบเดิม 25 เดือน ticket ไม่ลดลง — ออกแบบตัดต้นเหตุ 3 ระดับ: validation / reconciliation / health check รายวัน</p></div>
+  </div>
+  <p class="text-xs text-slate-500 mt-2">อ้างอิง: <a class="text-blue-600 underline" href="docs/BUG-LESSONS-BCT-2024-2026.md" target="_blank">BUG-LESSONS-BCT-2024-2026.md</a> (วิเคราะห์ 5 ต.ค. 69)</p>
+</section>
+
+<!-- HITL + OKR -->
+<section id="hitl" class="sec">
+  <h2 class="text-xl font-bold mb-3 flex items-center gap-2">🛡️ หลักการ HITL + ผลผูกกับ OKR Web PP7</h2>
+  <div class="grid md:grid-cols-2 gap-3">
+    <div class="bg-white rounded-xl border-2 border-orange-300 p-4">
+      <b class="text-orange-700 text-base">👤 หลัก HITL (Human-in-the-Loop) ทุกจุด AI</b>
+      <ul class="list-disc ml-5 mt-2 text-sm space-y-1.5">
+        <li><b>AI ทำเฉพาะ:</b> ร่าง / ตรวจความถูกต้อง / ให้คะแนน + เหตุผล / เสนออันดับ / เอกสารอัตโนมัติ</li>
+        <li><b>คนตัดสิน:</b> ขั้น 10 (ผรช.) + ขั้น 11 (ผรช./PAO Lead) มีเวลาตัดสินตาม SLA ตามกำหนด (4 ชม.)</li>
+        <li><b>AI ต้องอธิบายได้:</b> ทุก point/อันดับ/การจับคู่มี "เหตุผลที่อ่านเข้าใจได้" — ไม่เอากล่องดำ</li>
+        <li><b>ตรวจย้อนหลังได้:</b> log ทุกจุดที่ AI ให้ข้อมูลประกอบ + decision ที่คนอนุมัติ</li>
+        <li><b>ประตูถอยร่น:</b> ถ้า AI คัดผิดพัฒนาพบเจอ → ทีมมีช่อง "override" ตัดสินคนล้นฝ่ายเสมอ</li>
+      </ul>
+    </div>
+    <div class="bg-white rounded-xl border-2 border-blue-300 p-4">
+      <b class="text-blue-800 text-base">🎯 ผลผูกกับ OKR Web PP7 (นิยามโครงการ 10 มิ.ย. 69)</b>
+      <ul class="list-disc ml-5 mt-2 text-sm space-y-1.5">
+        <li><b>Obj.1 (Data-Driven HR)</b> — ขั้น 01-07 ใช้ข้อมูลต้นทางเดียว (JOB_POSTING + ใบสมัคร + ทดสอบ) · KR3: Audit Log 100% ในขั้น 10-12</li>
+        <li><b>Obj.2 (ลด Manual / เพิ่ม Productivity)</b> — KR1: จากคีย์ Excel/ชีท → ฐานข้อมูล + ใบสมัครอัตโนมัติ · KR2: ลงงาน Manual ขั้น 03-09 ลด ~70-80% · KR3: ลดความผิดพลาด (ตรวจ format/ซ้ำ/คำนวณด้วย AI 100%)</li>
+        <li><b>Obj.3 (AI Wellbeing & Engagement)</b> — KR1: Self-Service "ผู้สมัครสมัครเอง + แจ้งแก้เอง + เห็นสถานะเอง" (จุดเสริม F) · KR2: ลดการถามซ้ำผ่าน Chatbot ผู้สมัคร</li>
+      </ul>
+    </div>
+  </div>
+  <div class="mt-4 bg-slate-100 border rounded-xl p-4 text-sm">
+    <b>📌 สิ่งที่ทีมพัฒนาได้เริ่มเงียบ ๆ (ใส่ backlog ได้ทันที)</b>
+    <ul class="list-disc ml-5 mt-1 grid md:grid-cols-2 gap-x-8">
+      <li>Task 4 (P1 Screening) — ตามแผนเดิม · AI Screening หน้า HR + แนะนำทางเลือก</li>
+      <li>ไฟล์ JOB_POSTING schema + version (ส่งจากขั้น 01)</li>
+      <li>notification_log + idempotency key (กันแจ้งซ้ำ/ไม่ส่ง)</li>
+      <li>OCR endpoint (บัตรประชาชน/ใบประกาศ → ฟิลด์)</li>
+      <li>Executive Summary view สำหรับ HITL (ขั้น 10-11)</li>
+      <li>สร้าง Onboarding pipeline (หลังอนุมัติ) — สัญญา + กลุ่ม TG + สิทธิ์อัตโนมัติ</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="pb-8 pt-4 text-center text-xs text-slate-500">
+เอกสารประกอบประชุมทีมพัฒนา 7 ต.ค. 2569 · Web PP7 — KiloClaw (PM + Developer) · อ้างอิง: ผังเดิม LDC-PAO-PM-001 (สรรหา 45 วัน 12 ขั้น) · PM-PP7-002 AI POINTS v1.2 · BUG-LESSONS-BCT-2024-2026
+</footer>
+
+</main>
+</body>
+</html>
