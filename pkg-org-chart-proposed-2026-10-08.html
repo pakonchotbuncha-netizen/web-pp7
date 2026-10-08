@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PKG ORG.CHART — ฉบับเสนอแก้ไข (Core team BMC ≤12) — 8 ต.ค. 2569</title>
+<style>
+  body{margin:0;background:#f1f5f9;font-family:'Segoe UI',Kanit,'Noto Sans Thai',sans-serif;display:flex;justify-content:center;padding:16px}
+  .wrap{max-width:1280px;width:100%}
+</style>
+</head>
+<body>
+<div class="wrap">
+<svg viewBox="0 0 1240 1150" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',Kanit,'Noto Sans Thai',sans-serif">
+  <defs>
+    <marker id="aDark" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#334155"/></marker>
+    <marker id="aRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#dc2626"/></marker>
+  </defs>
+
+  <rect x="0" y="0" width="1240" height="1150" fill="#ffffff" rx="16"/>
+
+  <!-- =================== CONNECTORS (drawn first, behind nodes) =================== -->
+  <!-- OAC -> GA -->
+  <path d="M620 166 V196" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#aDark)"/>
+  <!-- GA fan-out to 4 Core teams -->
+  <path d="M620 288 V306 M620 306 H188 V316 M620 306 H476 V316 M620 306 H764 V316 M620 306 H1052 V316" fill="none" stroke="#334155" stroke-width="2"/>
+  <path d="M188 306 V316 M476 306 V316 M764 306 V316 M1052 306 V316" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#aDark)"/>
+  <!-- Core team -> BMC (red, vertical, behind support band) -->
+  <path d="M188 560 V798" fill="none" stroke="#dc2626" stroke-width="2.2" marker-end="url(#aRed)"/>
+  <path d="M476 560 V798" fill="none" stroke="#dc2626" stroke-width="2.2" marker-end="url(#aRed)"/>
+  <path d="M764 560 V798" fill="none" stroke="#dc2626" stroke-width="2.2" marker-end="url(#aRed)"/>
+  <path d="M1052 560 V798" fill="none" stroke="#dc2626" stroke-width="2.2" marker-end="url(#aRed)"/>
+  <!-- GA oversight arrow -> Compliance BU + BMC band (red, right margin) -->
+  <path d="M830 240 H1206 V769 H1192" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-dasharray="7 5" marker-end="url(#aRed)"/>
+
+  <!-- =================== TITLE =================== -->
+  <text x="620" y="36" text-anchor="middle" font-size="21" font-weight="800" fill="#0f172a">PKG ORG.CHART — Business &amp; Strategy (Succession Plan 2026–2030)</text>
+  <text x="620" y="58" text-anchor="middle" font-size="12.5" fill="#64748b">ฉบับเสนอแก้ไขตามคำแนะนำ 8 ต.ค. 2569 · 4 BU: PMSG · AAMG · CPDG+Start up · TNR</text>
+
+  <!-- =================== OAC =================== -->
+  <rect x="470" y="88" width="300" height="78" rx="10" fill="#eef2ff" stroke="#6366f1" stroke-width="2"/>
+  <text x="620" y="112" text-anchor="middle" font-size="15.5" font-weight="800" fill="#3730a3">Oversight Advisory : OAC</text>
+  <text x="620" y="133" text-anchor="middle" font-size="13" fill="#1e293b">คุณประวิทย์ (PVP) · พี่ต๋อง · พี่ก้อย</text>
+  <text x="620" y="152" text-anchor="middle" font-size="10.5" fill="#6366f1">กำกับดูแล + ให้คำปรึกษา + Veto (สูงสุด 3 ครั้ง)</text>
+
+  <!-- =================== GA =================== -->
+  <rect x="410" y="196" width="420" height="92" rx="10" fill="#fefce8" stroke="#ca8a04" stroke-width="2"/>
+  <text x="620" y="220" text-anchor="middle" font-size="15" font-weight="800" fill="#854d0e">General Audit : GA — ตรวจสอบกลาง (4 คน)</text>
+  <text x="620" y="243" text-anchor="middle" font-size="12" fill="#292524">Audit: พี่อ๊อด อรุณี · พี่หนึ่ง ปกรณ์ · คุณบอล ศุภสิทธิ์</text>
+  <text x="620" y="266" text-anchor="middle" font-size="12" fill="#292524">ภารกิจพิเศษ LCT: พี่ติ๋ม อารีย์</text>
+
+  <!-- GA warning note -->
+  <text x="850" y="215" font-size="12" font-weight="700" fill="#dc2626">⚠️ GA ยังไม่พอ — งานจะเยอะมาก ต้องสรรหาทีมเพิ่ม</text>
+  <text x="850" y="234" font-size="11" fill="#b91c1c">weakness ทั้ง PKG: PMS อ่อนการทำงานตามกระบวนการ</text>
+  <text x="850" y="252" font-size="11" fill="#b91c1c">AAMG อ่อนเรื่อง LCT เป็นต้น</text>
+  <text x="850" y="270" font-size="11" font-weight="600" fill="#dc2626">→ เลือกคนให้เหมาะกับงานมากที่สุด</text>
+
+  <!-- GA oversight label (right rail) -->
+  <text x="1204" y="410" text-anchor="end" font-size="11" font-weight="700" fill="#dc2626">GA ตรวจสอบและรายงาน</text>
+  <text x="1204" y="426" text-anchor="end" font-size="11" font-weight="700" fill="#dc2626">ทั้งสาย BMC + Core team</text>
+
+  <!-- =================== CORE TEAMS =================== -->
+  <!-- PMSG -->
+  <rect x="52" y="316" width="272" height="244" rx="10" fill="#fdf2f8" stroke="#f472b6" stroke-width="2"/>
+  <text x="188" y="340" text-anchor="middle" font-size="14.5" font-weight="800" fill="#be185d">Core team PMSG</text>
+  <text x="188" y="358" text-anchor="middle" font-size="11.5" font-weight="700" fill="#db2777">Core team BMC — ไม่เกิน 12 คน</text>
+  <text x="188" y="374" text-anchor="middle" font-size="10" fill="#9d174d">(Core Team 3–4 จาก ADM + BMC ร่วมบริหาร)</text>
+  <line x1="70" y1="384" x2="306" y2="384" stroke="#f9a8d4" stroke-width="1"/>
+  <text x="70" y="402" font-size="10" fill="#9d174d">สมาชิกจาก ADM ปัจจุบัน:</text>
+  <text x="70" y="424" font-size="12.5" fill="#1e293b">• พี่ศิรช สมศักดิ์</text>
+  <text x="70" y="446" font-size="12.5" fill="#1e293b">• น้องแซน ณัฐภัทร</text>
+  <text x="70" y="468" font-size="12.5" fill="#1e293b">• พี่ขุ้ย วนิดา</text>
+  <text x="70" y="490" font-size="12.5" fill="#1e293b">• น้าต๋อง วชิรณัน</text>
+  <text x="70" y="524" font-size="10.5" font-style="italic" fill="#be185d">⚡ 1 คนอยู่ได้ทุก BMC — empower ให้ "สร้างสรรค์" เต็มที่</text>
+  <text x="70" y="544" font-size="10.5" fill="#9d174d">→ เปิดโควตาให้ BMC ร่วมบริหารจนครบ 12</text>
+
+  <!-- AAMG -->
+  <rect x="340" y="316" width="272" height="244" rx="10" fill="#f0fdf4" stroke="#4ade80" stroke-width="2"/>
+  <text x="476" y="340" text-anchor="middle" font-size="14.5" font-weight="800" fill="#15803d">Core team AAMG</text>
+  <text x="476" y="358" text-anchor="middle" font-size="11.5" font-weight="700" fill="#16a34a">Core team BMC — ไม่เกิน 12 คน</text>
+  <text x="476" y="374" text-anchor="middle" font-size="10" fill="#166534">(Core Team 3–4 จาก ADM + BMC ร่วมบริหาร)</text>
+  <line x1="358" y1="384" x2="594" y2="384" stroke="#86efac" stroke-width="1"/>
+  <text x="358" y="402" font-size="10" fill="#166534">สมาชิกจาก ADM ปัจจุบัน:</text>
+  <text x="358" y="424" font-size="12.5" fill="#1e293b">• น้าต๋อง วชิรณัน</text>
+  <text x="358" y="446" font-size="12.5" fill="#1e293b">• พี่ญา สุกัญญา</text>
+  <text x="358" y="468" font-size="12.5" fill="#1e293b">• พี่ออล์ฟ วรพินิจ</text>
+  <text x="358" y="524" font-size="10.5" font-style="italic" fill="#15803d">⚡ 1 คนอยู่ได้ทุก BMC — empower ให้ "สร้างสรรค์" เต็มที่</text>
+  <text x="358" y="544" font-size="10.5" fill="#166534">→ เปิดโควตาให้ BMC ร่วมบริหารจนครบ 12</text>
+
+  <!-- CPDG + Start up -->
+  <rect x="628" y="316" width="272" height="244" rx="10" fill="#fffbeb" stroke="#fbbf24" stroke-width="2"/>
+  <text x="764" y="340" text-anchor="middle" font-size="14.5" font-weight="800" fill="#b45309">Core team CPDG + Start up</text>
+  <text x="764" y="358" text-anchor="middle" font-size="11.5" font-weight="700" fill="#d97706">Core team BMC — ไม่เกิน 12 คน</text>
+  <text x="764" y="374" text-anchor="middle" font-size="10" fill="#92400e">(Core Team 3–4 จาก ADM + BMC ร่วมบริหาร)</text>
+  <line x1="646" y1="384" x2="882" y2="384" stroke="#fcd34d" stroke-width="1"/>
+  <text x="646" y="402" font-size="10" fill="#92400e">สมาชิกจาก ADM ปัจจุบัน:</text>
+  <text x="646" y="424" font-size="12.5" fill="#1e293b">• พี่อ้วน โกวิทย์</text>
+  <text x="646" y="446" font-size="12.5" fill="#1e293b">• พี่โอม ปุญญพัฒน์</text>
+  <text x="646" y="468" font-size="12.5" fill="#1e293b">• พี่ปอม ปรีร์</text>
+  <text x="646" y="524" font-size="10.5" font-style="italic" fill="#b45309">⚡ 1 คนอยู่ได้ทุก BMC — empower ให้ "สร้างสรรค์" เต็มที่</text>
+  <text x="646" y="544" font-size="10.5" fill="#92400e">→ เปิดโควตาให้ BMC ร่วมบริหารจนครบ 12</text>
+
+  <!-- TNR -->
+  <rect x="916" y="316" width="272" height="244" rx="10" fill="#f0f9ff" stroke="#38bdf8" stroke-width="2"/>
+  <text x="1052" y="340" text-anchor="middle" font-size="14.5" font-weight="800" fill="#0369a1">Core TNR</text>
+  <text x="1052" y="358" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0284c7">Core team BMC — ไม่เกิน 12 คน</text>
+  <text x="1052" y="374" text-anchor="middle" font-size="10" fill="#075985">(Core Team 3–4 จาก ADM + BMC ร่วมบริหาร)</text>
+  <line x1="934" y1="384" x2="1170" y2="384" stroke="#7dd3fc" stroke-width="1"/>
+  <text x="934" y="402" font-size="10" fill="#075985">สมาชิกจาก ADM ปัจจุบัน:</text>
+  <text x="934" y="424" font-size="12.5" fill="#1e293b">• พี่ปอม ปรีร์</text>
+  <text x="934" y="446" font-size="12.5" fill="#1e293b">• ดร.ตั๋ย วรชิต (คนจีน)</text>
+  <text x="934" y="524" font-size="10.5" font-style="italic" fill="#0369a1">⚡ 1 คนอยู่ได้ทุก BMC — empower ให้ "สร้างสรรค์" เต็มที่</text>
+  <text x="934" y="544" font-size="10.5" fill="#075985">→ เปิดโควตาให้ BMC ร่วมบริหารจนครบ 12</text>
+
+  <!-- =================== SUPPORT BAND =================== -->
+  <rect x="52" y="590" width="1136" height="126" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="none"/>
+  <text x="620" y="612" text-anchor="middle" font-size="12.5" font-weight="800" fill="#475569">Core team สนับสนุนกลาง — ชุดเดียว ใช้ร่วมทุก BU (4 ฟังก์ชัน)</text>
+  <text x="188" y="636" text-anchor="middle" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#be185d">OBF</tspan> · พี่อิ๊ด พัชนี</text>
+  <text x="476" y="636" text-anchor="middle" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#be185d">OBF</tspan> · พี่อิ๊ด พัชนี</text>
+  <text x="764" y="636" text-anchor="middle" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#be185d">OBF</tspan> · พี่อิ๊ด พัชนี</text>
+  <text x="1052" y="636" text-anchor="middle" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#be185d">OBF</tspan> · พี่อิ๊ด พัชนี</text>
+  <text x="188" y="658" text-anchor="middle" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#be185d">PAC</tspan> · พี่แนน รัฐพร</text>
+  <text x="476" y="658" text-anchor="middle" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#be185d">PAC</tspan> · พี่แนน รัฐพร</text>
+  <text x="764" y="658" text-anchor="middle" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#be185d">PAC</tspan> · พี่แนน รัฐพร</text>
+  <text x="1052" y="658" text-anchor="middle" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#be185d">PAC</tspan> · พี่แนน รัฐพร</text>
+  <text x="188" y="680" text-anchor="middle" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#be185d">PIT</tspan> · พี่จ๋อน ไชยา</text>
+  <text x="476" y="680" text-anchor="middle" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#be185d">PIT</tspan> · พี่จ๋อน ไชยา</text>
+  <text x="764" y="680" text-anchor="middle" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#be185d">PIT</tspan> · พี่จ๋อน ไชยา</text>
+  <text x="1052" y="680" text-anchor="middle" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#be185d">PIT</tspan> · พี่จ๋อน ไชยา</text>
+  <text x="188" y="702" text-anchor="middle" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#be185d">DIN</tspan> · พี่เก๋ ขวัญฤทัย</text>
+  <text x="476" y="702" text-anchor="middle" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#be185d">DIN</tspan> · พี่เก๋ ขวัญฤทัย</text>
+  <text x="764" y="702" text-anchor="middle" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#be185d">DIN</tspan> · พี่เก๋ ขวัญฤทัย</text>
+  <text x="1052" y="702" text-anchor="middle" font-size="12" fill="#0f172a"><tspan font-weight="700" fill="#be185d">DIN</tspan> · พี่เก๋ ขวัญฤทัย</text>
+
+  <!-- =================== COMPLIANCE + BMC BAND =================== -->
+  <rect x="52" y="752" width="272" height="34" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.4"/>
+  <text x="188" y="774" text-anchor="middle" font-size="12" fill="#475569">Compliance BU</text>
+  <rect x="340" y="752" width="272" height="34" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.4"/>
+  <text x="476" y="774" text-anchor="middle" font-size="12" fill="#475569">Compliance BU</text>
+  <rect x="628" y="752" width="272" height="34" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.4"/>
+  <text x="764" y="774" text-anchor="middle" font-size="12" fill="#475569">Compliance BU</text>
+  <rect x="916" y="752" width="272" height="34" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.4"/>
+  <text x="1052" y="774" text-anchor="middle" font-size="12" fill="#475569">Compliance BU</text>
+
+  <rect x="52" y="798" width="272" height="76" rx="8" fill="#fffbfa" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <text x="188" y="822" text-anchor="middle" font-size="13" font-weight="800" fill="#b91c1c">BMC — 12 ที่นั่ง</text>
+  <text x="188" y="841" text-anchor="middle" font-size="10.5" fill="#7f1d1d">สมาชิก BMC ชั่วคราว</text>
+  <text x="188" y="859" text-anchor="middle" font-size="10.5" fill="#7f1d1d">ทดลองงาน "สามผ่าน" อย่างเข้มงวด ทุกมิติ</text>
+  <rect x="340" y="798" width="272" height="76" rx="8" fill="#fffbfa" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <text x="476" y="822" text-anchor="middle" font-size="13" font-weight="800" fill="#b91c1c">BMC — 12 ที่นั่ง</text>
+  <text x="476" y="841" text-anchor="middle" font-size="10.5" fill="#7f1d1d">สมาชิก BMC ชั่วคราว</text>
+  <text x="476" y="859" text-anchor="middle" font-size="10.5" fill="#7f1d1d">ทดลองงาน "สามผ่าน" อย่างเข้มงวด ทุกมิติ</text>
+  <rect x="628" y="798" width="272" height="76" rx="8" fill="#fffbfa" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <text x="764" y="822" text-anchor="middle" font-size="13" font-weight="800" fill="#b91c1c">BMC — 12 ที่นั่ง</text>
+  <text x="764" y="841" text-anchor="middle" font-size="10.5" fill="#7f1d1d">สมาชิก BMC ชั่วคราว</text>
+  <text x="764" y="859" text-anchor="middle" font-size="10.5" fill="#7f1d1d">ทดลองงาน "สามผ่าน" อย่างเข้มงวด ทุกมิติ</text>
+  <rect x="916" y="798" width="272" height="76" rx="8" fill="#fffbfa" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <text x="1052" y="822" text-anchor="middle" font-size="13" font-weight="800" fill="#b91c1c">BMC — 12 ที่นั่ง</text>
+  <text x="1052" y="841" text-anchor="middle" font-size="10.5" fill="#7f1d1d">สมาชิก BMC ชั่วคราว</text>
+  <text x="1052" y="859" text-anchor="middle" font-size="10.5" fill="#7f1d1d">ทดลองงาน "สามผ่าน" อย่างเข้มงวด ทุกมิติ</text>
+
+  <!-- =================== LEGEND =================== -->
+  <path d="M70 930 H110" stroke="#334155" stroke-width="2" marker-end="url(#aDark)"/>
+  <text x="120" y="934" font-size="11" fill="#475569">เส้นบริหาร / รายงาน</text>
+  <path d="M250 930 H290" stroke="#dc2626" stroke-width="2.2" marker-end="url(#aRed)"/>
+  <text x="300" y="934" font-size="11" fill="#475569">เส้น GA ตรวจสอบ + Core team ↔ BMC (Core 3–4 + BMC ~8 = 12)</text>
+
+  <!-- =================== KEY NOTES =================== -->
+  <rect x="52" y="964" width="556" height="60" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="68" y="986" font-size="11.5" font-weight="700" fill="#0f172a">1 · ไม่มีทีมกลยุทธ์แยกต่างหากใน BU</text>
+  <text x="68" y="1006" font-size="10.5" fill="#475569">ทีมบริหารกลยุทธ์ = ทีมบริหาร operation ของ BU — เรียบ สั้น ง่าย ประสานงานได้รวดเร็ว</text>
+
+  <rect x="632" y="964" width="556" height="60" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="648" y="986" font-size="11.5" font-weight="700" fill="#0f172a">2 · เกณฑ์เลือก Core Team (จาก ADM ปัจจุบัน)</text>
+  <text x="648" y="1006" font-size="10.5" fill="#475569">ละลาย "พฤติกรรมแยก BU" — character + credit: ใจดีกับคน (Organizational Capital) + เข้มงวดกับงาน (Accountability)</text>
+
+  <rect x="52" y="1036" width="556" height="60" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="68" y="1058" font-size="11.5" font-weight="700" fill="#0f172a">3 · สมาชิก BMC 12 คน = สมาชิกชั่วคราว</text>
+  <text x="68" y="1078" font-size="10.5" fill="#475569">Core-Team BMC เลือกให้ครบ 12 คน — ทดลองงาน "สามผ่าน" อย่างเข้มงวด ทุกมิติ</text>
+
+  <rect x="632" y="1036" width="556" height="60" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="648" y="1058" font-size="11.5" font-weight="700" fill="#0f172a">4 · พี่ปกรณ์เริ่มเวที OA ได้เลย: PM/WI ของทีมมีอะไรบ้าง</text>
+  <text x="648" y="1078" font-size="10.5" fill="#475569">ในเรื่อง Oversight + Advisory → AMAA (รอคำนิยาม AMAA จากพี่ปกรณ์)</text>
+
+  <text x="620" y="1130" text-anchor="middle" font-size="10.5" fill="#94a3b8">ร่างเสนอ (draft v1.0 — 8 ต.ค. 69) · รอเวที OA/OAC พิจารณา + ยืนยันรายชื่อให้ครบก่อนประกาศใช้จริง</text>
+</svg>
+</div>
+</body>
+</html>
