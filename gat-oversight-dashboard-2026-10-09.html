@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GAT — General Audit Team | หลักการ • OKR • KPI • Dashboard (v1.0 / 9 ต.ค. 69)</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0f172a;font-family:'Segoe UI',Kanit,'Noto Sans Thai',Tahoma,sans-serif;color:#0f172a}
+.wrap{max-width:1180px;margin:0 auto;padding:16px}
+header.hero{background:linear-gradient(135deg,#0f172a,#1e3a8a 60%,#0e7490);color:#fff;border-radius:16px;padding:28px 24px;margin-bottom:16px}
+header.hero h1{margin:0;font-size:26px}
+header.hero p{margin:8px 0 0;color:#cbd5e1}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);padding:6px 12px;border-radius:999px;font-size:13px}
+.card{background:#fff;border-radius:14px;padding:20px 18px;margin-bottom:14px}
+.card h2{margin:0 0 4px;font-size:19px}
+.card h3{margin:16px 0 8px;font-size:16px}
+.sub{color:#64748b;font-size:13px;margin:0 0 12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+@media(max-width:820px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+.box{border:1px solid #e2e8f0;border-radius:12px;padding:14px;background:#f8fafc}
+.box.audit{border-left:6px solid #2563eb;background:#eff6ff}
+.box.lct{border-left:6px solid #059669;background:#ecfdf5}
+.box.risk{border-left:6px solid #dc2626;background:#fef2f2}
+.box h4{margin:0 0 8px;font-size:15px}
+ul{margin:6px 0 6px 20px;line-height:1.75;font-size:14.5px}
+ol{margin:6px 0 6px 20px;line-height:1.8;font-size:14.5px}
+.kpi-num{font-size:30px;font-weight:800}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.green{background:#dcfce7;color:#166534}.red{background:#fee2e2;color:#991b1b}.yellow{background:#fef9c3;color:#854d0e}.blue{background:#dbeafe;color:#1e40af}.gray{background:#f1f5f9;color:#475569}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+th,td{border:1px solid #e2e8f0;padding:8px;text-align:left;vertical-align:top}
+th{background:#f1f5f9}
+.flow{display:flex;gap:0;flex-wrap:wrap;margin:12px 0}
+.step{flex:1;min-width:140px;background:#f8fafc;border:1px solid #cbd5e1;padding:12px;text-align:center;font-size:13px;position:relative}
+.step b{display:block;font-size:14px;margin-bottom:4px}
+.step:not(:last-child)::after{content:'→';position:absolute;right:-12px;top:40%;background:#0f172a;color:#fff;width:22px;height:22px;border-radius:50%;font-size:13px;line-height:22px;z-index:2}
+.note{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px;font-size:13.5px;margin-top:10px}
+.footer{color:#94a3b8;text-align:center;font-size:12px;padding:14px}
+.btn{display:inline-block;background:#0f172a;color:#fff;padding:8px 16px;border-radius:8px;border:0;cursor:pointer;font-size:14px}
+input,select,textarea{font-family:inherit;font-size:14px;padding:8px;border:1px solid #cbd5e1;border-radius:8px;width:100%}
+.small{font-size:12.5px;color:#64748b}
+@media print{body{background:#fff}.wrap{max-width:100%}header.hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}.btn,.noprint{display:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+<h1>🛡️ GAT — General Audit Team (ทีมตรวจสอบกลาง)</h1>
+<p>ผู้ตรวจสอบและให้ Assurance • Consistency • Guarantee • Audit — Risk / Compliance / ผลลัพธ์ / Process + Monthly Oversight Report</p>
+<div class="badges">
+<span class="badge">Audit: พี่อ๊อด อรุณี • พี่หนึ่ง ปกรณ์ • คุณบอล ศุภสิทธิ์</span>
+<span class="badge">LCT: พี่ติ๋ม อารีย์</span>
+<span class="badge">OAC กำกับ • GA รายงานตรง OAC</span>
+<span class="badge">v1.0 — 9 ต.ค. 2569 • ไม่เกี่ยวกับ Web PP7</span>
+</div>
+</header>
+
+<div class="card">
+<h2>1. หลักการและเหตุผลของทีม GAT</h2>
+<p class="sub">ทำไม PKG ต้องมี GAT — ตรวจแยกจากคนทำ เพื่อให้ OAC ตัดสินใจบนความจริงที่มีหลักฐาน</p>
+<div class="grid2">
+<div class="box audit">
+<h4>หลักการ 6 ข้อ</h4>
+<ol>
+<li><b>ตรวจแยกจากทำ (Independence):</b> GAT ไม่บริหาร operation ไม่นั่งตัดสินใจแทน BU — ตรวจอย่างเดียว รายงานตรง OAC</li>
+<li><b>หลักฐานเหนือความรู้สึก (Evidence-first):</b> ทุกข้อสังเกตต้องมีข้อมูล + หลักฐาน + เอกสารอ้างอิง ไม่ใช้ความรู้สึกตัดสิน</li>
+<li><b>ตรวจ 2 สายครบ (Coverage):</b> ตรวจทั้งสาย Core Team และสาย BMC — ครอบคลุม 4 BU + หน่วยกลาง</li>
+<li><b>ตรวจ 5 มิติทุกครั้ง:</b> ข้อมูล/หลักฐาน • ผลลัพธ์ • Risk • Compliance • ความสอดคล้อง Process</li>
+<li><b>กันก่อนแก้ (Preventive):</b> เจอสัญญาณเสี่ยงเตือนก่อนเกิดความเสียหาย — Veto เป็น Safety Gate ไม่ใช่การลงโทษ</li>
+<li><b>โปร่งใสตรวจสอบได้ (Traceable):</b> ทุกรายงานมีเลขที่ มีสถานะติดตามปิดประเด็น (Open → Follow-up → Closed)</li>
+</ol>
+</div>
+<div class="box">
+<h4>เหตุผลที่ต้องมี (Why GAT)</h4>
+<ul>
+<li>PKG โต 3 ประเทศ 4 BU — ทีมบริหาร (ADM/Core/BMC) ทำงานเร็ว แต่ต้องมีคน <b>ทักก่อนพลาด</b></li>
+<li>จุดอ่อนที่รู้แล้ว: PMS อ่อนกระบวนการ / AAMG อ่อน LCT — ต้องมีทีมไล่ปิดจุดอ่อนทีละจุด</li>
+<li>OAC อยู่สูงสุด ต้องการ <b>ภาพจริงรายเดือน</b> (Monthly Oversight Report) ไม่ใช่รายงานสำเร็จรูปจากคนทำเอง</li>
+<li>LCT (Law+Compliance+Tax) พลาดครั้งเดียวเสียหายทั้งกลุ่ม — ต้องตั้งเป้า <b>Zero-breach</b></li>
+<li>ความสัมพันธ์หน่วยงานภายนอก + ทนาย 3 ประเทศ ต้องมีเจ้าภาพเดียว (LCT) ไม่กระจายคนละทิศ</li>
+</ul>
+<div class="note">สูตรจำง่าย: <b>ADM ทำ — GAT ตรวจ — OAC ตัดสิน</b> ใครทำอะไรชัด ไม่ทับกัน</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>2. บทบาทและความรับผิดชอบต่อผล (Roles & Accountability)</h2>
+<p class="sub">GAT = ผู้ตรวจสอบและให้ Assurance / Consistency / Guarantee / Audit</p>
+<div class="grid4">
+<div class="box audit"><h4>🔍 Audit</h4><ul><li>ตรวจสอบข้อมูลและหลักฐาน</li><li>ตรวจสอบผลลัพธ์</li><li>ตรวจสอบ Risk / Compliance</li><li>ตรวจสอบความสอดคล้อง Process</li><li>ออก Audit Report + ข้อสังเกต</li></ul></div>
+<div class="box"><h4>✅ Assurance</h4><ul><li>รับรองว่าตัวเลขที่รายงานถูกต้อง</li><li>รับรองว่า BSC ราย BU ตรงความจริง</li><li>ลงนามใน Monthly Oversight Report</li></ul></div>
+<div class="box"><h4>🔗 Consistency</h4><ul><li>มาตรฐานตรวจเดียวกันทุก BU</li><li>เทียบข้าม BU ข้ามเดือนได้</li><li>PM/WI เดียว ตรวจเหมือนกัน</li></ul></div>
+<div class="box lct"><h4>🛡️ Guarantee (LCT)</h4><ul><li>Law+Compliance+Tax = Zero-breach</li><li>ไม่มีละเมิด / ผิดพลาด / ผิดนัด = ศูนย์</li><li>มีทนาย + เครือข่ายหน่วยงานพร้อม</li></ul></div>
+</div>
+</div>
+
+<div class="card">
+<h2>3. ภาพที่อยากเห็น (Vision / To-Be)</h2>
+<p class="sub">ถ้า GAT สำเร็จ องค์กรจะเห็นภาพนี้ภายใน 12 เดือน</p>
+<ul>
+<li><b>ภาพที่ 1 — ตัวเลขเดียวความจริงเดียว:</b> OAC เปิด Monthly Oversight Report ฉบับเดียว เห็นสถานะ 4 BU ครบ ไม่ต้องถามซ้ำ</li>
+<li><b>ภาพที่ 2 — Zero-breach จริง:</b> กระดาน LCT ขึ้นเลข 0 ทุกเดือน — ไม่มีค่าปรับ ไม่ผิดนัดภาษี ไม่ละเมิดกฎหมาย 3 ประเทศ</li>
+<li><b>ภาพที่ 3 — เตือนก่อนพัง:</b> ความเสี่ยงสำคัญถูกยกธงแดงก่อนเกิดเหตุ มีแผนแก้ไข + เจ้าของเรื่อง + วันปิดชัดเจน</li>
+<li><b>ภาพที่ 4 — ตรวจแล้วงานดีขึ้น:</b> BU ไม่กลัว GAT — ขอให้มาตรวจ เพราะตรวจแล้ว process เร็วขึ้น งานซ้ำลดลง</li>
+<li><b>ภาพที่ 5 — ทนายพร้อม 3 ประเทศ:</b> มีทนายประจำ + เบอร์ฉุกเฉิน + ความสัมพันธ์หน่วยงานภายนอกพร้อมเรียกใช้ใน 24 ชม.</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>4. OKR ของทีม GAT (2569 Q4 → 2570)</h2>
+<p class="sub">OKR = ขับเคลื่อนการเปลี่ยนแปลง (move forward) — ทบทวนรายไตรมาส</p>
+<table>
+<tr><th style="width:28%">Objective</th><th>Key Results</th></tr>
+<tr>
+<td><b>O1: สร้างระบบตรวจสอบที่ OAC เชื่อถือได้ 100%</b><br><span class="small">เจ้าภาพ: Audit (พี่อ๊อด/พี่หนึ่ง/คุณบอล)</span></td>
+<td><ul>
+<li>KR1: ออก Monthly Oversight Report ครบ 100% ทุกเดือน ภายในวันที่ 5 ของเดือนถัดไป</li>
+<li>KR2: ข้อสังเกต Audit มีหลักฐานแนบครบ 100% และมีสถานะติดตามปิดประเด็นครบทุกข้อ</li>
+<li>KR3: ตรวจครอบคลุม 4 BU + หน่วยกลาง ครบทุกไตรมาส (Coverage = 100%)</li>
+</ul></td>
+</tr>
+<tr>
+<td><b>O2: LCT Zero-breach 3 ประเทศ</b><br><span class="small">เจ้าภาพ: LCT (พี่ติ๋ม)</span></td>
+<td><ul>
+<li>KR1: Incidence ละเมิด / ผิดพลาด / ผิดนัด (Law+Compliance+Tax) = 0 ทุกเดือน</li>
+<li>KR2: ปฏิทินภาษี+กฎหมาย 3 ประเทศครบ 100% + เตือนล่วงหน้า ≥ 14 วันทุกกำหนด</li>
+<li>KR3: มีทนายประจำครบ 3 ประเทศ + contact หน่วยงานภายนอกครบ พร้อมเรียกใช้ใน 24 ชม.</li>
+</ul></td>
+</tr>
+<tr>
+<td><b>O3: ตรวจแล้วทำให้งานดีขึ้น ไม่ใช่แค่จับผิด</b><br><span class="small">เจ้าภาพ: GAT ทั้งทีม</span></td>
+<td><ul>
+<li>KR1: ประเด็น Audit ที่ปิดได้ตามกำหนด ≥ 80% ภายใน 30 วัน</li>
+<li>KR2: BU ให้คะแนนความมีประโยชน์ของ Audit ≥ 4/5 (survey รายไตรมาส)</li>
+<li>KR3: จุดอ่อนราย BU (PMS-กระบวนการ / AAMG-LCT) ลดลงวัดได้รายไตรมาส</li>
+</ul></td>
+</tr>
+</table>
+</div>
+
+<div class="card">
+<h2>5. KPI ประจำของ GAT (Keep the business running)</h2>
+<p class="sub">KPI = รักษามาตรฐานทุกเดือน — หลุดเดือนไหนธงแดงทันที</p>
+<div class="grid3">
+<div class="box audit">
+<h4>📋 KPI-Audit (รายเดือน)</h4>
+<ul>
+<li>ส่ง Monthly Oversight Report <b>ทันวันที่ 5</b> <span class="pill blue">100%</span></li>
+<li>Audit Report มีหลักฐานครบ <span class="pill blue">100%</span></li>
+<li>ตรวจตามแผนรายเดือน <span class="pill blue">≥ 90%</span></li>
+<li>ปิดประเด็นตามกำหนด 30 วัน <span class="pill green">≥ 80%</span></li>
+<li>สุ่มตรวจ (Spot check) ≥ 2 เรื่อง/เดือน</li>
+</ul>
+</div>
+<div class="box lct">
+<h4>⚖️ KPI-LCT: Zero-breach <span class="pill green">เป้า = 0</span></h4>
+<ul>
+<li><b>Law-breach</b> (ละเมิดกฎหมาย) = <b>0</b></li>
+<li><b>Compliance-breach</b> (ผิดระเบียบ/ผิดขั้นตอน) = <b>0</b></li>
+<li><b>Tax-breach</b> (ผิดพลาด/ผิดนัดภาษี) = <b>0</b></li>
+<li>ยื่น/ชำระทันกำหนด 3 ประเทศ = <b>100%</b></li>
+<li>เตือนล่วงหน้าก่อนกำหนด ≥ 14 วัน = <b>100%</b></li>
+</ul>
+<div class="note" style="margin-top:8px">นิยาม Zero-breach Incidence = “การละเมิด / ความผิดพลาด / ผิดนัด” = ศูนย์ — นับทุกครั้งที่เกิด ไม่ว่าจะมีค่าปรับหรือไม่</div>
+</div>
+<div class="box risk">
+<h4>⚠️ KPI-Risk & Process</h4>
+<ul>
+<li>Risk สูง (High) ต้องมีแผนแก้ไขใน 7 วัน <span class="pill red">100%</span></li>
+<li>Process ไม่สอดคล้อง PM/WI ลดลงรายเดือน</li>
+<li>เรื่องร้องเรียน/ทุจริต ตอบสนองใน 48 ชม.</li>
+<li>รายงาน BSC ราย BU ตรงความจริง (OAC ไม่ตีกลับ)</li>
+</ul>
+</div>
+</div>
+
+<h3>กระดาน Zero-breach (กรอกประจำเดือน — บันทึกในเครื่อง)</h3>
+<div class="grid4">
+<div class="box">Law-breach<div class="kpi-num" id="nLaw">0</div><button class="btn" onclick="bump('nLaw',1)">+1 เกิดเหตุ</button> <button class="btn noprint" style="background:#64748b" onclick="bump('nLaw',-99)">รีเซ็ต</button></div>
+<div class="box">Compliance-breach<div class="kpi-num" id="nCom">0</div><button class="btn" onclick="bump('nCom',1)">+1 เกิดเหตุ</button> <button class="btn" style="background:#64748b" onclick="bump('nCom',-99)">รีเซ็ต</button></div>
+<div class="box">Tax-breach<div class="kpi-num" id="nTax">0</div><button class="btn" onclick="bump('nTax',1)">+1 เกิดเหตุ</button> <button class="btn" style="background:#64748b" onclick="bump('nTax',-99)">รีเซ็ต</button></div>
+<div class="box">สถานะเดือนนี้<div style="margin:8px 0"><span class="pill green" id="zeroPill">ZERO-BREACH 🟢</span></div><div class="small">ถ้าตัวเลขใด > 0 จะเปลี่ยนเป็นธงแดงอัตโนมัติ</div></div>
+</div>
+<p class="small">* ตัวเลขเก็บในเบราว์เซอร์เครื่องนี้ (localStorage) — ใช้เฝ้าระวังรายเดือน ไม่ใช่ฐานข้อมูลกลาง</p>
+</div>
+
+<div class="card">
+<h2>6. กระบวนการทำงาน PM / WI ของ GAT</h2>
+<p class="sub">รอบรายเดือน: ตรวจ → รายงาน → ติดตามปิด — รอบรายไตรมาส: ตรวจลึก + ทบทวนระบบ</p>
+<div class="flow">
+<div class="step"><b>1. วางแผน</b>แผนตรวจรายเดือน/ไตรมาส<br>เลือก BU + ประเด็นเสี่ยง</div>
+<div class="step"><b>2. เก็บหลักฐาน</b>ข้อมูล + เอกสาร<br>สัมภาษณ์ + สุ่มตรวจ</div>
+<div class="step"><b>3. ตรวจ 5 มิติ</b>ข้อมูล • ผลลัพธ์<br>Risk • Compliance • Process</div>
+<div class="step"><b>4. ออกรายงาน</b>Audit Report + ข้อสังเกต<br>ระดับ High/Med/Low</div>
+<div class="step"><b>5. Oversight</b>รวมเป็น Monthly<br>Oversight Report → OAC (ก่อนวันที่ 5)</div>
+<div class="step"><b>6. ติดตามปิด</b>เจ้าของเรื่องแก้ใน 30 วัน<br>GAT follow-up → Closed</div>
+</div>
+<table>
+<tr><th>WI</th><th>งาน</th><th>เจ้าภาพ</th><th>ความถี่</th><th>ผลลัพธ์</th></tr>
+<tr><td>WI-GAT-01</td><td>วางแผนตรวจ + Risk-based scope</td><td>Audit</td><td>รายเดือน</td><td>แผนตรวจประจำเดือน</td></tr>
+<tr><td>WI-GAT-02</td><td>ตรวจ 5 มิติ (ข้อมูล/ผลลัพธ์/Risk/Compliance/Process)</td><td>Audit</td><td>รายเดือน + สุ่ม</td><td>Audit Report + หลักฐาน</td></tr>
+<tr><td>WI-GAT-03</td><td>จัดทำ Monthly Oversight Report → OAC</td><td>Audit (พี่อ๊อด)</td><td>ก่อนวันที่ 5</td><td>รายงานฉบับเดียวจบ</td></tr>
+<tr><td>WI-GAT-04</td><td>LCT ปฏิทินกฎหมาย+ภาษี 3 ประเทศ + เตือนล่วงหน้า 14 วัน</td><td>LCT (พี่ติ๋ม)</td><td>รายเดือน</td><td>Zero-breach / เตือนทัน</td></tr>
+<tr><td>WI-GAT-05</td><td>เครือข่ายภายนอก + ทนาย 3 ประเทศ + ประสานหน่วยงาน</td><td>LCT</td><td>ต่อเนื่อง</td><td>พร้อมใช้ใน 24 ชม.</td></tr>
+<tr><td>WI-GAT-06</td><td>ติดตามปิดประเด็น (Follow-up 30 วัน)</td><td>Audit</td><td>รายเดือน</td><td>Open → Closed ≥ 80%</td></tr>
+</table>
+<div class="note"><b>โครงรายงาน Monthly Oversight Report (1 ฉบับ/เดือน):</b> ① สรุปผู้บริหาร 1 หน้า ② สถานะ 4 BU (เขียว/เหลือง/แดง) ③ Zero-breach LCT ④ Risk สูง + แผนแก้ไข ⑤ ประเด็นค้าง + วันปิด ⑥ ข้อเสนอถึง OAC (รวม Veto ถ้ามี)</div>
+</div>
+
+<div class="card">
+<h2>7. งาน LCT — ความสัมพันธ์หน่วยงานภายนอก + ทนาย 3 ประเทศ</h2>
+<p class="sub">เจ้าภาพ: พี่ติ๋ม อารีย์ (สาย LCT) — เป้าหมาย: พร้อมก่อนเกิดเรื่อง ไม่วิ่งหาตอนเกิดเรื่อง</p>
+<div class="grid3">
+<div class="box lct"><h4>🇹🇭 ไทย</h4><ul><li>ทนายเจี๊ยบ</li><li>ทนายตุ๋ย</li><li>งาน: กฎหมายแรงงาน / ภาษี / ประสานหน่วยงานไทย</li></ul></div>
+<div class="box lct"><h4>🇰🇭 กัมพูชา</h4><ul><li>ทนายวีระบุตร</li><li>งาน: กฎหมายลงทุน / ใบอนุญาต / ภาษีกัมพูชา</li></ul></div>
+<div class="box lct"><h4>🇱🇦 ลาว</h4><ul><li><span class="pill yellow">รอระบุชื่อทนาย</span> — ให้ LCT เสนอภายใน 30 วัน</li><li>งาน: กฎหมายลาว / ภาษี / ประสานหน่วยงานลาว</li></ul></div>
+</div>
+<div class="note">⚠️ ชื่อทนายตามที่พี่ปกรณ์แจ้ง 9 ต.ค. 69 — ถ้าประเทศใดคลาดเคลื่อน (เช่น ทนายวีระบุตรอยู่ลาวไม่ใช่กัมพูชา) แจ้งแก้ได้ทันที โครงไม่เปลี่ยน</div>
+<h3>งานสร้างความสัมพันธ์หน่วยงานภายนอก (LCT ทำต่อเนื่อง)</h3>
+<ul>
+<li>ทำผัง contact รายประเทศ: หน่วยงานรัฐ / สรรพากร / แรงงาน / ทนาย / ที่ปรึกษาภาษี — มีชื่อ + เบอร์ + บทบาท + เรื่องที่เคยช่วย</li>
+<li>เยี่ยม/โทรเช็กรายไตรมาส ไม่หายเงียบ — มีเรื่องปรึกษาเล็กๆ ก่อนเรื่องใหญ่</li>
+<li>ปฏิทินกำหนดการรายประเทศ (ยื่นภาษี / ต่อใบอนุญาต / รายงานรัฐ) — เตือนล่วงหน้า 14 วันทุกกำหนด</li>
+<li>แฟ้ม LCT รายประเทศ: กฎหมายที่ใช้ + แบบฟอร์ม + กำหนดเวลา + บทเรียนครั้งก่อน</li>
+</ul>
+</div>
+
+<div class="card">
+<h2>8. ตารางให้คะแนนรายเดือน (ตัวอย่างใช้จริง)</h2>
+<table>
+<tr><th>หมวด</th><th>ตัวชี้วัด</th><th>เป้า</th><th>ผลเดือนนี้</th><th>สถานะ</th></tr>
+<tr><td>Audit</td><td>ส่ง Oversight Report ทันวันที่ 5</td><td>100%</td><td><input id="f1" placeholder="เช่น ทัน / ไม่ทัน"></td><td><select id="s1"><option>🟢</option><option>🟡</option><option>🔴</option></select></td></tr>
+<tr><td>LCT</td><td>Zero-breach (Law/Comp/Tax)</td><td>0</td><td><input id="f2" placeholder="เช่น 0 / 1 เรื่อง..."></td><td><select id="s2"><option>🟢</option><option>🟡</option><option>🔴</option></select></td></tr>
+<tr><td>Risk</td><td>Risk สูงมีแผนใน 7 วัน</td><td>100%</td><td><input id="f3" placeholder="..."></td><td><select id="s3"><option>🟢</option><option>🟡</option><option>🔴</option></select></td></tr>
+<tr><td>Follow-up</td><td>ปิดประเด็นใน 30 วัน</td><td>≥ 80%</td><td><input id="f4" placeholder="..."></td><td><select id="s4"><option>🟢</option><option>🟡</option><option>🔴</option></select></td></tr>
+</table>
+<p style="margin-top:10px"><button class="btn" onclick="window.print()">🖨️ พิมพ์ / บันทึก PDF</button>
+<span class="small"> — ช่องกรอกเก็บในเครื่อง (localStorage) พิมพ์แนบ Monthly Report ได้</span></p>
+</div>
+
+<div class="footer">GAT Dashboard v1.0 • 9 ต.ค. 2569 • แยกจาก Web PP7 • เจ้าของ: GAT → รายงาน OAC • ปรับได้ตามมติเวที OA</div>
+</div>
+<script>
+function load(){['nLaw','nCom','nTax','f1','f2','f3','f4','s1','s2','s3','s4'].forEach(id=>{try{var v=localStorage.getItem('gat_'+id);if(v!==null){var el=document.getElementById(id);if(el){if(el.tagName==='INPUT'||el.tagName==='SELECT')el.value=v;else el.textContent=v;}}}catch(e){}});paint();}
+function bump(id,d){var el=document.getElementById(id);var v=parseInt(el.textContent||'0',10);if(d===-99)v=0;else v+=d;if(v<0)v=0;el.textContent=v;try{localStorage.setItem('gat_'+id,String(v))}catch(e){}paint();}
+function paint(){var a=parseInt((document.getElementById('nLaw').textContent||'0'),10),b=parseInt((document.getElementById('nCom').textContent||'0'),10),c=parseInt((document.getElementById('nTax').textContent||'0'),10);var p=document.getElementById('zeroPill');if((a+b+c)===0){p.textContent='ZERO-BREACH 🟢';p.className='pill green';}else{p.textContent='BREACH 🔴 ('+(a+b+c)+' เรื่อง)';p.className='pill red';}}
+['f1','f2','f3','f4','s1','s2','s3','s4'].forEach(id=>{document.getElementById(id).addEventListener('change',e=>{try{localStorage.setItem('gat_'+id,e.target.value)}catch(_){}})});
+load();
+</script>
+</body>
+</html>
