@@ -56,7 +56,8 @@ textarea{min-height:38px;resize:vertical}
 <p class="sub">กรุณากรอกให้ครบก่อนเริ่มตรวจ — ใช้เป็นเลขที่อ้างอิงใน Monthly Oversight Report</p>
 <table>
 <tr><th style="width:26%">รายการ</th><th>รายละเอียด</th></tr>
-<tr><td>รหัสการตรวจสอบ (Audit No.)</td><td><input id="g_no" placeholder="เช่น GAT-69-10-001"></td></tr>
+<tr><td>รหัสการตรวจสอบ (Audit No.) — ออกอัตโนมัติ</td><td><div style="display:flex;gap:8px"><input id="g_no" placeholder="เช่น GAT-69-10-001" style="flex:1"><button class="btn" type="button" onclick="genAuditNo(true)" style="white-space:nowrap;width:auto">ออกเลขอัตโนมัติ</button></div><div class="small" id="g_no_hint">ระบบจะรันเลขอัตโนมัติรูปแบบ GAT-ปีพ.ศ.2หลัก-เดือน-ลำดับ (เช่น GAT-69-10-001) แยกตามเดือน แก้ไขเองได้</div></td></tr>
+<tr><td>ชื่อเรื่องที่ตรวจสอบ (Audit Subject / Title)</td><td><input id="g_title" placeholder="เช่น ตรวจสอบ LCT Baseline 3 ประเทศ รอบตุลาคม 2569"></td></tr>
 <tr><td>หน่วยธุรกิจที่รับการตรวจ</td><td><select id="g_bu"><option>PMSG</option><option>AAMG</option><option>CPDG + Startup</option><option>TNR</option><option>หน่วยสนับสนุนกลาง (OBF / PAC / PIT / DIN)</option><option>BMC (ระบุชุด)</option></select></td></tr>
 <tr><td>รอบการตรวจสอบ</td><td><input id="g_period" placeholder="เช่น ตุลาคม 2569 / Q4-2569"></td></tr>
 <tr><td>วันที่ตรวจ</td><td><input id="g_date" placeholder="เช่น 10 ต.ค. 69"></td></tr>
@@ -185,9 +186,22 @@ textarea{min-height:38px;resize:vertical}
 </div>
 <script>
 function countLevels(){var h=0,m=0,l=0;document.querySelectorAll('select.l').forEach(function(s){if(s.value==='High')h++;else if(s.value==='Medium')m++;else if(s.value==='Low')l++;});document.getElementById('cH').textContent=h;document.getElementById('cM').textContent=m;document.getElementById('cL').textContent=l;try{localStorage.setItem('gatf_cH',h);localStorage.setItem('gatf_cM',m);localStorage.setItem('gatf_cL',l);}catch(e){}}
-function saveLocal(){try{var els=document.querySelectorAll('input,textarea,select');els.forEach(function(el,i){localStorage.setItem('gatf_'+i,el.value);});localStorage.setItem('gatf_n',els.length);alert('บันทึกในเครื่องแล้ว');}catch(e){alert('บันทึกไม่ได้: '+e);}}
-function clearLocal(){try{var n=parseInt(localStorage.getItem('gatf_n')||'0',10);for(var i=0;i<n;i++)localStorage.removeItem('gatf_'+i);localStorage.removeItem('gatf_n');alert('ล้างข้อมูลแล้ว');}catch(e){}}
-(function load(){try{var n=parseInt(localStorage.getItem('gatf_n')||'0',10);if(!n)return;var els=document.querySelectorAll('input,textarea,select');els.forEach(function(el,i){var v=localStorage.getItem('gatf_'+i);if(v!==null&&i<n)el.value=v;});var h=localStorage.getItem('gatf_cH');if(h!==null)document.getElementById('cH').textContent=h;var m=localStorage.getItem('gatf_cM');if(m!==null)document.getElementById('cM').textContent=m;var l=localStorage.getItem('gatf_cL');if(l!==null)document.getElementById('cL').textContent=l;}catch(e){}})();
+function saveLocal(){try{var els=document.querySelectorAll('input,textarea,select');els.forEach(function(el,i){localStorage.setItem('gatf_'+i,el.value);if(el.id)localStorage.setItem('gatf_id_'+el.id,el.value);});localStorage.setItem('gatf_n',els.length);var no=document.getElementById('g_no'),ti=document.getElementById('g_title');alert('บันทึกในเครื่องแล้ว (รหัส '+(no?no.value:'')+' • เรื่อง: '+(ti?ti.value:'')+')');}catch(e){alert('บันทึกไม่ได้: '+e);}}
+function pad2(n){return (n<10?'0':'')+n;}
+function thaiYY(){var y=new Date().getFullYear()+543;return String(y).slice(-2);}
+function mm2(){return pad2(new Date().getMonth()+1);}
+function seqKey(){return 'gatf_seq_'+thaiYY()+mm2();}
+function fmtAuditNo(seq){return 'GAT-'+thaiYY()+'-'+mm2()+'-'+String(seq).padStart(3,'0');}
+function peekNextAuditNo(){try{var s=parseInt(localStorage.getItem(seqKey())||'0',10)+1;return fmtAuditNo(s);}catch(e){return fmtAuditNo(1);}}
+function updateNoHint(){var h=document.getElementById('g_no_hint');if(h){h.textContent='ระบบจะรันเลขอัตโนมัติรูปแบบ GAT-ปีพ.ศ.2หลัก-เดือน-ลำดับ (เช่น GAT-69-10-001) แยกตามเดือน แก้ไขเองได้ • เลขถัดไปของเดือนนี้: '+peekNextAuditNo();}}
+function genAuditNo(force){var el=document.getElementById('g_no');if(!el)return;if(!force&&el.value&&el.value.trim()!==''){updateNoHint();return el.value;}
+try{var k=seqKey();var s=parseInt(localStorage.getItem(k)||'0',10)+1;localStorage.setItem(k,String(s));el.value=fmtAuditNo(s);try{localStorage.setItem('gatf_id_g_no',el.value);}catch(_){}}catch(e){if(!el.value)el.value=fmtAuditNo(1);}updateNoHint();return el.value;}
+function clearLocal(){try{var n=parseInt(localStorage.getItem('gatf_n')||'0',10);for(var i=0;i<n;i++)localStorage.removeItem('gatf_'+i);localStorage.removeItem('gatf_n');['g_no','g_title','g_bu','g_period','g_date','g_auditor','g_coord','g_scope','proposal','s_overall','s_high','s_good','s_follow'].forEach(function(id){localStorage.removeItem('gatf_id_'+id);});alert('ล้างข้อมูลแล้ว');}catch(e){}}
+(function load(){try{var n=parseInt(localStorage.getItem('gatf_n')||'0',10);if(n){var els=document.querySelectorAll('input,textarea,select');els.forEach(function(el,i){if(el.id&&localStorage.getItem('gatf_id_'+el.id)!==null){el.value=localStorage.getItem('gatf_id_'+el.id);}else{var v=localStorage.getItem('gatf_'+i);if(v!==null&&i<n&&!el.id)el.value=v;}});}else{document.querySelectorAll('input,textarea,select').forEach(function(el){if(el.id){var v=localStorage.getItem('gatf_id_'+el.id);if(v!==null)el.value=v;}});}
+var h=localStorage.getItem('gatf_cH');if(h!==null)document.getElementById('cH').textContent=h;var m=localStorage.getItem('gatf_cM');if(m!==null)document.getElementById('cM').textContent=m;var l=localStorage.getItem('gatf_cL');if(l!==null)document.getElementById('cL').textContent=l;
+var noEl=document.getElementById('g_no');if(noEl&&(!noEl.value||noEl.value.trim()==='')){genAuditNo(true);}else{updateNoHint();}
+var origSave=window.saveLocal;document.querySelectorAll('#g_no,#g_title').forEach(function(el){el.addEventListener('change',function(){try{localStorage.setItem('gatf_id_'+el.id,el.value);}catch(_){}});});}catch(e){try{updateNoHint();}catch(_){}}})();
+
 </script>
 </body>
 </html>
