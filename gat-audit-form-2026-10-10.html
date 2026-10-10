@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>แบบฟอร์มการตรวจสอบของทีมตรวจสอบกลาง GAT (GAT Audit Form 7 หมวด / v1.0 / 10 ต.ค. 69)</title>
+<title>แบบฟอร์มการตรวจสอบของทีมตรวจสอบกลาง GAT (GAT Audit Form 7 หมวด / v1.2 / 10 ต.ค. 69)</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0f172a;font-family:'TH Sarabun New','Sarabun','Segoe UI',Kanit,'Noto Sans Thai',Tahoma,sans-serif;color:#0f172a;font-size:17px}
@@ -56,6 +56,8 @@ textarea{min-height:38px;resize:vertical}
 <p class="sub">กรุณากรอกให้ครบก่อนเริ่มตรวจ — ใช้เป็นเลขที่อ้างอิงใน Monthly Oversight Report</p>
 <table>
 <tr><th style="width:26%">รายการ</th><th>รายละเอียด</th></tr>
+<tr><td>โหมดการออกเลข</td><td><select id="g_mode" onchange="onModeChange()"><option value="local">เฉพาะเครื่องนี้ (localStorage — เริ่มใช้ได้ทันที)</option><option value="central">รวมศูนย์ข้ามเครื่อง (Google Sheet กลาง — กันเลขชน)</option></select><div class="small">โหมดรวมศูนย์ต้องวาง Central Endpoint URL ด้านล่างก่อน (ดูวิธีติดตั้งในไฟล์ gat-audit-seq-backend.gs) หากต่อไม่ได้ ระบบจะใช้เลขในเครื่องชั่วคราวและแจ้งเตือน</div></td></tr>
+<tr id="row_endpoint" style="display:none"><td>Central Endpoint URL</td><td><input id="g_endpoint" placeholder="เช่น https://script.google.com/macros/s/AKfy.../exec"><div class="small">นำ URL นี้มาจาก Deploy ไฟล์ gat-audit-seq-backend.gs แบบ Web app (Execute as: Me / Access: Anyone)</div></td></tr>
 <tr><td>รหัสการตรวจสอบ (Audit No.) — ออกอัตโนมัติ</td><td><div style="display:flex;gap:8px"><input id="g_no" placeholder="เช่น GAT-69-10-001" style="flex:1"><button class="btn" type="button" onclick="genAuditNo(true)" style="white-space:nowrap;width:auto">ออกเลขอัตโนมัติ</button></div><div class="small" id="g_no_hint">ระบบจะรันเลขอัตโนมัติรูปแบบ GAT-ปีพ.ศ.2หลัก-เดือน-ลำดับ (เช่น GAT-69-10-001) แยกตามเดือน แก้ไขเองได้</div></td></tr>
 <tr><td>ชื่อเรื่องที่ตรวจสอบ (Audit Subject / Title)</td><td><input id="g_title" placeholder="เช่น ตรวจสอบ LCT Baseline 3 ประเทศ รอบตุลาคม 2569"></td></tr>
 <tr><td>หน่วยธุรกิจที่รับการตรวจ</td><td><select id="g_bu"><option>PMSG</option><option>AAMG</option><option>CPDG + Startup</option><option>TNR</option><option>หน่วยสนับสนุนกลาง (OBF / PAC / PIT / DIN)</option><option>BMC (ระบุชุด)</option></select></td></tr>
@@ -182,7 +184,21 @@ textarea{min-height:38px;resize:vertical}
 <span class="small"> — ปุ่มบันทึกเก็บข้อมูลในเบราว์เซอร์เครื่องนี้ (localStorage) เพื่อกลับมากรอกต่อได้</span></p>
 </div>
 
-<div class="footer">แบบฟอร์มการตรวจสอบ GAT (Audit Form 7 หมวด AU-1 – AU-7) v1.0 • 10 ตุลาคม 2569 • อ้างอิง Audit Charter v1.1 • จัดทำโดย KiloClaw ตามคำสั่งผู้บริหาร • แยกจากระบบ Web PP7</div>
+<div class="card">
+<h2>ขอบเขตงานของ GAT 2 สาย (อ้างอิงประกอบการเลือกหมวดตรวจ)</h2>
+<p class="sub">สรุปอย่างเป็นทางการ — รายละเอียดเต็มอยู่ในกฎบัตร Audit Charter v1.1</p>
+<table>
+<tr><th style="width:22%">ประเด็น</th><th style="width:39%">สายที่ 1 — สายตรวจสอบ (Audit Assurance Line)</th><th style="width:39%">สายที่ 2 — สายกฎหมาย ระเบียบ และภาษี (LCT Line)</th></tr>
+<tr><td><b>หัวหน้าสาย / ผู้ปฏิบัติ</b></td><td>คุณอรุณี (พี่อ๊อด) หัวหน้าสาย • คุณปกรณ์ (พี่หนึ่ง) • คุณศุภสิทธิ์ (คุณบอล)</td><td>คุณอารีย์ (พี่ติ๋ม) หัวหน้าสาย (เจ้าภาพเดี่ยวด้าน LCT 3 ประเทศ)</td></tr>
+<tr><td><b>พันธกิจ</b></td><td>ให้ความเชื่อมั่นว่าข้อมูล ผลลัพธ์ ความเสี่ยง และกระบวนการของหน่วยธุรกิจถูกต้องและตรวจสอบได้</td><td>รับประกันว่ากลุ่มบริษัทไม่มีการละเมิดกฎหมาย ไม่ผิดระเบียบ และไม่ผิดพลาดหรือผิดนัดด้านภาษี (Zero-breach)</td></tr>
+<tr><td><b>หมวดที่รับผิดชอบหลัก</b></td><td>AU-1 ข้อมูลและหลักฐาน • AU-2 ผลลัพธ์ vs OKR/KPI/BSC • AU-3 ความเสี่ยง • AU-4 PM/WI • AU-6 Tech/Data/เงิน-ทรัพย์สิน • AU-7 (เมื่อ OAC มอบหมาย)</td><td>AU-5 LCT เต็มหมวด (ข้อ 5.1–5.5): กฎหมาย ใบอนุญาต ภาษี คดี ทนาย 3 ประเทศ ปฏิทินและ Zero-breach</td></tr>
+<tr><td><b>ผลผลิตหลัก</b></td><td>แผนตรวจรายเดือน • Audit Report รายเรื่อง • Monthly Oversight Report เสนอ OAC (ก่อนวันที่ 5) • ติดตามปิดประเด็น 30/60/90 วัน</td><td>ปฏิทิน LCT 3 ประเทศ • การเตือนล่วงหน้า ≥14 วัน • ผังทนายและหน่วยงานภายนอกพร้อมเรียกใช้ใน 24 ชม. • รายงาน Zero-breach รายเดือน</td></tr>
+<tr><td><b>จุดตัดสิน</b></td><td>ทุกข้อสังเกตต้องมีหลักฐาน + เกณฑ์อ้างอิง ไม่มีหลักฐานไม่ตั้งประเด็น • ให้ BU ชี้แจง 5 วันก่อนสรุป</td><td>Breach 1 ครั้ง = อย่างน้อย C2 • ซ้ำใน 6 เดือน = C3 • ปกปิด = C3–C4 ทันที • ระหว่างอุทธรณ์ต้องมีมาตรการกันชั่วคราว</td></tr>
+<tr><td><b>ความแตกต่างอย่างย่อ</b></td><td><b>ตรวจ “ข้างใน”</b> — งาน ข้อมูล กระบวนการ และเงินของหน่วยธุรกิจ ว่าทำถูก ทำจริง คุ้มค่าหรือไม่</td><td><b>กัน “ข้างนอก”</b> — กฎหมายรัฐ ภาษี ใบอนุญาต คดี และเครือข่ายภายนอก ว่าองค์กรไม่ละเมิด ไม่ผิดนัด พร้อมรับมือใน 24 ชม.</td></tr>
+</table>
+<div class="note"><b>หลักการร่วมทั้ง 2 สาย:</b> ตรวจแยกจากทำ • มีหลักฐานก่อนตั้งประเด็น • รักษาความลับ • รายงานตรงต่อ OAC • ตรวจผิดเองต้องถูกบันทึกเช่นกัน — สาย Audit ตรวจความจริงของงาน สาย LCT กันความเสียหายจากกฎหมาย ทั้งสองสายรวมกันเป็น Monthly Oversight Report ฉบับเดียวเสนอ OAC</div>
+</div>
+<div class="footer">แบบฟอร์มการตรวจสอบ GAT (Audit Form 7 หมวด AU-1 – AU-7) v1.2 • 10 ตุลาคม 2569 • อ้างอิง Audit Charter v1.1 • โหมดเลขกลางข้ามเครื่อง (Central) • จัดทำโดย KiloClaw ตามคำสั่งผู้บริหาร • แยกจากระบบ Web PP7</div>
 </div>
 <script>
 function countLevels(){var h=0,m=0,l=0;document.querySelectorAll('select.l').forEach(function(s){if(s.value==='High')h++;else if(s.value==='Medium')m++;else if(s.value==='Low')l++;});document.getElementById('cH').textContent=h;document.getElementById('cM').textContent=m;document.getElementById('cL').textContent=l;try{localStorage.setItem('gatf_cH',h);localStorage.setItem('gatf_cM',m);localStorage.setItem('gatf_cL',l);}catch(e){}}
@@ -193,12 +209,28 @@ function mm2(){return pad2(new Date().getMonth()+1);}
 function seqKey(){return 'gatf_seq_'+thaiYY()+mm2();}
 function fmtAuditNo(seq){return 'GAT-'+thaiYY()+'-'+mm2()+'-'+String(seq).padStart(3,'0');}
 function peekNextAuditNo(){try{var s=parseInt(localStorage.getItem(seqKey())||'0',10)+1;return fmtAuditNo(s);}catch(e){return fmtAuditNo(1);}}
-function updateNoHint(){var h=document.getElementById('g_no_hint');if(h){h.textContent='ระบบจะรันเลขอัตโนมัติรูปแบบ GAT-ปีพ.ศ.2หลัก-เดือน-ลำดับ (เช่น GAT-69-10-001) แยกตามเดือน แก้ไขเองได้ • เลขถัดไปของเดือนนี้: '+peekNextAuditNo();}}
-function genAuditNo(force){var el=document.getElementById('g_no');if(!el)return;if(!force&&el.value&&el.value.trim()!==''){updateNoHint();return el.value;}
-try{var k=seqKey();var s=parseInt(localStorage.getItem(k)||'0',10)+1;localStorage.setItem(k,String(s));el.value=fmtAuditNo(s);try{localStorage.setItem('gatf_id_g_no',el.value);}catch(_){}}catch(e){if(!el.value)el.value=fmtAuditNo(1);}updateNoHint();return el.value;}
-function clearLocal(){try{var n=parseInt(localStorage.getItem('gatf_n')||'0',10);for(var i=0;i<n;i++)localStorage.removeItem('gatf_'+i);localStorage.removeItem('gatf_n');['g_no','g_title','g_bu','g_period','g_date','g_auditor','g_coord','g_scope','proposal','s_overall','s_high','s_good','s_follow'].forEach(function(id){localStorage.removeItem('gatf_id_'+id);});alert('ล้างข้อมูลแล้ว');}catch(e){}}
+function getMode(){var m=document.getElementById('g_mode');return m?m.value:'local';}
+function getEndpoint(){var e=document.getElementById('g_endpoint');return e?(e.value||'').trim():'';}
+function collectMeta(){function v(id){var el=document.getElementById(id);return el?(el.value||''):'';}
+return {title:v('g_title'),bu:v('g_bu'),period:v('g_period'),auditDate:v('g_date'),auditor:v('g_auditor'),coordinator:v('g_coord'),scope:v('g_scope'),source:'form'};}
+async function centralCall(action,meta){var url=getEndpoint();if(!url)throw new Error('ยังไม่ได้กรอก Central Endpoint URL');
+if(action==='peek'){var r=await fetch(url+'?action=peek',{method:'GET'});return await r.json();}
+var r2=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action:'next'},meta||{}))});return await r2.json();}
+function updateNoHint(){var h=document.getElementById('g_no_hint');if(!h)return;
+if(getMode()==='central'&&getEndpoint()){h.textContent='โหมดรวมศูนย์ข้ามเครื่อง — กำลังดึงเลขถัดไปจากฐานกลาง...';centralCall('peek').then(function(j){if(j&&j.ok){h.textContent='โหมดรวมศูนย์ข้ามเครื่อง (กันเลขชนทุกเครื่อง) • เลขถัดไปของเดือนนี้: '+j.nextNo+' • กดปุ่มเพื่อออกเลขจริงครั้งเดียว';}else{h.textContent='ต่อฐานกลางไม่ได้ ('+((j&&j.error)||'unknown')+') — จะใช้เลขในเครื่องชั่วคราวไปก่อน';}}).catch(function(e){h.textContent='ต่อฐานกลางไม่ได้ ('+e.message+') — จะใช้เลขในเครื่องชั่วคราวไปก่อน';});return;}
+if(getMode()==='central'&&!getEndpoint()){h.textContent='โหมดรวมศูนย์: กรุณากรอก Central Endpoint URL ก่อน (วิธีติดตั้งดูในไฟล์ gat-audit-seq-backend.gs) — ระหว่างนี้ใช้เลขในเครื่องไปก่อน';return;}
+h.textContent='ระบบจะรันเลขอัตโนมัติรูปแบบ GAT-ปีพ.ศ.2หลัก-เดือน-ลำดับ (เช่น GAT-69-10-001) แยกตามเดือน แก้ไขเองได้ • เลขถัดไปของเดือนนี้ (เครื่องนี้): '+peekNextAuditNo();}
+function genLocalNo(el){var k=seqKey();var s=parseInt(localStorage.getItem(k)||'0',10)+1;localStorage.setItem(k,String(s));el.value=fmtAuditNo(s);try{localStorage.setItem('gatf_id_g_no',el.value);}catch(_){}return el.value;}
+async function genAuditNo(force){var el=document.getElementById('g_no');if(!el)return;if(!force&&el.value&&el.value.trim()!==''){updateNoHint();return el.value;}
+if(getMode()==='central'&&getEndpoint()){el.placeholder='กำลังขอเลขจากฐานกลาง...';try{var j=await centralCall('next',collectMeta());if(j&&j.ok&&j.auditNo){el.value=j.auditNo;try{localStorage.setItem('gatf_id_g_no',el.value);}catch(_){}updateNoHint();return el.value;}
+alert('ขอเลขกลางไม่สำเร็จ ('+((j&&j.error)||'unknown')+') — ใช้เลขในเครื่องแทนชั่วคราว');}catch(e){alert('ต่อฐานกลางไม่ได้ ('+e.message+') — ใช้เลขในเครื่องแทนชั่วคราว');}}
+try{genLocalNo(el);}catch(e){if(!el.value)el.value=fmtAuditNo(1);}updateNoHint();return el.value;}
+function onModeChange(){var row=document.getElementById('row_endpoint');var m=getMode();if(row)row.style.display=(m==='central')?'':'none';try{localStorage.setItem('gatf_id_g_mode',m);localStorage.setItem('gatf_id_g_endpoint',getEndpoint());}catch(_){}updateNoHint();}
+function clearLocal(){try{var n=parseInt(localStorage.getItem('gatf_n')||'0',10);for(var i=0;i<n;i++)localStorage.removeItem('gatf_'+i);localStorage.removeItem('gatf_n');['g_mode','g_endpoint','g_no','g_title','g_bu','g_period','g_date','g_auditor','g_coord','g_scope','proposal','s_overall','s_high','s_good','s_follow'].forEach(function(id){localStorage.removeItem('gatf_id_'+id);});alert('ล้างข้อมูลแล้ว');}catch(e){}}
 (function load(){try{var n=parseInt(localStorage.getItem('gatf_n')||'0',10);if(n){var els=document.querySelectorAll('input,textarea,select');els.forEach(function(el,i){if(el.id&&localStorage.getItem('gatf_id_'+el.id)!==null){el.value=localStorage.getItem('gatf_id_'+el.id);}else{var v=localStorage.getItem('gatf_'+i);if(v!==null&&i<n&&!el.id)el.value=v;}});}else{document.querySelectorAll('input,textarea,select').forEach(function(el){if(el.id){var v=localStorage.getItem('gatf_id_'+el.id);if(v!==null)el.value=v;}});}
 var h=localStorage.getItem('gatf_cH');if(h!==null)document.getElementById('cH').textContent=h;var m=localStorage.getItem('gatf_cM');if(m!==null)document.getElementById('cM').textContent=m;var l=localStorage.getItem('gatf_cL');if(l!==null)document.getElementById('cL').textContent=l;
+try{var modeEl=document.getElementById('g_mode');var rowEp=document.getElementById('row_endpoint');if(modeEl&&rowEp){rowEp.style.display=(modeEl.value==='central')?'':'none';}var epEl=document.getElementById('g_endpoint');if(epEl){epEl.addEventListener('input',function(){try{localStorage.setItem('gatf_id_g_endpoint',epEl.value);}catch(_){}updateNoHint();});if(modeEl)modeEl.addEventListener('change',function(){if(rowEp)rowEp.style.display=(modeEl.value==='central')?'':'none';});}}
+catch(_){}
 var noEl=document.getElementById('g_no');if(noEl&&(!noEl.value||noEl.value.trim()==='')){genAuditNo(true);}else{updateNoHint();}
 var origSave=window.saveLocal;document.querySelectorAll('#g_no,#g_title').forEach(function(el){el.addEventListener('change',function(){try{localStorage.setItem('gatf_id_'+el.id,el.value);}catch(_){}});});}catch(e){try{updateNoHint();}catch(_){}}})();
 
