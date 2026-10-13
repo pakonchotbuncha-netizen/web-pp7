@@ -28,14 +28,29 @@ function thaiYYMM_() {
 function fmtNo_(yy, mm, seq) {
   return 'GAT-' + yy + '-' + mm + '-' + ('00' + seq).slice(-3);
 }
-function ss_() { return SpreadsheetApp.getActiveSpreadsheet(); }
-function seqSheet_() { return ss_().getSheetByName('Seq'); }
-function logSheet_() { return ss_().getSheetByName('Log'); }
+const SHEET_ID = ''; // ถ้าสคริปต์เป็นแบบ Standalone (ไม่ได้ผูกกับชีต) ให้ใส่ ID ของชีต GAT-Central-Registry ตรงนี้
+function ss_() {
+  if (SHEET_ID) return SpreadsheetApp.openById(SHEET_ID);
+  return SpreadsheetApp.getActiveSpreadsheet();
+}
+function ensureSheets_() {
+  var s = ss_();
+  if (!s) throw new Error('ไม่พบ Spreadsheet ที่ผูกกับสคริปต์ กรุณาเปิดสคริปต์จาก Extensions > Apps Script ของชีต GAT-Central-Registry แล้ว Deploy ใหม่ (ห้ามใช้สคริปต์แบบ Standalone)');
+  var s1 = s.getSheetByName('Seq') || s.insertSheet('Seq');
+  var s2 = s.getSheetByName('Log') || s.insertSheet('Log');
+  if (s1.getLastRow() === 0) s1.appendRow(['YM', 'last_seq', 'updated_at']);
+  if (s2.getLastRow() === 0) s2.appendRow(['AuditNo', 'Title', 'BU', 'Period', 'AuditDate', 'Auditor', 'Coordinator', 'Scope', 'CreatedAt', 'Source']);
+  return { seq: s1, log: s2 };
+}
+function seqSheet_() { return ensureSheets_().seq; }
+function logSheet_() { return ensureSheets_().log; }
 
 /** รันครั้งเดียวเพื่อสร้างหัวตาราง */
 function setup_() {
-  var s1 = ss_().getSheetByName('Seq') || ss_.insertSheet('Seq');
-  var s2 = ss_().getSheetByName('Log') || ss_.insertSheet('Log');
+  var s = ss_();
+  if (!s) throw new Error('ไม่พบ Spreadsheet — ถ้าเป็นสคริปต์ Standalone ให้ใส่ SHEET_ID ก่อนรัน');
+  var s1 = s.getSheetByName('Seq') || s.insertSheet('Seq');
+  var s2 = s.getSheetByName('Log') || s.insertSheet('Log');
   s1.clear(); s1.appendRow(['YM', 'last_seq', 'updated_at']);
   s2.clear();
   s2.appendRow(['AuditNo', 'Title', 'BU', 'Period', 'AuditDate', 'Auditor', 'Coordinator', 'Scope', 'CreatedAt', 'Source']);
