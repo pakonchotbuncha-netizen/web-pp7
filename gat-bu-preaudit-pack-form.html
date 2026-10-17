@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ฟอร์มแพ็กข้อมูลก่อนการตรวจสอบ (BU Pre-Audit Pack) — GAT / PKG Group</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0f172a;font-family:'TH Sarabun New','Sarabun','Segoe UI',Kanit,'Noto Sans Thai',Tahoma,sans-serif;color:#0f172a;font-size:17px}
+.wrap{max-width:1200px;margin:0 auto;padding:16px}
+header.hero{background:linear-gradient(135deg,#0f172a,#1e3a8a 60%,#065f46);color:#fff;border-radius:16px;padding:26px 24px;margin-bottom:16px}
+header.hero h1{margin:0;font-size:23px;line-height:1.5}
+header.hero p{margin:10px 0 0;color:#cbd5e1;font-size:14.5px;line-height:1.8}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);padding:5px 11px;border-radius:999px;font-size:12.5px}
+.card{background:#fff;border-radius:14px;padding:20px;margin-bottom:14px;line-height:1.85}
+.card h2{margin:0 0 2px;font-size:19px}
+.card h3{margin:14px 0 6px;font-size:16.5px;color:#1e3a8a}
+.sub{color:#64748b;font-size:13.5px;margin:2px 0 12px;line-height:1.7}
+.fld{display:grid;grid-template-columns:230px 1fr;gap:10px;align-items:center;padding:5px 0;border-bottom:1px dashed #e2e8f0}
+.fld:last-child{border-bottom:0}
+.fld label{font-size:15px;color:#334155}
+@media(max-width:820px){.fld{grid-template-columns:1fr;gap:4px}}
+input,textarea,select{font-family:inherit;font-size:15px;padding:7px 8px;border:1px solid #cbd5e1;border-radius:8px;width:100%;background:#fff}
+textarea{min-height:40px;resize:vertical}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+th,td{border:1px solid #cbd5e1;padding:6px 7px;text-align:left;vertical-align:top}
+th{background:#f1f5f9;font-weight:700;font-size:13.5px}
+.tblwrap{overflow-x:auto}
+.btn{display:inline-block;background:#0f172a;color:#fff;padding:8px 15px;border-radius:8px;border:0;cursor:pointer;font-size:14.5px;margin-right:6px;margin-top:6px;font-family:inherit}
+.btn2{background:#065f46}.btn3{background:#b45309}.btn4{background:#1d4ed8}.btn5{background:#475569}
+.mini{background:#e2e8f0;color:#0f172a;padding:3px 9px;border-radius:6px;border:0;cursor:pointer;font-size:13px;font-family:inherit}
+.note{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:11px 13px;font-size:14.5px;margin-top:12px;line-height:1.8}
+.ok{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:11px 13px;font-size:14.5px;margin-top:12px}
+.bad{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:11px 13px;font-size:14.5px;margin-top:12px;color:#991b1b}
+.sec-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sec-no{background:#0f172a;color:#fff;border-radius:8px;padding:1px 11px;font-weight:800;font-size:15px}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.green{background:#dcfce7;color:#166534}.yellow{background:#fef9c3;color:#854d0e}.orange{background:#ffedd5;color:#9a3412}.red{background:#fee2e2;color:#991b1b}.black{background:#e5e7eb;color:#111827}
+.sticky{position:sticky;top:0;z-index:20;background:#0f172a;color:#fff;border-radius:12px;padding:10px 14px;margin-bottom:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px}
+.bar{flex:1;min-width:160px;height:10px;background:#334155;border-radius:999px;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#84cc16);width:0%}
+.footer{color:#94a3b8;text-align:center;font-size:12.5px;padding:14px;line-height:1.8}
+.chk{display:flex;gap:9px;align-items:flex-start;padding:4px 0;font-size:14.5px}
+.chk input{width:18px;height:18px;margin-top:3px;flex:0 0 18px}
+@media print{body{background:#fff}.noprint{display:none!important}.card{break-inside:avoid;border:1px solid #cbd5e1}input,select,textarea{border:0;border-bottom:1px dotted #94a3b8;border-radius:0}header.hero{background:#0f172a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+<h1>ฟอร์มแพ็กข้อมูลก่อนการตรวจสอบ (BU Pre-Audit Pack)<br>เวทีค้นหาประเด็นการตรวจสอบ — GAT / PKG Group</h1>
+<p>อ้างอิง: กฎบัตร GAT v1.4 (15 ต.ค. 69) — หมวด AU-1…AU-7 และมิติ Compliance CMP-1…CMP-4<br>
+วิธีใช้: ตัวแทนแต่ละบริษัทกรอกให้ครบ → กด “บันทึกร่าง” ระหว่างทำได้ → กด “ส่งข้อมูลเข้า Sheet” เมื่อครบ (กำหนดส่งล่วงหน้า 5 วันทำการก่อนประชุม)<br>
+บริษัทที่ต้องกรอก: PMS · AAMgr. (AAM ไทย) · RPLC (สปป.ลาว) · RAFCO (กัมพูชา)</p>
+<div class="badges">
+<span class="badge">งานหลัก: LCT — Law / Compliance / Tax (Zero-breach)</span>
+<span class="badge">CMP-1 Regulatory &amp; Legal</span>
+<span class="badge">CMP-2 Internal Compliance</span>
+<span class="badge">CMP-3 Data &amp; Information</span>
+<span class="badge">CMP-4 Ethics &amp; Financial Crime</span>
+</div>
+</header>
+
+<div class="sticky noprint">
+<span id="progTxt">ความครบถ้วน 0%</span>
+<span class="bar"><i id="progBar"></i></span>
+<button class="btn btn5" type="button" onclick="saveDraft(true)">💾 บันทึกร่าง</button>
+<button class="btn btn4" type="button" onclick="submitPack()">📤 ส่งข้อมูลเข้า Sheet</button>
+<button class="btn btn2" type="button" onclick="exportJSON()">⬇️ ดาวน์โหลด JSON</button>
+<button class="btn btn3" type="button" onclick="exportCSV()">⬇️ ดาวน์โหลด CSV</button>
+<button class="btn" type="button" onclick="window.print()">🖨 พิมพ์ / PDF</button>
+</div>
+
+<div class="card">
+<h2>การตั้งค่าการเชื่อมต่อ</h2>
+<p class="sub">วาง URL ของ Google Apps Script (จากไฟล์ gat-bu-pack-backend.gs) เพื่อให้กด “ส่งข้อมูลเข้า Sheet” ได้ — ถ้าไม่ใส่ ระบบจะให้ดาวน์โหลด JSON แทน</p>
+<div class="fld"><label>Endpoint URL (ไม่บังคับ)</label><input data-k="cfg.endpoint" placeholder="https://script.google.com/macros/s/AKfy.../exec"></div>
+<div class="fld"><label>ผู้ส่งข้อมูล (ชื่อ-นามสกุล / ตำแหน่ง)</label><input data-k="meta.sender" placeholder="เช่น สมชาย ใจดี / Compliance Owner"></div>
+</div>
+
+<div id="host"></div>
+
+<div class="card">
+<h2>คำรับรองของผู้ส่งข้อมูล</h2>
+<div class="chk"><input type="checkbox" data-k="certify.confirm"><div>ข้าพเจ้าขอรับรองว่าข้อมูลและหลักฐานที่ส่งในแพ็กนี้เป็นความจริง ครบถ้วน และไม่มีการปกปิดหรือแก้ไขหลักฐาน — เข้าใจว่าหากตรวจพบการปกปิด ถือเป็นประเด็นระดับสูงและรายงานต่อ OAC ทันที (กฎบัตรข้อ 4)</div></div>
+<div class="fld"><label>ชื่อผู้รับรอง</label><input data-k="certify.name" placeholder="ชื่อ-นามสกุล"></div>
+<div class="fld"><label>ตำแหน่ง</label><input data-k="certify.position" placeholder="เช่น ผู้จัดการทั่วไป / Compliance Owner"></div>
+<div class="fld"><label>วันที่รับรอง</label><input type="date" data-k="certify.date"></div>
+<div id="submitMsg"></div>
+</div>
+
+<div class="footer">
+แบบฟอร์มแพ็กข้อมูลก่อนการตรวจสอบ v1.0 · จัดทำโดยทีมตรวจสอบกลาง GAT · 17 ต.ค. 69<br>
+ข้อมูลถูกเก็บในเครื่องผู้กรอก (ร่าง) จนกว่าจะกดส่งเข้าศูนย์กลาง · ห้ามส่งข้อมูลส่วนบุคคลเกินจำเป็น
+</div>
+</div>
+
+<script>
+/* ============ SCHEMA ============ */
+const COMPANIES = ["PMS","AAMgr. (AAM ไทย)","RPLC (สปป.ลาว)","RAFCO (กัมพูชา)"];
+const STATUS_OPTS = [["","— เลือกสถานะ —"],["green","🟢 Complied ครบถ้วน"],["yellow","🟡 Pending ระหว่างดำเนินการ"],["orange","🟠 At Risk เสี่ยงไม่ทัน"],["red","🔴 Breach ไม่ปฏิบัติตาม"],["black","⚫ Critical Breach ร้ายแรง"]];
+const RESULT_OPTS = [["","—"],["pass","ผ่าน"],["improve","ควรปรับปรุง"],["fail","ไม่ผ่าน"],["na","ไม่มี / ไม่เกี่ยวข้อง"]];
+
+const SCHEMA = [
+{
+  id:"s0", no:"0", title:"ข้อมูลบริษัทและผู้ประสานงาน",
+  desc:"ใช้ระบุตัวตนของแพ็กข้อมูล และใช้อ้างอิงใน Issue Log / Monthly Oversight Report",
+  fields:[
+    ["company","บริษัทที่ส่งแพ็ก","select",COMPANIES],
+    ["period","รอบการรายงาน","text"],
+    ["auditdate","วันที่จัดส่ง","date"],
+    ["coord.name","ผู้ประสานงานตรวจสอบ (1 ท่าน/หน่วย)","text"],
+    ["coord.position","ตำแหน่ง","text"],
+    ["coord.phone","เบอร์ติดต่อ","text"],
+    ["coord.email","อีเมล","text"],
+    ["coord.backup","ผู้ประสานงานสำรอง","text"],
+    ["bu.scope","ขอบเขตธุรกิจ/สาขาที่รวมในแพ็กนี้","textarea"],
+    ["bu.head","หัวหน้าหน่วยธุรกิจ (ผู้อนุมัติแพ็ก)","text"]
+  ],
+  tables:[]
+},
+{
+  id:"lct", no:"1", title:"LCT — Law / Compliance / Tax (งานหลักของเวที)",
+  desc:"Zero-breach หมายถึงการละเมิดกฎหมาย การไม่ปฏิบัติตามข้อกำหนด และความผิดพลาด/ผิดนัดด้านภาษี ต้องเท่ากับศูนย์ในทุกเดือน · ต้องมีหลักฐานการยื่นและชำระทุกครั้ง",
+  fields:[
+    ["lct.taxcal","มีปฏิทิน LCT 12 เดือน (ระบุตำแหน่งไฟล์/ลิงก์)","text"],
+    ["lct.last3","สรุปสถานะยื่น/ชำระ 3 เดือนย้อนหลัง (ยื่นครบ/ล่าช้ากี่รายการ)","textarea"],
+    ["lct.fines","ค่าปรับ/เงินเพิ่ม/ดอกเบี้ย 12 เดือน (จำนวนเงิน + สาเหตุ)","textarea"],
+    ["lct.taxunit","หน่วยงานสรรพากร/ภาษีที่กำกับ (ชื่อหน่วยงาน + ผู้ติดต่อ)","text"],
+    ["lct.closemonth","มีรายการใดที่ปิดบัญชี/ปิดงบไม่ทันกำหนด หรือไม่","textarea"]
+  ],
+  tables:[
+    {key:"lctObl", title:"1.1 ทะเบียนข้อกำหนด LCT (ภาระที่ต้องยื่น/ชำระ/ต่ออายุ)",
+     hint:"กรอกทุกภาระที่ผูกพันบริษัทในประเทศนั้น — ภาษีทุกประเภท ใบอนุญาต ทะเบียน วีซ่า/work permit",
+     cols:[["type","ประเภท",'select',["ภาษีเงินได้นิติบุคคล","VAT / ภาษีมูลค่าเพิ่ม","หัก ณ ที่จ่าย (WHT)","ภาษีเงินได้บุคคลธรรมดา (PIT)","ประกันสังคม / กองทุน","ใบอนุญาตประกอบธุรกิจ","ใบอนุญาตลงทุน","work permit / วีซ่า","ทะเบียนพาณิชย์","รายงานประจำปี / งบการเงิน","อื่น ๆ"]],
+           ["item","รายการ / เลขที่แบบฟอร์ม","text"],["agency","หน่วยงานที่ยื่น","text"],["due","กำหนดยื่น/ชำระ","text"],["status","สถานะ",'select',STATUS_OPTS],["evidence","หลักฐาน/เลขอ้างอิง","text"],["owner","ผู้รับผิดชอบ","text"]]},
+    {key:"lctLic", title:"1.2 ใบอนุญาตและทะเบียนที่ยังมีผล",
+     cols:[["name","ใบอนุญาต/ทะเบียน","text"],["no","เลขที่","text"],["issuer","ออกโดย","text"],["expire","วันหมดอายุ","text"],["renew","สถานะต่ออายุ",'select',STATUS_OPTS],["owner","ผู้รับผิดชอบ","text"]]},
+    {key:"lctCon", title:"1.3 สัญญาที่มีนัยสำคัญ",
+     hint:"สัญญาจ้างพนักงาน/ผู้บริหาร สัญญาลูกค้ารายใหญ่ สัญญาคู่ค้า/ตัวแทน สัญญาเช่า/สินเชื่อ",
+     cols:[["party","คู่สัญญา / ประเภท","text"],["term","อายุสัญญา (เริ่ม–สิ้นสุด)","text"],["signer","ผู้ลงนาม + อำนาจลงนาม","text"],["lang","ภาษา (ไทย/ลาว/เขมร/อังกฤษ)","text"],["review","ผ่านการสอบทานกฎหมาย",'select',RESULT_OPTS],["file","ไฟล์/ลิงก์อ้างอิง","text"]]},
+    {key:"lctCase", title:"1.4 คดี ข้อพิพาท และหนังสือราชการ",
+     hint:"รวมข้อพิพาทแรงงาน ภาษี สัญญา และหนังสือเรียกตรวจ/แจ้งเตือนที่ยังไม่ปิด",
+     cols:[["case","เรื่อง / เลขคดี","text"],["party","คู่กรณี / หน่วยงาน","text"],["status","สถานะ",'select',[["","—"],["open","เปิดอยู่"],["negotiate","เจรจา"],["closed","ปิดแล้ว"],["appeal","อุทธรณ์"]]],["risk","ความเสี่ยง (บาท/ผลกระทบ)","text"],["lawyer","ทนาย/ที่ปรึกษาที่ดูแล","text"],["plan","แผนดำเนินการ + กำหนด","text"]]},
+    {key:"lctLawyer", title:"1.5 เครือข่ายทนายและที่ปรึกษาในประเทศ",
+     hint:"จุดที่ต้องปิดให้ครบทุกประเทศ — ระบุชื่อจริง สัญญา และช่องทางติดต่อ",
+     cols:[["firm","สำนักงาน / ชื่อทนาย","text"],["country","ประเทศ","text"],["scope","ขอบเขตงาน (กฎหมาย/บัญชี/ภาษี)","text"],["contact","ช่องทางติดต่อ","text"],["contract","มีสัญญา/ค่าบริการ",'select',RESULT_OPTS],["backup","มีตัวสำรองหรือไม่",'select',RESULT_OPTS]]},
+    {key:"lct90", title:"1.6 ภาระที่จะครบกำหนดใน 90 วันข้างหน้า",
+     hint:"GAT ต้องแจ้งเตือนล่วงหน้าไม่น้อยกว่า 14 วันก่อนครบกำหนด",
+     cols:[["item","รายการ","text"],["due","กำหนด","text"],["owner","ผู้รับผิดชอบ","text"],["plan","แผนดำเนินการ","text"],["ready","ความพร้อม",'select',[["","—"],["ready","พร้อม"],["risk","เสี่ยงไม่ทัน"],["notstart","ยังไม่เริ่ม"]]]]}
+  ]
+},
+{
+  id:"cmp1", no:"2", title:"CMP-1 Regulatory &amp; Legal — “ทำถูกกฎหมายไหม”",
+  desc:"กฎหมายและข้อบังคับที่หน่วยงานรัฐหรือภายนอกกำหนด — แรงงาน/ค่าจ้างขั้นต่ำ/OT/ประกันสังคม/กองทุน · ภาษี หัก ณ ที่จ่าย VAT ภ.ง.ด. · สัญญา อำนาจลงนาม นิติกรรม สัญญา 2 ภาษา work permit",
+  fields:[
+    ["c1.register","มี Law-to-Obligation Register (ทะเบียนกฎหมาย → หน้าที่) แล้วหรือยัง","select",[["","— เลือก —"],["yes","มี ครบ"],["partial","มี บางส่วน"],["no","ยังไม่มี"]]],
+    ["c1.gap","ข้อกำหนดที่รู้ว่าผูกพันแต่ยังไม่ได้ทำ (ระบุ)","textarea"],
+    ["c1.unknown","เรื่องที่ยังไม่แน่ใจว่ากฎหมายบังคับหรือไม่ (ต้องการคำตอบจากที่ประชุม)","textarea"]
+  ],
+  tables:[
+    {key:"c1reg", title:"2.1 ทะเบียนกฎหมายที่ผูกพันบริษัท",
+     cols:[["law","กฎหมาย/ข้อกำหนด","text"],["duty","หน้าที่ที่ต้องทำ","text"],["owner","ผู้รับผิดชอบ","text"],["status","สถานะ",'select',STATUS_OPTS],["evidence","หลักฐาน","text"]]}
+  ]
+},
+{
+  id:"cmp2", no:"3", title:"CMP-2 Internal Compliance — “ทำตามที่เราตกลงกันเองไหม”",
+  desc:"PM/WI ระเบียบองค์กร อำนาจอนุมัติ succession/signatory — จุดที่ PKG ตั้งเองและต้องแก้เองหากบกพร่อง",
+  fields:[
+    ["c2.pmwi","PM/WI ที่บังคับใช้ในหน่วยนี้ (ฉบับล่าสุดวันที่)","text"],
+    ["c2.deviation","รายการข้ามขั้นตอน 12 เดือน + เหตุผล/ผู้อนุมัติ","textarea"],
+    ["c2.obsolete","ระเบียบที่ไม่มีใครปฏิบัติหรือล้าสมัย (ข้อเสนอปรับ)","textarea"]
+  ],
+  tables:[
+    {key:"c2doc", title:"3.1 PM/WI และระเบียบที่เกี่ยวข้อง",
+     cols:[["doc","เอกสาร/เลขที่","text"],["ver","ฉบับ/วันที่","text"],["owner","ผู้รับผิดชอบ","text"],["result","ผลการปฏิบัติ",'select',RESULT_OPTS],["note","ข้อสังเกต","text"]]},
+    {key:"c2doa", title:"3.2 อำนาจอนุมัติ (DOA) และผู้มีอำนาจลงนาม",
+     cols:[["level","ระดับอนุมัติ / วงเงิน","text"],["name","ชื่อผู้มีอำนาจ","text"],["since","มีผลตั้งแต่","text"],["doc","เอกสารมอบอำนาจ","text"],["status","สถานะปัจจุบัน",'select',STATUS_OPTS]]}
+  ]
+},
+{
+  id:"cmp3", no:"4", title:"CMP-3 Data &amp; Information — “เก็บ-ใช้-เปิดเผยข้อมูลถูกต้องและปลอดภัยไหม”",
+  desc:"PDPA (ยินยอมก่อนเก็บข้อมูลผู้สมัคร ทำแบบทดสอบได้ครั้งเดียว) · RBAC เห็นเฉพาะข้อมูลที่ควรเห็น · audit log ทุกการแก้ · backup · การส่งข้อมูลข้ามประเทศ ไทย–ลาว–กัมพูชา",
+  fields:[
+    ["c3.pdpa","มีบันทึกความยินยอม (Consent) ครบทุกฐานข้อมูลหรือไม่","select",[["","— เลือก —"],["yes","ครบ"],["partial","บางส่วน"],["no","ยังไม่มี"]]],
+    ["c3.crossborder","การส่งข้อมูลออกนอกประเทศ: มีฐานกฎหมาย/ข้อตกลงรองรับหรือไม่ (ระบุ)","textarea"],
+    ["c3.incident","เหตุการณ์ข้อมูลรั่ว/เปิดเผยโดยไม่ได้รับอนุญาต 12 เดือน","textarea"],
+    ["c3.backup","การสำรองข้อมูล: ความถี่ / ทดสอบกู้คืนครั้งล่าสุด","text"]
+  ],
+  tables:[
+    {key:"c3asset", title:"4.1 ทะเบียนข้อมูล (Data Asset Register)",
+     cols:[["data","ประเภทข้อมูล","text"],["subject","เจ้าของข้อมูล (ลูกค้า/สมาชิก/ผู้สมัคร/คู่ค้า)","text"],["legal","ฐานทางกฎหมายที่เก็บ","text"],["where","ที่เก็บ (ระบบ/ไฟล์)","text"],["who","ผู้เข้าถึง (สิทธิ์)","text"],["cross","ส่งออกนอกประเทศ",'select',[["","—"],["no","ไม่ส่ง"],["yes","ส่ง (มีฐานกฎหมาย)"],["yes_nobase","ส่ง (ไม่มีฐาน)"]]]]},
+    {key:"c3rbac", title:"4.2 การควบคุมสิทธิ์การเข้าถึง (RBAC)",
+     cols:[["system","ระบบ","text"],["role","บทบาท","text"],["scope","ขอบเขตที่เห็น","text"],["review","สอบทานสิทธิ์ครั้งล่าสุด","text"],["risk","จุดเสี่ยง (สิทธิ์เกินจำเป็น)","text"]]}
+  ]
+},
+{
+  id:"cmp4", no:"5", title:"CMP-4 Ethics &amp; Financial Crime — “ทำอย่างสุจริตและเป็นธรรมไหม”",
+  desc:"ผลประโยชน์ทับซ้อน สินบน/คิกแบ็ก ทุจริตจัดซื้อจัดจ้าง ปลอมเอกสารเรียกค่าใช้จ่าย ฟอกเงิน เลือกปฏิบัติ — โยง CC3 Trust-Based Value Creation + CC5 Disciplined Professionalism",
+  fields:[
+    ["c4.coi","ผู้มีอำนาจอนุมัติลงนามคำรับรองผลประโยชน์ทับซ้อนครบหรือไม่","select",[["","— เลือก —"],["yes","ครบ"],["partial","บางส่วน"],["no","ยังไม่มี"]]],
+    ["c4.whistle","ช่องทางแจ้งเบาะแส + จำนวนเคส 12 เดือน + ผลการดำเนินการ","textarea"],
+    ["c4.gift","นโยบายของขวัญ/การรับรอง + กรณีที่เข้าเกณฑ์ต้องรายงาน","textarea"]
+  ],
+  tables:[
+    {key:"c4coi", title:"5.1 คำรับรองผลประโยชน์ทับซ้อน (COI)",
+     cols:[["name","ชื่อ","text"],["position","ตำแหน่ง","text"],["related","เกี่ยวข้องกับคู่ค้ารายใด","text"],["declare","ส่งคำรับรองแล้ว",'select',RESULT_OPTS],["date","วันที่ลงนาม","text"]]},
+    {key:"c4vend", title:"5.2 คู่ค้าที่เกี่ยวข้อง (Related Party) และการจัดซื้อที่เสี่ยง",
+     cols:[["vendor","คู่ค้า","text"],["relation","ความสัมพันธ์","text"],["value","มูลค่างาน/ปี","text"],["process","ผ่านการเปรียบเทียบราคา",'select',RESULT_OPTS],["note","ข้อสังเกต","text"]]},
+    {key:"c4case", title:"5.3 เคสจริยธรรม/ทุจริตที่เกิดขึ้น",
+     cols:[["case","เรื่อง","text"],["channel","ช่องทางที่พบ","text"],["status","สถานะ",'select',[["","—"],["investigate","สอบข้อเท็จจริง"],["closed","ปิดแล้ว"],["legal","ส่งดำเนินคดี"]]],["action","มาตรการที่ดำเนินการ","text"]]}
+  ]
+},
+{
+  id:"s6", no:"6", title:"สรุปประเด็นและความพร้อม",
+  desc:"ส่วนนี้คือสิ่งที่เวทีจะใช้จัดลำดับความสำคัญ — กรอกเฉพาะประเด็นที่มีนัยสำคัญ",
+  fields:[
+    ["sum.confidence","ความมั่นใจต่อความครบถ้วนของแพ็กนี้","select",[["","— เลือก —"],["high","สูง"],["medium","กลาง"],["low","ต่ำ"]]],
+    ["sum.help","เรื่องที่ต้องการให้ GAT/OAC ช่วยตัดสินใจหรือชี้แนวทาง","textarea"],
+    ["sum.note","หมายเหตุอื่น ๆ","textarea"]
+  ],
+  tables:[
+    {key:"sumGap", title:"6.1 ช่องว่างที่บริษัทรับรู้เอง (Self-declared Gap)",
+     hint:"ยิ่งแจ้งตรงไปตรงมา ยิ่งได้เครดิตด้านความโปร่งใส — การปกปิดถือเป็นประเด็นระดับสูง",
+     cols:[["gap","ช่องว่าง/ข้อบกพร่อง","text"],["dim","มิติ (LCT/CMP-1…4/AU ใด)","text"],["cause","สาเหตุ","text"],["plan","แผนปิด + กำหนด","text"],["owner","ผู้รับผิดชอบ","text"],["status","สถานะ",'select',STATUS_OPTS]]},
+    {key:"sumRisk", title:"6.2 ความเสี่ยงสำคัญ 5 อันดับของหน่วย",
+     cols:[["risk","ความเสี่ยง","text"],["impact","ผลกระทบ (1-5)","number"],["like","โอกาสเกิด (1-5)","number"],["owner","เจ้าของความเสี่ยง","text"],["action","มาตรการลดความเสี่ยง","text"],["due","กำหนดเสร็จ","text"]]}
+  ],
+  checklist:[
+    "ปฏิทิน LCT 12 เดือน (ไฟล์/ลิงก์)",
+    "หลักฐานการยื่นและชำระภาษี 3 เดือนย้อนหลัง",
+    "สำเนาใบอนุญาต/ทะเบียนที่ยังมีผล + วันหมดอายุ",
+    "ทะเบียนสัญญาที่มีนัยสำคัญ + ผู้มีอำนาจลงนาม",
+    "ทะเบียนกฎหมาย (Law-to-Obligation Register)",
+    "PM/WI ฉบับที่บังคับใช้ + ตารางอำนาจอนุมัติ",
+    "ทะเบียนข้อมูลส่วนบุคคล + Consent + RBAC matrix",
+    "คำรับรองผลประโยชน์ทับซ้อนของผู้มีอำนาจอนุมัติ",
+    "ทะเบียนความเสี่ยง (Risk Register) ปรับปรุงล่าสุด",
+    "BSC / OKR / KPI เทียบผลจริง + คำชี้แจงช่องว่าง",
+    "รายชื่อผู้ประสานงานตรวจสอบ + เบอร์ติดต่อ"
+  ]
+}
+];
+
+/* ============ RENDER ============ */
+const host = document.getElementById('host');
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+SCHEMA.forEach(sec=>{
+  const c = document.createElement('div'); c.className='card';
+  let h = `<div class="sec-title"><span class="sec-no">${sec.no}</span><h2>${sec.title}</h2></div><p class="sub">${sec.desc}</p>`;
+  (sec.fields||[]).forEach(f=>{
+    const [k,label,type,opts]=f;
+    let input;
+    if(type==='select'){
+      input = `<select data-k="${k}">`+opts.map(o=>{
+        const v=Array.isArray(o)?o[0]:o, t=Array.isArray(o)?o[1]:o;
+        return `<option value="${esc(v)}">${esc(t)}</option>`;}).join('')+`</select>`;
+    } else if(type==='textarea'){
+      input = `<textarea data-k="${k}" placeholder="ระบุ..."></textarea>`;
+    } else {
+      input = `<input type="${type==='date'?'date':type==='number'?'number':'text'}" data-k="${k}" placeholder="ระบุ...">`;
+    }
+    h += `<div class="fld"><label>${label}</label>${input}</div>`;
+  });
+  (sec.tables||[]).forEach(tb=>{
+    h += `<h3>${tb.title}</h3>${tb.hint?`<p class="sub">${tb.hint}</p>`:''}
+    <div class="tblwrap"><table data-tbl="${tb.key}">
+      <thead><tr>${tb.cols.map(c=>`<th>${c[1]}</th>`).join('')}<th style="width:44px"></th></tr></thead>
+      <tbody id="tb_${tb.key}"></tbody></table></div>
+    <button class="mini noprint" type="button" onclick="addRow('${tb.key}')">+ เพิ่มแถว</button>`;
+  });
+  if(sec.checklist){
+    h += `<h3>6.3 เอกสารแนบที่ต้องมีในแพ็ก</h3>`;
+    sec.checklist.forEach((t,i)=>{
+      h += `<div class="chk"><input type="checkbox" data-k="attach.${i}"><div>${t}</div></div>`;
+    });
+  }
+  c.innerHTML=h; host.appendChild(c);
+});
+
+/* row engine */
+const TBLDEF = {};
+SCHEMA.forEach(s=>(s.tables||[]).forEach(t=>TBLDEF[t.key]=t));
+
+function rowHTML(key, vals){
+  const tb = TBLDEF[key]; vals = vals||{};
+  return tb.cols.map((col,i)=>{
+    const [ck,,type,opts]=col;
+    const v = vals[ck]!=null?vals[ck]:'';
+    if(type==='select'){
+      return `<td><select data-rk="${ck}">`+opts.map(o=>{
+        const ov=Array.isArray(o)?o[0]:o, ot=Array.isArray(o)?o[1]:o;
+        return `<option value="${esc(ov)}"${String(ov)===String(v)?' selected':''}>${esc(ot)}</option>`;}).join('')+`</select></td>`;
+    }
+    if(type==='number') return `<td><input type="number" min="1" max="5" data-rk="${ck}" value="${esc(v)}"></td>`;
+    return `<td><input data-rk="${ck}" value="${esc(v)}" placeholder="..."></td>`;
+  }).join('')+`<td class="noprint"><button class="mini" type="button" onclick="this.closest('tr').remove();recalc()">✕</button></td>`;
+}
+function addRow(key, vals){
+  const tb = document.getElementById('tb_'+key);
+  if(!tb) return;
+  const tr=document.createElement('tr'); tr.innerHTML=rowHTML(key,vals); tb.appendChild(tr); recalc();
+}
+Object.keys(TBLDEF).forEach(k=>addRow(k));
+addRow('sumRisk'); addRow('sumRisk');
+
+/* ============ COLLECT / RESTORE ============ */
+function getFields(){
+  const o={};
+  document.querySelectorAll('[data-k]').forEach(el=>{
+    o[el.dataset.k] = el.type==='checkbox' ? el.checked : el.value;
+  });
+  return o;
+}
+function getTables(){
+  const o={};
+  Object.keys(TBLDEF).forEach(k=>{
+    const tb=document.getElementById('tb_'+k); if(!tb) return;
+    const rows=[...tb.querySelectorAll('tr')].map(tr=>{
+      const r={}; tr.querySelectorAll('[data-rk]').forEach(i=>r[i.dataset.rk]=i.value);
+      return r;
+    }).filter(r=>Object.values(r).some(v=>String(v).trim()!==''));
+    o[k]=rows;
+  });
+  return o;
+}
+function setFields(o){
+  document.querySelectorAll('[data-k]').forEach(el=>{
+    const v=o[el.dataset.k];
+    if(v===undefined) return;
+    if(el.type==='checkbox') el.checked=!!v; else el.value=v;
+  });
+}
+function setTables(o){
+  Object.keys(TBLDEF).forEach(k=>{
+    const tb=document.getElementById('tb_'+k); if(!tb) return;
+    tb.innerHTML='';
+    const rows=o[k]||[];
+    if(rows.length) rows.forEach(r=>addRow(k,r)); else addRow(k);
+  });
+}
+
+/* ============ DRAFT (per company) ============ */
+function companyKey(){
+  const v=document.querySelector('[data-k="company"]').value||'none';
+  return 'gat_bu_pack_v1::'+v;
+}
+const STORE=(function(){
+  let ok=true; try{ window.localStorage.setItem('__t','1'); window.localStorage.removeItem('__t'); }catch(e){ ok=false; }
+  const mem={};
+  return {
+    get(k){ try{ return ok?window.localStorage.getItem(k):(mem[k]||null); }catch(e){ return mem[k]||null; } },
+    set(k,v){ try{ if(ok) window.localStorage.setItem(k,v); else mem[k]=v; }catch(e){ mem[k]=v; } },
+    available:ok
+  };
+})();
+let draftTimer=null;
+function saveDraft(manual){
+  const payload={savedAt:new Date().toISOString(), company:document.querySelector('[data-k="company"]').value, fields:getFields(), tables:getTables()};
+  try{ STORE.set(companyKey(), JSON.stringify(payload)); if(manual) flash('บันทึกร่างแล้ว ('+new Date().toLocaleTimeString('th-TH')+')'+(STORE.available?'':' — โหมดหน่วยความจำชั่วคราว (ปิดหน้าแล้วหาย)'),'ok'); }catch(e){ if(manual) flash('บันทึกร่างไม่สำเร็จ: '+e.message,'bad'); }
+}
+function loadDraft(){
+  try{
+    const raw=STORE.get(companyKey()); if(!raw) return;
+    const d=JSON.parse(raw);
+    if(!d||!d.fields) return;
+    setFields(d.fields); setTables(d.tables||{});
+    flash('พบร่างที่บันทึกไว้ ('+new Date(d.savedAt).toLocaleString('th-TH')+') — กด “บันทึกร่าง” เพื่ออัปเดต','ok');
+  }catch(e){}
+}
+function clearAll(){
+  document.querySelectorAll('[data-k]').forEach(el=>{
+    if(el.dataset.k==='cfg.endpoint'||el.dataset.k==='company') return;
+    if(el.type==='checkbox') el.checked=false; else el.value='';
+  });
+  Object.keys(TBLDEF).forEach(k=>{
+    const tb=document.getElementById('tb_'+k); if(!tb) return;
+    tb.innerHTML=''; addRow(k);
+  });
+}
+document.querySelector('[data-k="company"]').addEventListener('change',()=>{clearAll();loadDraft();recalc();});
+document.addEventListener('input',()=>{clearTimeout(draftTimer);draftTimer=setTimeout(()=>saveDraft(false),1500);recalc();});
+document.addEventListener('change',()=>{clearTimeout(draftTimer);draftTimer=setTimeout(()=>saveDraft(false),600);recalc();});
+
+/* ============ PROGRESS ============ */
+function recalc(){
+  const els=[...document.querySelectorAll('[data-k]')].filter(e=>!e.dataset.k.startsWith('cfg.'));
+  let filled=0; els.forEach(e=>{ if(e.type==='checkbox'?e.checked:String(e.value).trim()!=='') filled++; });
+  const pct=els.length?Math.round(filled/els.length*100):0;
+  document.getElementById('progTxt').textContent='ความครบถ้วน '+pct+'%';
+  document.getElementById('progBar').style.width=pct+'%';
+}
+function flash(msg,kind){
+  const box=document.getElementById('submitMsg');
+  box.innerHTML=`<div class="${kind==='bad'?'bad':'ok'}">${esc(msg)}</div>`;
+}
+
+/* ============ EXPORT / SUBMIT ============ */
+function pack(){
+  return {form:'GAT-BU-PREAUDIT-PACK', version:'1.0', submittedAt:new Date().toISOString(),
+    company:document.querySelector('[data-k="company"]').value, fields:getFields(), tables:getTables()};
+}
+function exportJSON(){
+  const p=pack(); download(`GAT-BU-PACK_${(p.company||'BU').replace(/[^\wก-๙]+/g,'_')}_${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(p,null,2),'application/json');
+}
+function exportCSV(){
+  const p=pack(); const rows=[];
+  rows.push(['SECTION','KEY','VALUE']);
+  Object.entries(p.fields).forEach(([k,v])=>rows.push(['fields',k,String(v)]));
+  Object.entries(p.tables).forEach(([tk,arr])=>{arr.forEach((r,i)=>{Object.entries(r).forEach(([c,v])=>rows.push([tk,'#'+(i+1)+'.'+c,String(v)]));});});
+  const csv=rows.map(r=>r.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(',')).join('\n');
+  download(`GAT-BU-PACK_${(p.company||'BU').replace(/[^\wก-๙]+/g,'_')}_${new Date().toISOString().slice(0,10)}.csv`, '\ufeff'+csv,'text/csv');
+}
+function download(name,content,mime){
+  try{
+    const a=document.createElement('a'); const url=URL.createObjectURL(new Blob([content],{type:mime}));
+    a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+  }catch(e){ flash('ดาวน์โหลดอัตโนมัติไม่สำเร็จ ('+e.message+') — กรุณาใช้เมนูพิมพ์/PDF แทน','bad'); }
+}
+async function submitPack(){
+  const cert=document.querySelector('[data-k="certify.confirm"]').checked;
+  const name=document.querySelector('[data-k="certify.name"]').value.trim();
+  if(!cert||!name){ flash('กรุณาติ๊กคำรับรองและกรอกชื่อผู้รับรองก่อนส่ง','bad'); return; }
+  const endpoint=document.querySelector('[data-k="cfg.endpoint"]').value.trim();
+  const p=pack();
+  if(!endpoint){ flash('ยังไม่ได้ใส่ Endpoint URL — ระบบจะดาวน์โหลด JSON ให้ส่งทางอีเมลแทน','ok'); exportJSON(); return; }
+  flash('กำลังส่งข้อมูล...','ok');
+  try{
+    const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)});
+    const txt=await res.text(); let j={}; try{j=JSON.parse(txt);}catch(e){}
+    if(res.ok && j.ok!==false){ flash('ส่งข้อมูลสำเร็จ — เลขอ้างอิง: '+(j.ref||j.id||'-')+' เวลา '+(j.time||new Date().toLocaleString('th-TH')),'ok'); }
+    else { flash('ส่งไม่สำเร็จ: '+(j.error||txt||res.status)+' — ดาวน์โหลด JSON สำรองไว้','bad'); exportJSON(); }
+  }catch(e){ flash('เชื่อมต่อไม่ได้: '+e.message+' — ดาวน์โหลด JSON สำรองไว้','bad'); exportJSON(); }
+}
+
+/* init */
+loadDraft(); recalc();
+</script>
+</body>
+</html>
