@@ -279,6 +279,44 @@ ul.cross li:before{content:"✖";position:absolute;left:0;color:var(--red);font-
         <tr><td>Sales / Logistics</td><td>ขายและจัดส่ง</td><td>คำสั่งขาย · ใบส่งของ · หลักฐานชั่งน้ำหนัก · ข้อมูลรับชำระ</td></tr>
         <tr><td>IT / VMS Administrator</td><td>ผู้ดูแลระบบ</td><td>สิทธิ์ · การเชื่อมต่อ · Log · เก็บรักษาข้อมูล — โดยไม่แก้ไขผลตรวจสอบโดยไม่มีร่องรอย</td></tr>
       </table>
+
+      <h3>RACI — ผู้รับผิดชอบแยกตามกิจกรรม</h3>
+      <p class="small">R = ผู้ลงมือทำ · A = ผู้รับผิดชอบผลลัพธ์/อนุมัติ · C = ผู้ให้คำปรึกษา · I = ผู้รับทราบ · * GAT รับผิดชอบผลตรวจและข้อสรุป Assurance ภายในขอบเขตโดยคงความเป็นอิสระ · ** ให้เป็นไปตาม Governance Charter, Delegation of Authority และเกณฑ์ Escalation ที่องค์กรอนุมัติจริง</p>
+      <table>
+        <tr><th>กิจกรรม</th><th>GAT</th><th>BMC</th><th>OAC</th><th>ทีมปฏิบัติการ TNR</th></tr>
+        <tr><td>กำหนดแผนตรวจสอบตามความเสี่ยง</td><td>R</td><td>C</td><td>I</td><td>C</td></tr>
+        <tr><td>บันทึกข้อมูลและควบคุมงานประจำวัน</td><td>I</td><td>A</td><td>I</td><td>R</td></tr>
+        <tr><td>ทดสอบการควบคุมและประเมินข้อค้นพบ</td><td>R/A*</td><td>I</td><td>I</td><td>C</td></tr>
+        <tr><td>จัดทำแผนแก้ไข</td><td>C</td><td>A</td><td>I</td><td>R</td></tr>
+        <tr><td>อนุมัติทรัพยากร/แผนแก้ไข</td><td>C</td><td>A</td><td>หรือ A**</td><td>R/C</td></tr>
+        <tr><td>ตรวจยืนยันผลการแก้ไข</td><td>R/A*</td><td>I</td><td>I</td><td>C</td></tr>
+        <tr><td>อนุมัติการตัดสินใจทางธุรกิจ</td><td>C</td><td>A</td><td>หรือ A**</td><td>R/C</td></tr>
+        <tr><td>รายงาน Monthly Oversight</td><td>R</td><td>C</td><td>I/ผู้รับรายงาน</td><td>C</td></tr>
+        <tr><td>ยกระดับความเสี่ยงวิกฤต</td><td>R</td><td>A/R</td><td>A/I**</td><td>R/C</td></tr>
+      </table>
+
+      <h3>มาตรฐาน Use Case Specification (10 ด้าน)</h3>
+      <p class="small">Actor · Trigger · Preconditions · Main Flow · Exception Flow · Evidence · Risk/Control · KPI · Priority · Acceptance Criteria — เกณฑ์แจ้งเตือนและตัวเลข KPI เป็นข้อเสนอเริ่มต้น ต้องกำหนด Baseline และอนุมัติก่อนใช้งานจริง</p>
+      <div class="flow">
+        <div class="step"><span class="n">P1</span><b>ควบคุมความเสี่ยงสูงโดยเร็ว</b><span>ดำเนินการก่อน</span></div>
+        <div class="step"><span class="n">P2</span><b>สำคัญต่อประสิทธิภาพ/ป้องกันความเสียหาย</b><span>หลัง P1 หรือคู่ขนานเมื่อมีทรัพยากร</span></div>
+        <div class="step"><span class="n">P3</span><b>เพิ่มความสามารถวิเคราะห์</b><span>ปรับปรุงต่อเนื่อง</span></div>
+      </div>
+
+      <div class="card" style="margin-top:14px;border-color:var(--green)">
+        <h3 style="margin-top:0">UC-01 · Yield &amp; Inventory Assurance <span class="pill p-high">P1</span></h3>
+        <p class="small"><b>วัตถุประสงค์:</b> ยืนยันว่าปริมาณผลผลิตที่บันทึกใน Farm System, ERP และ Sheets สอดคล้องกับหลักฐานการเก็บเกี่ยว รับเข้า เบิกจ่าย ขาย และตรวจนับจริง</p>
+        <table>
+          <tr><th style="width:18%">หัวข้อ</th><th>รายละเอียด</th></tr>
+          <tr><td>Actors</td><td>หลัก: GAT Auditor, Farm Manager, Warehouse/Inventory · สนับสนุน: Finance, IT/Data Owner, BMC TNR</td></tr>
+          <tr><td>Trigger</td><td>ปิดรอบเก็บเกี่ยว/ปิดเดือน · ยอดคงเหลือต่างกันระหว่างระบบ · ตรวจนับไม่ตรงบัญชี · รายการปรับปรุงสต็อกมูลค่าสูงหรือผิดปกติ</td></tr>
+          <tr><td>Preconditions</td><td>(1) รหัสแปลง รอบผลิต ชนิดพืช หน่วยนับมาตรฐาน (2) รายการเก็บเกี่ยว/เคลื่อนไหวคลัง พร้อมเวลาและผู้บันทึก (3) ระบุ Source of Truth ของแต่ละข้อมูล (4) เกณฑ์ความคลาดเคลื่อนที่ได้รับอนุมัติ</td></tr>
+          <tr><td>Main Flow</td><td>1) ดึงผลผลิตตามแปลง/รอบจาก Farm System · 2) ดึงรับเข้า เบิกจ่าย ขาย ปรับปรุง คงเหลือจาก ERP · 3) เทียบกับ Sheets และใบชั่ง/ตรวจนับจริง · 4) คำนวณส่วนต่าง (จำนวน หน่วยนับ มูลค่า) · 5) จัดลำดับความเสี่ยงตามมูลค่า ความถี่ ลักษณะรายการ · 6) สร้าง Finding พร้อมหลักฐาน มอบหมายเจ้าของตรวจสาเหตุ · 7) GAT ตรวจผลกระทบยอดและสรุปสถานะปิดประเด็น</td></tr>
+          <tr><td>Exception Flow</td><td>หน่วยนับไม่ตรง → หยุดสรุปอัตโนมัติ ขออนุมัติ Conversion Factor · ข้อมูลไม่ครบ → แจ้ง Data Owner จัดสถานะ "Evidence Incomplete" · ส่วนต่างสูง → แจ้ง Farm Manager และ BMC ตามเกณฑ์ Escalation · สัญญาณอาจเกี่ยวกับทุจริต → เก็บรักษาหลักฐาน จำกัดการเข้าถึง ส่งตรวจตามกระบวนการที่อนุมัติ <b>ห้ามสรุปความผิดจากส่วนต่างเพียงอย่างเดียว</b></td></tr>
+          <tr><td>Evidence</td><td>Harvest Log · ใบชั่งน้ำหนัก · ใบรับเข้า/เบิกจ่าย · Stock Card · รายงานตรวจนับจริง · เอกสารปรับปรุงยอด · ERP/Farm System extracts พร้อมวันเวลา+ผู้บันทึก · Log การเปลี่ยนแปลง · ภาพ VMS เมื่อเกี่ยวข้อง</td></tr>
+        </table>
+        <p class="small" style="margin-top:8px"><i>หัวข้อ Risk/Control, KPI, Acceptance Criteria ของ UC-01 และ UC-02 ขึ้นไป — รอรับเอกสารส่วนถัดไปจากพี่ปกรณ์ จะเพิ่มในรอบถัดไป</i></p>
+      </div>
     </div>
   </div>
 </section>
