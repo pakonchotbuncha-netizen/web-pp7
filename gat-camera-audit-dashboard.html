@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GAT Internal Audit &amp; Monitoring — OpenClaw + CCTV AI Vision</title>
+<style>
+:root{
+  --navy:#0f2a43; --navy2:#16385c; --ink:#1c2b3a; --muted:#5b7186;
+  --bg:#f2f6fa; --card:#ffffff; --line:#dbe5ee;
+  --acc:#0e7c86; --acc2:#0a5f66;
+  --gold:#b7791f; --red:#c0392b; --green:#1e7e46; --blue:#2059a7; --purple:#6b46c1;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI', 'Leelawadee UI', Tahoma, 'Noto Sans Thai', sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+.wrap{max-width:1200px;margin:0 auto;padding:18px 16px 60px}
+header.hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 60%,#1d4f7c 100%);color:#fff;border-radius:var(--radius);padding:26px 26px 20px;margin-bottom:16px;position:relative;overflow:hidden}
+header.hero:after{content:"";position:absolute;right:-60px;top:-60px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.06)}
+.hero h1{font-size:1.45rem;letter-spacing:.2px}
+.hero .sub{opacity:.85;margin-top:6px;font-size:.95rem;max-width:900px}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);padding:4px 12px;border-radius:999px;font-size:.8rem}
+.badge.warn{background:rgba(183,121,31,.25);border-color:rgba(230,180,90,.5)}
+nav.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+nav.tabs button{border:1px solid var(--line);background:var(--card);color:var(--muted);padding:9px 14px;border-radius:10px;font-size:.88rem;cursor:pointer;font-weight:600}
+nav.tabs button:hover{border-color:var(--acc);color:var(--acc)}
+nav.tabs button.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+section.page{display:none}
+section.page.show{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(15,42,67,.05)}
+.card h2{font-size:1.12rem;color:var(--navy);margin-bottom:4px}
+.card h3{font-size:.98rem;color:var(--navy2);margin:14px 0 6px}
+.card p.note{color:var(--muted);font-size:.86rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;font-size:.87rem;margin-top:8px}
+th{background:#eef4f9;color:var(--navy);text-align:left;padding:8px 10px;border:1px solid var(--line);font-weight:700}
+td{padding:8px 10px;border:1px solid var(--line);vertical-align:top}
+tr:nth-child(even) td{background:#fafcfe}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.75rem;font-weight:700}
+.p-high{background:#fdecea;color:var(--red)} .p-med{background:#fdf3e3;color:var(--gold)} .p-ok{background:#e8f6ee;color:var(--green)} .p-info{background:#e8f0fb;color:var(--blue)}
+.layer{border-left:5px solid var(--acc);background:#f7fbfc;border:1px solid var(--line);border-left-width:5px;border-radius:10px;padding:12px 16px;margin-bottom:10px}
+.layer b{color:var(--navy)}
+.layer .tag{float:right}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin-top:10px}
+.step{flex:1;min-width:140px;background:#f4f8fc;border:1px solid var(--line);border-radius:10px;padding:10px 12px;position:relative}
+.step .n{display:inline-block;width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:.75rem;text-align:center;line-height:22px;font-weight:700;margin-bottom:5px}
+.step b{display:block;font-size:.85rem;color:var(--navy2)}
+.step span{font-size:.78rem;color:var(--muted)}
+.arrowrow{display:flex;justify-content:center;color:var(--acc);font-size:1.2rem;margin:2px 0}
+.rulebox{background:#f0f7f4;border:1px dashed var(--green);border-radius:10px;padding:10px 14px;font-size:.85rem;margin-top:10px}
+.rulebox b{color:var(--green)}
+.warnbox{background:#fdf6ec;border:1px solid #ecd9b0;border-radius:10px;padding:12px 14px;font-size:.86rem;margin-top:12px}
+.warnbox b{color:var(--gold)}
+.dangerbox{background:#fdeeee;border:1px solid #ecc8c4;border-radius:10px;padding:12px 14px;font-size:.86rem;margin-top:12px}
+.dangerbox b{color:var(--red)}
+code,pre{font-family:ui-monospace,Consolas,monospace}
+pre{background:#0f2a43;color:#d7e8f7;padding:14px 16px;border-radius:10px;font-size:.8rem;overflow-x:auto;margin-top:8px;line-height:1.5}
+.biztabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.biztabs button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 12px;font-size:.82rem;cursor:pointer;font-weight:600;color:var(--muted)}
+.biztabs button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.biz{display:none}.biz.on{display:block}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:8px}
+.kpi div{background:#f4f8fc;border:1px solid var(--line);border-radius:10px;padding:10px 12px;text-align:center}
+.kpi b{display:block;font-size:1.15rem;color:var(--navy)}
+.kpi span{font-size:.75rem;color:var(--muted)}
+footer{margin-top:26px;text-align:center;color:var(--muted);font-size:.78rem}
+.small{font-size:.8rem;color:var(--muted)}
+ul.tick{list-style:none;margin-top:6px}
+ul.tick li{padding:3px 0 3px 22px;position:relative;font-size:.87rem}
+ul.tick li:before{content:"✔";position:absolute;left:0;color:var(--green);font-weight:700}
+ul.cross{list-style:none;margin-top:6px}
+ul.cross li{padding:3px 0 3px 22px;position:relative;font-size:.87rem}
+ul.cross li:before{content:"✖";position:absolute;left:0;color:var(--red);font-weight:700}
+.prio{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;background:#fff}
+.prio .rank{display:inline-block;background:var(--navy);color:#fff;border-radius:8px;padding:2px 10px;font-weight:700;font-size:.85rem;margin-right:8px}
+.prio.r1 .rank{background:var(--green)} .prio.r2 .rank{background:#2e7d32} .prio.r3 .rank{background:var(--blue)} .prio.r4 .rank{background:var(--purple)} .prio.r5 .rank{background:var(--muted)}
+@media print{nav.tabs,.biztabs{display:none}section.page,.biz{display:block!important}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>🛡️ GAT Internal Audit &amp; Monitoring Platform</h1>
+  <div class="sub">ออกแบบระบบตรวจสอบกิจการอย่างต่อเนื่องด้วย <b>OpenClaw + CCTV AI Vision</b> (กล้องวงจรปิด 500 ตัว) สำหรับกลุ่มบริษัท 5 ประเภทธุรกิจ — แนวคิด <b>AI-Assisted Continuous Auditing</b>: กล้องตรวจจับเหตุการณ์จริง → OpenClaw เชื่อมข้อมูลระบบงาน → สร้างหลักฐานให้ทีม GAT รายงาน OAC / BMC</div>
+  <div class="badges">
+    <span class="badge">📌 หลักการ: ไม่ใช้กล้องตัดสินการทุจริต — ใช้ภาพ + ธุรกรรม + สิทธิ์อนุมัติ ประกอบกัน</span>
+    <span class="badge warn">⚠️ เอกสารออกแบบเชิงแนวคิด — ตัวเลข/ตัวอย่างทั้งหมดไม่ใช่ผลการดำเนินงานจริง</span>
+    <span class="badge">🗓 v1.0 · 22 ต.ค. 2569 · KiloClaw</span>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button data-p="arch" class="active">🏗 สถาปัตยกรรม</button>
+  <button data-p="usecase">🎯 Use Case 5 ธุรกิจ</button>
+  <button data-p="flow">🔄 Workflow + กฎ + สิทธิ์</button>
+  <button data-p="limit">⚖️ ข้อจำกัดกฎหมาย/เทคนิค</button>
+  <button data-p="prio">🚀 ลำดับความสำคัญ + PoC 90 วัน</button>
+  <button data-p="roi">📊 KPI / ROI / การกำกับดูแล</button>
+</nav>
+
+<!-- ═══════════ ARCHITECTURE ═══════════ -->
+<section class="page show" id="p-arch">
+  <div class="card">
+    <h2>สถาปัตยกรรม 4 ชั้น</h2>
+    <p class="note">OpenClaw ทำงานอยู่หลัง Event Gateway และภายใต้สิทธิ์ข้อมูลที่จำกัด — ไม่เปิดให้ AI เข้าถึงกล้องทุกตัว ฐานข้อมูลการเงิน หรือสั่งการระบบปฏิบัติงานโดยตรง</p>
+    <div class="layer"><b>ชั้นที่ 1 · CCTV + AI Vision</b><span class="tag pill p-info">กล้อง 500 ตัว · VMS เดิม</span><br>ตรวจจับเหตุการณ์ — เวลา · พื้นที่ · ภาพ/คลิปหลักฐาน (ตรวจจับสิ่งที่เกิดขึ้นจริงในพื้นที่)</div>
+    <div class="arrowrow">↓ Event (API / Webhook)</div>
+    <div class="layer"><b>ชั้นที่ 2 · Event Gateway</b><span class="tag pill p-info">ตัวกลางควบคุม</span><br>รับ Event จาก VMS/AI — ตรวจสอบแหล่งที่มา ความถูกต้องของเวลา การส่งซ้ำ และสิทธิ์ผู้ส่ง ก่อนส่งต่อ</div>
+    <div class="arrowrow">↓ Event ที่ validate แล้ว</div>
+    <div class="layer"><b>ชั้นที่ 3 · OpenClaw — Workflow Orchestration</b><span class="tag pill p-high">สมองประสานงาน</span><br>ดึงข้อมูลที่ได้รับอนุญาต · เรียกกฎตรวจสอบ · เชื่อมโยง Event กับธุรกรรม · สร้าง Case · แจ้งผู้รับผิดชอบ
+      <div class="grid2" style="margin-top:10px">
+        <div class="rulebox"><b>ข้อมูลธุรกิจที่เชื่อม:</b> DMS / ERP / POS / ระบบสินเชื่อ / บัญชี / Ticket / Audit Log</div>
+        <div class="warnbox" style="margin-top:0"><b>Governance:</b> RBAC · Audit Trail · Evidence Store · PDPA · การอนุมัติโดยมนุษย์</div>
+      </div>
+    </div>
+    <div class="arrowrow">↓ Case / Finding / รายงาน</div>
+    <div class="layer"><b>ชั้นที่ 4 · GAT Assurance Dashboard</b><span class="tag pill p-ok">หน้าจอผู้บริหาร</span><br>Risk Score · Audit Findings · Corrective Actions · Monthly Oversight Report</div>
+    <div class="arrowrow">↓</div>
+    <div class="flow">
+      <div class="step"><span class="n">A</span><b>OAC</b><span>รับรายงานระดับกลุ่ม ตัดสินเรื่องสำคัญ</span></div>
+      <div class="step"><span class="n">B</span><b>BMC ทั้ง 4 บริษัท</b><span>เป็นเจ้าของความเสี่ยง อนุมัติการแก้ไข</span></div>
+      <div class="step"><span class="n">C</span><b>ทีมปฏิบัติงาน</b><span>ยืนยันข้อเท็จจริง ปิด Finding</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>บทบาทของแต่ละระบบ (ขอบเขตความรับผิดชอบ)</h2>
+    <table>
+      <tr><th>ระบบ/ทีม</th><th>บทบาท</th><th>สิ่งที่ไม่ควรทำ</th></tr>
+      <tr><td>📷 CCTV + AI Vision</td><td>ตรวจจับเหตุการณ์ในพื้นที่จริง: รถเข้า-ออก · คนเข้าเขตหวงห้าม · การเคลื่อนย้ายทรัพย์สิน</td><td>สรุปความผิด/ทุจริตจากภาพลำพัง · จดจำใบหน้าในระยะแรก</td></tr>
+      <tr><td>🤖 OpenClaw</td><td>ประสาน Workflow · เชื่อม API ที่กำหนด · ตรวจกฎ · สร้าง Case · แจ้งเตือน · ร่างรายงาน</td><td>เข้าถึงกล้อง/ฐานข้อมูลนอกสิทธิ์ · สั่งการระบบปฏิบัติงาน · ลบ/แก้หลักฐานต้นฉบับ</td></tr>
+      <tr><td>🔍 GAT</td><td>ประเมินความเสี่ยง · ตรวจคุณภาพหลักฐาน · ยืนยันข้อค้นพบ · ให้ Assurance · รายงาน OAC/BMC</td><td>รับผิดชอบการปฏิบัติงานแทนฝ่ายบริหารของแต่ละบริษัท (ต้องเป็นอิสระ)</td></tr>
+    </table>
+    <div class="warnbox"><b>หมายเหตุเชิงวิศวกรรม:</b> ต้องพัฒนา Integration ให้ตรงกับ VMS และระบบงานจริงที่ใช้งาน — ไม่ควรสมมติว่า OpenClaw เชื่อมต่อกล้องทุกยี่ห้อได้โดยตรง</div>
+  </div>
+</section>
+
+<!-- ═══════════ USE CASES ═══════════ -->
+<section class="page" id="p-usecase">
+  <div class="card">
+    <h2>Use Case หลัก แยก 5 ประเภทธุรกิจ</h2>
+    <p class="note">เกณฑ์เลือก: เหตุการณ์เกิดบ่อย · ตรวจจับได้จริง · มีข้อมูลยืนยันไขว้ · สร้างมูลค่าทางธุรกิจได้ — ไม่ใช่เริ่มจากความสามารถ AI ที่น่าสนใจแต่พิสูจน์ผลตอบแทนยาก</p>
+    <div class="biztabs">
+      <button class="biztab on" data-b="b1">🚗 1. ดีเลอร์อีซูซุ</button>
+      <button class="biztab" data-b="b2">🎨 2. ตัวถังและสี</button>
+      <button class="biztab" data-b="b3">💳 3. สินเชื่อ TH/LA/KH</button>
+      <button class="biztab" data-b="b4">💻 4. บริษัทซอฟต์แวร์</button>
+      <button class="biztab" data-b="b5">📈 5. ลงทุนการเงินดิจิทัล</button>
+    </div>
+
+    <div class="biz on" id="b1">
+      <h3>ดีเลอร์รถยนต์อีซูซุ — ฝ่ายขาย · ลานรถ · ศูนย์บริการ</h3>
+      <p class="small"><b>เป้าหมาย:</b> ลดความสูญเสียทรัพย์สิน · ตรวจสอบความครบถ้วนงานบริการ · ความสอดคล้องงานบริการ↔การเรียกเก็บเงิน</p>
+      <table>
+        <tr><th>Use Case</th><th>📷 CCTV + AI ตรวจจับ</th><th>🤖 OpenClaw ตรวจสอบเพิ่ม</th></tr>
+        <tr><td>1. รถเข้า–ออกลานและสต็อก</td><td>รถผ่านทางเข้า-ออก · อ่านป้ายทะเบียนเมื่อทำได้</td><td>เทียบทะเบียนกับ DMS · ใบส่งมอบ · ใบทดลองขับ · รายการรับรถ</td></tr>
+        <tr><td>2. รถทดลองขับ</td><td>รถเคลื่อนออกจากพื้นที่</td><td>มีใบอนุญาตทดลองขับ · ผู้รับผิดชอบ · เวลาคืนรถครบไหม</td></tr>
+        <tr><td>3. รถเข้าซ่อม</td><td>รถเข้าเขตรับบริการและช่องซ่อม</td><td>เทียบเวลาเข้า-ออกกับ Job Order และสถานะปิดงาน</td></tr>
+        <tr><td>4. อะไหล่</td><td>การเคลื่อนย้ายกล่อง/สิ่งของในจุดกำหนด</td><td>เทียบการเบิกกับ Parts Issue และใบสั่งซ่อม</td></tr>
+        <tr><td>5. เงินสด/พื้นที่รับชำระ</td><td>การเข้าใช้พื้นที่หรือเหตุการณ์กำหนด</td><td>เทียบรายการรับชำระกับ POS และรายงานปิดยอด</td></tr>
+        <tr><td>6. ความปลอดภัยการทำงาน</td><td>เข้าเขตอันตราย · ไม่สวม PPE ในพื้นที่เหมาะสม</td><td>แจ้งหัวหน้างานและติดตามการแก้ไข</td></tr>
+      </table>
+      <div class="rulebox"><b>ตัวอย่างกฎตรวจสอบ:</b><br>
+      · พบรถออกประตู แต่ไม่มีรายการอนุมัติรถออกใน DMS → สร้าง Case <span class="pill p-high">ระดับสูง</span><br>
+      · รถอยู่ในช่องซ่อม แต่ไม่มี Job Order ตรงกัน → แจ้งหัวหน้าศูนย์บริการ<br>
+      · รถยังอยู่ในพื้นที่หลังระบบปิดงานแล้วนาน → ตรวจความถูกต้องสถานะงาน<br>
+      · เคลื่อนย้ายอะไหล่ช่วงกำหนด แต่ไม่มีรายการเบิก → แจ้งสอบทาน</div>
+      <div class="dangerbox"><b>ข้อควรระวัง:</b> กล้องยืนยันเลขตัวถัง/จำนวนอะไหล่ในกล่องไม่วางใจได้ในทุกสภาพ → ต้องใช้ Barcode / RFID / เอกสารรับ-จ่าย / ข้อมูลคลังร่วมด้วย</div>
+    </div>
+
+    <div class="biz" id="b2">
+      <h3>ศูนย์ซ่อมตัวถังและสีรถยนต์ — รับรถ · ซ่อม · พ่นสี · ส่งมอบ</h3>
+      <p class="small"><b>เป้าหมาย:</b> ควบคุมวงจรงานซ่อม · ลดงานค้าง · การเบิกจ่ายสอดคล้องงานจริง</p>
+      <table>
+        <tr><th>Use Case</th><th>วิธีตรวจสอบอัตโนมัติ</th></tr>
+        <tr><td>รถรับเข้าและส่งมอบ</td><td>เทียบเหตุการณ์รถเข้า-ออกกับใบรับรถ · ใบส่งมอบ · ผู้มีอำนาจอนุมัติ</td></tr>
+        <tr><td>งานซ่อมล่าช้า</td><td>เทียบเวลาที่พบรถในพื้นที่ซ่อมกับกำหนดใน Job Order</td></tr>
+        <tr><td>รถไม่มีใบสั่งซ่อม</td><td>ตรวจจับรถในช่องซ่อมที่ไม่มีรายการงานตรงกัน</td></tr>
+        <tr><td>การเบิกอะไหล่</td><td>ตรวจการเคลื่อนย้ายร่วมกับใบเบิกและยอดอะไหล่ในระบบ</td></tr>
+        <tr><td>งานเคลมประกัน</td><td>เชื่อมภาพก่อนซ่อม-ระหว่างซ่อม-หลังซ่อมกับ Claim ID</td></tr>
+        <tr><td>คุณภาพและความปลอดภัย</td><td>ตรวจจับการเข้าพื้นที่พ่นสีที่ไม่ปฏิบัติตามข้อกำหนดที่ระบบตรวจจับได้</td></tr>
+      </table>
+      <div class="rulebox"><b>Use Case ผลตอบแทนสูง:</b> ตรวจรถค้างซ่อม + ความสอดคล้องระหว่าง รถจริง · ใบสั่งซ่อม · อะไหล่ · สถานะงาน — ไม่ต้องใช้ AI ซับซ้อนมากในระยะแรก</div>
+      <div class="dangerbox"><b>ข้อจำกัด:</b> การพิสูจน์ความเสียหายของสี/รอยบุบ/คุณภาพซ่อม ต้องใช้ภาพควบคุมแสง-มุม + ระบบตรวจคุณภาพเฉพาะทาง — ไม่ควรใช้กล้องรักษาความปลอดภัยทั่วไปตัดสินคุณภาพงานเพียงอย่างเดียว</div>
+    </div>
+
+    <div class="biz" id="b3">
+      <h3>ธุรกิจสินเชื่อ — ไทย · สปป.ลาว · กัมพูชา</h3>
+      <p class="small"><b>เป้าหมาย:</b> ลดความเสี่ยงด้านปฏิบัติการ · เอกสาร · เงินสด · Compliance หลายประเทศ</p>
+      <table>
+        <tr><th>Use Case</th><th>การตรวจจับและตรวจสอบ</th></tr>
+        <tr><td>การควบคุมเงินสด</td><td>ตรวจจับเหตุการณ์พื้นที่รับ-จ่ายเงิน ↔ เทียบ Cash Log และรายการบัญชี</td></tr>
+        <tr><td>เข้าถึงเอกสารสินเชื่อ</td><td>ตรวจจับการเข้าเขตเก็บเอกสาร ↔ ตรวจสิทธิ์จาก Access Log</td></tr>
+        <tr><td>การส่งมอบเอกสาร</td><td>เคลื่อนย้ายเอกสารในจุดรับส่ง ↔ ทะเบียนรับ-ส่งและผู้รับผิดชอบ</td></tr>
+        <tr><td>ปฏิบัติงานนอกเวลา</td><td>แจ้งเตือนเหตุการณ์ในพื้นที่สำคัญนอกช่วงอนุญาต</td></tr>
+        <tr><td>ความสอดคล้องกระบวนการ</td><td>เทียบเหตุการณ์รับเอกสารกับสถานะคำขอสินเชื่อ + Checklist</td></tr>
+        <tr><td>ความเสี่ยง Compliance</td><td>รวม Case ทุกประเทศ ระบุประเทศ/บริษัท/สาขา/กฎที่เกี่ยวข้อง</td></tr>
+      </table>
+      <div class="rulebox"><b>ตัวอย่าง:</b> กล้องพบเปิดห้องเก็บเอกสาร 22.30 น. → OpenClaw ตรวจ Access Log ไม่พบอนุมัติทำงานนอกเวลา → สร้าง Case ระบุสาขา เวลา ผู้รับผิดชอบ ภาพเหตุการณ์ ให้ Compliance Officer ตรวจสอบ</div>
+      <div class="dangerbox"><b>ข้อจำกัดสำคัญ:</b> กล้องบอกไม่ได้ว่าเอกสารเท็จหรือดอกเบี้ยผิดกฎหมาย — ต้องตรวจจากสัญญา/ตารางดอกเบี้ย/รายการรับชำระ/กฎหมายแต่ละประเทศโดยตรง · <b>ห้าม</b> ใช้สีหน้า-ท่าทาง-การเคลื่อนไหวสรุปว่าลูกหนี้ทุจริตหรือเสี่ยงเครดิตโดยไม่มีหลักฐาน</div>
+    </div>
+
+    <div class="biz" id="b4">
+      <h3>บริษัทพัฒนาซอฟต์แวร์ — สำนักงาน · ห้องเซิร์ฟเวอร์ · พื้นที่ควบคุม</h3>
+      <p class="small"><b>เป้าหมาย:</b> ควบคุมการเข้าถึงทรัพย์สิน/ระบบสำคัญ · CCTV เป็นหลักฐานประกอบ audit log ไอที</p>
+      <table>
+        <tr><th>Use Case</th><th>วิธีดำเนินงาน</th></tr>
+        <tr><td>ห้อง Server / Network</td><td>ตรวจจับการเข้าถึงนอกเวลาหรือไม่มี Access Log สอดคล้อง</td></tr>
+        <tr><td>อุปกรณ์และสื่อบันทึกข้อมูล</td><td>ตรวจจับการนำอุปกรณ์ออกจากพื้นที่ เมื่อภาพและตำแหน่งเหมาะสม</td></tr>
+        <tr><td>ปฏิบัติงานของผู้ดูแลระบบ</td><td>เชื่อมเวลาเข้าห้องกับ Privileged Access Log + Change Ticket</td></tr>
+        <tr><td>ควบคุมการเปลี่ยนแปลง</td><td>เทียบเวลาเข้าพื้นที่กับ Deployment Log + Change Approval</td></tr>
+        <tr><td>ตอบสนองเหตุการณ์</td><td>สร้าง Incident Ticket แนบข้อมูลประกอบให้ทีม Security</td></tr>
+      </table>
+      <div class="rulebox"><b>ตัวอย่าง:</b> ผู้เข้าห้อง Server ช่วงปิดระบบ แต่ไม่มี Change Ticket อนุมัติ → OpenClaw ตรวจบัตรผ่าน + บันทึกระบบ → แจ้งทีม Security และ GAT</div>
+      <div class="dangerbox"><b>ข้อจำกัด:</b> CCTV ยืนยัน "การเข้าถึงพื้นที่" ได้ แต่ไม่ยืนยันว่าคัดลอก Source Code หรือแก้ข้อมูลจริง — ต้องใช้ Git Audit Log, Endpoint Detection, IAM, Change Management</div>
+    </div>
+
+    <div class="biz" id="b5">
+      <h3>บริษัทลงทุนการเงินดิจิทัล — ห้องปฏิบัติการ · ทรัพย์สิน · ระบบสำคัญ</h3>
+      <p class="small"><b>เป้าหมาย:</b> เฝ้าระวังพื้นที่/ทรัพย์สินสำคัญ ควบคู่การตรวจธุรกรรมผิดปกติจากข้อมูลระบบ — <b>ไม่ใช้ภาพกล้องแทนการตรวจสอบธุรกรรม</b></p>
+      <table>
+        <tr><th>Use Case</th><th>วิธีดำเนินงาน</th></tr>
+        <tr><td>ห้องควบคุมระบบสำคัญ</td><td>ตรวจจับการเข้าพื้นที่ ↔ Access Control</td></tr>
+        <tr><td>อุปกรณ์จัดเก็บกุญแจ/ความปลอดภัย</td><td>เฝ้าระวังการเข้าถึงตามเงื่อนไขกำหนด</td></tr>
+        <tr><td>ปฏิบัติงานนอกเวลา</td><td>ตรวจจับเหตุการณ์ไม่สอดคล้องตารางงานและสิทธิ์</td></tr>
+        <tr><td>ตรวจสอบธุรกรรม</td><td>รับ Alert จาก Transaction Monitoring ↔ เชื่อม Case + Audit Trail</td></tr>
+        <tr><td>เปลี่ยนแปลงระบบลงทุน</td><td>เชื่อมเหตุการณ์เข้าพื้นที่กับ Change Log + รายการอนุมัติ</td></tr>
+        <tr><td>ติดตามเหตุการณ์สำคัญ</td><td>Case Timeline รวมเวลา · กล้อง · ระบบธุรกรรม · ผลสอบทาน</td></tr>
+      </table>
+      <div class="rulebox"><b>ตัวอย่าง:</b> ระบบพบโอนมูลค่าสูงผิดรูปแบบปกติ → OpenClaw เปิด Case จาก Alert + ดึงหลักฐานจากระบบธุรกรรมที่อนุญาต → ถ้าเวลาใกล้กันมีการเข้าห้องควบคุม ให้เชื่อมเหตุการณ์ให้ผู้ตรวจสอบพิจารณา</div>
+      <div class="dangerbox"><b>ข้อสำคัญ:</b> ภาพกล้องอย่างเดียวไม่ใช่หลักฐานว่าธุรกรรมผิดกฎหมาย · การเข้าห้องควบคุมเวลาใกล้กันไม่พิสูจน์ว่าบุคคลนั้นทำธุรกรรม</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ WORKFLOW ═══════════ -->
+<section class="page" id="p-flow">
+  <div class="card">
+    <h2>Workflow มาตรฐาน: เมื่อ CCTV พบความผิดปกติ</h2>
+    <p class="note">ปรับใช้ได้ทั้ง 5 ธุรกิจ — จาก Detect ถึง Close มีมนุษย์ยืนยันที่ปลายทางเสมอ</p>
+    <div class="flow">
+      <div class="step"><span class="n">1</span><b>Detect — ตรวจจับ</b><span>CCTV AI ตรวจพบเหตุการณ์ → VMS สร้าง Event ID พร้อม Camera ID, Timestamp, Event Type, ภาพ/คลิปอ้างอิง</span></div>
+      <div class="step"><span class="n">2</span><b>Validate — ตรวจคุณภาพ</b><span>Event Gateway ตรวจแหล่งที่มา เวลา ส่งซ้ำ สิทธิ์ผู้ส่ง ก่อนส่งเข้าประมวลผล</span></div>
+      <div class="step"><span class="n">3</span><b>Correlate — เชื่อมโยง</b><span>OpenClaw เรียก API ที่อนุญาต: ทะเบียนรถ · ใบสั่งซ่อม · การอนุมัติ · รายการเงิน · Access Log</span></div>
+      <div class="step"><span class="n">4</span><b>Evaluate — ประเมินเสี่ยง</b><span>ใช้กฎล่วงหน้า (รถออกไม่มีอนุมัติ ฯลฯ) · AI ช่วยสรุปและอธิบายความผิดปกติ</span></div>
+      <div class="step"><span class="n">5</span><b>Create Case — สร้างหลักฐาน</b><span>บันทึก Event ID, เวลา, สาขา, ระบบต้นทาง, กฎที่ผิดเงื่อนไข, ภาพอ้างอิง, ข้อมูลที่ใช้ตรวจสอบ ลง Case Register</span></div>
+      <div class="step"><span class="n">6</span><b>Notify — แจ้ง</b><span>แจ้งผู้จัดการสาขา/เจ้าของกระบวนการ/Compliance ตามระดับความเสี่ยง ผ่านช่องทางที่องค์กรอนุมัติ</span></div>
+      <div class="step"><span class="n">7</span><b>Verify &amp; Close — ปิดเคส</b><span>ผู้รับผิดชอบยืนยันผล บันทึกการแก้ไข · GAT สุ่มตรวจ/ทบทวนเคสสำคัญก่อนนำเข้ารายงาน OAC/BMC</span></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>ตัวอย่างข้อมูลระหว่างระบบ (สมมติ)</h2>
+      <p class="small">VMS แจ้งเหตุรถออกจากลานในช่วงเวลาทำการ → Event Gateway ส่งต่อ OpenClaw:</p>
+<pre>{
+  "event_id":    "EVT-DEMO-001",
+  "business":    "Vehicle Dealer",
+  "branch":      "BRANCH-DEMO-01",
+  "camera_id":   "GATE-OUT-01",
+  "event_type":  "vehicle_exit",
+  "timestamp":   "2026-10-22T10:15:00+07:00",
+  "vehicle_plate":"DEMO-1234",
+  "confidence":  0.96,
+  "evidence_ref":"EVIDENCE-DEMO-001"
+}</pre>
+      <p class="small" style="margin-top:8px">OpenClaw ใช้ Event นี้เรียก API ของ DMS ตามทะเบียน+ช่วงเวลา แล้วตรวจ:</p>
+      <ul class="tick">
+        <li>มีรายการอนุมัติรถออกหรือไม่</li>
+        <li>ทะเบียนตรงกับรถที่อนุมัติหรือไม่</li>
+        <li>รายการนั้นยกเลิกไปแล้วหรือยัง</li>
+        <li>มีการส่ง Event ซ้ำหรือไม่</li>
+      </ul>
+      <p class="small">จากนั้นส่งผลเข้า Case Management — <b>เก็บเฉพาะข้อมูลที่จำเป็น</b> (data minimisation)</p>
+    </div>
+
+    <div class="card">
+      <h2>ตัวอย่างกฎ Risk Scoring</h2>
+      <table>
+        <tr><th>เงื่อนไข</th><th>คะแนนตัวอย่าง</th></tr>
+        <tr><td>รถออกโดยไม่พบรายการอนุมัติ</td><td><b>50</b></td></tr>
+        <tr><td>ทะเบียนไม่ตรงกับรายการอนุมัติ</td><td><b>30</b></td></tr>
+        <tr><td>เหตุการณ์เกิดนอกเวลาที่กำหนด</td><td><b>20</b></td></tr>
+        <tr><td>หลักฐานประกอบไม่เพียงพอ</td><td><span class="pill p-med">ส่งตรวจคุณภาพข้อมูล</span></td></tr>
+      </table>
+      <p class="small" style="margin-top:8px">คะแนน ≥ 50 → High Priority เร่งตรวจสอบ</p>
+      <div class="dangerbox"><b>Risk Score ≠ คะแนนความผิดของบุคคล</b> — เป็นตัวอย่างเพื่อออกแบบ PoC ต้องปรับเทียบจากความเสี่ยงจริง/ประวัติเหตุการณ์ก่อนใช้ และ<b>ไม่ควรใช้ตัดสินลงโทษอัตโนมัติ</b></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🔐 การออกแบบสิทธิ์ให้ปลอดภัย (Least Privilege)</h2>
+    <div class="grid2">
+      <div>
+        <h3 style="color:var(--green)">✅ OpenClaw ทำได้เอง</h3>
+        <ul class="tick">
+          <li><b>อ่าน:</b> Event Metadata, ข้อมูลธุรกรรมที่จำเป็น, สถานะอนุมัติ, Audit Log</li>
+          <li><b>สร้าง:</b> Case, Alert, รายงาน, รายการติดตามการแก้ไข</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="color:var(--red)">🚫 ข้อห้าม</h3>
+        <ul class="cross">
+          <li><b>ต้องอนุมัติโดยมนุษย์:</b> ระงับธุรกรรม · เปลี่ยนสถานะทางบัญชี · ลงโทษบุคลากร · การดำเนินการกระทบลูกค้า</li>
+          <li><b>ห้ามโดยปริยาย:</b> เปิดเผยภาพ/ข้อมูลลูกค้าออกนอกขอบเขต · ให้ AI ลบหรือแก้ไขหลักฐานต้นฉบับ</li>
+        </ul>
+      </div>
+    </div>
+    <div class="warnbox"><b>การแบ่งเขตความไว้วางใจ:</b> ควรแยก Gateway / Agent ตามระดับความไว้วางใจและขอบเขตข้อมูล — ไม่ควรใช้สิทธิ์ผู้ดูแลระบบชุดเดียวครอบคลุมทั้ง 5 ธุรกิจโดยไม่จำเป็น</div>
+  </div>
+</section>
+
+<!-- ═══════════ LIMITS ═══════════ -->
+<section class="page" id="p-limit">
+  <div class="card">
+    <h2>4.1 กฎหมายและการคุ้มครองข้อมูลส่วนบุคคล</h2>
+    <table>
+      <tr><th>ประเทศ</th><th>กรอบกฎหมาย</th><th>สิ่งที่ต้องทำ</th></tr>
+      <tr><td>🇹🇭 ไทย</td><td><b>PDPA</b></td><td>ภาพระบุตัวบุคคล = ข้อมูลส่วนบุคคล → กำหนดวัตถุประสงค์+ฐานกฎหมาย · แจ้งการใช้ CCTV ชัดเจน · จำกัดการเข้าถึง · กำหนดระยะเก็บ · รองรับสิทธิเจ้าของข้อมูล · สัญญากับผู้ประมวลผล · การโอนข้อมูลไปต่างประเทศตามกรณี</td></tr>
+      <tr><td>🇱🇦 สปป.ลาว</td><td>กฎหมายข้อมูลอิเล็กทรอนิกส์และที่เกี่ยวข้อง</td><td>ตรวจข้อกำหนดท้องถิ่น: ข้อมูลภาพ · ความลับ · การเก็บ/ส่งข้อมูลอิเล็กทรอนิกส์ · cross-border transfer — ให้ที่ปรึกษากฎหมายลาวยืนยัน<b>ล่าสุด</b>ก่อนใช้ระบบจริง</td></tr>
+      <tr><td>🇰🇭 กัมพูชา</td><td>กฎหมาย/ข้อกำหนดข้อมูลที่มีผล ณ วันติดตั้ง</td><td>ตรวจข้อกำหนด: ความลับทางธุรกิจ · กฎธุรกิจสินเชื่อ · ส่งข้อมูลข้ามประเทศ — <b>ไม่ควรสันนิษฐานว่าใช้ข้อกำหนดเดียวกับไทย</b></td></tr>
+    </table>
+    <div class="warnbox"><b>หมายเหตุสถานะกฎหมาย (OECD):</b> รายงานเผยแพร่ปี 2026 ระบุว่า ณ ธ.ค. 2025 กัมพูชาและลาวยังไม่มีกรอบกฎหมายคุ้มครองข้อมูลส่วนบุคคลเฉพาะที่เทียบเท่าบางประเทศอาเซียน · กัมพูชามีร่างปี 2025 ที่ยังไม่ประกาศใช้ในช่วงรายงานกล่าวถึง — ข้อมูลนี้ไม่ใช่ข้อยืนยันสถานะ ณ ต.ค. 2026 <b>ต้องตรวจสอบกฎหมาย/ประกาศล่าสุดก่อนตัดสินใจ</b></div>
+    <h3>มาตรฐานขั้นต่ำที่เสนอเป็นมาตรฐานกลางกลุ่มบริษัท</h3>
+    <ul class="tick">
+      <li>ป้ายแจ้ง CCTV + ประกาศวัตถุประสงค์เหมาะสมแต่ละพื้นที่</li>
+      <li>ทะเบียนกล้อง: วัตถุประสงค์ · ผู้มีสิทธิ์ดูภาพ · ระยะเวลาเก็บรักษา</li>
+      <li>นโยบายการใช้ AI วิเคราะห์ภาพ รวมถึงการห้ามใช้เกินวัตถุประสงค์</li>
+      <li>การควบคุมการส่งภาพ/ข้อมูลลูกค้าข้ามประเทศ</li>
+      <li>กระบวนการรับคำขอเข้าถึงข้อมูล + การระงับการลบหลักฐานเมื่อมีเหตุสอบสวนที่ชอบด้วยกฎหมาย (legal hold)</li>
+      <li>ประเมินผลกระทบด้านข้อมูลส่วนบุคคลและความปลอดภัยก่อนใช้งานจริง ตามความจำเป็นและข้อกฎหมาย</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>4.2 ข้อจำกัดทางเทคนิคและแนวทางควบคุม</h2>
+    <table>
+      <tr><th>ความเสี่ยง</th><th>ผลกระทบ</th><th>แนวทางควบคุม</th></tr>
+      <tr><td>ภาพย้อนแสง มืด บดบัง</td><td>ตรวจจับผิด/พลาด</td><td>ปรับตำแหน่งกล้อง · ทดสอบหลายช่วงเวลา · วัด False Positive/Negative</td></tr>
+      <tr><td>อ่านป้ายทะเบียนผิด</td><td>จับคู่รถผิดคัน</td><td>Confidence Threshold + ตรวจสอบกับข้อมูลทะเบียน/ภาพต้นฉบับ</td></tr>
+      <tr><td>นาฬิกากล้องไม่ตรง</td><td>จับคู่ธุรกรรมผิดเวลา</td><td>ใช้ NTP + กำหนด Time Zone มาตรฐาน (<b>งานแรก ๆ ของ PoC</b>)</td></tr>
+      <tr><td>Event ซ้ำ / เครือข่ายขัดข้อง</td><td>แจ้งเตือนซ้ำ ข้อมูลหาย</td><td>Event ID · Idempotency · Queue · Retry</td></tr>
+      <tr><td>AI สรุปผิด</td><td>ข้อสงสัยไร้มูล</td><td>กฎที่ตรวจสอบซ้ำได้ + มนุษย์ยืนยันเสมอ</td></tr>
+      <tr><td>เข้าถึง Gateway เกินจำเป็น</td><td>ข้อมูลรั่ว / ระบบถูกสั่งงานมิชอบ</td><td>Least Privilege · Secret Management · Network Segmentation · Audit Trail</td></tr>
+      <tr><td>ข้อความใน Event ไม่ปลอดภัย</td><td>Prompt Injection</td><td>ปฏิบัติต่อ Event/เอกสารเป็น "ข้อมูล" ไม่ใช่ "คำสั่ง" · จำกัดเครื่องมือ · ตรวจสอบสิทธิ์ด้วยโค้ด (Hooks บางประเภททำงานด้วยสิทธิ์ Gateway ไม่ใช่ sandbox — ตรวจโค้ดและจำกัดสิทธิ์ก่อนเปิดใช้)</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════ PRIORITY + PoC ═══════════ -->
+<section class="page" id="p-prio">
+  <div class="card">
+    <h2>ลำดับความสำคัญ PoC — เริ่มที่ธุรกิจใดก่อน</h2>
+    <p class="note">เหตุผลหลัก: กิจการรถยนต์มีเหตุการณ์ทางกายภาพตรวจจับชัด + มีข้อมูลตรวจสอบไขว้ง่าย (ทะเบียน/ใบสั่งซ่อม/อะไหล่/อนุมัติรถออก) จึงวัดผลง่ายกว่าความเสี่ยงการเงินเฉพาะทาง</p>
+    <div class="prio r1"><span class="rank">P1</span><b>ดีเลอร์อีซูซุและศูนย์บริการ</b> <span class="pill p-ok">ความเหมาะสมสูง</span>
+      <div class="small">ตรวจรถเข้า-ออกเทียบ DMS · รถเข้าซ่อมเทียบ Job Order · ความผิดปกติเบิกอะไหล่ — วัดจำนวนเหตุการณ์ผิดปกติ เวลาตรวจสอบ และมูลค่าความสูญเสียที่ป้องกันได้</div></div>
+    <div class="prio r2"><span class="rank">P2</span><b>ศูนย์ซ่อมตัวถังและสี</b> <span class="pill p-ok">ต่อยอดจาก P1</span>
+      <div class="small">รถค้างซ่อม · ความสอดคล้องอะไหล่-ใบสั่งซ่อม · รถส่งมอบและงานเคลม — นำ Event Gateway + Case Management จากโครงการแรกมาใช้ซ้ำ</div></div>
+    <div class="prio r3"><span class="rank">P3</span><b>ธุรกิจสินเชื่อ 3 ประเทศ</b> <span class="pill p-info">ต้องเตรียมกฎหมายก่อน</span>
+      <div class="small">เงินสด · เข้าถึงเอกสาร · ทำงานนอกเวลา · เชื่อมระบบสินเชื่อ+Compliance — มีประโยชน์ต่อการกำกับสูง แต่ต้องเตรียมข้อกำหนดกฎหมายและข้อมูลแต่ละประเทศ</div></div>
+    <div class="prio r4"><span class="rank">P4</span><b>บริษัทพัฒนาซอฟต์แวร์</b> <span class="pill p-info">เริ่มเร็วถ้า log พร้อม</span>
+      <div class="small">เข้าห้อง Server · Change Ticket ↔ Access Log · เหตุการณ์ Security — เริ่มได้เร็วหากมี Access Log + Change Management ที่พร้อม</div></div>
+    <div class="prio r5"><span class="rank">P5</span><b>บริษัทลงทุนการเงินดิจิทัล</b> <span class="pill p-med">ซับซ้อนสูงสุด</span>
+      <div class="small">Transaction Monitoring · เข้าถึงระบบสำคัญ · เชื่อมหลักฐานกายภาพกับ Audit Trail — ต้องเน้นควบคุมสิทธิ์ ความปลอดภัย และข้อกำกับธุรกิจการเงิน</div></div>
+    <div class="warnbox"><b>ข้อสังเกต:</b> ลำดับนี้เป็นข้อเสนอเบื้องต้น ไม่ใช่ข้อสรุปว่า P1 มี ROI สูงสุดแน่นอน — ถ้าบริษัทซอฟต์แวร์มี Access Log พร้อมและต้องการลดความเสี่ยงห้อง Server เร่งด่วน อาจเริ่ม PoC ส่วนนั้นควบคู่ได้</div>
+  </div>
+
+  <div class="card">
+    <h2>แผนนำร่อง 90 วัน</h2>
+    <div class="grid3">
+      <div class="layer" style="border-left-color:var(--green)">
+        <b>วัน 1–30 · สำรวจและออกแบบ</b>
+        <ul class="tick" style="font-size:.83rem">
+          <li>เลือกดีเลอร์ 1 แห่ง · กล้อง 10–20 ตัวเป็นขอบเขตทดลอง</li>
+          <li>ตรวจ VMS, API, กล้อง, คุณภาพภาพ</li>
+          <li>เลือก Use Case 2–3 เรื่อง (รถออกไม่มีอนุมัติ · รถในช่องซ่อมไม่มี Job Order)</li>
+          <li>จัดทำ Risk &amp; Control Matrix + ตรวจข้อกฎหมาย</li>
+          <li>กำหนดข้อมูลอ้างอิง + วิธีวัดผลก่อนเริ่ม</li>
+        </ul>
+        <span class="small">📦 <b>ส่งมอบ:</b> PoC Design · Risk Register · KPI Baseline · Data Access Matrix</span>
+      </div>
+      <div class="layer" style="border-left-color:var(--blue)">
+        <b>วัน 31–60 · พัฒนาและทดสอบ</b>
+        <ul class="tick" style="font-size:.83rem">
+          <li>เชื่อม VMS ↔ Event Gateway</li>
+          <li>เชื่อม OpenClaw ↔ API DMS / Job Order</li>
+          <li>สร้างกฎตรวจสอบ · Case Register · ระบบแจ้งเตือน</li>
+          <li>ทดสอบ Event จริงเทียบผลผู้ตรวจสอบยืนยัน</li>
+          <li>ตรวจความปลอดภัย การบันทึกหลักฐาน False Positive</li>
+        </ul>
+        <span class="small">📦 <b>ส่งมอบ:</b> ระบบทดลอง · รายงานความแม่นยำ · รายการข้อบกพร่อง</span>
+      </div>
+      <div class="layer" style="border-left-color:var(--gold)">
+        <b>วัน 61–90 · ทดลองปฏิบัติและประเมิน ROI</b>
+        <ul class="tick" style="font-size:.83rem">
+          <li>ใช้งานจริงโดยยังให้คนอนุมัติผล</li>
+          <li>ทีมสาขา · BMC · GAT ตรวจสอบ Case</li>
+          <li>เทียบกับวิธีตรวจสอบแบบเดิม</li>
+          <li>คำนวณต้นทุนรวม · มูลค่าป้องกันได้ · เวลาที่ลด</li>
+          <li>เสนอ OAC อนุมัติ/ขยาย/ปรับ/ยุติ</li>
+        </ul>
+        <span class="small">📦 <b>ส่งมอบ:</b> PoC Evaluation · ROI Report · แผนขยาย</span>
+      </div>
+    </div>
+    <div class="rulebox"><b>Use Case แรก 3 เรื่องที่แนะนำสร้างก่อน (Continuous Monitoring + Event Gateway):</b><br>
+    ① รถออกจากลานโดยไม่มีรายการอนุมัติ &nbsp; ② รถเข้าช่องซ่อมโดยไม่มี Job Order ตรงกัน &nbsp; ③ รถค้างซ่อม/สถานะงานจริงไม่สอดคล้องระบบ<br>
+    ทั้ง 3 เรื่องกำหนดเป็นกฎได้ และเทียบหลักฐาน CCTV กับข้อมูลระบบธุรกิจได้โดยตรง — ผ่านการพิสูจน์แล้วจึงขยายไปตัวถังและสี → สินเชื่อ → ซอฟต์แวร์ → การเงินดิจิทัล โดยเปลี่ยนกฎตามความเสี่ยงแต่ละธุรกิจ</div>
+  </div>
+</section>
+
+<!-- ═══════════ KPI / ROI / GOVERNANCE ═══════════ -->
+<section class="page" id="p-roi">
+  <div class="card">
+    <h2>KPI สำหรับ PoC</h2>
+    <p class="note">ตัวเลขเป้าหมาย = ค่าเริ่มต้นตั้งเกณฑ์ทดลอง ไม่ใช่ผลการดำเนินงานจริง · ต้องปรับตาม Baseline และความถี่เหตุการณ์ของแต่ละ Use Case</p>
+    <table>
+      <tr><th>KPI</th><th>เป้าหมายเบื้องต้น</th><th>วิธีวัด</th></tr>
+      <tr><td>Event Detection Precision</td><td><b>≥ 90%</b></td><td>Event ถูกต้อง ÷ Event ที่ระบบแจ้งทั้งหมด</td></tr>
+      <tr><td>Event Recall</td><td><b>≥ 90%</b></td><td>Event จริงที่ตรวจพบ ÷ Event จริงทั้งหมดในชุดทดสอบ</td></tr>
+      <tr><td>เวลาตรวจพบ → สร้าง Case</td><td><b>P95 ≤ 2 นาที</b></td><td>Timestamp จากรับ Event ถึงสร้าง Case</td></tr>
+      <tr><td>เวลาสอบทานต่อ Case</td><td><b>ลด ≥ 30%</b></td><td>เทียบก่อน-หลังใช้ระบบ</td></tr>
+      <tr><td>Case มีหลักฐานครบ</td><td><b>≥ 95%</b></td><td>ครบตาม Checklist ข้อมูล+หลักฐาน</td></tr>
+      <tr><td>ปิด Finding ตามกำหนด</td><td><b>≥ 90%</b></td><td>Finding ปิดในกำหนด ÷ ถึงกำหนด</td></tr>
+      <tr><td>ความเสียหายป้องกันได้</td><td><b>มูลค่าเงินจริง</b></td><td>ต้องมีหลักฐาน+วิธีประเมินตรวจสอบย้อนกลับได้</td></tr>
+    </table>
+    <div class="warnbox"><b>เทคนิควัดแยกชั้น:</b> สำหรับตรวจจับรถออกประตู ควรแยก Precision ของ "การอ่านป้ายทะเบียน" ออกจาก Precision ของ "กฎรถออกไม่มีอนุมัติ" — เป็นคนละขั้นตอน มีสาเหตุความผิดพลาดต่างกัน</div>
+  </div>
+
+  <div class="card">
+    <h2>วิธีคำนวณ ROI เสนอ OAC/BMC</h2>
+    <p class="note">ไม่ประเมินจากจำนวน Alert ที่ AI สร้างได้ alone — ต้องวัดว่าลดต้นทุน/ความสูญเสียได้จริงเพียงใด</p>
+    <pre>Net Benefit = Verified Savings + Verified Loss Avoidance − Total Cost
+ROI (%)     = Net Benefit / Total Cost × 100</pre>
+    <table>
+      <tr><th>รายการ (สถานการณ์สมมติ PoC 90 วัน)</th><th>มูลค่าตัวอย่าง</th></tr>
+      <tr><td>เวลาตรวจสอบที่ลดลง</td><td>45,000 บาท</td></tr>
+      <tr><td>ความสูญเสียป้องกันได้ (มีหลักฐานยืนยัน)</td><td>30,000 บาท</td></tr>
+      <tr><td>ต้นทุนระบบและการดำเนินงาน</td><td>50,000 บาท</td></tr>
+      <tr><td><b>ผลประโยชน์สุทธิ</b></td><td><b>25,000 บาท</b></td></tr>
+      <tr><td><b>ROI ช่วงทดลอง</b></td><td><b>50%</b></td></tr>
+    </table>
+    <div class="dangerbox"><b>คำเตือนการอ่านตัวเลข:</b> เป็นสถานการณ์จำลอง ไม่ใช่ประมาณการของกลุ่มบริษัท · ไม่ควรนำ ROI 90 วันคูณเป็นรายปีตรง ๆ ถ้าข้อมูลความถี่เหตุการณ์/ต้นทุนระยะยาวยังไม่พอ</div>
+    <h3>ค่าใช้จ่ายที่ต้องรวมใน Total Cost</h3>
+    <p class="small">กล้อง/อุปกรณ์เพิ่ม · ค่า AI Vision · เซิร์ฟเวอร์/Cloud · ค่าเชื่อมต่อ VMS/API · ค่า OpenClaw และการดูแลระบบ · ค่าเก็บหลักฐาน · <b>เวลาของทีมที่ตรวจสอบเคส</b></p>
+  </div>
+
+  <div class="card">
+    <h2>การกำกับดูแล: ใครทำอะไร</h2>
+    <table>
+      <tr><th>ผู้รับผิดชอบ</th><th>บทบาทในระบบ</th></tr>
+      <tr><td><b>OAC</b></td><td>อนุมัติกรอบความเสี่ยง+งบประมาณ · รับรายงานระดับกลุ่ม · ตัดสินเรื่องสำคัญ</td></tr>
+      <tr><td><b>BMC แต่ละบริษัท</b></td><td>เจ้าของความเสี่ยงของบริษัท · อนุมัติการแก้ไข · จัดสรรทรัพยากร</td></tr>
+      <tr><td><b>GAT</b></td><td>กำหนดเกณฑ์ Assurance · ตรวจคุณภาพหลักฐาน · ทบทวน Finding · รายงานความเสี่ยง</td></tr>
+      <tr><td><b>ทีม IT / AI / Security</b></td><td>ระบบเชื่อมต่อ · สิทธิ์ · ความปลอดภัย · ความพร้อมใช้งาน</td></tr>
+      <tr><td><b>ทีมปฏิบัติงาน</b></td><td>ยืนยันข้อเท็จจริง · ดำเนินการแก้ไข · ส่งหลักฐานปิด Finding</td></tr>
+      <tr><td><b>Compliance / Legal / Data Protection</b></td><td>ตรวจข้อกฎหมาย · ความเหมาะสมการประมวลผลข้อมูล · การส่งข้อมูลข้ามประเทศ</td></tr>
+    </table>
+    <div class="rulebox"><b>การแบ่งแยกหน้าที่ (SoD):</b> ทีมเจ้าของกระบวนการเป็นผู้แก้ไขความผิดปกติ · GAT ทำหน้าที่ตรวจสอบอย่างเป็นอิสระและให้ Assurance — ไม่วางงานแก้ไขและงานตรวจไว้ tayนทีมเดียวกัน</div>
+  </div>
+
+  <div class="card" style="background:linear-gradient(135deg,#0f2a43,#1d4f7c);color:#fff">
+    <h2 style="color:#fff">🎯 เป้าหมายสุดท้าย</h2>
+    <p style="font-size:.95rem;opacity:.92">เป้าหมายไม่ใช่การมีกล้อง AI 500 ตัวที่แจ้งเตือนจำนวนมาก แต่คือการมีระบบที่ทำให้ <b>GAT เห็นความเสี่ยงเร็วขึ้น · ตรวจสอบหลักฐานครบขึ้น · ลดเวลาตรวจสอบ · และยืนยันได้ว่าความเสี่ยงได้รับการแก้ไขจริง</b></p>
+  </div>
+</section>
+
+<footer>
+  GAT Internal Audit &amp; Monitoring · OpenClaw + CCTV AI Vision · v1.0 (22 ต.ค. 2569) — จัดทำโดย KiloClaw สำหรับกลุ่มบริษัท PKG<br>
+  เอกสารออกแบบเชิงแนวคิด: ตัวเลข/เหตุการณ์/ข้อมูลทั้งหมดเป็นตัวอย่างสมมติ ไม่ใช่ผลการดำเนินงานจริง · ต้องตรวจข้อกฎหมายล่าสุดก่อนใช้งานจริงในแต่ละประเทศ
+</footer>
+
+</div>
+<script>
+document.querySelectorAll('nav.tabs button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('section.page').forEach(x=>x.classList.remove('show'));
+    b.classList.add('active');
+    document.getElementById('p-'+b.dataset.p).classList.add('show');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+document.querySelectorAll('.biztabs .biztab').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.biztabs .biztab').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.biz').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.getElementById(b.dataset.b).classList.add('on');
+  });
+});
+</script>
+</body>
+</html>
