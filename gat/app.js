@@ -50,7 +50,16 @@ var GAT = (function () {
       .then(function (j) {
         state.seed = j;
         state.registers = seedToRegisters(j);
-        renderAll();
+        // โหลดข้อเสนอแนะชุดแรก (F-01–F-15) ถ้ายังไม่มีข้อมูลจาก BCT
+        return fetch(window.GAT_CONFIG.SOURCES.REC_SEED + '?v=' + Date.now())
+          .then(function (r2) { return r2.ok ? r2.json() : null; })
+          .then(function (jr) {
+            if (jr && jr.recs && !state.recs.length) {
+              state.recs = jr.recs;
+              state.issues = state.recs;
+            }
+            renderAll();
+          });
       });
   }
   /* แปลง seed xlsx → register rows (PM/WI/SD/FM ตามกลุ่มธุรกิจ) */

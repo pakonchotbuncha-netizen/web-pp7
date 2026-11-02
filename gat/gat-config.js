@@ -5,6 +5,7 @@ window.GAT_CONFIG = {
   BCT_API: (localStorage.getItem('gat_bct_api') || ''),
   SOURCES: {
     SEED: 'gat/gat-seed.json',            // ข้อมูลตั้งต้นจาก PKG_Compliance_plan_2026-30.xlsx
+    REC_SEED: 'gat/gat-rec-migration.json', // ข้อเสนอแนะชุดแรก F-01–F-15 (สวัสดิการ 29 ต.ค. 69)
     BCT: 'BCT (Google Sheet บอร์ด BU)'    // live ผ่าน BCT_API
   },
   PROCESS_TYPES: {
