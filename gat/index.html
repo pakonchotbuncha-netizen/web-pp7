@@ -64,7 +64,7 @@ ol.manual li{margin-bottom:8px}
   <a data-tab="dashboard" class="on">📊 Dashboard</a>
   <a data-tab="registers">🗂 Registers</a>
   <a data-tab="bct">📥 BCT Import/Export</a>
-  <a data-tab="issues">🧾 ใบประเด็น</a>
+  <a data-tab="recs">🧾 ข้อเสนอแนะ (รันเลข)</a>
   <a data-tab="universe">🗺 Regulatory Universe</a>
   <a data-tab="report">📤 รายงาน</a>
 </nav>
@@ -138,26 +138,61 @@ ol.manual li{margin-bottom:8px}
     </div>
   </section>
 
-  <!-- ============ ISSUES ============ -->
-  <section class="tabpane" id="pane-issues">
+  <!-- ============ RECS (ข้อเสนอแนะรันเลข) ============ -->
+  <section class="tabpane" id="pane-recs">
     <div class="card">
-      <h3>ใบประเด็น (GAT Issue Cards) — ตาม SOP 5 ขั้น</h3>
-      <p style="font-size:13px;color:#475569">①BU ส่งข้อมูล → ②GAT/OpenClaw ตรวจ ออกใบประเด็น (อ้าง <b>ชีท+แถว</b> ห้ามเดา) → ③พี่หนึ่งสื่อสารกับ BU → ④BU ตัดสินใจ ☐ยืนยันแก้ ☐แก้แล้ว ☐ไม่แก้(เหตุผล) → ⑤ขัดกฎหมาย/จำเป็นจริง = GAT ยืนยันกลับอย่างเป็นทางการ</p>
-      <table class="tbl">
-        <thead><tr><th>ID</th><th>ระดับ</th><th>เรื่อง</th><th>อ้างชีท+แถว</th><th>สถานะ</th><th>BU ตอบเมื่อ</th></tr></thead>
-        <tbody id="issBody"></tbody>
-      </table>
-    </div>
-    <div class="card">
-      <h3>สร้างโครงใบประเด็นจากรายการใน Registers</h3>
-      <p style="font-size:13px;color:#475569">เลือกหมายเลขแถวของ Register (ดูในแท็บ Registers) แล้วดาวน์โหลดโครง .txt เพื่อวางลงชีท GAT_Issues บน BCT</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <input id="issueRegIdx" type="number" min="1" placeholder="ลำดับในตาราง Registers" style="width:220px;padding:9px;border:1px solid var(--line);border-radius:8px">
-        <select id="issueSev" style="padding:9px;border:1px solid var(--line);border-radius:8px">
+      <h3>① GAT ออกข้อเสนอแนะใหม่ (ระบบรันเลข GAT-REC-0001, 0002, …)</h3>
+      <p style="font-size:13px;color:#475569">วงจร: GAT ตรวจ → ออกข้อเสนอแนะ (รันเลข ส่งเข้า BCT อัตโนมัติ) → BU พิจารณา: <b>แก้ไข</b> (แนบหลักฐานการแก้ไข) หรือ <b>ไม่แก้ไข</b> (เหตุผล + ชื่อผู้รับผิดชอบ) → GAT ตรวจคำตอบแล้วปิด — ป้าย 🔴 ถ้า BU ไม่แก้ GAT ต้องยืนยันกลับอย่างเป็นทางการ (SOP ขั้น ⑤)</p>
+      <div class="filters">
+        <select id="recRegPick" style="flex:1;min-width:280px"><option value="">— เลือกรายการจาก Registers (ต้นเรื่อง) —</option></select>
+        <select id="recSev" style="padding:9px;border:1px solid var(--line);border-radius:8px">
           <option>🔴 ขัดกฎหมาย/จำเป็นจริง</option>
           <option selected>🟢 ข้อเสนอ</option>
         </select>
-        <button class="alt" onclick="GAT.draftIssuePublic()">🧾 สร้างโครงใบประเด็น (.txt)</button>
+      </div>
+      <div class="filters">
+        <input id="recTitle" placeholder="หัวข้อข้อเสนอแนะ (สั้น ชัด อ้างชีท+แถวได้ในรายละเอียด)" style="flex:1;min-width:280px">
+      </div>
+      <div class="filters">
+        <textarea id="recDetail" rows="4" placeholder="รายละเอียดสิ่งที่ตรวจพบ + ข้อเสนอแนะ (อ้างชีท+แถว ต้นฉบับ — ห้ามเดา ตามกฎเหล็ก)" style="flex:1;min-width:280px;font-family:inherit"></textarea>
+      </div>
+      <div class="filters">
+        <input id="recBy" placeholder="ชื่อผู้ออกข้อเสนอแนะ (GAT)" value="GAT" style="width:240px">
+        <button id="btnOpenRec">🧾 รันเลข + ส่งเข้า BCT</button>
+        <button class="button-lite" id="btnDraftRec">⬇ ดาวน์โหลดโครง .txt (สำรอง)</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>② BU พิจารณา (แก้ไข/ไม่แก้ไข)</h3>
+      <p style="font-size:13px;color:#475569">BU กรอกบนชีท BCT โดยตรงได้ (คอลัมน์ BU_DECISION / EVIDENCE_URL / NO_FIX_REASON / RESPONSIBLE) หรือกรอกผ่านฟอร์มนี้ — ระบบส่งค่าทันที</p>
+      <div class="filters">
+        <select id="respRecPick" style="flex:1;min-width:240px"><option value="">— เลือกเลขข้อเสนอแนะ —</option></select>
+      </div>
+      <div class="filters">
+        <select id="respDecision" style="padding:9px;border:1px solid var(--line);border-radius:8px">
+          <option value="แก้ไข">✅ แก้ไข — ต้องแนบหลักฐานการแก้ไข</option>
+          <option value="ไม่แก้ไข">⛔ ไม่แก้ไข — ต้องใส่เหตุผล + ผู้รับผิดชอบ</option>
+        </select>
+      </div>
+      <div class="filters">
+        <input id="respEvidence" placeholder="ลิงก์หลักฐานการแก้ไข (Drive/เอกสาร/ภาพ)" style="flex:1;min-width:280px">
+      </div>
+      <div class="filters">
+        <input id="respReason" placeholder="เหตุผลการไม่แก้ไข (บังคับเมื่อเลือกไม่แก้ไข)" style="flex:1;min-width:280px">
+        <input id="respResponsible" placeholder="ชื่อผู้รับผิดชอบ (บังคับเมื่อเลือกไม่แก้ไข)" style="width:260px">
+      </div>
+      <div class="filters">
+        <input id="respBy" placeholder="ชื่อผู้ตอบ (BU)" style="width:240px">
+        <button id="btnRespond">📤 ส่งคำตอบเข้า BCT</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>③ ทะเบียนข้อเสนอแนะ (รันเลขตามชีท BCT) <span id="recCount" style="font-size:12px;color:#64748b"></span></h3>
+      <div style="overflow:auto">
+      <table class="tbl">
+        <thead><tr><th>เลขที่</th><th>ระดับ</th><th>หัวข้อ</th><th>อ้างชีท+แถว</th><th>สถานะ</th><th>การตัดสิน BU</th><th>หลักฐาน/เหตุผล · ผู้รับผิดชอบ</th></tr></thead>
+        <tbody id="recBody"></tbody>
+      </table>
       </div>
     </div>
   </section>
@@ -179,13 +214,6 @@ ol.manual li{margin-bottom:8px}
 <script>
 document.getElementById('ver').textContent = window.GAT_CONFIG.VERSION;
 function GAT_STATUS_MSG(m){document.getElementById('statusBar').innerHTML='<span class="ok">'+m+'</span>';}
-window.GAT.draftIssuePublic = function(){
-  var i = parseInt(document.getElementById('issueRegIdx').value,10)-1;
-  var sev = document.getElementById('issueSev').value;
-  if(isNaN(i)||i<0){GAT_STATUS_MSG('⚠️ กรอกลำดับรายการใน Registers ก่อน (ดูแถวในแท็บ Registers)');return;}
-  // GAT.draftIssue is internal; expose via closure state
-  GAT._draft(i,sev);
-};
 </script>
 </body>
 </html>

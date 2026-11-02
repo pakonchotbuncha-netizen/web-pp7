@@ -15,6 +15,7 @@ var GAT = (function () {
     registers: [],        // รวม seed+ BCT
     entries: [],
     issues: [],
+    recs: [],
     registersBCT: [],
     lastImport: null,
     filter: { bu: '', type: '', q: '' }
@@ -221,11 +222,12 @@ var GAT = (function () {
   }
   function importBCT() {
     status('กำลังดึงข้อมูลจาก BCT…');
-    Promise.all([gasGet('list_registers'), gasGet('list_entries'), gasGet('list_issues')])
+    Promise.all([gasGet('list_registers'), gasGet('list_entries'), gasGet('list_recs').catch(function(){return gasGet('list_issues');})])
       .then(function (res) {
         state.registersBCT = (res[0].ok ? res[0].data : []);
         state.entries = (res[1].ok ? res[1].data : []);
-        state.issues = (res[2].ok ? res[2].data : []);
+        state.recs = (res[2].ok ? res[2].data : []);
+        state.issues = state.recs;
         state.registers = seedToRegisters(state.seed)
           .filter(function (r) {
             // ถ้ามี register จาก BCT ทับ seed รหัสเดียวกัน ให้ใช้ BCT
@@ -234,7 +236,7 @@ var GAT = (function () {
             b.SOURCE = 'BCT'; return b;
           }));
         state.lastImport = new Date();
-        status('✅ นำเข้าจาก BCT แล้ว — Registers ' + state.registersBCT.length + ' / Entries ' + state.entries.length + ' / Issues ' + state.issues.length);
+        status('✅ นำเข้าจาก BCT แล้ว — Registers ' + state.registersBCT.length + ' / Entries ' + state.entries.length + ' / ข้อเสนอแนะ ' + state.recs.length);
         renderAll();
       })
       .catch(function (e) { status('❌ ผิดพลาด: ' + e); });
@@ -263,7 +265,7 @@ var GAT = (function () {
   /* ---------- renders ---------- */
   function status(msg) { id('statusBar').innerHTML = '<span class="ok">' + esc(msg) + '</span>'; }
   function renderAll() {
-    renderDash(); renderRegisters(); renderUniverse(); renderIssues();
+    renderDash(); renderRegisters(); renderUniverse(); renderRecs();
   }
 
   function filtered() {
@@ -298,7 +300,8 @@ var GAT = (function () {
       kpi('🟡 รอข้อมูลจริง', fmt(byStat['🟡']), 'ต้องติดตาม BU') +
       kpi('🔴 ช่องว่าง', fmt(byStat['🔴']), 'ยังไม่มีระบบ/ข้อมูล') +
       kpi('รายการบันทึก (BCT Entries)', fmt(state.entries.length), 'live จากชีท') +
-      kpi('ใบประเด็นเปิดอยู่', fmt(state.issues.filter(function (x) { return String(x.STATUS).indexOf('open') === 0; }).length), 'จากชีท Issues');
+      kpi('ข้อเสนอแนะเปิดอยู่', fmt(state.recs.filter(function (x) { return String(x.STATUS).indexOf('ปิด') < 0; }).length), 'รันเลข GAT-REC-xxxx') +
+      kpi('BU ไม่แก้ไข (รอ GAT ยืนยัน)', fmt(state.recs.filter(function (x) { return String(x.STATUS || '').indexOf('ไม่แก้') >= 0 && String(x.STATUS).indexOf('ปิด') < 0; }).length), 'ต้องยืนยันกลับตาม SOP ⑤');
     id('dashBody').innerHTML =
       '<div class="cols2">' +
       '<div class="card"><h3>ตามประเภทกระบวนการ</h3>' + barChart(byType, window.GAT_CONFIG.PROCESS_TYPES) + '</div>' +
@@ -358,22 +361,15 @@ var GAT = (function () {
     }).join('');
   }
 
-  function renderIssues() {
-    if (!state.issues.length) {
-      id('issBody').innerHTML = '<tr><td colspan="6" class="empty">ยังไม่มีใบประเด็นจาก BCT — กระบวนการจริง: BU บันทึก→GAT ตรวบ→ประเด็นลงชีท GAT_Issues แล้วกด Import</td></tr>';
-      return;
-    }
-    id('issBody').innerHTML = state.issues.map(function (x) {
-      var sev = String(x.SEVERITY || '').indexOf('🔴') >= 0 ? 'sev-red' : 'sev-grn';
-      return '<tr><td class="mono">' + esc(x.ISSUE_ID) + '</td><td><span class="' + sev + '">' + esc(x.SEVERITY || '') + '</span></td><td>' + esc(x.TITLE || '') + '</td><td class="mono">' + esc(x.SHEET_REF || '') + '</td><td>' + esc(x.STATUS || '') + '</td><td>' + esc(x.BU_RESPONDED_AT || '') + '</td></tr>';
-    }).join('');
-  }
-
   /* ---------- report ---------- */
   function buildReport() {
     var regs = filtered();
     var byStat = { '🟢': 0, '🟡': 0, '🔴': 0 };
     regs.forEach(function (r) { var s = String(r.STATUS || '🟡 รอข้อมูลจริง').slice(0, 2); if (byStat[s] !== undefined) byStat[s]++; });
+    var recs = state.recs;
+    var recOpen = recs.filter(function (x) { return String(x.STATUS).indexOf('ปิด') < 0; });
+    var recFixed = recs.filter(function (x) { return String(x.BU_DECISION || '').indexOf('แก้') >= 0 && String(x.BU_DECISION).indexOf('ไม่') < 0; });
+    var recNo = recs.filter(function (x) { return String(x.BU_DECISION || '').indexOf('ไม่แก้') >= 0; });
     var lines = [
       'รายงาน GAT Work System — สรุปผู้บริหาร',
       'วันที่รายงาน: ' + new Date().toLocaleString('th-TH'),
@@ -385,9 +381,113 @@ var GAT = (function () {
       '2) สถานะ: 🟢 ' + byStat['🟢'] + ' · 🟡 ' + byStat['🟡'] + ' · 🔴 ' + byStat['🔴'],
       '3) โครง 9 ขั้น: No Review → No Sign → No Submission',
       '4) ช่องว่างสำคัญที่ seed เผย: บางนิติบุคคลยังไม่มีสถานะระบบ TG (WHT/ภ.พ.30/บอจ.5) — ต้องติดตามกับทีมบัญชี',
-      '5) ใบประเด็นเปิดอยู่: ' + state.issues.filter(function (x) { return String(x.STATUS).indexOf('open') === 0; }).length + ' (จากชีท GAT_Issues)'
+      '5) ข้อเสนอแนะ: รวม ' + recs.length + ' · เปิดอยู่ ' + recOpen.length + ' · BU แก้แล้ว ' + recFixed.length + ' · BU ไม่แก้ ' + recNo.length +
+        (recNo.length ? ' ⚠️ รายการที่ BU ไม่แก้: ' + recNo.map(function (x) { return x.REC_ID || x.ISSUE_ID; }).join(', ') : '')
     ].join('\n');
     id('reportOut').textContent = lines;
+  }
+
+  /* ---------- หน้า RECS: dropdown + ตารางข้อเสนอแนะ ---------- */
+  function renderRecs() {
+    // dropdown เลือกต้นเรื่องจาก registers (เติมเมื่อยังไม่มีตัวเลือกรายการจริง)
+    var pick = id('recRegPick');
+    if (pick && pick.options.length < 2) {
+      pick.innerHTML = '<option value="">— เลือกรายการจาก Registers (ต้นเรื่อง) —</option>';
+      state.registers.forEach(function (r, i) {
+        var o = document.createElement('option');
+        o.value = String(i);
+        o.textContent = r.REG_ID + ' · ' + (r.TITLE || '').slice(0, 60);
+        pick.appendChild(o);
+      });
+    }
+    // dropdown เลือกเลขที่ตอบ
+    var rp = id('respRecPick');
+    var cur = rp.value;
+    rp.innerHTML = '<option value="">— เลือกเลขข้อเสนอแนะ —</option>' + state.recs.map(function (x) {
+      return '<option value="' + esc(x.REC_ID) + '">' + esc(x.REC_ID) + (x.REC_NO ? ' (#' + esc(x.REC_NO) + ')' : '') + ' · ' + esc(String(x.TITLE || '').slice(0, 40)) + '</option>';
+    }).join('');
+    rp.value = cur;
+    var list = state.recs;
+    id('recCount').textContent = list.length ? ('รวม ' + list.length + ' รายการ') : '';
+    id('recBody').innerHTML = list.map(function (x) {
+      var sev = String(x.SEVERITY || '').indexOf('🔴') >= 0 ? 'sev-red' : 'sev-grn';
+      var tail = [];
+      if (x.EVIDENCE_URL) tail.push('📎 <a href="' + esc(x.EVIDENCE_URL) + '" target="_blank" rel="noopener">หลักฐาน</a>');
+      if (x.NO_FIX_REASON) tail.push('เหตุผล: ' + esc(x.NO_FIX_REASON));
+      if (x.RESPONSIBLE) tail.push('ผู้รับผิดชอบ: <b>' + esc(x.RESPONSIBLE) + '</b>');
+      return '<tr><td class="mono"><b>' + esc(x.REC_ID || x.ISSUE_ID || '') + '</b>' + (x.REC_NO ? '<br>#' + esc(x.REC_NO) : '') + '</td>' +
+        '<td><span class="' + sev + '">' + esc(x.SEVERITY || '') + '</span></td>' +
+        '<td>' + esc(x.TITLE || '') + (x.DETAIL ? '<div class="detl">' + esc(String(x.DETAIL).slice(0, 140)) + '</div>' : '') + '</td>' +
+        '<td class="mono">' + esc(x.SHEET_REF || '') + '</td>' +
+        '<td>' + esc(x.STATUS || '') + '</td>' +
+        '<td>' + esc(x.BU_DECISION || '') + '</td>' +
+        '<td>' + (tail.join('<br>') || '—') + '</td></tr>';
+    }).join('') || '<tr><td colspan="7" class="empty">ยังไม่มีข้อเสนอแนะ — ออกข้อเสนอแนะแรกได้จากฟอร์มด้านบน (ต้องตั้ง BCT API ก่อน เพื่อให้รันเลขบนชีท)</td></tr>';
+  }
+
+  function openRec() {
+    var i = parseInt(id('recRegPick').value, 10);
+    var r = (!isNaN(i) && state.registers[i]) ? state.registers[i] : null;
+    var title = id('recTitle').value.trim();
+    var detail = id('recDetail').value.trim();
+    if (!title) { status('⚠️ กรอกหัวข้อข้อเสนอแนะก่อน'); return; }
+    var payload = {
+      REG_ID: r ? r.REG_ID : '',
+      PROCESS_TYPE: r ? r.PROCESS_TYPE : '',
+      PROCESS_CODE: r ? r.PROCESS_CODE : '',
+      SEVERITY: id('recSev').value,
+      TITLE: title,
+      DETAIL: detail,
+      SHEET_REF: r ? (r.SOURCE || '') : '',
+      BY: id('recBy').value.trim() || 'GAT'
+    };
+    postToBCT('open_issue', payload, function (res) {
+      if (res.ok) {
+        status('✅ รันเลขแล้ว: ' + res.REC_ID + ' (#' + res.REC_NO + ') — ส่งเข้าชีท ' + (window.GAT_CONFIG.SHEETS ? window.GAT_CONFIG.SHEETS.RECS : 'GAT_Issues') + ' บน BCT เรียบร้อย');
+        id('recTitle').value = ''; id('recDetail').value = '';
+        importBCT(true);
+      } else { status('❌ ' + (res.error || 'ส่งไม่สำเร็จ')); }
+    });
+  }
+
+  function respondIssue(data) { /* เก็บชื่อเดิมเผื่อเรียกจากที่อื่น */ return respondRec(data); }
+
+  function respondRec() {
+    var recId = id('respRecPick').value;
+    if (!recId) { status('⚠️ เลือกเลขข้อเสนอแนะก่อน'); return; }
+    var decision = id('respDecision').value;
+    var payload = {
+      REC_ID: recId,
+      BU_DECISION: decision,
+      EVIDENCE_URL: id('respEvidence').value.trim(),
+      NO_FIX_REASON: id('respReason').value.trim(),
+      RESPONSIBLE: id('respResponsible').value.trim(),
+      BY: id('respBy').value.trim() || 'BU'
+    };
+    if (decision === 'ไม่แก้ไข' && (!payload.NO_FIX_REASON || !payload.RESPONSIBLE)) {
+      status('⚠️ ไม่แก้ไขต้องใส่เหตุผล + ชื่อผู้รับผิดชอบ ตามคำสั่งพี่หนึ่ง'); return;
+    }
+    if (decision === 'แก้ไข' && !payload.EVIDENCE_URL) {
+      var ok = confirm('ยังไม่ได้ใส่ลิงก์หลักฐานการแก้ไข — จะส่งโดยไม่มีหลักฐานหรือไม่?');
+      if (!ok) return;
+    }
+    postToBCT('respond_issue', payload, function (res) {
+      if (res.ok) { status('✅ บันทึกคำตอบของ BU แล้ว (' + recId + ' → ' + decision + ')'); importBCT(true); }
+      else status('❌ ' + (res.error || 'ส่งไม่สำเร็จ'));
+    });
+  }
+
+  /* GAS รับได้ทั้ง text/plain (เลี่ยง preflight) — ส่งตรงถึง doPost */
+  function postToBCT(action, payload, cb) {
+    var base = apiURL();
+    if (!base) { alert('ตั้งค่า BCT API URL ก่อน (แท็บ BCT Import/Export)'); return; }
+    status('กำลังส่งเข้า BCT…');
+    fetch(base, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: action, data: payload })
+    }).then(function (r) { return r.json(); }).then(cb)
+      .catch(function (e) { status('❌ ผิดพลาด: ' + e); });
   }
 
   /* ---------- events / boot ---------- */
@@ -401,6 +501,28 @@ var GAT = (function () {
       if (e.target.classList.contains('lnk')) {
         state.filter.bu = e.target.getAttribute('data-bu'); renderAll(); showTab('registers');
       }
+    });
+    id('btnOpenRec').addEventListener('click', openRec);
+    id('btnDraftRec').addEventListener('click', function () {
+      var i = parseInt(id('recRegPick').value, 10);
+      var r = (!isNaN(i) && state.registers[i]) ? state.registers[i] : null;
+      var title = id('recTitle').value.trim() || (r ? r.TITLE : '');
+      var text = [
+        'ข้อเสนอแนะ GAT (โครงสำรอง — ส่งทางเว็บจะรันเลขให้เอง)',
+        'ป้ายระดับ: ' + id('recSev').value,
+        'หัวข้อ: ' + title,
+        'รายละเอียด: ' + id('recDetail').value.trim(),
+        'อ้างต้นเรื่อง: ' + (r ? r.REG_ID + ' (' + (r.SOURCE || '-') + ')' : '-'),
+        'ผู้ออก: ' + (id('recBy').value || 'GAT')
+      ].join('\n');
+      download('gat-rec-draft.txt', text, 'text/plain;charset=utf-8');
+    });
+    id('btnRespond').addEventListener('click', respondRec);
+    id('respDecision').addEventListener('change', function () {
+      var noFix = this.value === 'ไม่แก้ไข';
+      id('respReason').disabled = !noFix; id('respResponsible').disabled = !noFix;
+      id('respEvidence').disabled = noFix;
+      id('respReason').placeholder = noFix ? 'เหตุผลการไม่แก้ไข (บังคับ)' : '— (เฉพาะกรณีไม่แก้ไข) —';
     });
     showTab('dashboard');
     loadSeed();
